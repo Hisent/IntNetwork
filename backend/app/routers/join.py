@@ -10,6 +10,7 @@ from app.models.quiz_result import QuizResult
 from app.services.deps import get_participant
 from app.services.security import create_token
 from app.content.registry import module_meta
+from app.content.company import COMPANY
 
 router = APIRouter(tags=["join"])
 
@@ -51,3 +52,8 @@ def me(db: Session = Depends(get_db), p: Participant = Depends(get_participant))
         progress.append({"module_key": m["key"], "done": bool(prog and prog.done),
                          "best": round(best_pct * 100) if best_pct is not None else None})
     return {"name": p.name, "course_id": p.course_id, "progress": progress}
+
+
+@router.get("/company")
+def company(p: Participant = Depends(get_participant)):
+    return COMPANY

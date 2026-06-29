@@ -6,7 +6,8 @@ MODULES = {VLAN_MODULE["key"]: VLAN_MODULE}
 
 
 def module_meta() -> list[dict]:
-    metas = [{"key": m["key"], "title": m["title"], "order": m["order"]} for m in MODULES.values()]
+    metas = [{"key": m["key"], "title": m["title"], "order": m["order"],
+              "prerequisites": m.get("prerequisites", [])} for m in MODULES.values()]
     return sorted(metas, key=lambda m: m["order"])
 
 

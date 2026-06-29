@@ -1,8 +1,13 @@
 VLAN_MODULE = {
     "key": "vlan",
     "title": "VLANs",
-    "order": 1,
+    "order": 3,
     "pass_threshold": 0.7,
+    "prerequisites": ["paket"],
+    "scenario": "Im Lager hängen Kameras, Gäste-WLAN, Büro-PCs und Drucker am "
+                "selben Switch und sehen sich gegenseitig. Das ist ein Sicherheits- "
+                "und Broadcast-Problem. Trennen wir sie mit VLANs — der **802.1Q-Tag** "
+                "aus dem Modul Paketaufbau macht das möglich.",
     "blocks": [
         {"type": "text", "value": "## Was ist ein VLAN?\n\nEin VLAN (Virtual LAN) "
             "teilt einen physischen Switch in mehrere getrennte Broadcast-Domänen. "
