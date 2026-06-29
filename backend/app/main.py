@@ -30,8 +30,10 @@ def health():
 from app.routers import auth as auth_router  # noqa: E402
 from app.routers import courses as courses_router  # noqa: E402
 from app.routers import join as join_router  # noqa: E402
+from app.routers import modules as modules_router  # noqa: E402
 _api.include_router(auth_router.router)
 _api.include_router(courses_router.router)
 _api.include_router(join_router.router)
+_api.include_router(modules_router.router)
 
 app.include_router(_api)
