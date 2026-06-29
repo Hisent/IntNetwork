@@ -27,4 +27,7 @@ def health():
     return {"status": "ok"}
 
 
+from app.routers import auth as auth_router  # noqa: E402
+_api.include_router(auth_router.router)
+
 app.include_router(_api)
