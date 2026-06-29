@@ -1,8 +1,9 @@
 from copy import deepcopy
 
+from app.content.paket import PAKET_MODULE
 from app.content.vlan import VLAN_MODULE
 
-MODULES = {VLAN_MODULE["key"]: VLAN_MODULE}
+MODULES = {m["key"]: m for m in (PAKET_MODULE, VLAN_MODULE)}
 
 
 def module_meta() -> list[dict]:
