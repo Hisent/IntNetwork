@@ -11,9 +11,12 @@ export type Question =
 export interface ModuleDetail {
   key: string
   title: string
+  scenario?: string
+  prerequisites: string[]
   blocks: Block[]
   quiz: { questions: Question[] }
 }
 
-export interface ModuleMeta { key: string; title: string; order: number }
+export interface ModuleMeta { key: string; title: string; order: number; prerequisites: string[] }
 export interface ProgressItem { module_key: string; done: boolean; best: number | null }
+export interface Company { name: string; blurb: string; sites: string[]; devices: string[] }

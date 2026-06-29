@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
+import Markdown from 'react-markdown'
 import { Link, useParams } from 'react-router-dom'
 import { learnApi } from '@/lib/learnApi'
 import { Blocks } from '@/components/Blocks'
@@ -14,7 +15,12 @@ export function ModulePage() {
     <div className="min-h-screen bg-slate-50 p-6 sm:p-10">
       <div className="max-w-2xl mx-auto">
         <Link to="/lernen" className="text-sm text-slate-400 hover:text-slate-600">← Module</Link>
-        <h1 className="text-2xl font-bold text-slate-900 mt-2 mb-6">{mod.data.title}</h1>
+        <h1 className="text-2xl font-bold text-slate-900 mt-2 mb-4">{mod.data.title}</h1>
+        {mod.data.scenario && (
+          <div className="rounded-xl border-l-4 border-indigo-400 bg-indigo-50 px-4 py-3 mb-6 text-sm text-slate-700">
+            <Markdown>{mod.data.scenario}</Markdown>
+          </div>
+        )}
         <Blocks blocks={mod.data.blocks} />
         <Quiz moduleKey={key} questions={mod.data.quiz.questions} />
       </div>

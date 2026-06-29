@@ -1,8 +1,9 @@
 import { api } from '@/lib/api'
-import type { ModuleDetail, ModuleMeta, ProgressItem } from '@/types'
+import type { Company, ModuleDetail, ModuleMeta, ProgressItem } from '@/types'
 
 export const learnApi = {
   me: () => api.get<{ name: string; course_id: number; progress: ProgressItem[] }>('/me'),
+  company: () => api.get<Company>('/company'),
   listModules: () => api.get<ModuleMeta[]>('/modules'),
   getModule: (key: string) => api.get<ModuleDetail>(`/modules/${key}`),
   submitQuiz: (key: string, answers: Record<string, unknown>) =>
