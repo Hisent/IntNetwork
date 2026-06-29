@@ -1,0 +1,14 @@
+import { api } from '@/lib/api'
+
+export interface Course { id: number; name: string; join_code: string }
+export interface Dashboard {
+  course: Course
+  modules: { key: string; title: string; order: number }[]
+  participants: { name: string; cells: Record<string, { done: boolean; best: number | null }> }[]
+}
+
+export const trainerApi = {
+  listCourses: () => api.get<Course[]>('/courses'),
+  createCourse: (name: string) => api.post<Course>('/courses', { name }),
+  dashboard: (id: number) => api.get<Dashboard>(`/courses/${id}/dashboard`),
+}
