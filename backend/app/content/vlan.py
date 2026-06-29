@@ -6,14 +6,33 @@ VLAN_MODULE = {
     "blocks": [
         {"type": "text", "value": "## Was ist ein VLAN?\n\nEin VLAN (Virtual LAN) "
             "teilt einen physischen Switch in mehrere getrennte Broadcast-Domänen. "
-            "Geräte in verschiedenen VLANs können ohne Router nicht miteinander reden."},
+            "Geräte in verschiedenen VLANs können ohne Router nicht miteinander reden — "
+            "obwohl sie am selben Switch hängen."},
+        {"type": "text", "value": "## Warum VLANs?\n\n- **Trennung**: Buchhaltung (VLAN 10) "
+            "und Gäste-WLAN (VLAN 30) am selben Switch, aber logisch getrennt.\n"
+            "- **Sicherheit**: ein Gerät sieht nur den eigenen VLAN-Verkehr.\n"
+            "- **Weniger Broadcast-Last**: Broadcasts bleiben im VLAN, fluten nicht das ganze Netz.\n"
+            "- **Flexibilität**: VLAN-Zugehörigkeit per Port-Konfiguration, nicht per Verkabelung."},
         {"type": "text", "value": "## Access- vs. Trunk-Port\n\n- **Access-Port**: "
-            "gehört zu genau einem VLAN, sendet/empfängt **ungetaggte** Frames (Endgeräte).\n"
-            "- **Trunk-Port**: trägt mehrere VLANs, markiert Frames mit einem "
-            "**802.1Q-Tag** (VLAN-ID), Verbindung zwischen Switches."},
+            "gehört zu genau einem VLAN, sendet/empfängt **ungetaggte** Frames (Endgeräte "
+            "wie PC, Drucker, Telefon).\n"
+            "- **Trunk-Port**: trägt **mehrere** VLANs gleichzeitig, markiert jeden Frame mit "
+            "einem **802.1Q-Tag** (4 Byte, enthält die VLAN-ID). Typisch zwischen zwei Switches "
+            "oder Switch↔Router."},
+        {"type": "text", "value": "### Im Simulator ausprobieren\n\n1. Klick bei einem "
+            "**Access-Port** auf „Frame senden“ → nur Ports im **gleichen VLAN** leuchten.\n"
+            "2. Der **Trunk-Port** (Port 6) leuchtet immer mit und zeigt das **802.1Q-Tag** "
+            "mit der VLAN-ID des Absenders.\n"
+            "3. Stell zwei Ports auf dasselbe VLAN → sie erreichen sich. Auf verschiedene VLANs "
+            "→ getrennt."},
         {"type": "widget", "id": "vlan-switch"},
         {"type": "text", "value": "## Broadcast-Domänen\n\nJedes VLAN ist eine eigene "
-            "Broadcast-Domäne. Ein Broadcast aus VLAN 10 erreicht nur Ports in VLAN 10."},
+            "Broadcast-Domäne. Ein Broadcast (z.B. ARP) aus VLAN 10 erreicht nur Ports in "
+            "VLAN 10 — Ports in VLAN 20/30 sehen ihn nie."},
+        {"type": "text", "value": "## VLAN-übergreifend reden? → Router\n\nDamit VLAN 10 und "
+            "VLAN 20 kommunizieren, braucht es ein **Layer-3-Gerät** (Router oder Layer-3-Switch). "
+            "Stichwort **Inter-VLAN-Routing** / „Router-on-a-Stick“: ein Trunk zum Router, der "
+            "zwischen den VLANs vermittelt. Ohne Layer 3 bleiben VLANs strikt getrennt."},
     ],
     "quiz": {"questions": [
         {"id": "v1", "type": "single",
