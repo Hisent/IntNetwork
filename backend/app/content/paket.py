@@ -8,10 +8,12 @@ PAKET_MODULE = {
                 "verstehen, wie zwei Geräte im Netz überhaupt miteinander reden — "
                 "nämlich als **Frame** über das Kabel.",
     "blocks": [
-        {"type": "text", "value": "## Schichten (ganz kurz)\n\nDaten reisen in "
-            "Schichten: **Bitübertragung** (Kabel/Funk) → **Sicherung** (Ethernet, "
-            "MAC-Adressen, *Frames*) → **Vermittlung** (IP, Routing) → **Transport** "
-            "(TCP/UDP). Hier schauen wir auf die Sicherungsschicht: den **Ethernet-Frame**."},
+        {"type": "text", "value": "## Das OSI-Schichtenmodell\n\nNetzwerk-Kommunikation "
+            "ist in **7 Schichten** organisiert. Beim Senden wandern die Daten von oben "
+            "nach unten — jede Schicht hängt ihre Information an (*Encapsulation*); beim "
+            "Empfänger wird Schicht für Schicht wieder ausgepackt. Spiel es durch und "
+            "klick auf die Schichten:"},
+        {"type": "widget", "id": "osi-model"},
         {"type": "text", "value": "## Der Ethernet-Frame\n\nEin Frame hat einen festen "
             "Aufbau. Die wichtigsten Felder:\n\n"
             "- **Ziel-MAC** (6 B): an wen geht der Frame.\n"
