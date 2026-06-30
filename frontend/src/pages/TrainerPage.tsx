@@ -26,7 +26,7 @@ function TrainerLogin({ onLogin }: { onLogin: (t: string) => void }) {
         <input className="border rounded-lg px-3 py-2" placeholder="E-Mail" value={email} onChange={(e) => setEmail(e.target.value)} />
         <input className="border rounded-lg px-3 py-2" type="password" placeholder="Passwort" value={pw} onChange={(e) => setPw(e.target.value)} />
         {err && <p className="text-sm text-red-600">{err}</p>}
-        <button className="rounded-lg bg-indigo-600 text-white py-2 font-medium">Anmelden</button>
+        <button className="rounded-lg bg-teal-600 hover:bg-teal-700 text-white py-2 font-medium">Anmelden</button>
       </form>
     </div>
   )
@@ -66,15 +66,15 @@ function TrainerDashboard({ onLogout }: { onLogout: () => void }) {
 
         <div className="flex gap-2 mb-6">
           <input className="border rounded-lg px-3 py-2" placeholder="Neuer Kurs-Name" value={name} onChange={(e) => setName(e.target.value)} />
-          <button onClick={() => name.trim() && create.mutate()} className="rounded-lg bg-indigo-600 text-white px-4 font-medium">Kurs anlegen</button>
+          <button onClick={() => name.trim() && create.mutate()} className="rounded-lg bg-teal-600 hover:bg-teal-700 text-white px-4 font-medium">Kurs anlegen</button>
         </div>
 
         <div className="flex flex-col gap-2 mb-8">
           {courses.data?.map((c) => (
             <button key={c.id} onClick={() => setSelected(c.id)}
-              className={`rounded-xl border bg-white p-4 text-left flex justify-between ${selected === c.id ? 'ring-2 ring-indigo-500' : ''}`}>
+              className={`rounded-xl border bg-white p-4 text-left flex justify-between ${selected === c.id ? 'ring-2 ring-teal-500' : ''}`}>
               <span className="font-medium text-slate-800">{c.name}</span>
-              <span className="font-mono text-indigo-600">{c.join_code}</span>
+              <span className="font-mono text-teal-600">{c.join_code}</span>
             </button>
           ))}
         </div>

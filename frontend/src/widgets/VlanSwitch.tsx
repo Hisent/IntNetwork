@@ -42,7 +42,7 @@ export function VlanSwitch() {
           const lit = reached.has(i)
           return (
             <div key={i}
-              className={`rounded-xl border-2 p-3 text-sm ${VLAN_COLORS[p.vlan] ?? 'bg-slate-100 border-slate-300'} ${active ? 'ring-2 ring-indigo-500' : ''} ${lit ? 'outline outline-2 outline-amber-400' : ''}`}>
+              className={`rounded-xl border-2 p-3 text-sm ${VLAN_COLORS[p.vlan] ?? 'bg-slate-100 border-slate-300'} ${active ? 'ring-2 ring-teal-500' : ''} ${lit ? 'outline outline-2 outline-amber-400' : ''}`}>
               <div className="font-semibold mb-1">Port {i + 1}</div>
               <label className="block text-xs">VLAN
                 <input type="number" value={p.vlan} min={1}
@@ -57,7 +57,7 @@ export function VlanSwitch() {
                 </select>
               </label>
               <button onClick={() => setSource(i)}
-                className="mt-2 text-xs rounded bg-indigo-600 text-white px-2 py-0.5">Frame senden</button>
+                className="mt-2 text-xs rounded bg-teal-600 hover:bg-teal-700 text-white px-2 py-0.5">Frame senden</button>
               {lit && p.mode === 'trunk' && source !== null && (
                 <div className="mt-1 text-[10px] font-mono text-amber-700">802.1Q VLAN {ports[source].vlan}</div>
               )}

@@ -17,7 +17,7 @@ export function ModulePage() {
         <Link to="/lernen" className="text-sm text-slate-400 hover:text-slate-600">← Module</Link>
         <h1 className="text-2xl font-bold text-slate-900 mt-2 mb-4">{mod.data.title}</h1>
         {mod.data.scenario && (
-          <div className="rounded-xl border-l-4 border-indigo-400 bg-indigo-50 px-4 py-3 mb-6 text-sm text-slate-700">
+          <div className="rounded-xl border-l-4 border-teal-400 bg-teal-50 px-4 py-3 mb-6 text-sm text-slate-700">
             <Markdown>{mod.data.scenario}</Markdown>
           </div>
         )}

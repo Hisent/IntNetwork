@@ -45,7 +45,7 @@ export function FrameBuilder() {
       <div className="flex flex-wrap gap-1">
         {fields.map((f) => (
           <button key={f.key} onClick={() => setSel(f.key)}
-            className={`rounded-lg border-2 px-3 py-2 text-xs font-medium ${f.color} ${sel === f.key ? 'ring-2 ring-indigo-500' : ''}`}>
+            className={`rounded-lg border-2 px-3 py-2 text-xs font-medium ${f.color} ${sel === f.key ? 'ring-2 ring-teal-500' : ''}`}>
             <div>{f.name}</div>
             <div className="opacity-70">{f.bytes}</div>
           </button>

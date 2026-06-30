@@ -18,7 +18,7 @@ function Stack({ side, activeLayer, onPick }: {
       {LAYERS.map((l) => (
         <button key={l.nr} onClick={() => onPick(l)}
           className={`rounded-md border px-2 py-1.5 text-left text-xs transition-colors
-            ${activeLayer === l.nr ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-slate-700 hover:bg-slate-50'}`}>
+            ${activeLayer === l.nr ? 'bg-teal-600 hover:bg-teal-700 text-white border-teal-600' : 'bg-white text-slate-700 hover:bg-slate-50'}`}>
           <span className="font-mono">{l.nr}</span> {l.de}
         </button>
       ))}
@@ -62,7 +62,7 @@ export function OsiModel() {
 
       <div className="mt-3 flex items-center gap-2">
         <button onClick={() => setPlaying((p) => !p)} disabled={i >= steps.length - 1 && !playing}
-          className="rounded-lg bg-indigo-600 text-white px-3 py-1.5 text-sm font-medium disabled:opacity-50">
+          className="rounded-lg bg-teal-600 hover:bg-teal-700 text-white px-3 py-1.5 text-sm font-medium disabled:opacity-50">
           {playing ? 'Pause' : 'Abspielen'}
         </button>
         <button onClick={() => { setPlaying(false); setI((x) => Math.min(x + 1, steps.length - 1)) }}
@@ -73,7 +73,7 @@ export function OsiModel() {
       </div>
 
       {pick && (
-        <div className="mt-3 rounded-lg border-l-4 border-indigo-400 bg-indigo-50 px-3 py-2 text-sm text-slate-700">
+        <div className="mt-3 rounded-lg border-l-4 border-teal-400 bg-teal-50 px-3 py-2 text-sm text-slate-700">
           <b>Schicht {pick.nr}: {pick.de}</b> ({pick.en}) — {pick.task}. Beispiel: {pick.example}. PDU: {pick.pdu}.
         </div>
       )}

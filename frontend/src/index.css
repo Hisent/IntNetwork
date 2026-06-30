@@ -1,1 +1,32 @@
 @import "tailwindcss";
+
+@theme {
+  --font-sans: 'Outfit Variable', ui-sans-serif, system-ui, sans-serif;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background-color: #f8fafc;          /* slate-50, eine Grau-Familie */
+  color: #0f172a;                      /* slate-900 */
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* eine konsistente, akzentfarbene Fokus-Markierung */
+*:focus-visible {
+  outline: 2px solid #0d9488;          /* teal-600 */
+  outline-offset: 2px;
+}
+
+/* lebendige Interaktion */
+button, a, input, select, textarea, [role="button"] {
+  transition: background-color .2s ease, color .2s ease, border-color .2s ease,
+              box-shadow .2s ease, transform .12s ease;
+}
+button:not(:disabled):active { transform: translateY(1px); }
+
+/* Zahlen in Tabellen ausrichten */
+table { font-variant-numeric: tabular-nums; }
+
+::selection { background: #99f6e4; color: #134e4a; }

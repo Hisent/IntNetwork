@@ -71,7 +71,7 @@ export function Quiz({ moduleKey, questions }: { moduleKey: string; questions: Q
 
       {!locked ? (
         <button onClick={submit} disabled={busy}
-          className="mt-5 rounded-lg bg-indigo-600 text-white px-4 py-2 font-medium disabled:opacity-60">
+          className="mt-5 rounded-lg bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 font-medium disabled:opacity-60">
           {busy ? 'Werte aus…' : 'Auswerten'}
         </button>
       ) : (

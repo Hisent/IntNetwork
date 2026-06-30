@@ -33,7 +33,7 @@ export function LandingPage() {
           <input className="border rounded-lg px-3 py-2" placeholder="Dein Name"
             value={name} onChange={(e) => setName(e.target.value)} />
           {err && <p className="text-sm text-red-600">{err}</p>}
-          <button className="rounded-lg bg-indigo-600 text-white py-2 font-medium">Beitreten</button>
+          <button className="rounded-lg bg-teal-600 hover:bg-teal-700 text-white py-2 font-medium">Beitreten</button>
         </form>
         <button onClick={() => nav('/trainer')} className="mt-4 text-xs text-slate-400 hover:text-slate-600">
           Trainer-Login
