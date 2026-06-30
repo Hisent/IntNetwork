@@ -45,6 +45,7 @@ function TrainerDashboard({ onLogout }: { onLogout: () => void }) {
     queryKey: ['dashboard', selected], enabled: selected !== null,
     queryFn: () => trainerApi.dashboard(selected as number).then((r) => r.data),
   })
+  const changelog = useQuery({ queryKey: ['changelog'], queryFn: () => trainerApi.changelog().then((r) => r.data) })
 
   return (
     <div className="min-h-screen bg-slate-50 p-6 sm:p-10">
@@ -95,6 +96,23 @@ function TrainerDashboard({ onLogout }: { onLogout: () => void }) {
                 )}
               </tbody>
             </table>
+          </div>
+        )}
+
+        {changelog.data && changelog.data.length > 0 && (
+          <div className="mt-10">
+            <h2 className="text-sm font-semibold text-slate-700 mb-3">Änderungslog</h2>
+            <div className="flex flex-col gap-2">
+              {changelog.data.map((e, i) => (
+                <div key={i} className="rounded-xl border bg-white p-4">
+                  <div className="flex items-baseline justify-between">
+                    <span className="font-medium text-slate-800">{e.title}</span>
+                    <span className="text-xs text-slate-400">{e.date}</span>
+                  </div>
+                  <p className="text-sm text-slate-600 mt-1">{e.text}</p>
+                </div>
+              ))}
+            </div>
           </div>
         )}
       </div>

@@ -30,6 +30,17 @@ def test_course_and_join_flow():
                       headers={"Authorization": f"Bearer {tok}"}).status_code == 403
 
 
+def test_changelog_trainer_only():
+    with TestClient(app) as c:
+        h = _trainer(c)
+        code = c.post("/api/courses", json={"name": "ClKurs"}, headers=h).json()["join_code"]
+        tok = c.post("/api/join", json={"code": code, "name": "Dora"}).json()["access_token"]
+        assert c.get("/api/changelog", headers=h).status_code == 200
+        assert len(c.get("/api/changelog", headers=h).json()) > 0
+        # Teilnehmer darf nicht
+        assert c.get("/api/changelog", headers={"Authorization": f"Bearer {tok}"}).status_code == 403
+
+
 def test_company_endpoint():
     with TestClient(app) as c:
         h = _trainer(c)

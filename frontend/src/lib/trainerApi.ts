@@ -7,8 +7,11 @@ export interface Dashboard {
   participants: { name: string; cells: Record<string, { done: boolean; best: number | null }> }[]
 }
 
+export interface ChangelogEntry { date: string; title: string; text: string }
+
 export const trainerApi = {
   listCourses: () => api.get<Course[]>('/courses'),
   createCourse: (name: string) => api.post<Course>('/courses', { name }),
   dashboard: (id: number) => api.get<Dashboard>(`/courses/${id}/dashboard`),
+  changelog: () => api.get<ChangelogEntry[]>('/changelog'),
 }
