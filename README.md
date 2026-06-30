@@ -23,6 +23,26 @@ MVP: Plattform + VLAN-Modul mit Switch-Simulator und serverseitig bewertetem Qui
 2. Teilnehmer: `/` → Kurs-Code + Name → Modul „VLANs" → Theorie + Switch-Simulator + Quiz.
 3. Trainer-Dashboard zeigt Fortschritt + besten Quiz-Score je Teilnehmer.
 
+## Deployment (Coolify / Docker Compose)
+
+Drei Services: `db` (PostgreSQL), `backend` (FastAPI), `frontend` (nginx serviert
+das SPA und proxyt `/api` ans Backend — alles same-origin).
+
+1. In Coolify ein „Docker Compose"-Projekt auf dieses Repo zeigen lassen.
+2. Umgebungsvariablen setzen (siehe `.env.example`): `POSTGRES_PASSWORD`,
+   `SECRET_KEY` (z.B. `openssl rand -hex 32`), `ADMIN_EMAIL`, `ADMIN_PASSWORD`.
+3. Domain auf den `frontend`-Service (Port 80) legen.
+
+Lokal testen:
+
+    cp .env.example .env   # Werte setzen
+    docker compose up --build
+
+Hinweise: Das Backend startet erst, wenn die DB gesund ist (`depends_on` +
+DB-Wait); `SECRET_KEY` ist Pflicht (kein Start mit Default); das Trainer-Passwort
+kommt ausschließlich aus `ADMIN_PASSWORD`. PostgreSQL-Daten liegen im Volume
+`postgres_data` und überstehen Redeploys.
+
 ## Tests
 
     cd backend && pytest
