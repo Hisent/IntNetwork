@@ -46,6 +46,15 @@ function TrainerDashboard({ onLogout }: { onLogout: () => void }) {
     queryFn: () => trainerApi.dashboard(selected as number).then((r) => r.data),
   })
   const changelog = useQuery({ queryKey: ['changelog'], queryFn: () => trainerApi.changelog().then((r) => r.data) })
+  const courseMods = useQuery({
+    queryKey: ['course-modules', selected], enabled: selected !== null,
+    queryFn: () => trainerApi.courseModules(selected as number).then((r) => r.data),
+  })
+  const toggleMod = useMutation({
+    mutationFn: (v: { module_key: string; active: boolean }) =>
+      trainerApi.setCourseModule(selected as number, v.module_key, v.active),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['course-modules', selected] }),
+  })
 
   return (
     <div className="min-h-screen bg-slate-50 p-6 sm:p-10">
@@ -69,6 +78,21 @@ function TrainerDashboard({ onLogout }: { onLogout: () => void }) {
             </button>
           ))}
         </div>
+
+        {courseMods.data && (
+          <div className="rounded-xl border bg-white p-4 mb-6">
+            <h3 className="text-sm font-semibold text-slate-700 mb-2">Module in diesem Kurs</h3>
+            <div className="flex flex-col gap-1.5">
+              {courseMods.data.map((m) => (
+                <label key={m.key} className="flex items-center gap-2 text-sm text-slate-700">
+                  <input type="checkbox" checked={m.active} disabled={toggleMod.isPending}
+                    onChange={(e) => toggleMod.mutate({ module_key: m.key, active: e.target.checked })} />
+                  {m.title}
+                </label>
+              ))}
+            </div>
+          </div>
+        )}
 
         {dash.data && (
           <div className="overflow-x-auto rounded-xl border bg-white">
