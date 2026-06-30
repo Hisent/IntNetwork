@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
-
-interface Port { vlan: number; mode: 'access' | 'trunk' }
+import { DeviceCli } from '@/widgets/cli/DeviceCli'
+import { runSwitchCommand, type Port } from '@/widgets/cli/switchCli'
 
 const INITIAL: Port[] = [
   { vlan: 10, mode: 'access' },
@@ -71,6 +71,7 @@ export function VlanSwitch() {
           Andere VLANs bleiben getrennt (eigene Broadcast-Domäne).
         </p>
       )}
+      <DeviceCli prompt="Nordwind-SW1#" run={(c) => runSwitchCommand(ports, c)} />
     </div>
   )
 }
