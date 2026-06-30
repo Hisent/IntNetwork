@@ -11,6 +11,7 @@ from app.models import course as _course  # noqa: F401
 from app.models import participant as _participant  # noqa: F401
 from app.models import progress as _progress  # noqa: F401
 from app.models import quiz_result as _quiz_result  # noqa: F401
+from app.models import module_disabled as _module_disabled  # noqa: F401
 
 if not settings.debug and settings.secret_key == DEFAULT_SECRET_KEY:
     raise RuntimeError("SECRET_KEY ist nicht gesetzt (noch der Default).")

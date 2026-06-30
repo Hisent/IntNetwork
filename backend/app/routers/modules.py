@@ -8,6 +8,7 @@ from app.models.progress import Progress
 from app.models.quiz_result import QuizResult
 from app.services.deps import get_participant
 from app.services import grading
+from app.services.activation import disabled_keys
 from app.content.registry import MODULES, module_meta, public_module
 from app.utils import utc_now
 
@@ -15,12 +16,15 @@ router = APIRouter(prefix="/modules", tags=["modules"])
 
 
 @router.get("")
-def list_modules(_: Participant = Depends(get_participant)):
-    return module_meta()
+def list_modules(db: Session = Depends(get_db), p: Participant = Depends(get_participant)):
+    off = disabled_keys(db, p.course_id)
+    return [m for m in module_meta() if m["key"] not in off]
 
 
 @router.get("/{key}")
-def get_module(key: str, _: Participant = Depends(get_participant)):
+def get_module(key: str, db: Session = Depends(get_db), p: Participant = Depends(get_participant)):
+    if key in disabled_keys(db, p.course_id):
+        raise HTTPException(status_code=404, detail="Modul nicht gefunden")
     pub = public_module(key)
     if not pub:
         raise HTTPException(status_code=404, detail="Modul nicht gefunden")
@@ -34,6 +38,8 @@ class QuizSubmit(BaseModel):
 @router.post("/{key}/quiz")
 def submit_quiz(key: str, data: QuizSubmit, db: Session = Depends(get_db),
                 p: Participant = Depends(get_participant)):
+    if key in disabled_keys(db, p.course_id):
+        raise HTTPException(status_code=404, detail="Modul nicht gefunden")
     module = MODULES.get(key)
     if not module:
         raise HTTPException(status_code=404, detail="Modul nicht gefunden")
