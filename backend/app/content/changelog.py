@@ -1,5 +1,13 @@
 # Projekt-Changelog (nur für Trainer sichtbar). Neueste zuerst.
 CHANGELOG = [
+    {"date": "2026-06-30", "title": "Modul „MAC & Switching“",
+     "text": "Neues Modul zwischen Paketaufbau und VLAN: MAC-Lernen und Flooding mit "
+             "interaktivem Switch-Widget (MAC-Adresstabelle füllt sich live)."},
+    {"date": "2026-06-30", "title": "OSI-Modell als Animation",
+     "text": "Das Paketaufbau-Modul zeigt das 7-Schichten-Modell animiert: "
+             "Encapsulation beim Sender, Decapsulation beim Empfänger, klickbare Schichten."},
+    {"date": "2026-06-30", "title": "Frischeres Design",
+     "text": "Neue Schrift, ruhigerer Farbakzent, lebendigere Buttons und gebrandetes Icon."},
     {"date": "2026-06-30", "title": "Änderungslog",
      "text": "Trainer sehen jetzt ein Änderungslog der Kurs-Plattform."},
     {"date": "2026-06-30", "title": "Deployment vorbereitet",
