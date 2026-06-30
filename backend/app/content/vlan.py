@@ -3,7 +3,7 @@ VLAN_MODULE = {
     "title": "VLANs",
     "order": 3,
     "pass_threshold": 0.7,
-    "prerequisites": ["paket"],
+    "prerequisites": ["paket", "switching"],
     "scenario": "Im Lager hängen Kameras, Gäste-WLAN, Büro-PCs und Drucker am "
                 "selben Switch und sehen sich gegenseitig. Das ist ein Sicherheits- "
                 "und Broadcast-Problem. Trennen wir sie mit VLANs — der **802.1Q-Tag** "
