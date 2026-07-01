@@ -6,6 +6,7 @@ import { MacLearning } from '@/widgets/switch/MacLearningWidget'
 import { Subnet } from '@/widgets/subnet/SubnetWidget'
 import { Routing } from '@/widgets/router/RoutingWidget'
 import { Nat } from '@/widgets/nat/NatWidget'
+import { Dns } from '@/widgets/dns/DnsWidget'
 
 export const WIDGETS: Record<string, ComponentType> = {
   'vlan-switch': VlanSwitch,
@@ -15,4 +16,5 @@ export const WIDGETS: Record<string, ComponentType> = {
   'subnet-calc': Subnet,
   'routing-demo': Routing,
   'nat-demo': Nat,
+  'dns-demo': Dns,
 }

@@ -1,5 +1,8 @@
 # Projekt-Changelog (nur für Trainer sichtbar). Neueste zuerst.
 CHANGELOG = [
+    {"date": "2026-07-01", "title": "Modul „DNS — Namensauflösung“",
+     "text": "Neues Modul: DNS-Hierarchie (Root/TLD/autoritativ), iterative Auflösung "
+             "mit interaktiver Resolver-Demo, Caching/TTL und Record-Typen (A/AAAA/CNAME/MX)."},
     {"date": "2026-07-01", "title": "Modul „NAT & Internet-Zugang“",
      "text": "Neues Modul: private vs. öffentliche IP, NAT/PAT (Overload) mit "
              "interaktiver Übersetzungstabelle, Port-Forwarding als Ausblick."},
