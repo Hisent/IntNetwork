@@ -6,6 +6,24 @@ import { trainerApi } from '@/lib/trainerApi'
 import { TrainerFeedback } from '@/components/TrainerFeedback'
 import { useAuthStore } from '@/store/auth'
 
+function CopyCode({ code }: { code: string }) {
+  const [copied, setCopied] = useState(false)
+  return (
+    <button
+      onClick={(e) => {
+        e.stopPropagation()
+        navigator.clipboard.writeText(code)
+        setCopied(true)
+        setTimeout(() => setCopied(false), 1500)
+      }}
+      title="Kurs-Code kopieren"
+      className="font-mono text-teal-600 hover:text-teal-700 hover:underline select-text"
+    >
+      {copied ? 'Kopiert ✓' : code}
+    </button>
+  )
+}
+
 export function TrainerPage() {
   const { token, role, setAuth, logout } = useAuthStore()
   if (role !== 'trainer' || !token) return <TrainerLogin onLogin={(t) => setAuth(t, 'trainer')} />
@@ -79,11 +97,13 @@ function TrainerDashboard({ onLogout }: { onLogout: () => void }) {
 
         <div className="flex flex-col gap-2 mb-8">
           {courses.data?.map((c) => (
-            <button key={c.id} onClick={() => setSelected(c.id)}
-              className={`rounded-xl border bg-white p-4 text-left flex justify-between ${selected === c.id ? 'ring-2 ring-teal-500' : ''}`}>
+            <div key={c.id} role="button" tabIndex={0}
+              onClick={() => setSelected(c.id)}
+              onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && setSelected(c.id)}
+              className={`rounded-xl border bg-white p-4 text-left flex justify-between items-center cursor-pointer ${selected === c.id ? 'ring-2 ring-teal-500' : ''}`}>
               <span className="font-medium text-slate-800">{c.name}</span>
-              <span className="font-mono text-teal-600">{c.join_code}</span>
-            </button>
+              <CopyCode code={c.join_code} />
+            </div>
           ))}
         </div>
 
