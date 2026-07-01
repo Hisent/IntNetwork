@@ -4,6 +4,11 @@ IPV6_MODULE = {
     "order": 13,
     "pass_threshold": 0.7,
     "prerequisites": ["subnetting"],
+    "goals": [
+        "Die Motivation für IPv6 (Adressknappheit, kein NAT) verstehen",
+        "Die Schreibweise und die ::-Kürzung anwenden",
+        "Adresstypen (Global/Link-Local/Loopback/Multicast) erkennen",
+    ],
     "scenario": "Die IPv4-Adressen sind weltweit knapp — deshalb NAT und private "
                 "Netze. IPv6 löst das Problem grundlegend mit riesig vielen Adressen. "
                 "Nordwind will vorbereitet sein. Wie sieht eine IPv6-Adresse aus und "
@@ -20,7 +25,9 @@ IPV6_MODULE = {
             "- **Führende Nullen** in einer Gruppe weglassen: `0db8` → `db8`.\n"
             "- **Einen** zusammenhängenden Nuller-Block durch `::` ersetzen (nur einmal!).\n\n"
             "Ergebnis: `2001:db8::1`."},
-        {"type": "widget", "id": "ipv6-demo"},
+        {"type": "widget", "id": "ipv6-demo",
+         "note": "Eine lange Adresse eingeben und die Kurzform zeigen, dann fe80::1 und "
+                 "::1 → die Typ-Erkennung vorlesen."},
         {"type": "text", "value": "## Wichtige Adresstypen\n\n- **Global Unicast** "
             "(`2000::/3`): weltweit routbar, wie eine öffentliche IPv4.\n"
             "- **Link-Local** (`fe80::/10`): gilt nur im lokalen Segment, jedes Interface "

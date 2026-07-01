@@ -4,6 +4,11 @@ ARP_MODULE = {
     "order": 5,
     "pass_threshold": 0.7,
     "prerequisites": ["subnetting"],
+    "goals": [
+        "Die Lücke zwischen IP (Schicht 3) und MAC (Schicht 2) benennen",
+        "Den ARP-Ablauf Broadcast → Reply → Cache erklären",
+        "Verstehen, warum ARP am Router endet (Gateway-MAC)",
+    ],
     "scenario": "PC-A (192.168.10.10) will ein Paket an PC-B (192.168.10.11) im "
                 "selben Netz schicken. Der Switch braucht aber eine **MAC-Adresse**, "
                 "keine IP. Woher bekommt PC-A die MAC von PC-B?",
@@ -19,7 +24,9 @@ ARP_MODULE = {
             "3. Nur der **Besitzer** der IP antwortet (Unicast) mit seiner MAC.\n"
             "4. PC-A **speichert** die MAC im Cache — der nächste Frame braucht keinen "
             "Broadcast mehr."},
-        {"type": "widget", "id": "arp-demo"},
+        {"type": "widget", "id": "arp-demo",
+         "note": "Erst Cache leeren, dann eine unbekannte IP anfragen → Broadcast + "
+                 "Reply zeigen. Dieselbe IP erneut → Cache-Treffer, kein Broadcast."},
         {"type": "text", "value": "## ARP nur im eigenen Netz\n\nARP funktioniert **nur "
             "innerhalb desselben Subnetzes** (es ist ein Broadcast, und der endet am "
             "Router). Liegt das Ziel in einem **anderen** Netz, fragt der Host per ARP "

@@ -4,6 +4,11 @@ ROUTING_MODULE = {
     "order": 6,
     "pass_threshold": 0.7,
     "prerequisites": ["subnetting"],
+    "goals": [
+        "Router (Schicht 3) vom Switch (Schicht 2) abgrenzen",
+        "Die Routing-Tabelle (connected/statisch/Default) lesen",
+        "Longest-Prefix-Match und statisches Routing erklären",
+    ],
     "scenario": "Nordwind hat jetzt getrennte Netze: Lager (192.168.10.0/24) und "
                 "Büro (192.168.20.0/24). Sie sollen miteinander reden — und ins "
                 "Internet. Zwischen den Netzen sitzt ein **Router**. Wie entscheidet "
@@ -24,7 +29,10 @@ ROUTING_MODULE = {
             "`192.168.20.5` matcht sowohl `192.168.20.0/24` als auch `0.0.0.0/0` — der "
             "Router nimmt das `/24`. Nur wenn nichts Spezifischeres passt, greift die "
             "Default-Route."},
-        {"type": "widget", "id": "routing-demo"},
+        {"type": "widget", "id": "routing-demo",
+         "note": "Die drei Preset-Ziele nacheinander klicken (gleiches Netz, anderes "
+                 "internes Netz, Internet) und die Match-Entscheidung vorlesen. Danach "
+                 "in der CLI `show ip route`."},
         {"type": "text", "value": "## Statisches Routing einrichten\n\nProbier in der CLI "
             "`show ip route`, `show ip interface brief` und `show running-config`. Die "
             "statische Route entsteht im echten Cisco IOS mit:\n\n"

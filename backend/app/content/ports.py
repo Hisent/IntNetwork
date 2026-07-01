@@ -4,6 +4,11 @@ PORTS_MODULE = {
     "order": 10,
     "pass_threshold": 0.7,
     "prerequisites": ["paket"],
+    "goals": [
+        "Die Transportschicht und Portnummern verstehen",
+        "TCP (zuverlässig, Handshake) und UDP (schnell, verbindungslos) unterscheiden",
+        "Well-known Ports den Diensten zuordnen",
+    ],
     "scenario": "Auf dem Server von Nordwind laufen Webseite, Mail und Fernwartung "
                 "gleichzeitig — alle über **eine** IP-Adresse. Woher weiß ankommender "
                 "Verkehr, zu welchem Dienst er gehört? Und warum stört es ein Video "
@@ -25,7 +30,9 @@ PORTS_MODULE = {
             "- **UDP** ist **verbindungslos**: kein Handshake, keine Garantie, dafür schnell "
             "und schlank. Für DNS, Video-Streaming, VoIP, Online-Spiele — da zählt Tempo mehr "
             "als jede einzelne Bestätigung."},
-        {"type": "widget", "id": "ports-demo"},
+        {"type": "widget", "id": "ports-demo",
+         "note": "Ein paar Ports nachschlagen (443/22/53), dann den 3-Wege-Handshake "
+                 "durchgehen und den TCP/UDP-Vergleich zeigen."},
         {"type": "text", "value": "## Wann was?\n\nBraucht die Anwendung **Vollständigkeit** "
             "(eine Datei, eine Webseite, eine Überweisung) → **TCP**. Zählt **Aktualität** "
             "mehr als jedes einzelne Paket (Live-Video, Sprache) → **UDP**. Beide nutzen "

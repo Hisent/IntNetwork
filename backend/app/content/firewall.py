@@ -4,6 +4,11 @@ FIREWALL_MODULE = {
     "order": 12,
     "pass_threshold": 0.7,
     "prerequisites": ["ports"],
+    "goals": [
+        "Die Aufgabe einer Firewall an der Netzgrenze benennen",
+        "First-Match-Wins und Default-Deny erklären",
+        "Verstehen, warum die Regelreihenfolge zählt (stateful als Ausblick)",
+    ],
     "scenario": "Nordwind hängt am Internet. Der Webserver soll erreichbar sein, "
                 "die Fernwartung nur für Admins, und veraltete unsichere Dienste "
                 "gar nicht. Wer entscheidet an der Grenze, welcher Verkehr rein "
@@ -23,7 +28,9 @@ FIREWALL_MODULE = {
             "Prinzip **Default Deny**: Was **nicht ausdrücklich erlaubt** ist, wird "
             "**blockiert**. So muss man nur die gewünschten Dienste freischalten, statt "
             "endlos alles Gefährliche einzeln zu verbieten."},
-        {"type": "widget", "id": "firewall-demo"},
+        {"type": "widget", "id": "firewall-demo",
+         "note": "Die Presets durchklicken: HTTPS erlaubt, Telnet blockiert, RDP → "
+                 "Default-Deny. Jeweils zeigen, welche Regel greift (Hervorhebung)."},
         {"type": "text", "value": "## Stateful & mehr\n\nModerne Firewalls sind "
             "**zustandsbehaftet** (stateful): erlauben sie eine ausgehende Verbindung, "
             "lassen sie die **zugehörige Antwort** automatisch wieder rein — ohne eigene "

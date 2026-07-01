@@ -41,6 +41,12 @@ def test_public_module_strips_notes_and_goals():
         assert "answer" not in q
 
 
+def test_every_module_has_goals_and_notes():
+    for key, m in registry.MODULES.items():
+        assert m.get("goals"), f"{key} ohne goals"
+        assert any("note" in b for b in m["blocks"]), f"{key} ohne Block-Notiz"
+
+
 def test_trainer_module_keeps_notes_answers_goals():
     m = registry.trainer_module("switching")
     assert m["goals"]

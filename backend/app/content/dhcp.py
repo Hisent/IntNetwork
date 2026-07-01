@@ -4,6 +4,11 @@ DHCP_MODULE = {
     "order": 9,
     "pass_threshold": 0.7,
     "prerequisites": ["subnetting"],
+    "goals": [
+        "Wissen, welche Parameter ein Gerät zum Start braucht (IP/Maske/Gateway/DNS)",
+        "Den DORA-Ablauf (Discover/Offer/Request/Ack) erklären",
+        "Lease und Adress-Pool einordnen",
+    ],
     "scenario": "Nordwind stellt jede Woche neue Laptops und Handys ins Netz. "
                 "Niemand soll jedem Gerät von Hand eine IP, Maske, Gateway und "
                 "DNS eintippen. Wie bekommt ein frisch eingestecktes Gerät all das "
@@ -18,7 +23,9 @@ DHCP_MODULE = {
             "2. **Offer** — ein Server **bietet** eine freie IP (samt Maske/Gateway/DNS) an.\n"
             "3. **Request** — der Client **fordert** genau dieses Angebot an (Broadcast).\n"
             "4. **Ack** — der Server **bestätigt**; die Adresse ist als **Lease** vergeben."},
-        {"type": "widget", "id": "dhcp-demo"},
+        {"type": "widget", "id": "dhcp-demo",
+         "note": "Mehrmals einen neuen Client verbinden lassen → jeder bekommt die "
+                 "nächste Pool-Adresse; die vier DORA-Schritte des letzten durchgehen."},
         {"type": "text", "value": "## Lease & Pool\n\nEine Adresse wird nur **auf Zeit** "
             "(Lease-Time) vergeben und danach erneuert oder freigegeben — so gehen "
             "Adressen nicht dauerhaft verloren. Der Bereich, aus dem der Server vergibt, "

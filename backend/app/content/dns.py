@@ -4,6 +4,11 @@ DNS_MODULE = {
     "order": 8,
     "pass_threshold": 0.7,
     "prerequisites": ["routing"],
+    "goals": [
+        "DNS als Namen-zu-IP-Auflösung einordnen",
+        "Die Hierarchie Root → TLD → autoritativ nachvollziehen",
+        "Caching/TTL und Record-Typen (A/AAAA/CNAME/MX) kennen",
+    ],
     "scenario": "Niemand bei Nordwind tippt `203.0.113.11` in den Browser — alle "
                 "sagen `www.nordwind-logistik.de`. Aber Pakete brauchen eine IP. "
                 "Wer übersetzt den Namen in die Adresse?",
@@ -17,7 +22,9 @@ DNS_MODULE = {
             "- **TLD-Server** (`.de`, `.com`): kennen die zuständigen Nameserver je Domain.\n"
             "- **Autoritative Server**: halten die echten Einträge einer Domain.\n\n"
             "Der **Resolver** fragt sich von oben nach unten durch — bis er die IP hat."},
-        {"type": "widget", "id": "dns-demo"},
+        {"type": "widget", "id": "dns-demo",
+         "note": "Einen bekannten Namen auflösen und die drei Stufen vorlesen, dann "
+                 "einen unbekannten Namen → NXDOMAIN zeigen."},
         {"type": "text", "value": "## Caching\n\nDamit nicht jede Anfrage den ganzen Baum "
             "durchläuft, **cachen** Resolver Antworten für die Dauer der **TTL** "
             "(Time To Live). Die zweite Anfrage nach demselben Namen ist dann sofort da."},

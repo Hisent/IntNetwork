@@ -4,6 +4,11 @@ WLAN_MODULE = {
     "order": 14,
     "pass_threshold": 0.7,
     "prerequisites": ["switching"],
+    "goals": [
+        "WLAN als Funk-Zugang auf Schicht 1+2 einordnen (AP/SSID/Assoziation)",
+        "2,4- vs 5-GHz und die Kanalüberlappung (1/6/11) erklären",
+        "Sichere (WPA2/WPA3) von unsicherer Verschlüsselung unterscheiden",
+    ],
     "scenario": "Im Nordwind-Lager arbeiten Scanner und Tablets per Funk. Mal ist "
                 "die Verbindung top, mal lahm — obwohl der Access Point direkt an der "
                 "Decke hängt. Woran liegt das, und wie hält man das WLAN sicher?",
@@ -19,7 +24,9 @@ WLAN_MODULE = {
             "sich benachbarte 2,4-GHz-Kanäle und stören sich. Nur **1, 6 und 11** sind "
             "überlappungsfrei. Zwei APs in Reichweite sollten daher unterschiedliche, "
             "überlappungsfreie Kanäle nutzen."},
-        {"type": "widget", "id": "wlan-demo"},
+        {"type": "widget", "id": "wlan-demo",
+         "note": "Zwei APs auf Kanal 1 und 3 stellen → Überlappung; dann auf 1 und 6 → "
+                 "frei. Danach die Sicherheitstabelle durchgehen."},
         {"type": "text", "value": "## Sicherheit\n\nFunk hört jeder in Reichweite mit — "
             "**Verschlüsselung ist Pflicht**:\n\n"
             "- **Offen / WEP**: unsicher, niemals im Firmennetz.\n"

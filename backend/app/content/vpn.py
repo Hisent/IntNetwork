@@ -4,6 +4,11 @@ VPN_MODULE = {
     "order": 15,
     "pass_threshold": 0.7,
     "prerequisites": ["firewall"],
+    "goals": [
+        "VPN als verschlüsselten Tunnel durch ein unsicheres Netz verstehen",
+        "Encapsulation (inneres Paket im äußeren Gateway-Header) erklären",
+        "Site-to-Site und Remote-Access unterscheiden",
+    ],
     "scenario": "Nordwind hat eine Filiale in einer anderen Stadt und Mitarbeiter im "
                 "Homeoffice. Beide sollen auf das Firmennetz zugreifen — aber der Weg "
                 "führt übers offene Internet, wo jeder mitlesen könnte. Wie wird daraus "
@@ -19,7 +24,9 @@ VPN_MODULE = {
             "**neues Paket** gesteckt. Dessen äußerer Header trägt nur die **öffentlichen "
             "IPs der beiden VPN-Gateways**. Im Internet sieht man also nur „Gateway spricht "
             "mit Gateway“ — nicht, wer intern mit wem, und schon gar nicht die Inhalte."},
-        {"type": "widget", "id": "vpn-demo"},
+        {"type": "widget", "id": "vpn-demo",
+         "note": "Erst das interne Paket zeigen, dann den verschlüsselten Tunnel (nur "
+                 "Gateway-IPs + Block). Am Ziel entschlüsseln → inneres Paket kommt zurück."},
         {"type": "text", "value": "## Zwei Bauformen\n\n- **Site-to-Site**: zwei Standorte "
             "(Filiale ↔ Zentrale) werden über ihre Router/Gateways dauerhaft gekoppelt — "
             "die Nutzer merken nichts davon.\n"

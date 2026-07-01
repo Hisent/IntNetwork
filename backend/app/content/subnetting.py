@@ -4,6 +4,11 @@ SUBNETTING_MODULE = {
     "order": 4,
     "pass_threshold": 0.7,
     "prerequisites": ["paket"],
+    "goals": [
+        "Eine IP-Adresse in Netz- und Hostanteil zerlegen",
+        "Netz-, Broadcast-Adresse und nutzbare Hosts aus dem Präfix bestimmen",
+        "Erkennen, ob ein Ziel im selben Netz liegt oder über den Router muss",
+    ],
     "scenario": "Nordwind wächst: Lager, Büro und Gäste-WLAN sollen eigene "
                 "IP-Bereiche bekommen, sauber getrennt und ohne Verschwendung. "
                 "Wie zerlegt man ein Netz in passende Teilnetze — und woher weiß "
@@ -20,7 +25,9 @@ SUBNETTING_MODULE = {
             "- **Broadcast**: Hostanteil komplett `1` (`192.168.10.255`) — erreicht alle im Netz.\n"
             "- **Nutzbare Hosts**: alles dazwischen. Bei `/24` also `2^8 − 2 = 254`.\n\n"
             "Die zwei abgezogenen Adressen sind Netz- und Broadcast-Adresse."},
-        {"type": "widget", "id": "subnet-calc"},
+        {"type": "widget", "id": "subnet-calc",
+         "note": "Mit /24 starten, dann das Präfix auf /26 schieben — zeigen, wie "
+                 "Netz- und Broadcast-Adresse wandern und die Hostzahl sinkt."},
         {"type": "text", "value": "## Gleiches Netz oder Router?\n\nEin Gerät verundet "
             "**seine** IP und die **Ziel-IP** je mit der Maske. Kommt **dasselbe Netz** "
             "heraus → direkt per Switch (Schicht 2). Kommt ein **anderes** Netz heraus → "

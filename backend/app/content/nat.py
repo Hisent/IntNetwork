@@ -4,6 +4,11 @@ NAT_MODULE = {
     "order": 7,
     "pass_threshold": 0.7,
     "prerequisites": ["routing"],
+    "goals": [
+        "Private und öffentliche IP-Adressen unterscheiden",
+        "NAT/PAT als Adressübersetzung im Router erklären",
+        "Wissen, warum Verbindungen von außen Port-Forwarding brauchen",
+    ],
     "scenario": "Nordwind hat intern hunderte Geräte mit privaten IP-Adressen "
                 "(192.168.x.x) — aber vom Provider nur **eine** öffentliche IP. "
                 "Trotzdem sollen alle gleichzeitig ins Internet. Wie geht das mit "
@@ -22,7 +27,10 @@ NAT_MODULE = {
             "**Port**. Das heißt **PAT** (Port Address Translation) bzw. NAT-Overload. "
             "Der Router merkt sich `Inside Local (privat:port)` ↔ `Inside Global "
             "(öffentlich:port)` in einer Übersetzungstabelle."},
-        {"type": "widget", "id": "nat-demo"},
+        {"type": "widget", "id": "nat-demo",
+         "note": "Zwei verschiedene Hosts senden lassen → gleiche öffentliche IP, "
+                 "verschiedene Ports. Dann denselben Host:Port erneut → Eintrag wird "
+                 "wiederverwendet."},
         {"type": "text", "value": "## Folgen von NAT\n\n- Nach außen erscheinen alle Geräte "
             "unter **einer** IP.\n"
             "- Verbindungen von außen nach innen gehen **nicht** von allein — dafür braucht "

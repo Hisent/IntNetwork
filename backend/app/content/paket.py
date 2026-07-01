@@ -4,6 +4,11 @@ PAKET_MODULE = {
     "order": 1,
     "pass_threshold": 0.7,
     "prerequisites": [],
+    "goals": [
+        "Aufbau eines Ethernet-Frames und die Rolle der Header verstehen",
+        "Das OSI-Schichtenmodell und Encapsulation nachvollziehen",
+        "Wissen, wo die VLAN-Information (802.1Q) im Frame sitzt",
+    ],
     "scenario": "Bevor Nordwind die Geräte sauber trennen kann, müssen wir "
                 "verstehen, wie zwei Geräte im Netz überhaupt miteinander reden — "
                 "nämlich als **Frame** über das Kabel.",
@@ -13,7 +18,9 @@ PAKET_MODULE = {
             "nach unten — jede Schicht hängt ihre Information an (*Encapsulation*); beim "
             "Empfänger wird Schicht für Schicht wieder ausgepackt. Spiel es durch und "
             "klick auf die Schichten:"},
-        {"type": "widget", "id": "osi-model"},
+        {"type": "widget", "id": "osi-model",
+         "note": "Erst die Encapsulation beim Sender Schicht für Schicht zeigen, dann "
+                 "die Decapsulation beim Empfänger — auf die Umkehrung hinweisen."},
         {"type": "text", "value": "## Der Ethernet-Frame\n\nEin Frame hat einen festen "
             "Aufbau. Die wichtigsten Felder:\n\n"
             "- **Ziel-MAC** (6 B): an wen geht der Frame.\n"

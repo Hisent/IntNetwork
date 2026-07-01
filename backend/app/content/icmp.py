@@ -4,6 +4,11 @@ ICMP_MODULE = {
     "order": 11,
     "pass_threshold": 0.7,
     "prerequisites": ["routing"],
+    "goals": [
+        "ICMP als Melde- und Diagnoseprotokoll von IP einordnen",
+        "ping (Echo Request/Reply) erklären",
+        "traceroute über die TTL nachvollziehen",
+    ],
     "scenario": "Ein Server bei Nordwind ist nicht erreichbar. Bevor jemand ins "
                 "Rechenzentrum läuft: Mit zwei einfachen Werkzeugen lässt sich prüfen, "
                 "ob und wo der Weg abbricht — ganz ohne Spezialsoftware.",
@@ -24,7 +29,9 @@ ICMP_MODULE = {
             "traceroute sendet erst mit **TTL 1** (erster Router meldet sich), dann **TTL 2** "
             "(zweiter), und so weiter — bis das Ziel selbst antwortet. So wird der ganze "
             "Pfad Hop für Hop sichtbar."},
-        {"type": "widget", "id": "icmp-demo"},
+        {"type": "widget", "id": "icmp-demo",
+         "note": "Schrittweise den nächsten Hop anfragen → mit jeder TTL meldet sich ein "
+                 "weiterer Router (Time Exceeded), am Ende Echo Reply vom Ziel."},
         {"type": "text", "value": "## Grenzen\n\nManche Router und Firewalls **beantworten "
             "ICMP nicht** (aus Sicherheitsgründen). Dann erscheint ein Hop als `* * *` — "
             "das heißt nicht zwingend „kaputt“, nur „antwortet nicht auf ICMP“."},

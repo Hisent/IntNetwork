@@ -4,6 +4,11 @@ VLAN_MODULE = {
     "order": 3,
     "pass_threshold": 0.7,
     "prerequisites": ["paket", "switching"],
+    "goals": [
+        "VLANs als getrennte Broadcast-Domänen auf einem Switch verstehen",
+        "Access- und Trunk-Port sowie den 802.1Q-Tag erklären",
+        "Wissen, dass VLAN-übergreifend ein Router (Layer 3) nötig ist",
+    ],
     "scenario": "Im Lager hängen Kameras, Gäste-WLAN, Büro-PCs und Drucker am "
                 "selben Switch und sehen sich gegenseitig. Das ist ein Sicherheits- "
                 "und Broadcast-Problem. Trennen wir sie mit VLANs — der **802.1Q-Tag** "
@@ -30,7 +35,10 @@ VLAN_MODULE = {
             "mit der VLAN-ID des Absenders.\n"
             "3. Stell zwei Ports auf dasselbe VLAN → sie erreichen sich. Auf verschiedene VLANs "
             "→ getrennt."},
-        {"type": "widget", "id": "vlan-switch"},
+        {"type": "widget", "id": "vlan-switch",
+         "note": "Bei einem Access-Port einen Frame senden → nur gleiches VLAN leuchtet; "
+                 "der Trunk (Port 6) zeigt das 802.1Q-Tag. Dann zwei Ports aufs selbe VLAN "
+                 "stellen → sie erreichen sich."},
         {"type": "text", "value": "## Broadcast-Domänen\n\nJedes VLAN ist eine eigene "
             "Broadcast-Domäne. Ein Broadcast (z.B. ARP) aus VLAN 10 erreicht nur Ports in "
             "VLAN 10 — Ports in VLAN 20/30 sehen ihn nie."},
