@@ -63,3 +63,11 @@ def submit_quiz(key: str, data: QuizSubmit, db: Session = Depends(get_db),
         QuizResult.participant_id == p.id, QuizResult.module_key == key).all()
     best_pct = max((r.score / r.total for r in results if r.total), default=0)
     return {"score": score, "total": total, "passed": is_passed, "best": round(best_pct * 100)}
+
+
+@router.post("/{key}/heartbeat")
+def heartbeat(key: str, db: Session = Depends(get_db), p: Participant = Depends(get_participant)):
+    p.current_module_key = key
+    p.last_seen = utc_now()
+    db.commit()
+    return {"ok": True}

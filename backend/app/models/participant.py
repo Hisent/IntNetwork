@@ -13,3 +13,5 @@ class Participant(Base):
     name: Mapped[str] = mapped_column(String, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=utc_now)
     language: Mapped[str] = mapped_column(String, default="de", nullable=False)
+    current_module_key: Mapped[str | None] = mapped_column(String, nullable=True)
+    last_seen: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
