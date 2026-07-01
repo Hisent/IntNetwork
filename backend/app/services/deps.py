@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.models.participant import Participant
+from app.models.trainer import Trainer
 from app.services.security import decode_token
 
 bearer = HTTPBearer()
@@ -16,9 +17,11 @@ def _payload(creds: HTTPAuthorizationCredentials = Depends(bearer)) -> dict:
     return data
 
 
-def get_trainer(payload: dict = Depends(_payload)) -> dict:
+def get_trainer(payload: dict = Depends(_payload), db: Session = Depends(get_db)) -> dict:
     if payload.get("role") != "trainer":
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Nur Trainer")
+    if not db.query(Trainer).filter(Trainer.id == payload.get("trainer_id")).first():
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Trainer nicht gefunden")
     return payload
 
 

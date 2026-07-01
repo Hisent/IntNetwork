@@ -111,3 +111,16 @@ def test_delete_unknown_trainer_404():
     with TestClient(app) as c:
         h = _trainer(c)
         assert c.delete("/api/trainer/accounts/999999", headers=h).status_code == 404
+
+
+def test_deleted_trainer_token_immediately_rejected():
+    with TestClient(app) as c:
+        h = _trainer(c)
+        created = c.post("/api/trainer/accounts", json={"email": "revoke@test.de", "name": "R", "password": "pass1234"}, headers=h).json()
+        login = c.post("/api/trainer/login", json={"email": "revoke@test.de", "password": "pass1234"})
+        revoked_h = {"Authorization": f"Bearer {login.json()['access_token']}"}
+        assert c.get("/api/trainer/modules", headers=revoked_h).status_code == 200
+
+        c.delete(f"/api/trainer/accounts/{created['id']}", headers=h)
+
+        assert c.get("/api/trainer/modules", headers=revoked_h).status_code == 401
