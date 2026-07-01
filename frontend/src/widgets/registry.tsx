@@ -14,6 +14,7 @@ import { Icmp } from '@/widgets/icmp/IcmpWidget'
 import { Firewall } from '@/widgets/firewall/FirewallWidget'
 import { Ipv6 } from '@/widgets/ipv6/Ipv6Widget'
 import { Wlan } from '@/widgets/wlan/WlanWidget'
+import { Vpn } from '@/widgets/vpn/VpnWidget'
 
 export const WIDGETS: Record<string, ComponentType> = {
   'vlan-switch': VlanSwitch,
@@ -31,4 +32,5 @@ export const WIDGETS: Record<string, ComponentType> = {
   'firewall-demo': Firewall,
   'ipv6-demo': Ipv6,
   'wlan-demo': Wlan,
+  'vpn-demo': Vpn,
 }

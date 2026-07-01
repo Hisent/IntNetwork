@@ -1,5 +1,9 @@
 # Projekt-Changelog (nur für Trainer sichtbar). Neueste zuerst.
 CHANGELOG = [
+    {"date": "2026-07-01", "title": "Modul „VPN — sicher über fremde Netze“",
+     "text": "Neues Modul: verschlüsselter Tunnel, Encapsulation (inneres Paket im "
+             "äußeren Gateway-Header), Site-to-Site vs. Remote-Access — mit "
+             "interaktiver Kapselungs-/Entschlüsselungs-Demo."},
     {"date": "2026-07-01", "title": "Modul „WLAN — Netz ohne Kabel“",
      "text": "Neues Modul: AP/SSID/Assoziation, 2,4- vs 5-GHz-Bänder und "
              "Kanalüberlappung (1/6/11), WLAN-Sicherheit (WEP/WPA2/WPA3) — mit "
