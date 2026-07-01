@@ -47,9 +47,41 @@ def test_every_module_has_goals_and_notes():
         assert any("note" in b for b in m["blocks"]), f"{key} ohne Block-Notiz"
 
 
+def test_public_module_resolves_language():
+    de = registry.public_module("switching", "de")
+    en = registry.public_module("switching", "en")
+    assert de["scenario"] != en["scenario"]
+    assert de["blocks"][0]["value"] != en["blocks"][0]["value"]
+    assert de["quiz"]["questions"][0]["prompt"] != en["quiz"]["questions"][0]["prompt"]
+    assert de["quiz"]["questions"][0]["options"] != en["quiz"]["questions"][0]["options"]
+    assert len(de["quiz"]["questions"][0]["options"]) == len(en["quiz"]["questions"][0]["options"])
+    assert isinstance(de["scenario"], str)
+    assert isinstance(en["blocks"][0]["value"], str)
+
+
+def test_public_module_defaults_to_de_and_falls_back_on_unknown_lang():
+    default = registry.public_module("switching")
+    de = registry.public_module("switching", "de")
+    assert default["scenario"] == de["scenario"]
+    unknown = registry.public_module("switching", "fr")
+    assert unknown["scenario"] == de["scenario"]
+
+
+def test_quiz_answers_are_index_based():
+    m = registry.MODULES["switching"]
+    for q in m["quiz"]["questions"]:
+        if q["type"] == "single":
+            assert isinstance(q["answer"], int)
+            assert 0 <= q["answer"] < len(q["options"]["de"])
+        if q["type"] == "multi":
+            assert all(isinstance(a, int) for a in q["answer"])
+
+
 def test_trainer_module_keeps_notes_answers_goals():
     m = registry.trainer_module("switching")
     assert m["goals"]
     assert any("note" in b for b in m["blocks"])
-    assert m["quiz"]["questions"][0]["answer"]
+    assert m["quiz"]["questions"][0]["answer"] is not None
+    assert isinstance(m["scenario"], str)
+    assert isinstance(m["blocks"][0]["value"], str)
     assert registry.trainer_module("nope") is None

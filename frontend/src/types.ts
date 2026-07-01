@@ -4,8 +4,8 @@ export type Block =
   | { type: 'widget'; id: string; note?: string }
 
 export type Question =
-  | { id: string; type: 'single'; prompt: string; options: string[]; answer?: string }
-  | { id: string; type: 'multi'; prompt: string; options: string[]; answer?: string[] }
+  | { id: string; type: 'single'; prompt: string; options: string[]; answer?: number }
+  | { id: string; type: 'multi'; prompt: string; options: string[]; answer?: number[] }
   | { id: string; type: 'number'; prompt: string; answer?: number }
 
 export interface ModuleDetail {

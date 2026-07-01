@@ -16,8 +16,8 @@ export function TrainerQuiz({ questions }: { questions: Question[] }) {
               </p>
             ) : (
               <div className="flex flex-col gap-1.5">
-                {q.options.map((opt) => {
-                  const ok = isCorrect(q, opt)
+                {q.options.map((opt, i) => {
+                  const ok = isCorrect(q, i)
                   return (
                     <div
                       key={opt}
