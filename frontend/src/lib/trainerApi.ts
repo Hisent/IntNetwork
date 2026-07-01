@@ -1,5 +1,6 @@
 import { api } from '@/lib/api'
 import type { ModuleMeta, TrainerModuleDetail } from '@/types'
+import type { TrainerComment } from '@/components/commentGroups'
 
 export interface Course { id: number; name: string; join_code: string }
 export interface Dashboard {
@@ -21,4 +22,10 @@ export const trainerApi = {
     api.put(`/courses/${id}/modules`, { module_key, active }),
   trainerModules: () => api.get<ModuleMeta[]>('/trainer/modules'),
   trainerModule: (key: string) => api.get<TrainerModuleDetail>(`/trainer/modules/${key}`),
+  features: () => api.get<{ comments: boolean }>('/features'),
+  setFeature: (comments: boolean) => api.put<{ comments: boolean }>('/trainer/features', { comments }),
+  courseComments: (cid: number) => api.get<TrainerComment[]>(`/trainer/courses/${cid}/comments`),
+  addTrainerComment: (cid: number, key: string, block_index: number, body: string) =>
+    api.post(`/trainer/courses/${cid}/modules/${key}/comments`, { block_index, body }),
+  deleteTrainerComment: (id: number) => api.delete(`/trainer/comments/${id}`),
 }

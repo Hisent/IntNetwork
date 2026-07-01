@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { authApi } from '@/lib/api'
 import { trainerApi } from '@/lib/trainerApi'
+import { TrainerFeedback } from '@/components/TrainerFeedback'
 import { useAuthStore } from '@/store/auth'
 
 export function TrainerPage() {
@@ -48,6 +49,11 @@ function TrainerDashboard({ onLogout }: { onLogout: () => void }) {
   })
   const changelog = useQuery({ queryKey: ['changelog'], queryFn: () => trainerApi.changelog().then((r) => r.data) })
   const presentMods = useQuery({ queryKey: ['trainer-modules'], queryFn: () => trainerApi.trainerModules().then((r) => r.data) })
+  const features = useQuery({ queryKey: ['features'], queryFn: () => trainerApi.features().then((r) => r.data) })
+  const toggleFeature = useMutation({
+    mutationFn: (v: boolean) => trainerApi.setFeature(v),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['features'] }),
+  })
   const courseMods = useQuery({
     queryKey: ['course-modules', selected], enabled: selected !== null,
     queryFn: () => trainerApi.courseModules(selected as number).then((r) => r.data),
@@ -81,6 +87,18 @@ function TrainerDashboard({ onLogout }: { onLogout: () => void }) {
           ))}
         </div>
 
+        {features.data && (
+          <label className="flex items-center gap-2 text-sm text-slate-700 mb-6">
+            <input
+              type="checkbox"
+              checked={features.data.comments}
+              disabled={toggleFeature.isPending}
+              onChange={(e) => toggleFeature.mutate(e.target.checked)}
+            />
+            Feedback-Kommentare aktiv
+          </label>
+        )}
+
         {presentMods.data && (
           <div className="rounded-xl border bg-white p-4 mb-6">
             <h3 className="text-sm font-semibold text-slate-700 mb-2">Module präsentieren</h3>
@@ -107,6 +125,13 @@ function TrainerDashboard({ onLogout }: { onLogout: () => void }) {
                 </label>
               ))}
             </div>
+          </div>
+        )}
+
+        {selected !== null && features.data?.comments && (
+          <div className="rounded-xl border bg-white p-4 mb-6">
+            <h3 className="text-sm font-semibold text-slate-700 mb-3">Feedback</h3>
+            <TrainerFeedback courseId={selected} />
           </div>
         )}
 
