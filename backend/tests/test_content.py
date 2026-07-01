@@ -77,6 +77,23 @@ def test_quiz_answers_are_index_based():
             assert all(isinstance(a, int) for a in q["answer"])
 
 
+def test_every_module_is_bilingual_with_index_answers():
+    for key, m in registry.MODULES.items():
+        assert isinstance(m["scenario"], dict) and "de" in m["scenario"] and "en" in m["scenario"], key
+        for b in m["blocks"]:
+            if "value" in b:
+                assert isinstance(b["value"], dict) and "de" in b["value"] and "en" in b["value"], f"{key} block"
+        for q in m["quiz"]["questions"]:
+            assert isinstance(q["prompt"], dict) and "de" in q["prompt"] and "en" in q["prompt"], f"{key} {q['id']}"
+            if q["type"] in ("single", "multi"):
+                opts = q["options"]
+                assert isinstance(opts, dict) and len(opts["de"]) == len(opts["en"]), f"{key} {q['id']}"
+                if q["type"] == "single":
+                    assert isinstance(q["answer"], int), f"{key} {q['id']}"
+                else:
+                    assert all(isinstance(a, int) for a in q["answer"]), f"{key} {q['id']}"
+
+
 def test_trainer_module_keeps_notes_answers_goals():
     m = registry.trainer_module("switching")
     assert m["goals"]

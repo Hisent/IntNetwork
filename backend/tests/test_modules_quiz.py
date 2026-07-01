@@ -19,9 +19,7 @@ def test_module_delivery_hides_answers_and_grades():
         for q in mod["quiz"]["questions"]:
             assert "answer" not in q
 
-        good = {"v1": "genau 1", "v2": "802.1Q-Tag",
-                "v3": ["Eigene Broadcast-Domäne", "Brauchen Router für VLAN-übergreifend", "Trennen Geräte logisch"],
-                "v4": 20}
+        good = {"v1": 1, "v2": 1, "v3": [0, 1, 3], "v4": 20}
         r = c.post("/api/modules/vlan/quiz", json={"answers": good}, headers=h).json()
         assert r["score"] == 4 and r["total"] == 4 and r["passed"] is True
 
@@ -29,7 +27,7 @@ def test_module_delivery_hides_answers_and_grades():
         vlan = next(p for p in me["progress"] if p["module_key"] == "vlan")
         assert vlan["done"] is True and vlan["best"] == 100
 
-        c.post("/api/modules/vlan/quiz", json={"answers": {"v1": "0"}}, headers=h)
+        c.post("/api/modules/vlan/quiz", json={"answers": {"v1": 0}}, headers=h)
         me2 = c.get("/api/me", headers=h).json()
         assert next(p for p in me2["progress"] if p["module_key"] == "vlan")["best"] == 100
 

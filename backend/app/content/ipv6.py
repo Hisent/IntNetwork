@@ -1,6 +1,7 @@
 IPV6_MODULE = {
     "key": "ipv6",
     "title": "IPv6 — Adressen der Zukunft",
+    "title_en": "IPv6 — Addresses of the Future",
     "order": 13,
     "pass_threshold": 0.7,
     "prerequisites": ["subnetting"],
@@ -9,53 +10,102 @@ IPV6_MODULE = {
         "Die Schreibweise und die ::-Kürzung anwenden",
         "Adresstypen (Global/Link-Local/Loopback/Multicast) erkennen",
     ],
-    "scenario": "Die IPv4-Adressen sind weltweit knapp — deshalb NAT und private "
-                "Netze. IPv6 löst das Problem grundlegend mit riesig vielen Adressen. "
-                "Nordwind will vorbereitet sein. Wie sieht eine IPv6-Adresse aus und "
-                "was ändert sich?",
+    "scenario": {
+        "de": "Die IPv4-Adressen sind weltweit knapp — deshalb NAT und private "
+              "Netze. IPv6 löst das Problem grundlegend mit riesig vielen Adressen. "
+              "Nordwind will vorbereitet sein. Wie sieht eine IPv6-Adresse aus und "
+              "was ändert sich?",
+        "en": "IPv4 addresses are running out worldwide — hence NAT and private "
+              "networks. IPv6 solves the problem fundamentally with a huge number "
+              "of addresses. Nordwind wants to be prepared. What does an IPv6 address look like and "
+              "what changes?",
+    },
     "blocks": [
-        {"type": "text", "value": "## Warum IPv6?\n\nIPv4 hat **32 Bit** — rund 4 Milliarden "
-            "Adressen, längst zu wenig. IPv6 hat **128 Bit**: praktisch unerschöpflich. "
-            "Jedes Gerät kann wieder eine **echte, weltweit eindeutige** Adresse haben — "
-            "**NAT wird überflüssig**."},
-        {"type": "text", "value": "## Schreibweise\n\nEine IPv6-Adresse sind **8 Gruppen** "
-            "zu je **4 Hex-Ziffern**, durch `:` getrennt:\n\n"
-            "`2001:0db8:0000:0000:0000:0000:0000:0001`\n\n"
-            "Zwei Kürzungsregeln:\n\n"
-            "- **Führende Nullen** in einer Gruppe weglassen: `0db8` → `db8`.\n"
-            "- **Einen** zusammenhängenden Nuller-Block durch `::` ersetzen (nur einmal!).\n\n"
-            "Ergebnis: `2001:db8::1`."},
+        {"type": "text",
+         "value": {
+             "de": "## Warum IPv6?\n\nIPv4 hat **32 Bit** — rund 4 Milliarden "
+                   "Adressen, längst zu wenig. IPv6 hat **128 Bit**: praktisch unerschöpflich. "
+                   "Jedes Gerät kann wieder eine **echte, weltweit eindeutige** Adresse haben — "
+                   "**NAT wird überflüssig**.",
+             "en": "## Why IPv6?\n\nIPv4 has **32 bits** — around 4 billion "
+                   "addresses, nowhere near enough anymore. IPv6 has **128 bits**: practically inexhaustible. "
+                   "Every device can once again have a **real, globally unique** address — "
+                   "**NAT becomes unnecessary**.",
+         }},
+        {"type": "text",
+         "value": {
+             "de": "## Schreibweise\n\nEine IPv6-Adresse sind **8 Gruppen** "
+                   "zu je **4 Hex-Ziffern**, durch `:` getrennt:\n\n"
+                   "`2001:0db8:0000:0000:0000:0000:0000:0001`\n\n"
+                   "Zwei Kürzungsregeln:\n\n"
+                   "- **Führende Nullen** in einer Gruppe weglassen: `0db8` → `db8`.\n"
+                   "- **Einen** zusammenhängenden Nuller-Block durch `::` ersetzen (nur einmal!).\n\n"
+                   "Ergebnis: `2001:db8::1`.",
+             "en": "## Notation\n\nAn IPv6 address is **8 groups** "
+                   "of **4 hex digits** each, separated by `:`:\n\n"
+                   "`2001:0db8:0000:0000:0000:0000:0000:0001`\n\n"
+                   "Two shortening rules:\n\n"
+                   "- Drop **leading zeros** in a group: `0db8` → `db8`.\n"
+                   "- Replace **one** contiguous block of zero groups with `::` (only once!).\n\n"
+                   "Result: `2001:db8::1`.",
+         }},
         {"type": "widget", "id": "ipv6-demo",
          "note": "Eine lange Adresse eingeben und die Kurzform zeigen, dann fe80::1 und "
                  "::1 → die Typ-Erkennung vorlesen."},
-        {"type": "text", "value": "## Wichtige Adresstypen\n\n- **Global Unicast** "
-            "(`2000::/3`): weltweit routbar, wie eine öffentliche IPv4.\n"
-            "- **Link-Local** (`fe80::/10`): gilt nur im lokalen Segment, jedes Interface "
-            "hat automatisch eine.\n"
-            "- **Loopback** `::1`: der eigene Rechner (wie `127.0.0.1`).\n"
-            "- **Multicast** (`ff00::/8`): an eine Gruppe. **Broadcasts gibt es in IPv6 "
-            "nicht mehr** — ihre Aufgaben übernimmt Multicast."},
-        {"type": "text", "value": "## Was noch anders ist\n\nStatt ARP nutzt IPv6 das "
-            "**Neighbor Discovery Protocol (NDP)** per Multicast. Adressen können sich "
-            "Geräte oft **selbst** vergeben (SLAAC) — ganz ohne DHCP. Die Grundideen "
-            "(Netzanteil/Hostanteil, Routing, Ports) bleiben aber dieselben wie bei IPv4."},
+        {"type": "text",
+         "value": {
+             "de": "## Wichtige Adresstypen\n\n- **Global Unicast** "
+                   "(`2000::/3`): weltweit routbar, wie eine öffentliche IPv4.\n"
+                   "- **Link-Local** (`fe80::/10`): gilt nur im lokalen Segment, jedes Interface "
+                   "hat automatisch eine.\n"
+                   "- **Loopback** `::1`: der eigene Rechner (wie `127.0.0.1`).\n"
+                   "- **Multicast** (`ff00::/8`): an eine Gruppe. **Broadcasts gibt es in IPv6 "
+                   "nicht mehr** — ihre Aufgaben übernimmt Multicast.",
+             "en": "## Important Address Types\n\n- **Global unicast** "
+                   "(`2000::/3`): globally routable, like a public IPv4.\n"
+                   "- **Link-local** (`fe80::/10`): only valid on the local segment, every interface "
+                   "gets one automatically.\n"
+                   "- **Loopback** `::1`: the local machine itself (like `127.0.0.1`).\n"
+                   "- **Multicast** (`ff00::/8`): to a group. **Broadcasts no longer exist in "
+                   "IPv6** — multicast takes over their job.",
+         }},
+        {"type": "text",
+         "value": {
+             "de": "## Was noch anders ist\n\nStatt ARP nutzt IPv6 das "
+                   "**Neighbor Discovery Protocol (NDP)** per Multicast. Adressen können sich "
+                   "Geräte oft **selbst** vergeben (SLAAC) — ganz ohne DHCP. Die Grundideen "
+                   "(Netzanteil/Hostanteil, Routing, Ports) bleiben aber dieselben wie bei IPv4.",
+             "en": "## What Else Is Different\n\nInstead of ARP, IPv6 uses the "
+                   "**Neighbor Discovery Protocol (NDP)** via multicast. Devices can often "
+                   "assign themselves an address (SLAAC) — with no DHCP at all. The core ideas "
+                   "(network part/host part, routing, ports) stay the same as with IPv4.",
+         }},
     ],
     "quiz": {"questions": [
         {"id": "6a", "type": "number",
-         "prompt": "Wie viele Bit hat eine IPv6-Adresse?",
+         "prompt": {"de": "Wie viele Bit hat eine IPv6-Adresse?", "en": "How many bits does an IPv6 address have?"},
          "answer": 128},
         {"id": "6b", "type": "single",
-         "prompt": "Wofür steht die Kurzschreibweise :: in einer IPv6-Adresse?",
-         "options": ["Einen Tippfehler", "Einen zusammenhängenden Block aus Nullen",
-                     "Das Ende der Adresse", "Einen Doppel-Port"],
-         "answer": "Einen zusammenhängenden Block aus Nullen"},
+         "prompt": {"de": "Wofür steht die Kurzschreibweise :: in einer IPv6-Adresse?",
+                    "en": "What does the shorthand :: stand for in an IPv6 address?"},
+         "options": {
+             "de": ["Einen Tippfehler", "Einen zusammenhängenden Block aus Nullen",
+                    "Das Ende der Adresse", "Einen Doppel-Port"],
+             "en": ["A typo", "A contiguous block of zeros",
+                    "The end of the address", "A double port"],
+         },
+         "answer": 1},
         {"id": "6c", "type": "single",
-         "prompt": "Welche Technik wird mit IPv6 überflüssig?",
-         "options": ["Routing", "NAT", "DNS", "Firewalls"],
-         "answer": "NAT"},
+         "prompt": {"de": "Welche Technik wird mit IPv6 überflüssig?",
+                    "en": "Which technique becomes unnecessary with IPv6?"},
+         "options": {"de": ["Routing", "NAT", "DNS", "Firewalls"], "en": ["Routing", "NAT", "DNS", "Firewalls"]},
+         "answer": 1},
         {"id": "6d", "type": "single",
-         "prompt": "Was ist fe80::/10?",
-         "options": ["Global Unicast", "Loopback", "Link-Local", "Multicast"],
-         "answer": "Link-Local"},
+         "prompt": {"de": "Was ist fe80::/10?", "en": "What is fe80::/10?"},
+         "options": {
+             "de": ["Global Unicast", "Loopback", "Link-Local", "Multicast"],
+             "en": ["Global unicast", "Loopback", "Link-local", "Multicast"],
+         },
+         "answer": 2},
     ]},
 }

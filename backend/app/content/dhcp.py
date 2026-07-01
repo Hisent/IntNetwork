@@ -1,6 +1,7 @@
 DHCP_MODULE = {
     "key": "dhcp",
     "title": "DHCP — Adressen automatisch",
+    "title_en": "DHCP — Automatic Addressing",
     "order": 9,
     "pass_threshold": 0.7,
     "prerequisites": ["subnetting"],
@@ -9,49 +10,91 @@ DHCP_MODULE = {
         "Den DORA-Ablauf (Discover/Offer/Request/Ack) erklären",
         "Lease und Adress-Pool einordnen",
     ],
-    "scenario": "Nordwind stellt jede Woche neue Laptops und Handys ins Netz. "
-                "Niemand soll jedem Gerät von Hand eine IP, Maske, Gateway und "
-                "DNS eintippen. Wie bekommt ein frisch eingestecktes Gerät all das "
-                "von allein?",
+    "scenario": {
+        "de": "Nordwind stellt jede Woche neue Laptops und Handys ins Netz. "
+              "Niemand soll jedem Gerät von Hand eine IP, Maske, Gateway und "
+              "DNS eintippen. Wie bekommt ein frisch eingestecktes Gerät all das "
+              "von allein?",
+        "en": "Nordwind puts new laptops and phones on the network every week. "
+              "Nobody should have to manually type an IP, mask, gateway and "
+              "DNS into every device. How does a freshly plugged-in device get all that "
+              "on its own?",
+    },
     "blocks": [
-        {"type": "text", "value": "## Wozu DHCP?\n\nEin Gerät braucht mindestens **IP**, "
-            "**Subnetzmaske**, **Standard-Gateway** und **DNS-Server**, um zu funktionieren. "
-            "**DHCP** (Dynamic Host Configuration Protocol) verteilt das automatisch — der "
-            "Nutzer muss nichts konfigurieren."},
-        {"type": "text", "value": "## Der DORA-Ablauf\n\nVier Nachrichten, Merkwort **DORA**:\n\n"
-            "1. **Discover** — der Client ruft per **Broadcast**: „Ist ein DHCP-Server da?“\n"
-            "2. **Offer** — ein Server **bietet** eine freie IP (samt Maske/Gateway/DNS) an.\n"
-            "3. **Request** — der Client **fordert** genau dieses Angebot an (Broadcast).\n"
-            "4. **Ack** — der Server **bestätigt**; die Adresse ist als **Lease** vergeben."},
+        {"type": "text",
+         "value": {
+             "de": "## Wozu DHCP?\n\nEin Gerät braucht mindestens **IP**, "
+                   "**Subnetzmaske**, **Standard-Gateway** und **DNS-Server**, um zu funktionieren. "
+                   "**DHCP** (Dynamic Host Configuration Protocol) verteilt das automatisch — der "
+                   "Nutzer muss nichts konfigurieren.",
+             "en": "## What Is DHCP For?\n\nA device needs at least an **IP**, "
+                   "**subnet mask**, **default gateway** and **DNS server** to function. "
+                   "**DHCP** (Dynamic Host Configuration Protocol) hands these out automatically — the "
+                   "user doesn't need to configure anything.",
+         }},
+        {"type": "text",
+         "value": {
+             "de": "## Der DORA-Ablauf\n\nVier Nachrichten, Merkwort **DORA**:\n\n"
+                   "1. **Discover** — der Client ruft per **Broadcast**: „Ist ein DHCP-Server da?“\n"
+                   "2. **Offer** — ein Server **bietet** eine freie IP (samt Maske/Gateway/DNS) an.\n"
+                   "3. **Request** — der Client **fordert** genau dieses Angebot an (Broadcast).\n"
+                   "4. **Ack** — der Server **bestätigt**; die Adresse ist als **Lease** vergeben.",
+             "en": "## The DORA Sequence\n\nFour messages, mnemonic **DORA**:\n\n"
+                   "1. **Discover** — the client calls out via **broadcast**: “Is a DHCP server there?”\n"
+                   "2. **Offer** — a server **offers** a free IP (including mask/gateway/DNS).\n"
+                   "3. **Request** — the client **requests** exactly this offer (broadcast).\n"
+                   "4. **Ack** — the server **confirms**; the address is now assigned as a **lease**.",
+         }},
         {"type": "widget", "id": "dhcp-demo",
          "note": "Mehrmals einen neuen Client verbinden lassen → jeder bekommt die "
                  "nächste Pool-Adresse; die vier DORA-Schritte des letzten durchgehen."},
-        {"type": "text", "value": "## Lease & Pool\n\nEine Adresse wird nur **auf Zeit** "
-            "(Lease-Time) vergeben und danach erneuert oder freigegeben — so gehen "
-            "Adressen nicht dauerhaft verloren. Der Bereich, aus dem der Server vergibt, "
-            "heißt **Pool** (z.B. `192.168.10.100–199`). Wichtige Geräte wie Drucker oder "
-            "Server bekommen oft eine **feste** Adresse (Reservierung) statt DHCP."},
+        {"type": "text",
+         "value": {
+             "de": "## Lease & Pool\n\nEine Adresse wird nur **auf Zeit** "
+                   "(Lease-Time) vergeben und danach erneuert oder freigegeben — so gehen "
+                   "Adressen nicht dauerhaft verloren. Der Bereich, aus dem der Server vergibt, "
+                   "heißt **Pool** (z.B. `192.168.10.100–199`). Wichtige Geräte wie Drucker oder "
+                   "Server bekommen oft eine **feste** Adresse (Reservierung) statt DHCP.",
+             "en": "## Lease & Pool\n\nAn address is only assigned **for a "
+                   "period of time** (lease time) and then renewed or released — so "
+                   "addresses aren't permanently lost. The range the server assigns from is "
+                   "called the **pool** (e.g. `192.168.10.100–199`). Important devices like printers or "
+                   "servers often get a **fixed** address (reservation) instead of DHCP.",
+         }},
     ],
     "quiz": {"questions": [
         {"id": "h1", "type": "single",
-         "prompt": "Was verteilt DHCP an neue Geräte?",
-         "options": ["Nur die MAC", "IP, Maske, Gateway und DNS",
-                     "Nur den Hostnamen", "Nichts davon"],
-         "answer": "IP, Maske, Gateway und DNS"},
+         "prompt": {"de": "Was verteilt DHCP an neue Geräte?", "en": "What does DHCP hand out to new devices?"},
+         "options": {
+             "de": ["Nur die MAC", "IP, Maske, Gateway und DNS", "Nur den Hostnamen", "Nichts davon"],
+             "en": ["Only the MAC", "IP, mask, gateway and DNS", "Only the hostname", "None of it"],
+         },
+         "answer": 1},
         {"id": "h2", "type": "single",
-         "prompt": "Wofür steht DORA?",
-         "options": ["Discover, Offer, Request, Ack", "Data, Open, Read, Ack",
-                     "Domain, Octet, Route, Address", "Discover, Order, Reply, Assign"],
-         "answer": "Discover, Offer, Request, Ack"},
+         "prompt": {"de": "Wofür steht DORA?", "en": "What does DORA stand for?"},
+         "options": {
+             "de": ["Discover, Offer, Request, Ack", "Data, Open, Read, Ack",
+                    "Domain, Octet, Route, Address", "Discover, Order, Reply, Assign"],
+             "en": ["Discover, Offer, Request, Ack", "Data, Open, Read, Ack",
+                    "Domain, Octet, Route, Address", "Discover, Order, Reply, Assign"],
+         },
+         "answer": 0},
         {"id": "h3", "type": "single",
-         "prompt": "Wie startet ein Client die Suche nach einem DHCP-Server?",
-         "options": ["Unicast an den Router", "Broadcast (Discover)",
-                     "Er fragt DNS", "Per ARP"],
-         "answer": "Broadcast (Discover)"},
+         "prompt": {"de": "Wie startet ein Client die Suche nach einem DHCP-Server?",
+                    "en": "How does a client start looking for a DHCP server?"},
+         "options": {
+             "de": ["Unicast an den Router", "Broadcast (Discover)", "Er fragt DNS", "Per ARP"],
+             "en": ["Unicast to the router", "Broadcast (Discover)", "It asks DNS", "Via ARP"],
+         },
+         "answer": 1},
         {"id": "h4", "type": "single",
-         "prompt": "Was ist ein Lease?",
-         "options": ["Eine feste Adresse für immer", "Eine zeitlich begrenzte Adresszuweisung",
-                     "Ein VLAN", "Ein DNS-Eintrag"],
-         "answer": "Eine zeitlich begrenzte Adresszuweisung"},
+         "prompt": {"de": "Was ist ein Lease?", "en": "What is a lease?"},
+         "options": {
+             "de": ["Eine feste Adresse für immer", "Eine zeitlich begrenzte Adresszuweisung",
+                    "Ein VLAN", "Ein DNS-Eintrag"],
+             "en": ["A fixed address forever", "A time-limited address assignment",
+                    "A VLAN", "A DNS record"],
+         },
+         "answer": 1},
     ]},
 }
