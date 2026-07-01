@@ -1,5 +1,10 @@
 # Projekt-Changelog (nur für Trainer sichtbar). Neueste zuerst.
 CHANGELOG = [
+    {"date": "2026-07-01", "title": "Mehrere Trainer-Zugänge",
+     "text": "Statt einem einzigen Admin-Login können jetzt beliebig viele "
+             "Trainer-Zugänge angelegt werden — direkt im Dashboard unter "
+             "„Trainer-Zugänge“. Passwörter werden jetzt gehasht statt im "
+             "Klartext mit der Umgebungsvariable verglichen."},
     {"date": "2026-07-01", "title": "Undo im Modul-Editor",
      "text": "Der Modul-Editor merkt sich beim Speichern die vorherige Version. "
              "Ein Klick auf „Vorherige Version wiederherstellen“ macht den letzten "

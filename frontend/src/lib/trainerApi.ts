@@ -43,6 +43,7 @@ export interface EditorModule {
   has_snapshot: boolean
 }
 export interface EditorModuleMeta { key: string; title_de: string; title_en: string; order: number }
+export interface TrainerAccount { id: number; email: string; name: string }
 
 export const trainerApi = {
   listCourses: () => api.get<Course[]>('/courses'),
@@ -68,4 +69,8 @@ export const trainerApi = {
   saveContentModule: (key: string, data: Omit<EditorModule, 'key'>) =>
     api.put<EditorModuleMeta>(`/trainer/content/modules/${key}`, data),
   restoreContentModule: (key: string) => api.post<EditorModuleMeta>(`/trainer/content/modules/${key}/restore`),
+  listTrainerAccounts: () => api.get<TrainerAccount[]>('/trainer/accounts'),
+  createTrainerAccount: (email: string, name: string, password: string) =>
+    api.post<TrainerAccount>('/trainer/accounts', { email, name, password }),
+  deleteTrainerAccount: (id: number) => api.delete(`/trainer/accounts/${id}`),
 }

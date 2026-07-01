@@ -6,6 +6,11 @@ import { trainerApi } from '@/lib/trainerApi'
 import { TrainerFeedback } from '@/components/TrainerFeedback'
 import { useAuthStore } from '@/store/auth'
 
+function errMsg(e: unknown): string {
+  const ax = e as { response?: { data?: { detail?: string } } }
+  return ax.response?.data?.detail ?? 'Fehler.'
+}
+
 function CopyCode({ code }: { code: string }) {
   const [copied, setCopied] = useState(false)
   return (
@@ -67,6 +72,27 @@ function TrainerDashboard({ onLogout }: { onLogout: () => void }) {
       qc.invalidateQueries({ queryKey: ['trainer-modules'] })
       navigate(`/trainer/modul/${r.data.key}/bearbeiten`)
     },
+  })
+  const [taEmail, setTaEmail] = useState('')
+  const [taName, setTaName] = useState('')
+  const [taPassword, setTaPassword] = useState('')
+  const [taError, setTaError] = useState('')
+  const trainerAccounts = useQuery({
+    queryKey: ['trainer-accounts'],
+    queryFn: () => trainerApi.listTrainerAccounts().then((r) => r.data),
+  })
+  const createTrainerAccount = useMutation({
+    mutationFn: () => trainerApi.createTrainerAccount(taEmail.trim(), taName.trim(), taPassword),
+    onSuccess: () => {
+      setTaEmail(''); setTaName(''); setTaPassword(''); setTaError('')
+      qc.invalidateQueries({ queryKey: ['trainer-accounts'] })
+    },
+    onError: (e) => setTaError(errMsg(e)),
+  })
+  const deleteTrainerAccount = useMutation({
+    mutationFn: (id: number) => trainerApi.deleteTrainerAccount(id),
+    onSuccess: () => { setTaError(''); qc.invalidateQueries({ queryKey: ['trainer-accounts'] }) },
+    onError: (e) => setTaError(errMsg(e)),
   })
   const courses = useQuery({ queryKey: ['courses'], queryFn: () => trainerApi.listCourses().then((r) => r.data) })
   const create = useMutation({
@@ -135,6 +161,32 @@ function TrainerDashboard({ onLogout }: { onLogout: () => void }) {
             Feedback-Kommentare aktiv
           </label>
         )}
+
+        <div className="rounded-xl border bg-white p-4 mb-6">
+          <h3 className="text-sm font-semibold text-slate-700 mb-2">Trainer-Zugänge</h3>
+          <div className="flex flex-col gap-1.5 mb-3">
+            {trainerAccounts.data?.map((t) => (
+              <div key={t.id} className="flex justify-between items-center text-sm">
+                <span className="text-slate-700">{t.name} <span className="text-slate-400">({t.email})</span></span>
+                <button onClick={() => deleteTrainerAccount.mutate(t.id)}
+                  className="text-xs text-rose-600 hover:text-rose-700">entfernen</button>
+              </div>
+            ))}
+          </div>
+          <div className="flex gap-2 flex-wrap">
+            <input className="border rounded-lg px-3 py-1.5 text-sm" placeholder="E-Mail"
+              value={taEmail} onChange={(e) => setTaEmail(e.target.value)} />
+            <input className="border rounded-lg px-3 py-1.5 text-sm" placeholder="Name"
+              value={taName} onChange={(e) => setTaName(e.target.value)} />
+            <input className="border rounded-lg px-3 py-1.5 text-sm" type="password" placeholder="Passwort"
+              value={taPassword} onChange={(e) => setTaPassword(e.target.value)} />
+            <button onClick={() => taEmail.trim() && taName.trim() && taPassword && createTrainerAccount.mutate()}
+              className="rounded-lg bg-teal-600 hover:bg-teal-700 text-white px-3 py-1.5 text-sm font-medium">
+              + Trainer hinzufügen
+            </button>
+          </div>
+          {taError && <p className="text-sm text-red-600 mt-1">{taError}</p>}
+        </div>
 
         {presentMods.data && (
           <div className="rounded-xl border bg-white p-4 mb-6">
