@@ -1,5 +1,10 @@
 # Projekt-Changelog (nur für Trainer sichtbar). Neueste zuerst.
 CHANGELOG = [
+    {"date": "2026-07-01", "title": "Modul „Routing“",
+     "text": "Neues Modul: Router vs. Switch, Routing-Tabelle (connected/statisch/"
+             "Default-Route), Longest-Prefix-Match mit interaktiver Ping-Demo. "
+             "CLI erweitert um Router-Befehle (show ip route, show ip interface brief, "
+             "show running-config)."},
     {"date": "2026-07-01", "title": "Modul „IP & Subnetting“",
      "text": "Neues Modul: IP-Adressen, Subnetzmaske/CIDR, Netz- und Broadcast-Adresse "
              "mit interaktivem Subnetz-Rechner (Netz, Broadcast, Host-Bereich, "

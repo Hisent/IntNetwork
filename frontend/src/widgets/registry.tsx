@@ -4,6 +4,7 @@ import { FrameBuilder } from '@/widgets/FrameBuilder'
 import { OsiModel } from '@/widgets/osi/OsiWidget'
 import { MacLearning } from '@/widgets/switch/MacLearningWidget'
 import { Subnet } from '@/widgets/subnet/SubnetWidget'
+import { Routing } from '@/widgets/router/RoutingWidget'
 
 export const WIDGETS: Record<string, ComponentType> = {
   'vlan-switch': VlanSwitch,
@@ -11,4 +12,5 @@ export const WIDGETS: Record<string, ComponentType> = {
   'osi-model': OsiModel,
   'mac-learning': MacLearning,
   'subnet-calc': Subnet,
+  'routing-demo': Routing,
 }
