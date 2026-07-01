@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import Markdown from 'react-markdown'
 import { Link, useParams } from 'react-router-dom'
@@ -10,6 +11,15 @@ import { t, type Lang } from '@/lib/i18n'
 export function ModulePage() {
   const { key = '' } = useParams()
   const qc = useQueryClient()
+
+  useEffect(() => {
+    if (!key) return
+    learnApi.heartbeat(key).catch(() => {})
+    const id = setInterval(() => {
+      learnApi.heartbeat(key).catch(() => {})
+    }, 20_000)
+    return () => clearInterval(id)
+  }, [key])
   const me = useQuery({ queryKey: ['me'], queryFn: () => learnApi.me().then((r) => r.data) })
   const lang: Lang = me.data?.language ?? 'de'
   const mod = useQuery({ queryKey: ['module', key, lang], queryFn: () => learnApi.getModule(key).then((r) => r.data) })

@@ -16,6 +16,7 @@ export const learnApi = {
   addComment: (key: string, block_index: number, body: string) =>
     api.post<Comment>(`/modules/${key}/comments`, { block_index, body }),
   deleteComment: (id: number) => api.delete(`/comments/${id}`),
+  heartbeat: (key: string) => api.post(`/modules/${key}/heartbeat`),
 }
 
 export interface Comment {
