@@ -9,4 +9,19 @@ export const learnApi = {
   submitQuiz: (key: string, answers: Record<string, unknown>) =>
     api.post<{ score: number; total: number; passed: boolean; best: number }>(
       `/modules/${key}/quiz`, { answers }),
+  features: () => api.get<{ comments: boolean }>('/features'),
+  listComments: (key: string) => api.get<Comment[]>(`/modules/${key}/comments`),
+  addComment: (key: string, block_index: number, body: string) =>
+    api.post<Comment>(`/modules/${key}/comments`, { block_index, body }),
+  deleteComment: (id: number) => api.delete(`/comments/${id}`),
+}
+
+export interface Comment {
+  id: number
+  block_index: number
+  body: string
+  author_kind: string
+  author_name: string
+  created_at: string
+  own: boolean
 }

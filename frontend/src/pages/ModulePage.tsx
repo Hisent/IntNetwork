@@ -3,13 +3,17 @@ import Markdown from 'react-markdown'
 import { Link, useParams } from 'react-router-dom'
 import { learnApi } from '@/lib/learnApi'
 import { Blocks } from '@/components/Blocks'
+import { BlockComments } from '@/components/BlockComments'
 import { Quiz } from '@/components/Quiz'
 
 export function ModulePage() {
   const { key = '' } = useParams()
   const mod = useQuery({ queryKey: ['module', key], queryFn: () => learnApi.getModule(key).then((r) => r.data) })
+  const features = useQuery({ queryKey: ['features'], queryFn: () => learnApi.features().then((r) => r.data) })
 
   if (mod.isLoading || !mod.data) return <div className="p-10">Lädt…</div>
+
+  const commentsOn = features.data?.comments ?? false
 
   return (
     <div className="min-h-screen bg-slate-50 p-6 sm:p-10">
@@ -21,7 +25,14 @@ export function ModulePage() {
             <Markdown>{mod.data.scenario}</Markdown>
           </div>
         )}
-        <Blocks blocks={mod.data.blocks} />
+        <Blocks
+          blocks={mod.data.blocks}
+          footer={
+            commentsOn
+              ? (b, i) => (b.type === 'text' ? <BlockComments moduleKey={key} blockIndex={i} /> : null)
+              : undefined
+          }
+        />
         <Quiz moduleKey={key} questions={mod.data.quiz.questions} />
       </div>
     </div>
