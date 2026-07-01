@@ -9,6 +9,7 @@ import { Nat } from '@/widgets/nat/NatWidget'
 import { Dns } from '@/widgets/dns/DnsWidget'
 import { Arp } from '@/widgets/arp/ArpWidget'
 import { Dhcp } from '@/widgets/dhcp/DhcpWidget'
+import { Ports } from '@/widgets/ports/PortsWidget'
 
 export const WIDGETS: Record<string, ComponentType> = {
   'vlan-switch': VlanSwitch,
@@ -21,4 +22,5 @@ export const WIDGETS: Record<string, ComponentType> = {
   'nat-demo': Nat,
   'dns-demo': Dns,
   'dhcp-demo': Dhcp,
+  'ports-demo': Ports,
 }

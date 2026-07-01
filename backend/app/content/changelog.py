@@ -1,5 +1,8 @@
 # Projekt-Changelog (nur für Trainer sichtbar). Neueste zuerst.
 CHANGELOG = [
+    {"date": "2026-07-01", "title": "Modul „TCP, UDP & Ports“",
+     "text": "Neues Modul: Transportschicht, Well-known Ports, TCP-3-Wege-Handshake "
+             "und TCP-vs-UDP-Vergleich mit interaktivem Port-Nachschlagewerk."},
     {"date": "2026-07-01", "title": "Modul „DHCP — Adressen automatisch“",
      "text": "Neues Modul: automatische IP-Vergabe, DORA-Ablauf (Discover/Offer/"
              "Request/Ack) mit interaktiver Demo, Lease und Pool."},
