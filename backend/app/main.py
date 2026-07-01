@@ -68,6 +68,7 @@ from app.routers import features as features_router  # noqa: E402
 from app.routers import comments as comments_router  # noqa: E402
 from app.routers import trainer_comments as trainer_comments_router  # noqa: E402
 from app.routers import presence as presence_router  # noqa: E402
+from app.routers import trainer_content as trainer_content_router  # noqa: E402
 _api.include_router(auth_router.router)
 _api.include_router(courses_router.router)
 _api.include_router(join_router.router)
@@ -78,5 +79,6 @@ _api.include_router(features_router.router)
 _api.include_router(comments_router.router)
 _api.include_router(trainer_comments_router.router)
 _api.include_router(presence_router.router)
+_api.include_router(trainer_content_router.router)
 
 app.include_router(_api)
