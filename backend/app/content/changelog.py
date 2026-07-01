@@ -1,5 +1,8 @@
 # Projekt-Changelog (nur für Trainer sichtbar). Neueste zuerst.
 CHANGELOG = [
+    {"date": "2026-07-01", "title": "Modul „NAT & Internet-Zugang“",
+     "text": "Neues Modul: private vs. öffentliche IP, NAT/PAT (Overload) mit "
+             "interaktiver Übersetzungstabelle, Port-Forwarding als Ausblick."},
     {"date": "2026-07-01", "title": "Modul „Routing“",
      "text": "Neues Modul: Router vs. Switch, Routing-Tabelle (connected/statisch/"
              "Default-Route), Longest-Prefix-Match mit interaktiver Ping-Demo. "
