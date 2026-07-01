@@ -6,7 +6,7 @@ from sqlalchemy import text
 from sqlalchemy.exc import OperationalError
 
 from app.config import DEFAULT_SECRET_KEY, settings
-from app.database import Base, engine
+from app.database import Base, SessionLocal, engine
 from app.models import course as _course  # noqa: F401
 from app.models import participant as _participant  # noqa: F401
 from app.models import progress as _progress  # noqa: F401
@@ -35,6 +35,14 @@ def _wait_for_db(retries: int = 30, delay: float = 2.0) -> None:
 
 _wait_for_db()
 Base.metadata.create_all(bind=engine)
+
+from app.content.seed import seed_content_if_empty  # noqa: E402
+
+_seed_db = SessionLocal()
+try:
+    seed_content_if_empty(_seed_db)
+finally:
+    _seed_db.close()
 
 app = FastAPI(title="IntNetwork")
 app.add_middleware(
