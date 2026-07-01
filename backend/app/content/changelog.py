@@ -1,5 +1,9 @@
 # Projekt-Changelog (nur für Trainer sichtbar). Neueste zuerst.
 CHANGELOG = [
+    {"date": "2026-07-01", "title": "Modul „IP & Subnetting“",
+     "text": "Neues Modul: IP-Adressen, Subnetzmaske/CIDR, Netz- und Broadcast-Adresse "
+             "mit interaktivem Subnetz-Rechner (Netz, Broadcast, Host-Bereich, "
+             "nutzbare Hosts live). Brücke zum Thema Routing."},
     {"date": "2026-06-30", "title": "Modul „MAC & Switching“",
      "text": "Neues Modul zwischen Paketaufbau und VLAN: MAC-Lernen und Flooding mit "
              "interaktivem Switch-Widget (MAC-Adresstabelle füllt sich live)."},

@@ -15,6 +15,7 @@ def test_module_meta_has_prereqs_and_order():
     metas = registry.module_meta()
     assert metas[0]["key"] == "paket"
     assert any(m["key"] == "switching" and m["order"] == 2 for m in metas)
+    assert any(m["key"] == "subnetting" and m["order"] == 4 for m in metas)
     vlan = next(m for m in metas if m["key"] == "vlan")
     assert vlan["prerequisites"] == ["paket", "switching"]
     assert registry.public_module("nope") is None
