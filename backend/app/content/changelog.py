@@ -1,5 +1,10 @@
 # Projekt-Changelog (nur für Trainer sichtbar). Neueste zuerst.
 CHANGELOG = [
+    {"date": "2026-07-01", "title": "Modul-Editor",
+     "text": "Trainer können Modul-Inhalte (Text, Widget-Platzierung, Quiz, "
+             "Metadaten) jetzt direkt im Browser bearbeiten und neue Module "
+             "anlegen — ohne Code-Änderung. Content liegt dafür jetzt in der "
+             "Datenbank statt in Python-Dateien."},
     {"date": "2026-07-01", "title": "Live-Präsenzansicht",
      "text": "Trainer sehen im gewählten Kurs live, wer sich gerade in welchem "
              "Modul befindet (aktualisiert alle 10s). Das Änderungslog ist jetzt "
