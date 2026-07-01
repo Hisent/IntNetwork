@@ -12,6 +12,8 @@ from app.models import participant as _participant  # noqa: F401
 from app.models import progress as _progress  # noqa: F401
 from app.models import quiz_result as _quiz_result  # noqa: F401
 from app.models import module_disabled as _module_disabled  # noqa: F401
+from app.models import setting as _setting  # noqa: F401
+from app.models import comment as _comment  # noqa: F401
 
 if not settings.debug and settings.secret_key == DEFAULT_SECRET_KEY:
     raise RuntimeError("SECRET_KEY ist nicht gesetzt (noch der Default).")
@@ -53,11 +55,17 @@ from app.routers import join as join_router  # noqa: E402
 from app.routers import modules as modules_router  # noqa: E402
 from app.routers import changelog as changelog_router  # noqa: E402
 from app.routers import trainer_modules as trainer_modules_router  # noqa: E402
+from app.routers import features as features_router  # noqa: E402
+from app.routers import comments as comments_router  # noqa: E402
+from app.routers import trainer_comments as trainer_comments_router  # noqa: E402
 _api.include_router(auth_router.router)
 _api.include_router(courses_router.router)
 _api.include_router(join_router.router)
 _api.include_router(modules_router.router)
 _api.include_router(changelog_router.router)
 _api.include_router(trainer_modules_router.router)
+_api.include_router(features_router.router)
+_api.include_router(comments_router.router)
+_api.include_router(trainer_comments_router.router)
 
 app.include_router(_api)
