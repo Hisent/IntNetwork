@@ -1,5 +1,9 @@
 # Projekt-Changelog (nur für Trainer sichtbar). Neueste zuerst.
 CHANGELOG = [
+    {"date": "2026-07-01", "title": "Live-Präsenzansicht",
+     "text": "Trainer sehen im gewählten Kurs live, wer sich gerade in welchem "
+             "Modul befindet (aktualisiert alle 10s). Das Änderungslog ist jetzt "
+             "ein zuklappbares Untermenü statt permanent sichtbar."},
     {"date": "2026-07-01", "title": "Zweisprachigkeit (DE/EN)",
      "text": "Teilnehmer können zwischen Deutsch und Englisch wechseln — Landing, "
              "Module, Quiz und alle interaktiven Widgets. Die Wahl wird am "
