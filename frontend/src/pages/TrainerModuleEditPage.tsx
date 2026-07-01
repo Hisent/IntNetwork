@@ -45,6 +45,16 @@ export function TrainerModuleEditPage() {
     onError: (e) => setError(errMsg(e)),
   })
 
+  const restore = useMutation({
+    mutationFn: () => trainerApi.restoreContentModule(key),
+    onSuccess: () => {
+      setError('')
+      qc.invalidateQueries({ queryKey: ['content-module', key] })
+      qc.invalidateQueries({ queryKey: ['trainer-modules'] })
+    },
+    onError: (e) => setError(errMsg(e)),
+  })
+
   if (mod.isLoading || !form) return <div className="p-10">Lädt…</div>
 
   function updateBlock(i: number, patch: Partial<EditorBlock>) {
@@ -227,6 +237,14 @@ export function TrainerModuleEditPage() {
           className="rounded-lg bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 font-medium disabled:opacity-60">
           {save.isPending ? 'Speichert…' : 'Speichern'}
         </button>
+        {form.has_snapshot && (
+          <button
+            onClick={() => window.confirm('Aktuelle Version durch die vorherige ersetzen?') && restore.mutate()}
+            disabled={restore.isPending}
+            className="ml-2 rounded-lg border px-4 py-2 font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-60">
+            {restore.isPending ? 'Stelle wieder her…' : 'Vorherige Version wiederherstellen'}
+          </button>
+        )}
         <button onClick={() => navigate('/trainer')} className="ml-2 rounded-lg border px-4 py-2 font-medium text-slate-700 hover:bg-slate-50">
           Zurück
         </button>

@@ -1,5 +1,9 @@
 # Projekt-Changelog (nur für Trainer sichtbar). Neueste zuerst.
 CHANGELOG = [
+    {"date": "2026-07-01", "title": "Undo im Modul-Editor",
+     "text": "Der Modul-Editor merkt sich beim Speichern die vorherige Version. "
+             "Ein Klick auf „Vorherige Version wiederherstellen“ macht den letzten "
+             "Save rückgängig — nochmal klicken stellt wieder die neuere Version her."},
     {"date": "2026-07-01", "title": "Modul-Editor",
      "text": "Trainer können Modul-Inhalte (Text, Widget-Platzierung, Quiz, "
              "Metadaten) jetzt direkt im Browser bearbeiten und neue Module "
