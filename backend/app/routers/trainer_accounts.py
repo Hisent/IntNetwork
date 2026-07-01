@@ -1,5 +1,8 @@
+import threading
+
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.database import get_db
@@ -8,6 +11,14 @@ from app.services.deps import get_trainer
 from app.services.security import hash_password
 
 router = APIRouter(prefix="/trainer/accounts", tags=["trainer-accounts"])
+
+# Serialisiert den Check-dann-Loesch-Schritt in delete_trainer() gegen sich
+# selbst, sonst koennten zwei gleichzeitige Deletes beide die "count > 1"-
+# Pruefung bestehen und gemeinsam den letzten Trainer-Zugang loeschen
+# (Lockout). Ein Python-Lock reicht, weil uvicorn hier ohne --workers laeuft
+# (ein Prozess, siehe Dockerfile) -> bei mehreren Worker-Prozessen bräuchte
+# das einen DB- oder Redis-Lock statt eines In-Prozess-Locks.
+_delete_lock = threading.Lock()
 
 
 def _serialize(t: Trainer) -> dict:
@@ -36,18 +47,23 @@ def create_trainer(data: TrainerCreate, db: Session = Depends(get_db), _t: dict 
         raise HTTPException(status_code=422, detail="E-Mail bereits vergeben")
     t = Trainer(email=email, name=data.name.strip() or email, password_hash=hash_password(data.password))
     db.add(t)
-    db.commit()
+    try:
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(status_code=422, detail="E-Mail bereits vergeben")
     db.refresh(t)
     return _serialize(t)
 
 
 @router.delete("/{tid}")
 def delete_trainer(tid: int, db: Session = Depends(get_db), _t: dict = Depends(get_trainer)):
-    t = db.query(Trainer).filter(Trainer.id == tid).first()
-    if not t:
-        raise HTTPException(status_code=404, detail="Trainer nicht gefunden")
-    if db.query(Trainer).count() <= 1:
-        raise HTTPException(status_code=422, detail="Letzter Trainer-Zugang kann nicht gelöscht werden")
-    db.delete(t)
-    db.commit()
+    with _delete_lock:
+        t = db.query(Trainer).filter(Trainer.id == tid).first()
+        if not t:
+            raise HTTPException(status_code=404, detail="Trainer nicht gefunden")
+        if db.query(Trainer).count() <= 1:
+            raise HTTPException(status_code=422, detail="Letzter Trainer-Zugang kann nicht gelöscht werden")
+        db.delete(t)
+        db.commit()
     return {"ok": True}

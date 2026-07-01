@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.database import get_db
@@ -57,7 +58,21 @@ def submit_quiz(key: str, data: QuizSubmit, db: Session = Depends(get_db),
     if is_passed and not prog.done:
         prog.done = True
         prog.completed_at = utc_now()
-    db.commit()
+    try:
+        db.commit()
+    except IntegrityError:
+        # Doppelsubmit (z.B. Doppelklick) -> die andere Anfrage hat die
+        # Progress-Zeile zwischen SELECT und COMMIT angelegt. Rollback nimmt
+        # auch den QuizResult-Insert zurück, also beides neu anlegen.
+        db.rollback()
+        db.add(QuizResult(participant_id=p.id, module_key=key, score=score,
+                          total=total, answers=data.answers))
+        prog = db.query(Progress).filter(
+            Progress.participant_id == p.id, Progress.module_key == key).first()
+        if is_passed and not prog.done:
+            prog.done = True
+            prog.completed_at = utc_now()
+        db.commit()
 
     results = db.query(QuizResult).filter(
         QuizResult.participant_id == p.id, QuizResult.module_key == key).all()

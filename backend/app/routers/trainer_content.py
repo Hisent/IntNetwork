@@ -2,6 +2,7 @@ import re
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.database import get_db
@@ -84,6 +85,8 @@ def _serialize_module(m: ContentModule, blocks: list[ContentBlock], questions: l
 
 
 def _validate(db: Session, key: str, data: ModuleIn) -> None:
+    if not (0.0 <= data.pass_threshold <= 1.0):
+        raise HTTPException(status_code=422, detail="pass_threshold muss zwischen 0 und 1 liegen")
     for p in data.prerequisites:
         if p == key:
             raise HTTPException(status_code=422, detail=f"Modul kann nicht eigene Voraussetzung sein: {p}")
@@ -168,7 +171,12 @@ def create_module(data: ModuleCreateIn, db: Session = Depends(get_db), _t: dict 
                       prerequisites=[], title_de=data.title_de, title_en=data.title_de,
                       goals=[], scenario_de="", scenario_en="")
     db.add(m)
-    db.commit()
+    try:
+        db.commit()
+    except IntegrityError:
+        # Zwei gleichzeitige Create-Requests mit demselben Key (z.B. Doppelklick).
+        db.rollback()
+        raise HTTPException(status_code=422, detail="Key bereits vergeben")
     return _meta(m)
 
 

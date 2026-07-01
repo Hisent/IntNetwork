@@ -1,7 +1,10 @@
+from concurrent.futures import ThreadPoolExecutor
+
 from fastapi.testclient import TestClient
 from app.main import app
 from app.database import SessionLocal
 from app.models.trainer import Trainer
+from app.services.security import hash_password
 
 
 def _trainer(c):
@@ -101,6 +104,51 @@ def test_delete_last_trainer_blocked():
         db = SessionLocal()
         try:
             for tid, email, name, pw_hash, created_at in backup:
+                db.add(Trainer(id=tid, email=email, name=name, password_hash=pw_hash, created_at=created_at))
+            db.commit()
+        finally:
+            db.close()
+
+
+def test_concurrent_delete_never_drops_to_zero():
+    """Zwei gleichzeitige Deletes, wenn genau 2 Trainer existieren, duerfen nie
+    beide durchgehen -> sonst kann sich niemand mehr einloggen (Lockout)."""
+    with TestClient(app) as c:
+        h = _trainer(c)
+        db = SessionLocal()
+        try:
+            all_trainers = db.query(Trainer).all()
+            others = all_trainers[1:]
+            other_backup = [(t.id, t.email, t.name, t.password_hash, t.created_at) for t in others]
+            for t in others:
+                db.delete(t)
+            db.commit()
+        finally:
+            db.close()
+
+        c.post("/api/trainer/accounts", json={"email": "racedel@test.de", "name": "RD", "password": "pass1234"}, headers=h)
+        ids = [t["id"] for t in c.get("/api/trainer/accounts", headers=h).json()]
+        assert len(ids) == 2
+
+        results = []
+
+        def delete(tid):
+            r = c.delete(f"/api/trainer/accounts/{tid}", headers=h)
+            results.append(r.status_code)
+
+        with ThreadPoolExecutor(max_workers=2) as ex:
+            list(ex.map(delete, ids))
+
+        assert sorted(results) == [200, 422]
+
+        # welcher der beiden (trainer@test.de oder racedel@test.de) ueberlebt
+        # hat, ist racy (Threading) -> bekannten Zustand fuer Folgetests herstellen
+        db = SessionLocal()
+        try:
+            assert db.query(Trainer).count() == 1
+            db.query(Trainer).delete()
+            db.add(Trainer(email="trainer@test.de", name="Trainer", password_hash=hash_password("trainerpass1")))
+            for tid, email, name, pw_hash, created_at in other_backup:
                 db.add(Trainer(id=tid, email=email, name=name, password_hash=pw_hash, created_at=created_at))
             db.commit()
         finally:

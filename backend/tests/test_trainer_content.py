@@ -1,3 +1,5 @@
+from concurrent.futures import ThreadPoolExecutor
+
 from fastapi.testclient import TestClient
 from app.main import app
 
@@ -93,6 +95,36 @@ def test_update_rejects_out_of_range_answer_index():
         body["quiz"] = [{"qtype": "single", "prompt_de": "F?", "prompt_en": "Q?",
                          "options_de": ["A", "B"], "options_en": ["A", "B"], "answer": 5}]
         assert c.put("/api/trainer/content/modules/answermod", json=body, headers=h).status_code == 422
+
+
+def test_update_rejects_out_of_range_pass_threshold():
+    with TestClient(app) as c:
+        h = _trainer(c)
+        c.post("/api/trainer/content/modules", json={"key": "threshmod", "title_de": "X"}, headers=h)
+        body = _minimal_module()
+        body["pass_threshold"] = 5.0
+        assert c.put("/api/trainer/content/modules/threshmod", json=body, headers=h).status_code == 422
+        body["pass_threshold"] = -0.1
+        assert c.put("/api/trainer/content/modules/threshmod", json=body, headers=h).status_code == 422
+
+
+def test_concurrent_create_same_key_never_500s():
+    """Zwei gleichzeitige Create-Requests mit demselben Key (z.B. Doppelklick)
+    duerfen nie mit 500 crashen -> genau einer gewinnt (200), der Rest 422."""
+    with TestClient(app, raise_server_exceptions=False) as c:
+        h = _trainer(c)
+        results = []
+
+        def create():
+            r = c.post("/api/trainer/content/modules", json={"key": "racemod", "title_de": "X"}, headers=h)
+            results.append(r.status_code)
+
+        with ThreadPoolExecutor(max_workers=8) as ex:
+            list(ex.map(lambda _: create(), range(8)))
+
+        assert results.count(500) == 0
+        assert results.count(200) == 1
+        assert results.count(422) == 7
 
 
 def test_update_accepts_number_question_without_options():

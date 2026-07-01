@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.database import get_db
@@ -33,8 +34,16 @@ def join(data: JoinReq, db: Session = Depends(get_db)):
     if not p:
         p = Participant(course_id=course.id, name=name)
         db.add(p)
-        db.commit()
-        db.refresh(p)
+        try:
+            db.commit()
+        except IntegrityError:
+            # Zwei gleichzeitige Joins mit demselben Namen (z.B. Doppelklick) ->
+            # der andere Request hat die Zeile zwischen SELECT und COMMIT angelegt.
+            db.rollback()
+            p = db.query(Participant).filter(
+                Participant.course_id == course.id, Participant.name == name).first()
+        else:
+            db.refresh(p)
     token = create_token(sub=name, role="participant",
                          extra={"participant_id": p.id, "course_id": course.id})
     return {"access_token": token, "course_name": course.name, "name": name}

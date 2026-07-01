@@ -1,3 +1,5 @@
+from concurrent.futures import ThreadPoolExecutor
+
 from fastapi.testclient import TestClient
 from app.main import app
 
@@ -28,6 +30,28 @@ def test_course_and_join_flow():
         assert c.post("/api/join", json={"code": "ZZZZZZ", "name": "X"}).status_code == 404
         assert c.post("/api/courses", json={"name": "x"},
                       headers={"Authorization": f"Bearer {tok}"}).status_code == 403
+
+
+def test_concurrent_join_same_name_never_500s():
+    """Zwei gleichzeitige Joins mit demselben Namen (z.B. Doppelklick) duerfen
+    nie mit 500 crashen -> beide bekommen einen gueltigen Token fuer denselben
+    Teilnehmer-Datensatz."""
+    with TestClient(app, raise_server_exceptions=False) as c:
+        h = _trainer(c)
+        code = c.post("/api/courses", json={"name": "RaceKurs"}, headers=h).json()["join_code"]
+
+        results = []
+
+        def join():
+            r = c.post("/api/join", json={"code": code, "name": "Racer"})
+            results.append(r)
+
+        with ThreadPoolExecutor(max_workers=8) as ex:
+            list(ex.map(lambda _: join(), range(8)))
+
+        assert all(r.status_code == 200 for r in results)
+        names = {r.json()["name"] for r in results}
+        assert names == {"Racer"}
 
 
 def test_changelog_trainer_only():

@@ -1,3 +1,5 @@
+from concurrent.futures import ThreadPoolExecutor
+
 from fastapi.testclient import TestClient
 from app.main import app
 
@@ -35,6 +37,34 @@ def test_module_delivery_hides_answers_and_grades():
         assert next(p for p in me2["progress"] if p["module_key"] == "vlan")["best"] == 100
 
         assert c.get("/api/modules/nope", headers=h).status_code == 404
+
+
+def test_concurrent_quiz_submit_never_500s():
+    """Doppelsubmit desselben Teilnehmers fuer dasselbe Modul (z.B. Doppelklick)
+    darf nie mit 500 crashen (Progress hat einen unique constraint auf
+    participant_id+module_key, den beide Requests gleichzeitig treffen koennen)."""
+    with TestClient(app, raise_server_exceptions=False) as c:
+        tok = _participant_token(c)
+        h = {"Authorization": f"Bearer {tok}"}
+        mod = c.get("/api/modules/vlan", headers=h).json()
+        ids = [q["id"] for q in mod["quiz"]["questions"]]
+        good = {ids[0]: 1, ids[1]: 1, ids[2]: [0, 1, 3], ids[3]: 20}
+
+        results = []
+
+        def submit():
+            r = c.post("/api/modules/vlan/quiz", json={"answers": good}, headers=h)
+            results.append(r)
+
+        with ThreadPoolExecutor(max_workers=8) as ex:
+            list(ex.map(lambda _: submit(), range(8)))
+
+        assert all(r.status_code == 200 for r in results)
+        assert all(r.json()["passed"] is True for r in results)
+
+        me = c.get("/api/me", headers=h).json()
+        vlan = next(p for p in me["progress"] if p["module_key"] == "vlan")
+        assert vlan["done"] is True and vlan["best"] == 100
 
 
 def test_get_module_resolves_participant_language():
