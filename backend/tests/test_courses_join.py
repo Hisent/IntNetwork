@@ -49,3 +49,25 @@ def test_company_endpoint():
         r = c.get("/api/company", headers={"Authorization": f"Bearer {tok}"})
         assert r.status_code == 200
         assert r.json()["name"] == "Nordwind Logistik GmbH"
+
+
+def test_participant_language_default_and_patch():
+    with TestClient(app) as c:
+        h = _trainer(c)
+        code = c.post("/api/courses", json={"name": "KursLang"}, headers=h).json()["join_code"]
+        p = {"Authorization": "Bearer " + c.post(
+            "/api/join", json={"code": code, "name": "P1"}).json()["access_token"]}
+
+        assert c.get("/api/me", headers=p).json()["language"] == "de"
+        assert c.get("/api/company", headers=p).json()["blurb"]
+
+        r = c.patch("/api/me/language", json={"language": "en"}, headers=p)
+        assert r.status_code == 200 and r.json() == {"language": "en"}
+        assert c.get("/api/me", headers=p).json()["language"] == "en"
+
+        en_blurb = c.get("/api/company", headers=p).json()["blurb"]
+        c.patch("/api/me/language", json={"language": "de"}, headers=p)
+        de_blurb = c.get("/api/company", headers=p).json()["blurb"]
+        assert en_blurb != de_blurb
+
+        assert c.patch("/api/me/language", json={"language": "fr"}, headers=p).status_code == 422

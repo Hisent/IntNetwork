@@ -12,3 +12,4 @@ class Participant(Base):
     course_id: Mapped[int] = mapped_column(Integer, index=True, nullable=False)
     name: Mapped[str] = mapped_column(String, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=utc_now)
+    language: Mapped[str] = mapped_column(String, default="de", nullable=False)
