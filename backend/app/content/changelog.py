@@ -1,5 +1,9 @@
 # Projekt-Changelog (nur für Trainer sichtbar). Neueste zuerst.
 CHANGELOG = [
+    {"date": "2026-07-01", "title": "Trainer-Präsentationsansicht",
+     "text": "Trainer haben pro Modul eine eigene Ansicht mit einklappbaren "
+             "Präsentationsnotizen je Block, einer Kurzübersicht (Voraussetzungen, "
+             "Lernziele) und sichtbaren Quiz-Lösungen."},
     {"date": "2026-07-01", "title": "Modul „VPN — sicher über fremde Netze“",
      "text": "Neues Modul: verschlüsselter Tunnel, Encapsulation (inneres Paket im "
              "äußeren Gateway-Header), Site-to-Site vs. Remote-Access — mit "
