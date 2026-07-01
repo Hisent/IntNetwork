@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { learnApi } from '@/lib/learnApi'
+import { t, type Lang } from '@/lib/i18n'
 
-export function BlockComments({ moduleKey, blockIndex }: { moduleKey: string; blockIndex: number }) {
+export function BlockComments({ moduleKey, blockIndex, lang }: { moduleKey: string; blockIndex: number; lang: Lang }) {
   const qc = useQueryClient()
   const [open, setOpen] = useState(false)
   const [text, setText] = useState('')
@@ -31,12 +32,12 @@ export function BlockComments({ moduleKey, blockIndex }: { moduleKey: string; bl
         onClick={() => setOpen((o) => !o)}
         className="text-xs font-medium text-teal-700 hover:text-teal-800"
       >
-        {open ? '▾' : '▸'} 💬 Kommentare ({items.length})
+        {open ? '▾' : '▸'} 💬 {t(lang, 'comments')} ({items.length})
       </button>
       {open && (
         <div className="mt-2 rounded-lg border bg-slate-50 p-3">
           <div className="flex flex-col gap-2 mb-2">
-            {items.length === 0 && <p className="text-xs text-slate-400">Noch keine Kommentare.</p>}
+            {items.length === 0 && <p className="text-xs text-slate-400">{t(lang, 'noComments')}</p>}
             {items.map((c) => (
               <div key={c.id} className="text-sm">
                 <span className="font-medium text-slate-700">{c.author_name}</span>
@@ -46,7 +47,7 @@ export function BlockComments({ moduleKey, blockIndex }: { moduleKey: string; bl
                     onClick={() => del.mutate(c.id)}
                     className="ml-2 text-xs text-rose-600 hover:text-rose-700"
                   >
-                    löschen
+                    {t(lang, 'delete')}
                   </button>
                 )}
                 <p className="text-slate-700">{c.body}</p>
@@ -57,7 +58,7 @@ export function BlockComments({ moduleKey, blockIndex }: { moduleKey: string; bl
             <input
               value={text}
               onChange={(e) => setText(e.target.value)}
-              placeholder="Kommentar…"
+              placeholder={t(lang, 'commentPlaceholder')}
               className="flex-1 border rounded-lg px-2 py-1 text-sm"
             />
             <button
@@ -65,7 +66,7 @@ export function BlockComments({ moduleKey, blockIndex }: { moduleKey: string; bl
               disabled={add.isPending}
               className="rounded-lg bg-teal-600 hover:bg-teal-700 text-white px-3 text-sm font-medium disabled:opacity-60"
             >
-              Senden
+              {t(lang, 'send')}
             </button>
           </div>
         </div>

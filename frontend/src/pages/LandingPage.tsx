@@ -2,16 +2,25 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { authApi } from '@/lib/api'
 import { useAuthStore } from '@/store/auth'
+import { t, type Lang } from '@/lib/i18n'
 
-const POINTS = [
-  '15 Module vom Ethernet-Frame bis zum VPN.',
-  'Simulatoren statt Folien: Switch, Router-CLI, Subnetz-Rechner.',
-  'Alles am Beispiel der Firma Nordwind Logistik.',
-]
+const POINTS: Record<Lang, string[]> = {
+  de: [
+    '15 Module vom Ethernet-Frame bis zum VPN.',
+    'Simulatoren statt Folien: Switch, Router-CLI, Subnetz-Rechner.',
+    'Alles am Beispiel der Firma Nordwind Logistik.',
+  ],
+  en: [
+    '15 modules from the Ethernet frame to VPN.',
+    'Simulators instead of slides: switch, router CLI, subnet calculator.',
+    'All built around the fictional company Nordwind Logistik.',
+  ],
+}
 
 export function LandingPage() {
   const nav = useNavigate()
   const setAuth = useAuthStore((s) => s.setAuth)
+  const [lang, setLang] = useState<Lang>('de')
   const [code, setCode] = useState('')
   const [name, setName] = useState('')
   const [err, setErr] = useState('')
@@ -24,7 +33,7 @@ export function LandingPage() {
       setAuth(r.data.access_token, 'participant', r.data.name)
       nav('/lernen')
     } catch {
-      setErr('Kurs-Code ungültig oder Name fehlt.')
+      setErr(t(lang, 'joinError'))
     }
   }
 
@@ -32,42 +41,53 @@ export function LandingPage() {
     <div className="min-h-[100dvh] grid md:grid-cols-2">
       {/* Markenseite */}
       <div className="relative flex flex-col justify-between overflow-hidden bg-gradient-to-br from-teal-600 to-teal-800 p-8 sm:p-12 text-white">
-        <div className="animate-fade-up flex items-center gap-3">
-          <img src="/favicon.svg" alt="" className="h-9 w-9" />
-          <span className="text-lg font-semibold tracking-tight">IntNetwork</span>
+        <div className="animate-fade-up flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <img src="/favicon.svg" alt="" className="h-9 w-9" />
+            <span className="text-lg font-semibold tracking-tight">IntNetwork</span>
+          </div>
+          <div className="flex gap-1 text-xs font-medium">
+            <button onClick={() => setLang('de')}
+              className={`rounded px-2 py-1 ${lang === 'de' ? 'bg-white/20' : 'text-teal-100/70 hover:text-white'}`}>
+              DE
+            </button>
+            <button onClick={() => setLang('en')}
+              className={`rounded px-2 py-1 ${lang === 'en' ? 'bg-white/20' : 'text-teal-100/70 hover:text-white'}`}>
+              EN
+            </button>
+          </div>
         </div>
 
         <div className="animate-fade-up max-w-md py-12">
           <h1 className="text-4xl sm:text-5xl font-bold tracking-tight leading-[1.1]">
-            Netzwerk-Grundlagen, interaktiv.
+            {t(lang, 'heroTitle')}
           </h1>
           <p className="mt-4 text-teal-50/90 leading-relaxed">
-            Ein Kurs, der Netzwerke nicht erklärt, sondern zeigt. Frames bauen,
-            Switches lernen lassen, Pakete routen.
+            {t(lang, 'heroBody')}
           </p>
           <ul className="mt-8 flex flex-col divide-y divide-white/15 border-y border-white/15">
-            {POINTS.map((p) => (
+            {POINTS[lang].map((p) => (
               <li key={p} className="py-3 text-sm text-teal-50/90">{p}</li>
             ))}
           </ul>
         </div>
 
         <p className="animate-fade-up text-xs text-teal-100/70">
-          Interne Schulung. Zugang per Kurs-Code.
+          {t(lang, 'internalNote')}
         </p>
       </div>
 
       {/* Beitreten */}
       <div className="flex items-center justify-center bg-slate-50 p-6 sm:p-10">
         <div className="animate-fade-up w-full max-w-sm">
-          <h2 className="text-2xl font-bold text-slate-900">Kurs beitreten</h2>
+          <h2 className="text-2xl font-bold text-slate-900">{t(lang, 'joinCourse')}</h2>
           <p className="text-sm text-slate-500 mt-1 mb-6">
-            Code und Namen vom Trainer erhalten.
+            {t(lang, 'joinHint')}
           </p>
 
           <form onSubmit={join} className="flex flex-col gap-4">
             <div className="flex flex-col gap-1.5">
-              <label htmlFor="code" className="text-sm font-medium text-slate-700">Kurs-Code</label>
+              <label htmlFor="code" className="text-sm font-medium text-slate-700">{t(lang, 'courseCode')}</label>
               <input
                 id="code"
                 className="border border-slate-300 rounded-lg px-3 py-2 uppercase tracking-widest font-mono focus:border-teal-500"
@@ -78,7 +98,7 @@ export function LandingPage() {
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <label htmlFor="name" className="text-sm font-medium text-slate-700">Dein Name</label>
+              <label htmlFor="name" className="text-sm font-medium text-slate-700">{t(lang, 'yourName')}</label>
               <input
                 id="name"
                 className="border border-slate-300 rounded-lg px-3 py-2 focus:border-teal-500"
@@ -91,7 +111,7 @@ export function LandingPage() {
             {err && <p className="text-sm text-rose-600">{err}</p>}
 
             <button className="rounded-lg bg-teal-600 hover:bg-teal-700 text-white py-2.5 font-medium">
-              Beitreten
+              {t(lang, 'join')}
             </button>
           </form>
 
@@ -100,7 +120,7 @@ export function LandingPage() {
               onClick={() => nav('/trainer')}
               className="text-sm text-slate-500 hover:text-teal-700"
             >
-              Ich bin Trainer
+              {t(lang, 'trainerLogin')}
             </button>
           </div>
         </div>
