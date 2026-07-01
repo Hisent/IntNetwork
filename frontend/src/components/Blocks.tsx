@@ -2,7 +2,7 @@ import Markdown from 'react-markdown'
 import type { Block } from '@/types'
 import { WIDGETS } from '@/widgets/registry'
 
-const MD_COMPONENTS = {
+export const MD_COMPONENTS = {
   h2: (p: object) => <h2 className="text-xl font-bold text-slate-900 mt-2 mb-1" {...p} />,
   h3: (p: object) => <h3 className="text-base font-semibold text-slate-800 mt-2 mb-1" {...p} />,
   p: (p: object) => <p className="text-slate-700 leading-relaxed" {...p} />,

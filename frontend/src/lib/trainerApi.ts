@@ -1,4 +1,5 @@
 import { api } from '@/lib/api'
+import type { ModuleMeta, TrainerModuleDetail } from '@/types'
 
 export interface Course { id: number; name: string; join_code: string }
 export interface Dashboard {
@@ -18,4 +19,6 @@ export const trainerApi = {
   courseModules: (id: number) => api.get<CourseModule[]>(`/courses/${id}/modules`),
   setCourseModule: (id: number, module_key: string, active: boolean) =>
     api.put(`/courses/${id}/modules`, { module_key, active }),
+  trainerModules: () => api.get<ModuleMeta[]>('/trainer/modules'),
+  trainerModule: (key: string) => api.get<TrainerModuleDetail>(`/trainer/modules/${key}`),
 }
