@@ -1,10 +1,10 @@
-import hmac
-
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel
+from sqlalchemy.orm import Session
 
-from app.config import settings
-from app.services.security import create_token
+from app.database import get_db
+from app.models.trainer import Trainer
+from app.services.security import create_token, verify_password
 
 router = APIRouter(tags=["auth"])
 
@@ -15,11 +15,8 @@ class TrainerLogin(BaseModel):
 
 
 @router.post("/trainer/login")
-def trainer_login(data: TrainerLogin):
-    if not settings.admin_password:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Trainer-Login nicht konfiguriert")
-    ok_mail = hmac.compare_digest(data.email.lower(), settings.admin_email.lower())
-    ok_pw = hmac.compare_digest(data.password, settings.admin_password)
-    if not (ok_mail and ok_pw):
+def trainer_login(data: TrainerLogin, db: Session = Depends(get_db)):
+    t = db.query(Trainer).filter(Trainer.email == data.email.strip().lower()).first()
+    if not t or not verify_password(data.password, t.password_hash):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Login fehlgeschlagen")
-    return {"access_token": create_token(sub=settings.admin_email, role="trainer")}
+    return {"access_token": create_token(sub=t.email, role="trainer", extra={"trainer_id": t.id})}

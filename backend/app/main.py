@@ -15,6 +15,7 @@ from app.models import module_disabled as _module_disabled  # noqa: F401
 from app.models import setting as _setting  # noqa: F401
 from app.models import comment as _comment  # noqa: F401
 from app.models import content as _content  # noqa: F401
+from app.models import trainer as _trainer  # noqa: F401
 
 if not settings.debug and settings.secret_key == DEFAULT_SECRET_KEY:
     raise RuntimeError("SECRET_KEY ist nicht gesetzt (noch der Default).")
@@ -37,10 +38,12 @@ _wait_for_db()
 Base.metadata.create_all(bind=engine)
 
 from app.content.seed import seed_content_if_empty  # noqa: E402
+from app.services.trainer_seed import seed_trainer_if_empty  # noqa: E402
 
 _seed_db = SessionLocal()
 try:
     seed_content_if_empty(_seed_db)
+    seed_trainer_if_empty(_seed_db)
 finally:
     _seed_db.close()
 
@@ -69,6 +72,7 @@ from app.routers import comments as comments_router  # noqa: E402
 from app.routers import trainer_comments as trainer_comments_router  # noqa: E402
 from app.routers import presence as presence_router  # noqa: E402
 from app.routers import trainer_content as trainer_content_router  # noqa: E402
+from app.routers import trainer_accounts as trainer_accounts_router  # noqa: E402
 _api.include_router(auth_router.router)
 _api.include_router(courses_router.router)
 _api.include_router(join_router.router)
@@ -80,5 +84,6 @@ _api.include_router(comments_router.router)
 _api.include_router(trainer_comments_router.router)
 _api.include_router(presence_router.router)
 _api.include_router(trainer_content_router.router)
+_api.include_router(trainer_accounts_router.router)
 
 app.include_router(_api)

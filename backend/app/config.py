@@ -9,7 +9,7 @@ class Settings(BaseSettings):
     secret_key: str = DEFAULT_SECRET_KEY
     database_url: str = "sqlite:///./intnetwork.db"
     admin_email: str = "trainer@example.com"
-    admin_password: str = ""  # leer = Trainer-Login deaktiviert (kein Hardcoded-PW)
+    admin_password: str = ""  # nur Bootstrap: seedet EINEN Trainer bei leerer trainer-Tabelle; danach in DB gepflegt
     debug: bool = False
 
 
