@@ -12,6 +12,7 @@ import { Dhcp } from '@/widgets/dhcp/DhcpWidget'
 import { Ports } from '@/widgets/ports/PortsWidget'
 import { Icmp } from '@/widgets/icmp/IcmpWidget'
 import { Firewall } from '@/widgets/firewall/FirewallWidget'
+import { Ipv6 } from '@/widgets/ipv6/Ipv6Widget'
 
 export const WIDGETS: Record<string, ComponentType> = {
   'vlan-switch': VlanSwitch,
@@ -27,4 +28,5 @@ export const WIDGETS: Record<string, ComponentType> = {
   'ports-demo': Ports,
   'icmp-demo': Icmp,
   'firewall-demo': Firewall,
+  'ipv6-demo': Ipv6,
 }
