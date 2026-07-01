@@ -14,6 +14,7 @@ from app.models import quiz_result as _quiz_result  # noqa: F401
 from app.models import module_disabled as _module_disabled  # noqa: F401
 from app.models import setting as _setting  # noqa: F401
 from app.models import comment as _comment  # noqa: F401
+from app.models import content as _content  # noqa: F401
 
 if not settings.debug and settings.secret_key == DEFAULT_SECRET_KEY:
     raise RuntimeError("SECRET_KEY ist nicht gesetzt (noch der Default).")
