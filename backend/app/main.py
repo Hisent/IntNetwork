@@ -6,7 +6,7 @@ from sqlalchemy import text
 from sqlalchemy.exc import OperationalError
 
 from app.config import DEFAULT_SECRET_KEY, settings
-from app.database import Base, SessionLocal, engine
+from app.database import Base, SessionLocal, engine, sync_missing_columns
 from app.models import course as _course  # noqa: F401
 from app.models import participant as _participant  # noqa: F401
 from app.models import progress as _progress  # noqa: F401
@@ -36,6 +36,7 @@ def _wait_for_db(retries: int = 30, delay: float = 2.0) -> None:
 
 _wait_for_db()
 Base.metadata.create_all(bind=engine)
+sync_missing_columns()
 
 from app.content.seed import seed_content_if_empty  # noqa: E402
 from app.services.trainer_seed import seed_trainer_if_empty  # noqa: E402
