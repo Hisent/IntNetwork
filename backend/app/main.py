@@ -52,10 +52,12 @@ from app.routers import courses as courses_router  # noqa: E402
 from app.routers import join as join_router  # noqa: E402
 from app.routers import modules as modules_router  # noqa: E402
 from app.routers import changelog as changelog_router  # noqa: E402
+from app.routers import trainer_modules as trainer_modules_router  # noqa: E402
 _api.include_router(auth_router.router)
 _api.include_router(courses_router.router)
 _api.include_router(join_router.router)
 _api.include_router(modules_router.router)
 _api.include_router(changelog_router.router)
+_api.include_router(trainer_modules_router.router)
 
 app.include_router(_api)
