@@ -76,6 +76,11 @@ function TrainerDashboard({ onLogout }: { onLogout: () => void }) {
     queryKey: ['course-modules', selected], enabled: selected !== null,
     queryFn: () => trainerApi.courseModules(selected as number).then((r) => r.data),
   })
+  const presence = useQuery({
+    queryKey: ['presence', selected], enabled: selected !== null,
+    queryFn: () => trainerApi.coursePresence(selected as number).then((r) => r.data),
+    refetchInterval: 10_000,
+  })
   const toggleMod = useMutation({
     mutationFn: (v: { module_key: string; active: boolean }) =>
       trainerApi.setCourseModule(selected as number, v.module_key, v.active),
@@ -155,6 +160,24 @@ function TrainerDashboard({ onLogout }: { onLogout: () => void }) {
           </div>
         )}
 
+        {selected !== null && (
+          <div className="rounded-xl border bg-white p-4 mb-6">
+            <h3 className="text-sm font-semibold text-slate-700 mb-2">Gerade aktiv</h3>
+            {presence.data && presence.data.length > 0 ? (
+              <div className="flex flex-col gap-1.5">
+                {presence.data.map((entry) => (
+                  <div key={entry.name} className="flex justify-between text-sm">
+                    <span className="text-slate-700">{entry.name}</span>
+                    <span className="text-slate-500">{entry.module_title}</span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-slate-400">Niemand gerade aktiv.</p>
+            )}
+          </div>
+        )}
+
         {dash.data && (
           <div className="overflow-x-auto rounded-xl border bg-white">
             <table className="w-full text-sm">
@@ -185,9 +208,11 @@ function TrainerDashboard({ onLogout }: { onLogout: () => void }) {
         )}
 
         {changelog.data && changelog.data.length > 0 && (
-          <div className="mt-10">
-            <h2 className="text-sm font-semibold text-slate-700 mb-3">Änderungslog</h2>
-            <div className="flex flex-col gap-2">
+          <details className="mt-10">
+            <summary className="text-sm font-semibold text-slate-700 mb-3 cursor-pointer select-none">
+              Änderungslog
+            </summary>
+            <div className="flex flex-col gap-2 mt-3">
               {changelog.data.map((e, i) => (
                 <div key={i} className="rounded-xl border bg-white p-4">
                   <div className="flex items-baseline justify-between">
@@ -198,7 +223,7 @@ function TrainerDashboard({ onLogout }: { onLogout: () => void }) {
                 </div>
               ))}
             </div>
-          </div>
+          </details>
         )}
       </div>
     </div>

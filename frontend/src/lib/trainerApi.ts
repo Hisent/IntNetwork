@@ -11,6 +11,7 @@ export interface Dashboard {
 
 export interface ChangelogEntry { date: string; title: string; text: string }
 export interface CourseModule { key: string; title: string; order: number; active: boolean }
+export interface PresenceEntry { name: string; module_key: string; module_title: string }
 
 export const trainerApi = {
   listCourses: () => api.get<Course[]>('/courses'),
@@ -28,4 +29,5 @@ export const trainerApi = {
   addTrainerComment: (cid: number, key: string, block_index: number, body: string) =>
     api.post(`/trainer/courses/${cid}/modules/${key}/comments`, { block_index, body }),
   deleteTrainerComment: (id: number) => api.delete(`/trainer/comments/${id}`),
+  coursePresence: (cid: number) => api.get<PresenceEntry[]>(`/trainer/courses/${cid}/presence`),
 }
