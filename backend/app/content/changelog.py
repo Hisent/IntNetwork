@@ -1,5 +1,9 @@
 # Projekt-Changelog (nur für Trainer sichtbar). Neueste zuerst.
 CHANGELOG = [
+    {"date": "2026-07-01", "title": "Modul „ARP — IP trifft MAC“",
+     "text": "Neues Modul zwischen Subnetting und Routing: ARP-Auflösung (IP→MAC) "
+             "mit interaktiver Broadcast/Reply-Demo und ARP-Cache. Reihenfolge der "
+             "Folge-Module entsprechend angepasst."},
     {"date": "2026-07-01", "title": "Modul „DNS — Namensauflösung“",
      "text": "Neues Modul: DNS-Hierarchie (Root/TLD/autoritativ), iterative Auflösung "
              "mit interaktiver Resolver-Demo, Caching/TTL und Record-Typen (A/AAAA/CNAME/MX)."},

@@ -1,7 +1,7 @@
 NAT_MODULE = {
     "key": "nat",
     "title": "NAT & Internet-Zugang",
-    "order": 6,
+    "order": 7,
     "pass_threshold": 0.7,
     "prerequisites": ["routing"],
     "scenario": "Nordwind hat intern hunderte Geräte mit privaten IP-Adressen "

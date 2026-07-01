@@ -3,12 +3,13 @@ from copy import deepcopy
 from app.content.paket import PAKET_MODULE
 from app.content.switching import SWITCHING_MODULE
 from app.content.subnetting import SUBNETTING_MODULE
+from app.content.arp import ARP_MODULE
 from app.content.routing import ROUTING_MODULE
 from app.content.nat import NAT_MODULE
 from app.content.dns import DNS_MODULE
 from app.content.vlan import VLAN_MODULE
 
-MODULES = {m["key"]: m for m in (PAKET_MODULE, SWITCHING_MODULE, VLAN_MODULE, SUBNETTING_MODULE, ROUTING_MODULE, NAT_MODULE, DNS_MODULE)}
+MODULES = {m["key"]: m for m in (PAKET_MODULE, SWITCHING_MODULE, VLAN_MODULE, SUBNETTING_MODULE, ARP_MODULE, ROUTING_MODULE, NAT_MODULE, DNS_MODULE)}
 
 
 def module_meta() -> list[dict]:

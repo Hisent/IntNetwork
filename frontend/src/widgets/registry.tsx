@@ -7,6 +7,7 @@ import { Subnet } from '@/widgets/subnet/SubnetWidget'
 import { Routing } from '@/widgets/router/RoutingWidget'
 import { Nat } from '@/widgets/nat/NatWidget'
 import { Dns } from '@/widgets/dns/DnsWidget'
+import { Arp } from '@/widgets/arp/ArpWidget'
 
 export const WIDGETS: Record<string, ComponentType> = {
   'vlan-switch': VlanSwitch,
@@ -14,6 +15,7 @@ export const WIDGETS: Record<string, ComponentType> = {
   'osi-model': OsiModel,
   'mac-learning': MacLearning,
   'subnet-calc': Subnet,
+  'arp-demo': Arp,
   'routing-demo': Routing,
   'nat-demo': Nat,
   'dns-demo': Dns,

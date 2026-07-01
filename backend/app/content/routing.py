@@ -1,7 +1,7 @@
 ROUTING_MODULE = {
     "key": "routing",
     "title": "Routing",
-    "order": 5,
+    "order": 6,
     "pass_threshold": 0.7,
     "prerequisites": ["subnetting"],
     "scenario": "Nordwind hat jetzt getrennte Netze: Lager (192.168.10.0/24) und "

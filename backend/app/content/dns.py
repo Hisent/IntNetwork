@@ -1,7 +1,7 @@
 DNS_MODULE = {
     "key": "dns",
     "title": "DNS — Namensauflösung",
-    "order": 7,
+    "order": 8,
     "pass_threshold": 0.7,
     "prerequisites": ["routing"],
     "scenario": "Niemand bei Nordwind tippt `203.0.113.11` in den Browser — alle "
