@@ -4,6 +4,7 @@ import { LandingPage } from '@/pages/LandingPage'
 import { LearnPage } from '@/pages/LearnPage'
 import { ModulePage } from '@/pages/ModulePage'
 import { TrainerPage } from '@/pages/TrainerPage'
+import { TrainerModulePage } from '@/pages/TrainerModulePage'
 
 const qc = new QueryClient()
 
@@ -16,6 +17,7 @@ export default function App() {
           <Route path="/lernen" element={<LearnPage />} />
           <Route path="/lernen/:key" element={<ModulePage />} />
           <Route path="/trainer" element={<TrainerPage />} />
+          <Route path="/trainer/modul/:key" element={<TrainerModulePage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>

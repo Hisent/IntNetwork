@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { authApi } from '@/lib/api'
 import { trainerApi } from '@/lib/trainerApi'
@@ -46,6 +47,7 @@ function TrainerDashboard({ onLogout }: { onLogout: () => void }) {
     queryFn: () => trainerApi.dashboard(selected as number).then((r) => r.data),
   })
   const changelog = useQuery({ queryKey: ['changelog'], queryFn: () => trainerApi.changelog().then((r) => r.data) })
+  const presentMods = useQuery({ queryKey: ['trainer-modules'], queryFn: () => trainerApi.trainerModules().then((r) => r.data) })
   const courseMods = useQuery({
     queryKey: ['course-modules', selected], enabled: selected !== null,
     queryFn: () => trainerApi.courseModules(selected as number).then((r) => r.data),
@@ -78,6 +80,20 @@ function TrainerDashboard({ onLogout }: { onLogout: () => void }) {
             </button>
           ))}
         </div>
+
+        {presentMods.data && (
+          <div className="rounded-xl border bg-white p-4 mb-6">
+            <h3 className="text-sm font-semibold text-slate-700 mb-2">Module präsentieren</h3>
+            <div className="flex flex-wrap gap-2">
+              {presentMods.data.map((m) => (
+                <Link key={m.key} to={`/trainer/modul/${m.key}`}
+                  className="rounded-lg border px-3 py-1.5 text-sm text-slate-700 hover:bg-slate-50">
+                  {m.title}
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
 
         {courseMods.data && (
           <div className="rounded-xl border bg-white p-4 mb-6">

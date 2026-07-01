@@ -1,5 +1,5 @@
 import type { Question } from '@/types'
-import { isCorrect } from '@/components/trainerQuiz'
+import { isCorrect } from '@/components/quizSolutions'
 
 export function TrainerQuiz({ questions }: { questions: Question[] }) {
   return (

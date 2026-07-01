@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { isCorrect } from './trainerQuiz'
+import { isCorrect } from './quizSolutions'
 import type { Question } from '@/types'
 
 const single: Question = { id: 's', type: 'single', prompt: '', options: ['a', 'b'], answer: 'b' }
