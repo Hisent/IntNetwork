@@ -1,4 +1,4 @@
-from copy import deepcopy
+from sqlalchemy.orm import Session
 
 from app.content.paket import PAKET_MODULE
 from app.content.switching import SWITCHING_MODULE
@@ -15,50 +15,81 @@ from app.content.ipv6 import IPV6_MODULE
 from app.content.wlan import WLAN_MODULE
 from app.content.vpn import VPN_MODULE
 from app.content.vlan import VLAN_MODULE
+from app.models.content import ContentBlock, ContentModule, ContentQuizQuestion
 
+# Nur noch Seed-Quelle für seed_content_if_empty() (app/content/seed.py) — die
+# Trainer-/Teilnehmer-Auslieferung unten liest ausschließlich aus der DB.
 MODULES = {m["key"]: m for m in (PAKET_MODULE, SWITCHING_MODULE, VLAN_MODULE, SUBNETTING_MODULE, ARP_MODULE, ROUTING_MODULE, NAT_MODULE, DNS_MODULE, DHCP_MODULE, PORTS_MODULE, ICMP_MODULE, FIREWALL_MODULE, IPV6_MODULE, WLAN_MODULE, VPN_MODULE)}
 
 
 def _resolve(value, lang: str):
-    """Löst ein {"de": ..., "en": ...}-Feld zur gewünschten Sprache auf.
-    Nicht-übersetzbare Werte (Zahlen, IDs, Listen ohne de/en-Keys) bleiben unverändert."""
+    """Löst ein {"de": ..., "en": ...}-Feld zur gewünschten Sprache auf. Weiter genutzt von join.py für /company."""
     if isinstance(value, dict) and "de" in value and "en" in value:
         return value.get(lang, value["de"])
     return value
 
 
-def _resolve_module(m: dict, lang: str) -> dict:
-    out = deepcopy(m)
-    out["scenario"] = _resolve(out.get("scenario"), lang)
-    for b in out["blocks"]:
-        if "value" in b:
-            b["value"] = _resolve(b["value"], lang)
-    for q in out["quiz"]["questions"]:
-        q["prompt"] = _resolve(q["prompt"], lang)
-        if "options" in q:
-            q["options"] = _resolve(q["options"], lang)
+def _pick(de: str, en: str, lang: str) -> str:
+    return en if lang == "en" else de
+
+
+def _load(db: Session, key: str):
+    m = db.query(ContentModule).filter(ContentModule.key == key).first()
+    if not m:
+        return None
+    blocks = db.query(ContentBlock).filter(ContentBlock.module_key == key).order_by(ContentBlock.position).all()
+    questions = db.query(ContentQuizQuestion).filter(
+        ContentQuizQuestion.module_key == key).order_by(ContentQuizQuestion.position).all()
+    return m, blocks, questions
+
+
+def _module_dict(m: ContentModule, blocks: list[ContentBlock], questions: list[ContentQuizQuestion], lang: str) -> dict:
+    out = {
+        "key": m.key, "title": m.title_de, "title_en": m.title_en,
+        "order": m.order, "pass_threshold": m.pass_threshold,
+        "prerequisites": m.prerequisites, "goals": m.goals,
+        "scenario": _pick(m.scenario_de, m.scenario_en, lang),
+        "blocks": [], "quiz": {"questions": []},
+    }
+    for b in blocks:
+        if b.type == "text":
+            bd = {"type": "text", "value": _pick(b.value_de, b.value_en, lang)}
+        else:
+            bd = {"type": "widget", "id": b.widget_id}
+        if b.note:
+            bd["note"] = b.note
+        out["blocks"].append(bd)
+    for q in questions:
+        qd = {"id": str(q.id), "type": q.qtype, "prompt": _pick(q.prompt_de, q.prompt_en, lang), "answer": q.answer}
+        if q.qtype != "number":
+            qd["options"] = _pick(q.options_de, q.options_en, lang)
+        out["quiz"]["questions"].append(qd)
     return out
 
 
-def module_meta() -> list[dict]:
-    metas = [{"key": m["key"], "title": m["title"], "title_en": m.get("title_en", m["title"]),
-              "order": m["order"], "prerequisites": m.get("prerequisites", [])} for m in MODULES.values()]
-    return sorted(metas, key=lambda m: m["order"])
+def module_meta(db: Session) -> list[dict]:
+    mods = db.query(ContentModule).order_by(ContentModule.order).all()
+    return [{"key": m.key, "title": m.title_de, "title_en": m.title_en,
+             "order": m.order, "prerequisites": m.prerequisites} for m in mods]
 
 
-def public_module(key: str, lang: str = "de") -> dict | None:
-    m = MODULES.get(key)
-    if not m:
+def public_module(db: Session, key: str, lang: str = "de") -> dict | None:
+    loaded = _load(db, key)
+    if not loaded:
         return None
-    pub = _resolve_module(m, lang)
-    pub.pop("goals", None)
-    for b in pub["blocks"]:
+    m, blocks, questions = loaded
+    out = _module_dict(m, blocks, questions, lang)
+    out.pop("goals", None)
+    for b in out["blocks"]:
         b.pop("note", None)
-    for q in pub["quiz"]["questions"]:
+    for q in out["quiz"]["questions"]:
         q.pop("answer", None)
-    return pub
+    return out
 
 
-def trainer_module(key: str) -> dict | None:
-    m = MODULES.get(key)
-    return _resolve_module(m, "de") if m else None
+def trainer_module(db: Session, key: str) -> dict | None:
+    loaded = _load(db, key)
+    if not loaded:
+        return None
+    m, blocks, questions = loaded
+    return _module_dict(m, blocks, questions, "de")

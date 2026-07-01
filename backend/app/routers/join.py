@@ -43,7 +43,7 @@ def join(data: JoinReq, db: Session = Depends(get_db)):
 @router.get("/me")
 def me(db: Session = Depends(get_db), p: Participant = Depends(get_participant)):
     progress = []
-    for m in module_meta():
+    for m in module_meta(db):
         prog = db.query(Progress).filter(
             Progress.participant_id == p.id, Progress.module_key == m["key"]).first()
         best = db.query(QuizResult).filter(

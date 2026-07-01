@@ -11,7 +11,8 @@ from app.models.module_disabled import ModuleDisabled
 from app.services.codes import new_code
 from app.services.deps import get_trainer
 from app.services.activation import disabled_keys
-from app.content.registry import MODULES, module_meta
+from app.content.registry import module_meta
+from app.models.content import ContentModule
 
 router = APIRouter(prefix="/courses", tags=["courses"])
 
@@ -42,7 +43,7 @@ def dashboard(course_id: int, db: Session = Depends(get_db), _=Depends(get_train
     course = db.query(Course).filter(Course.id == course_id).first()
     if not course:
         raise HTTPException(status_code=404, detail="Kurs nicht gefunden")
-    metas = module_meta()
+    metas = module_meta(db)
     participants = db.query(Participant).filter(Participant.course_id == course_id).all()
     rows = []
     for p in participants:
@@ -67,7 +68,7 @@ def course_modules(course_id: int, db: Session = Depends(get_db), _=Depends(get_
         raise HTTPException(status_code=404, detail="Kurs nicht gefunden")
     off = disabled_keys(db, course_id)
     return [{"key": m["key"], "title": m["title"], "order": m["order"],
-             "active": m["key"] not in off} for m in module_meta()]
+             "active": m["key"] not in off} for m in module_meta(db)]
 
 
 class ModuleToggle(BaseModel):
@@ -80,7 +81,7 @@ def set_course_module(course_id: int, data: ModuleToggle,
                       db: Session = Depends(get_db), _=Depends(get_trainer)):
     if not db.query(Course).filter(Course.id == course_id).first():
         raise HTTPException(status_code=404, detail="Kurs nicht gefunden")
-    if data.module_key not in MODULES:
+    if not db.query(ContentModule).filter(ContentModule.key == data.module_key).first():
         raise HTTPException(status_code=422, detail="Unbekanntes Modul")
     row = db.query(ModuleDisabled).filter(
         ModuleDisabled.course_id == course_id,

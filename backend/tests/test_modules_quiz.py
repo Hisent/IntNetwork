@@ -16,10 +16,13 @@ def test_module_delivery_hides_answers_and_grades():
         h = {"Authorization": f"Bearer {tok}"}
 
         mod = c.get("/api/modules/vlan", headers=h).json()
+        ids = [q["id"] for q in mod["quiz"]["questions"]]
         for q in mod["quiz"]["questions"]:
             assert "answer" not in q
 
-        good = {"v1": 1, "v2": 1, "v3": [0, 1, 3], "v4": 20}
+        # Reihenfolge/Antworten entsprechen dem Content in app/content/vlan.py:
+        # v1 single->1, v2 single->1, v3 multi->[0,1,3], v4 number->20
+        good = {ids[0]: 1, ids[1]: 1, ids[2]: [0, 1, 3], ids[3]: 20}
         r = c.post("/api/modules/vlan/quiz", json={"answers": good}, headers=h).json()
         assert r["score"] == 4 and r["total"] == 4 and r["passed"] is True
 
@@ -27,7 +30,7 @@ def test_module_delivery_hides_answers_and_grades():
         vlan = next(p for p in me["progress"] if p["module_key"] == "vlan")
         assert vlan["done"] is True and vlan["best"] == 100
 
-        c.post("/api/modules/vlan/quiz", json={"answers": {"v1": 0}}, headers=h)
+        c.post("/api/modules/vlan/quiz", json={"answers": {ids[0]: 0}}, headers=h)
         me2 = c.get("/api/me", headers=h).json()
         assert next(p for p in me2["progress"] if p["module_key"] == "vlan")["best"] == 100
 

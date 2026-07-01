@@ -17,7 +17,7 @@ STALE_AFTER_SECONDS = 30
 @router.get("/trainer/courses/{cid}/presence")
 def course_presence(cid: int, db: Session = Depends(get_db), _t: dict = Depends(get_trainer)):
     cutoff = utc_now() - timedelta(seconds=STALE_AFTER_SECONDS)
-    titles = {m["key"]: m["title"] for m in module_meta()}
+    titles = {m["key"]: m["title"] for m in module_meta(db)}
     rows = db.query(Participant).filter(
         Participant.course_id == cid,
         Participant.last_seen.isnot(None),

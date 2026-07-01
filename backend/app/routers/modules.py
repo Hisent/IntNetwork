@@ -9,7 +9,7 @@ from app.models.quiz_result import QuizResult
 from app.services.deps import get_participant
 from app.services import grading
 from app.services.activation import disabled_keys
-from app.content.registry import MODULES, module_meta, public_module
+from app.content.registry import module_meta, public_module, trainer_module
 from app.utils import utc_now
 
 router = APIRouter(prefix="/modules", tags=["modules"])
@@ -18,14 +18,14 @@ router = APIRouter(prefix="/modules", tags=["modules"])
 @router.get("")
 def list_modules(db: Session = Depends(get_db), p: Participant = Depends(get_participant)):
     off = disabled_keys(db, p.course_id)
-    return [m for m in module_meta() if m["key"] not in off]
+    return [m for m in module_meta(db) if m["key"] not in off]
 
 
 @router.get("/{key}")
 def get_module(key: str, db: Session = Depends(get_db), p: Participant = Depends(get_participant)):
     if key in disabled_keys(db, p.course_id):
         raise HTTPException(status_code=404, detail="Modul nicht gefunden")
-    pub = public_module(key, p.language)
+    pub = public_module(db, key, p.language)
     if not pub:
         raise HTTPException(status_code=404, detail="Modul nicht gefunden")
     return pub
@@ -40,7 +40,7 @@ def submit_quiz(key: str, data: QuizSubmit, db: Session = Depends(get_db),
                 p: Participant = Depends(get_participant)):
     if key in disabled_keys(db, p.course_id):
         raise HTTPException(status_code=404, detail="Modul nicht gefunden")
-    module = MODULES.get(key)
+    module = trainer_module(db, key)
     if not module:
         raise HTTPException(status_code=404, detail="Modul nicht gefunden")
     score, total = grading.grade(module["quiz"], data.answers)
