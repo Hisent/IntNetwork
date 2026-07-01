@@ -30,3 +30,20 @@ def test_module_meta_has_prereqs_and_order():
     vlan = next(m for m in metas if m["key"] == "vlan")
     assert vlan["prerequisites"] == ["paket", "switching"]
     assert registry.public_module("nope") is None
+
+
+def test_public_module_strips_notes_and_goals():
+    pub = registry.public_module("switching")
+    assert "goals" not in pub
+    for b in pub["blocks"]:
+        assert "note" not in b
+    for q in pub["quiz"]["questions"]:
+        assert "answer" not in q
+
+
+def test_trainer_module_keeps_notes_answers_goals():
+    m = registry.trainer_module("switching")
+    assert m["goals"]
+    assert any("note" in b for b in m["blocks"])
+    assert m["quiz"]["questions"][0]["answer"]
+    assert registry.trainer_module("nope") is None

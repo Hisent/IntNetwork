@@ -4,13 +4,20 @@ SWITCHING_MODULE = {
     "order": 2,
     "pass_threshold": 0.7,
     "prerequisites": ["paket"],
+    "goals": [
+        "MAC-Adressen als Schicht-2-Kennung verstehen",
+        "Lernen, Weiterleiten und Flooding am Switch erklären",
+        "Broadcast-Domäne als Motivation für VLANs einordnen",
+    ],
     "scenario": "Bei Nordwind hängen alle Geräte an einem flachen Switch — trotzdem "
                 "landet nicht jeder Frame bei jedem. Wie findet der Switch heraus, an "
                 "welchem Port ein Gerät hängt?",
     "blocks": [
         {"type": "text", "value": "## MAC-Adressen\n\nJede Netzwerkkarte hat eine "
             "eindeutige **MAC-Adresse** (Schicht 2). Ein Switch arbeitet mit diesen "
-            "Adressen — nicht mit IPs."},
+            "Adressen — nicht mit IPs.",
+         "note": "Analogie: MAC = fest eingebaute Seriennummer der Netzwerkkarte, "
+                 "IP = die verhandelbare Postadresse. Kurz die 48-Bit-Schreibweise zeigen."},
         {"type": "text", "value": "## Lernen & Weiterleiten\n\nDer Switch führt eine "
             "**MAC-Adresstabelle** (`MAC → Port`).\n\n"
             "- **Lernen:** aus jedem ankommenden Frame merkt er sich die **Quell-MAC** "

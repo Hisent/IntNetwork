@@ -30,6 +30,14 @@ def public_module(key: str) -> dict | None:
     if not m:
         return None
     pub = deepcopy(m)
+    pub.pop("goals", None)
+    for b in pub["blocks"]:
+        b.pop("note", None)
     for q in pub["quiz"]["questions"]:
         q.pop("answer", None)
     return pub
+
+
+def trainer_module(key: str) -> dict | None:
+    m = MODULES.get(key)
+    return deepcopy(m) if m else None
