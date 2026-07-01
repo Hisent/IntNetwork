@@ -1,5 +1,9 @@
 # Projekt-Changelog (nur für Trainer sichtbar). Neueste zuerst.
 CHANGELOG = [
+    {"date": "2026-07-01", "title": "Feedback-Kommentare",
+     "text": "Teilnehmer und Trainer können pro Textabschnitt Kommentare "
+             "hinterlassen (kursweit sichtbar); der Trainer moderiert je Kurs und "
+             "kann das Feature per Schalter an- und ausschalten."},
     {"date": "2026-07-01", "title": "Trainer-Präsentationsansicht",
      "text": "Trainer haben pro Modul eine eigene Ansicht mit einklappbaren "
              "Präsentationsnotizen je Block, einer Kurzübersicht (Voraussetzungen, "
