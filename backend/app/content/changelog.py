@@ -1,5 +1,9 @@
 # Projekt-Changelog (nur für Trainer sichtbar). Neueste zuerst.
 CHANGELOG = [
+    {"date": "2026-07-01", "title": "Modul „WLAN — Netz ohne Kabel“",
+     "text": "Neues Modul: AP/SSID/Assoziation, 2,4- vs 5-GHz-Bänder und "
+             "Kanalüberlappung (1/6/11), WLAN-Sicherheit (WEP/WPA2/WPA3) — mit "
+             "interaktivem Kanal- und Verschlüsselungs-Vergleich."},
     {"date": "2026-07-01", "title": "Modul „IPv6 — Adressen der Zukunft“",
      "text": "Neues Modul: 128-Bit-Adressen, Hex-Schreibweise und ::-Kürzung, "
              "Adresstypen (Global/Link-Local/Loopback/Multicast), NDP/SLAAC — mit "
