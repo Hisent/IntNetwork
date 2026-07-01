@@ -12,7 +12,7 @@
   <img alt="React" src="https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=0f172a" />
   <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white" />
   <img alt="SQLAlchemy" src="https://img.shields.io/badge/SQLAlchemy-SQLite%20%2F%20PostgreSQL-4169E1?logo=sqlite&logoColor=white" />
-  <img alt="License" src="https://img.shields.io/badge/License-none%20declared-lightgrey" />
+  <img alt="License" src="https://img.shields.io/badge/License-MIT-yellow" />
 </p>
 
 ---
