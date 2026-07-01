@@ -34,7 +34,6 @@ export function TrainerBlocks({ blocks }: { blocks: Block[] }) {
       {blocks.map((b, i) => (
         <div key={i} className="flex flex-col gap-1">
           {b.type === 'text' && <Markdown components={MD_COMPONENTS}>{b.value}</Markdown>}
-          {b.type === 'image' && <img src={b.url} alt={b.alt ?? ''} className="rounded-lg border" />}
           {b.type === 'widget' && <WidgetBlock id={b.id} />}
           {b.note && <NoteBox note={b.note} />}
         </div>

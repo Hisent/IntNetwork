@@ -38,7 +38,7 @@ export function ModulePage() {
 
   return (
     <div className="min-h-screen bg-slate-50 p-6 sm:p-10">
-      <div className="max-w-2xl mx-auto">
+      <div className="max-w-2xl mx-auto animate-fade-up">
         <div className="flex items-center justify-between mb-2">
           <Link to="/lernen" className="text-sm text-slate-400 hover:text-slate-600">← {t(lang, 'modules')}</Link>
           <div className="flex gap-1 text-xs font-medium">

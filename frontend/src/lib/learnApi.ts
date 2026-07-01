@@ -9,7 +9,7 @@ export const learnApi = {
   listModules: () => api.get<ModuleMeta[]>('/modules'),
   getModule: (key: string) => api.get<ModuleDetail>(`/modules/${key}`),
   submitQuiz: (key: string, answers: Record<string, unknown>) =>
-    api.post<{ score: number; total: number; passed: boolean; best: number }>(
+    api.post<{ score: number; total: number; passed: boolean; best: number; details: Record<string, boolean> }>(
       `/modules/${key}/quiz`, { answers }),
   features: () => api.get<{ comments: boolean }>('/features'),
   listComments: (key: string) => api.get<Comment[]>(`/modules/${key}/comments`),

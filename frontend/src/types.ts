@@ -1,6 +1,5 @@
 export type Block =
   | { type: 'text'; value: string; note?: string }
-  | { type: 'image'; url: string; alt?: string; note?: string }
   | { type: 'widget'; id: string; note?: string }
 
 export type Question =

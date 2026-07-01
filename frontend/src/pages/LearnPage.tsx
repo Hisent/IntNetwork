@@ -29,6 +29,12 @@ export function LearnPage() {
     return m ? (lang === 'de' ? m.title : m.title_en) : key
   }
   const progressOf = (key: string) => me.data?.progress.find((p) => p.module_key === key)
+  const isDone = (key: string) => progressOf(key)?.done ?? false
+  const prereqsMet = (keys: string[]) => keys.every(isDone)
+
+  const total = mods.data?.length ?? 0
+  const doneCount = mods.data?.filter((m) => isDone(m.key)).length ?? 0
+  const donePct = total ? Math.round((doneCount / total) * 100) : 0
 
   return (
     <div className="min-h-screen bg-slate-50 p-6 sm:p-10">
@@ -46,7 +52,19 @@ export function LearnPage() {
             </button>
           </div>
         </div>
-        <p className="text-slate-500 text-sm mb-6">{t(lang, 'tagline')}</p>
+        <p className="text-slate-500 text-sm mb-4">{t(lang, 'tagline')}</p>
+
+        {total > 0 && (
+          <div className="mb-6">
+            <div className="flex justify-between text-xs text-slate-500 mb-1">
+              <span>{t(lang, 'courseProgress')}</span>
+              <span>{doneCount} / {total} {t(lang, 'modulesDone')}</span>
+            </div>
+            <div className="h-2 rounded-full bg-slate-200 overflow-hidden">
+              <div className="h-full bg-teal-500 rounded-full transition-all duration-500" style={{ width: `${donePct}%` }} />
+            </div>
+          </div>
+        )}
 
         {company.data && (
           <div className="rounded-2xl border bg-white p-5 mb-8">
@@ -64,17 +82,24 @@ export function LearnPage() {
         <div className="flex flex-col gap-3">
           {mods.data?.map((m) => {
             const p = progressOf(m.key)
+            const locked = m.prerequisites.length > 0 && !prereqsMet(m.prerequisites)
             return (
               <Link key={m.key} to={`/lernen/${m.key}`}
                 className="rounded-xl border bg-white p-4 hover:shadow block">
-                <div className="flex items-center justify-between">
-                  <span className="font-medium text-slate-800">{lang === 'de' ? m.title : m.title_en}</span>
-                  <span className="text-sm text-slate-500">
+                <div className="flex items-center justify-between gap-3">
+                  <span className="flex items-center gap-2 font-medium text-slate-800">
+                    <span aria-hidden="true" className={`w-2 h-2 rounded-full shrink-0 ${p?.done ? 'bg-green-500' : locked ? 'bg-slate-300' : 'bg-teal-500'}`} />
+                    {lang === 'de' ? m.title : m.title_en}
+                  </span>
+                  <span className="shrink-0 text-sm text-slate-500">
                     {p?.done ? `✓ ${t(lang, 'done')}` : t(lang, 'open')}{p?.best != null ? ` · ${t(lang, 'best')} ${p.best}%` : ''}
                   </span>
                 </div>
                 {m.prerequisites.length > 0 && (
-                  <p className="text-xs text-slate-400 mt-1">{t(lang, 'prerequisitesHint')}: {m.prerequisites.map(titleOf).join(', ')}</p>
+                  <p className={`text-xs mt-1 flex items-center gap-1 ${locked ? 'text-amber-600' : 'text-slate-400'}`}>
+                    <span aria-hidden="true">{locked ? '🔒' : '✓'}</span>
+                    {t(lang, 'prerequisitesHint')}: {m.prerequisites.map(titleOf).join(', ')}
+                  </p>
                 )}
               </Link>
             )

@@ -77,7 +77,8 @@ def submit_quiz(key: str, data: QuizSubmit, db: Session = Depends(get_db),
     results = db.query(QuizResult).filter(
         QuizResult.participant_id == p.id, QuizResult.module_key == key).all()
     best_pct = max((r.score / r.total for r in results if r.total), default=0)
-    return {"score": score, "total": total, "passed": is_passed, "best": round(best_pct * 100)}
+    return {"score": score, "total": total, "passed": is_passed, "best": round(best_pct * 100),
+            "details": grading.question_results(module["quiz"], data.answers)}
 
 
 @router.post("/{key}/heartbeat")

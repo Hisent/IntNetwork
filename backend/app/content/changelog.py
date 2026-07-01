@@ -1,5 +1,13 @@
 # Projekt-Changelog (nur für Trainer sichtbar). Neueste zuerst.
 CHANGELOG = [
+    {"date": "2026-07-01", "title": "Wissenscheck neu gestaltet",
+     "text": "Das Quiz am Modul-Ende ist jetzt eine eigene, deutlich abgesetzte "
+             "Sektion mit Fortschrittsanzeige (wie viele Fragen beantwortet), "
+             "Auswerten erst wenn alles ausgefüllt ist, und einer Rückmeldung pro "
+             "Frage (richtig/falsch) statt nur der Gesamtpunktzahl. Antwort-Optionen "
+             "werden jetzt gemischt angezeigt, damit man die Lösung nicht an der "
+             "Position erraten kann. Die Modul-Übersicht zeigt einen "
+             "Gesamt-Fortschrittsbalken und markiert noch gesperrte Module."},
     {"date": "2026-07-01", "title": "Mehrere Trainer-Zugänge",
      "text": "Statt einem einzigen Admin-Login können jetzt beliebig viele "
              "Trainer-Zugänge angelegt werden — direkt im Dashboard unter "

@@ -35,3 +35,10 @@ def test_passed_threshold():
     assert grading.passed(2, 3, 0.6) is True
     assert grading.passed(1, 3, 0.6) is False
     assert grading.passed(0, 0, 0.6) is False
+
+
+def test_question_results_per_question():
+    res = grading.question_results(QUIZ, {"q1": 1, "q2": [2, 0], "q3": 99})
+    assert res == {"q1": True, "q2": True, "q3": False}
+    # fehlende Antwort -> False, nie KeyError
+    assert grading.question_results(QUIZ, {}) == {"q1": False, "q2": False, "q3": False}
