@@ -7,3 +7,5 @@ __pycache__/
 *.local
 .env
 .DS_Store
+
+docs/
