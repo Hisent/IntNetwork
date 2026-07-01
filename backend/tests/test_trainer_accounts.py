@@ -68,6 +68,19 @@ def test_new_trainer_can_login_and_use_trainer_endpoints():
         assert wrong.status_code == 401
 
 
+def test_long_password_over_72_bytes_works_instead_of_500():
+    """bcrypt >= 4 wirft ValueError bei > 72 Bytes; ungekuerzt waere Login mit
+    langem Passwort ein unauthentifizierter 500er."""
+    with TestClient(app) as c:
+        h = _trainer(c)
+        long_pw = "x" * 100
+        r = c.post("/api/trainer/accounts", json={"email": "longpw@test.de", "name": "L", "password": long_pw}, headers=h)
+        assert r.status_code == 200
+        assert c.post("/api/trainer/login", json={"email": "longpw@test.de", "password": long_pw}).status_code == 200
+        # falsches langes Passwort -> sauberer 401, kein 500
+        assert c.post("/api/trainer/login", json={"email": "longpw@test.de", "password": "y" * 100}).status_code == 401
+
+
 def test_delete_trainer():
     with TestClient(app) as c:
         h = _trainer(c)
