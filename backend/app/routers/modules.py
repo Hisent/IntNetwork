@@ -25,7 +25,7 @@ def list_modules(db: Session = Depends(get_db), p: Participant = Depends(get_par
 def get_module(key: str, db: Session = Depends(get_db), p: Participant = Depends(get_participant)):
     if key in disabled_keys(db, p.course_id):
         raise HTTPException(status_code=404, detail="Modul nicht gefunden")
-    pub = public_module(key)
+    pub = public_module(key, p.language)
     if not pub:
         raise HTTPException(status_code=404, detail="Modul nicht gefunden")
     return pub

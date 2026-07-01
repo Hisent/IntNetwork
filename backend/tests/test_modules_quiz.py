@@ -32,3 +32,17 @@ def test_module_delivery_hides_answers_and_grades():
         assert next(p for p in me2["progress"] if p["module_key"] == "vlan")["best"] == 100
 
         assert c.get("/api/modules/nope", headers=h).status_code == 404
+
+
+def test_get_module_resolves_participant_language():
+    with TestClient(app) as c:
+        tok = _participant_token(c)
+        h = {"Authorization": f"Bearer {tok}"}
+
+        de = c.get("/api/modules/switching", headers=h).json()
+        c.patch("/api/me/language", json={"language": "en"}, headers=h)
+        en = c.get("/api/modules/switching", headers=h).json()
+        assert de["scenario"] != en["scenario"]
+
+        de_list = c.get("/api/modules", headers=h).json()
+        assert all("title_en" in m for m in de_list)
