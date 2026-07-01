@@ -1,5 +1,8 @@
 # Projekt-Changelog (nur für Trainer sichtbar). Neueste zuerst.
 CHANGELOG = [
+    {"date": "2026-07-01", "title": "Modul „Firewall & Sicherheit“",
+     "text": "Neues Modul: Firewall-Regelwerk (allow/deny), First-Match-Wins, "
+             "Default-Deny und stateful — mit interaktivem Regel-Simulator."},
     {"date": "2026-07-01", "title": "Modul „ICMP — ping & traceroute“",
      "text": "Neues Modul: ICMP-Grundlagen, ping (Echo Request/Reply) und traceroute "
              "über die TTL mit interaktiver Hop-für-Hop-Demo."},

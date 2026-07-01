@@ -23,6 +23,7 @@ def test_module_meta_has_prereqs_and_order():
     assert any(m["key"] == "dhcp" and m["order"] == 9 for m in metas)
     assert any(m["key"] == "ports" and m["order"] == 10 for m in metas)
     assert any(m["key"] == "icmp" and m["order"] == 11 for m in metas)
+    assert any(m["key"] == "firewall" and m["order"] == 12 for m in metas)
     vlan = next(m for m in metas if m["key"] == "vlan")
     assert vlan["prerequisites"] == ["paket", "switching"]
     assert registry.public_module("nope") is None
