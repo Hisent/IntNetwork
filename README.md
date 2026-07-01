@@ -1,7 +1,33 @@
-# IntNetwork
+<p align="center">
+  <img src="assets/logo.svg" alt="IntNetwork" width="380" height="72" />
+</p>
 
-Interaktiver Netzwerk-Grundlagenkurs (Trainer + Teilnehmer per Kurs-Code).
-MVP: Plattform + VLAN-Modul mit Switch-Simulator und serverseitig bewertetem Quiz.
+<p align="center">
+  Interaktiver Netzwerk-Grundlagenkurs — live im Kurs vorführbar, self-paced nachholbar.
+</p>
+
+<p align="center">
+  <img alt="Python" src="https://img.shields.io/badge/Python-3.14-3776AB?logo=python&logoColor=white" />
+  <img alt="FastAPI" src="https://img.shields.io/badge/FastAPI-009688?logo=fastapi&logoColor=white" />
+  <img alt="React" src="https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=0f172a" />
+  <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white" />
+  <img alt="SQLAlchemy" src="https://img.shields.io/badge/SQLAlchemy-SQLite%20%2F%20PostgreSQL-4169E1?logo=sqlite&logoColor=white" />
+  <img alt="License" src="https://img.shields.io/badge/License-none%20declared-lightgrey" />
+</p>
+
+---
+
+Trainer legen Kurse an, Teilnehmer treten per Kurs-Code + Name bei (kein Passwort). 15 aufeinander aufbauende Module führen anhand der fiktiven Firma „Nordwind Logistik GmbH" durch die Netzwerk-Grundlagen — jedes Modul kombiniert Theorie mit einem interaktiven Simulator und einem serverseitig bewerteten Quiz.
+
+## Highlights
+
+- **15 Module**, prereq-gated: Paketaufbau (OSI-Animation), Switching (MAC-Lernen), VLAN, Subnetting, ARP, Routing, NAT, DNS, DHCP, TCP/UDP-Ports, ICMP, Firewall, IPv6, WLAN, VPN — jeweils mit eigenem interaktiven Widget (Switch-Simulator, Frame-Builder, Subnetz-Rechner, Router-CLI, DORA-Demo, …).
+- **Zweisprachig (DE/EN)** für Teilnehmer, per Klick umschaltbar; Trainer-Bereich bleibt Deutsch.
+- **Modul-Editor im Browser**: Trainer bearbeiten Text, Widget-Platzierung, Quiz und Metadaten direkt in der UI — kein Code-Deploy nötig. Ein-Stufen-Undo pro Modul (Speichern snapshotet die Vorversion, "Wiederherstellen" ist ein Swap, also auch als Redo nutzbar).
+- **Live-Präsenzansicht**: Trainer sehen in Echtzeit, wer gerade in welchem Modul steckt.
+- **Feedback-Kommentare** je Textabschnitt, pro Kurs moderierbar, global an/ausschaltbar.
+- **Cisco-CLI-Simulation** (show-Befehle) in Switch- und Router-Widget integriert.
+- Trainer-Dashboard: Kurse anlegen, Fortschritt + besten Quiz-Score je Teilnehmer, Module pro Kurs aktivieren/deaktivieren.
 
 ## Backend
 
@@ -19,9 +45,9 @@ MVP: Plattform + VLAN-Modul mit Switch-Simulator und serverseitig bewertetem Qui
 
 ## Nutzung
 
-1. Trainer: `/trainer` → Login (ADMIN_EMAIL/PASSWORD) → Kurs anlegen → Code merken.
-2. Teilnehmer: `/` → Kurs-Code + Name → Modul „VLANs" → Theorie + Switch-Simulator + Quiz.
-3. Trainer-Dashboard zeigt Fortschritt + besten Quiz-Score je Teilnehmer.
+1. Trainer: `/trainer` → Login (`ADMIN_EMAIL`/`ADMIN_PASSWORD`) → Kurs anlegen → Code merken.
+2. Teilnehmer: `/` → Kurs-Code + Name → Sprache wählen → Module der Reihe nach durcharbeiten.
+3. Trainer-Dashboard zeigt Fortschritt + besten Quiz-Score je Teilnehmer, live wer gerade aktiv ist, und erlaubt Modul-Inhalte direkt zu bearbeiten (`✎`-Link je Modul).
 
 ## Deployment (Coolify / Docker Compose)
 
@@ -45,17 +71,25 @@ kommt ausschließlich aus `ADMIN_PASSWORD`. PostgreSQL-Daten liegen im Volume
 
 ## Tests
 
-    cd backend && pytest
+    cd backend && pytest          # 48 Tests
+    cd frontend && npm run test   # 64 Tests
 
 ## Weitere Module andocken
 
-- Backend: `ModuleDef` in `app/content/` ergänzen + in `registry.MODULES` registrieren.
-- Frontend: optionales Widget unter `src/widgets/` + in `widgets/registry.tsx` eintragen.
+Content liegt in der Datenbank (`content_module`/`content_block`/`content_quiz_question`,
+befüllt aus `app/content/*.py` beim ersten Start). Neue Module am einfachsten über
+den Modul-Editor im Trainer-Dashboard anlegen (Key + Titel, dann Blöcke/Quiz im
+Browser ausfüllen). Neue **Widget-Typen** (interaktive Simulatoren) sind weiterhin
+Code: Komponente unter `frontend/src/widgets/` + Eintrag in `widgets/registry.tsx`;
+der Modul-Editor bietet sie dann per Dropdown an (Liste in
+`backend/app/routers/trainer_content.py::VALID_WIDGET_IDS` synchron halten).
 
 ## Architektur
 
-- Backend (FastAPI/SQLite/JWT) hält Modul-Inhalte + Quiz-Lösungen serverseitig
-  und bewertet Quizze. Trainer = env-geseedetes Konto; Teilnehmer = (Kurs, Name)
-  per Code, gleicher Code+Name setzt Fortschritt fort.
-- Frontend (React/TS/Vite/Tailwind) rendert Modul-Blöcke; `widget`-Blöcke mappen
-  auf React-Komponenten (z.B. VLAN-Switch-Simulator).
+- **Backend** (FastAPI/SQLAlchemy/JWT, SQLite lokal + PostgreSQL in Produktion)
+  hält Modul-Inhalte, Quiz-Lösungen und Teilnehmer-Fortschritt serverseitig und
+  bewertet Quizze serverseitig. Trainer = env-geseedetes Konto; Teilnehmer =
+  (Kurs, Name) per Code, gleicher Code+Name setzt Fortschritt fort.
+- **Frontend** (React 19/TypeScript/Vite/Tailwind) rendert Modul-Blöcke;
+  `widget`-Blöcke mappen auf React-Komponenten (z.B. VLAN-Switch-Simulator,
+  Router-CLI). Eigenes schlankes i18n-Wörterbuch (kein Framework) für DE/EN.
