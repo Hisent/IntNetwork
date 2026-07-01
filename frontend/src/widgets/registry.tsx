@@ -8,6 +8,7 @@ import { Routing } from '@/widgets/router/RoutingWidget'
 import { Nat } from '@/widgets/nat/NatWidget'
 import { Dns } from '@/widgets/dns/DnsWidget'
 import { Arp } from '@/widgets/arp/ArpWidget'
+import { Dhcp } from '@/widgets/dhcp/DhcpWidget'
 
 export const WIDGETS: Record<string, ComponentType> = {
   'vlan-switch': VlanSwitch,
@@ -19,4 +20,5 @@ export const WIDGETS: Record<string, ComponentType> = {
   'routing-demo': Routing,
   'nat-demo': Nat,
   'dns-demo': Dns,
+  'dhcp-demo': Dhcp,
 }

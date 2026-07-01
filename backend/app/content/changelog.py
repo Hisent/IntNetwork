@@ -1,5 +1,8 @@
 # Projekt-Changelog (nur für Trainer sichtbar). Neueste zuerst.
 CHANGELOG = [
+    {"date": "2026-07-01", "title": "Modul „DHCP — Adressen automatisch“",
+     "text": "Neues Modul: automatische IP-Vergabe, DORA-Ablauf (Discover/Offer/"
+             "Request/Ack) mit interaktiver Demo, Lease und Pool."},
     {"date": "2026-07-01", "title": "Modul „ARP — IP trifft MAC“",
      "text": "Neues Modul zwischen Subnetting und Routing: ARP-Auflösung (IP→MAC) "
              "mit interaktiver Broadcast/Reply-Demo und ARP-Cache. Reihenfolge der "
