@@ -1,6 +1,8 @@
-from sqlalchemy import Float, ForeignKey, Integer, JSON, String, Text
+from datetime import datetime
+from sqlalchemy import DateTime, Float, ForeignKey, Integer, JSON, String, Text
 from sqlalchemy.orm import Mapped, mapped_column
 from app.database import Base
+from app.utils import utc_now
 
 
 class ContentModule(Base):
@@ -39,3 +41,10 @@ class ContentQuizQuestion(Base):
     options_de: Mapped[list | None] = mapped_column(JSON, nullable=True)
     options_en: Mapped[list | None] = mapped_column(JSON, nullable=True)
     answer: Mapped[object] = mapped_column(JSON)  # int (single/number) oder list[int] (multi)
+
+
+class ContentModuleSnapshot(Base):
+    __tablename__ = "content_module_snapshot"
+    module_key: Mapped[str] = mapped_column(ForeignKey("content_module.key"), primary_key=True)
+    data: Mapped[dict] = mapped_column(JSON)
+    saved_at: Mapped[datetime] = mapped_column(DateTime, default=utc_now)

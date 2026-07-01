@@ -105,3 +105,62 @@ def test_update_accepts_number_question_without_options():
         got = c.get("/api/trainer/content/modules/nummod", headers=h).json()
         assert got["quiz"][0]["answer"] == 42
         assert got["quiz"][0]["options_de"] is None
+
+
+def test_get_module_reports_has_snapshot():
+    with TestClient(app) as c:
+        h = _trainer(c)
+        c.post("/api/trainer/content/modules", json={"key": "snapmod", "title_de": "X"}, headers=h)
+
+        fresh = c.get("/api/trainer/content/modules/snapmod", headers=h).json()
+        assert fresh["has_snapshot"] is False
+
+        c.put("/api/trainer/content/modules/snapmod", json=_minimal_module(order=1), headers=h)
+        after_first_put = c.get("/api/trainer/content/modules/snapmod", headers=h).json()
+        assert after_first_put["has_snapshot"] is True
+
+
+def test_restore_requires_trainer():
+    with TestClient(app) as c:
+        assert c.post("/api/trainer/content/modules/vlan/restore").status_code in (401, 403)
+
+
+def test_restore_unknown_module_404():
+    with TestClient(app) as c:
+        h = _trainer(c)
+        assert c.post("/api/trainer/content/modules/does-not-exist/restore", headers=h).status_code == 404
+
+
+def test_restore_without_snapshot_404():
+    with TestClient(app) as c:
+        h = _trainer(c)
+        c.post("/api/trainer/content/modules", json={"key": "nosnap", "title_de": "X"}, headers=h)
+        assert c.post("/api/trainer/content/modules/nosnap/restore", headers=h).status_code == 404
+
+
+def test_restore_swaps_and_supports_redo():
+    with TestClient(app) as c:
+        h = _trainer(c)
+        c.post("/api/trainer/content/modules", json={"key": "swapmod", "title_de": "X"}, headers=h)
+
+        version_a = _minimal_module(order=1)
+        version_a["title_de"] = "Version A"
+        c.put("/api/trainer/content/modules/swapmod", json=version_a, headers=h)
+
+        version_b = _minimal_module(order=1)
+        version_b["title_de"] = "Version B"
+        c.put("/api/trainer/content/modules/swapmod", json=version_b, headers=h)
+
+        current = c.get("/api/trainer/content/modules/swapmod", headers=h).json()
+        assert current["title_de"] == "Version B"
+
+        r1 = c.post("/api/trainer/content/modules/swapmod/restore", headers=h)
+        assert r1.status_code == 200
+        after_restore_1 = c.get("/api/trainer/content/modules/swapmod", headers=h).json()
+        assert after_restore_1["title_de"] == "Version A"
+        assert after_restore_1["has_snapshot"] is True
+
+        r2 = c.post("/api/trainer/content/modules/swapmod/restore", headers=h)
+        assert r2.status_code == 200
+        after_restore_2 = c.get("/api/trainer/content/modules/swapmod", headers=h).json()
+        assert after_restore_2["title_de"] == "Version B"
