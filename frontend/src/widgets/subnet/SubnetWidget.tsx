@@ -1,9 +1,18 @@
 import { useState } from 'react'
 import { subnetInfo } from '@/widgets/subnet/subnet'
+import type { Lang } from '@/lib/i18n'
 
-export function Subnet() {
+const STR = {
+  de: { title: 'Subnetz-Rechner', prefix: 'Präfix', mask: 'Subnetzmaske', network: 'Netzadresse',
+    broadcast: 'Broadcast', firstHost: 'Erster Host', lastHost: 'Letzter Host', usable: 'Nutzbare Hosts' },
+  en: { title: 'Subnet Calculator', prefix: 'Prefix', mask: 'Subnet mask', network: 'Network address',
+    broadcast: 'Broadcast', firstHost: 'First host', lastHost: 'Last host', usable: 'Usable hosts' },
+} as const
+
+export function Subnet({ lang }: { lang: Lang }) {
   const [octets, setOctets] = useState([192, 168, 10, 37])
   const [prefix, setPrefix] = useState(24)
+  const s = STR[lang]
 
   const setOctet = (i: number, v: string) => {
     const n = Math.max(0, Math.min(255, Number(v) || 0))
@@ -13,17 +22,17 @@ export function Subnet() {
   const info = subnetInfo(octets.join('.'), prefix)
 
   const rows: [string, string][] = [
-    ['Subnetzmaske', info.mask],
-    ['Netzadresse', info.network],
-    ['Broadcast', info.broadcast],
-    ['Erster Host', info.firstHost],
-    ['Letzter Host', info.lastHost],
-    ['Nutzbare Hosts', String(info.usableHosts)],
+    [s.mask, info.mask],
+    [s.network, info.network],
+    [s.broadcast, info.broadcast],
+    [s.firstHost, info.firstHost],
+    [s.lastHost, info.lastHost],
+    [s.usable, String(info.usableHosts)],
   ]
 
   return (
     <div className="rounded-2xl border bg-white p-5">
-      <p className="text-sm font-semibold text-slate-700 mb-3">Subnetz-Rechner</p>
+      <p className="text-sm font-semibold text-slate-700 mb-3">{s.title}</p>
 
       <div className="flex flex-wrap items-end gap-3 mb-4">
         <div className="flex items-center gap-1">
@@ -39,7 +48,7 @@ export function Subnet() {
           ))}
         </div>
         <label className="text-xs text-slate-600">
-          Präfix /{prefix}
+          {s.prefix} /{prefix}
           <input
             type="range" min={8} max={30} value={prefix}
             onChange={(e) => setPrefix(Number(e.target.value))}

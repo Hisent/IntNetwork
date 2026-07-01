@@ -1,10 +1,19 @@
 import { useState } from 'react'
 import { expand, compress, classify } from '@/widgets/ipv6/ipv6'
+import type { Lang } from '@/lib/i18n'
 
 const PRESETS = ['2001:0db8:0000:0000:0000:0000:0000:0001', 'fe80::1', '::1', 'ff02::1']
 
-export function Ipv6() {
+const STR = {
+  de: { title: 'IPv6-Adresse: kürzen & prüfen', address: 'Adresse', shortForm: 'Kurzform', fullForm: 'Vollform',
+    type: 'Typ', invalid: 'Keine gültige IPv6-Adresse.' },
+  en: { title: 'IPv6 Address: Compress & Validate', address: 'Address', shortForm: 'Short form', fullForm: 'Full form',
+    type: 'Type', invalid: 'Not a valid IPv6 address.' },
+} as const
+
+export function Ipv6({ lang }: { lang: Lang }) {
   const [addr, setAddr] = useState('2001:db8:0:0:0:0:0:1')
+  const s = STR[lang]
 
   let ok = true
   let full = ''
@@ -19,11 +28,11 @@ export function Ipv6() {
 
   return (
     <div className="rounded-2xl border bg-white p-5">
-      <p className="text-sm font-semibold text-slate-700 mb-3">IPv6-Adresse: kürzen & prüfen</p>
+      <p className="text-sm font-semibold text-slate-700 mb-3">{s.title}</p>
 
       <div className="flex flex-wrap items-end gap-2 mb-2">
         <label className="text-xs text-slate-600">
-          Adresse
+          {s.address}
           <input
             value={addr}
             onChange={(e) => setAddr(e.target.value)}
@@ -48,9 +57,9 @@ export function Ipv6() {
       {ok ? (
         <div className="rounded-lg border divide-y text-xs">
           {[
-            ['Kurzform', short],
-            ['Vollform', full],
-            ['Typ', classify(addr)],
+            [s.shortForm, short],
+            [s.fullForm, full],
+            [s.type, classify(addr)],
           ].map(([k, v]) => (
             <div key={k} className="flex justify-between px-3 py-1.5">
               <span className="text-slate-500">{k}</span>
@@ -59,7 +68,7 @@ export function Ipv6() {
           ))}
         </div>
       ) : (
-        <p className="text-xs text-rose-700">Keine gültige IPv6-Adresse.</p>
+        <p className="text-xs text-rose-700">{s.invalid}</p>
       )}
     </div>
   )

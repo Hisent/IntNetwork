@@ -2,7 +2,7 @@ export type DhcpPhase = 'Discover' | 'Offer' | 'Request' | 'Ack'
 
 export interface DhcpStep {
   phase: DhcpPhase
-  text: string
+  text: { de: string; en: string }
 }
 
 export interface Lease {
@@ -22,10 +22,22 @@ const MASK = '255.255.255.0'
 export function lease(index: number): Lease {
   const ip = `192.168.10.${POOL_BASE + index}`
   const steps: DhcpStep[] = [
-    { phase: 'Discover', text: 'Client → Broadcast: „Ist da ein DHCP-Server?"' },
-    { phase: 'Offer', text: `Server → bietet ${ip} an (mit Maske, Gateway, DNS)` },
-    { phase: 'Request', text: `Client → Broadcast: „Ich nehme ${ip}"` },
-    { phase: 'Ack', text: `Server → bestätigt ${ip}, Lease läuft` },
+    { phase: 'Discover', text: {
+      de: 'Client → Broadcast: „Ist da ein DHCP-Server?“',
+      en: 'Client → broadcast: “Is a DHCP server there?”',
+    } },
+    { phase: 'Offer', text: {
+      de: `Server → bietet ${ip} an (mit Maske, Gateway, DNS)`,
+      en: `Server → offers ${ip} (with mask, gateway, DNS)`,
+    } },
+    { phase: 'Request', text: {
+      de: `Client → Broadcast: „Ich nehme ${ip}“`,
+      en: `Client → broadcast: “I'll take ${ip}”`,
+    } },
+    { phase: 'Ack', text: {
+      de: `Server → bestätigt ${ip}, Lease läuft`,
+      en: `Server → confirms ${ip}, lease is active`,
+    } },
   ]
   return { ip, mask: MASK, gateway: GATEWAY, dns: DNS, steps }
 }

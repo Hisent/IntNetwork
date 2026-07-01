@@ -1,25 +1,42 @@
 import { useState } from 'react'
 import { overlaps, NON_OVERLAPPING, SECURITY } from '@/widgets/wlan/wlan'
+import type { Lang } from '@/lib/i18n'
 
 const CHANNELS = Array.from({ length: 11 }, (_, i) => i + 1)
 
-export function Wlan() {
+const STR = {
+  de: {
+    title: '2,4-GHz-Kanäle — Überlappung', hint: 'Zwei Access Points in Funkreichweite. Überlappende Kanäle stören sich.',
+    ap1: 'AP 1', ap2: 'AP 2', channel: 'Kanal', freeChannels: 'Überlappungsfreie Kanäle', encryption: 'WLAN-Verschlüsselung',
+    clash: (a: number, b: number) => `Kanäle ${a} und ${b} überlappen → gegenseitige Störung.`,
+    free: (a: number, b: number) => `Kanäle ${a} und ${b} sind überlappungsfrei.`,
+  },
+  en: {
+    title: '2.4 GHz Channels — Overlap', hint: 'Two access points in radio range. Overlapping channels interfere with each other.',
+    ap1: 'AP 1', ap2: 'AP 2', channel: 'Channel', freeChannels: 'Non-overlapping channels', encryption: 'Wi-Fi Encryption',
+    clash: (a: number, b: number) => `Channels ${a} and ${b} overlap → mutual interference.`,
+    free: (a: number, b: number) => `Channels ${a} and ${b} are non-overlapping.`,
+  },
+} as const
+
+export function Wlan({ lang }: { lang: Lang }) {
   const [apA, setApA] = useState(1)
   const [apB, setApB] = useState(3)
   const clash = overlaps(apA, apB)
+  const s = STR[lang]
 
   return (
     <div className="rounded-2xl border bg-white p-5 space-y-5">
       <div>
-        <p className="text-sm font-semibold text-slate-700 mb-1">2,4-GHz-Kanäle — Überlappung</p>
+        <p className="text-sm font-semibold text-slate-700 mb-1">{s.title}</p>
         <p className="text-xs text-slate-500 mb-3">
-          Zwei Access Points in Funkreichweite. Überlappende Kanäle stören sich.
+          {s.hint}
         </p>
 
         <div className="flex flex-wrap items-end gap-3 mb-3">
           {[
-            ['AP 1', apA, setApA],
-            ['AP 2', apB, setApB],
+            [s.ap1, apA, setApA],
+            [s.ap2, apB, setApB],
           ].map(([label, val, set]) => (
             <label key={label as string} className="text-xs text-slate-600">
               {label as string}
@@ -30,7 +47,7 @@ export function Wlan() {
               >
                 {CHANNELS.map((c) => (
                   <option key={c} value={c}>
-                    Kanal {c}
+                    {s.channel} {c}
                   </option>
                 ))}
               </select>
@@ -43,27 +60,25 @@ export function Wlan() {
             clash ? 'bg-rose-50 text-rose-800' : 'bg-teal-50 text-teal-800'
           }`}
         >
-          {clash
-            ? `Kanäle ${apA} und ${apB} überlappen → gegenseitige Störung.`
-            : `Kanäle ${apA} und ${apB} sind überlappungsfrei.`}
+          {clash ? s.clash(apA, apB) : s.free(apA, apB)}
         </div>
         <p className="mt-2 text-xs text-slate-500">
-          Überlappungsfreie Kanäle: <span className="font-mono">{NON_OVERLAPPING.join(', ')}</span>
+          {s.freeChannels}: <span className="font-mono">{NON_OVERLAPPING.join(', ')}</span>
         </p>
       </div>
 
       <div>
-        <p className="text-sm font-semibold text-slate-700 mb-2">WLAN-Verschlüsselung</p>
+        <p className="text-sm font-semibold text-slate-700 mb-2">{s.encryption}</p>
         <div className="rounded-lg border divide-y text-xs">
-          {SECURITY.map((s) => (
-            <div key={s.name} className="flex items-center gap-3 px-3 py-1.5">
-              <span className={`w-14 font-semibold ${s.safe ? 'text-teal-700' : 'text-rose-700'}`}>
-                {s.name}
+          {SECURITY.map((sec) => (
+            <div key={sec.name.de} className="flex items-center gap-3 px-3 py-1.5">
+              <span className={`w-14 font-semibold ${sec.safe ? 'text-teal-700' : 'text-rose-700'}`}>
+                {sec.name[lang]}
               </span>
-              <span className={s.safe ? 'text-slate-600' : 'text-rose-700'}>
-                {s.safe ? '✓' : '✗'}
+              <span className={sec.safe ? 'text-slate-600' : 'text-rose-700'}>
+                {sec.safe ? '✓' : '✗'}
               </span>
-              <span className="text-slate-600">{s.note}</span>
+              <span className="text-slate-600">{sec.note[lang]}</span>
             </div>
           ))}
         </div>

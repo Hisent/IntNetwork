@@ -1,18 +1,35 @@
 import { useState } from 'react'
 import { serviceFor, HANDSHAKE, WELL_KNOWN } from '@/widgets/ports/ports'
+import type { Lang } from '@/lib/i18n'
 
 const PRESETS = [80, 443, 22, 53]
 
-export function Ports() {
+const FROM_LABEL = { de: { Client: 'Client', Server: 'Server' }, en: { Client: 'Client', Server: 'Server' } } as const
+
+const STR = {
+  de: {
+    portToService: 'Port → Dienst', port: 'Port', handshake: 'TCP 3-Wege-Handshake', tcpVsUdp: 'TCP vs. UDP',
+    tcp: ['verbindungsorientiert (Handshake)', 'zuverlässig, Reihenfolge garantiert', 'Web, E-Mail, SSH'],
+    udp: ['verbindungslos, kein Handshake', 'schnell, keine Garantie', 'DNS, Video, VoIP, Spiele'],
+  },
+  en: {
+    portToService: 'Port → Service', port: 'Port', handshake: 'TCP 3-Way Handshake', tcpVsUdp: 'TCP vs. UDP',
+    tcp: ['connection-oriented (handshake)', 'reliable, order guaranteed', 'Web, email, SSH'],
+    udp: ['connectionless, no handshake', 'fast, no guarantees', 'DNS, video, VoIP, games'],
+  },
+} as const
+
+export function Ports({ lang }: { lang: Lang }) {
   const [port, setPort] = useState(443)
+  const s = STR[lang]
 
   return (
     <div className="rounded-2xl border bg-white p-5 space-y-5">
       <div>
-        <p className="text-sm font-semibold text-slate-700 mb-3">Port → Dienst</p>
+        <p className="text-sm font-semibold text-slate-700 mb-3">{s.portToService}</p>
         <div className="flex flex-wrap items-end gap-2 mb-2">
           <label className="text-xs text-slate-600">
-            Port
+            {s.port}
             <input
               type="number"
               value={port}
@@ -31,44 +48,40 @@ export function Ports() {
           ))}
         </div>
         <p className="text-xs text-slate-600">
-          Port <span className="font-mono">{port}</span> →{' '}
-          <span className="font-mono text-teal-700">{serviceFor(port)}</span>
+          {s.port} <span className="font-mono">{port}</span> →{' '}
+          <span className="font-mono text-teal-700">{serviceFor(port, lang)}</span>
         </p>
       </div>
 
       <div>
-        <p className="text-sm font-semibold text-slate-700 mb-3">TCP 3-Wege-Handshake</p>
+        <p className="text-sm font-semibold text-slate-700 mb-3">{s.handshake}</p>
         <ol className="space-y-2">
-          {HANDSHAKE.map((s, i) => (
+          {HANDSHAKE.map((step, i) => (
             <li key={i} className="flex items-center gap-3 text-xs">
-              <span className="w-14 shrink-0 text-slate-500">{s.from}</span>
-              <span className="text-slate-300">{s.from === 'Client' ? '───▶' : '◀───'}</span>
+              <span className="w-14 shrink-0 text-slate-500">{FROM_LABEL[lang][step.from]}</span>
+              <span className="text-slate-300">{step.from === 'Client' ? '───▶' : '◀───'}</span>
               <span className="rounded bg-teal-100 px-2 py-0.5 font-mono font-semibold text-teal-700">
-                {s.flag}
+                {step.flag}
               </span>
-              <span className="text-slate-600">{s.text}</span>
+              <span className="text-slate-600">{step.text[lang]}</span>
             </li>
           ))}
         </ol>
       </div>
 
       <div>
-        <p className="text-sm font-semibold text-slate-700 mb-2">TCP vs. UDP</p>
+        <p className="text-sm font-semibold text-slate-700 mb-2">{s.tcpVsUdp}</p>
         <div className="grid grid-cols-2 gap-3 text-xs">
           <div className="rounded-xl border p-3">
             <p className="font-semibold text-slate-700 mb-1">TCP</p>
             <ul className="list-disc list-inside text-slate-600 space-y-0.5">
-              <li>verbindungsorientiert (Handshake)</li>
-              <li>zuverlässig, Reihenfolge garantiert</li>
-              <li>Web, E-Mail, SSH</li>
+              {s.tcp.map((line) => <li key={line}>{line}</li>)}
             </ul>
           </div>
           <div className="rounded-xl border p-3">
             <p className="font-semibold text-slate-700 mb-1">UDP</p>
             <ul className="list-disc list-inside text-slate-600 space-y-0.5">
-              <li>verbindungslos, kein Handshake</li>
-              <li>schnell, keine Garantie</li>
-              <li>DNS, Video, VoIP, Spiele</li>
+              {s.udp.map((line) => <li key={line}>{line}</li>)}
             </ul>
           </div>
         </div>

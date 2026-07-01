@@ -1,44 +1,55 @@
 import { useState } from 'react'
 import { lease, type Lease } from '@/widgets/dhcp/dhcp'
+import type { Lang } from '@/lib/i18n'
 
-export function Dhcp() {
+const STR = {
+  de: { title: 'DHCP — automatische IP-Vergabe', newClient: 'Neuer Client verbindet sich', reset: 'Zurücksetzen',
+    ip: 'IP-Adresse', mask: 'Subnetzmaske', gateway: 'Gateway', dns: 'DNS-Server',
+    leases: 'Vergebene Leases', none: 'keine', client: 'Client' },
+  en: { title: 'DHCP — Automatic IP Assignment', newClient: 'New client connects', reset: 'Reset',
+    ip: 'IP address', mask: 'Subnet mask', gateway: 'Gateway', dns: 'DNS server',
+    leases: 'Assigned leases', none: 'none', client: 'Client' },
+} as const
+
+export function Dhcp({ lang }: { lang: Lang }) {
   const [leases, setLeases] = useState<Lease[]>([])
+  const s = STR[lang]
 
   const add = () => setLeases((ls) => [...ls, lease(ls.length)])
   const last = leases[leases.length - 1]
 
   return (
     <div className="rounded-2xl border bg-white p-5">
-      <p className="text-sm font-semibold text-slate-700 mb-3">DHCP — automatische IP-Vergabe</p>
+      <p className="text-sm font-semibold text-slate-700 mb-3">{s.title}</p>
 
       <div className="flex gap-2 mb-3">
         <button
           onClick={add}
           className="rounded-lg bg-teal-600 hover:bg-teal-700 text-white px-3 py-1.5 text-sm font-medium"
         >
-          Neuer Client verbindet sich
+          {s.newClient}
         </button>
         <button onClick={() => setLeases([])} className="rounded-lg border px-3 py-1.5 text-sm">
-          Zurücksetzen
+          {s.reset}
         </button>
       </div>
 
       {last && (
         <>
           <ol className="space-y-1.5 mb-3">
-            {last.steps.map((s, i) => (
+            {last.steps.map((step, i) => (
               <li key={i} className="flex gap-3 text-xs">
-                <span className="w-16 shrink-0 font-semibold text-teal-700">{s.phase}</span>
-                <span className="text-slate-600">{s.text}</span>
+                <span className="w-16 shrink-0 font-semibold text-teal-700">{step.phase}</span>
+                <span className="text-slate-600">{step.text[lang]}</span>
               </li>
             ))}
           </ol>
           <div className="rounded-lg border divide-y text-xs font-mono mb-4">
             {[
-              ['IP-Adresse', last.ip],
-              ['Subnetzmaske', last.mask],
-              ['Gateway', last.gateway],
-              ['DNS-Server', last.dns],
+              [s.ip, last.ip],
+              [s.mask, last.mask],
+              [s.gateway, last.gateway],
+              [s.dns, last.dns],
             ].map(([k, v]) => (
               <div key={k} className="flex justify-between px-3 py-1.5">
                 <span className="text-slate-500">{k}</span>
@@ -49,14 +60,14 @@ export function Dhcp() {
         </>
       )}
 
-      <p className="text-xs font-semibold text-slate-500 mb-1">Vergebene Leases</p>
+      <p className="text-xs font-semibold text-slate-500 mb-1">{s.leases}</p>
       <div className="rounded-lg border divide-y text-xs font-mono">
         {leases.length === 0 ? (
-          <div className="px-3 py-2 text-slate-400">keine</div>
+          <div className="px-3 py-2 text-slate-400">{s.none}</div>
         ) : (
           leases.map((l, i) => (
             <div key={l.ip} className="flex justify-between px-3 py-1.5">
-              <span className="text-slate-700">Client {i + 1}</span>
+              <span className="text-slate-700">{s.client} {i + 1}</span>
               <span className="text-slate-500">{l.ip}</span>
             </div>
           ))

@@ -1,14 +1,14 @@
 export interface ArpHost {
   ip: string
   mac: string
-  name: string
+  name: { de: string; en: string }
 }
 
 export const HOSTS: ArpHost[] = [
-  { ip: '192.168.10.10', mac: 'AA:00:00:00:10:10', name: 'PC-A' },
-  { ip: '192.168.10.11', mac: 'AA:00:00:00:10:11', name: 'PC-B' },
-  { ip: '192.168.10.12', mac: 'AA:00:00:00:10:12', name: 'Drucker' },
-  { ip: '192.168.10.1', mac: 'AA:00:00:00:10:01', name: 'Gateway' },
+  { ip: '192.168.10.10', mac: 'AA:00:00:00:10:10', name: { de: 'PC-A', en: 'PC-A' } },
+  { ip: '192.168.10.11', mac: 'AA:00:00:00:10:11', name: { de: 'PC-B', en: 'PC-B' } },
+  { ip: '192.168.10.12', mac: 'AA:00:00:00:10:12', name: { de: 'Drucker', en: 'Printer' } },
+  { ip: '192.168.10.1', mac: 'AA:00:00:00:10:01', name: { de: 'Gateway', en: 'Gateway' } },
 ]
 
 export interface ArpResult {

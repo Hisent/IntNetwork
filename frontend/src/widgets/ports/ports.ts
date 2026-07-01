@@ -13,18 +13,20 @@ export const WELL_KNOWN: Record<number, string> = {
   3389: 'RDP',
 }
 
-export function serviceFor(port: number): string {
-  return WELL_KNOWN[port] ?? 'kein Standard-Dienst (dynamischer Port)'
+const NO_SERVICE = { de: 'kein Standard-Dienst (dynamischer Port)', en: 'no standard service (dynamic port)' }
+
+export function serviceFor(port: number, lang: 'de' | 'en' = 'de'): string {
+  return WELL_KNOWN[port] ?? NO_SERVICE[lang]
 }
 
 export interface HandshakeStep {
   from: 'Client' | 'Server'
   flag: string
-  text: string
+  text: { de: string; en: string }
 }
 
 export const HANDSHAKE: HandshakeStep[] = [
-  { from: 'Client', flag: 'SYN', text: 'Verbindungswunsch, Startnummer x' },
-  { from: 'Server', flag: 'SYN-ACK', text: 'akzeptiert, Startnummer y, bestätigt x+1' },
-  { from: 'Client', flag: 'ACK', text: 'bestätigt y+1 — Verbindung steht' },
+  { from: 'Client', flag: 'SYN', text: { de: 'Verbindungswunsch, Startnummer x', en: 'Wants to connect, starting number x' } },
+  { from: 'Server', flag: 'SYN-ACK', text: { de: 'akzeptiert, Startnummer y, bestätigt x+1', en: 'accepts, starting number y, confirms x+1' } },
+  { from: 'Client', flag: 'ACK', text: { de: 'bestätigt y+1 — Verbindung steht', en: 'confirms y+1 — connection established' } },
 ]

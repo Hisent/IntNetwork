@@ -1,10 +1,10 @@
-export interface Host { port: number; name: string; mac: string }
+export interface Host { port: number; name: { de: string; en: string }; mac: string }
 
 export const HOSTS: Host[] = [
-  { port: 1, name: 'PC-A', mac: 'AA:00:00:00:00:01' },
-  { port: 2, name: 'PC-B', mac: 'AA:00:00:00:00:02' },
-  { port: 3, name: 'Drucker', mac: 'AA:00:00:00:00:03' },
-  { port: 4, name: 'Kamera', mac: 'AA:00:00:00:00:04' },
+  { port: 1, name: { de: 'PC-A', en: 'PC-A' }, mac: 'AA:00:00:00:00:01' },
+  { port: 2, name: { de: 'PC-B', en: 'PC-B' }, mac: 'AA:00:00:00:00:02' },
+  { port: 3, name: { de: 'Drucker', en: 'Printer' }, mac: 'AA:00:00:00:00:03' },
+  { port: 4, name: { de: 'Kamera', en: 'Camera' }, mac: 'AA:00:00:00:00:04' },
 ]
 
 export interface LearnResult {

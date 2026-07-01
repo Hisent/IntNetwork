@@ -7,14 +7,18 @@ export function overlaps(a: number, b: number): boolean {
 }
 
 export interface WifiSecurity {
-  name: string
+  name: { de: string; en: string }
   safe: boolean
-  note: string
+  note: { de: string; en: string }
 }
 
 export const SECURITY: WifiSecurity[] = [
-  { name: 'Offen', safe: false, note: 'keine Verschlüsselung — nie im Firmennetz' },
-  { name: 'WEP', safe: false, note: 'gebrochen, in Minuten knackbar' },
-  { name: 'WPA2', safe: true, note: 'solider Standard (AES)' },
-  { name: 'WPA3', safe: true, note: 'aktuell, stärkster Schutz' },
+  { name: { de: 'Offen', en: 'Open' }, safe: false,
+    note: { de: 'keine Verschlüsselung — nie im Firmennetz', en: 'no encryption — never on the company network' } },
+  { name: { de: 'WEP', en: 'WEP' }, safe: false,
+    note: { de: 'gebrochen, in Minuten knackbar', en: 'broken, crackable in minutes' } },
+  { name: { de: 'WPA2', en: 'WPA2' }, safe: true,
+    note: { de: 'solider Standard (AES)', en: 'solid standard (AES)' } },
+  { name: { de: 'WPA3', en: 'WPA3' }, safe: true,
+    note: { de: 'aktuell, stärkster Schutz', en: 'current, strongest protection' } },
 ]
