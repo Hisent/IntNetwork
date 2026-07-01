@@ -1,5 +1,9 @@
 # Projekt-Changelog (nur für Trainer sichtbar). Neueste zuerst.
 CHANGELOG = [
+    {"date": "2026-07-01", "title": "Zweisprachigkeit (DE/EN)",
+     "text": "Teilnehmer können zwischen Deutsch und Englisch wechseln — Landing, "
+             "Module, Quiz und alle interaktiven Widgets. Die Wahl wird am "
+             "Teilnehmer gespeichert. Der Trainer-Bereich bleibt deutsch."},
     {"date": "2026-07-01", "title": "Feedback-Kommentare",
      "text": "Teilnehmer und Trainer können pro Textabschnitt Kommentare "
              "hinterlassen (kursweit sichtbar); der Trainer moderiert je Kurs und "
