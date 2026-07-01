@@ -40,6 +40,7 @@ export interface EditorModule {
   scenario_en: string
   blocks: EditorBlock[]
   quiz: EditorQuestion[]
+  has_snapshot: boolean
 }
 export interface EditorModuleMeta { key: string; title_de: string; title_en: string; order: number }
 
@@ -66,4 +67,5 @@ export const trainerApi = {
     api.post<EditorModuleMeta>('/trainer/content/modules', { key, title_de }),
   saveContentModule: (key: string, data: Omit<EditorModule, 'key'>) =>
     api.put<EditorModuleMeta>(`/trainer/content/modules/${key}`, data),
+  restoreContentModule: (key: string) => api.post<EditorModuleMeta>(`/trainer/content/modules/${key}/restore`),
 }
