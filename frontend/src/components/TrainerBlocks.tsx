@@ -6,7 +6,7 @@ import { MD_COMPONENTS } from '@/components/Blocks'
 
 function WidgetBlock({ id }: { id: string }) {
   const W = WIDGETS[id]
-  return W ? <W /> : <div className="text-sm text-red-500">Unbekanntes Widget: {id}</div>
+  return W ? <W lang="de" /> : <div className="text-sm text-red-500">Unbekanntes Widget: {id}</div>
 }
 
 function NoteBox({ note }: { note: string }) {

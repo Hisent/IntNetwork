@@ -1,4 +1,5 @@
 import type { ComponentType } from 'react'
+import type { Lang } from '@/lib/i18n'
 import { VlanSwitch } from '@/widgets/VlanSwitch'
 import { FrameBuilder } from '@/widgets/FrameBuilder'
 import { OsiModel } from '@/widgets/osi/OsiWidget'
@@ -16,7 +17,7 @@ import { Ipv6 } from '@/widgets/ipv6/Ipv6Widget'
 import { Wlan } from '@/widgets/wlan/WlanWidget'
 import { Vpn } from '@/widgets/vpn/VpnWidget'
 
-export const WIDGETS: Record<string, ComponentType> = {
+export const WIDGETS: Record<string, ComponentType<{ lang: Lang }>> = {
   'vlan-switch': VlanSwitch,
   'frame-builder': FrameBuilder,
   'osi-model': OsiModel,

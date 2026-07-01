@@ -2,6 +2,7 @@ import type { ReactNode } from 'react'
 import Markdown from 'react-markdown'
 import type { Block } from '@/types'
 import { WIDGETS } from '@/widgets/registry'
+import type { Lang } from '@/lib/i18n'
 
 export const MD_COMPONENTS = {
   h2: (p: object) => <h2 className="text-xl font-bold text-slate-900 mt-2 mb-1" {...p} />,
@@ -12,16 +13,18 @@ export const MD_COMPONENTS = {
   strong: (p: object) => <strong className="font-semibold text-slate-900" {...p} />,
 }
 
-function WidgetBlock({ id }: { id: string }) {
+function WidgetBlock({ id, lang }: { id: string; lang: Lang }) {
   const W = WIDGETS[id]
-  return W ? <W /> : <div className="text-sm text-red-500">Unbekanntes Widget: {id}</div>
+  return W ? <W lang={lang} /> : <div className="text-sm text-red-500">Unbekanntes Widget: {id}</div>
 }
 
 export function Blocks({
   blocks,
+  lang = 'de',
   footer,
 }: {
   blocks: Block[]
+  lang?: Lang
   footer?: (block: Block, index: number) => ReactNode
 }) {
   return (
@@ -30,7 +33,7 @@ export function Blocks({
         <div key={i} className="flex flex-col gap-1">
           {b.type === 'text' && <Markdown components={MD_COMPONENTS}>{b.value}</Markdown>}
           {b.type === 'image' && <img src={b.url} alt={b.alt ?? ''} className="rounded-lg border" />}
-          {b.type === 'widget' && <WidgetBlock id={b.id} />}
+          {b.type === 'widget' && <WidgetBlock id={b.id} lang={lang} />}
           {footer?.(b, i)}
         </div>
       ))}
