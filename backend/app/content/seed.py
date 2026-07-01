@@ -14,6 +14,7 @@ def seed_content_if_empty(db: Session) -> None:
             title_en=m.get("title_en", m["title"]), goals=m.get("goals", []),
             scenario_de=m["scenario"]["de"], scenario_en=m["scenario"]["en"],
         ))
+        db.flush()  # ContentModule-Zeile muss existieren, bevor Blocks/Quiz per FK darauf verweisen (kein relationship() -> UOW ordnet sonst nicht)
         for i, b in enumerate(m["blocks"]):
             if b["type"] == "text":
                 db.add(ContentBlock(module_key=m["key"], position=i, type="text",
