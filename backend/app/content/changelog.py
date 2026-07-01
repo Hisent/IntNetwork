@@ -1,5 +1,8 @@
 # Projekt-Changelog (nur für Trainer sichtbar). Neueste zuerst.
 CHANGELOG = [
+    {"date": "2026-07-01", "title": "Modul „ICMP — ping & traceroute“",
+     "text": "Neues Modul: ICMP-Grundlagen, ping (Echo Request/Reply) und traceroute "
+             "über die TTL mit interaktiver Hop-für-Hop-Demo."},
     {"date": "2026-07-01", "title": "Modul „TCP, UDP & Ports“",
      "text": "Neues Modul: Transportschicht, Well-known Ports, TCP-3-Wege-Handshake "
              "und TCP-vs-UDP-Vergleich mit interaktivem Port-Nachschlagewerk."},

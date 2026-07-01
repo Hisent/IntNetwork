@@ -9,9 +9,10 @@ from app.content.nat import NAT_MODULE
 from app.content.dns import DNS_MODULE
 from app.content.dhcp import DHCP_MODULE
 from app.content.ports import PORTS_MODULE
+from app.content.icmp import ICMP_MODULE
 from app.content.vlan import VLAN_MODULE
 
-MODULES = {m["key"]: m for m in (PAKET_MODULE, SWITCHING_MODULE, VLAN_MODULE, SUBNETTING_MODULE, ARP_MODULE, ROUTING_MODULE, NAT_MODULE, DNS_MODULE, DHCP_MODULE, PORTS_MODULE)}
+MODULES = {m["key"]: m for m in (PAKET_MODULE, SWITCHING_MODULE, VLAN_MODULE, SUBNETTING_MODULE, ARP_MODULE, ROUTING_MODULE, NAT_MODULE, DNS_MODULE, DHCP_MODULE, PORTS_MODULE, ICMP_MODULE)}
 
 
 def module_meta() -> list[dict]:

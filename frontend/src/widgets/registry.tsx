@@ -10,6 +10,7 @@ import { Dns } from '@/widgets/dns/DnsWidget'
 import { Arp } from '@/widgets/arp/ArpWidget'
 import { Dhcp } from '@/widgets/dhcp/DhcpWidget'
 import { Ports } from '@/widgets/ports/PortsWidget'
+import { Icmp } from '@/widgets/icmp/IcmpWidget'
 
 export const WIDGETS: Record<string, ComponentType> = {
   'vlan-switch': VlanSwitch,
@@ -23,4 +24,5 @@ export const WIDGETS: Record<string, ComponentType> = {
   'dns-demo': Dns,
   'dhcp-demo': Dhcp,
   'ports-demo': Ports,
+  'icmp-demo': Icmp,
 }
