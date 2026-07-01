@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { authApi } from '@/lib/api'
 import { trainerApi } from '@/lib/trainerApi'
@@ -54,8 +54,20 @@ function TrainerLogin({ onLogin }: { onLogin: (t: string) => void }) {
 
 function TrainerDashboard({ onLogout }: { onLogout: () => void }) {
   const qc = useQueryClient()
+  const navigate = useNavigate()
   const [name, setName] = useState('')
   const [selected, setSelected] = useState<number | null>(null)
+  const [newKey, setNewKey] = useState('')
+  const [newTitle, setNewTitle] = useState('')
+  const createContent = useMutation({
+    mutationFn: () => trainerApi.createContentModule(newKey.trim(), newTitle.trim()),
+    onSuccess: (r) => {
+      setNewKey('')
+      setNewTitle('')
+      qc.invalidateQueries({ queryKey: ['trainer-modules'] })
+      navigate(`/trainer/modul/${r.data.key}/bearbeiten`)
+    },
+  })
   const courses = useQuery({ queryKey: ['courses'], queryFn: () => trainerApi.listCourses().then((r) => r.data) })
   const create = useMutation({
     mutationFn: () => trainerApi.createCourse(name).then((r) => r.data),
@@ -129,12 +141,31 @@ function TrainerDashboard({ onLogout }: { onLogout: () => void }) {
             <h3 className="text-sm font-semibold text-slate-700 mb-2">Module präsentieren</h3>
             <div className="flex flex-wrap gap-2">
               {presentMods.data.map((m) => (
-                <Link key={m.key} to={`/trainer/modul/${m.key}`}
-                  className="rounded-lg border px-3 py-1.5 text-sm text-slate-700 hover:bg-slate-50">
-                  {m.title}
-                </Link>
+                <div key={m.key} className="flex items-center gap-1">
+                  <Link to={`/trainer/modul/${m.key}`}
+                    className="rounded-lg border px-3 py-1.5 text-sm text-slate-700 hover:bg-slate-50">
+                    {m.title}
+                  </Link>
+                  <Link to={`/trainer/modul/${m.key}/bearbeiten`} title="Bearbeiten"
+                    className="rounded-lg border px-2 py-1.5 text-sm text-slate-500 hover:bg-slate-50">
+                    ✎
+                  </Link>
+                </div>
               ))}
             </div>
+            <div className="flex gap-2 mt-3">
+              <input className="border rounded-lg px-3 py-1.5 text-sm" placeholder="Key (z.B. mein-modul)"
+                value={newKey} onChange={(e) => setNewKey(e.target.value)} />
+              <input className="border rounded-lg px-3 py-1.5 text-sm" placeholder="Titel DE"
+                value={newTitle} onChange={(e) => setNewTitle(e.target.value)} />
+              <button onClick={() => newKey.trim() && newTitle.trim() && createContent.mutate()}
+                className="rounded-lg bg-teal-600 hover:bg-teal-700 text-white px-3 py-1.5 text-sm font-medium">
+                + Neues Modul
+              </button>
+            </div>
+            {createContent.isError && (
+              <p className="text-sm text-red-600 mt-1">Fehler beim Anlegen (Key ggf. bereits vergeben).</p>
+            )}
           </div>
         )}
 
