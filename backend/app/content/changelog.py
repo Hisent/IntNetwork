@@ -1,5 +1,8 @@
 # Projekt-Changelog (nur für Trainer sichtbar). Neueste zuerst.
 CHANGELOG = [
+    {"date": "2026-07-02", "title": "Abschluss-Banner für Teilnehmer",
+     "text": "Wer alle Module besteht, bekommt auf der Kursübersicht jetzt einen "
+             "Abschluss-Moment mit Pokal statt nur eines vollen Fortschrittsbalkens."},
     {"date": "2026-07-02", "title": "Quiz-Statistik in der Trainer-Ansicht",
      "text": "Die Trainer-Modulansicht zeigt jetzt pro Quizfrage, wie viele "
              "Abgaben richtig waren — als Ampel-Balken (grün/gelb/rot). So siehst "

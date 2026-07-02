@@ -54,6 +54,16 @@ export function LearnPage() {
         </div>
         <p className="text-slate-500 text-sm mb-4">{t(lang, 'tagline')}</p>
 
+        {total > 0 && doneCount === total && (
+          <div className="mb-6 rounded-2xl border border-teal-200 bg-gradient-to-r from-teal-50 to-emerald-50 p-5 flex items-center gap-4">
+            <span className="text-4xl" aria-hidden="true">🏆</span>
+            <div>
+              <p className="font-bold text-teal-900">{t(lang, 'courseComplete')}</p>
+              <p className="text-sm text-teal-800">{t(lang, 'courseCompleteText')}</p>
+            </div>
+          </div>
+        )}
+
         {total > 0 && (
           <div className="mb-6">
             <div className="flex justify-between text-xs text-slate-500 mb-1">
