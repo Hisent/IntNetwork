@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { translate, type NatEntry } from '@/widgets/nat/nat'
+import { ChallengeBox } from '@/components/ChallengeBox'
 import type { Lang } from '@/lib/i18n'
 
 const PUBLIC_IP = '203.0.113.10'
@@ -15,12 +16,14 @@ const STR = {
     send: 'Ins Internet senden', clear: 'Tabelle leeren', table: 'NAT-Übersetzungstabelle', empty: 'leer',
     reused: (local: string, global: string) => `${local} bereits übersetzt → ${global} (wiederverwendet).`,
     fresh: (local: string, global: string) => `${local} → ${global} (neuer Eintrag).`,
+    challenge: 'Schick mindestens zwei verschiedene Hosts ins Internet — beide teilen sich dieselbe öffentliche IP (PAT).',
   },
   en: {
     title: 'NAT (PAT) — Router Nordwind-R1', publicIp: 'Public IP', host: 'Host', srcPort: 'Source port',
     send: 'Send to the Internet', clear: 'Clear table', table: 'NAT translation table', empty: 'empty',
     reused: (local: string, global: string) => `${local} already translated → ${global} (reused).`,
     fresh: (local: string, global: string) => `${local} → ${global} (new entry).`,
+    challenge: 'Send at least two different hosts to the Internet — both share the same public IP (PAT).',
   },
 } as const
 
@@ -99,6 +102,8 @@ export function Nat({ lang }: { lang: Lang }) {
           ))
         )}
       </div>
+
+      <ChallengeBox lang={lang} task={s.challenge} done={table.length >= 2} />
     </div>
   )
 }

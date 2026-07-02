@@ -23,11 +23,13 @@ class ContentBlock(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     module_key: Mapped[str] = mapped_column(ForeignKey("content_module.key"))
     position: Mapped[int] = mapped_column(Integer)
-    type: Mapped[str] = mapped_column(String)  # "text" | "widget"
+    type: Mapped[str] = mapped_column(String)  # "text" | "widget" | "check" | "reveal"
     value_de: Mapped[str | None] = mapped_column(Text, nullable=True)
     value_en: Mapped[str | None] = mapped_column(Text, nullable=True)
     widget_id: Mapped[str | None] = mapped_column(String, nullable=True)
     note: Mapped[str | None] = mapped_column(Text, nullable=True)
+    # typ-spezifische Zusatzdaten: check -> prompt/options/answer, reveal -> teaser
+    payload: Mapped[dict | None] = mapped_column(JSON, nullable=True)
 
 
 class ContentQuizQuestion(Base):

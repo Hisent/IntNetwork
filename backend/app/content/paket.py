@@ -53,6 +53,13 @@ PAKET_MODULE = {
                    "- **FCS** (4 B): checksum for error detection.",
          }},
         {"type": "widget", "id": "frame-builder"},
+        {"type": "check", "payload": {
+            "prompt_de": "Wofür ist die FCS am Ende des Frames da?",
+            "prompt_en": "What is the FCS at the end of the frame for?",
+            "options_de": ["Prüfsumme zur Fehlererkennung", "Adresse des Empfängers", "Kennzeichnung des VLANs"],
+            "options_en": ["Checksum for error detection", "Address of the receiver", "Marking the VLAN"],
+            "answer": 0,
+        }},
         {"type": "text",
          "value": {
              "de": "## Wo steckt das VLAN drin?\n\nEin VLAN wird über "

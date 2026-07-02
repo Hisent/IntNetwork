@@ -139,6 +139,48 @@ def test_update_accepts_number_question_without_options():
         assert got["quiz"][0]["options_de"] is None
 
 
+def test_check_and_reveal_blocks_round_trip_and_delivery():
+    with TestClient(app) as c:
+        h = _trainer(c)
+        c.post("/api/trainer/content/modules", json={"key": "checkmod", "title_de": "X"}, headers=h)
+        body = _minimal_module()
+        body["blocks"] = [
+            {"type": "check", "payload": {
+                "prompt_de": "2+2?", "prompt_en": "2+2?",
+                "options_de": ["3", "4"], "options_en": ["3", "4"], "answer": 1}},
+            {"type": "reveal", "value_de": "Versteckt DE", "value_en": "Hidden EN",
+             "payload": {"teaser_de": "Was passiert?", "teaser_en": "What happens?"}},
+        ]
+        assert c.put("/api/trainer/content/modules/checkmod", json=body, headers=h).status_code == 200
+
+        got = c.get("/api/trainer/content/modules/checkmod", headers=h).json()
+        assert got["blocks"][0]["payload"]["answer"] == 1
+        assert got["blocks"][1]["payload"]["teaser_de"] == "Was passiert?"
+
+        # Teilnehmer-Auslieferung: sprachaufgelöst, check inkl. answer (Selbst-Check)
+        code = c.post("/api/courses", json={"name": "CheckKurs"}, headers=h).json()["join_code"]
+        p = {"Authorization": "Bearer " + c.post(
+            "/api/join", json={"code": code, "name": "Chk"}).json()["access_token"]}
+        pub = c.get("/api/modules/checkmod", headers=p).json()
+        assert pub["blocks"][0] == {"type": "check", "prompt": "2+2?", "options": ["3", "4"], "answer": 1}
+        assert pub["blocks"][1] == {"type": "reveal", "teaser": "Was passiert?", "value": "Versteckt DE"}
+
+
+def test_check_block_validation():
+    with TestClient(app) as c:
+        h = _trainer(c)
+        c.post("/api/trainer/content/modules", json={"key": "checkval", "title_de": "X"}, headers=h)
+        body = _minimal_module()
+        body["blocks"] = [{"type": "check", "payload": {
+            "prompt_de": "F?", "prompt_en": "Q?",
+            "options_de": ["a", "b"], "options_en": ["a", "b"], "answer": 5}}]
+        assert c.put("/api/trainer/content/modules/checkval", json=body, headers=h).status_code == 422
+        body["blocks"] = [{"type": "check", "payload": {"prompt_de": "F?", "prompt_en": "Q?"}}]
+        assert c.put("/api/trainer/content/modules/checkval", json=body, headers=h).status_code == 422
+        body["blocks"] = [{"type": "reveal", "value_de": "x", "value_en": "y", "payload": {}}]
+        assert c.put("/api/trainer/content/modules/checkval", json=body, headers=h).status_code == 422
+
+
 def test_get_module_reports_has_snapshot():
     with TestClient(app) as c:
         h = _trainer(c)

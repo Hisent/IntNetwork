@@ -1,14 +1,17 @@
 import { useState } from 'react'
 import { lease, type Lease } from '@/widgets/dhcp/dhcp'
+import { ChallengeBox } from '@/components/ChallengeBox'
 import type { Lang } from '@/lib/i18n'
 
 const STR = {
   de: { title: 'DHCP — automatische IP-Vergabe', newClient: 'Neuer Client verbindet sich', reset: 'Zurücksetzen',
     ip: 'IP-Adresse', mask: 'Subnetzmaske', gateway: 'Gateway', dns: 'DNS-Server',
-    leases: 'Vergebene Leases', none: 'keine', client: 'Client' },
+    leases: 'Vergebene Leases', none: 'keine', client: 'Client',
+    challenge: 'Verbinde drei Clients und vergleiche ihre Leases — was ist gleich, was unterscheidet sich?' },
   en: { title: 'DHCP — Automatic IP Assignment', newClient: 'New client connects', reset: 'Reset',
     ip: 'IP address', mask: 'Subnet mask', gateway: 'Gateway', dns: 'DNS server',
-    leases: 'Assigned leases', none: 'none', client: 'Client' },
+    leases: 'Assigned leases', none: 'none', client: 'Client',
+    challenge: 'Connect three clients and compare their leases — what is identical, what differs?' },
 } as const
 
 export function Dhcp({ lang }: { lang: Lang }) {
@@ -73,6 +76,8 @@ export function Dhcp({ lang }: { lang: Lang }) {
           ))
         )}
       </div>
+
+      <ChallengeBox lang={lang} task={s.challenge} done={leases.length >= 3} />
     </div>
   )
 }

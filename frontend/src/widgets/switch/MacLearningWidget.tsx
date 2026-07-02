@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { HOSTS, learnStep, type LearnResult } from '@/widgets/switch/macLearning'
+import { ChallengeBox } from '@/components/ChallengeBox'
 import type { Lang } from '@/lib/i18n'
 
 const STR = {
@@ -8,12 +9,14 @@ const STR = {
     table: 'MAC-Adresstabelle', empty: 'leer',
     flooded: (ports: string, port: number) => `Ziel unbekannt → Flooding an Ports ${ports}. Quell-MAC am Port ${port} gelernt.`,
     unicast: (port: number) => `Ziel bekannt → Unicast an Port ${port}.`,
+    challenge: 'Bring den Switch dazu, einen Frame als Unicast zuzustellen — Tipp: das Ziel muss vorher selbst gesendet haben.',
   },
   en: {
     title: 'Switch — MAC Learning', from: 'From', to: 'To', send: 'Send frame', clear: 'Clear table',
     table: 'MAC address table', empty: 'empty',
     flooded: (ports: string, port: number) => `Unknown destination → flooding to ports ${ports}. Source MAC learned on port ${port}.`,
     unicast: (port: number) => `Known destination → unicast to port ${port}.`,
+    challenge: 'Get the switch to deliver a frame as unicast — hint: the destination must have sent something first.',
   },
 } as const
 
@@ -74,6 +77,8 @@ export function MacLearning({ lang }: { lang: Lang }) {
           {last.flooded ? s.flooded(last.delivered.join(', '), src) : s.unicast(last.delivered[0])}
         </p>
       )}
+
+      <ChallengeBox lang={lang} task={s.challenge} done={last !== null && !last.flooded} />
 
       <div className="mt-4">
         <p className="text-xs font-semibold text-slate-500 mb-1">{s.table}</p>

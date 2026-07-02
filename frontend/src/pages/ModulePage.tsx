@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import Markdown from 'react-markdown'
 import { Link, useParams } from 'react-router-dom'
@@ -6,6 +6,7 @@ import { learnApi } from '@/lib/learnApi'
 import { Blocks } from '@/components/Blocks'
 import { BlockComments } from '@/components/BlockComments'
 import { Quiz } from '@/components/Quiz'
+import { loadRead, toggleRead } from '@/lib/readProgress'
 import { t, type Lang } from '@/lib/i18n'
 
 export function ModulePage() {
@@ -20,6 +21,9 @@ export function ModulePage() {
     }, 20_000)
     return () => clearInterval(id)
   }, [key])
+
+  const [read, setRead] = useState<number[]>([])
+  useEffect(() => setRead(loadRead(key)), [key])
   const me = useQuery({ queryKey: ['me'], queryFn: () => learnApi.me().then((r) => r.data) })
   const lang: Lang = me.data?.language ?? 'de'
   const mod = useQuery({ queryKey: ['module', key, lang], queryFn: () => learnApi.getModule(key).then((r) => r.data) })
@@ -35,6 +39,8 @@ export function ModulePage() {
   if (mod.isLoading || !mod.data) return <div className="p-10">{t(lang, 'loading')}</div>
 
   const commentsOn = features.data?.comments ?? false
+  const textIndexes = mod.data.blocks.map((b, i) => (b.type === 'text' ? i : -1)).filter((i) => i >= 0)
+  const readCount = read.filter((i) => textIndexes.includes(i)).length
 
   return (
     <div className="min-h-screen bg-slate-50 p-6 sm:p-10">
@@ -58,13 +64,22 @@ export function ModulePage() {
             <Markdown>{mod.data.scenario}</Markdown>
           </div>
         )}
+        {textIndexes.length > 0 && (
+          <p className="text-xs text-slate-400 mb-4">{readCount} / {textIndexes.length} {t(lang, 'read')}</p>
+        )}
         <Blocks
           blocks={mod.data.blocks}
           lang={lang}
-          footer={
-            commentsOn
-              ? (b, i) => (b.type === 'text' ? <BlockComments moduleKey={key} blockIndex={i} lang={lang} /> : null)
-              : undefined
+          footer={(b, i) =>
+            b.type === 'text' ? (
+              <div className="flex flex-col gap-1">
+                <button onClick={() => setRead(toggleRead(key, read, i))}
+                  className={`self-start text-xs ${read.includes(i) ? 'text-teal-600 font-medium' : 'text-slate-400 hover:text-slate-600'}`}>
+                  {read.includes(i) ? `✓ ${t(lang, 'read')}` : t(lang, 'markRead')}
+                </button>
+                {commentsOn && <BlockComments moduleKey={key} blockIndex={i} lang={lang} />}
+              </div>
+            ) : null
           }
         />
         <Quiz moduleKey={key} questions={mod.data.quiz.questions} lang={lang} />

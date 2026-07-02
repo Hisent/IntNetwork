@@ -54,6 +54,19 @@ def _module_dict(m: ContentModule, blocks: list[ContentBlock], questions: list[C
     for b in blocks:
         if b.type == "text":
             bd = {"type": "text", "value": _pick(b.value_de, b.value_en, lang)}
+        elif b.type == "check":
+            pl = b.payload or {}
+            # answer wird bewusst mit ausgeliefert: Mini-Checks sind ungewertete
+            # Selbst-Checks, die clientseitig prüfen — das Quiz bleibt servergeprüft
+            bd = {"type": "check",
+                  "prompt": _pick(pl.get("prompt_de", ""), pl.get("prompt_en", ""), lang),
+                  "options": _pick(pl.get("options_de", []), pl.get("options_en", []), lang),
+                  "answer": pl.get("answer")}
+        elif b.type == "reveal":
+            pl = b.payload or {}
+            bd = {"type": "reveal",
+                  "teaser": _pick(pl.get("teaser_de", ""), pl.get("teaser_en", ""), lang),
+                  "value": _pick(b.value_de, b.value_en, lang)}
         else:
             bd = {"type": "widget", "id": b.widget_id}
         if b.note:

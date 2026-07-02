@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { ChallengeBox } from '@/components/ChallengeBox'
 import type { Lang } from '@/lib/i18n'
 
 interface Field { key: string; name: string; bytes: string; desc: string; color: string }
@@ -35,12 +36,14 @@ const STR = {
     hint: 'Klick auf ein Feld für die Erklärung. Schalte den 802.1Q-Tag ein, um zu sehen, wo das VLAN im Frame steht.',
     tagName: '802.1Q-Tag',
     tagDesc: (vlanId: number) => `Markiert den Frame für ein VLAN. Enthält TPID 0x8100 und die VLAN-ID (${vlanId}). `
-      + 'Wird genau zwischen Quell-MAC und EtherType eingefügt.' },
+      + 'Wird genau zwischen Quell-MAC und EtherType eingefügt.',
+    challenge: 'Baue einen Frame mit 802.1Q-Tag für VLAN 20 und klick das Tag-Feld an.' },
   en: { title: 'Ethernet Frame', tagLabel: '802.1Q VLAN tag', vlanId: 'VLAN ID:',
     hint: 'Click on a field for the explanation. Turn on the 802.1Q tag to see where the VLAN sits in the frame.',
     tagName: '802.1Q Tag',
     tagDesc: (vlanId: number) => `Marks the frame for a VLAN. Contains TPID 0x8100 and the VLAN ID (${vlanId}). `
-      + 'Inserted exactly between the source MAC and EtherType.' },
+      + 'Inserted exactly between the source MAC and EtherType.',
+    challenge: 'Build a frame with an 802.1Q tag for VLAN 20 and click the tag field.' },
 } as const
 
 export function FrameBuilder({ lang }: { lang: Lang }) {
@@ -93,6 +96,8 @@ export function FrameBuilder({ lang }: { lang: Lang }) {
           ? <><b>{selected.name}</b> ({selected.bytes}) — {selected.desc}</>
           : s.hint}
       </div>
+
+      <ChallengeBox lang={lang} task={s.challenge} done={tagOn && vlanId === 20 && sel === 'tag'} />
     </div>
   )
 }

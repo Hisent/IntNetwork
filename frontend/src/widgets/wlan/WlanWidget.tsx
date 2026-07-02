@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { overlaps, NON_OVERLAPPING, SECURITY } from '@/widgets/wlan/wlan'
+import { ChallengeBox } from '@/components/ChallengeBox'
 import type { Lang } from '@/lib/i18n'
 
 const CHANNELS = Array.from({ length: 11 }, (_, i) => i + 1)
@@ -10,12 +11,14 @@ const STR = {
     ap1: 'AP 1', ap2: 'AP 2', channel: 'Kanal', freeChannels: 'Überlappungsfreie Kanäle', encryption: 'WLAN-Verschlüsselung',
     clash: (a: number, b: number) => `Kanäle ${a} und ${b} überlappen → gegenseitige Störung.`,
     free: (a: number, b: number) => `Kanäle ${a} und ${b} sind überlappungsfrei.`,
+    challenge: 'Stelle die beiden Access Points so ein, dass sie sich nicht mehr stören.',
   },
   en: {
     title: '2.4 GHz Channels — Overlap', hint: 'Two access points in radio range. Overlapping channels interfere with each other.',
     ap1: 'AP 1', ap2: 'AP 2', channel: 'Channel', freeChannels: 'Non-overlapping channels', encryption: 'Wi-Fi Encryption',
     clash: (a: number, b: number) => `Channels ${a} and ${b} overlap → mutual interference.`,
     free: (a: number, b: number) => `Channels ${a} and ${b} are non-overlapping.`,
+    challenge: 'Set the two access points so they no longer interfere with each other.',
   },
 } as const
 
@@ -65,6 +68,7 @@ export function Wlan({ lang }: { lang: Lang }) {
         <p className="mt-2 text-xs text-slate-500">
           {s.freeChannels}: <span className="font-mono">{NON_OVERLAPPING.join(', ')}</span>
         </p>
+        <ChallengeBox lang={lang} task={s.challenge} done={!clash} />
       </div>
 
       <div>

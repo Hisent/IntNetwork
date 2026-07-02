@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { evaluate, RULES, type Packet, type Proto } from '@/widgets/firewall/firewall'
+import { ChallengeBox } from '@/components/ChallengeBox'
 import type { Lang } from '@/lib/i18n'
 
 const PRESETS: { de: string; en: string; pkt: Packet }[] = [
@@ -21,11 +22,13 @@ const STR = {
     title: 'Firewall — Regelauswertung', protocol: 'Protokoll', port: 'Port',
     allowed: 'ERLAUBT', blocked: 'BLOCKIERT', rules: 'Regelwerk (erste Übereinstimmung gewinnt)',
     defaultDeny: 'default deny — alles andere blockiert', defaultDenyReason: 'Keine Regel trifft zu → Default-Deny',
+    challenge: 'Finde ein Paket, das von keiner Regel getroffen wird — also am Default-Deny hängen bleibt.',
   },
   en: {
     title: 'Firewall — Rule Evaluation', protocol: 'Protocol', port: 'Port',
     allowed: 'ALLOWED', blocked: 'BLOCKED', rules: 'Ruleset (first match wins)',
     defaultDeny: 'default deny — everything else is blocked', defaultDenyReason: 'No rule matches → default deny',
+    challenge: 'Find a packet no rule matches — one that gets stuck at the default deny.',
   },
 } as const
 
@@ -104,6 +107,8 @@ export function Firewall({ lang }: { lang: Lang }) {
           {s.defaultDeny}
         </div>
       </div>
+
+      <ChallengeBox lang={lang} task={s.challenge} done={decision.ruleIndex === null} />
     </div>
   )
 }

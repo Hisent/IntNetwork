@@ -1,6 +1,8 @@
 export type Block =
   | { type: 'text'; value: string; note?: string }
   | { type: 'widget'; id: string; note?: string }
+  | { type: 'check'; prompt: string; options: string[]; answer: number; note?: string }
+  | { type: 'reveal'; teaser: string; value: string; note?: string }
 
 export type Question =
   | { id: string; type: 'single'; prompt: string; options: string[]; answer?: number }

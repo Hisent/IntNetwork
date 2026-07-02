@@ -48,6 +48,21 @@ SWITCHING_MODULE = {
                    "once the destination replies, it is learned.",
          }},
         {"type": "widget", "id": "mac-learning"},
+        {"type": "reveal",
+         "payload": {
+             "teaser_de": "Was würde eigentlich passieren, wenn zwei Geräte dieselbe MAC-Adresse hätten?",
+             "teaser_en": "What would actually happen if two devices had the same MAC address?",
+         },
+         "value": {
+             "de": "Der Switch lernt die MAC immer am **zuletzt gesehenen Port** — der Eintrag "
+                   "springt also ständig hin und her, und Frames landen mal beim einen, mal beim "
+                   "anderen Gerät. Deshalb müssen MAC-Adressen im selben Netz **eindeutig** sein "
+                   "(Duplikate entstehen praktisch nur durch manuelles Überschreiben oder Fälschung).",
+             "en": "The switch always learns the MAC on the **most recently seen port** — the entry "
+                   "keeps flipping back and forth, and frames end up at one device or the other. "
+                   "That's why MAC addresses must be **unique** within the same network "
+                   "(duplicates practically only occur through manual overrides or spoofing).",
+         }},
         {"type": "text",
          "value": {
              "de": "## Broadcast & der Haken\n\nEin **Broadcast** "

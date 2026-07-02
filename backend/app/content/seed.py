@@ -20,6 +20,11 @@ def seed_content_if_empty(db: Session) -> None:
                 db.add(ContentBlock(module_key=m["key"], position=i, type="text",
                                     value_de=b["value"]["de"], value_en=b["value"]["en"],
                                     note=b.get("note")))
+            elif b["type"] in ("check", "reveal"):
+                value = b.get("value") or {}
+                db.add(ContentBlock(module_key=m["key"], position=i, type=b["type"],
+                                    value_de=value.get("de"), value_en=value.get("en"),
+                                    note=b.get("note"), payload=b["payload"]))
             else:
                 db.add(ContentBlock(module_key=m["key"], position=i, type="widget",
                                     widget_id=b["id"], note=b.get("note")))

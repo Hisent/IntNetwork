@@ -13,12 +13,24 @@ export interface ChangelogEntry { date: string; title: string; text: string }
 export interface CourseModule { key: string; title: string; order: number; active: boolean }
 export interface PresenceEntry { name: string; module_key: string; module_title: string }
 
+// typ-spezifische Zusatzdaten: check nutzt prompt/options/answer, reveal teaser
+export interface BlockPayload {
+  prompt_de?: string
+  prompt_en?: string
+  options_de?: string[]
+  options_en?: string[]
+  answer?: number
+  teaser_de?: string
+  teaser_en?: string
+}
+
 export interface EditorBlock {
-  type: 'text' | 'widget'
+  type: 'text' | 'widget' | 'check' | 'reveal'
   value_de?: string | null
   value_en?: string | null
   widget_id?: string | null
   note?: string | null
+  payload?: BlockPayload | null
 }
 export interface EditorQuestion {
   qtype: 'single' | 'multi' | 'number'

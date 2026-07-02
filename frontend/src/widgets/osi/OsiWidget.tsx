@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { LAYERS, buildSteps, type Layer } from '@/widgets/osi/osiModel'
+import { ChallengeBox } from '@/components/ChallengeBox'
 import type { Lang } from '@/lib/i18n'
 
 const PIECE_COLOR: Record<string, string> = {
@@ -13,10 +14,12 @@ const PIECE_COLOR: Record<string, string> = {
 const STR = {
   de: { sender: 'Sender', receiver: 'Empfänger', encap: '↓ Encapsulation', decap: '↑ Decapsulation',
     play: 'Abspielen', pause: 'Pause', step: 'Schritt', reset: 'Zurücksetzen', stepCount: 'Schritt',
-    layerPrefix: 'Schicht', example: 'Beispiel', pdu: 'PDU' },
+    layerPrefix: 'Schicht', example: 'Beispiel', pdu: 'PDU',
+    challenge: 'Spiel die Animation bis zum Ende durch und klick dann Schicht 3 an — welche PDU gehört dazu?' },
   en: { sender: 'Sender', receiver: 'Receiver', encap: '↓ Encapsulation', decap: '↑ Decapsulation',
     play: 'Play', pause: 'Pause', step: 'Step', reset: 'Reset', stepCount: 'Step',
-    layerPrefix: 'Layer', example: 'Example', pdu: 'PDU' },
+    layerPrefix: 'Layer', example: 'Example', pdu: 'PDU',
+    challenge: 'Play the animation to the end, then click layer 3 — which PDU belongs to it?' },
 } as const
 
 function Stack({ side, activeLayer, onPick, lang }: {
@@ -89,6 +92,8 @@ export function OsiModel({ lang }: { lang: Lang }) {
           <b>{s.layerPrefix} {pick.nr}: {lang === 'de' ? pick.de : pick.en}</b> ({lang === 'de' ? pick.en : pick.de}) — {pick.task[lang]}. {s.example}: {pick.example}. {s.pdu}: {pick.pdu[lang]}.
         </div>
       )}
+
+      <ChallengeBox lang={lang} task={s.challenge} done={i >= steps.length - 1 && pick?.nr === 3} />
     </div>
   )
 }

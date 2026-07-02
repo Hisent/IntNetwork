@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { serviceFor, HANDSHAKE, WELL_KNOWN } from '@/widgets/ports/ports'
+import { ChallengeBox } from '@/components/ChallengeBox'
 import type { Lang } from '@/lib/i18n'
 
 const PRESETS = [80, 443, 22, 53]
@@ -11,11 +12,13 @@ const STR = {
     portToService: 'Port → Dienst', port: 'Port', handshake: 'TCP 3-Wege-Handshake', tcpVsUdp: 'TCP vs. UDP',
     tcp: ['verbindungsorientiert (Handshake)', 'zuverlässig, Reihenfolge garantiert', 'Web, E-Mail, SSH'],
     udp: ['verbindungslos, kein Handshake', 'schnell, keine Garantie', 'DNS, Video, VoIP, Spiele'],
+    challenge: 'Finde den Port, auf dem verschlüsselte Fernwartung (SSH) läuft.',
   },
   en: {
     portToService: 'Port → Service', port: 'Port', handshake: 'TCP 3-Way Handshake', tcpVsUdp: 'TCP vs. UDP',
     tcp: ['connection-oriented (handshake)', 'reliable, order guaranteed', 'Web, email, SSH'],
     udp: ['connectionless, no handshake', 'fast, no guarantees', 'DNS, video, VoIP, games'],
+    challenge: 'Find the port where encrypted remote administration (SSH) runs.',
   },
 } as const
 
@@ -51,6 +54,7 @@ export function Ports({ lang }: { lang: Lang }) {
           {s.port} <span className="font-mono">{port}</span> →{' '}
           <span className="font-mono text-teal-700">{serviceFor(port, lang)}</span>
         </p>
+        <ChallengeBox lang={lang} task={s.challenge} done={port === 22} />
       </div>
 
       <div>

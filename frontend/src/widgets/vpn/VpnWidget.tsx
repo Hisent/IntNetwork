@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { encapsulate, type Packet } from '@/widgets/vpn/vpn'
+import { ChallengeBox } from '@/components/ChallengeBox'
 import type { Lang } from '@/lib/i18n'
 
 const INNER: Packet = { src: '192.168.10.5', dst: '10.20.0.9', payload: 'Gehaltsliste.xlsx' }
@@ -16,6 +17,7 @@ const STR = {
     warning: 'Ein Angreifer im Internet sieht nur die Gateway-IPs und den verschlüsselten Block — '
       + 'weder die internen Adressen noch die Daten.',
     reencrypt: 'Wieder verschlüsseln', decrypt: 'Am Ziel-Gateway entschlüsseln',
+    challenge: 'Entschlüssle den Tunnel am Ziel-Gateway — welche internen Adressen kommen zum Vorschein?',
   },
   en: {
     title: 'VPN — Site-to-Site Tunnel',
@@ -26,6 +28,7 @@ const STR = {
     warning: 'An attacker on the Internet only sees the gateway IPs and the encrypted block — '
       + 'neither the internal addresses nor the data.',
     reencrypt: 'Re-encrypt', decrypt: 'Decrypt at the destination gateway',
+    challenge: 'Decrypt the tunnel at the destination gateway — which internal addresses appear?',
   },
 } as const
 
@@ -78,6 +81,8 @@ export function Vpn({ lang }: { lang: Lang }) {
       >
         {decrypted ? s.reencrypt : s.decrypt}
       </button>
+
+      <ChallengeBox lang={lang} task={s.challenge} done={decrypted} />
     </div>
   )
 }

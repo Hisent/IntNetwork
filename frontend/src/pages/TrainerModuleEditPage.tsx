@@ -60,6 +60,19 @@ export function TrainerModuleEditPage() {
   function updateBlock(i: number, patch: Partial<EditorBlock>) {
     setForm((f) => f && { ...f, blocks: f.blocks.map((b, idx) => (idx === i ? { ...b, ...patch } : b)) })
   }
+  function updatePayload(i: number, patch: Partial<NonNullable<EditorBlock['payload']>>) {
+    setForm((f) => f && {
+      ...f,
+      blocks: f.blocks.map((b, idx) => (idx === i ? { ...b, payload: { ...(b.payload ?? {}), ...patch } } : b)),
+    })
+  }
+  function changeBlockType(i: number, type: EditorBlock['type']) {
+    // beim Typwechsel passende Payload-Grundstruktur setzen
+    const payload = type === 'check'
+      ? { prompt_de: '', prompt_en: '', options_de: ['', ''], options_en: ['', ''], answer: 0 }
+      : type === 'reveal' ? { teaser_de: '', teaser_en: '' } : null
+    updateBlock(i, { type, payload })
+  }
   function updateQuestion(i: number, patch: Partial<EditorQuestion>) {
     setForm((f) => f && { ...f, quiz: f.quiz.map((q, idx) => (idx === i ? { ...q, ...patch } : q)) })
   }
@@ -129,9 +142,11 @@ export function TrainerModuleEditPage() {
               <div key={i} className="rounded-lg border p-3 flex flex-col gap-2">
                 <div className="flex items-center justify-between">
                   <select className="border rounded px-2 py-1 text-sm" value={b.type}
-                    onChange={(e) => updateBlock(i, { type: e.target.value as 'text' | 'widget' })}>
+                    onChange={(e) => changeBlockType(i, e.target.value as EditorBlock['type'])}>
                     <option value="text">Text</option>
                     <option value="widget">Widget</option>
+                    <option value="check">Kurz-Check</option>
+                    <option value="reveal">Aufdecken</option>
                   </select>
                   <div className="flex gap-1">
                     <button onClick={() => setForm({ ...form, blocks: moveItem(form.blocks, i, -1) })} className="px-2 text-slate-500 hover:text-slate-700">↑</button>
@@ -139,7 +154,7 @@ export function TrainerModuleEditPage() {
                     <button onClick={() => setForm({ ...form, blocks: removeAt(form.blocks, i) })} className="px-2 text-red-500 hover:text-red-700">✕</button>
                   </div>
                 </div>
-                {b.type === 'text' ? (
+                {b.type === 'text' && (
                   <>
                     <textarea placeholder="Text DE" className="border rounded-lg px-3 py-1.5 text-sm" rows={3}
                       value={b.value_de ?? ''} onChange={(e) => updateBlock(i, { value_de: e.target.value })} />
@@ -148,12 +163,58 @@ export function TrainerModuleEditPage() {
                     <textarea placeholder="Notiz (Trainer, DE)" className="border rounded-lg px-3 py-1.5 text-sm" rows={2}
                       value={b.note ?? ''} onChange={(e) => updateBlock(i, { note: e.target.value })} />
                   </>
-                ) : (
+                )}
+                {b.type === 'widget' && (
                   <select className="border rounded-lg px-3 py-1.5 text-sm" value={b.widget_id ?? ''}
                     onChange={(e) => updateBlock(i, { widget_id: e.target.value })}>
                     <option value="">— auswählen —</option>
                     {WIDGET_IDS.map((w) => <option key={w} value={w}>{w}</option>)}
                   </select>
+                )}
+                {b.type === 'check' && (
+                  <>
+                    <input placeholder="Frage DE" className="border rounded-lg px-3 py-1.5 text-sm"
+                      value={b.payload?.prompt_de ?? ''} onChange={(e) => updatePayload(i, { prompt_de: e.target.value })} />
+                    <input placeholder="Frage EN" className="border rounded-lg px-3 py-1.5 text-sm"
+                      value={b.payload?.prompt_en ?? ''} onChange={(e) => updatePayload(i, { prompt_en: e.target.value })} />
+                    <div className="flex flex-col gap-1.5">
+                      {(b.payload?.options_de ?? []).map((opt, oi) => (
+                        <div key={oi} className="flex items-center gap-2">
+                          <input type="radio" name={`b${i}-answer`} checked={b.payload?.answer === oi}
+                            onChange={() => updatePayload(i, { answer: oi })} />
+                          <input className="border rounded-lg px-2 py-1 text-sm flex-1" placeholder="Option DE" value={opt}
+                            onChange={(e) => updatePayload(i, {
+                              options_de: (b.payload?.options_de ?? []).map((o, idx) => (idx === oi ? e.target.value : o)),
+                            })} />
+                          <input className="border rounded-lg px-2 py-1 text-sm flex-1" placeholder="Option EN"
+                            value={(b.payload?.options_en ?? [])[oi] ?? ''}
+                            onChange={(e) => updatePayload(i, {
+                              options_en: (b.payload?.options_en ?? []).map((o, idx) => (idx === oi ? e.target.value : o)),
+                            })} />
+                          <button onClick={() => {
+                            const [de, en] = removeOption(b.payload?.options_de ?? [], b.payload?.options_en ?? [], oi)
+                            updatePayload(i, { options_de: de, options_en: en, answer: 0 })
+                          }} className="px-1 text-red-500 hover:text-red-700">✕</button>
+                        </div>
+                      ))}
+                      <button onClick={() => {
+                        const [de, en] = addOption(b.payload?.options_de ?? [], b.payload?.options_en ?? [])
+                        updatePayload(i, { options_de: de, options_en: en })
+                      }} className="text-xs text-teal-700 hover:text-teal-800 self-start">+ Option</button>
+                    </div>
+                  </>
+                )}
+                {b.type === 'reveal' && (
+                  <>
+                    <input placeholder="Frage/Teaser DE (immer sichtbar)" className="border rounded-lg px-3 py-1.5 text-sm"
+                      value={b.payload?.teaser_de ?? ''} onChange={(e) => updatePayload(i, { teaser_de: e.target.value })} />
+                    <input placeholder="Frage/Teaser EN (immer sichtbar)" className="border rounded-lg px-3 py-1.5 text-sm"
+                      value={b.payload?.teaser_en ?? ''} onChange={(e) => updatePayload(i, { teaser_en: e.target.value })} />
+                    <textarea placeholder="Auflösung DE (erst nach Klick sichtbar)" className="border rounded-lg px-3 py-1.5 text-sm" rows={3}
+                      value={b.value_de ?? ''} onChange={(e) => updateBlock(i, { value_de: e.target.value })} />
+                    <textarea placeholder="Auflösung EN (erst nach Klick sichtbar)" className="border rounded-lg px-3 py-1.5 text-sm" rows={3}
+                      value={b.value_en ?? ''} onChange={(e) => updateBlock(i, { value_en: e.target.value })} />
+                  </>
                 )}
               </div>
             ))}

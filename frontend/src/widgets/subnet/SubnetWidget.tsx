@@ -1,12 +1,15 @@
 import { useState } from 'react'
 import { subnetInfo } from '@/widgets/subnet/subnet'
+import { ChallengeBox } from '@/components/ChallengeBox'
 import type { Lang } from '@/lib/i18n'
 
 const STR = {
   de: { title: 'Subnetz-Rechner', prefix: 'Präfix', mask: 'Subnetzmaske', network: 'Netzadresse',
-    broadcast: 'Broadcast', firstHost: 'Erster Host', lastHost: 'Letzter Host', usable: 'Nutzbare Hosts' },
+    broadcast: 'Broadcast', firstHost: 'Erster Host', lastHost: 'Letzter Host', usable: 'Nutzbare Hosts',
+    challenge: 'Stelle 172.16.5.77 mit /26 ein und lies die Broadcast-Adresse ab.' },
   en: { title: 'Subnet Calculator', prefix: 'Prefix', mask: 'Subnet mask', network: 'Network address',
-    broadcast: 'Broadcast', firstHost: 'First host', lastHost: 'Last host', usable: 'Usable hosts' },
+    broadcast: 'Broadcast', firstHost: 'First host', lastHost: 'Last host', usable: 'Usable hosts',
+    challenge: 'Set 172.16.5.77 with /26 and read off the broadcast address.' },
 } as const
 
 export function Subnet({ lang }: { lang: Lang }) {
@@ -65,6 +68,8 @@ export function Subnet({ lang }: { lang: Lang }) {
           </div>
         ))}
       </div>
+
+      <ChallengeBox lang={lang} task={s.challenge} done={octets.join('.') === '172.16.5.77' && prefix === 26} />
     </div>
   )
 }

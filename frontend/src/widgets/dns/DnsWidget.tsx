@@ -1,14 +1,17 @@
 import { useState } from 'react'
 import { resolve, type DnsResult } from '@/widgets/dns/dns'
+import { ChallengeBox } from '@/components/ChallengeBox'
 import type { Lang } from '@/lib/i18n'
 
 const PRESETS = ['www.nordwind-logistik.de', 'mail.nordwind-logistik.de', 'gibtsnicht.nordwind-logistik.de']
 
 const STR = {
   de: { title: 'DNS-Auflösung', domain: 'Domain', resolveBtn: 'Auflösen', result: 'Ergebnis',
-    noIp: 'Ergebnis: keine IP — Name nicht auflösbar.' },
+    noIp: 'Ergebnis: keine IP — Name nicht auflösbar.',
+    challenge: 'Löse einen Namen auf, den es nicht gibt — schau, an welcher Station die Auflösung scheitert.' },
   en: { title: 'DNS Resolution', domain: 'Domain', resolveBtn: 'Resolve', result: 'Result',
-    noIp: 'Result: no IP — name could not be resolved.' },
+    noIp: 'Result: no IP — name could not be resolved.',
+    challenge: "Resolve a name that doesn't exist — see at which station the resolution fails." },
 } as const
 
 export function Dns({ lang }: { lang: Lang }) {
@@ -78,6 +81,8 @@ export function Dns({ lang }: { lang: Lang }) {
           </p>
         </>
       )}
+
+      <ChallengeBox lang={lang} task={s.challenge} done={res !== null && !res.ip} />
     </div>
   )
 }

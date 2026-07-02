@@ -28,6 +28,7 @@ class BlockIn(BaseModel):
     value_en: str | None = None
     widget_id: str | None = None
     note: str | None = None
+    payload: dict | None = None
 
 
 class QuestionIn(BaseModel):
@@ -77,7 +78,7 @@ def _serialize_module(m: ContentModule, blocks: list[ContentBlock], questions: l
         "prerequisites": m.prerequisites, "goals": m.goals,
         "scenario_de": m.scenario_de, "scenario_en": m.scenario_en,
         "blocks": [{"type": b.type, "value_de": b.value_de, "value_en": b.value_en,
-                    "widget_id": b.widget_id, "note": b.note} for b in blocks],
+                    "widget_id": b.widget_id, "note": b.note, "payload": b.payload} for b in blocks],
         "quiz": [{"qtype": q.qtype, "prompt_de": q.prompt_de, "prompt_en": q.prompt_en,
                   "options_de": q.options_de, "options_en": q.options_en, "answer": q.answer}
                  for q in questions],
@@ -99,6 +100,22 @@ def _validate(db: Session, key: str, data: ModuleIn) -> None:
         elif b.type == "text":
             if not b.value_de or not b.value_en:
                 raise HTTPException(status_code=422, detail="Text-Block braucht value_de und value_en")
+        elif b.type == "check":
+            pl = b.payload or {}
+            opts_de, opts_en = pl.get("options_de"), pl.get("options_en")
+            if not pl.get("prompt_de") or not pl.get("prompt_en") or not opts_de or not opts_en:
+                raise HTTPException(status_code=422, detail="Check-Block braucht prompt_de/en und options_de/en")
+            if len(opts_de) != len(opts_en):
+                raise HTTPException(status_code=422, detail="Check-Block: options_de und options_en müssen gleich lang sein")
+            ans = pl.get("answer")
+            if not isinstance(ans, int) or not (0 <= ans < len(opts_de)):
+                raise HTTPException(status_code=422, detail="Check-Block: answer muss gültiger Options-Index sein")
+        elif b.type == "reveal":
+            pl = b.payload or {}
+            if not pl.get("teaser_de") or not pl.get("teaser_en"):
+                raise HTTPException(status_code=422, detail="Reveal-Block braucht teaser_de und teaser_en")
+            if not b.value_de or not b.value_en:
+                raise HTTPException(status_code=422, detail="Reveal-Block braucht value_de und value_en (versteckter Inhalt)")
         else:
             raise HTTPException(status_code=422, detail=f"Unbekannter Block-Typ: {b.type}")
     for q in data.quiz:
@@ -128,7 +145,7 @@ def _apply(db: Session, key: str, m: ContentModule, data: ModuleIn) -> None:
     for i, b in enumerate(data.blocks):
         db.add(ContentBlock(module_key=key, position=i, type=b.type,
                             value_de=b.value_de, value_en=b.value_en,
-                            widget_id=b.widget_id, note=b.note))
+                            widget_id=b.widget_id, note=b.note, payload=b.payload))
     for i, q in enumerate(data.quiz):
         db.add(ContentQuizQuestion(module_key=key, position=i, qtype=q.qtype,
                                    prompt_de=q.prompt_de, prompt_en=q.prompt_en,

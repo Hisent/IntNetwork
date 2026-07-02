@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { DeviceCli } from '@/widgets/cli/DeviceCli'
 import { runSwitchCommand, type Port } from '@/widgets/cli/switchCli'
+import { ChallengeBox } from '@/components/ChallengeBox'
 import type { Lang } from '@/lib/i18n'
 
 const INITIAL: Port[] = [
@@ -24,6 +25,7 @@ const STR = {
     summary: (src: number, vlan: number) =>
       `Frame aus Port ${src} (VLAN ${vlan}) erreicht die hervorgehobenen Ports. `
       + 'Andere VLANs bleiben getrennt (eigene Broadcast-Domäne).',
+    challenge: 'Hole Port 5 ins VLAN 10 und sende dann einen Frame von Port 1 — er soll Port 5 erreichen.',
   },
   en: {
     title: 'Switch Simulator', port: 'Port', vlan: 'VLAN', mode: 'Mode',
@@ -31,6 +33,7 @@ const STR = {
     summary: (src: number, vlan: number) =>
       `The frame from port ${src} (VLAN ${vlan}) reaches the highlighted ports. `
       + 'Other VLANs stay separated (their own broadcast domain).',
+    challenge: 'Move port 5 into VLAN 10, then send a frame from port 1 — it should reach port 5.',
   },
 } as const
 
@@ -89,6 +92,8 @@ export function VlanSwitch({ lang }: { lang: Lang }) {
           {s.summary(source + 1, ports[source].vlan)}
         </p>
       )}
+      <ChallengeBox lang={lang} task={s.challenge}
+        done={source === 0 && ports[4].vlan === 10 && reached.has(4)} />
       <DeviceCli prompt="Nordwind-SW1#" run={(c) => runSwitchCommand(ports, c)} />
     </div>
   )

@@ -1,14 +1,17 @@
 import { useState } from 'react'
 import { expand, compress, classify } from '@/widgets/ipv6/ipv6'
+import { ChallengeBox } from '@/components/ChallengeBox'
 import type { Lang } from '@/lib/i18n'
 
 const PRESETS = ['2001:0db8:0000:0000:0000:0000:0000:0001', 'fe80::1', '::1', 'ff02::1']
 
 const STR = {
   de: { title: 'IPv6-Adresse: kürzen & prüfen', address: 'Adresse', shortForm: 'Kurzform', fullForm: 'Vollform',
-    type: 'Typ', invalid: 'Keine gültige IPv6-Adresse.' },
+    type: 'Typ', invalid: 'Keine gültige IPv6-Adresse.',
+    challenge: 'Bring den Prüfer dazu, die Loopback-Adresse anzuzeigen — ihre Kurzform ist nur 3 Zeichen lang.' },
   en: { title: 'IPv6 Address: Compress & Validate', address: 'Address', shortForm: 'Short form', fullForm: 'Full form',
-    type: 'Type', invalid: 'Not a valid IPv6 address.' },
+    type: 'Type', invalid: 'Not a valid IPv6 address.',
+    challenge: 'Get the checker to show the loopback address — its short form is only 3 characters long.' },
 } as const
 
 export function Ipv6({ lang }: { lang: Lang }) {
@@ -70,6 +73,8 @@ export function Ipv6({ lang }: { lang: Lang }) {
       ) : (
         <p className="text-xs text-rose-700">{s.invalid}</p>
       )}
+
+      <ChallengeBox lang={lang} task={s.challenge} done={ok && short === '::1'} />
     </div>
   )
 }

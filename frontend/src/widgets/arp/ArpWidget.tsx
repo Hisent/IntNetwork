@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { HOSTS, arpResolve, type ArpResult } from '@/widgets/arp/arp'
+import { ChallengeBox } from '@/components/ChallengeBox'
 import type { Lang } from '@/lib/i18n'
 
 const SENDER = HOSTS[0]
@@ -11,6 +12,7 @@ const STR = {
     hit: (mac: string) => `Treffer im ARP-Cache → ${mac}. Kein Broadcast nötig.`,
     replied: (target: string, mac: string) => `Broadcast „Wer hat ${target}?“ → Antwort ${mac}, im Cache gespeichert.`,
     unanswered: (target: string) => `Broadcast „Wer hat ${target}?“ → niemand antwortet (IP existiert nicht).`,
+    challenge: 'Erzeuge einen Cache-Treffer: löse dieselbe IP zweimal auf — beim zweiten Mal ohne Broadcast.',
   },
   en: {
     title: 'ARP — Resolving IP to MAC', sender: 'Sender', destIp: 'Destination IP', notExists: "doesn't exist",
@@ -18,6 +20,7 @@ const STR = {
     hit: (mac: string) => `ARP cache hit → ${mac}. No broadcast needed.`,
     replied: (target: string, mac: string) => `Broadcast “Who has ${target}?” → reply ${mac}, stored in cache.`,
     unanswered: (target: string) => `Broadcast “Who has ${target}?” → nobody replies (IP doesn't exist).`,
+    challenge: 'Produce a cache hit: resolve the same IP twice — the second time without a broadcast.',
   },
 } as const
 
@@ -107,6 +110,8 @@ export function Arp({ lang }: { lang: Lang }) {
           ))
         )}
       </div>
+
+      <ChallengeBox lang={lang} task={s.challenge} done={last !== null && !last.broadcast} />
     </div>
   )
 }

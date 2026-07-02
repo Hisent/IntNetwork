@@ -1,5 +1,14 @@
 # Projekt-Changelog (nur für Trainer sichtbar). Neueste zuerst.
 CHANGELOG = [
+    {"date": "2026-07-02", "title": "Aufgaben, Kurz-Checks & Aufdecken",
+     "text": "Alle 16 interaktiven Widgets haben jetzt eine kleine Aufgabe "
+             "(„Challenge“), die grün aufleuchtet, sobald man den Zielzustand "
+             "erreicht — aus Demos werden Übungen. Dazu zwei neue Block-Typen "
+             "im Modul-Editor: „Kurz-Check“ (eine Zwischenfrage mit "
+             "Sofort-Feedback direkt im Text) und „Aufdecken“ (eine Frage, "
+             "deren Auflösung erst nach Klick erscheint). Teilnehmer können "
+             "Abschnitte außerdem als gelesen abhaken (nur im eigenen Browser "
+             "gespeichert)."},
     {"date": "2026-07-01", "title": "Wissenscheck neu gestaltet",
      "text": "Das Quiz am Modul-Ende ist jetzt eine eigene, deutlich abgesetzte "
              "Sektion mit Fortschrittsanzeige (wie viele Fragen beantwortet), "

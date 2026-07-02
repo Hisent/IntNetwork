@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { DeviceCli } from '@/widgets/cli/DeviceCli'
 import { routeLookup, type Route } from '@/widgets/router/routing'
 import { runRouterCommand } from '@/widgets/router/routerCli'
+import { ChallengeBox } from '@/components/ChallengeBox'
 import type { Lang } from '@/lib/i18n'
 
 const ROUTES: Route[] = [
@@ -20,6 +21,7 @@ const STR = {
     viaVerdict: (net: string, prefix: number, nextHop: string, iface: string) =>
       `Kein direktes Netz → Longest-Prefix-Match ${net}/${prefix}, weiter an Next-Hop ${nextHop} (${iface}).`,
     noneVerdict: 'Keine passende Route → Ziel nicht erreichbar.',
+    challenge: 'Finde eine Ziel-IP, die über die Default-Route (0.0.0.0/0) hinausgeleitet wird.',
   },
   en: {
     title: 'Router Nordwind-R1 — Routing Table', destIp: 'Destination IP', connected: 'connected', via: 'via',
@@ -28,6 +30,7 @@ const STR = {
     viaVerdict: (net: string, prefix: number, nextHop: string, iface: string) =>
       `No direct network → longest-prefix match ${net}/${prefix}, forwarded to next hop ${nextHop} (${iface}).`,
     noneVerdict: 'No matching route → destination unreachable.',
+    challenge: 'Find a destination IP that gets forwarded via the default route (0.0.0.0/0).',
   },
 } as const
 
@@ -82,6 +85,9 @@ export function Routing({ lang }: { lang: Lang }) {
       </div>
 
       <p className="text-xs text-slate-600">{verdict}</p>
+
+      <ChallengeBox lang={lang} task={s.challenge}
+        done={res.reason === 'via' && res.route?.prefix === 0} />
 
       <DeviceCli prompt="Nordwind-R1#" run={(c) => runRouterCommand(ROUTES, c)} />
     </div>

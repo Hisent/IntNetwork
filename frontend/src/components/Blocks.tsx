@@ -1,4 +1,4 @@
-import { Suspense, type ReactNode } from 'react'
+import { Suspense, useState, type ReactNode } from 'react'
 import Markdown from 'react-markdown'
 import type { Block } from '@/types'
 import { WIDGETS } from '@/widgets/registry'
@@ -23,6 +23,60 @@ function WidgetBlock({ id, lang }: { id: string; lang: Lang }) {
   )
 }
 
+export function CheckBlock({ prompt, options, answer, lang }: {
+  prompt: string; options: string[]; answer: number; lang: Lang
+}) {
+  const [picked, setPicked] = useState<number | null>(null)
+  const correct = picked === answer
+  return (
+    <div className="rounded-xl border border-slate-200 bg-white p-4">
+      <p className="text-xs font-semibold uppercase tracking-wide text-teal-700 mb-1">{t(lang, 'quickCheck')}</p>
+      <p className="font-medium text-slate-800 mb-2">{prompt}</p>
+      <div className="flex flex-col gap-1.5">
+        {options.map((opt, i) => (
+          <button key={i} onClick={() => setPicked(i)} disabled={picked !== null}
+            className={`text-left rounded-lg border px-3 py-1.5 text-sm transition-colors ${
+              picked === null ? 'border-slate-200 text-slate-700 hover:bg-slate-50'
+              : i === answer ? 'border-green-300 bg-green-50 text-green-800'
+              : i === picked ? 'border-amber-300 bg-amber-50 text-amber-800'
+              : 'border-slate-100 text-slate-400'}`}>
+            {opt}
+          </button>
+        ))}
+      </div>
+      {picked !== null && (
+        <div className="mt-2 flex items-center gap-3 text-sm">
+          <span className={correct ? 'text-green-600 font-medium' : 'text-amber-600 font-medium'}>
+            {correct ? `✓ ${t(lang, 'correct')}` : `✗ ${t(lang, 'incorrect')}`}
+          </span>
+          {!correct && (
+            <button onClick={() => setPicked(null)} className="text-xs text-slate-500 underline hover:text-slate-700">
+              {t(lang, 'tryAgainShort')}
+            </button>
+          )}
+        </div>
+      )}
+    </div>
+  )
+}
+
+export function RevealBlock({ teaser, value, lang }: { teaser: string; value: string; lang: Lang }) {
+  const [open, setOpen] = useState(false)
+  return (
+    <div className="rounded-xl border border-slate-200 bg-white p-4">
+      <p className="font-medium text-slate-800">{teaser}</p>
+      {open ? (
+        <div className="mt-2 animate-fade-up"><Markdown components={MD_COMPONENTS}>{value}</Markdown></div>
+      ) : (
+        <button onClick={() => setOpen(true)}
+          className="mt-2 rounded-lg border border-teal-200 text-teal-700 px-3 py-1.5 text-sm font-medium hover:bg-teal-50">
+          {t(lang, 'reveal')}
+        </button>
+      )}
+    </div>
+  )
+}
+
 export function Blocks({
   blocks,
   lang = 'de',
@@ -39,6 +93,8 @@ export function Blocks({
           {b.type === 'text' && <Markdown components={MD_COMPONENTS}>{b.value}</Markdown>}
           {b.type === 'image' && <img src={b.url} alt={b.alt ?? ''} className="rounded-lg border" />}
           {b.type === 'widget' && <WidgetBlock id={b.id} lang={lang} />}
+          {b.type === 'check' && <CheckBlock prompt={b.prompt} options={b.options} answer={b.answer} lang={lang} />}
+          {b.type === 'reveal' && <RevealBlock teaser={b.teaser} value={b.value} lang={lang} />}
           {footer?.(b, i)}
         </div>
       ))}
