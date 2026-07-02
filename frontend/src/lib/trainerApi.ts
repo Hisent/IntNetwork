@@ -78,7 +78,8 @@ export const trainerApi = {
     api.put(`/courses/${id}/modules`, { module_key, active }),
   trainerModules: () => api.get<ModuleMeta[]>('/trainer/modules'),
   trainerModule: (key: string) => api.get<TrainerModuleDetail>(`/trainer/modules/${key}`),
-  quizStats: (key: string) => api.get<QuizStats>(`/trainer/modules/${key}/quiz-stats`),
+  quizStats: (key: string, courseId?: number) =>
+    api.get<QuizStats>(`/trainer/modules/${key}/quiz-stats${courseId != null ? `?course_id=${courseId}` : ''}`),
   features: () => api.get<{ comments: boolean }>('/features'),
   setFeature: (comments: boolean) => api.put<{ comments: boolean }>('/trainer/features', { comments }),
   courseComments: (cid: number) => api.get<TrainerComment[]>(`/trainer/courses/${cid}/comments`),

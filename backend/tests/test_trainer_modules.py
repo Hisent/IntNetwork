@@ -52,3 +52,30 @@ def test_quiz_stats_aggregate_per_question():
 
         assert c.get("/api/trainer/modules/nope/quiz-stats", headers=h).status_code == 404
         assert c.get("/api/trainer/modules/vlan/quiz-stats").status_code in (401, 403)
+
+
+def test_quiz_stats_filters_by_course():
+    with TestClient(app) as c:
+        h = _trainer(c)
+        # Kurs A: eine perfekte Abgabe; Kurs B: eine leere Abgabe
+        outer = {}
+        for name, answers_kind in (("KursA", "good"), ("KursB", "empty")):
+            code = c.post("/api/courses", json={"name": name}, headers=h).json()["join_code"]
+            cid = next(k["id"] for k in c.get("/api/courses", headers=h).json() if k["name"] == name)
+            ph = {"Authorization": "Bearer " + c.post(
+                "/api/join", json={"code": code, "name": f"P-{name}"}).json()["access_token"]}
+            mod = c.get("/api/modules/vlan", headers=ph).json()
+            ids = [q["id"] for q in mod["quiz"]["questions"]]
+            answers = {ids[0]: 1, ids[1]: 1, ids[2]: [0, 1, 3], ids[3]: 20} if answers_kind == "good" else {}
+            c.post("/api/modules/vlan/quiz", json={"answers": answers}, headers=ph)
+            outer[name] = cid
+
+        a = c.get(f"/api/trainer/modules/vlan/quiz-stats?course_id={outer['KursA']}", headers=h).json()
+        b = c.get(f"/api/trainer/modules/vlan/quiz-stats?course_id={outer['KursB']}", headers=h).json()
+        assert a["submissions"] == 1
+        assert b["submissions"] == 1
+        assert all(q["correct"] == 1 for q in a["questions"])
+        assert all(q["correct"] == 0 for q in b["questions"])
+        # ohne Filter: mindestens beide zusammen
+        alle = c.get("/api/trainer/modules/vlan/quiz-stats", headers=h).json()
+        assert alle["submissions"] >= 2

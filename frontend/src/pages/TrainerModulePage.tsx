@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import Markdown from 'react-markdown'
 import { Link, useParams } from 'react-router-dom'
@@ -13,14 +14,20 @@ function rateColor(rate: number) {
   return 'bg-rose-500'
 }
 
-function QuizStatsBox({ stats }: { stats: QuizStats }) {
-  if (stats.submissions === 0) return null
+function QuizStatsBox({ stats, courseFilter }: { stats: QuizStats; courseFilter: React.ReactNode }) {
   return (
     <div className="rounded-xl border bg-white p-4 mb-6 text-sm">
-      <p className="font-semibold text-slate-700 mb-1">
-        Quiz-Ergebnisse
-        <span className="ml-2 font-normal text-slate-400">{stats.submissions} Abgabe(n)</span>
-      </p>
+      <div className="flex items-center justify-between gap-3 mb-1">
+        <p className="font-semibold text-slate-700">
+          Quiz-Ergebnisse
+          <span className="ml-2 font-normal text-slate-400">{stats.submissions} Abgabe(n)</span>
+        </p>
+        {courseFilter}
+      </div>
+      {stats.submissions === 0 ? (
+        <p className="text-xs text-slate-500">Noch keine Quiz-Abgaben{' '}— ggf. anderen Kurs wählen.</p>
+      ) : (
+        <>
       <p className="text-xs text-slate-500 mb-3">
         Anteil richtiger Antworten je Frage — rote Balken zeigen, wo es hakt.
       </p>
@@ -41,6 +48,8 @@ function QuizStatsBox({ stats }: { stats: QuizStats }) {
           )
         })}
       </div>
+        </>
+      )}
     </div>
   )
 }
@@ -48,14 +57,20 @@ function QuizStatsBox({ stats }: { stats: QuizStats }) {
 export function TrainerModulePage() {
   const { key = '' } = useParams()
   const { token, role } = useAuthStore()
+  const [courseId, setCourseId] = useState<number | undefined>(undefined)
   const mod = useQuery({
     queryKey: ['trainer-module', key],
     queryFn: () => trainerApi.trainerModule(key).then((r) => r.data),
     enabled: role === 'trainer' && !!token,
   })
+  const courses = useQuery({
+    queryKey: ['courses'],
+    queryFn: () => trainerApi.listCourses().then((r) => r.data),
+    enabled: role === 'trainer' && !!token,
+  })
   const stats = useQuery({
-    queryKey: ['quiz-stats', key],
-    queryFn: () => trainerApi.quizStats(key).then((r) => r.data),
+    queryKey: ['quiz-stats', key, courseId],
+    queryFn: () => trainerApi.quizStats(key, courseId).then((r) => r.data),
     enabled: role === 'trainer' && !!token,
   })
 
@@ -92,7 +107,23 @@ export function TrainerModulePage() {
           )}
         </div>
 
-        {stats.data && <QuizStatsBox stats={stats.data} />}
+        {stats.data && (
+          <QuizStatsBox
+            stats={stats.data}
+            courseFilter={
+              <select
+                value={courseId ?? ''}
+                onChange={(e) => setCourseId(e.target.value === '' ? undefined : Number(e.target.value))}
+                className="rounded-lg border border-slate-200 px-2 py-1 text-xs text-slate-600 bg-white"
+              >
+                <option value="">Alle Kurse</option>
+                {courses.data?.map((c) => (
+                  <option key={c.id} value={c.id}>{c.name}</option>
+                ))}
+              </select>
+            }
+          />
+        )}
 
         {m.scenario && (
           <div className="rounded-xl border border-teal-100 bg-teal-50 px-4 py-3 mb-6 text-sm text-teal-900">

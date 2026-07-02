@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app.database import get_db
+from app.models.participant import Participant
 from app.models.quiz_result import QuizResult
 from app.services import grading
 from app.services.deps import get_trainer
@@ -24,14 +25,20 @@ def get_trainer_module(key: str, db: Session = Depends(get_db), _t: dict = Depen
 
 
 @router.get("/{key}/quiz-stats")
-def quiz_stats(key: str, db: Session = Depends(get_db), _t: dict = Depends(get_trainer)):
+def quiz_stats(key: str, course_id: int | None = None,
+               db: Session = Depends(get_db), _t: dict = Depends(get_trainer)):
     """Pro Quizfrage: wie viele Abgaben waren richtig? Zeigt dem Trainer, welche
-    Konzepte hängen. Abgaben zu inzwischen gelöschten/ersetzten Fragen fallen
-    stillschweigend raus (IDs matchen nicht mehr)."""
+    Konzepte hängen. Optional auf einen Kurs gefiltert (sonst alle Kurse).
+    Abgaben zu inzwischen gelöschten/ersetzten Fragen fallen stillschweigend
+    raus (IDs matchen nicht mehr)."""
     m = trainer_module(db, key)
     if not m:
         raise HTTPException(status_code=404, detail="Modul nicht gefunden")
-    submissions = [r.answers for r in db.query(QuizResult).filter(QuizResult.module_key == key)]
+    q = db.query(QuizResult).filter(QuizResult.module_key == key)
+    if course_id is not None:
+        q = q.join(Participant, Participant.id == QuizResult.participant_id) \
+             .filter(Participant.course_id == course_id)
+    submissions = [r.answers for r in q]
     prompts = {q["id"]: q["prompt"] for q in m["quiz"]["questions"]}
     return {"submissions": len(submissions),
             "questions": [{**s, "prompt": prompts[s["id"]]}
