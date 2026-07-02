@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import Markdown from 'react-markdown'
 import { Link, useParams } from 'react-router-dom'
@@ -28,6 +28,16 @@ export function ModulePage() {
   const lang: Lang = me.data?.language ?? 'de'
   const mod = useQuery({ queryKey: ['module', key, lang], queryFn: () => learnApi.getModule(key).then((r) => r.data) })
   const features = useQuery({ queryKey: ['features'], queryFn: () => learnApi.features().then((r) => r.data) })
+  const mods = useQuery({ queryKey: ['modules', lang], queryFn: () => learnApi.listModules().then((r) => r.data) })
+  const [justPassed, setJustPassed] = useState(false)
+  useEffect(() => setJustPassed(false), [key])
+
+  // Nächstes Modul in Kurs-Reihenfolge — Ziel des „Weiter“-Buttons unter dem Quiz.
+  const nextModule = useMemo(() => {
+    const sorted = [...(mods.data ?? [])].sort((a, b) => a.order - b.order)
+    const idx = sorted.findIndex((m) => m.key === key)
+    return idx >= 0 ? sorted[idx + 1] ?? null : null
+  }, [mods.data, key])
   const setLang = useMutation({
     mutationFn: (l: Lang) => learnApi.setLanguage(l),
     onSuccess: () => {
@@ -83,7 +93,30 @@ export function ModulePage() {
             ) : null
           }
         />
-        <Quiz moduleKey={key} questions={mod.data.quiz.questions} lang={lang} />
+        <Quiz moduleKey={key} questions={mod.data.quiz.questions} lang={lang}
+          onResult={(passed) => {
+            setJustPassed(passed)
+            // Fortschritt überall aktualisieren (LearnPage-Badges, Abschluss-Banner)
+            qc.invalidateQueries({ queryKey: ['me'] })
+          }} />
+
+        <div className="mt-6 flex justify-end">
+          {nextModule ? (
+            <Link to={`/lernen/${nextModule.key}`}
+              className={`rounded-xl px-5 py-3 font-medium transition-colors ${
+                justPassed
+                  ? 'bg-teal-600 hover:bg-teal-700 text-white shadow'
+                  : 'border border-slate-300 bg-white text-slate-700 hover:bg-slate-50'
+              }`}>
+              {t(lang, 'nextModule')}: {lang === 'de' ? nextModule.title : nextModule.title_en} →
+            </Link>
+          ) : (
+            <Link to="/lernen"
+              className="rounded-xl border border-slate-300 bg-white px-5 py-3 font-medium text-slate-700 hover:bg-slate-50">
+              {t(lang, 'backToOverview')} →
+            </Link>
+          )}
+        </div>
       </div>
     </div>
   )

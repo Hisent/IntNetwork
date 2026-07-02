@@ -1,8 +1,19 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Link, useNavigate } from 'react-router-dom'
 import { learnApi } from '@/lib/learnApi'
+import type { ModuleMeta } from '@/types'
 import { useAuthStore } from '@/store/auth'
 import { t, type Lang } from '@/lib/i18n'
+
+// Kurs-Kapitel: gruppiert die Modulliste nach order-Bereichen.
+// Trainer-eigene Module (order 18+) landen in „Weitere Module".
+const GROUPS = [
+  { key: 'groupBasics', from: 1, to: 4 },
+  { key: 'groupServices', from: 5, to: 10 },
+  { key: 'groupSecurity', from: 11, to: 15 },
+  { key: 'groupPractice', from: 16, to: 17 },
+  { key: 'groupMore', from: 18, to: Infinity },
+] as const
 
 export function LearnPage() {
   const nav = useNavigate()
@@ -36,6 +47,14 @@ export function LearnPage() {
   const total = mods.data?.length ?? 0
   const doneCount = mods.data?.filter((m) => isDone(m.key)).length ?? 0
   const donePct = total ? Math.round((doneCount / total) * 100) : 0
+
+  const sorted = [...(mods.data ?? [])].sort((a, b) => a.order - b.order)
+  const isLocked = (m: ModuleMeta) => m.prerequisites.length > 0 && !prereqsMet(m.prerequisites)
+  // „Hier weitermachen“: erstes offenes, nicht gesperrtes Modul in Kurs-Reihenfolge
+  const continueAt = sorted.find((m) => !isDone(m.key) && !isLocked(m))
+  const grouped = GROUPS
+    .map((g) => ({ ...g, mods: sorted.filter((m) => m.order >= g.from && m.order <= g.to) }))
+    .filter((g) => g.mods.length > 0)
 
   return (
     <div className="min-h-screen bg-slate-50 p-6 sm:p-10">
@@ -90,31 +109,55 @@ export function LearnPage() {
           </div>
         )}
 
-        <div className="flex flex-col gap-3">
-          {mods.data?.map((m) => {
-            const p = progressOf(m.key)
-            const locked = m.prerequisites.length > 0 && !prereqsMet(m.prerequisites)
-            return (
-              <Link key={m.key} to={`/lernen/${m.key}`}
-                className="rounded-xl border bg-white p-4 hover:shadow block">
-                <div className="flex items-center justify-between gap-3">
-                  <span className="flex items-center gap-2 font-medium text-slate-800">
-                    <span aria-hidden="true" className={`w-2 h-2 rounded-full shrink-0 ${p?.done ? 'bg-green-500' : locked ? 'bg-slate-300' : 'bg-teal-500'}`} />
-                    {lang === 'de' ? m.title : m.title_en}
-                  </span>
-                  <span className="shrink-0 text-sm text-slate-500">
-                    {p?.done ? `✓ ${t(lang, 'done')}` : t(lang, 'open')}{p?.best != null ? ` · ${t(lang, 'best')} ${p.best}%` : ''}
-                  </span>
-                </div>
-                {m.prerequisites.length > 0 && (
-                  <p className={`text-xs mt-1 flex items-center gap-1 ${locked ? 'text-amber-600' : 'text-slate-400'}`}>
-                    <span aria-hidden="true">{locked ? '🔒' : '✓'}</span>
-                    {t(lang, 'prerequisitesHint')}: {m.prerequisites.map(titleOf).join(', ')}
-                  </p>
-                )}
-              </Link>
-            )
-          })}
+        {continueAt && doneCount > 0 && (
+          <Link to={`/lernen/${continueAt.key}`}
+            className="mb-6 flex items-center justify-between gap-3 rounded-2xl bg-teal-600 hover:bg-teal-700 text-white p-5 shadow transition-colors">
+            <span>
+              <span className="block text-xs font-semibold uppercase tracking-wide text-teal-100">
+                {t(lang, 'continueHere')}
+              </span>
+              <span className="text-lg font-bold">
+                {lang === 'de' ? continueAt.title : continueAt.title_en}
+              </span>
+            </span>
+            <span aria-hidden="true" className="text-2xl">→</span>
+          </Link>
+        )}
+
+        <div className="flex flex-col gap-6">
+          {grouped.map((g) => (
+            <div key={g.key}>
+              <h2 className="text-xs font-semibold uppercase tracking-wide text-slate-400 mb-2">
+                {t(lang, g.key)}
+              </h2>
+              <div className="flex flex-col gap-3">
+                {g.mods.map((m) => {
+                  const p = progressOf(m.key)
+                  const locked = isLocked(m)
+                  return (
+                    <Link key={m.key} to={`/lernen/${m.key}`}
+                      className="rounded-xl border bg-white p-4 hover:shadow block">
+                      <div className="flex items-center justify-between gap-3">
+                        <span className="flex items-center gap-2 font-medium text-slate-800">
+                          <span aria-hidden="true" className={`w-2 h-2 rounded-full shrink-0 ${p?.done ? 'bg-green-500' : locked ? 'bg-slate-300' : 'bg-teal-500'}`} />
+                          {lang === 'de' ? m.title : m.title_en}
+                        </span>
+                        <span className="shrink-0 text-sm text-slate-500">
+                          {p?.done ? `✓ ${t(lang, 'done')}` : t(lang, 'open')}{p?.best != null ? ` · ${t(lang, 'best')} ${p.best}%` : ''}
+                        </span>
+                      </div>
+                      {m.prerequisites.length > 0 && (
+                        <p className={`text-xs mt-1 flex items-center gap-1 ${locked ? 'text-amber-600' : 'text-slate-400'}`}>
+                          <span aria-hidden="true">{locked ? '🔒' : '✓'}</span>
+                          {t(lang, 'prerequisitesHint')}: {m.prerequisites.map(titleOf).join(', ')}
+                        </p>
+                      )}
+                    </Link>
+                  )
+                })}
+              </div>
+            </div>
+          ))}
         </div>
 
         {links.data && links.data.length > 0 && (

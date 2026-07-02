@@ -30,7 +30,9 @@ export function shuffledIndices(n: number): number[] {
   return a
 }
 
-export function Quiz({ moduleKey, questions, lang }: { moduleKey: string; questions: Question[]; lang: Lang }) {
+export function Quiz({ moduleKey, questions, lang, onResult }: {
+  moduleKey: string; questions: Question[]; lang: Lang; onResult?: (passed: boolean) => void
+}) {
   const [answers, setAnswers] = useState<Record<string, unknown>>({})
   const [result, setResult] = useState<Result | null>(null)
   const [best, setBest] = useState<number | null>(null)
@@ -49,6 +51,7 @@ export function Quiz({ moduleKey, questions, lang }: { moduleKey: string; questi
       const r = await learnApi.submitQuiz(moduleKey, answers)
       setResult(r.data)
       setBest(r.data.best)
+      onResult?.(r.data.passed)
     } finally {
       setBusy(false)
     }

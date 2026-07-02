@@ -6,13 +6,13 @@ import { t, type Lang } from '@/lib/i18n'
 
 const POINTS: Record<Lang, string[]> = {
   de: [
-    '15 Module vom Ethernet-Frame bis zum VPN.',
-    'Simulatoren statt Folien: Switch, Router-CLI, Subnetz-Rechner.',
+    '17 Module vom Ethernet-Frame bis zur Paket-Analyse.',
+    'Simulatoren statt Folien: Switch, Router-CLI, Mini-Wireshark.',
     'Alles am Beispiel der Firma Nordwind Logistik.',
   ],
   en: [
-    '15 modules from the Ethernet frame to VPN.',
-    'Simulators instead of slides: switch, router CLI, subnet calculator.',
+    '17 modules from the Ethernet frame to packet analysis.',
+    'Simulators instead of slides: switch, router CLI, mini Wireshark.',
     'All built around the fictional company Nordwind Logistik.',
   ],
 }
@@ -113,6 +113,7 @@ export function LandingPage() {
             <button className="rounded-lg bg-teal-600 hover:bg-teal-700 text-white py-2.5 font-medium">
               {t(lang, 'join')}
             </button>
+            <p className="text-xs text-slate-500">💡 {t(lang, 'resumeHint')}</p>
           </form>
 
           <div className="mt-6 border-t border-slate-200 pt-4">
