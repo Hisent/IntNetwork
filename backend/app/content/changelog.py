@@ -1,5 +1,14 @@
 # Projekt-Changelog (nur für Trainer sichtbar). Neueste zuerst.
 CHANGELOG = [
+    {"date": "2026-07-02", "title": "Modul 17: Wireshark & tcpdump + PTR + Linksammlung",
+     "text": "Neues Modul „Paket-Analyse — Wireshark & tcpdump“ mit Mini-Wireshark: "
+             "echter Mitschnitt zum Durchklicken (Paketliste, Schichten-Detail, "
+             "grün/rot validierte Anzeigefilter) und der Aufgabe, ein im Klartext "
+             "übertragenes HTTP-Passwort zu finden — inklusive Vergleich zur "
+             "verschlüsselten HTTPS-Verbindung und tcpdump als CLI-Gegenstück. "
+             "Außerdem: PTR/Reverse-DNS (in-addr.arpa, Mail-Praxis) im DNS-Modul "
+             "ergänzt und eine kuratierte Linksammlung „Wissenswertes & Vertiefung“ "
+             "am Ende der Kursübersicht."},
     {"date": "2026-07-02", "title": "Abschluss-Banner für Teilnehmer",
      "text": "Wer alle Module besteht, bekommt auf der Kursübersicht jetzt einen "
              "Abschluss-Moment mit Pokal statt nur eines vollen Fortschrittsbalkens."},

@@ -77,6 +77,38 @@ DNS_MODULE = {
                    "- **MX** — the domain's mail server.\n\n"
                    "If the authoritative server finds no entry, it returns **NXDOMAIN**.",
          }},
+        {"type": "text",
+         "value": {
+             "de": "## Rückwärts: PTR (Reverse DNS)\n\nManchmal hast du nur eine "
+                   "**IP** und willst den **Namen** dazu — z.B. wenn in einem Log nur "
+                   "`10.20.0.9` steht. Dafür gibt es den **PTR-Record** (Pointer): die "
+                   "Umkehrung von A.\n\nTechnisch wird die IP dafür **umgedreht** und in "
+                   "eine Spezial-Zone gehängt: `10.20.0.9` → `9.0.20.10.in-addr.arpa` "
+                   "(IPv6: `ip6.arpa`). Abfragen kannst du das mit `nslookup 10.20.0.9` "
+                   "oder `dig -x 10.20.0.9`.\n\nWichtig in der Praxis: **Mailserver** "
+                   "prüfen oft, ob zur Absender-IP ein passender PTR existiert — fehlt "
+                   "er, landet die Mail im Spam. Und A- und PTR-Records werden **getrennt "
+                   "gepflegt** — sie können sich widersprechen.",
+             "en": "## Backwards: PTR (Reverse DNS)\n\nSometimes you only have an "
+                   "**IP** and want the **name** for it — e.g. when a log only shows "
+                   "`10.20.0.9`. That's what the **PTR record** (pointer) is for: the "
+                   "reverse of A.\n\nTechnically the IP is **reversed** and placed in a "
+                   "special zone: `10.20.0.9` → `9.0.20.10.in-addr.arpa` "
+                   "(IPv6: `ip6.arpa`). You can query it with `nslookup 10.20.0.9` "
+                   "or `dig -x 10.20.0.9`.\n\nImportant in practice: **mail servers** "
+                   "often check whether the sender IP has a matching PTR — if it's "
+                   "missing, the mail ends up in spam. And A and PTR records are "
+                   "**maintained separately** — they can contradict each other.",
+         },
+         "note": "Live zeigen: nslookup auf eine bekannte IP (z.B. 8.8.8.8 → dns.google). "
+                 "Merkhilfe: A = Name→IP, PTR = IP→Name."},
+        {"type": "check", "payload": {
+            "prompt_de": "Im Firewall-Log steht nur die IP 192.168.10.60. Mit welchem Record-Typ findest du den zugehörigen Namen?",
+            "prompt_en": "The firewall log only shows the IP 192.168.10.60. Which record type lets you find the matching name?",
+            "options_de": ["A", "PTR", "CNAME", "MX"],
+            "options_en": ["A", "PTR", "CNAME", "MX"],
+            "answer": 1,
+        }},
     ],
     "quiz": {"questions": [
         {"id": "d1", "type": "single",
@@ -107,6 +139,16 @@ DNS_MODULE = {
                     "Wegen NAT", "Um VLANs zu trennen"],
              "en": ["For security", "So they don't have to walk the tree every time",
                     "Because of NAT", "To separate VLANs"],
+         },
+         "answer": 1},
+        {"id": "d5", "type": "single",
+         "prompt": {"de": "Was macht ein PTR-Record?",
+                    "en": "What does a PTR record do?"},
+         "options": {
+             "de": ["Name → IPv4-Adresse", "IP-Adresse → Name (Reverse DNS)",
+                    "Alias auf einen anderen Namen", "Verweist auf den Mailserver"],
+             "en": ["Name → IPv4 address", "IP address → name (reverse DNS)",
+                    "Alias to another name", "Points to the mail server"],
          },
          "answer": 1},
     ]},

@@ -22,4 +22,5 @@ export const WIDGETS: Record<string, ComponentType<{ lang: Lang }>> = {
   'wlan-demo': lazy(() => import('@/widgets/wlan/WlanWidget').then((m) => ({ default: m.Wlan }))),
   'vpn-demo': lazy(() => import('@/widgets/vpn/VpnWidget').then((m) => ({ default: m.Vpn }))),
   'troubleshoot-demo': lazy(() => import('@/widgets/troubleshoot/TroubleshootWidget').then((m) => ({ default: m.Troubleshoot }))),
+  'wireshark-demo': lazy(() => import('@/widgets/wireshark/WiresharkWidget').then((m) => ({ default: m.Wireshark }))),
 }

@@ -17,6 +17,17 @@ export const learnApi = {
     api.post<Comment>(`/modules/${key}/comments`, { block_index, body }),
   deleteComment: (id: number) => api.delete(`/comments/${id}`),
   heartbeat: (key: string) => api.post(`/modules/${key}/heartbeat`),
+  links: () => api.get<LinkCategory[]>('/links'),
+}
+
+export interface LinkItem {
+  title: string
+  url: string
+  desc: { de: string; en: string }
+}
+export interface LinkCategory {
+  category: { de: string; en: string }
+  items: LinkItem[]
 }
 
 export interface Comment {

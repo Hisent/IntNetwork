@@ -16,6 +16,7 @@ VALID_WIDGET_IDS = {
     "vlan-switch", "frame-builder", "osi-model", "mac-learning", "subnet-calc",
     "arp-demo", "routing-demo", "nat-demo", "dns-demo", "dhcp-demo", "ports-demo",
     "icmp-demo", "firewall-demo", "ipv6-demo", "wlan-demo", "vpn-demo",
+    "troubleshoot-demo", "wireshark-demo",
 }
 
 KEY_RE = re.compile(r"^[a-z0-9-]+$")

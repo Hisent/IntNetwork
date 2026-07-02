@@ -16,11 +16,12 @@ from app.content.wlan import WLAN_MODULE
 from app.content.vpn import VPN_MODULE
 from app.content.vlan import VLAN_MODULE
 from app.content.troubleshooting import TROUBLESHOOTING_MODULE
+from app.content.wireshark import WIRESHARK_MODULE
 from app.models.content import ContentBlock, ContentModule, ContentQuizQuestion
 
 # Nur noch Seed-Quelle für seed_missing_content() (app/content/seed.py) — die
 # Trainer-/Teilnehmer-Auslieferung unten liest ausschließlich aus der DB.
-MODULES = {m["key"]: m for m in (PAKET_MODULE, SWITCHING_MODULE, VLAN_MODULE, SUBNETTING_MODULE, ARP_MODULE, ROUTING_MODULE, NAT_MODULE, DNS_MODULE, DHCP_MODULE, PORTS_MODULE, ICMP_MODULE, FIREWALL_MODULE, IPV6_MODULE, WLAN_MODULE, VPN_MODULE, TROUBLESHOOTING_MODULE)}
+MODULES = {m["key"]: m for m in (PAKET_MODULE, SWITCHING_MODULE, VLAN_MODULE, SUBNETTING_MODULE, ARP_MODULE, ROUTING_MODULE, NAT_MODULE, DNS_MODULE, DHCP_MODULE, PORTS_MODULE, ICMP_MODULE, FIREWALL_MODULE, IPV6_MODULE, WLAN_MODULE, VPN_MODULE, TROUBLESHOOTING_MODULE, WIRESHARK_MODULE)}
 
 
 def _resolve(value, lang: str):

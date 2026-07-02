@@ -12,6 +12,7 @@ export function LearnPage() {
   const lang: Lang = me.data?.language ?? 'de'
   const mods = useQuery({ queryKey: ['modules', lang], queryFn: () => learnApi.listModules().then((r) => r.data) })
   const company = useQuery({ queryKey: ['company', lang], queryFn: () => learnApi.company().then((r) => r.data) })
+  const links = useQuery({ queryKey: ['links'], queryFn: () => learnApi.links().then((r) => r.data) })
   const setLang = useMutation({
     mutationFn: (l: Lang) => learnApi.setLanguage(l),
     onSuccess: () => {
@@ -115,6 +116,31 @@ export function LearnPage() {
             )
           })}
         </div>
+
+        {links.data && links.data.length > 0 && (
+          <div className="mt-10">
+            <h2 className="font-semibold text-slate-900">{t(lang, 'linksTitle')}</h2>
+            <p className="text-sm text-slate-500 mb-4">{t(lang, 'linksIntro')}</p>
+            <div className="flex flex-col gap-4">
+              {links.data.map((cat) => (
+                <div key={cat.category.de} className="rounded-2xl border bg-white p-5">
+                  <h3 className="text-sm font-semibold text-slate-700 mb-2">{cat.category[lang]}</h3>
+                  <div className="flex flex-col gap-2">
+                    {cat.items.map((item) => (
+                      <a key={item.url} href={item.url} target="_blank" rel="noopener noreferrer"
+                        className="group text-sm">
+                        <span className="font-medium text-teal-700 group-hover:underline">
+                          {item.title} <span aria-hidden="true" className="text-teal-400">↗</span>
+                        </span>
+                        <span className="text-slate-600"> — {item.desc[lang]}</span>
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )
