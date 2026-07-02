@@ -1,10 +1,25 @@
 import { useEffect, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import Markdown from 'react-markdown'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { errMsg } from '@/lib/api'
 import { trainerApi, type EditorBlock, type EditorModule, type EditorQuestion } from '@/lib/trainerApi'
 import { addOption, emptyBlock, emptyQuestion, moveItem, removeAt, removeOption } from '@/components/editorOps'
+import { MD_COMPONENTS } from '@/components/Blocks'
 import { WIDGETS } from '@/widgets/registry'
+
+const TYPE_LABELS: Record<EditorBlock['type'], string> = {
+  text: 'Text', widget: 'Widget', check: 'Kurz-Check', reveal: 'Aufdecken',
+  order: 'Reihenfolge', debug: 'Fehler finden', reflect: 'Reflexion',
+}
+
+// Zusammenfassungszeile für eingeklappte Blöcke: Typ + Inhaltsanriss.
+function blockSnippet(b: EditorBlock): string {
+  const src = b.type === 'widget'
+    ? (b.widget_id || '— kein Widget gewählt —')
+    : (b.value_de || b.payload?.prompt_de || b.payload?.teaser_de || '')
+  return src.replace(/[#*`>\n]+/g, ' ').trim().slice(0, 70)
+}
 
 // Registry ist lazy — Object.keys lädt keinen Widget-Code
 const WIDGET_IDS = Object.keys(WIDGETS)
@@ -15,6 +30,7 @@ export function TrainerModuleEditPage() {
   const qc = useQueryClient()
   const [form, setForm] = useState<EditorModule | null>(null)
   const [error, setError] = useState('')
+  const [preview, setPreview] = useState<Record<number, boolean>>({})
 
   const mod = useQuery({
     queryKey: ['content-module', key],
@@ -146,7 +162,12 @@ export function TrainerModuleEditPage() {
           <h3 className="text-sm font-semibold text-slate-700 mb-3">Blöcke</h3>
           <div className="flex flex-col gap-4">
             {form.blocks.map((b, i) => (
-              <div key={i} className="rounded-lg border p-3 flex flex-col gap-2">
+              <details key={i} className="group rounded-lg border">
+                <summary className="cursor-pointer select-none rounded-lg px-3 py-2 text-sm hover:bg-slate-50">
+                  <span className="font-medium text-slate-700">{i + 1}. {TYPE_LABELS[b.type]}</span>
+                  <span className="ml-2 text-xs text-slate-400">{blockSnippet(b)}</span>
+                </summary>
+                <div className="border-t border-slate-100 p-3 flex flex-col gap-2">
                 <div className="flex items-center justify-between">
                   <select className="border rounded px-2 py-1 text-sm" value={b.type}
                     onChange={(e) => changeBlockType(i, e.target.value as EditorBlock['type'])}>
@@ -166,10 +187,25 @@ export function TrainerModuleEditPage() {
                 </div>
                 {b.type === 'text' && (
                   <>
-                    <textarea placeholder="Text DE" className="border rounded-lg px-3 py-1.5 text-sm" rows={3}
-                      value={b.value_de ?? ''} onChange={(e) => updateBlock(i, { value_de: e.target.value })} />
-                    <textarea placeholder="Text EN" className="border rounded-lg px-3 py-1.5 text-sm" rows={3}
-                      value={b.value_en ?? ''} onChange={(e) => updateBlock(i, { value_en: e.target.value })} />
+                    <button onClick={() => setPreview((p) => ({ ...p, [i]: !p[i] }))}
+                      className="self-start text-xs text-teal-700 hover:text-teal-800">
+                      {preview[i] ? '✎ Bearbeiten' : '👁 Markdown-Vorschau'}
+                    </button>
+                    {preview[i] ? (
+                      <div className="rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm">
+                        <p className="text-xs font-semibold text-slate-400 mb-1">DE</p>
+                        <Markdown components={MD_COMPONENTS}>{b.value_de ?? ''}</Markdown>
+                        <p className="text-xs font-semibold text-slate-400 mt-4 mb-1">EN</p>
+                        <Markdown components={MD_COMPONENTS}>{b.value_en ?? ''}</Markdown>
+                      </div>
+                    ) : (
+                      <>
+                        <textarea placeholder="Text DE" className="border rounded-lg px-3 py-1.5 text-sm" rows={6}
+                          value={b.value_de ?? ''} onChange={(e) => updateBlock(i, { value_de: e.target.value })} />
+                        <textarea placeholder="Text EN" className="border rounded-lg px-3 py-1.5 text-sm" rows={6}
+                          value={b.value_en ?? ''} onChange={(e) => updateBlock(i, { value_en: e.target.value })} />
+                      </>
+                    )}
                     <textarea placeholder="Notiz (Trainer, DE)" className="border rounded-lg px-3 py-1.5 text-sm" rows={2}
                       value={b.note ?? ''} onChange={(e) => updateBlock(i, { note: e.target.value })} />
                   </>
@@ -330,7 +366,8 @@ export function TrainerModuleEditPage() {
                     <p className="text-xs text-slate-400">Freitext-Antwort — wird nur lokal im Browser des Teilnehmers gespeichert.</p>
                   </>
                 )}
-              </div>
+                </div>
+              </details>
             ))}
           </div>
           <button onClick={() => setForm({ ...form, blocks: [...form.blocks, emptyBlock()] })}
