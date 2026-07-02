@@ -1,5 +1,14 @@
 # Projekt-Changelog (nur für Trainer sichtbar). Neueste zuerst.
 CHANGELOG = [
+    {"date": "2026-07-02", "title": "Neues Abschlussmodul: Troubleshooting",
+     "text": "Modul 16 „Troubleshooting — der große Störfall“ als Capstone: "
+             "systematische Fehlersuche bottom-up durch die Schichten, der "
+             "Werkzeugkasten (ipconfig, ping, nslookup, tracert) und ein "
+             "IT-Support-Simulator mit drei echten Störungsmeldungen — Beweise im "
+             "Terminal sammeln, dann Diagnose stellen (APIPA/DHCP, DNS-Ausfall, "
+             "falsches VLAN). Neue Module erscheinen jetzt auch auf bestehenden "
+             "Installationen automatisch, ohne den vom Trainer bearbeiteten "
+             "Inhalt anzufassen."},
     {"date": "2026-07-02", "title": "Neue Übungsformen & ausgebaute Widgets",
      "text": "Vier neue Block-Typen im Modul-Editor: „Rechen-Check“ (Zahl eingeben, "
              "z.B. Subnetz-Rechnung), „Reihenfolge“ (Schritte in die richtige Ordnung "

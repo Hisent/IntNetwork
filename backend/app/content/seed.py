@@ -4,10 +4,14 @@ from app.content.registry import MODULES
 from app.models.content import ContentBlock, ContentModule, ContentQuizQuestion
 
 
-def seed_content_if_empty(db: Session) -> None:
-    if db.query(ContentModule).count() > 0:
-        return
+def seed_missing_content(db: Session) -> None:
+    """Seedet alle Module, deren Key noch nicht in der DB steht — beim ersten
+    Start also alles, bei Updates nur neu hinzugekommene Module. Bestehende
+    (ggf. vom Trainer editierte) Module werden nie angefasst."""
+    existing = {key for (key,) in db.query(ContentModule.key)}
     for m in MODULES.values():
+        if m["key"] in existing:
+            continue
         db.add(ContentModule(
             key=m["key"], order=m["order"],
             prerequisites=m.get("prerequisites", []), title_de=m["title"],

@@ -38,12 +38,12 @@ _wait_for_db()
 Base.metadata.create_all(bind=engine)
 sync_missing_columns()
 
-from app.content.seed import seed_content_if_empty  # noqa: E402
+from app.content.seed import seed_missing_content  # noqa: E402
 from app.services.trainer_seed import seed_trainer_if_empty  # noqa: E402
 
 _seed_db = SessionLocal()
 try:
-    seed_content_if_empty(_seed_db)
+    seed_missing_content(_seed_db)
     seed_trainer_if_empty(_seed_db)
 finally:
     _seed_db.close()
