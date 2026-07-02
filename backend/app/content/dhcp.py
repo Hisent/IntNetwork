@@ -3,7 +3,6 @@ DHCP_MODULE = {
     "title": "DHCP — Adressen automatisch",
     "title_en": "DHCP — Automatic Addressing",
     "order": 9,
-    "pass_threshold": 0.7,
     "prerequisites": ["subnetting"],
     "goals": [
         "Wissen, welche Parameter ein Gerät zum Start braucht (IP/Maske/Gateway/DNS)",

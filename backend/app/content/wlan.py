@@ -3,7 +3,6 @@ WLAN_MODULE = {
     "title": "WLAN — Netz ohne Kabel",
     "title_en": "Wi-Fi — Network Without Cables",
     "order": 14,
-    "pass_threshold": 0.7,
     "prerequisites": ["switching"],
     "goals": [
         "WLAN als Funk-Zugang auf Schicht 1+2 einordnen (AP/SSID/Assoziation)",

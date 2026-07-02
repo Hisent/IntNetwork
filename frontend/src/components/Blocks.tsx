@@ -13,7 +13,7 @@ export const MD_COMPONENTS = {
   strong: (p: object) => <strong className="font-semibold text-slate-900" {...p} />,
 }
 
-function WidgetBlock({ id, lang }: { id: string; lang: Lang }) {
+export function WidgetBlock({ id, lang }: { id: string; lang: Lang }) {
   const W = WIDGETS[id]
   if (!W) return <div className="text-sm text-red-500">Unbekanntes Widget: {id}</div>
   return (

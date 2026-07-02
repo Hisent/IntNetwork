@@ -46,7 +46,7 @@ def submit_quiz(key: str, data: QuizSubmit, db: Session = Depends(get_db),
     if not module:
         raise HTTPException(status_code=404, detail="Modul nicht gefunden")
     score, total = grading.grade(module["quiz"], data.answers)
-    is_passed = grading.passed(score, total, module["pass_threshold"])
+    is_passed = grading.passed(score, total)
 
     db.add(QuizResult(participant_id=p.id, module_key=key, score=score,
                       total=total, answers=data.answers))

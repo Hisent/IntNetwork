@@ -1,15 +1,12 @@
-from datetime import datetime
-from sqlalchemy import DateTime, Float, ForeignKey, Integer, JSON, String, Text
+from sqlalchemy import ForeignKey, Integer, JSON, String, Text
 from sqlalchemy.orm import Mapped, mapped_column
 from app.database import Base
-from app.utils import utc_now
 
 
 class ContentModule(Base):
     __tablename__ = "content_module"
     key: Mapped[str] = mapped_column(String, primary_key=True)
     order: Mapped[int] = mapped_column(Integer)
-    pass_threshold: Mapped[float] = mapped_column(Float, default=0.7)
     prerequisites: Mapped[list] = mapped_column(JSON, default=list)
     title_de: Mapped[str] = mapped_column(String)
     title_en: Mapped[str] = mapped_column(String)
@@ -49,4 +46,3 @@ class ContentModuleSnapshot(Base):
     __tablename__ = "content_module_snapshot"
     module_key: Mapped[str] = mapped_column(ForeignKey("content_module.key"), primary_key=True)
     data: Mapped[dict] = mapped_column(JSON)
-    saved_at: Mapped[datetime] = mapped_column(DateTime, default=utc_now)

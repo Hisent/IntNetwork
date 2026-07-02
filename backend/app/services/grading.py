@@ -26,5 +26,10 @@ def question_results(quiz: dict, answers: dict) -> dict[str, bool]:
     return {q["id"]: _correct(q, (answers or {}).get(q["id"])) for q in quiz["questions"]}
 
 
-def passed(score: int, total: int, threshold: float) -> bool:
+# ponytail: einheitliche Bestehensgrenze; wieder pro Modul (DB-Feld + Editor-UI),
+# falls Trainer je unterschiedliche Schwellen brauchen
+PASS_THRESHOLD = 0.7
+
+
+def passed(score: int, total: int, threshold: float = PASS_THRESHOLD) -> bool:
     return total > 0 and (score / total) >= threshold

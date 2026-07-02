@@ -9,7 +9,7 @@ def seed_content_if_empty(db: Session) -> None:
         return
     for m in MODULES.values():
         db.add(ContentModule(
-            key=m["key"], order=m["order"], pass_threshold=m.get("pass_threshold", 0.7),
+            key=m["key"], order=m["order"],
             prerequisites=m.get("prerequisites", []), title_de=m["title"],
             title_en=m.get("title_en", m["title"]), goals=m.get("goals", []),
             scenario_de=m["scenario"]["de"], scenario_en=m["scenario"]["en"],

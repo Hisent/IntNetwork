@@ -3,7 +3,6 @@ ROUTING_MODULE = {
     "title": "Routing",
     "title_en": "Routing",
     "order": 6,
-    "pass_threshold": 0.7,
     "prerequisites": ["subnetting"],
     "goals": [
         "Router (Schicht 3) vom Switch (Schicht 2) abgrenzen",

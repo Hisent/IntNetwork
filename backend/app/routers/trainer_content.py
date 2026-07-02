@@ -8,7 +8,6 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models.content import ContentBlock, ContentModule, ContentModuleSnapshot, ContentQuizQuestion
 from app.services.deps import get_trainer
-from app.utils import utc_now
 
 router = APIRouter(prefix="/trainer/content/modules", tags=["trainer-content"])
 
@@ -44,7 +43,6 @@ class ModuleIn(BaseModel):
     title_de: str
     title_en: str
     order: int
-    pass_threshold: float = 0.7
     prerequisites: list[str] = []
     goals: list[str] = []
     scenario_de: str
@@ -74,7 +72,7 @@ def _serialize_module(m: ContentModule, blocks: list[ContentBlock], questions: l
     wieder als ModuleIn(**data) einlesen (genutzt fürs Snapshot-Restore)."""
     return {
         "title_de": m.title_de, "title_en": m.title_en,
-        "order": m.order, "pass_threshold": m.pass_threshold,
+        "order": m.order,
         "prerequisites": m.prerequisites, "goals": m.goals,
         "scenario_de": m.scenario_de, "scenario_en": m.scenario_en,
         "blocks": [{"type": b.type, "value_de": b.value_de, "value_en": b.value_en,
@@ -86,8 +84,6 @@ def _serialize_module(m: ContentModule, blocks: list[ContentBlock], questions: l
 
 
 def _validate(db: Session, key: str, data: ModuleIn) -> None:
-    if not (0.0 <= data.pass_threshold <= 1.0):
-        raise HTTPException(status_code=422, detail="pass_threshold muss zwischen 0 und 1 liegen")
     for p in data.prerequisites:
         if p == key:
             raise HTTPException(status_code=422, detail=f"Modul kann nicht eigene Voraussetzung sein: {p}")
@@ -135,7 +131,6 @@ def _apply(db: Session, key: str, m: ContentModule, data: ModuleIn) -> None:
     m.title_de = data.title_de
     m.title_en = data.title_en
     m.order = data.order
-    m.pass_threshold = data.pass_threshold
     m.prerequisites = data.prerequisites
     m.goals = data.goals
     m.scenario_de = data.scenario_de
@@ -156,7 +151,6 @@ def _upsert_snapshot(db: Session, key: str, data: dict) -> None:
     snap = db.query(ContentModuleSnapshot).filter(ContentModuleSnapshot.module_key == key).first()
     if snap:
         snap.data = data
-        snap.saved_at = utc_now()
     else:
         db.add(ContentModuleSnapshot(module_key=key, data=data))
 
@@ -184,7 +178,7 @@ def create_module(data: ModuleCreateIn, db: Session = Depends(get_db), _t: dict 
     if db.query(ContentModule).filter(ContentModule.key == data.key).first():
         raise HTTPException(status_code=422, detail="Key bereits vergeben")
     max_order = db.query(ContentModule).count()
-    m = ContentModule(key=data.key, order=max_order + 1, pass_threshold=0.7,
+    m = ContentModule(key=data.key, order=max_order + 1,
                       prerequisites=[], title_de=data.title_de, title_en=data.title_de,
                       goals=[], scenario_de="", scenario_en="")
     db.add(m)
@@ -223,6 +217,5 @@ def restore_module(key: str, db: Session = Depends(get_db), _t: dict = Depends(g
     restored = ModuleIn(**snap.data)
     _apply(db, key, m, restored)
     snap.data = current_data
-    snap.saved_at = utc_now()
     db.commit()
     return _meta(m)

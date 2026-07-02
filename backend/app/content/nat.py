@@ -3,7 +3,6 @@ NAT_MODULE = {
     "title": "NAT & Internet-Zugang",
     "title_en": "NAT & Internet Access",
     "order": 7,
-    "pass_threshold": 0.7,
     "prerequisites": ["routing"],
     "goals": [
         "Private und öffentliche IP-Adressen unterscheiden",

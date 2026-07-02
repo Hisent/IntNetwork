@@ -3,7 +3,6 @@ ARP_MODULE = {
     "title": "ARP — IP trifft MAC",
     "title_en": "ARP — IP Meets MAC",
     "order": 5,
-    "pass_threshold": 0.7,
     "prerequisites": ["subnetting"],
     "goals": [
         "Die Lücke zwischen IP (Schicht 3) und MAC (Schicht 2) benennen",

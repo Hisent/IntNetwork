@@ -1,18 +1,7 @@
-import { Suspense, useState } from 'react'
+import { useState } from 'react'
 import Markdown from 'react-markdown'
 import type { Block } from '@/types'
-import { WIDGETS } from '@/widgets/registry'
-import { MD_COMPONENTS } from '@/components/Blocks'
-
-function WidgetBlock({ id }: { id: string }) {
-  const W = WIDGETS[id]
-  if (!W) return <div className="text-sm text-red-500">Unbekanntes Widget: {id}</div>
-  return (
-    <Suspense fallback={<div className="rounded-xl border bg-white p-6 text-sm text-slate-400 animate-pulse">Lädt…</div>}>
-      <W lang="de" />
-    </Suspense>
-  )
-}
+import { MD_COMPONENTS, WidgetBlock } from '@/components/Blocks'
 
 function NoteBox({ note }: { note: string }) {
   const [open, setOpen] = useState(false)
@@ -39,7 +28,7 @@ export function TrainerBlocks({ blocks }: { blocks: Block[] }) {
       {blocks.map((b, i) => (
         <div key={i} className="flex flex-col gap-1">
           {b.type === 'text' && <Markdown components={MD_COMPONENTS}>{b.value}</Markdown>}
-          {b.type === 'widget' && <WidgetBlock id={b.id} />}
+          {b.type === 'widget' && <WidgetBlock id={b.id} lang="de" />}
           {b.type === 'check' && (
             <div className="rounded-xl border border-slate-200 bg-white p-4">
               <p className="text-xs font-semibold uppercase tracking-wide text-teal-700 mb-1">Kurz-Check</p>

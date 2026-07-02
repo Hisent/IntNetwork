@@ -1,13 +1,41 @@
-import axios from 'axios'
 import { useAuthStore } from '@/store/auth'
 
-export const api = axios.create({ baseURL: '/api' })
+// Schlanker fetch-Wrapper in axios-Form ({ data }, Fehler mit
+// response.data.detail) — die Aufrufer bleiben unverändert.
+export interface ApiError extends Error {
+  response?: { status: number; data?: { detail?: string } }
+}
 
-api.interceptors.request.use((config) => {
+async function request<T>(method: string, url: string, body?: unknown): Promise<{ data: T }> {
   const token = useAuthStore.getState().token
-  if (token) config.headers.Authorization = `Bearer ${token}`
-  return config
-})
+  const res = await fetch('/api' + url, {
+    method,
+    headers: {
+      ...(body !== undefined ? { 'Content-Type': 'application/json' } : {}),
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+    body: body !== undefined ? JSON.stringify(body) : undefined,
+  })
+  const data = await res.json().catch(() => undefined)
+  if (!res.ok) {
+    const err = new Error(`HTTP ${res.status}`) as ApiError
+    err.response = { status: res.status, data }
+    throw err
+  }
+  return { data: data as T }
+}
+
+export const api = {
+  get: <T>(url: string) => request<T>('GET', url),
+  post: <T = unknown>(url: string, body?: unknown) => request<T>('POST', url, body),
+  put: <T = unknown>(url: string, body?: unknown) => request<T>('PUT', url, body),
+  patch: <T = unknown>(url: string, body?: unknown) => request<T>('PATCH', url, body),
+  delete: <T = unknown>(url: string) => request<T>('DELETE', url),
+}
+
+export function errMsg(e: unknown, fallback = 'Fehler.'): string {
+  return (e as ApiError).response?.data?.detail ?? fallback
+}
 
 export const authApi = {
   trainerLogin: (email: string, password: string) =>

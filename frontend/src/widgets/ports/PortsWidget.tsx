@@ -5,8 +5,6 @@ import type { Lang } from '@/lib/i18n'
 
 const PRESETS = [80, 443, 22, 53]
 
-const FROM_LABEL = { de: { Client: 'Client', Server: 'Server' }, en: { Client: 'Client', Server: 'Server' } } as const
-
 const STR = {
   de: {
     portToService: 'Port → Dienst', port: 'Port', handshake: 'TCP 3-Wege-Handshake', tcpVsUdp: 'TCP vs. UDP',
@@ -62,7 +60,7 @@ export function Ports({ lang }: { lang: Lang }) {
         <ol className="space-y-2">
           {HANDSHAKE.map((step, i) => (
             <li key={i} className="flex items-center gap-3 text-xs">
-              <span className="w-14 shrink-0 text-slate-500">{FROM_LABEL[lang][step.from]}</span>
+              <span className="w-14 shrink-0 text-slate-500">{step.from}</span>
               <span className="text-slate-300">{step.from === 'Client' ? '───▶' : '◀───'}</span>
               <span className="rounded bg-teal-100 px-2 py-0.5 font-mono font-semibold text-teal-700">
                 {step.flag}

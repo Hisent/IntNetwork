@@ -3,7 +3,6 @@ DNS_MODULE = {
     "title": "DNS — Namensauflösung",
     "title_en": "DNS — Name Resolution",
     "order": 8,
-    "pass_threshold": 0.7,
     "prerequisites": ["routing"],
     "goals": [
         "DNS als Namen-zu-IP-Auflösung einordnen",

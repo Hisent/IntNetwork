@@ -3,7 +3,6 @@ SUBNETTING_MODULE = {
     "title": "IP & Subnetting",
     "title_en": "IP & Subnetting",
     "order": 4,
-    "pass_threshold": 0.7,
     "prerequisites": ["paket"],
     "goals": [
         "Eine IP-Adresse in Netz- und Hostanteil zerlegen",

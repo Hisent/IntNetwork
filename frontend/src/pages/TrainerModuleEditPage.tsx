@@ -1,19 +1,13 @@
 import { useEffect, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Link, useNavigate, useParams } from 'react-router-dom'
+import { errMsg } from '@/lib/api'
 import { trainerApi, type EditorBlock, type EditorModule, type EditorQuestion } from '@/lib/trainerApi'
 import { addOption, emptyBlock, emptyQuestion, moveItem, removeAt, removeOption } from '@/components/editorOps'
+import { WIDGETS } from '@/widgets/registry'
 
-const WIDGET_IDS = [
-  'vlan-switch', 'frame-builder', 'osi-model', 'mac-learning', 'subnet-calc',
-  'arp-demo', 'routing-demo', 'nat-demo', 'dns-demo', 'dhcp-demo', 'ports-demo',
-  'icmp-demo', 'firewall-demo', 'ipv6-demo', 'wlan-demo', 'vpn-demo',
-]
-
-function errMsg(e: unknown): string {
-  const ax = e as { response?: { data?: { detail?: string } } }
-  return ax.response?.data?.detail ?? 'Fehler beim Speichern.'
-}
+// Registry ist lazy — Object.keys lädt keinen Widget-Code
+const WIDGET_IDS = Object.keys(WIDGETS)
 
 export function TrainerModuleEditPage() {
   const { key = '' } = useParams()

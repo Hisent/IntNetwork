@@ -3,7 +3,6 @@ FIREWALL_MODULE = {
     "title": "Firewall & Sicherheit",
     "title_en": "Firewall & Security",
     "order": 12,
-    "pass_threshold": 0.7,
     "prerequisites": ["ports"],
     "goals": [
         "Die Aufgabe einer Firewall an der Netzgrenze benennen",

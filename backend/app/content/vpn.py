@@ -3,7 +3,6 @@ VPN_MODULE = {
     "title": "VPN — sicher über fremde Netze",
     "title_en": "VPN — Secure Over Untrusted Networks",
     "order": 15,
-    "pass_threshold": 0.7,
     "prerequisites": ["firewall"],
     "goals": [
         "VPN als verschlüsselten Tunnel durch ein unsicheres Netz verstehen",

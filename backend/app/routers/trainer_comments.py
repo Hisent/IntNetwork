@@ -5,14 +5,9 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models.comment import Comment
 from app.services.deps import get_trainer
-from app.services.features import comments_enabled
+from app.services.features import require_comments_enabled as _guard
 
 router = APIRouter(tags=["trainer-comments"])
-
-
-def _guard(db: Session) -> None:
-    if not comments_enabled(db):
-        raise HTTPException(status_code=403, detail="Feedback ist deaktiviert")
 
 
 def _serialize(c: Comment) -> dict:

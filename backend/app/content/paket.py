@@ -3,7 +3,6 @@ PAKET_MODULE = {
     "title": "Paketaufbau / Frames",
     "title_en": "Packet Structure / Frames",
     "order": 1,
-    "pass_threshold": 0.7,
     "prerequisites": [],
     "goals": [
         "Aufbau eines Ethernet-Frames und die Rolle der Header verstehen",

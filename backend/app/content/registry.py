@@ -46,7 +46,7 @@ def _load(db: Session, key: str):
 def _module_dict(m: ContentModule, blocks: list[ContentBlock], questions: list[ContentQuizQuestion], lang: str) -> dict:
     out = {
         "key": m.key, "title": m.title_de, "title_en": m.title_en,
-        "order": m.order, "pass_threshold": m.pass_threshold,
+        "order": m.order,
         "prerequisites": m.prerequisites, "goals": m.goals,
         "scenario": _pick(m.scenario_de, m.scenario_en, lang),
         "blocks": [], "quiz": {"questions": []},

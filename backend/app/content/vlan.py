@@ -3,7 +3,6 @@ VLAN_MODULE = {
     "title": "VLANs",
     "title_en": "VLANs",
     "order": 3,
-    "pass_threshold": 0.7,
     "prerequisites": ["paket", "switching"],
     "goals": [
         "VLANs als getrennte Broadcast-Domänen auf einem Switch verstehen",

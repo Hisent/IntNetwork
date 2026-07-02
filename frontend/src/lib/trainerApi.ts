@@ -45,7 +45,6 @@ export interface EditorModule {
   title_de: string
   title_en: string
   order: number
-  pass_threshold: number
   prerequisites: string[]
   goals: string[]
   scenario_de: string

@@ -3,7 +3,6 @@ IPV6_MODULE = {
     "title": "IPv6 — Adressen der Zukunft",
     "title_en": "IPv6 — Addresses of the Future",
     "order": 13,
-    "pass_threshold": 0.7,
     "prerequisites": ["subnetting"],
     "goals": [
         "Die Motivation für IPv6 (Adressknappheit, kein NAT) verstehen",

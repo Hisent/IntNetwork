@@ -3,7 +3,6 @@ PORTS_MODULE = {
     "title": "TCP, UDP & Ports",
     "title_en": "TCP, UDP & Ports",
     "order": 10,
-    "pass_threshold": 0.7,
     "prerequisites": ["paket"],
     "goals": [
         "Die Transportschicht und Portnummern verstehen",

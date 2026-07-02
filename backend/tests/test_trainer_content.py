@@ -13,7 +13,7 @@ def _trainer(c):
 def _minimal_module(order=99):
     return {
         "title_de": "Test DE", "title_en": "Test EN", "order": order,
-        "pass_threshold": 0.7, "prerequisites": [], "goals": [],
+        "prerequisites": [], "goals": [],
         "scenario_de": "Szenario DE", "scenario_en": "Scenario EN",
         "blocks": [{"type": "text", "value_de": "Text DE", "value_en": "Text EN"}],
         "quiz": [{"qtype": "single", "prompt_de": "Frage?", "prompt_en": "Question?",
@@ -95,17 +95,6 @@ def test_update_rejects_out_of_range_answer_index():
         body["quiz"] = [{"qtype": "single", "prompt_de": "F?", "prompt_en": "Q?",
                          "options_de": ["A", "B"], "options_en": ["A", "B"], "answer": 5}]
         assert c.put("/api/trainer/content/modules/answermod", json=body, headers=h).status_code == 422
-
-
-def test_update_rejects_out_of_range_pass_threshold():
-    with TestClient(app) as c:
-        h = _trainer(c)
-        c.post("/api/trainer/content/modules", json={"key": "threshmod", "title_de": "X"}, headers=h)
-        body = _minimal_module()
-        body["pass_threshold"] = 5.0
-        assert c.put("/api/trainer/content/modules/threshmod", json=body, headers=h).status_code == 422
-        body["pass_threshold"] = -0.1
-        assert c.put("/api/trainer/content/modules/threshmod", json=body, headers=h).status_code == 422
 
 
 def test_concurrent_create_same_key_never_500s():

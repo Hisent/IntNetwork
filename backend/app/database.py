@@ -1,5 +1,4 @@
 from sqlalchemy import create_engine, inspect
-from sqlalchemy.engine import Engine
 from sqlalchemy.orm import DeclarativeBase, sessionmaker
 
 from app.config import settings
@@ -13,13 +12,13 @@ class Base(DeclarativeBase):
     pass
 
 
-def sync_missing_columns(target_engine: Engine = engine) -> None:
+def sync_missing_columns() -> None:
     """create_all() legt nur neue Tabellen an, ändert nie bestehende -> jedes
     Feld, das später an ein Modell einer schon existierenden Tabelle angehängt
     wird, fehlt sonst in der DB und lässt jede Query auf der Tabelle crashen."""
-    inspector = inspect(target_engine)
+    inspector = inspect(engine)
     existing_tables = set(inspector.get_table_names())
-    with target_engine.begin() as conn:
+    with engine.begin() as conn:
         for table in Base.metadata.sorted_tables:
             if table.name not in existing_tables:
                 continue
@@ -27,7 +26,7 @@ def sync_missing_columns(target_engine: Engine = engine) -> None:
             for col in table.columns:
                 if col.name in existing_cols:
                     continue
-                col_type = col.type.compile(dialect=target_engine.dialect)
+                col_type = col.type.compile(dialect=engine.dialect)
                 conn.exec_driver_sql(f'ALTER TABLE "{table.name}" ADD COLUMN "{col.name}" {col_type}')
 
 

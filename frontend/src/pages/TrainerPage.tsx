@@ -1,15 +1,10 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { authApi } from '@/lib/api'
+import { authApi, errMsg } from '@/lib/api'
 import { trainerApi } from '@/lib/trainerApi'
 import { TrainerFeedback } from '@/components/TrainerFeedback'
 import { useAuthStore } from '@/store/auth'
-
-function errMsg(e: unknown): string {
-  const ax = e as { response?: { data?: { detail?: string } } }
-  return ax.response?.data?.detail ?? 'Fehler.'
-}
 
 function CopyCode({ code }: { code: string }) {
   const [copied, setCopied] = useState(false)

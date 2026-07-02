@@ -3,7 +3,6 @@ ICMP_MODULE = {
     "title": "ICMP — ping & traceroute",
     "title_en": "ICMP — ping & traceroute",
     "order": 11,
-    "pass_threshold": 0.7,
     "prerequisites": ["routing"],
     "goals": [
         "ICMP als Melde- und Diagnoseprotokoll von IP einordnen",

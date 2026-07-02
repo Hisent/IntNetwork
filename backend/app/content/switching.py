@@ -3,7 +3,6 @@ SWITCHING_MODULE = {
     "title": "MAC & Switching",
     "title_en": "MAC & Switching",
     "order": 2,
-    "pass_threshold": 0.7,
     "prerequisites": ["paket"],
     "goals": [
         "MAC-Adressen als Schicht-2-Kennung verstehen",
