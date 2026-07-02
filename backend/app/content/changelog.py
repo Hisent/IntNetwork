@@ -1,5 +1,14 @@
 # Projekt-Changelog (nur für Trainer sichtbar). Neueste zuerst.
 CHANGELOG = [
+    {"date": "2026-07-02", "title": "Neue Übungsformen & ausgebaute Widgets",
+     "text": "Vier neue Block-Typen im Modul-Editor: „Rechen-Check“ (Zahl eingeben, "
+             "z.B. Subnetz-Rechnung), „Reihenfolge“ (Schritte in die richtige Ordnung "
+             "tippen), „Fehler finden“ (kaputte Konfiguration debuggen) und "
+             "„Reflexion“ (Freitext, bleibt lokal beim Teilnehmer). Dazu größere "
+             "Widget-Ausbauten: Frame-Felder zuordnen üben, eigenes Firewall-Regelwerk "
+             "gegen Live-Traffic bauen, Mini-Terminal mit telnet/scan im Ports-Modul, "
+             "Traceroute Hop für Hop (inkl. NAT-Schritt) beim Routing und der "
+             "DHCP-Handshake läuft jetzt Schritt für Schritt ab."},
     {"date": "2026-07-02", "title": "Aufgaben, Kurz-Checks & Aufdecken",
      "text": "Alle 16 interaktiven Widgets haben jetzt eine kleine Aufgabe "
              "(„Challenge“), die grün aufleuchtet, sobald man den Zielzustand "

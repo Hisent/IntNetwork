@@ -31,15 +31,52 @@ export function TrainerBlocks({ blocks }: { blocks: Block[] }) {
           {b.type === 'widget' && <WidgetBlock id={b.id} lang="de" />}
           {b.type === 'check' && (
             <div className="rounded-xl border border-slate-200 bg-white p-4">
-              <p className="text-xs font-semibold uppercase tracking-wide text-teal-700 mb-1">Kurz-Check</p>
+              <p className="text-xs font-semibold uppercase tracking-wide text-teal-700 mb-1">
+                {b.kind === 'number' ? 'Rechen-Check' : 'Kurz-Check'}
+              </p>
               <p className="font-medium text-slate-800 mb-2">{b.prompt}</p>
-              <ul className="flex flex-col gap-1 text-sm">
-                {b.options.map((opt, oi) => (
-                  <li key={oi} className={oi === b.answer ? 'text-green-700 font-medium' : 'text-slate-600'}>
-                    {oi === b.answer ? '✓' : '·'} {opt}
-                  </li>
+              {b.kind === 'number' ? (
+                <p className="text-sm text-green-700 font-medium">Antwort: <span className="font-mono">{b.answer}</span></p>
+              ) : (
+                <ul className="flex flex-col gap-1 text-sm">
+                  {b.options.map((opt, oi) => (
+                    <li key={oi} className={oi === b.answer ? 'text-green-700 font-medium' : 'text-slate-600'}>
+                      {oi === b.answer ? '✓' : '·'} {opt}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          )}
+          {b.type === 'order' && (
+            <div className="rounded-xl border border-slate-200 bg-white p-4">
+              <p className="text-xs font-semibold uppercase tracking-wide text-teal-700 mb-1">Reihenfolge</p>
+              <p className="font-medium text-slate-800 mb-1">{b.prompt}</p>
+              <p className="text-xs text-slate-400 mb-2">(Teilnehmer sieht die Schritte gemischt)</p>
+              <ol className="list-decimal list-inside flex flex-col gap-1 text-sm text-slate-600">
+                {b.items.map((it, oi) => <li key={oi}>{it}</li>)}
+              </ol>
+            </div>
+          )}
+          {b.type === 'debug' && (
+            <div className="rounded-xl border border-slate-200 bg-white p-4">
+              <p className="text-xs font-semibold uppercase tracking-wide text-teal-700 mb-1">Fehler finden</p>
+              <p className="font-medium text-slate-800 mb-2">{b.prompt}</p>
+              <div className="rounded-lg border border-slate-200 bg-slate-900 py-2 mb-2 font-mono text-xs">
+                {b.lines.map((line, li) => (
+                  <div key={li} className={`px-3 py-1 text-slate-100 ${b.wrong.includes(li) ? 'bg-rose-900/60' : ''}`}>
+                    {b.wrong.includes(li) ? '✗ ' : '  '}{line}
+                  </div>
                 ))}
-              </ul>
+              </div>
+              <p className="text-sm text-slate-600">{b.explanation}</p>
+            </div>
+          )}
+          {b.type === 'reflect' && (
+            <div className="rounded-xl border border-slate-200 bg-white p-4">
+              <p className="text-xs font-semibold uppercase tracking-wide text-teal-700 mb-1">Reflexion</p>
+              <p className="font-medium text-slate-800 mb-1">{b.prompt}</p>
+              <p className="text-xs text-slate-400">(Freitext — bleibt nur lokal im Browser des Teilnehmers)</p>
             </div>
           )}
           {b.type === 'reveal' && (

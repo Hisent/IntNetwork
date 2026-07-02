@@ -51,6 +51,12 @@ SUBNETTING_MODULE = {
         {"type": "widget", "id": "subnet-calc",
          "note": "Mit /24 starten, dann das Präfix auf /26 schieben — zeigen, wie "
                  "Netz- und Broadcast-Adresse wandern und die Hostzahl sinkt."},
+        {"type": "check", "payload": {
+            "kind": "number",
+            "prompt_de": "Wie viele nutzbare Host-Adressen hat ein /26-Subnetz?",
+            "prompt_en": "How many usable host addresses does a /26 subnet have?",
+            "answer": 62,
+        }},
         {"type": "text",
          "value": {
              "de": "## Gleiches Netz oder Router?\n\nEin Gerät verundet "

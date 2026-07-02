@@ -58,10 +58,27 @@ def _module_dict(m: ContentModule, blocks: list[ContentBlock], questions: list[C
             pl = b.payload or {}
             # answer wird bewusst mit ausgeliefert: Mini-Checks sind ungewertete
             # Selbst-Checks, die clientseitig prüfen — das Quiz bleibt servergeprüft
-            bd = {"type": "check",
+            bd = {"type": "check", "kind": pl.get("kind", "choice"),
                   "prompt": _pick(pl.get("prompt_de", ""), pl.get("prompt_en", ""), lang),
                   "options": _pick(pl.get("options_de", []), pl.get("options_en", []), lang),
                   "answer": pl.get("answer")}
+        elif b.type == "order":
+            pl = b.payload or {}
+            # items in korrekter Reihenfolge — Client mischt nur die Anzeige
+            bd = {"type": "order",
+                  "prompt": _pick(pl.get("prompt_de", ""), pl.get("prompt_en", ""), lang),
+                  "items": _pick(pl.get("items_de", []), pl.get("items_en", []), lang)}
+        elif b.type == "debug":
+            pl = b.payload or {}
+            bd = {"type": "debug",
+                  "prompt": _pick(pl.get("prompt_de", ""), pl.get("prompt_en", ""), lang),
+                  "lines": _pick(pl.get("lines_de", []), pl.get("lines_en", []), lang),
+                  "wrong": pl.get("wrong", []),
+                  "explanation": _pick(pl.get("explanation_de", ""), pl.get("explanation_en", ""), lang)}
+        elif b.type == "reflect":
+            pl = b.payload or {}
+            bd = {"type": "reflect",
+                  "prompt": _pick(pl.get("prompt_de", ""), pl.get("prompt_en", ""), lang)}
         elif b.type == "reveal":
             pl = b.payload or {}
             bd = {"type": "reveal",

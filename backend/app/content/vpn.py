@@ -49,6 +49,12 @@ VPN_MODULE = {
         {"type": "widget", "id": "vpn-demo",
          "note": "Erst das interne Paket zeigen, dann den verschlüsselten Tunnel (nur "
                  "Gateway-IPs + Block). Am Ziel entschlüsseln → inneres Paket kommt zurück."},
+        {"type": "reflect", "payload": {
+            "prompt_de": "Erkläre in eigenen Worten: Was sieht ein Angreifer im offenen WLAN "
+                         "noch, wenn du ein VPN nutzt — und was nicht mehr?",
+            "prompt_en": "Explain in your own words: what can an attacker on open Wi-Fi "
+                         "still see when you use a VPN — and what not anymore?",
+        }},
         {"type": "text",
          "value": {
              "de": "## Zwei Bauformen\n\n- **Site-to-Site**: zwei Standorte "

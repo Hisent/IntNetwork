@@ -151,7 +151,7 @@ def test_check_and_reveal_blocks_round_trip_and_delivery():
         p = {"Authorization": "Bearer " + c.post(
             "/api/join", json={"code": code, "name": "Chk"}).json()["access_token"]}
         pub = c.get("/api/modules/checkmod", headers=p).json()
-        assert pub["blocks"][0] == {"type": "check", "prompt": "2+2?", "options": ["3", "4"], "answer": 1}
+        assert pub["blocks"][0] == {"type": "check", "kind": "choice", "prompt": "2+2?", "options": ["3", "4"], "answer": 1}
         assert pub["blocks"][1] == {"type": "reveal", "teaser": "Was passiert?", "value": "Versteckt DE"}
 
 
@@ -227,3 +227,81 @@ def test_restore_swaps_and_supports_redo():
         assert r2.status_code == 200
         after_restore_2 = c.get("/api/trainer/content/modules/swapmod", headers=h).json()
         assert after_restore_2["title_de"] == "Version B"
+
+
+def test_new_block_types_validation():
+    """order/debug/reflect + Rechen-Check: kaputte Payloads -> 422, gültige -> 200."""
+    with TestClient(app) as c:
+        h = _trainer(c)
+        c.post("/api/trainer/content/modules", json={"key": "blockmod", "title_de": "X"}, headers=h)
+        url = "/api/trainer/content/modules/blockmod"
+
+        def put_with(block):
+            body = _minimal_module()
+            body["blocks"] = [block]
+            return c.put(url, json=body, headers=h)
+
+        # Rechen-Check: answer muss Zahl sein
+        assert put_with({"type": "check", "payload": {
+            "kind": "number", "prompt_de": "F?", "prompt_en": "Q?", "answer": "abc"}}).status_code == 422
+        assert put_with({"type": "check", "payload": {
+            "kind": "number", "prompt_de": "F?", "prompt_en": "Q?", "answer": 62}}).status_code == 200
+
+        # order: ungleich lange Listen / zu wenige Schritte -> 422
+        assert put_with({"type": "order", "payload": {
+            "prompt_de": "F?", "prompt_en": "Q?",
+            "items_de": ["a", "b"], "items_en": ["a"]}}).status_code == 422
+        assert put_with({"type": "order", "payload": {
+            "prompt_de": "F?", "prompt_en": "Q?",
+            "items_de": ["a"], "items_en": ["a"]}}).status_code == 422
+        assert put_with({"type": "order", "payload": {
+            "prompt_de": "F?", "prompt_en": "Q?",
+            "items_de": ["a", "b"], "items_en": ["a", "b"]}}).status_code == 200
+
+        # debug: wrong-Index ausserhalb / keine Markierung / fehlende Erklaerung -> 422
+        base_debug = {"prompt_de": "F?", "prompt_en": "Q?",
+                      "lines_de": ["x", "y"], "lines_en": ["x", "y"],
+                      "explanation_de": "E", "explanation_en": "E"}
+        assert put_with({"type": "debug", "payload": {**base_debug, "wrong": [5]}}).status_code == 422
+        assert put_with({"type": "debug", "payload": {**base_debug, "wrong": []}}).status_code == 422
+        assert put_with({"type": "debug", "payload": {
+            **{k: v for k, v in base_debug.items() if not k.startswith("explanation")},
+            "wrong": [1]}}).status_code == 422
+        assert put_with({"type": "debug", "payload": {**base_debug, "wrong": [1]}}).status_code == 200
+
+        # reflect: prompt Pflicht
+        assert put_with({"type": "reflect", "payload": {"prompt_de": "F?"}}).status_code == 422
+        assert put_with({"type": "reflect", "payload": {
+            "prompt_de": "F?", "prompt_en": "Q?"}}).status_code == 200
+
+
+def test_new_block_types_delivery():
+    """order/debug/reflect werden sprachaufgeloest an Teilnehmer ausgeliefert."""
+    with TestClient(app) as c:
+        h = _trainer(c)
+        c.post("/api/trainer/content/modules", json={"key": "delivmod", "title_de": "X"}, headers=h)
+        body = _minimal_module()
+        body["blocks"] = [
+            {"type": "order", "payload": {
+                "prompt_de": "Sortiere DE", "prompt_en": "Sort EN",
+                "items_de": ["eins", "zwei"], "items_en": ["one", "two"]}},
+            {"type": "debug", "payload": {
+                "prompt_de": "Finde DE", "prompt_en": "Find EN",
+                "lines_de": ["ok", "kaputt"], "lines_en": ["ok", "broken"],
+                "wrong": [1], "explanation_de": "Erkl DE", "explanation_en": "Expl EN"}},
+            {"type": "reflect", "payload": {"prompt_de": "Denk nach", "prompt_en": "Think"}},
+            {"type": "check", "payload": {
+                "kind": "number", "prompt_de": "Wieviel?", "prompt_en": "How many?", "answer": 62}},
+        ]
+        assert c.put("/api/trainer/content/modules/delivmod", json=body, headers=h).status_code == 200
+
+        code = c.post("/api/courses", json={"name": "DelivKurs"}, headers=h).json()["join_code"]
+        p = {"Authorization": "Bearer " + c.post(
+            "/api/join", json={"code": code, "name": "Del"}).json()["access_token"]}
+        pub = c.get("/api/modules/delivmod", headers=p).json()
+        assert pub["blocks"][0] == {"type": "order", "prompt": "Sortiere DE", "items": ["eins", "zwei"]}
+        assert pub["blocks"][1] == {"type": "debug", "prompt": "Finde DE",
+                                    "lines": ["ok", "kaputt"], "wrong": [1], "explanation": "Erkl DE"}
+        assert pub["blocks"][2] == {"type": "reflect", "prompt": "Denk nach"}
+        assert pub["blocks"][3] == {"type": "check", "kind": "number", "prompt": "Wieviel?",
+                                    "options": [], "answer": 62}

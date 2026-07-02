@@ -45,6 +45,16 @@ DNS_MODULE = {
         {"type": "widget", "id": "dns-demo",
          "note": "Einen bekannten Namen auflösen und die drei Stufen vorlesen, dann "
                  "einen unbekannten Namen → NXDOMAIN zeigen."},
+        {"type": "order", "payload": {
+            "prompt_de": "Bring die Schritte einer DNS-Auflösung (ohne Cache) in die richtige Reihenfolge.",
+            "prompt_en": "Put the steps of a DNS resolution (without cache) in the correct order.",
+            "items_de": ["Client fragt den Resolver", "Resolver fragt einen Root-Server",
+                         "Resolver fragt den TLD-Server (.de)", "Resolver fragt den autoritativen Server",
+                         "Client bekommt die IP-Adresse"],
+            "items_en": ["Client asks the resolver", "Resolver asks a root server",
+                         "Resolver asks the TLD server (.de)", "Resolver asks the authoritative server",
+                         "Client receives the IP address"],
+        }},
         {"type": "text",
          "value": {
              "de": "## Caching\n\nDamit nicht jede Anfrage den ganzen Baum "

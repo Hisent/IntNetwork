@@ -98,14 +98,49 @@ def _validate(db: Session, key: str, data: ModuleIn) -> None:
                 raise HTTPException(status_code=422, detail="Text-Block braucht value_de und value_en")
         elif b.type == "check":
             pl = b.payload or {}
-            opts_de, opts_en = pl.get("options_de"), pl.get("options_en")
-            if not pl.get("prompt_de") or not pl.get("prompt_en") or not opts_de or not opts_en:
-                raise HTTPException(status_code=422, detail="Check-Block braucht prompt_de/en und options_de/en")
-            if len(opts_de) != len(opts_en):
-                raise HTTPException(status_code=422, detail="Check-Block: options_de und options_en müssen gleich lang sein")
-            ans = pl.get("answer")
-            if not isinstance(ans, int) or not (0 <= ans < len(opts_de)):
-                raise HTTPException(status_code=422, detail="Check-Block: answer muss gültiger Options-Index sein")
+            if not pl.get("prompt_de") or not pl.get("prompt_en"):
+                raise HTTPException(status_code=422, detail="Check-Block braucht prompt_de und prompt_en")
+            if pl.get("kind") == "number":
+                ans = pl.get("answer")
+                if isinstance(ans, bool) or not isinstance(ans, (int, float)):
+                    raise HTTPException(status_code=422, detail="Rechen-Check: answer muss eine Zahl sein")
+            else:
+                opts_de, opts_en = pl.get("options_de"), pl.get("options_en")
+                if not opts_de or not opts_en:
+                    raise HTTPException(status_code=422, detail="Check-Block braucht options_de und options_en")
+                if len(opts_de) != len(opts_en):
+                    raise HTTPException(status_code=422, detail="Check-Block: options_de und options_en müssen gleich lang sein")
+                ans = pl.get("answer")
+                if not isinstance(ans, int) or not (0 <= ans < len(opts_de)):
+                    raise HTTPException(status_code=422, detail="Check-Block: answer muss gültiger Options-Index sein")
+        elif b.type == "order":
+            pl = b.payload or {}
+            items_de, items_en = pl.get("items_de"), pl.get("items_en")
+            if not pl.get("prompt_de") or not pl.get("prompt_en") or not items_de or not items_en:
+                raise HTTPException(status_code=422, detail="Order-Block braucht prompt_de/en und items_de/en")
+            if len(items_de) != len(items_en):
+                raise HTTPException(status_code=422, detail="Order-Block: items_de und items_en müssen gleich lang sein")
+            if len(items_de) < 2:
+                raise HTTPException(status_code=422, detail="Order-Block braucht mindestens 2 Schritte")
+        elif b.type == "debug":
+            pl = b.payload or {}
+            lines_de, lines_en = pl.get("lines_de"), pl.get("lines_en")
+            if not pl.get("prompt_de") or not pl.get("prompt_en") or not lines_de or not lines_en:
+                raise HTTPException(status_code=422, detail="Debug-Block braucht prompt_de/en und lines_de/en")
+            if len(lines_de) != len(lines_en):
+                raise HTTPException(status_code=422, detail="Debug-Block: lines_de und lines_en müssen gleich lang sein")
+            wrong = pl.get("wrong")
+            if not isinstance(wrong, list) or not wrong:
+                raise HTTPException(status_code=422, detail="Debug-Block: mindestens eine Zeile als fehlerhaft markieren")
+            for idx in wrong:
+                if not isinstance(idx, int) or not (0 <= idx < len(lines_de)):
+                    raise HTTPException(status_code=422, detail=f"Debug-Block: ungültiger Zeilen-Index: {idx}")
+            if not pl.get("explanation_de") or not pl.get("explanation_en"):
+                raise HTTPException(status_code=422, detail="Debug-Block braucht explanation_de und explanation_en")
+        elif b.type == "reflect":
+            pl = b.payload or {}
+            if not pl.get("prompt_de") or not pl.get("prompt_en"):
+                raise HTTPException(status_code=422, detail="Reflexions-Block braucht prompt_de und prompt_en")
         elif b.type == "reveal":
             pl = b.payload or {}
             if not pl.get("teaser_de") or not pl.get("teaser_en"):

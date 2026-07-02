@@ -63,8 +63,11 @@ export function TrainerModuleEditPage() {
   function changeBlockType(i: number, type: EditorBlock['type']) {
     // beim Typwechsel passende Payload-Grundstruktur setzen
     const payload = type === 'check'
-      ? { prompt_de: '', prompt_en: '', options_de: ['', ''], options_en: ['', ''], answer: 0 }
-      : type === 'reveal' ? { teaser_de: '', teaser_en: '' } : null
+      ? { kind: 'choice' as const, prompt_de: '', prompt_en: '', options_de: ['', ''], options_en: ['', ''], answer: 0 }
+      : type === 'reveal' ? { teaser_de: '', teaser_en: '' }
+      : type === 'order' ? { prompt_de: '', prompt_en: '', items_de: ['', ''], items_en: ['', ''] }
+      : type === 'debug' ? { prompt_de: '', prompt_en: '', lines_de: ['', ''], lines_en: ['', ''], wrong: [], explanation_de: '', explanation_en: '' }
+      : type === 'reflect' ? { prompt_de: '', prompt_en: '' } : null
     updateBlock(i, { type, payload })
   }
   function updateQuestion(i: number, patch: Partial<EditorQuestion>) {
@@ -141,6 +144,9 @@ export function TrainerModuleEditPage() {
                     <option value="widget">Widget</option>
                     <option value="check">Kurz-Check</option>
                     <option value="reveal">Aufdecken</option>
+                    <option value="order">Reihenfolge</option>
+                    <option value="debug">Fehler finden</option>
+                    <option value="reflect">Reflexion</option>
                   </select>
                   <div className="flex gap-1">
                     <button onClick={() => setForm({ ...form, blocks: moveItem(form.blocks, i, -1) })} className="px-2 text-slate-500 hover:text-slate-700">↑</button>
@@ -167,10 +173,27 @@ export function TrainerModuleEditPage() {
                 )}
                 {b.type === 'check' && (
                   <>
+                    <label className="flex items-center gap-2 text-xs text-slate-600">
+                      Antwort-Typ
+                      <select className="border rounded px-2 py-1 text-sm" value={b.payload?.kind ?? 'choice'}
+                        onChange={(e) => updatePayload(i, e.target.value === 'number'
+                          ? { kind: 'number', answer: 0 }
+                          : { kind: 'choice', answer: 0, options_de: b.payload?.options_de ?? ['', ''], options_en: b.payload?.options_en ?? ['', ''] })}>
+                        <option value="choice">Auswahl</option>
+                        <option value="number">Zahl</option>
+                      </select>
+                    </label>
                     <input placeholder="Frage DE" className="border rounded-lg px-3 py-1.5 text-sm"
                       value={b.payload?.prompt_de ?? ''} onChange={(e) => updatePayload(i, { prompt_de: e.target.value })} />
                     <input placeholder="Frage EN" className="border rounded-lg px-3 py-1.5 text-sm"
                       value={b.payload?.prompt_en ?? ''} onChange={(e) => updatePayload(i, { prompt_en: e.target.value })} />
+                    {b.payload?.kind === 'number' ? (
+                      <label className="flex items-center gap-2 text-xs text-slate-600">
+                        Richtige Zahl
+                        <input type="number" className="border rounded-lg px-3 py-1.5 text-sm w-32"
+                          value={b.payload?.answer ?? 0} onChange={(e) => updatePayload(i, { answer: Number(e.target.value) })} />
+                      </label>
+                    ) : (
                     <div className="flex flex-col gap-1.5">
                       {(b.payload?.options_de ?? []).map((opt, oi) => (
                         <div key={oi} className="flex items-center gap-2">
@@ -196,6 +219,7 @@ export function TrainerModuleEditPage() {
                         updatePayload(i, { options_de: de, options_en: en })
                       }} className="text-xs text-teal-700 hover:text-teal-800 self-start">+ Option</button>
                     </div>
+                    )}
                   </>
                 )}
                 {b.type === 'reveal' && (
@@ -208,6 +232,92 @@ export function TrainerModuleEditPage() {
                       value={b.value_de ?? ''} onChange={(e) => updateBlock(i, { value_de: e.target.value })} />
                     <textarea placeholder="Auflösung EN (erst nach Klick sichtbar)" className="border rounded-lg px-3 py-1.5 text-sm" rows={3}
                       value={b.value_en ?? ''} onChange={(e) => updateBlock(i, { value_en: e.target.value })} />
+                  </>
+                )}
+                {b.type === 'order' && (
+                  <>
+                    <input placeholder="Aufgabe DE" className="border rounded-lg px-3 py-1.5 text-sm"
+                      value={b.payload?.prompt_de ?? ''} onChange={(e) => updatePayload(i, { prompt_de: e.target.value })} />
+                    <input placeholder="Aufgabe EN" className="border rounded-lg px-3 py-1.5 text-sm"
+                      value={b.payload?.prompt_en ?? ''} onChange={(e) => updatePayload(i, { prompt_en: e.target.value })} />
+                    <p className="text-xs text-slate-400">Schritte in der richtigen Reihenfolge — Teilnehmer sieht sie gemischt.</p>
+                    <div className="flex flex-col gap-1.5">
+                      {(b.payload?.items_de ?? []).map((it, oi) => (
+                        <div key={oi} className="flex items-center gap-2">
+                          <span className="text-xs text-slate-400 font-mono w-5">{oi + 1}.</span>
+                          <input className="border rounded-lg px-2 py-1 text-sm flex-1" placeholder="Schritt DE" value={it}
+                            onChange={(e) => updatePayload(i, {
+                              items_de: (b.payload?.items_de ?? []).map((o, idx) => (idx === oi ? e.target.value : o)),
+                            })} />
+                          <input className="border rounded-lg px-2 py-1 text-sm flex-1" placeholder="Schritt EN"
+                            value={(b.payload?.items_en ?? [])[oi] ?? ''}
+                            onChange={(e) => updatePayload(i, {
+                              items_en: (b.payload?.items_en ?? []).map((o, idx) => (idx === oi ? e.target.value : o)),
+                            })} />
+                          <button onClick={() => {
+                            const [de, en] = removeOption(b.payload?.items_de ?? [], b.payload?.items_en ?? [], oi)
+                            updatePayload(i, { items_de: de, items_en: en })
+                          }} className="px-1 text-red-500 hover:text-red-700">✕</button>
+                        </div>
+                      ))}
+                      <button onClick={() => {
+                        const [de, en] = addOption(b.payload?.items_de ?? [], b.payload?.items_en ?? [])
+                        updatePayload(i, { items_de: de, items_en: en })
+                      }} className="text-xs text-teal-700 hover:text-teal-800 self-start">+ Schritt</button>
+                    </div>
+                  </>
+                )}
+                {b.type === 'debug' && (
+                  <>
+                    <input placeholder="Aufgabe DE" className="border rounded-lg px-3 py-1.5 text-sm"
+                      value={b.payload?.prompt_de ?? ''} onChange={(e) => updatePayload(i, { prompt_de: e.target.value })} />
+                    <input placeholder="Aufgabe EN" className="border rounded-lg px-3 py-1.5 text-sm"
+                      value={b.payload?.prompt_en ?? ''} onChange={(e) => updatePayload(i, { prompt_en: e.target.value })} />
+                    <p className="text-xs text-slate-400">Haken = diese Zeile ist der Fehler.</p>
+                    <div className="flex flex-col gap-1.5">
+                      {(b.payload?.lines_de ?? []).map((line, oi) => (
+                        <div key={oi} className="flex items-center gap-2">
+                          <input type="checkbox" checked={(b.payload?.wrong ?? []).includes(oi)}
+                            onChange={(e) => updatePayload(i, {
+                              wrong: e.target.checked
+                                ? [...(b.payload?.wrong ?? []), oi]
+                                : (b.payload?.wrong ?? []).filter((w) => w !== oi),
+                            })} />
+                          <input className="border rounded-lg px-2 py-1 text-sm font-mono flex-1" placeholder="Zeile DE" value={line}
+                            onChange={(e) => updatePayload(i, {
+                              lines_de: (b.payload?.lines_de ?? []).map((o, idx) => (idx === oi ? e.target.value : o)),
+                            })} />
+                          <input className="border rounded-lg px-2 py-1 text-sm font-mono flex-1" placeholder="Zeile EN"
+                            value={(b.payload?.lines_en ?? [])[oi] ?? ''}
+                            onChange={(e) => updatePayload(i, {
+                              lines_en: (b.payload?.lines_en ?? []).map((o, idx) => (idx === oi ? e.target.value : o)),
+                            })} />
+                          <button onClick={() => {
+                            const [de, en] = removeOption(b.payload?.lines_de ?? [], b.payload?.lines_en ?? [], oi)
+                            // wrong-Indizes an die entfernte Zeile anpassen
+                            const wrong = (b.payload?.wrong ?? []).filter((w) => w !== oi).map((w) => (w > oi ? w - 1 : w))
+                            updatePayload(i, { lines_de: de, lines_en: en, wrong })
+                          }} className="px-1 text-red-500 hover:text-red-700">✕</button>
+                        </div>
+                      ))}
+                      <button onClick={() => {
+                        const [de, en] = addOption(b.payload?.lines_de ?? [], b.payload?.lines_en ?? [])
+                        updatePayload(i, { lines_de: de, lines_en: en })
+                      }} className="text-xs text-teal-700 hover:text-teal-800 self-start">+ Zeile</button>
+                    </div>
+                    <textarea placeholder="Erklärung DE (nach dem Prüfen sichtbar)" className="border rounded-lg px-3 py-1.5 text-sm" rows={2}
+                      value={b.payload?.explanation_de ?? ''} onChange={(e) => updatePayload(i, { explanation_de: e.target.value })} />
+                    <textarea placeholder="Erklärung EN (nach dem Prüfen sichtbar)" className="border rounded-lg px-3 py-1.5 text-sm" rows={2}
+                      value={b.payload?.explanation_en ?? ''} onChange={(e) => updatePayload(i, { explanation_en: e.target.value })} />
+                  </>
+                )}
+                {b.type === 'reflect' && (
+                  <>
+                    <input placeholder="Frage DE" className="border rounded-lg px-3 py-1.5 text-sm"
+                      value={b.payload?.prompt_de ?? ''} onChange={(e) => updatePayload(i, { prompt_de: e.target.value })} />
+                    <input placeholder="Frage EN" className="border rounded-lg px-3 py-1.5 text-sm"
+                      value={b.payload?.prompt_en ?? ''} onChange={(e) => updatePayload(i, { prompt_en: e.target.value })} />
+                    <p className="text-xs text-slate-400">Freitext-Antwort — wird nur lokal im Browser des Teilnehmers gespeichert.</p>
                   </>
                 )}
               </div>

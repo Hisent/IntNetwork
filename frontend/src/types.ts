@@ -1,8 +1,11 @@
 export type Block =
   | { type: 'text'; value: string; note?: string }
   | { type: 'widget'; id: string; note?: string }
-  | { type: 'check'; prompt: string; options: string[]; answer: number; note?: string }
+  | { type: 'check'; kind?: 'choice' | 'number'; prompt: string; options: string[]; answer: number; note?: string }
   | { type: 'reveal'; teaser: string; value: string; note?: string }
+  | { type: 'order'; prompt: string; items: string[]; note?: string }
+  | { type: 'debug'; prompt: string; lines: string[]; wrong: number[]; explanation: string; note?: string }
+  | { type: 'reflect'; prompt: string; note?: string }
 
 export type Question =
   | { id: string; type: 'single'; prompt: string; options: string[]; answer?: number }

@@ -13,8 +13,10 @@ export interface ChangelogEntry { date: string; title: string; text: string }
 export interface CourseModule { key: string; title: string; order: number; active: boolean }
 export interface PresenceEntry { name: string; module_key: string; module_title: string }
 
-// typ-spezifische Zusatzdaten: check nutzt prompt/options/answer, reveal teaser
+// typ-spezifische Zusatzdaten: check nutzt prompt/options/answer (kind
+// "number": answer = Zahl), reveal teaser, order items, debug lines/wrong/explanation
 export interface BlockPayload {
+  kind?: 'choice' | 'number'
   prompt_de?: string
   prompt_en?: string
   options_de?: string[]
@@ -22,10 +24,17 @@ export interface BlockPayload {
   answer?: number
   teaser_de?: string
   teaser_en?: string
+  items_de?: string[]
+  items_en?: string[]
+  lines_de?: string[]
+  lines_en?: string[]
+  wrong?: number[]
+  explanation_de?: string
+  explanation_en?: string
 }
 
 export interface EditorBlock {
-  type: 'text' | 'widget' | 'check' | 'reveal'
+  type: 'text' | 'widget' | 'check' | 'reveal' | 'order' | 'debug' | 'reflect'
   value_de?: string | null
   value_en?: string | null
   widget_id?: string | null

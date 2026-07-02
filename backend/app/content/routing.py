@@ -63,6 +63,21 @@ ROUTING_MODULE = {
          "note": "Die drei Preset-Ziele nacheinander klicken (gleiches Netz, anderes "
                  "internes Netz, Internet) und die Match-Entscheidung vorlesen. Danach "
                  "in der CLI `show ip route`."},
+        {"type": "debug", "payload": {
+            "prompt_de": "Ein PC im Lager-Netz (192.168.10.0/24) erreicht das Internet nicht. Finde den Fehler in der Konfiguration:",
+            "prompt_en": "A PC in the warehouse network (192.168.10.0/24) cannot reach the internet. Find the error in the configuration:",
+            "lines_de": ["IP-Adresse:    192.168.10.50", "Subnetzmaske:  255.255.255.0",
+                         "Gateway:       192.168.20.1", "DNS-Server:    192.168.10.1"],
+            "lines_en": ["IP address:    192.168.10.50", "Subnet mask:   255.255.255.0",
+                         "Gateway:       192.168.20.1", "DNS server:    192.168.10.1"],
+            "wrong": [2],
+            "explanation_de": "Das Gateway 192.168.20.1 liegt in einem fremden Netz — der PC kann es "
+                              "ohne Router gar nicht erreichen. Es muss eine Adresse aus dem eigenen "
+                              "Netz sein, hier 192.168.10.1.",
+            "explanation_en": "The gateway 192.168.20.1 sits in a different network — the PC cannot "
+                              "even reach it without a router. It must be an address from its own "
+                              "network, here 192.168.10.1.",
+        }},
         {"type": "text",
          "value": {
              "de": "## Statisches Routing einrichten\n\nProbier in der CLI "

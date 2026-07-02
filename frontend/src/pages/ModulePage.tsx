@@ -70,6 +70,7 @@ export function ModulePage() {
         <Blocks
           blocks={mod.data.blocks}
           lang={lang}
+          moduleKey={key}
           footer={(b, i) =>
             b.type === 'text' ? (
               <div className="flex flex-col gap-1">
