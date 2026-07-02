@@ -49,7 +49,7 @@ export function TrainerModulePage() {
         </div>
 
         {m.scenario && (
-          <div className="rounded-xl border-l-4 border-teal-400 bg-teal-50 px-4 py-3 mb-6 text-sm text-slate-700">
+          <div className="rounded-xl border border-teal-100 bg-teal-50 px-4 py-3 mb-6 text-sm text-slate-700">
             <Markdown>{m.scenario}</Markdown>
           </div>
         )}

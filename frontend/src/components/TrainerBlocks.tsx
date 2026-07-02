@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { Suspense, useState } from 'react'
 import Markdown from 'react-markdown'
 import type { Block } from '@/types'
 import { WIDGETS } from '@/widgets/registry'
@@ -6,7 +6,12 @@ import { MD_COMPONENTS } from '@/components/Blocks'
 
 function WidgetBlock({ id }: { id: string }) {
   const W = WIDGETS[id]
-  return W ? <W lang="de" /> : <div className="text-sm text-red-500">Unbekanntes Widget: {id}</div>
+  if (!W) return <div className="text-sm text-red-500">Unbekanntes Widget: {id}</div>
+  return (
+    <Suspense fallback={<div className="rounded-xl border bg-white p-6 text-sm text-slate-400 animate-pulse">Lädt…</div>}>
+      <W lang="de" />
+    </Suspense>
+  )
 }
 
 function NoteBox({ note }: { note: string }) {
@@ -20,7 +25,7 @@ function NoteBox({ note }: { note: string }) {
         {open ? '▾' : '▸'} 💬 Notiz
       </button>
       {open && (
-        <div className="mt-1 rounded-lg border-l-4 border-amber-300 bg-amber-50 px-3 py-2 text-sm text-slate-700">
+        <div className="mt-1 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-slate-700">
           {note}
         </div>
       )}

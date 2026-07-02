@@ -1,8 +1,8 @@
-import type { ReactNode } from 'react'
+import { Suspense, type ReactNode } from 'react'
 import Markdown from 'react-markdown'
 import type { Block } from '@/types'
 import { WIDGETS } from '@/widgets/registry'
-import type { Lang } from '@/lib/i18n'
+import { t, type Lang } from '@/lib/i18n'
 
 export const MD_COMPONENTS = {
   h2: (p: object) => <h2 className="text-xl font-bold text-slate-900 mt-2 mb-1" {...p} />,
@@ -15,7 +15,12 @@ export const MD_COMPONENTS = {
 
 function WidgetBlock({ id, lang }: { id: string; lang: Lang }) {
   const W = WIDGETS[id]
-  return W ? <W lang={lang} /> : <div className="text-sm text-red-500">Unbekanntes Widget: {id}</div>
+  if (!W) return <div className="text-sm text-red-500">Unbekanntes Widget: {id}</div>
+  return (
+    <Suspense fallback={<div className="rounded-xl border bg-white p-6 text-sm text-slate-400 animate-pulse">{t(lang, 'loading')}</div>}>
+      <W lang={lang} />
+    </Suspense>
+  )
 }
 
 export function Blocks({
