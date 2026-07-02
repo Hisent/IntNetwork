@@ -32,6 +32,31 @@ def test_course_and_join_flow():
                       headers={"Authorization": f"Bearer {tok}"}).status_code == 403
 
 
+def test_dashboard_aggregates_progress_and_best():
+    with TestClient(app) as c:
+        h = _trainer(c)
+        created = c.post("/api/courses", json={"name": "DashKurs"}, headers=h).json()
+        code = created["join_code"]
+        cid = next(x["id"] for x in c.get("/api/courses", headers=h).json() if x["join_code"] == code)
+
+        p = {"Authorization": "Bearer " + c.post(
+            "/api/join", json={"code": code, "name": "Dana"}).json()["access_token"]}
+        mod = c.get("/api/modules/vlan", headers=p).json()
+        ids = [q["id"] for q in mod["quiz"]["questions"]]
+        # Reihenfolge/Antworten wie in app/content/vlan.py (vgl. test_modules_quiz)
+        good = {ids[0]: 1, ids[1]: 1, ids[2]: [0, 1, 3], ids[3]: 20}
+        assert c.post("/api/modules/vlan/quiz", json={"answers": good}, headers=p).json()["passed"] is True
+        # zweiter, schlechterer Versuch darf best nicht verschlechtern
+        c.post("/api/modules/vlan/quiz", json={"answers": {ids[0]: 0}}, headers=p)
+
+        dash = c.get(f"/api/courses/{cid}/dashboard", headers=h).json()
+        row = next(r for r in dash["participants"] if r["name"] == "Dana")
+        assert row["cells"]["vlan"] == {"done": True, "best": 100}
+        assert row["cells"]["paket"] == {"done": False, "best": None}
+
+        assert c.get("/api/courses/999999/dashboard", headers=h).status_code == 404
+
+
 def test_concurrent_join_same_name_never_500s():
     """Zwei gleichzeitige Joins mit demselben Namen (z.B. Doppelklick) duerfen
     nie mit 500 crashen -> beide bekommen einen gueltigen Token fuer denselben

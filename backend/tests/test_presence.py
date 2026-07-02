@@ -34,6 +34,14 @@ def test_heartbeat_sets_current_module_and_last_seen():
         assert r.status_code == 200 and r.json() == {"ok": True}
 
 
+def test_heartbeat_rejects_unknown_module_key():
+    with TestClient(app) as c:
+        h = _trainer(c)
+        code, _cid = _course_and_id(c, h, "KursHBBad")
+        p = _join(c, code, "P2")
+        assert c.post("/api/modules/garbage-nicht-da/heartbeat", headers=p).status_code == 404
+
+
 def test_presence_shows_recent_and_hides_stale_and_is_course_scoped():
     with TestClient(app) as c:
         h = _trainer(c)

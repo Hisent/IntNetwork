@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
 from app.database import get_db
@@ -23,7 +23,7 @@ def _serialize(c: Comment) -> dict:
 
 class TComReq(BaseModel):
     block_index: int
-    body: str
+    body: str = Field(max_length=2000)
 
 
 @router.get("/trainer/courses/{cid}/comments")

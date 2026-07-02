@@ -4,6 +4,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.database import get_db
+from app.models.content import ContentModule
 from app.models.participant import Participant
 from app.models.progress import Progress
 from app.models.quiz_result import QuizResult
@@ -83,6 +84,10 @@ def submit_quiz(key: str, data: QuizSubmit, db: Session = Depends(get_db),
 
 @router.post("/{key}/heartbeat")
 def heartbeat(key: str, db: Session = Depends(get_db), p: Participant = Depends(get_participant)):
+    # sonst landet jeder beliebige URL-String als current_module_key in der DB
+    # und die Presence-Ansicht zeigt Rohtext an
+    if not db.query(ContentModule).filter(ContentModule.key == key).first():
+        raise HTTPException(status_code=404, detail="Modul nicht gefunden")
     p.current_module_key = key
     p.last_seen = utc_now()
     db.commit()

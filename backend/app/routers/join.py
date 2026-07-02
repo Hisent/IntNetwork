@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
+from sqlalchemy import func
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
@@ -51,15 +52,16 @@ def join(data: JoinReq, db: Session = Depends(get_db)):
 
 @router.get("/me")
 def me(db: Session = Depends(get_db), p: Participant = Depends(get_participant)):
-    progress = []
-    for m in module_meta(db):
-        prog = db.query(Progress).filter(
-            Progress.participant_id == p.id, Progress.module_key == m["key"]).first()
-        best = db.query(QuizResult).filter(
-            QuizResult.participant_id == p.id, QuizResult.module_key == m["key"]).all()
-        best_pct = max((r.score / r.total for r in best if r.total), default=None)
-        progress.append({"module_key": m["key"], "done": bool(prog and prog.done),
-                         "best": round(best_pct * 100) if best_pct is not None else None})
+    # 2 Aggregat-Queries statt 2 Queries pro Modul (vorher N+1 bei 15 Modulen)
+    done_keys = {r.module_key for r in db.query(Progress).filter(
+        Progress.participant_id == p.id, Progress.done).all()}
+    best_map = dict(db.query(
+        QuizResult.module_key, func.max(QuizResult.score * 1.0 / QuizResult.total)
+    ).filter(QuizResult.participant_id == p.id, QuizResult.total > 0)
+     .group_by(QuizResult.module_key).all())
+    progress = [{"module_key": m["key"], "done": m["key"] in done_keys,
+                 "best": round(best_map[m["key"]] * 100) if m["key"] in best_map else None}
+                for m in module_meta(db)]
     return {"name": p.name, "course_id": p.course_id, "language": p.language, "progress": progress}
 
 

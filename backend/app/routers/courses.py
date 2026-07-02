@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from app.database import get_db
@@ -45,17 +46,22 @@ def dashboard(course_id: int, db: Session = Depends(get_db), _=Depends(get_train
         raise HTTPException(status_code=404, detail="Kurs nicht gefunden")
     metas = module_meta(db)
     participants = db.query(Participant).filter(Participant.course_id == course_id).all()
+    # 3 Queries gesamt statt 2 pro Teilnehmer x Modul (vorher ~900 bei 30 x 15)
+    pids = [p.id for p in participants]
+    done_pairs = {(r.participant_id, r.module_key) for r in db.query(Progress).filter(
+        Progress.participant_id.in_(pids), Progress.done).all()}
+    best_map = {(pid, key): pct for pid, key, pct in db.query(
+        QuizResult.participant_id, QuizResult.module_key,
+        func.max(QuizResult.score * 1.0 / QuizResult.total)
+    ).filter(QuizResult.participant_id.in_(pids), QuizResult.total > 0)
+     .group_by(QuizResult.participant_id, QuizResult.module_key).all()}
     rows = []
     for p in participants:
         cells = {}
         for m in metas:
-            prog = db.query(Progress).filter(
-                Progress.participant_id == p.id, Progress.module_key == m["key"]).first()
-            best = db.query(QuizResult).filter(
-                QuizResult.participant_id == p.id, QuizResult.module_key == m["key"]).all()
-            best_pct = max((r.score / r.total for r in best if r.total), default=None)
-            cells[m["key"]] = {"done": bool(prog and prog.done),
-                               "best": round(best_pct * 100) if best_pct is not None else None}
+            pct = best_map.get((p.id, m["key"]))
+            cells[m["key"]] = {"done": (p.id, m["key"]) in done_pairs,
+                               "best": round(pct * 100) if pct is not None else None}
         rows.append({"name": p.name, "cells": cells})
     return {"course": {"id": course.id, "name": course.name, "join_code": course.join_code},
             "modules": metas, "participants": rows}

@@ -42,6 +42,17 @@ def test_participant_comment_flow():
         assert c.delete(f"/api/comments/{cid}", headers=a1).status_code == 404
 
 
+def test_comment_body_length_capped():
+    with TestClient(app) as c:
+        h = _trainer(c)
+        code = _course(c, h, "KursLang2")
+        p = _join(c, code, "P9")
+        assert c.post("/api/modules/switching/comments",
+                      json={"block_index": 0, "body": "x" * 2001}, headers=p).status_code == 422
+        assert c.post("/api/modules/switching/comments",
+                      json={"block_index": 0, "body": "x" * 2000}, headers=p).status_code == 200
+
+
 def test_comments_gated_by_feature():
     with TestClient(app) as c:
         h = _trainer(c)
