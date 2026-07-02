@@ -15,6 +15,7 @@ export type Question =
 export interface ModuleDetail {
   key: string
   title: string
+  order: number
   scenario?: string
   prerequisites: string[]
   blocks: Block[]

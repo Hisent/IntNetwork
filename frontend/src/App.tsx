@@ -6,6 +6,7 @@ import { ModulePage } from '@/pages/ModulePage'
 import { TrainerPage } from '@/pages/TrainerPage'
 import { TrainerModulePage } from '@/pages/TrainerModulePage'
 import { TrainerModuleEditPage } from '@/pages/TrainerModuleEditPage'
+import { TrainerPresentPage } from '@/pages/TrainerPresentPage'
 
 const qc = new QueryClient()
 
@@ -20,6 +21,7 @@ export default function App() {
           <Route path="/trainer" element={<TrainerPage />} />
           <Route path="/trainer/modul/:key" element={<TrainerModulePage />} />
           <Route path="/trainer/modul/:key/bearbeiten" element={<TrainerModuleEditPage />} />
+          <Route path="/trainer/modul/:key/praesentieren" element={<TrainerPresentPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>

@@ -87,9 +87,15 @@ export function TrainerModulePage() {
     <div className="min-h-screen bg-slate-50 p-6 sm:p-10">
       <div className="max-w-2xl mx-auto">
         <Link to="/trainer" className="text-sm text-slate-400 hover:text-slate-600">← Trainer</Link>
-        <h1 className="text-2xl font-bold text-slate-900 mt-2 mb-4">
-          {m.title} <span className="text-sm font-normal text-slate-400">· Trainer-Ansicht</span>
-        </h1>
+        <div className="flex items-start justify-between gap-3 mt-2 mb-4">
+          <h1 className="text-2xl font-bold text-slate-900">
+            {m.title} <span className="text-sm font-normal text-slate-400">· Trainer-Ansicht</span>
+          </h1>
+          <Link to={`/trainer/modul/${key}/praesentieren`}
+            className="shrink-0 rounded-lg bg-teal-600 hover:bg-teal-700 text-white px-3 py-1.5 text-sm font-medium">
+            ▶ Präsentieren
+          </Link>
+        </div>
 
         <div className="rounded-xl border bg-white p-4 mb-6 text-sm">
           <div className="flex flex-wrap gap-x-6 gap-y-1 text-slate-600">

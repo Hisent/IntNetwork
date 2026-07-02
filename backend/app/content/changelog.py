@@ -1,5 +1,13 @@
 # Projekt-Changelog (nur für Trainer sichtbar). Neueste zuerst.
 CHANGELOG = [
+    {"date": "2026-07-02", "title": "UX-Paket: Kurs-Fluss, Kapitel, Präsentationsmodus",
+     "text": "Für Teilnehmer: „Weiter zum nächsten Modul“ direkt nach dem Quiz, "
+             "eine „Hier weitermachen“-Karte auf der Kursübersicht, die Modulliste "
+             "in Kapitel gegliedert und ein Hinweis beim Beitreten, dass gleicher "
+             "Code + Name den Fortschritt fortsetzt. Für Trainer: Quiz-Statistik "
+             "nach Kurs filterbar, Editor-Blöcke einklappbar mit Markdown-Vorschau "
+             "und ein Präsentationsmodus (▶ in der Trainer-Ansicht): ein Block pro "
+             "Folie, Pfeiltasten-Navigation, Notizen erst nach Klick."},
     {"date": "2026-07-02", "title": "„Auslieferungszustand laden“ im Modul-Editor",
      "text": "Mitgelieferte Module lassen sich jetzt per Knopfdruck auf den "
              "Auslieferungszustand zurücksetzen — so kommen Content-Updates (wie "
