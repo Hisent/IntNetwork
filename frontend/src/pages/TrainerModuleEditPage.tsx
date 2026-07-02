@@ -49,6 +49,16 @@ export function TrainerModuleEditPage() {
     onError: (e) => setError(errMsg(e)),
   })
 
+  const reseed = useMutation({
+    mutationFn: () => trainerApi.reseedContentModule(key),
+    onSuccess: () => {
+      setError('')
+      qc.invalidateQueries({ queryKey: ['content-module', key] })
+      qc.invalidateQueries({ queryKey: ['trainer-modules'] })
+    },
+    onError: (e) => setError(errMsg(e)),
+  })
+
   if (mod.isLoading || !form) return <div className="p-10">Lädt…</div>
 
   function updateBlock(i: number, patch: Partial<EditorBlock>) {
@@ -408,6 +418,16 @@ export function TrainerModuleEditPage() {
             disabled={restore.isPending}
             className="ml-2 rounded-lg border px-4 py-2 font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-60">
             {restore.isPending ? 'Stelle wieder her…' : 'Vorherige Version wiederherstellen'}
+          </button>
+        )}
+        {form.has_seed && (
+          <button
+            onClick={() => window.confirm('Modul auf den mitgelieferten Auslieferungszustand zurücksetzen? '
+              + 'Eigene Änderungen werden ersetzt (einmaliges Undo über „Vorherige Version“ möglich).')
+              && reseed.mutate()}
+            disabled={reseed.isPending}
+            className="ml-2 rounded-lg border border-amber-300 px-4 py-2 font-medium text-amber-700 hover:bg-amber-50 disabled:opacity-60">
+            {reseed.isPending ? 'Setze zurück…' : 'Auslieferungszustand laden'}
           </button>
         )}
         <button onClick={() => navigate('/trainer')} className="ml-2 rounded-lg border px-4 py-2 font-medium text-slate-700 hover:bg-slate-50">

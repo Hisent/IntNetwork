@@ -305,3 +305,50 @@ def test_new_block_types_delivery():
         assert pub["blocks"][2] == {"type": "reflect", "prompt": "Denk nach"}
         assert pub["blocks"][3] == {"type": "check", "kind": "number", "prompt": "Wieviel?",
                                     "options": [], "answer": 62}
+
+
+def test_reseed_restores_delivery_state_and_snapshots_previous():
+    with TestClient(app) as c:
+        h = _trainer(c)
+        # Modul verbiegen: nur noch 1 Block, Titel geändert
+        orig = c.get("/api/trainer/content/modules/dns", headers=h).json()
+        mangled = {**{k: v for k, v in orig.items() if k not in ("key", "has_snapshot", "has_seed")},
+                   "title_de": "Kaputt-DNS",
+                   "blocks": [{"type": "text", "value_de": "nur noch das", "value_en": "only this"}],
+                   "quiz": []}
+        assert c.put("/api/trainer/content/modules/dns", json=mangled, headers=h).status_code == 200
+
+        r = c.post("/api/trainer/content/modules/dns/reseed", headers=h)
+        assert r.status_code == 200
+
+        after = c.get("/api/trainer/content/modules/dns", headers=h).json()
+        assert after["title_de"] != "Kaputt-DNS"
+        assert len(after["blocks"]) > 1
+        assert len(after["quiz"]) == 5  # inkl. PTR-Frage d5
+        # PTR-Inhalt aus dem aktuellen Seed ist da
+        assert any(b["value_de"] and "PTR" in b["value_de"] for b in after["blocks"] if b["type"] == "text")
+
+        # Undo: Restore bringt den verbogenen Stand zurück
+        assert c.post("/api/trainer/content/modules/dns/restore", headers=h).status_code == 200
+        undone = c.get("/api/trainer/content/modules/dns", headers=h).json()
+        assert undone["title_de"] == "Kaputt-DNS"
+        # und nochmal Reseed für saubere Test-DB
+        assert c.post("/api/trainer/content/modules/dns/reseed", headers=h).status_code == 200
+
+
+def test_reseed_only_for_seed_modules():
+    with TestClient(app) as c:
+        h = _trainer(c)
+        c.post("/api/trainer/content/modules", json={"key": "eigenbau", "title_de": "Eigenes"}, headers=h)
+        r = c.post("/api/trainer/content/modules/eigenbau/reseed", headers=h)
+        assert r.status_code == 404
+        assert c.post("/api/trainer/content/modules/nope/reseed", headers=h).status_code == 404
+        assert c.post("/api/trainer/content/modules/dns/reseed").status_code in (401, 403)
+
+
+def test_get_module_reports_has_seed():
+    with TestClient(app) as c:
+        h = _trainer(c)
+        assert c.get("/api/trainer/content/modules/dns", headers=h).json()["has_seed"] is True
+        c.post("/api/trainer/content/modules", json={"key": "ohneseed", "title_de": "X"}, headers=h)
+        assert c.get("/api/trainer/content/modules/ohneseed", headers=h).json()["has_seed"] is False

@@ -1,5 +1,11 @@
 # Projekt-Changelog (nur für Trainer sichtbar). Neueste zuerst.
 CHANGELOG = [
+    {"date": "2026-07-02", "title": "„Auslieferungszustand laden“ im Modul-Editor",
+     "text": "Mitgelieferte Module lassen sich jetzt per Knopfdruck auf den "
+             "Auslieferungszustand zurücksetzen — so kommen Content-Updates (wie "
+             "der neue PTR-Abschnitt im DNS-Modul) auch auf bestehende "
+             "Installationen. Der vorherige Stand landet im Verlauf und ist über "
+             "„Vorherige Version wiederherstellen“ rückholbar."},
     {"date": "2026-07-02", "title": "Modul 17: Wireshark & tcpdump + PTR + Linksammlung",
      "text": "Neues Modul „Paket-Analyse — Wireshark & tcpdump“ mit Mini-Wireshark: "
              "echter Mitschnitt zum Durchklicken (Paketliste, Schichten-Detail, "

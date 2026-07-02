@@ -5,6 +5,7 @@ from pydantic import BaseModel
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
+from app.content.registry import MODULES
 from app.database import get_db
 from app.models.content import ContentBlock, ContentModule, ContentModuleSnapshot, ContentQuizQuestion
 from app.services.deps import get_trainer
@@ -204,7 +205,8 @@ def get_module(key: str, db: Session = Depends(get_db), _t: dict = Depends(get_t
         raise HTTPException(status_code=404, detail="Modul nicht gefunden")
     blocks, questions = _load_blocks_and_quiz(db, key)
     has_snapshot = db.query(ContentModuleSnapshot).filter(ContentModuleSnapshot.module_key == key).first() is not None
-    return {"key": m.key, "has_snapshot": has_snapshot, **_serialize_module(m, blocks, questions)}
+    return {"key": m.key, "has_snapshot": has_snapshot, "has_seed": key in MODULES,
+            **_serialize_module(m, blocks, questions)}
 
 
 @router.post("")
@@ -233,6 +235,46 @@ def update_module(key: str, data: ModuleIn, db: Session = Depends(get_db), _t: d
     if not m:
         raise HTTPException(status_code=404, detail="Modul nicht gefunden")
     _validate(db, key, data)
+    blocks, questions = _load_blocks_and_quiz(db, key)
+    _upsert_snapshot(db, key, _serialize_module(m, blocks, questions))
+    _apply(db, key, m, data)
+    db.commit()
+    return _meta(m)
+
+
+def _seed_to_module_in(seed: dict) -> ModuleIn:
+    """Übersetzt ein Seed-Dict aus app/content/*.py in die ModuleIn-Form
+    (Sprach-Dicts {"de","en"} -> flache _de/_en-Felder)."""
+    blocks = []
+    for b in seed["blocks"]:
+        value = b.get("value") or {}
+        blocks.append(BlockIn(type=b["type"], value_de=value.get("de"), value_en=value.get("en"),
+                              widget_id=b.get("id"), note=b.get("note"), payload=b.get("payload")))
+    quiz = []
+    for q in seed["quiz"]["questions"]:
+        opts = q.get("options")
+        quiz.append(QuestionIn(qtype=q["type"], prompt_de=q["prompt"]["de"], prompt_en=q["prompt"]["en"],
+                               options_de=opts["de"] if opts else None,
+                               options_en=opts["en"] if opts else None, answer=q["answer"]))
+    return ModuleIn(title_de=seed["title"], title_en=seed.get("title_en", seed["title"]),
+                    order=seed["order"], prerequisites=seed.get("prerequisites", []),
+                    goals=seed.get("goals", []),
+                    scenario_de=seed["scenario"]["de"], scenario_en=seed["scenario"]["en"],
+                    blocks=blocks, quiz=quiz)
+
+
+@router.post("/{key}/reseed")
+def reseed_module(key: str, db: Session = Depends(get_db), _t: dict = Depends(get_trainer)):
+    """Setzt ein Seed-Modul auf den Auslieferungszustand aus app/content/*.py
+    zurück — z.B. um Content-Updates auf eine Bestandsinstallation zu holen.
+    Der bisherige Stand landet im Snapshot, Restore macht es rückgängig."""
+    seed = MODULES.get(key)
+    m = db.query(ContentModule).filter(ContentModule.key == key).first()
+    if not seed or not m:
+        raise HTTPException(status_code=404,
+                            detail="Kein Auslieferungszustand vorhanden (nur für mitgelieferte Module)")
+    data = _seed_to_module_in(seed)
+    _validate(db, key, data)  # fängt Fehler in der Seed-Datei früh ab
     blocks, questions = _load_blocks_and_quiz(db, key)
     _upsert_snapshot(db, key, _serialize_module(m, blocks, questions))
     _apply(db, key, m, data)
