@@ -1,5 +1,10 @@
 # Projekt-Changelog (nur für Trainer sichtbar). Neueste zuerst.
 CHANGELOG = [
+    {"date": "2026-07-02", "title": "Quiz-Statistik in der Trainer-Ansicht",
+     "text": "Die Trainer-Modulansicht zeigt jetzt pro Quizfrage, wie viele "
+             "Abgaben richtig waren — als Ampel-Balken (grün/gelb/rot). So siehst "
+             "du auf einen Blick, welche Konzepte im Kurs noch hängen und wo sich "
+             "eine Wiederholung lohnt."},
     {"date": "2026-07-02", "title": "Neues Abschlussmodul: Troubleshooting",
      "text": "Modul 16 „Troubleshooting — der große Störfall“ als Capstone: "
              "systematische Fehlersuche bottom-up durch die Schichten, der "

@@ -60,7 +60,7 @@ export function ModulePage() {
         </div>
         <h1 className="text-2xl font-bold text-slate-900 mt-2 mb-4">{mod.data.title}</h1>
         {mod.data.scenario && (
-          <div className="rounded-xl border border-teal-100 bg-teal-50 px-4 py-3 mb-6 text-sm text-slate-700">
+          <div className="rounded-xl border border-teal-100 bg-teal-50 px-4 py-3 mb-6 text-sm text-teal-900">
             <Markdown>{mod.data.scenario}</Markdown>
           </div>
         )}

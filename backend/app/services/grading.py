@@ -26,6 +26,15 @@ def question_results(quiz: dict, answers: dict) -> dict[str, bool]:
     return {q["id"]: _correct(q, (answers or {}).get(q["id"])) for q in quiz["questions"]}
 
 
+def question_stats(quiz: dict, submissions: list[dict]) -> list[dict]:
+    """Pro Frage über alle Abgaben: wie oft richtig? Nicht beantwortete Fragen
+    zählen als falsch (wie beim Grading) -> Trainer sieht, wo es hakt."""
+    return [{"id": q["id"],
+             "correct": sum(1 for a in submissions if _correct(q, (a or {}).get(q["id"]))),
+             "attempts": len(submissions)}
+            for q in quiz["questions"]]
+
+
 # ponytail: einheitliche Bestehensgrenze; wieder pro Modul (DB-Feld + Editor-UI),
 # falls Trainer je unterschiedliche Schwellen brauchen
 PASS_THRESHOLD = 0.7

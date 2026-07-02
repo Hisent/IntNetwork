@@ -42,3 +42,17 @@ def test_question_results_per_question():
     assert res == {"q1": True, "q2": True, "q3": False}
     # fehlende Antwort -> False, nie KeyError
     assert grading.question_results(QUIZ, {}) == {"q1": False, "q2": False, "q3": False}
+
+
+def test_question_stats_aggregates_submissions():
+    subs = [{"q1": 1, "q2": [0, 2], "q3": 24},   # alles richtig
+            {"q1": 0, "q2": [0, 2], "q3": 99},   # nur q2 richtig
+            {"q1": 1}]                            # q2/q3 nicht beantwortet -> falsch
+    stats = grading.question_stats(QUIZ, subs)
+    assert stats == [{"id": "q1", "correct": 2, "attempts": 3},
+                     {"id": "q2", "correct": 2, "attempts": 3},
+                     {"id": "q3", "correct": 1, "attempts": 3}]
+    assert grading.question_stats(QUIZ, []) == [
+        {"id": "q1", "correct": 0, "attempts": 0},
+        {"id": "q2", "correct": 0, "attempts": 0},
+        {"id": "q3", "correct": 0, "attempts": 0}]

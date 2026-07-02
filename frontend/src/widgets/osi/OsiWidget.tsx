@@ -88,7 +88,7 @@ export function OsiModel({ lang }: { lang: Lang }) {
       </div>
 
       {pick && (
-        <div className="mt-3 rounded-lg border border-teal-100 bg-teal-50 px-3 py-2 text-sm text-slate-700">
+        <div className="mt-3 rounded-lg border border-teal-100 bg-teal-50 px-3 py-2 text-sm text-teal-900">
           <b>{s.layerPrefix} {pick.nr}: {lang === 'de' ? pick.de : pick.en}</b> ({lang === 'de' ? pick.en : pick.de}) — {pick.task[lang]}. {s.example}: {pick.example}. {s.pdu}: {pick.pdu[lang]}.
         </div>
       )}

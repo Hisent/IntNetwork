@@ -64,6 +64,8 @@ export interface EditorModule {
 }
 export interface EditorModuleMeta { key: string; title_de: string; title_en: string; order: number }
 export interface TrainerAccount { id: number; email: string; name: string }
+export interface QuizQuestionStat { id: string; prompt: string; correct: number; attempts: number }
+export interface QuizStats { submissions: number; questions: QuizQuestionStat[] }
 
 export const trainerApi = {
   listCourses: () => api.get<Course[]>('/courses'),
@@ -75,6 +77,7 @@ export const trainerApi = {
     api.put(`/courses/${id}/modules`, { module_key, active }),
   trainerModules: () => api.get<ModuleMeta[]>('/trainer/modules'),
   trainerModule: (key: string) => api.get<TrainerModuleDetail>(`/trainer/modules/${key}`),
+  quizStats: (key: string) => api.get<QuizStats>(`/trainer/modules/${key}/quiz-stats`),
   features: () => api.get<{ comments: boolean }>('/features'),
   setFeature: (comments: boolean) => api.put<{ comments: boolean }>('/trainer/features', { comments }),
   courseComments: (cid: number) => api.get<TrainerComment[]>(`/trainer/courses/${cid}/comments`),
