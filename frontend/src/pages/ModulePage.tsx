@@ -148,6 +148,8 @@ export function ModulePage() {
             qc.invalidateQueries({ queryKey: ['me'] })
           }} />
 
+        <div className="mt-10 h-px bg-slate-200" aria-hidden="true" />
+
         <div className="mt-6 flex justify-end">
           {nextModule ? (
             <Link to={`/lernen/${nextModule.key}`}
