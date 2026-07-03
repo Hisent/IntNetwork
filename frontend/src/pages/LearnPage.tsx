@@ -77,10 +77,14 @@ export function LearnPage() {
         {total > 0 && doneCount === total && (
           <div className="mb-6 rounded-2xl border border-teal-200 bg-gradient-to-r from-teal-50 to-emerald-50 p-5 flex items-center gap-4">
             <span className="text-4xl" aria-hidden="true">🏆</span>
-            <div>
+            <div className="flex-1">
               <p className="font-bold text-teal-900">{t(lang, 'courseComplete')}</p>
               <p className="text-sm text-teal-800">{t(lang, 'courseCompleteText')}</p>
             </div>
+            <Link to="/lernen/zertifikat"
+              className="shrink-0 rounded-lg bg-teal-600 hover:bg-teal-700 text-white px-3 py-2 text-sm font-medium">
+              {t(lang, 'certButton')} →
+            </Link>
           </div>
         )}
 

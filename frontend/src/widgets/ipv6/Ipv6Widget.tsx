@@ -34,13 +34,13 @@ export function Ipv6({ lang }: { lang: Lang }) {
       <p className="text-sm font-semibold text-slate-700 mb-3">{s.title}</p>
 
       <div className="flex flex-wrap items-end gap-2 mb-2">
-        <label className="text-xs text-slate-600">
+        <label className="text-xs text-slate-600 flex-1 min-w-0">
           {s.address}
           <input
             value={addr}
             onChange={(e) => setAddr(e.target.value)}
             spellCheck={false}
-            className="ml-1 w-72 border rounded px-2 py-1 text-sm font-mono"
+            className="mt-0.5 block w-full max-w-72 border rounded px-2 py-1 text-sm font-mono"
           />
         </label>
       </div>

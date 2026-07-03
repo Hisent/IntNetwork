@@ -58,7 +58,7 @@ export function VlanSwitch({ lang }: { lang: Lang }) {
   return (
     <div className="rounded-2xl border bg-white p-5">
       <p className="text-sm font-semibold text-slate-700 mb-3">{s.title}</p>
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
         {ports.map((p, i) => {
           const active = source === i
           const lit = reached.has(i)

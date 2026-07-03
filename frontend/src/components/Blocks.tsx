@@ -18,9 +18,13 @@ export function WidgetBlock({ id, lang }: { id: string; lang: Lang }) {
   const W = WIDGETS[id]
   if (!W) return <div className="text-sm text-red-500">Unbekanntes Widget: {id}</div>
   return (
-    <Suspense fallback={<div className="rounded-xl border bg-white p-6 text-sm text-slate-400 animate-pulse">{t(lang, 'loading')}</div>}>
-      <W lang={lang} />
-    </Suspense>
+    // Breakout: Widgets dürfen breiter sein als die schmale Textspalte
+    // (auf großen Screens bis 60rem, zentriert; auf kleinen = Spaltenbreite).
+    <div className="relative left-1/2 -translate-x-1/2 w-[min(60rem,100vw-3rem)]">
+      <Suspense fallback={<div className="rounded-xl border bg-white p-6 text-sm text-slate-400 animate-pulse">{t(lang, 'loading')}</div>}>
+        <W lang={lang} />
+      </Suspense>
+    </div>
   )
 }
 
@@ -268,7 +272,7 @@ export function Blocks({
   return (
     <div className="flex flex-col gap-6">
       {blocks.map((b, i) => (
-        <div key={i} className="flex flex-col gap-1">
+        <div key={i} id={`block-${i}`} className="flex flex-col gap-1 scroll-mt-20">
           {b.type === 'text' && <Markdown components={MD_COMPONENTS}>{b.value}</Markdown>}
           {b.type === 'widget' && <WidgetBlock id={b.id} lang={lang} />}
           {b.type === 'check' && <CheckBlock prompt={b.prompt} options={b.options} answer={b.answer} kind={b.kind} lang={lang} />}

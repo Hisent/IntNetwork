@@ -24,6 +24,19 @@ export function ModulePage() {
 
   const [read, setRead] = useState<number[]>([])
   useEffect(() => setRead(loadRead(key)), [key])
+
+  // Scroll-Fortschritt für die Sticky-Leiste (0–100 % der Seitenhöhe)
+  const [scrollPct, setScrollPct] = useState(0)
+  useEffect(() => {
+    const onScroll = () => {
+      const el = document.documentElement
+      const max = el.scrollHeight - el.clientHeight
+      setScrollPct(max > 0 ? Math.min(100, (el.scrollTop / max) * 100) : 0)
+    }
+    onScroll()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [key])
   const me = useQuery({ queryKey: ['me'], queryFn: () => learnApi.me().then((r) => r.data) })
   const lang: Lang = me.data?.language ?? 'de'
   const mod = useQuery({ queryKey: ['module', key, lang], queryFn: () => learnApi.getModule(key).then((r) => r.data) })
@@ -52,8 +65,29 @@ export function ModulePage() {
   const textIndexes = mod.data.blocks.map((b, i) => (b.type === 'text' ? i : -1)).filter((i) => i >= 0)
   const readCount = read.filter((i) => textIndexes.includes(i)).length
 
+  // Mini-Inhaltsverzeichnis aus den ##-Überschriften der Text-Blöcke
+  const toc = mod.data.blocks.flatMap((b, i) =>
+    b.type === 'text'
+      ? [...b.value.matchAll(/^##\s+(.+)$/gm)].map((m) => ({ i, title: m[1].replace(/\*\*/g, '') }))
+      : [])
+
   return (
-    <div className="min-h-screen bg-slate-50 p-6 sm:p-10">
+    <div className="min-h-screen bg-slate-50">
+      <div className="sticky top-0 z-10 border-b border-slate-200 bg-white/90 backdrop-blur">
+        <div className="max-w-2xl mx-auto flex items-center justify-between gap-3 px-6 py-2 text-sm">
+          <span className="truncate font-medium text-slate-700">{mod.data.title}</span>
+          {textIndexes.length > 0 && (
+            <span className="shrink-0 text-xs text-slate-400">
+              {readCount} / {textIndexes.length} {t(lang, 'read')}
+            </span>
+          )}
+        </div>
+        <div className="h-0.5 bg-slate-100">
+          <div className="h-full bg-teal-500" style={{ width: `${scrollPct}%` }} />
+        </div>
+      </div>
+
+      <div className="p-6 sm:p-10 pt-6">
       <div className="max-w-2xl mx-auto animate-fade-up">
         <div className="flex items-center justify-between mb-2">
           <Link to="/lernen" className="text-sm text-slate-400 hover:text-slate-600">← {t(lang, 'modules')}</Link>
@@ -74,8 +108,21 @@ export function ModulePage() {
             <Markdown>{mod.data.scenario}</Markdown>
           </div>
         )}
-        {textIndexes.length > 0 && (
-          <p className="text-xs text-slate-400 mb-4">{readCount} / {textIndexes.length} {t(lang, 'read')}</p>
+        {toc.length >= 4 && (
+          <details className="mb-6 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm">
+            <summary className="cursor-pointer select-none font-medium text-slate-700">
+              {t(lang, 'tocTitle')}
+            </summary>
+            <ol className="mt-2 flex flex-col gap-1">
+              {toc.map((h, n) => (
+                <li key={`${h.i}-${n}`}>
+                  <a href={`#block-${h.i}`} className="text-teal-700 hover:underline">
+                    {h.title}
+                  </a>
+                </li>
+              ))}
+            </ol>
+          </details>
         )}
         <Blocks
           blocks={mod.data.blocks}
@@ -117,6 +164,7 @@ export function ModulePage() {
             </Link>
           )}
         </div>
+      </div>
       </div>
     </div>
   )

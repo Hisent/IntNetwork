@@ -3,6 +3,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { LandingPage } from '@/pages/LandingPage'
 import { LearnPage } from '@/pages/LearnPage'
 import { ModulePage } from '@/pages/ModulePage'
+import { CertificatePage } from '@/pages/CertificatePage'
 import { TrainerPage } from '@/pages/TrainerPage'
 import { TrainerModulePage } from '@/pages/TrainerModulePage'
 import { TrainerModuleEditPage } from '@/pages/TrainerModuleEditPage'
@@ -17,6 +18,7 @@ export default function App() {
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/lernen" element={<LearnPage />} />
+          <Route path="/lernen/zertifikat" element={<CertificatePage />} />
           <Route path="/lernen/:key" element={<ModulePage />} />
           <Route path="/trainer" element={<TrainerPage />} />
           <Route path="/trainer/modul/:key" element={<TrainerModulePage />} />

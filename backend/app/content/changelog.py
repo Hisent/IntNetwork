@@ -1,5 +1,13 @@
 # Projekt-Changelog (nur für Trainer sichtbar). Neueste zuerst.
 CHANGELOG = [
+    {"date": "2026-07-03", "title": "Breite Widgets, Inhaltsverzeichnis, Zertifikat",
+     "text": "Interaktive Widgets brechen jetzt aus der schmalen Textspalte aus "
+             "(bis 960px, z.B. die Wireshark-Tabelle). Lange Module haben eine "
+             "Sticky-Leiste mit Scroll-Fortschritt und Lese-Zähler plus ein "
+             "einklappbares Inhaltsverzeichnis aus den Überschriften. Wer alle "
+             "Module abschließt, kann sich ein druckbares Zertifikat holen "
+             "(Button im Abschluss-Banner). Dazu Mobile-Fixes: IPv6-Eingabefeld "
+             "und VLAN-Switch-Raster passen sich schmalen Screens an."},
     {"date": "2026-07-02", "title": "UX-Paket: Kurs-Fluss, Kapitel, Präsentationsmodus",
      "text": "Für Teilnehmer: „Weiter zum nächsten Modul“ direkt nach dem Quiz, "
              "eine „Hier weitermachen“-Karte auf der Kursübersicht, die Modulliste "
