@@ -76,17 +76,24 @@ export function Quiz({ moduleKey, questions, lang, onResult }: {
   const progressPct = questions.length ? Math.round((answeredCount / questions.length) * 100) : 0
 
   return (
-    <section className="mt-10 rounded-3xl border border-teal-200/70 bg-gradient-to-b from-teal-50/70 to-white p-6 sm:p-7 shadow-sm">
-      <div className="flex items-center justify-between mb-1">
-        <span className="inline-flex items-center gap-2 rounded-full bg-teal-600 text-white text-xs font-semibold px-3 py-1">
+    <section className="mt-14">
+      {/* Übergang vom Lernstoff zum Abschluss — statt unvermittelt ein Kasten */}
+      <div className="mb-6 flex items-center gap-3">
+        <div className="h-px flex-1 bg-slate-200" aria-hidden="true" />
+        <span className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-widest text-teal-700">
           <svg viewBox="0 0 20 20" className="w-3.5 h-3.5" fill="currentColor" aria-hidden="true">
             <path fillRule="evenodd" d="M16.7 5.3a1 1 0 010 1.4l-7.5 7.5a1 1 0 01-1.4 0L3.3 9.7a1 1 0 011.4-1.4l3.1 3.1 6.8-6.8a1 1 0 011.4 0z" clipRule="evenodd" />
           </svg>
           {t(lang, 'knowledgeCheck')}
         </span>
-        {best != null && <span className="text-sm text-slate-500">{t(lang, 'bestSoFar')}: <b>{best}%</b></span>}
+        <div className="h-px flex-1 bg-slate-200" aria-hidden="true" />
       </div>
-      <p className="text-sm text-slate-500 mb-5">{t(lang, 'knowledgeCheckIntro')}</p>
+
+      <div className="rounded-2xl border border-slate-200 bg-white p-6 sm:p-7">
+      <div className="flex items-baseline justify-between gap-3 mb-5">
+        <p className="text-sm text-slate-500">{t(lang, 'knowledgeCheckIntro')}</p>
+        {best != null && <span className="shrink-0 text-sm text-slate-500">{t(lang, 'bestSoFar')}: <b className="tabular-nums">{best}%</b></span>}
+      </div>
 
       {!locked && (
         <div className="mb-6">
@@ -165,6 +172,7 @@ export function Quiz({ moduleKey, questions, lang, onResult }: {
           </div>
         </div>
       )}
+      </div>
     </section>
   )
 }
