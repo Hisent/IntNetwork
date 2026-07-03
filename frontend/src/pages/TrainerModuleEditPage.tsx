@@ -101,7 +101,7 @@ export function TrainerModuleEditPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 p-6 sm:p-10">
+    <div className="min-h-dvh bg-slate-50 p-6 sm:p-10">
       <div className="max-w-2xl mx-auto">
         <Link to={`/trainer/modul/${key}`} className="text-sm text-slate-400 hover:text-slate-600">← Zur Trainer-Ansicht</Link>
         <h1 className="text-2xl font-bold text-slate-900 mt-2 mb-4">Modul bearbeiten: {key}</h1>

@@ -7,6 +7,7 @@ import { Blocks } from '@/components/Blocks'
 import { BlockComments } from '@/components/BlockComments'
 import { Quiz } from '@/components/Quiz'
 import { loadRead, toggleRead } from '@/lib/readProgress'
+import { PageSkeleton } from '@/components/PageSkeleton'
 import { t, type Lang } from '@/lib/i18n'
 
 export function ModulePage() {
@@ -59,7 +60,7 @@ export function ModulePage() {
     },
   })
 
-  if (mod.isLoading || !mod.data) return <div className="p-10">{t(lang, 'loading')}</div>
+  if (mod.isLoading || !mod.data) return <PageSkeleton />
 
   const commentsOn = features.data?.comments ?? false
   const textIndexes = mod.data.blocks.map((b, i) => (b.type === 'text' ? i : -1)).filter((i) => i >= 0)
@@ -72,7 +73,7 @@ export function ModulePage() {
       : [])
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-dvh bg-slate-50">
       <div className="sticky top-0 z-10 border-b border-slate-200 bg-white/90 backdrop-blur">
         <div className="max-w-2xl mx-auto flex items-center justify-between gap-3 px-6 py-2 text-sm">
           <span className="truncate font-medium text-slate-700">{mod.data.title}</span>

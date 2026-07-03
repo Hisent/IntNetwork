@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Link, useNavigate } from 'react-router-dom'
 import { learnApi } from '@/lib/learnApi'
+import { PageSkeleton } from '@/components/PageSkeleton'
 import type { ModuleMeta } from '@/types'
 import { useAuthStore } from '@/store/auth'
 import { t, type Lang } from '@/lib/i18n'
@@ -35,6 +36,7 @@ export function LearnPage() {
   })
 
   if (role !== 'participant') { nav('/'); return null }
+  if (me.isLoading || mods.isLoading) return <PageSkeleton />
 
   const titleOf = (key: string) => {
     const m = mods.data?.find((x) => x.key === key)
@@ -57,7 +59,7 @@ export function LearnPage() {
     .filter((g) => g.mods.length > 0)
 
   return (
-    <div className="min-h-screen bg-slate-50 p-6 sm:p-10">
+    <div className="min-h-dvh bg-slate-50 p-6 sm:p-10">
       <div className="max-w-2xl mx-auto">
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-bold text-slate-900">{t(lang, 'hello')} {displayName}</h1>

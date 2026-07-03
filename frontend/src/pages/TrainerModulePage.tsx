@@ -4,6 +4,7 @@ import Markdown from 'react-markdown'
 import { Link, useParams } from 'react-router-dom'
 import { trainerApi, type QuizStats } from '@/lib/trainerApi'
 import { TrainerBlocks } from '@/components/TrainerBlocks'
+import { PageSkeleton } from '@/components/PageSkeleton'
 import { TrainerQuiz } from '@/components/TrainerQuiz'
 import { useAuthStore } from '@/store/auth'
 
@@ -80,11 +81,11 @@ export function TrainerModulePage() {
         Nur für Trainer. <Link to="/trainer" className="text-teal-600">Zum Login</Link>
       </div>
     )
-  if (mod.isLoading || !mod.data) return <div className="p-10">Lädt…</div>
+  if (mod.isLoading || !mod.data) return <PageSkeleton />
   const m = mod.data
 
   return (
-    <div className="min-h-screen bg-slate-50 p-6 sm:p-10">
+    <div className="min-h-dvh bg-slate-50 p-6 sm:p-10">
       <div className="max-w-2xl mx-auto">
         <Link to="/trainer" className="text-sm text-slate-400 hover:text-slate-600">← Trainer</Link>
         <div className="flex items-start justify-between gap-3 mt-2 mb-4">

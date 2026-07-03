@@ -40,8 +40,10 @@ export function LandingPage() {
   return (
     <div className="min-h-[100dvh] grid md:grid-cols-2">
       {/* Markenseite */}
-      <div className="relative flex flex-col justify-between overflow-hidden bg-gradient-to-br from-teal-600 to-teal-800 p-8 sm:p-12 text-white">
-        <div className="animate-fade-up flex items-center justify-between">
+      <div className="grain relative flex flex-col justify-between overflow-hidden bg-gradient-to-br from-teal-600 to-teal-800 p-8 sm:p-12 text-white">
+        <div aria-hidden="true" className="pointer-events-none absolute -top-32 -left-32 h-96 w-96 rounded-full bg-teal-400/25 blur-3xl" />
+        <div aria-hidden="true" className="pointer-events-none absolute bottom-0 right-0 h-72 w-72 rounded-full bg-teal-950/40 blur-3xl" />
+        <div className="animate-fade-up relative flex items-center justify-between">
           <div className="flex items-center gap-3">
             <img src="/favicon.svg" alt="" className="h-9 w-9" />
             <span className="text-lg font-semibold tracking-tight">IntNetwork</span>
@@ -58,7 +60,7 @@ export function LandingPage() {
           </div>
         </div>
 
-        <div className="animate-fade-up max-w-md py-12">
+        <div className="animate-fade-up relative max-w-md py-12">
           <h1 className="text-4xl sm:text-5xl font-bold tracking-tight leading-[1.1]">
             {t(lang, 'heroTitle')}
           </h1>
@@ -72,7 +74,7 @@ export function LandingPage() {
           </ul>
         </div>
 
-        <p className="animate-fade-up text-xs text-teal-100/70">
+        <p className="animate-fade-up relative text-xs text-teal-100/70">
           {t(lang, 'internalNote')}
         </p>
       </div>

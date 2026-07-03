@@ -24,7 +24,7 @@ export function CertificatePage() {
 
   if (!allDone)
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6">
+      <div className="min-h-dvh bg-slate-50 flex items-center justify-center p-6">
         <div className="text-center">
           <p className="text-slate-600 mb-3">{t(lang, 'certNotYet')}</p>
           <Link to="/lernen" className="text-teal-600 hover:underline">← {t(lang, 'backToOverview')}</Link>
@@ -33,7 +33,7 @@ export function CertificatePage() {
     )
 
   return (
-    <div className="min-h-screen bg-slate-100 flex flex-col items-center justify-center p-6 print:bg-white print:p-0">
+    <div className="min-h-dvh bg-slate-100 flex flex-col items-center justify-center p-6 print:bg-white print:p-0">
       <div className="w-full max-w-2xl rounded-2xl border-4 border-double border-teal-600 bg-white p-10 sm:p-14 text-center shadow-lg print:shadow-none print:border-teal-700">
         <img src="/favicon.svg" alt="" className="h-12 w-12 mx-auto mb-4" />
         <p className="text-xs font-semibold uppercase tracking-[0.3em] text-teal-600 mb-1">IntNetwork</p>

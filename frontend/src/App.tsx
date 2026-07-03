@@ -1,4 +1,5 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { NotFoundPage } from '@/pages/NotFoundPage'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { LandingPage } from '@/pages/LandingPage'
 import { LearnPage } from '@/pages/LearnPage'
@@ -24,7 +25,7 @@ export default function App() {
           <Route path="/trainer/modul/:key" element={<TrainerModulePage />} />
           <Route path="/trainer/modul/:key/bearbeiten" element={<TrainerModuleEditPage />} />
           <Route path="/trainer/modul/:key/praesentieren" element={<TrainerPresentPage />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
+          <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </BrowserRouter>
     </QueryClientProvider>

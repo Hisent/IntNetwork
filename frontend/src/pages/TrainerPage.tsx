@@ -40,7 +40,7 @@ function TrainerLogin({ onLogin }: { onLogin: (t: string) => void }) {
     catch { setErr('Login fehlgeschlagen.') }
   }
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-50 p-4">
+    <div className="min-h-dvh flex items-center justify-center bg-slate-50 p-4">
       <form onSubmit={submit} className="w-full max-w-sm rounded-2xl bg-white shadow p-8 flex flex-col gap-3">
         <h1 className="text-xl font-bold text-slate-900">Trainer-Login</h1>
         <input className="border rounded-lg px-3 py-2" placeholder="E-Mail" value={email} onChange={(e) => setEmail(e.target.value)} />
@@ -121,7 +121,7 @@ function TrainerDashboard({ onLogout }: { onLogout: () => void }) {
   })
 
   return (
-    <div className="min-h-screen bg-slate-50 p-6 sm:p-10">
+    <div className="min-h-dvh bg-slate-50 p-6 sm:p-10">
       <div className="max-w-4xl mx-auto">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold text-slate-900">Trainer</h1>
