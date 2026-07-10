@@ -5,6 +5,7 @@ import { PageSkeleton } from '@/components/PageSkeleton'
 import type { ModuleMeta } from '@/types'
 import { useAuthStore } from '@/store/auth'
 import { t, type Lang } from '@/lib/i18n'
+import { VersionBadge } from '@/components/VersionBadge'
 
 // Kurs-Kapitel: gruppiert die Modulliste nach order-Bereichen.
 // Trainer-eigene Module (order 18+) landen in „Weitere Module".
@@ -62,7 +63,10 @@ export function LearnPage() {
     <div className="min-h-dvh bg-slate-50 p-6 sm:p-10">
       <div className="max-w-2xl mx-auto">
         <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold text-slate-900">{t(lang, 'hello')} {displayName}</h1>
+          <div className="flex items-center gap-2">
+            <h1 className="text-2xl font-bold text-slate-900">{t(lang, 'hello')} {displayName}</h1>
+            <VersionBadge tone="dark" />
+          </div>
           <div className="flex gap-1 text-xs font-medium">
             <button onClick={() => setLang.mutate('de')}
               className={`rounded px-2 py-1 border ${lang === 'de' ? 'bg-teal-600 text-white border-teal-600' : 'text-slate-500 border-slate-200 hover:bg-slate-50'}`}>

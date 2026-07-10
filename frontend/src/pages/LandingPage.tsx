@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { authApi } from '@/lib/api'
 import { useAuthStore } from '@/store/auth'
 import { t, type Lang } from '@/lib/i18n'
+import { VersionBadge } from '@/components/VersionBadge'
 
 const POINTS: Record<Lang, string[]> = {
   de: [
@@ -47,6 +48,7 @@ export function LandingPage() {
           <div className="flex items-center gap-3">
             <img src="/favicon.svg" alt="" className="h-9 w-9" />
             <span className="text-lg font-semibold tracking-tight">IntNetwork</span>
+            <VersionBadge />
           </div>
           <div className="flex gap-1 text-xs font-medium">
             <button onClick={() => setLang('de')}

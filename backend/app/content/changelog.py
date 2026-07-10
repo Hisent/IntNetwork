@@ -1,5 +1,15 @@
 # Projekt-Changelog (nur für Trainer sichtbar). Neueste zuerst.
 CHANGELOG = [
+    {"date": "2026-07-10", "title": "v1.0.0 — Abschlussfallakte, Qualitäts- und Inhaltsupdate",
+     "text": "Das Troubleshooting-Modul endet jetzt mit einer interaktiven "
+             "Abschlussfallakte: einen neuen Standort in passende Subnetze planen, "
+             "Gäste per VLAN und Firewall absichern, DNS/ARP/NAT als Paketreise "
+             "einordnen und einen DNS-Störfall belegen. Ein Vorwissens-Check und "
+             "eine Abschlussreflexion runden den Kurs ab. Außerdem wurden "
+             "fachliche Formulierungen in IPv6, ICMP, Switching, DHCP, Ports, "
+             "VLAN, WLAN und Firewall präzisiert. Kommentare und der Content-Editor "
+             "prüfen ihre Ziele jetzt robuster; der Datenbankstart entfernt keine "
+             "unbekannten Spalten mehr automatisch."},
     {"date": "2026-07-03", "title": "Breite Widgets, Inhaltsverzeichnis, Zertifikat",
      "text": "Interaktive Widgets brechen jetzt aus der schmalen Textspalte aus "
              "(bis 960px, z.B. die Wireshark-Tabelle). Lange Module haben eine "

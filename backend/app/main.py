@@ -5,7 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
 from sqlalchemy.exc import OperationalError
 
-from app.config import DEFAULT_SECRET_KEY, settings
+from app.config import APP_VERSION, DEFAULT_SECRET_KEY, settings
 from app.database import Base, SessionLocal, engine, sync_missing_columns
 from app.models import course as _course  # noqa: F401
 from app.models import participant as _participant  # noqa: F401
@@ -48,7 +48,7 @@ try:
 finally:
     _seed_db.close()
 
-app = FastAPI(title="IntNetwork")
+app = FastAPI(title="IntNetwork", version=APP_VERSION)
 app.add_middleware(
     CORSMiddleware, allow_origins=["http://localhost:5173"],
     allow_credentials=True, allow_methods=["*"], allow_headers=["*"],
@@ -59,7 +59,7 @@ _api = APIRouter(prefix="/api")
 
 @_api.get("/health")
 def health():
-    return {"status": "ok"}
+    return {"status": "ok", "version": APP_VERSION}
 
 
 from app.routers import auth as auth_router  # noqa: E402

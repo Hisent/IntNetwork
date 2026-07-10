@@ -5,6 +5,7 @@ import { authApi, errMsg } from '@/lib/api'
 import { trainerApi } from '@/lib/trainerApi'
 import { TrainerFeedback } from '@/components/TrainerFeedback'
 import { useAuthStore } from '@/store/auth'
+import { VersionBadge } from '@/components/VersionBadge'
 
 function CopyCode({ code }: { code: string }) {
   const [copied, setCopied] = useState(false)
@@ -124,7 +125,10 @@ function TrainerDashboard({ onLogout }: { onLogout: () => void }) {
     <div className="min-h-dvh bg-slate-50 p-6 sm:p-10">
       <div className="max-w-4xl mx-auto">
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold text-slate-900">Trainer</h1>
+          <div className="flex items-center gap-2">
+            <h1 className="text-2xl font-bold text-slate-900">Trainer</h1>
+            <VersionBadge tone="dark" />
+          </div>
           <button onClick={onLogout} className="text-sm text-slate-400 hover:text-slate-600">Abmelden</button>
         </div>
 
