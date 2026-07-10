@@ -18,9 +18,9 @@ export function WidgetBlock({ id, lang }: { id: string; lang: Lang }) {
   const W = WIDGETS[id]
   if (!W) return <div className="text-sm text-red-500">Unbekanntes Widget: {id}</div>
   return (
-    // Breakout: Widgets dürfen breiter sein als die schmale Textspalte
-    // (auf großen Screens bis 60rem, zentriert; auf kleinen = Spaltenbreite).
-    <div className="relative left-1/2 -translate-x-1/2 w-[min(60rem,100vw-3rem)]">
+    // Widgets bleiben innerhalb der aktuellen Inhalts-/Navigationsspalte.
+    // Tabellen und lange Inhalte müssen sich darin selbst scrollbar machen.
+    <div className="w-full min-w-0">
       <Suspense fallback={<div className="rounded-xl border bg-white p-6 text-sm text-slate-400 animate-pulse">{t(lang, 'loading')}</div>}>
         <W lang={lang} />
       </Suspense>

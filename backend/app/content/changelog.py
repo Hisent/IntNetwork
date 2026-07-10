@@ -1,5 +1,10 @@
 # Projekt-Changelog (nur für Trainer sichtbar). Neueste zuerst.
 CHANGELOG = [
+    {"date": "2026-07-10", "title": "v1.2.1 — Widget-Breite korrigiert",
+     "text": "Widgets bleiben jetzt innerhalb der jeweiligen Inhalts- und "
+             "Navigationsspalte. Dadurch überdecken Aufgabenzeilen und "
+             "interaktive Inhalte die Kursnavigation nicht mehr; lange "
+             "Aufgabentexte umbrechen sauber."},
     {"date": "2026-07-10", "title": "v1.2.0 — Kursnavigation und Lernphasen",
      "text": "Die Modulansicht hat jetzt eine sticky Kursnavigation mit "
              "Fortschritt, Quiz-Bestwerten und gesperrten Voraussetzungen. Auf "
