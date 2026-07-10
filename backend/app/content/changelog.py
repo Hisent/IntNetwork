@@ -1,5 +1,10 @@
 # Projekt-Changelog (nur für Trainer sichtbar). Neueste zuerst.
 CHANGELOG = [
+    {"date": "2026-07-10", "title": "v1.3.1 — Inhalts-Synchronisierung für bestehende DBs",
+     "text": "Bestehende Installationen ziehen neue Widget-Blöcke jetzt additiv nach, "
+             "ohne Trainertexte oder Positionen zu überschreiben. Die Migration bleibt "
+             "kompatibel mit älteren Datenbanken, in denen noch die frühere pass_threshold-Spalte "
+             "vorhanden ist."},
     {"date": "2026-07-10", "title": "v1.3.0 — Zehn neue interaktive Lernlabore",
      "text": "Die Module erhalten zehn neue, wiederverwendbare Lernlabore: "
              "Routing-Entscheidung, VLAN-/Firewall-Policy-Builder, DHCP-Störungs-Labor, "

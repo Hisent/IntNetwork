@@ -18,6 +18,9 @@ VALID_WIDGET_IDS = {
     "arp-demo", "routing-demo", "nat-demo", "dns-demo", "dhcp-demo", "ports-demo",
     "icmp-demo", "firewall-demo", "ipv6-demo", "wlan-demo", "vpn-demo",
     "troubleshoot-demo", "capstone-demo", "wireshark-demo",
+    "learning-route", "learning-policy", "learning-dhcp", "learning-dns",
+    "learning-packet", "learning-subnet", "learning-filter", "learning-attack",
+    "learning-ipv6", "learning-evidence",
 }
 
 KEY_RE = re.compile(r"^[a-z0-9-]+$")

@@ -55,3 +55,17 @@ def test_seed_is_idempotent():
             assert before == after
         finally:
             db.close()
+
+
+def test_seed_adds_new_widgets_to_existing_modules_without_duplicates():
+    with TestClient(app):
+        db = SessionLocal()
+        try:
+            seed_missing_content(db)
+            seed_missing_content(db)
+            for key in ("routing", "subnetting", "troubleshooting"):
+                widgets = [b.widget_id for b in db.query(ContentBlock)
+                           .filter(ContentBlock.module_key == key, ContentBlock.type == "widget")]
+                assert sum(w == {"routing": "learning-route", "subnetting": "learning-subnet", "troubleshooting": "learning-evidence"}[key] for w in widgets) == 1
+        finally:
+            db.close()
