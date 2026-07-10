@@ -1,5 +1,9 @@
 # Projekt-Changelog (nur für Trainer sichtbar). Neueste zuerst.
 CHANGELOG = [
+    {"date": "2026-07-10", "title": "v1.2.4 — Netzentscheidung verständlicher erklärt",
+     "text": "Die Erklärung im Subnetting-Modul beschreibt jetzt Schritt für Schritt, "
+             "wie ein Gerät zwischen direkter Zustellung und Standard-Gateway entscheidet. "
+             "Konkrete IP-Beispiele machen die Verbindung zum Routing sichtbar."},
     {"date": "2026-07-10", "title": "v1.2.3 — Wissenscheck ausgerichtet",
      "text": "Die Überschrift des Wissenschecks ist jetzt wie die übrigen "
              "Lernphasen linksbündig ausgerichtet. Dadurch folgt der Abschluss "

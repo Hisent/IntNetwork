@@ -59,16 +59,28 @@ SUBNETTING_MODULE = {
         }},
         {"type": "text",
          "value": {
-             "de": "## Gleiches Netz oder Router?\n\nEin Gerät verundet "
-                   "**seine** IP und die **Ziel-IP** je mit der Maske. Kommt **dasselbe Netz** "
-                   "heraus → direkt per Switch (Schicht 2). Kommt ein **anderes** Netz heraus → "
-                   "ab zum **Standard-Gateway** (Router). Genau das ist die Brücke zum nächsten "
-                   "Thema: **Routing**.",
-             "en": "## Same Network or Router?\n\nA device ANDs "
-                   "**its own** IP and the **destination IP** with the mask. If **the same network** "
-                   "results → straight through the switch (Layer 2). If a **different** network "
-                   "results → off to the **default gateway** (router). That's exactly the bridge to "
-                   "the next topic: **routing**.",
+             "de": "## Liegt das Ziel im selben Netz?\n\nBevor ein Gerät ein Paket "
+                   "verschickt, prüft es: Liegt die Ziel-IP in meinem eigenen Subnetz? Dafür "
+                   "ermittelt es aus **seiner IP** und der **Ziel-IP** jeweils den Netzanteil "
+                   "(IP-Adresse AND Maske).\n\n"
+                   "- **Gleiches Ergebnis:** Beide Geräte gehören zum selben Subnetz. Das Paket "
+                   "geht direkt an den Ziel-Host — der Switch vermittelt auf Schicht 2.\n"
+                   "- **Unterschiedliches Ergebnis:** Das Ziel liegt in einem anderen Subnetz. Das "
+                   "Paket geht zuerst an das **Standard-Gateway** (den Router), der es weiterleitet.\n\n"
+                   "Beispiel: `192.168.10.37/24` erreicht `192.168.10.80` direkt. Für "
+                   "`192.168.20.80` sendet es den Frame zunächst an `192.168.10.1`, das Gateway. "
+                   "Diese Weiterleitung zwischen Netzen ist das Thema des nächsten Moduls: **Routing**.",
+             "en": "## Is the Destination on the Same Network?\n\nBefore sending a packet, "
+                   "a device checks whether the destination IP belongs to its own subnet. It does "
+                   "this by calculating the network part for **its own IP** and the **destination IP** "
+                   "(IP address AND mask).\n\n"
+                   "- **Same result:** Both devices are in the same subnet. The packet goes directly "
+                   "to the destination host; the switch forwards it at Layer 2.\n"
+                   "- **Different result:** The destination is in another subnet. The packet first "
+                   "goes to the **default gateway** (the router), which forwards it.\n\n"
+                   "Example: `192.168.10.37/24` reaches `192.168.10.80` directly. For "
+                   "`192.168.20.80`, it first sends the frame to `192.168.10.1`, the gateway. "
+                   "Forwarding between networks is the next module's topic: **routing**.",
          }},
     ],
     "quiz": {"questions": [
