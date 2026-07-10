@@ -53,6 +53,10 @@ export function ModulePage() {
     const idx = sorted.findIndex((m) => m.key === key)
     return idx >= 0 ? sorted[idx + 1] ?? null : null
   }, [mods.data, key])
+  const sortedModules = useMemo(() => [...(mods.data ?? [])].sort((a, b) => a.order - b.order), [mods.data])
+  const progressByKey = new Map((me.data?.progress ?? []).map((item) => [item.module_key, item]))
+  const moduleUnlocked = (moduleKey: string, prerequisites: string[]) =>
+    moduleKey === key || prerequisites.every((prerequisite) => progressByKey.get(prerequisite)?.done)
   const setLang = useMutation({
     mutationFn: (l: Lang) => learnApi.setLanguage(l),
     onSuccess: () => {
@@ -92,8 +96,38 @@ export function ModulePage() {
         </div>
       </div>
 
-      <div className="p-6 sm:p-10 pt-6">
-      <div className="max-w-2xl mx-auto animate-fade-up">
+      <div className="p-6 pt-6 sm:p-10">
+      <div className="mx-auto flex max-w-6xl items-start gap-8">
+        <aside className="sticky top-20 hidden w-64 shrink-0 lg:block">
+          <div className="rounded-2xl border border-slate-200 bg-white p-4">
+            <p className="mb-3 text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">
+              {lang === 'de' ? 'Kursmodule' : 'Course modules'}
+            </p>
+            <nav className="flex max-h-[calc(100dvh-9rem)] flex-col gap-1 overflow-y-auto" aria-label={lang === 'de' ? 'Kursmodule' : 'Course modules'}>
+              {sortedModules.map((item, index) => {
+                const progress = progressByKey.get(item.key)
+                const unlocked = moduleUnlocked(item.key, item.prerequisites)
+                return (
+                  <Link key={item.key} to={unlocked ? '/lernen/' + item.key : '#'}
+                    onClick={(event) => { if (!unlocked) event.preventDefault() }}
+                    aria-current={item.key === key ? 'page' : undefined}
+                    className={'flex items-start gap-2 rounded-lg px-2.5 py-2 text-xs transition-colors ' + (
+                      item.key === key ? 'bg-teal-50 font-semibold text-teal-800'
+                        : unlocked ? 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                          : 'cursor-not-allowed text-slate-300'
+                    )}>
+                    <span className={'mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-[10px] ' + (
+                      progress?.done ? 'bg-green-100 text-green-700' : item.key === key ? 'bg-teal-600 text-white' : unlocked ? 'bg-slate-100 text-slate-500' : 'bg-slate-50 text-slate-300'
+                    )}>{progress?.done ? '✓' : index + 1}</span>
+                    <span className="min-w-0 flex-1">{lang === 'de' ? item.title : item.title_en}</span>
+                    {progress?.best != null && <span className="shrink-0 text-[10px] text-slate-400">{progress.best}%</span>}
+                  </Link>
+                )
+              })}
+            </nav>
+          </div>
+        </aside>
+      <main className="min-w-0 max-w-2xl flex-1 animate-fade-up">
         <div className="flex items-center justify-between mb-2">
           <Link to="/lernen" className="text-sm text-slate-400 hover:text-slate-600">← {t(lang, 'modules')}</Link>
           <div className="flex gap-1 text-xs font-medium">
@@ -107,6 +141,22 @@ export function ModulePage() {
             </button>
           </div>
         </div>
+        <details className="mb-4 rounded-xl border border-slate-200 bg-white px-4 py-3 lg:hidden">
+          <summary className="cursor-pointer select-none text-sm font-medium text-slate-700">
+            {lang === 'de' ? 'Kursnavigation' : 'Course navigation'}
+          </summary>
+          <nav className="mt-3 flex max-h-64 flex-col gap-1 overflow-y-auto" aria-label={lang === 'de' ? 'Kursnavigation' : 'Course navigation'}>
+            {sortedModules.map((item, index) => {
+              const unlocked = moduleUnlocked(item.key, item.prerequisites)
+              return (
+                <Link key={item.key} to={unlocked ? '/lernen/' + item.key : '#'} onClick={(event) => { if (!unlocked) event.preventDefault() }}
+                  className={'rounded-lg px-2.5 py-2 text-xs ' + (item.key === key ? 'bg-teal-50 font-semibold text-teal-800' : unlocked ? 'text-slate-600' : 'text-slate-300')}>
+                  {progressByKey.get(item.key)?.done ? '✓ ' : (index + 1) + '. '}{lang === 'de' ? item.title : item.title_en}
+                </Link>
+              )
+            })}
+          </nav>
+        </details>
         <h1 className="text-2xl font-bold text-slate-900 mt-2 mb-4">{mod.data.title}</h1>
         {mod.data.scenario && (
           <div className="rounded-xl border border-teal-100 bg-teal-50 px-4 py-3 mb-6 text-sm text-teal-900">
@@ -171,6 +221,7 @@ export function ModulePage() {
             </Link>
           )}
         </div>
+      </main>
       </div>
       </div>
     </div>

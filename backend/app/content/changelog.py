@@ -1,5 +1,11 @@
 # Projekt-Changelog (nur für Trainer sichtbar). Neueste zuerst.
 CHANGELOG = [
+    {"date": "2026-07-10", "title": "v1.2.0 — Kursnavigation und Lernphasen",
+     "text": "Die Modulansicht hat jetzt eine sticky Kursnavigation mit "
+             "Fortschritt, Quiz-Bestwerten und gesperrten Voraussetzungen. Auf "
+             "kleinen Bildschirmen ist sie als ausklappbare Navigation verfügbar. "
+             "Die Inhalte sind außerdem sichtbar in die Lernphasen Verstehen, "
+             "Ausprobieren und Reflektieren gegliedert."},
     {"date": "2026-07-10", "title": "v1.1.0 — Glossar, Hilfen und Wiederholung",
      "text": "Jedes Modul hat jetzt ein kontextbezogenes Glossar mit den "
              "relevanten Fachbegriffen. Quizfragen bieten zwei gestufte Hinweise, "

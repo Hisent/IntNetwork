@@ -6,4 +6,4 @@ def test_health():
     with TestClient(app) as c:
         r = c.get("/api/health")
         assert r.status_code == 200
-        assert r.json() == {"status": "ok", "version": "1.1.0"}
+        assert r.json() == {"status": "ok", "version": "1.2.0"}

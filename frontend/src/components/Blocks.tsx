@@ -269,10 +269,26 @@ export function Blocks({
   moduleKey?: string
   footer?: (block: Block, index: number) => ReactNode
 }) {
+  const phaseOf = (type: Block['type']): 'understand' | 'practice' | 'reflect' => {
+    if (type === 'widget' || type === 'check' || type === 'order' || type === 'debug') return 'practice'
+    if (type === 'reflect') return 'reflect'
+    return 'understand'
+  }
+  const phaseLabel = (phase: ReturnType<typeof phaseOf>) => {
+    if (lang === 'en') return phase === 'understand' ? 'Understand' : phase === 'practice' ? 'Try it' : 'Reflect'
+    return phase === 'understand' ? 'Verstehen' : phase === 'practice' ? 'Ausprobieren' : 'Reflektieren'
+  }
+
   return (
     <div className="flex flex-col gap-6">
       {blocks.map((b, i) => (
         <div key={i} id={`block-${i}`} className="flex flex-col gap-1 scroll-mt-20">
+          {(i === 0 || phaseOf(blocks[i - 1].type) !== phaseOf(b.type)) && (
+            <div className="mb-1 flex items-center gap-3 pt-2">
+              <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-teal-700">{phaseLabel(phaseOf(b.type))}</span>
+              <div className="h-px flex-1 bg-teal-100" aria-hidden="true" />
+            </div>
+          )}
           {b.type === 'text' && <Markdown components={MD_COMPONENTS}>{b.value}</Markdown>}
           {b.type === 'widget' && <WidgetBlock id={b.id} lang={lang} />}
           {b.type === 'check' && <CheckBlock prompt={b.prompt} options={b.options} answer={b.answer} kind={b.kind} lang={lang} />}
