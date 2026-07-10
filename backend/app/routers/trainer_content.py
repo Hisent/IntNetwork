@@ -17,7 +17,7 @@ VALID_WIDGET_IDS = {
     "vlan-switch", "frame-builder", "osi-model", "mac-learning", "subnet-calc",
     "arp-demo", "routing-demo", "nat-demo", "dns-demo", "dhcp-demo", "ports-demo",
     "icmp-demo", "firewall-demo", "ipv6-demo", "wlan-demo", "vpn-demo",
-    "troubleshoot-demo", "wireshark-demo",
+    "troubleshoot-demo", "capstone-demo", "wireshark-demo",
 }
 
 KEY_RE = re.compile(r"^[a-z0-9-]+$")
@@ -155,12 +155,26 @@ def _validate(db: Session, key: str, data: ModuleIn) -> None:
         if q.qtype in ("single", "multi"):
             if not q.options_de or not q.options_en:
                 raise HTTPException(status_code=422, detail="Frage braucht options_de und options_en")
+            if len(q.options_de) != len(q.options_en):
+                raise HTTPException(status_code=422, detail="Frage: options_de und options_en müssen gleich lang sein")
             n = len(q.options_de)
-            indices = q.answer if isinstance(q.answer, list) else [q.answer]
+            if q.qtype == "single":
+                if isinstance(q.answer, bool) or not isinstance(q.answer, int):
+                    raise HTTPException(status_code=422, detail="Single-Choice braucht genau einen Antwort-Index")
+                indices = [q.answer]
+            else:
+                if not isinstance(q.answer, list) or not q.answer:
+                    raise HTTPException(status_code=422, detail="Multiple-Choice braucht mindestens einen Antwort-Index")
+                if len(set(q.answer)) != len(q.answer):
+                    raise HTTPException(status_code=422, detail="Multiple-Choice enthält doppelte Antwort-Indizes")
+                indices = q.answer
             for idx in indices:
-                if not isinstance(idx, int) or not (0 <= idx < n):
+                if isinstance(idx, bool) or not isinstance(idx, int) or not (0 <= idx < n):
                     raise HTTPException(status_code=422, detail=f"Antwort-Index außerhalb Optionsliste: {idx}")
-        elif q.qtype != "number":
+        elif q.qtype == "number":
+            if isinstance(q.answer, bool) or not isinstance(q.answer, int):
+                raise HTTPException(status_code=422, detail="Zahlenfrage braucht eine ganze Zahl als Antwort")
+        else:
             raise HTTPException(status_code=422, detail=f"Unbekannter Fragetyp: {q.qtype}")
 
 

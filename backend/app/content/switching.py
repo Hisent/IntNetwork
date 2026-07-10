@@ -20,11 +20,13 @@ SWITCHING_MODULE = {
     "blocks": [
         {"type": "text",
          "value": {
-             "de": "## MAC-Adressen\n\nJede Netzwerkkarte hat eine "
-                   "eindeutige **MAC-Adresse** (Schicht 2). Ein Switch arbeitet mit diesen "
-                   "Adressen — nicht mit IPs.",
-             "en": "## MAC Addresses\n\nEvery network card has a unique "
-                   "**MAC address** (Layer 2). A switch works with these "
+             "de": "## MAC-Adressen\n\nEine Netzwerkkarte hat eine "
+                   "**MAC-Adresse** (Schicht 2). In einer Layer-2-Domäne sollte sie eindeutig "
+                   "sein; Virtualisierung, Zufalls-MACs und Spoofing können Ausnahmen erzeugen. "
+                   "Ein Switch arbeitet mit diesen Adressen — nicht mit IPs.",
+             "en": "## MAC Addresses\n\nA network card has a **MAC address** "
+                   "(Layer 2). Within one Layer-2 domain it should be unique; virtualisation, "
+                   "randomised MACs and spoofing can create exceptions. A switch works with these "
                    "addresses, not with IPs.",
          },
          "note": "Analogie: MAC = fest eingebaute Seriennummer der Netzwerkkarte, "
@@ -59,7 +61,7 @@ SWITCHING_MODULE = {
                    "(Duplikate entstehen praktisch nur durch manuelles Überschreiben oder Fälschung).",
              "en": "The switch always learns the MAC on the **most recently seen port** — the entry "
                    "keeps flipping back and forth, and frames end up at one device or the other. "
-                   "That's why MAC addresses must be **unique** within the same network "
+                   "That's why MAC addresses should be **unique** within the same network "
                    "(duplicates practically only occur through manual overrides or spoofing).",
          }},
         {"type": "text",

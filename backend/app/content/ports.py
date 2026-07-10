@@ -37,26 +37,28 @@ PORTS_MODULE = {
                    "- **80** HTTP, **443** HTTPS (Web)\n"
                    "- **22** SSH, **3389** RDP (Fernwartung)\n"
                    "- **25** SMTP, **110** POP3, **143** IMAP (Mail)\n"
-                   "- **53** DNS\n\n"
+                   "- **53** DNS (über **UDP und TCP**)\n\n"
                    "So laufen viele Dienste über **eine** IP nebeneinander — der Port trennt sie.",
              "en": "## Well-Known Ports\n\nServices listen on fixed ports:\n\n"
                    "- **80** HTTP, **443** HTTPS (web)\n"
                    "- **22** SSH, **3389** RDP (remote administration)\n"
                    "- **25** SMTP, **110** POP3, **143** IMAP (mail)\n"
-                   "- **53** DNS\n\n"
+                   "- **53** DNS (over **UDP and TCP**)\n\n"
                    "This way many services run over **one** IP side by side — the port tells them apart.",
          }},
         {"type": "text",
          "value": {
              "de": "## TCP vs. UDP\n\n- **TCP** ist **verbindungsorientiert** "
                    "und **zuverlässig**: Aufbau per **3-Wege-Handshake** (SYN → SYN-ACK → ACK), "
-                   "verlorene Pakete werden erneut gesendet, Reihenfolge stimmt. Für Web, Mail, SSH.\n"
+                   "verlorene Pakete werden erneut gesendet, Reihenfolge stimmt. Typisch für Web "
+                   "über HTTP/1.1 oder HTTP/2, Mail und SSH.\n"
                    "- **UDP** ist **verbindungslos**: kein Handshake, keine Garantie, dafür schnell "
                    "und schlank. Für DNS, Video-Streaming, VoIP, Online-Spiele — da zählt Tempo mehr "
                    "als jede einzelne Bestätigung.",
              "en": "## TCP vs. UDP\n\n- **TCP** is **connection-oriented** "
                    "and **reliable**: set up via a **3-way handshake** (SYN → SYN-ACK → ACK), "
-                   "lost packets get resent, order is preserved. For web, mail, SSH.\n"
+                   "lost packets get resent, order is preserved. Typical for web over HTTP/1.1 or HTTP/2, "
+                   "mail and SSH.\n"
                    "- **UDP** is **connectionless**: no handshake, no guarantees, but fast "
                    "and lightweight. For DNS, video streaming, VoIP, online gaming — where speed matters "
                    "more than every single confirmation.",
@@ -68,12 +70,12 @@ PORTS_MODULE = {
          "value": {
              "de": "## Wann was?\n\nBraucht die Anwendung **Vollständigkeit** "
                    "(eine Datei, eine Webseite, eine Überweisung) → **TCP**. Zählt **Aktualität** "
-                   "mehr als jedes einzelne Paket (Live-Video, Sprache) → **UDP**. Beide nutzen "
-                   "Ports, um Dienste auseinanderzuhalten.",
+                   "mehr als jedes einzelne Paket (Live-Video, Sprache) → **UDP**. Modernes HTTP/3 "
+                   "nutzt ebenfalls QUIC über UDP. Beide nutzen Ports, um Dienste auseinanderzuhalten.",
              "en": "## Which One When?\n\nDoes the application need **completeness** "
                    "(a file, a webpage, a bank transfer) → **TCP**. Does **freshness** "
-                   "matter more than any single packet (live video, voice) → **UDP**. Both use "
-                   "ports to tell services apart.",
+                   "matter more than any single packet (live video, voice) → **UDP**. Modern HTTP/3 "
+                   "also uses QUIC over UDP. Both use ports to tell services apart.",
          }},
     ],
     "quiz": {"questions": [

@@ -156,6 +156,26 @@ TROUBLESHOOTING_MODULE = {
                          "proceed systematically or did you guess? Which layer was to blame in "
                          "the end — and which command would have revealed that faster?",
         }},
+        {"type": "text",
+         "value": {
+             "de": "## Abschlussfallakte: Neuer Standort\n\nJetzt verbindest du die Themen des Kurses: Du planst passende Teilnetze, trennst Gäste sicher vom Büro und verfolgst ein Paket vom Namen bis zum Gateway. Zum Schluss grenzt du einen Störfall anhand von Beweisen ein.",
+             "en": "## Capstone Case File: New Site\n\nNow you connect the course topics: plan suitable subnets, safely separate guests from the office and follow a packet from its name to the gateway. Finally, narrow down an incident using evidence.",
+         }},
+        {"type": "check", "payload": {
+            "prompt_de": "Bevor du startest: Welcher Hinweis grenzt einen Fehler am stärksten auf DNS ein?",
+            "prompt_en": "Before you start: which clue narrows a fault down most strongly to DNS?",
+            "options_de": ["Ping zu einer externen IP klappt, ein Name lässt sich aber nicht auflösen",
+                           "Die Link-LED am Switch leuchtet nicht", "Der PC hat eine APIPA-Adresse"],
+            "options_en": ["Ping to an external IP works, but a name cannot be resolved",
+                           "The switch link LED is off", "The PC has an APIPA address"],
+            "answer": 0,
+        }},
+        {"type": "widget", "id": "capstone-demo",
+         "note": "Abschluss in vier Schritten: Anforderungen in Subnetze übersetzen, Gäste segmentieren, DNS/ARP/NAT als Paketreise einordnen und einen DNS-Störfall belegen. Erst allein entscheiden, dann die Begründung zu zweit vergleichen."},
+        {"type": "reflect", "payload": {
+            "prompt_de": "Welche Entscheidung aus der Fallakte würdest du bei einem echten Standort zuerst mit dem Team abstimmen — Adressplan, VLAN-/Firewall-Regeln oder DNS-Betrieb? Begründe kurz mit dem Risiko, das du vermeiden willst.",
+            "prompt_en": "Which decision from the case file would you align on with the team first at a real site — addressing, VLAN/firewall rules or DNS operations? Briefly explain the risk you want to avoid.",
+        }},
     ],
     "quiz": {"questions": [
         {"id": "ts1", "type": "single",

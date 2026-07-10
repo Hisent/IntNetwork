@@ -97,6 +97,30 @@ def test_update_rejects_out_of_range_answer_index():
         assert c.put("/api/trainer/content/modules/answermod", json=body, headers=h).status_code == 422
 
 
+def test_update_rejects_inconsistent_quiz_translations_and_answer_types():
+    with TestClient(app) as c:
+        h = _trainer(c)
+        c.post("/api/trainer/content/modules", json={"key": "quizval", "title_de": "X"}, headers=h)
+        url = "/api/trainer/content/modules/quizval"
+
+        body = _minimal_module()
+        body["quiz"][0]["options_en"] = ["A"]
+        assert c.put(url, json=body, headers=h).status_code == 422
+
+        body = _minimal_module()
+        body["quiz"][0]["answer"] = [1]
+        assert c.put(url, json=body, headers=h).status_code == 422
+
+        body = _minimal_module()
+        body["quiz"][0]["qtype"] = "multi"
+        body["quiz"][0]["answer"] = []
+        assert c.put(url, json=body, headers=h).status_code == 422
+
+        body = _minimal_module()
+        body["quiz"] = [{"qtype": "number", "prompt_de": "F?", "prompt_en": "Q?", "answer": [42]}]
+        assert c.put(url, json=body, headers=h).status_code == 422
+
+
 def test_concurrent_create_same_key_never_500s():
     """Zwei gleichzeitige Create-Requests mit demselben Key (z.B. Doppelklick)
     duerfen nie mit 500 crashen -> genau einer gewinnt (200), der Rest 422."""

@@ -35,16 +35,18 @@ WLAN_MODULE = {
                    "**2,4 GHz** (große Reichweite, aber langsamer und überfüllt) und **5 GHz** "
                    "(schneller, mehr Kanäle, kürzere Reichweite).\n\n"
                    "Ein Kanal ist breiter als sein Abstand zum Nachbarn — deshalb **überlappen** "
-                   "sich benachbarte 2,4-GHz-Kanäle und stören sich. Nur **1, 6 und 11** sind "
-                   "überlappungsfrei. Zwei APs in Reichweite sollten daher unterschiedliche, "
-                   "überlappungsfreie Kanäle nutzen.",
+                   "sich benachbarte 2,4-GHz-Kanäle und stören sich. Bei **20 MHz** sind "
+                   "**1, 6 und 11** die übliche überlappungsfreie Planungsempfehlung; erlaubte "
+                   "Kanäle hängen zudem vom Land ab. Zwei APs in Reichweite sollten daher "
+                   "unterschiedliche, überlappungsfreie Kanäle nutzen.",
              "en": "## Frequency Bands & Channels\n\nWi-Fi mostly transmits on "
                    "**2.4 GHz** (long range, but slower and crowded) and **5 GHz** "
                    "(faster, more channels, shorter range).\n\n"
                    "A channel is wider than its spacing to its neighbor — that's why adjacent "
-                   "2.4 GHz channels **overlap** and interfere with each other. Only **1, 6 and 11** are "
-                   "non-overlapping. Two APs in range should therefore use different, "
-                   "non-overlapping channels.",
+                   "2.4 GHz channels **overlap** and interfere with each other. At **20 MHz**, "
+                   "**1, 6 and 11** are the common non-overlapping planning recommendation; allowed "
+                   "channels also depend on the country. Two APs in range should therefore use "
+                   "different, non-overlapping channels.",
          }},
         {"type": "widget", "id": "wlan-demo",
          "note": "Zwei APs auf Kanal 1 und 3 stellen → Überlappung; dann auf 1 und 6 → "

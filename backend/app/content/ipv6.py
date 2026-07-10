@@ -5,7 +5,7 @@ IPV6_MODULE = {
     "order": 13,
     "prerequisites": ["subnetting"],
     "goals": [
-        "Die Motivation für IPv6 (Adressknappheit, kein NAT) verstehen",
+        "Die Motivation für IPv6 (Adressknappheit, NAT nicht mehr nötig) verstehen",
         "Die Schreibweise und die ::-Kürzung anwenden",
         "Adresstypen (Global/Link-Local/Loopback/Multicast) erkennen",
     ],
@@ -25,11 +25,13 @@ IPV6_MODULE = {
              "de": "## Warum IPv6?\n\nIPv4 hat **32 Bit** — rund 4 Milliarden "
                    "Adressen, längst zu wenig. IPv6 hat **128 Bit**: praktisch unerschöpflich. "
                    "Jedes Gerät kann wieder eine **echte, weltweit eindeutige** Adresse haben — "
-                   "**NAT wird überflüssig**.",
+                   "für die Adressknappheit ist **NAT nicht mehr nötig**. Eine Firewall bleibt "
+                   "trotzdem wichtig; auch spezielle IPv6-NAT-Varianten gibt es.",
              "en": "## Why IPv6?\n\nIPv4 has **32 bits** — around 4 billion "
                    "addresses, nowhere near enough anymore. IPv6 has **128 bits**: practically inexhaustible. "
                    "Every device can once again have a **real, globally unique** address — "
-                   "**NAT becomes unnecessary**.",
+                   "**NAT is no longer needed for address scarcity**. A firewall still matters, "
+                   "and specialised IPv6 NAT variants also exist.",
          }},
         {"type": "text",
          "value": {
@@ -95,8 +97,8 @@ IPV6_MODULE = {
          },
          "answer": 1},
         {"id": "6c", "type": "single",
-         "prompt": {"de": "Welche Technik wird mit IPv6 überflüssig?",
-                    "en": "Which technique becomes unnecessary with IPv6?"},
+         "prompt": {"de": "Welche Technik ist mit IPv6 nicht mehr nötig, um IPv4-Adressknappheit auszugleichen?",
+                    "en": "Which technique is no longer needed with IPv6 to compensate for IPv4 address scarcity?"},
          "options": {"de": ["Routing", "NAT", "DNS", "Firewalls"], "en": ["Routing", "NAT", "DNS", "Firewalls"]},
          "answer": 1},
         {"id": "6d", "type": "single",

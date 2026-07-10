@@ -61,6 +61,19 @@ def test_public_module_strips_notes_and_goals():
             db.close()
 
 
+def test_troubleshooting_ends_with_the_cross_module_capstone():
+    with TestClient(app):
+        db = SessionLocal()
+        try:
+            module = registry.public_module(db, "troubleshooting")
+            assert module is not None
+            widgets = [block["id"] for block in module["blocks"] if block["type"] == "widget"]
+            assert "capstone-demo" in widgets
+            assert any(block["type"] == "reflect" for block in module["blocks"])
+        finally:
+            db.close()
+
+
 def test_every_module_has_goals_and_notes():
     for key, m in registry.MODULES.items():
         assert m.get("goals"), f"{key} ohne goals"

@@ -5,10 +5,8 @@ from app.main import app
 from app.database import engine, sync_missing_columns
 
 
-def test_orphaned_columns_are_dropped():
-    """Prod-Fall: alte DBs haben noch Spalten entfernter Modell-Felder
-    (pass_threshold, saved_at) — als NOT NULL killen sie jeden INSERT.
-    sync_missing_columns muss alles wegräumen, was das Modell nicht kennt."""
+def test_unknown_columns_are_preserved():
+    """Der Start darf nie Schema oder Daten implizit zerstören."""
     with TestClient(app):
         with engine.begin() as conn:
             conn.exec_driver_sql(
@@ -17,7 +15,7 @@ def test_orphaned_columns_are_dropped():
                 "ALTER TABLE content_module_snapshot ADD COLUMN saved_at TEXT")
         sync_missing_columns()
         insp = inspect(engine)
-        assert "pass_threshold" not in {c["name"] for c in insp.get_columns("content_module")}
-        assert "saved_at" not in {c["name"] for c in insp.get_columns("content_module_snapshot")}
-        # zweiter Lauf ist idempotent (nichts mehr zu tun)
+        assert "pass_threshold" in {c["name"] for c in insp.get_columns("content_module")}
+        assert "saved_at" in {c["name"] for c in insp.get_columns("content_module_snapshot")}
+        # zweiter Lauf ist idempotent.
         sync_missing_columns()

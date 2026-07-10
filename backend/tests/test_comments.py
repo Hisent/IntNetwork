@@ -53,6 +53,27 @@ def test_comment_body_length_capped():
                       json={"block_index": 0, "body": "x" * 2000}, headers=p).status_code == 200
 
 
+def test_comments_require_a_visible_module_and_existing_block():
+    with TestClient(app) as c:
+        h = _trainer(c)
+        code = _course(c, h, "KursZiel")
+        p = _join(c, code, "P10")
+
+        assert c.get("/api/modules/gibt-es-nicht/comments", headers=p).status_code == 404
+        assert c.post("/api/modules/gibt-es-nicht/comments",
+                      json={"block_index": 0, "body": "x"}, headers=p).status_code == 404
+        assert c.post("/api/modules/switching/comments",
+                      json={"block_index": -1, "body": "x"}, headers=p).status_code == 422
+        assert c.post("/api/modules/switching/comments",
+                      json={"block_index": 9999, "body": "x"}, headers=p).status_code == 422
+
+        course = c.get("/api/courses", headers=h).json()[0]
+        assert c.put(f"/api/courses/{course['id']}/modules",
+                     json={"module_key": "switching", "active": False}, headers=h).status_code == 200
+        assert c.post("/api/modules/switching/comments",
+                      json={"block_index": 0, "body": "x"}, headers=p).status_code == 404
+
+
 def test_comments_gated_by_feature():
     with TestClient(app) as c:
         h = _trainer(c)

@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.models.comment import Comment
+from app.services.comment_validation import require_comment_target, require_course
 from app.services.deps import get_trainer
 from app.services.features import require_comments_enabled as _guard
 
@@ -24,6 +25,7 @@ class TComReq(BaseModel):
 @router.get("/trainer/courses/{cid}/comments")
 def course_comments(cid: int, db: Session = Depends(get_db), _t: dict = Depends(get_trainer)):
     _guard(db)
+    require_course(db, cid)
     rows = db.query(Comment).filter(Comment.course_id == cid).order_by(
         Comment.module_key, Comment.block_index, Comment.created_at).all()
     return [_serialize(c) for c in rows]
@@ -33,6 +35,7 @@ def course_comments(cid: int, db: Session = Depends(get_db), _t: dict = Depends(
 def add_trainer_comment(cid: int, key: str, data: TComReq, db: Session = Depends(get_db),
                         _t: dict = Depends(get_trainer)):
     _guard(db)
+    require_comment_target(db, cid, key, data.block_index)
     body = data.body.strip()
     if not body:
         raise HTTPException(status_code=400, detail="Kommentar ist leer")

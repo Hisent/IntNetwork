@@ -6,7 +6,7 @@ FIREWALL_MODULE = {
     "prerequisites": ["ports"],
     "goals": [
         "Die Aufgabe einer Firewall an der Netzgrenze benennen",
-        "First-Match-Wins und Default-Deny erklären",
+        "Regelreihenfolge und Default-Deny erklären",
         "Verstehen, warum die Regelreihenfolge zählt (stateful als Ausblick)",
     ],
     "scenario": {
@@ -35,16 +35,16 @@ FIREWALL_MODULE = {
          }},
         {"type": "text",
          "value": {
-             "de": "## Regeln: erste Übereinstimmung gewinnt\n\nDie Regeln "
-                   "werden **von oben nach unten** geprüft. Die **erste passende** Regel "
-                   "entscheidet — der Rest wird nicht mehr angeschaut. Deshalb ist die "
-                   "**Reihenfolge** wichtig: eine zu frühe allgemeine allow-Regel kann eine "
-                   "spätere deny-Regel wirkungslos machen.",
-             "en": "## Rules: First Match Wins\n\nRules are "
-                   "checked **from top to bottom**. The **first matching** rule "
-                   "decides — the rest is never looked at. That's why "
-                   "**order** matters: an overly broad allow rule placed too early can make a "
-                   "later deny rule pointless.",
+             "de": "## Regeln: Reihenfolge zählt\n\nViele klassische Firewalls — auch "
+                   "unser Simulator — prüfen Regeln **von oben nach unten**: Die **erste passende** "
+                   "Regel entscheidet. Andere Produkte arbeiten mit Prioritäten, Zonen oder "
+                   "abweichender Logik. Deshalb gilt immer: die konkrete Regel-Engine kennen; "
+                   "eine zu frühe allgemeine allow-Regel kann eine spätere deny-Regel wirkungslos machen.",
+             "en": "## Rules: Order Matters\n\nMany classic firewalls — including "
+                   "our simulator — check rules **from top to bottom**: the **first matching** "
+                   "rule decides. Other products use priorities, zones or different logic. So always "
+                   "know the concrete rule engine; an overly broad early allow rule can make a later "
+                   "deny rule pointless.",
          }},
         {"type": "text",
          "value": {
@@ -85,8 +85,8 @@ FIREWALL_MODULE = {
          },
          "answer": 1},
         {"id": "f2", "type": "single",
-         "prompt": {"de": "Welche Regel entscheidet bei mehreren passenden?",
-                    "en": "Which rule decides when several match?"},
+         "prompt": {"de": "Welche Regel entscheidet bei mehreren passenden in diesem Simulator?",
+                    "en": "Which rule decides when several match in this simulator?"},
          "options": {
              "de": ["Die letzte passende", "Die erste passende", "Die strengste", "Eine zufällige"],
              "en": ["The last matching one", "The first matching one", "The strictest one", "A random one"],

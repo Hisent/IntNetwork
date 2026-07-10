@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models.comment import Comment
 from app.models.participant import Participant
+from app.services.comment_validation import require_comment_target, require_visible_module
 from app.services.deps import get_participant
 from app.services.features import require_comments_enabled as _guard
 
@@ -25,6 +26,7 @@ class CommentReq(BaseModel):
 @router.get("/modules/{key}/comments")
 def list_comments(key: str, db: Session = Depends(get_db), p: Participant = Depends(get_participant)):
     _guard(db)
+    require_visible_module(db, p.course_id, key)
     rows = db.query(Comment).filter(
         Comment.course_id == p.course_id, Comment.module_key == key
     ).order_by(Comment.created_at).all()
@@ -35,6 +37,7 @@ def list_comments(key: str, db: Session = Depends(get_db), p: Participant = Depe
 def add_comment(key: str, data: CommentReq, db: Session = Depends(get_db),
                 p: Participant = Depends(get_participant)):
     _guard(db)
+    require_comment_target(db, p.course_id, key, data.block_index, require_active=True)
     body = data.body.strip()
     if not body:
         raise HTTPException(status_code=400, detail="Kommentar ist leer")

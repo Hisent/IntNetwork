@@ -49,15 +49,15 @@ VLAN_MODULE = {
              "de": "## Access- vs. Trunk-Port\n\n- **Access-Port**: "
                    "gehört zu genau einem VLAN, sendet/empfängt **ungetaggte** Frames (Endgeräte "
                    "wie PC, Drucker, Telefon).\n"
-                   "- **Trunk-Port**: trägt **mehrere** VLANs gleichzeitig, markiert jeden Frame mit "
-                   "einem **802.1Q-Tag** (4 Byte, enthält die VLAN-ID). Typisch zwischen zwei Switches "
-                   "oder Switch↔Router.",
+                   "- **Trunk-Port**: trägt **mehrere** VLANs gleichzeitig und markiert Frames "
+                   "normalerweise mit einem **802.1Q-Tag** (4 Byte, enthält die VLAN-ID). Das "
+                   "**Native VLAN** kann ungetaggt laufen. Typisch zwischen zwei Switches oder Switch↔Router.",
              "en": "## Access vs. Trunk Port\n\n- **Access port**: "
                    "belongs to exactly one VLAN, sends/receives **untagged** frames (end devices "
                    "like PCs, printers, phones).\n"
-                   "- **Trunk port**: carries **multiple** VLANs at once, tags every frame with "
-                   "an **802.1Q tag** (4 bytes, holds the VLAN ID). Typical between two switches "
-                   "or switch↔router.",
+                   "- **Trunk port**: carries **multiple** VLANs at once and normally tags frames "
+                   "with an **802.1Q tag** (4 bytes, holds the VLAN ID). The **native VLAN** can "
+                   "be untagged. Typical between two switches or switch↔router.",
          }},
         {"type": "text",
          "value": {

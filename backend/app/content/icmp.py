@@ -22,14 +22,16 @@ ICMP_MODULE = {
          "value": {
              "de": "## Was ist ICMP?\n\n**ICMP** (Internet Control Message "
                    "Protocol) ist die „Meldungssprache“ von IP: Statusmeldungen und Fehler wie "
-                   "**Ziel nicht erreichbar** oder **Zeit überschritten**. Es transportiert keine "
-                   "Nutzdaten, sondern Diagnose-Infos. Zwei Werkzeuge nutzen es direkt: **ping** "
-                   "und **traceroute**.",
+                   "**Ziel nicht erreichbar** oder **Zeit überschritten**. Es ist kein Protokoll "
+                   "für Anwendungsdaten, kann aber Diagnose-Daten tragen — ping schickt etwa "
+                   "einen Echo-Datenblock. Zwei Werkzeuge nutzen ICMP: **ping** direkt und "
+                   "**traceroute** für die Antworten der Router.",
              "en": "## What Is ICMP?\n\n**ICMP** (Internet Control Message "
                    "Protocol) is IP's “messaging language”: status messages and errors like "
-                   "**destination unreachable** or **time exceeded**. It carries no "
-                   "payload data, only diagnostic info. Two tools use it directly: **ping** "
-                   "and **traceroute**.",
+                   "**destination unreachable** or **time exceeded**. It is not for application "
+                   "payload, but it can carry diagnostic data — ping, for example, sends an "
+                   "echo data block. Two tools use ICMP: **ping** directly and **traceroute** "
+                   "for router responses.",
          }},
         {"type": "text",
          "value": {
@@ -49,15 +51,17 @@ ICMP_MODULE = {
                    "**0**, verwirft der Router das Paket und meldet **Time Exceeded** — und verrät "
                    "damit seine Adresse.\n\n"
                    "traceroute sendet erst mit **TTL 1** (erster Router meldet sich), dann **TTL 2** "
-                   "(zweiter), und so weiter — bis das Ziel selbst antwortet. So wird der ganze "
-                   "Pfad Hop für Hop sichtbar.",
+                    "(zweiter), und so weiter. Je nach Betriebssystem bestehen die Testpakete aus "
+                    "UDP, ICMP oder TCP; das Ziel oder einzelne Router können Antworten filtern. "
+                    "So wird der Pfad **so weit sichtbar, wie Geräte antworten**.",
              "en": "## traceroute — Which Path?\n\nA trick using the **TTL** "
                    "(Time To Live) in the IP header: every router counts it down by 1. If it "
                    "reaches **0**, the router drops the packet and reports **time exceeded** — thereby "
                    "revealing its address.\n\n"
                    "traceroute first sends with **TTL 1** (the first router responds), then **TTL 2** "
-                   "(the second), and so on — until the destination itself replies. This makes the "
-                   "entire path visible, hop by hop.",
+                    "(the second), and so on. Depending on the operating system, probes use UDP, ICMP "
+                    "or TCP; the destination or individual routers may filter replies. This makes "
+                    "the path visible **as far as devices respond**.",
          }},
         {"type": "widget", "id": "icmp-demo",
          "note": "Schrittweise den nächsten Hop anfragen → mit jeder TTL meldet sich ein "
