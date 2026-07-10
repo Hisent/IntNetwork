@@ -98,7 +98,6 @@ export function Quiz({ moduleKey, questions, lang, onResult }: {
     <section className="mt-14">
       {/* Übergang vom Lernstoff zum Abschluss — statt unvermittelt ein Kasten */}
       <div className="mb-6 flex items-center gap-3">
-        <div className="h-px flex-1 bg-slate-200" aria-hidden="true" />
         <span className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-widest text-teal-700">
           <svg viewBox="0 0 20 20" className="w-3.5 h-3.5" fill="currentColor" aria-hidden="true">
             <path fillRule="evenodd" d="M16.7 5.3a1 1 0 010 1.4l-7.5 7.5a1 1 0 01-1.4 0L3.3 9.7a1 1 0 011.4-1.4l3.1 3.1 6.8-6.8a1 1 0 011.4 0z" clipRule="evenodd" />

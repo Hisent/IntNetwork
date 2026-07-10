@@ -1,5 +1,10 @@
 # Projekt-Changelog (nur für Trainer sichtbar). Neueste zuerst.
 CHANGELOG = [
+    {"date": "2026-07-10", "title": "v1.2.3 — Wissenscheck ausgerichtet",
+     "text": "Die Überschrift des Wissenschecks ist jetzt wie die übrigen "
+             "Lernphasen linksbündig ausgerichtet. Dadurch folgt der Abschluss "
+             "visuell derselben Lesekante wie Verstehen, Ausprobieren und "
+             "Reflektieren."},
     {"date": "2026-07-10", "title": "v1.2.2 — Glossar-Overlay korrigiert",
      "text": "Das Glossar wird jetzt über ein React-Portal direkt am "
              "Dokument-Body geöffnet. Es bleibt dadurch zentriert und liegt "
