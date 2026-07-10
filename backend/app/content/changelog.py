@@ -1,5 +1,10 @@
 # Projekt-Changelog (nur für Trainer sichtbar). Neueste zuerst.
 CHANGELOG = [
+    {"date": "2026-07-10", "title": "v1.2.5 — Private IPv4-Bereiche ergänzt",
+     "text": "Das NAT-Modul erklärt jetzt die RFC-1918-Bereiche 10/8, 172.16/12 und "
+             "192.168/16 mit vollständigen Adressspannen und Beispielen. Zusätzlich werden "
+             "Link-Local und Carrier-Grade NAT von privaten IPv4-Netzen abgegrenzt; das Glossar "
+             "enthält den Begriff ebenfalls."},
     {"date": "2026-07-10", "title": "v1.2.4 — Netzentscheidung verständlicher erklärt",
      "text": "Die Erklärung im Subnetting-Modul beschreibt jetzt Schritt für Schritt, "
              "wie ein Gerät zwischen direkter Zustellung und Standard-Gateway entscheidet. "

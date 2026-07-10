@@ -52,18 +52,20 @@ TROUBLESHOOTING_MODULE = {
         }},
         {"type": "text",
          "value": {
-             "de": "## Dein Werkzeugkasten\n\nVier Befehle, die auf jedem Rechner da "
-                   "sind:\n\n- **`ipconfig`** — „Wer bin ich?“: eigene IP, Subnetzmaske, Gateway, "
-                   "DNS-Server. Immer der erste Blick.\n"
+             "de": "## Dein Werkzeugkasten\n\nVier typische Diagnosebefehle "
+                   "(die Beispiele verwenden Windows):\n\n- **`ipconfig`** — „Wer bin ich?“: eigene IP, "
+                   "Subnetzmaske, Gateway, DNS-Server. Unter Linux ist das Gegenstück meist "
+                   "**`ip addr`**, unter macOS **`ifconfig`** oder **`networksetup`**.\n"
                    "- **`ping <IP>`** — „Erreiche ich dich?“: prüft die Erreichbarkeit — erst das "
                    "Gateway, dann eine externe IP wie 8.8.8.8.\n"
                    "- **`nslookup <Name>`** — „Funktioniert die Namensauflösung?“: fragt den "
                    "DNS-Server direkt.\n"
                    "- **`tracert <Ziel>`** — „Wo bleibt das Paket hängen?“: zeigt jeden Router "
                    "(Hop) auf dem Weg zum Ziel.",
-             "en": "## Your Toolbox\n\nFour commands available on every machine:\n\n"
-                   "- **`ipconfig`** — “Who am I?”: own IP, subnet mask, gateway, DNS server. "
-                   "Always the first look.\n"
+             "en": "## Your Toolbox\n\nFour typical diagnostic commands "
+                   "(the examples use Windows):\n\n- **`ipconfig`** — “Who am I?”: own IP, "
+                   "subnet mask, gateway, DNS server. On Linux, the usual counterpart is "
+                   "**`ip addr`**; on macOS, use **`ifconfig`** or **`networksetup`**.\n"
                    "- **`ping <IP>`** — “Can I reach you?”: checks reachability — first the "
                    "gateway, then an external IP like 8.8.8.8.\n"
                    "- **`nslookup <name>`** — “Does name resolution work?”: queries the DNS "

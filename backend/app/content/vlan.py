@@ -35,12 +35,16 @@ VLAN_MODULE = {
          "value": {
              "de": "## Warum VLANs?\n\n- **Trennung**: Buchhaltung (VLAN 10) "
                    "und Gäste-WLAN (VLAN 30) am selben Switch, aber logisch getrennt.\n"
-                   "- **Sicherheit**: ein Gerät sieht nur den eigenen VLAN-Verkehr.\n"
+                   "- **Begrenzung**: Broadcasts und direkte Layer-2-Kommunikation bleiben im VLAN. "
+                   "Das ist noch keine vollständige Sicherheitsgrenze — dafür braucht es zusätzlich "
+                   "sauberes Inter-VLAN-Routing und Firewall-Regeln.\n"
                    "- **Weniger Broadcast-Last**: Broadcasts bleiben im VLAN, fluten nicht das ganze Netz.\n"
                    "- **Flexibilität**: VLAN-Zugehörigkeit per Port-Konfiguration, nicht per Verkabelung.",
              "en": "## Why VLANs?\n\n- **Separation**: accounting (VLAN 10) "
                    "and guest Wi-Fi (VLAN 30) on the same switch, but logically separate.\n"
-                   "- **Security**: a device only sees its own VLAN's traffic.\n"
+                   "- **Containment**: broadcasts and direct Layer-2 traffic stay inside the VLAN. "
+                   "That is not a complete security boundary by itself — inter-VLAN routing and "
+                   "firewall rules still need to be secured.\n"
                    "- **Less broadcast load**: broadcasts stay within the VLAN, don't flood the whole network.\n"
                    "- **Flexibility**: VLAN membership by port configuration, not by cabling.",
          }},

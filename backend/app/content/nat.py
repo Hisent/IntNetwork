@@ -22,14 +22,27 @@ NAT_MODULE = {
     "blocks": [
         {"type": "text",
          "value": {
-             "de": "## Private vs. öffentliche IP\n\n**Private** Adressbereiche "
-                   "(`10.0.0.0/8`, `172.16.0.0/12`, `192.168.0.0/16`) sind im Internet **nicht "
-                   "routbar** — sie existieren nur intern. **Öffentliche** IPs sind weltweit "
-                   "eindeutig. Nordwind hat viele private, aber nur eine öffentliche.",
-             "en": "## Private vs. Public IP\n\n**Private** address ranges "
-                   "(`10.0.0.0/8`, `172.16.0.0/12`, `192.168.0.0/16`) are **not routable** on the "
-                   "Internet — they only exist internally. **Public** IPs are globally "
-                   "unique. Nordwind has many private ones, but only one public one.",
+             "de": "## Private vs. öffentliche IP\n\nFür interne Netze gibt es drei "
+                   "private IPv4-Bereiche (RFC 1918):\n\n"
+                   "- **`10.0.0.0/8`** → `10.0.0.0` bis `10.255.255.255`\n"
+                   "- **`172.16.0.0/12`** → `172.16.0.0` bis `172.31.255.255`\n"
+                   "- **`192.168.0.0/16`** → `192.168.0.0` bis `192.168.255.255`\n\n"
+                   "Diese Adressen sind im öffentlichen Internet **nicht routbar**. Zwei Firmen "
+                   "können dieselben privaten Bereiche gleichzeitig verwenden, solange ihre Netze "
+                   "getrennt bleiben. Für den Weg ins Internet übersetzt NAT sie in eine öffentliche, "
+                   "weltweit eindeutige Adresse. Nicht verwechseln: `169.254.0.0/16` ist Link-Local "
+                   "für die lokale Selbstkonfiguration, `100.64.0.0/10` ist ein Carrier-Grade-NAT-Bereich "
+                   "und kein RFC-1918-Privatnetz.",
+             "en": "## Private vs. Public IP\n\nInternal networks use three private "
+                   "IPv4 ranges (RFC 1918):\n\n"
+                   "- **`10.0.0.0/8`** → `10.0.0.0` through `10.255.255.255`\n"
+                   "- **`172.16.0.0/12`** → `172.16.0.0` through `172.31.255.255`\n"
+                   "- **`192.168.0.0/16`** → `192.168.0.0` through `192.168.255.255`\n\n"
+                   "These addresses are **not routable** on the public Internet. Two companies "
+                   "can use the same private ranges at the same time as long as their networks "
+                   "stay separate. NAT translates them to a globally unique public address on the "
+                   "way out. Do not confuse them with `169.254.0.0/16` (link-local self-configuration) "
+                   "or `100.64.0.0/10` (carrier-grade NAT, not an RFC 1918 private range).",
          }},
         {"type": "text",
          "value": {

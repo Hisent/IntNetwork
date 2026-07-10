@@ -38,13 +38,16 @@ VPN_MODULE = {
              "de": "## Kapselung (Encapsulation)\n\nDas **komplette interne "
                    "Paket** (private Absender-/Ziel-IP + Daten) wird **verschlüsselt** und in ein "
                    "**neues Paket** gesteckt. Dessen äußerer Header trägt nur die **öffentlichen "
-                   "IPs der beiden VPN-Gateways**. Im Internet sieht man also nur „Gateway spricht "
-                   "mit Gateway“ — nicht, wer intern mit wem, und schon gar nicht die Inhalte.",
+                   "IPs der beiden VPN-Gateways**. Im Internet sieht man also vor allem „Gateway "
+                   "spricht mit Gateway“. Inhalte und innere Adressen bleiben verborgen; aus "
+                   "Zeitpunkt, Datenmenge oder Ziel-Gateway können Beobachter aber weiterhin "
+                   "Metadaten ableiten.",
              "en": "## Encapsulation\n\nThe **entire internal "
                    "packet** (private source/destination IP + data) is **encrypted** and put into a "
                    "**new packet**. Its outer header only carries the **public "
-                   "IPs of the two VPN gateways**. On the Internet you therefore only see “gateway talking "
-                   "to gateway” — not who's talking to whom internally, and certainly not the contents.",
+                   "IPs of the two VPN gateways**. On the Internet you mainly see “gateway talking "
+                   "to gateway”. Inner addresses and contents stay hidden, but observers can still "
+                   "infer metadata such as timing, volume or the destination gateway.",
          }},
         {"type": "widget", "id": "vpn-demo",
          "note": "Erst das interne Paket zeigen, dann den verschlüsselten Tunnel (nur "

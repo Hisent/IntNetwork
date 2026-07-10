@@ -24,14 +24,15 @@ IPV6_MODULE = {
          "value": {
              "de": "## Warum IPv6?\n\nIPv4 hat **32 Bit** — rund 4 Milliarden "
                    "Adressen, längst zu wenig. IPv6 hat **128 Bit**: praktisch unerschöpflich. "
-                   "Jedes Gerät kann wieder eine **echte, weltweit eindeutige** Adresse haben — "
-                   "für die Adressknappheit ist **NAT nicht mehr nötig**. Eine Firewall bleibt "
-                   "trotzdem wichtig; auch spezielle IPv6-NAT-Varianten gibt es.",
+                   "Geräte können dadurch wieder eine **global routbare** Adresse bekommen; im "
+                   "Alltag nutzen sie zusätzlich oft temporäre Privacy-Adressen. Für die "
+                   "Adressknappheit ist **NAT nicht mehr nötig**. Eine Firewall bleibt trotzdem "
+                   "wichtig, weil eine globale Adresse nicht automatisch Schutz bedeutet.",
              "en": "## Why IPv6?\n\nIPv4 has **32 bits** — around 4 billion "
                    "addresses, nowhere near enough anymore. IPv6 has **128 bits**: practically inexhaustible. "
-                   "Every device can once again have a **real, globally unique** address — "
-                   "**NAT is no longer needed for address scarcity**. A firewall still matters, "
-                   "and specialised IPv6 NAT variants also exist.",
+                   "Devices can therefore receive a **globally routable** address; in practice they "
+                   "often also use temporary privacy addresses. **NAT is no longer needed for address "
+                   "scarcity**. A firewall still matters: a global address is not automatic protection.",
          }},
         {"type": "text",
          "value": {
