@@ -1,5 +1,12 @@
 # Projekt-Changelog (nur für Trainer sichtbar). Neueste zuerst.
 CHANGELOG = [
+    {"date": "2026-07-10", "title": "v1.3.0 — Zehn neue interaktive Lernlabore",
+     "text": "Die Module erhalten zehn neue, wiederverwendbare Lernlabore: "
+             "Routing-Entscheidung, VLAN-/Firewall-Policy-Builder, DHCP-Störungs-Labor, "
+             "DNS-Cache-Vergleich, Paketreise-Zeitstrahl, Subnetting-Anforderungsplaner, "
+             "Wireshark-Filter-Challenge, Angriff-und-Schutz-Simulation, IPv4/IPv6-Vergleich "
+             "und Troubleshooting-Beweisbaum. Alle Labore geben direktes Feedback und sind "
+             "in Deutsch und Englisch verfügbar."},
     {"date": "2026-07-10", "title": "v1.2.5 — Private IPv4-Bereiche ergänzt",
      "text": "Das NAT-Modul erklärt jetzt die RFC-1918-Bereiche 10/8, 172.16/12 und "
              "192.168/16 mit vollständigen Adressspannen und Beispielen. Zusätzlich werden "

@@ -20,6 +20,7 @@ TROUBLESHOOTING_MODULE = {
               "pulling cables, you work systematically.",
     },
     "blocks": [
+        {"type": "widget", "id": "learning-evidence", "note": "Den nächsten Beweisschritt der Diagnose wählen."},
         {"type": "text",
          "value": {
              "de": "## Erst denken, dann tippen\n\nGute Fehlersuche beginnt nicht am "

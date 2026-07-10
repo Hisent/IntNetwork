@@ -18,6 +18,7 @@ WLAN_MODULE = {
               "right on the ceiling. What's causing that, and how do you keep the Wi-Fi secure?",
     },
     "blocks": [
+        {"type": "widget", "id": "learning-attack", "note": "Bedrohung und passende Gegenmaßnahme zuordnen."},
         {"type": "text",
          "value": {
              "de": "## WLAN ist Schicht 1+2 per Funk\n\nEin **Access Point "

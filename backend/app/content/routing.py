@@ -20,6 +20,7 @@ ROUTING_MODULE = {
               "decide where a packet goes?",
     },
     "blocks": [
+        {"type": "widget", "id": "learning-route", "note": "Lokale oder entfernte Zustellung per Switch/Gateway entscheiden."},
         {"type": "text",
          "value": {
              "de": "## Wozu ein Router?\n\nEin **Switch** verbindet "

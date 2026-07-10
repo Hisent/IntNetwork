@@ -20,6 +20,7 @@ IPV6_MODULE = {
               "what changes?",
     },
     "blocks": [
+        {"type": "widget", "id": "learning-ipv6", "note": "IPv4 und IPv6 bei Auflösung, Broadcast und Adressvergabe vergleichen."},
         {"type": "text",
          "value": {
              "de": "## Warum IPv6?\n\nIPv4 hat **32 Bit** — rund 4 Milliarden "

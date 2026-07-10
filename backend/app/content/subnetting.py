@@ -20,6 +20,7 @@ SUBNETTING_MODULE = {
               "a device know whether a destination is on the same network or has to go through the router?",
     },
     "blocks": [
+        {"type": "widget", "id": "learning-subnet", "note": "Kleinste passende Subnetze für Abteilungen planen."},
         {"type": "text",
          "value": {
              "de": "## IP-Adresse & Subnetzmaske\n\nEine **IPv4-Adresse** "

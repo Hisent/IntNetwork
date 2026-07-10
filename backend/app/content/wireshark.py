@@ -22,6 +22,7 @@ WIRESHARK_MODULE = {
               "is a capture in which someone logged in unencrypted …",
     },
     "blocks": [
+        {"type": "widget", "id": "learning-filter", "note": "Den passenden Wireshark-Display-Filter finden."},
         {"type": "text",
          "value": {
              "de": "## Was ein Sniffer sieht\n\nEin **Paket-Sniffer** schneidet den "

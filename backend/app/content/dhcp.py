@@ -20,6 +20,7 @@ DHCP_MODULE = {
               "on its own?",
     },
     "blocks": [
+        {"type": "widget", "id": "learning-dhcp", "note": "DHCP-Symptome der Fehlerquelle zuordnen."},
         {"type": "text",
          "value": {
              "de": "## Wozu DHCP?\n\nEin Gerät braucht mindestens **IP**, "

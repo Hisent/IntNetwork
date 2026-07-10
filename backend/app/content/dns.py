@@ -18,6 +18,7 @@ DNS_MODULE = {
               "Who translates the name into the address?",
     },
     "blocks": [
+        {"type": "widget", "id": "learning-dns", "note": "DNS-Auflösung mit leerem und gefülltem Cache vergleichen."},
         {"type": "text",
          "value": {
              "de": "## Wozu DNS?\n\n**DNS** (Domain Name System) ist das "

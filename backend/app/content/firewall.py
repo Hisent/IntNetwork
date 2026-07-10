@@ -20,6 +20,7 @@ FIREWALL_MODULE = {
               "in and out?",
     },
     "blocks": [
+        {"type": "widget", "id": "learning-policy", "note": "Eine minimale Policy für Gäste und Büro bauen."},
         {"type": "text",
          "value": {
              "de": "## Was eine Firewall tut\n\nEine **Firewall** sitzt an "

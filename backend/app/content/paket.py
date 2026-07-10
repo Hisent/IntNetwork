@@ -18,6 +18,7 @@ PAKET_MODULE = {
               "the first place — as a **frame** over the wire.",
     },
     "blocks": [
+        {"type": "widget", "id": "learning-packet", "note": "Einen Webaufruf Schicht für Schicht verfolgen."},
         {"type": "text",
          "value": {
              "de": "## Das OSI-Schichtenmodell\n\nNetzwerk-Kommunikation "
