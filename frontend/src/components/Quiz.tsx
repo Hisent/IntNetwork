@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import type { Question } from '@/types'
 import { learnApi } from '@/lib/learnApi'
 import { t, type Lang } from '@/lib/i18n'
+import { termsForModule } from '@/lib/glossary'
 
 interface Result {
   score: number
@@ -30,6 +31,20 @@ export function shuffledIndices(n: number): number[] {
   return a
 }
 
+function hintFor(type: Question['type'], termLabels: string[], lang: Lang, level: number): string {
+  const concepts = termLabels.join(', ')
+  if (lang === 'de') {
+    if (level === 1) return concepts ? 'Ordne die Frage zuerst diesen Begriffen zu: ' + concepts + '.' : 'Ordne die Frage zuerst dem Lernziel dieses Moduls zu.'
+    return type === 'number'
+      ? 'Rechne in kleinen Schritten und prüfe, welche Einheit oder welches Präfix gefragt ist.'
+      : 'Lies jede Antwort wörtlich: Suche nach einer Aussage, die zum Kernbegriff passt, und streiche klare Widersprüche.'
+  }
+  if (level === 1) return concepts ? 'First connect this question to these terms: ' + concepts + '.' : 'First connect the question to this module’s learning goal.'
+  return type === 'number'
+    ? 'Calculate in small steps and check which unit or prefix the question asks for.'
+    : 'Read every option literally: find the statement that fits the core term and eliminate clear contradictions.'
+}
+
 export function Quiz({ moduleKey, questions, lang, onResult }: {
   moduleKey: string; questions: Question[]; lang: Lang; onResult?: (passed: boolean) => void
 }) {
@@ -37,6 +52,7 @@ export function Quiz({ moduleKey, questions, lang, onResult }: {
   const [result, setResult] = useState<Result | null>(null)
   const [best, setBest] = useState<number | null>(null)
   const [busy, setBusy] = useState(false)
+  const [hintLevels, setHintLevels] = useState<Record<string, number>>({})
 
   const set = (id: string, value: unknown) => setAnswers((a) => ({ ...a, [id]: value }))
   const toggleMulti = (id: string, optIndex: number) =>
@@ -60,6 +76,7 @@ export function Quiz({ moduleKey, questions, lang, onResult }: {
   function retry() {
     setAnswers({})
     setResult(null)
+    setHintLevels({})
   }
 
   // einmal pro Modul mischen (nicht bei jedem Render); Sprachwechsel laedt die
@@ -74,6 +91,8 @@ export function Quiz({ moduleKey, questions, lang, onResult }: {
   const answeredCount = questions.filter((q) => isAnswered(q, answers[q.id])).length
   const allAnswered = answeredCount === questions.length
   const progressPct = questions.length ? Math.round((answeredCount / questions.length) * 100) : 0
+  const termLabels = termsForModule(moduleKey).slice(0, 3).map((term) => term.label[lang])
+  const wrongQuestions = result ? questions.filter((question) => !result.details[question.id]) : []
 
   return (
     <section className="mt-14">
@@ -143,6 +162,23 @@ export function Quiz({ moduleKey, questions, lang, onResult }: {
                   ))}
                 </div>
               )}
+              {!locked && (
+                <div className="mt-3">
+                  {hintLevels[q.id] ? (
+                    <p className="rounded-lg bg-teal-50 px-3 py-2 text-xs leading-relaxed text-teal-900">
+                      💡 {hintFor(q.type, termLabels, lang, hintLevels[q.id])}
+                    </p>
+                  ) : null}
+                  <button
+                    onClick={() => setHintLevels((levels) => ({ ...levels, [q.id]: Math.min((levels[q.id] ?? 0) + 1, 2) }))}
+                    className="mt-1.5 text-xs font-medium text-teal-700 hover:underline"
+                  >
+                    {lang === 'de'
+                      ? (hintLevels[q.id] === 1 ? 'Konkreteren Hinweis zeigen' : 'Hinweis anzeigen')
+                      : (hintLevels[q.id] === 1 ? 'Show a more specific hint' : 'Show hint')}
+                  </button>
+                </div>
+              )}
             </div>
           )
         })}
@@ -170,6 +206,23 @@ export function Quiz({ moduleKey, questions, lang, onResult }: {
               {t(lang, 'retry')}
             </button>
           </div>
+          {wrongQuestions.length > 0 && (
+            <div className="mt-3 rounded-xl border border-teal-200 bg-teal-50 p-4">
+              <p className="text-sm font-semibold text-teal-900">
+                {lang === 'de' ? 'Gezielte Wiederholung' : 'Targeted review'}
+              </p>
+              <p className="mt-1 text-sm text-teal-800">
+                {lang === 'de' ? 'Diese Fragen waren noch nicht richtig. Wiederhole zuerst die zugehörigen Begriffe:' : 'These questions were not correct yet. Review the related terms first:'}
+              </p>
+              <div className="mt-2 flex flex-wrap gap-1.5">
+                {termLabels.map((label) => <span key={label} className="rounded-full bg-white px-2 py-0.5 text-xs font-medium text-teal-800">{label}</span>)}
+              </div>
+              <button onClick={() => document.getElementById('block-0')?.scrollIntoView({ behavior: 'smooth' })}
+                className="mt-3 text-sm font-medium text-teal-700 hover:underline">
+                {lang === 'de' ? 'Zum Lernstoff zurück' : 'Back to the learning material'} ↑
+              </button>
+            </div>
+          )}
         </div>
       )}
       </div>

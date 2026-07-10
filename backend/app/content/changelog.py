@@ -1,5 +1,11 @@
 # Projekt-Changelog (nur für Trainer sichtbar). Neueste zuerst.
 CHANGELOG = [
+    {"date": "2026-07-10", "title": "v1.1.0 — Glossar, Hilfen und Wiederholung",
+     "text": "Jedes Modul hat jetzt ein kontextbezogenes Glossar mit den "
+             "relevanten Fachbegriffen. Quizfragen bieten zwei gestufte Hinweise, "
+             "ohne die Lösung vorwegzunehmen. Nach einem Fehlversuch erscheint "
+             "eine Wiederholungskarte mit passenden Begriffen und einem direkten "
+             "Weg zurück zum Lernstoff."},
     {"date": "2026-07-10", "title": "Dokumentation auf v1.0.0 aktualisiert",
      "text": "Die Projekt-README beschreibt jetzt den aktuellen Stand mit "
              "17 Modulen, Abschlussfallakte, sichtbarer Versionsnummer v1.0.0, "

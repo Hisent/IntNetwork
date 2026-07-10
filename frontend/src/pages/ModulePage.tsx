@@ -9,6 +9,7 @@ import { Quiz } from '@/components/Quiz'
 import { loadRead, toggleRead } from '@/lib/readProgress'
 import { PageSkeleton } from '@/components/PageSkeleton'
 import { t, type Lang } from '@/lib/i18n'
+import { GlossaryPanel } from '@/components/GlossaryPanel'
 
 export function ModulePage() {
   const { key = '' } = useParams()
@@ -77,11 +78,14 @@ export function ModulePage() {
       <div className="sticky top-0 z-10 border-b border-slate-200 bg-white/90 backdrop-blur">
         <div className="max-w-2xl mx-auto flex items-center justify-between gap-3 px-6 py-2 text-sm">
           <span className="truncate font-medium text-slate-700">{mod.data.title}</span>
-          {textIndexes.length > 0 && (
-            <span className="shrink-0 text-xs text-slate-400">
-              {readCount} / {textIndexes.length} {t(lang, 'read')}
-            </span>
-          )}
+          <div className="flex shrink-0 items-center gap-2">
+            <GlossaryPanel moduleKey={key} lang={lang} />
+            {textIndexes.length > 0 && (
+              <span className="text-xs text-slate-400">
+                {readCount} / {textIndexes.length} {t(lang, 'read')}
+              </span>
+            )}
+          </div>
         </div>
         <div className="h-0.5 bg-slate-100">
           <div className="h-full bg-teal-500" style={{ width: `${scrollPct}%` }} />
