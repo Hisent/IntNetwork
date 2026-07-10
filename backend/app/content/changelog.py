@@ -1,5 +1,11 @@
 # Projekt-Changelog (nur für Trainer sichtbar). Neueste zuerst.
 CHANGELOG = [
+    {"date": "2026-07-10", "title": "v1.2.2 — Glossar-Overlay korrigiert",
+     "text": "Das Glossar wird jetzt über ein React-Portal direkt am "
+             "Dokument-Body geöffnet. Es bleibt dadurch zentriert und liegt "
+             "nicht mehr innerhalb oder über einem Aufgaben-Widget. Escape, "
+             "Backdrop-Klick und gesperrtes Hintergrund-Scrolling sind ebenfalls "
+             "sauber umgesetzt."},
     {"date": "2026-07-10", "title": "v1.2.1 — Widget-Breite korrigiert",
      "text": "Widgets bleiben jetzt innerhalb der jeweiligen Inhalts- und "
              "Navigationsspalte. Dadurch überdecken Aufgabenzeilen und "
