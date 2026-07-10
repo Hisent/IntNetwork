@@ -1,5 +1,10 @@
 # Projekt-Changelog (nur für Trainer sichtbar). Neueste zuerst.
 CHANGELOG = [
+    {"date": "2026-07-10", "title": "Dokumentation auf v1.0.0 aktualisiert",
+     "text": "Die Projekt-README beschreibt jetzt den aktuellen Stand mit "
+             "17 Modulen, Abschlussfallakte, sichtbarer Versionsnummer v1.0.0, "
+             "aktuellen Testzahlen und dem sicheren Ablauf für Content-Updates "
+             "auf bestehenden Installationen."},
     {"date": "2026-07-10", "title": "v1.0.0 — Abschlussfallakte, Qualitäts- und Inhaltsupdate",
      "text": "Das Troubleshooting-Modul endet jetzt mit einer interaktiven "
              "Abschlussfallakte: einen neuen Standort in passende Subnetze planen, "
