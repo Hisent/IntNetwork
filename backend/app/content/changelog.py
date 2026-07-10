@@ -1,5 +1,9 @@
 # Projekt-Changelog (nur für Trainer sichtbar). Neueste zuerst.
 CHANGELOG = [
+    {"date": "2026-07-10", "title": "v1.3.2 — Lernlabore an Widget-Design angepasst",
+     "text": "Alle Learning Labs verwenden jetzt dieselbe Aufgabenbox wie die übrigen "
+             "Widgets: klarer Aufgabentext mit Icon sowie ein sichtbarer grüner Abschlusszustand. "
+             "Titel, Rahmen und Textabstände folgen ebenfalls der bestehenden Widget-Sprache."},
     {"date": "2026-07-10", "title": "v1.3.1 — Inhalts-Synchronisierung für bestehende DBs",
      "text": "Bestehende Installationen ziehen neue Widget-Blöcke jetzt additiv nach, "
              "ohne Trainertexte oder Positionen zu überschreiben. Die Migration bleibt "
