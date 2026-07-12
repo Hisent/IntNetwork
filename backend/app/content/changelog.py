@@ -1,5 +1,10 @@
 # Projekt-Changelog (nur für Trainer sichtbar). Neueste zuerst.
 CHANGELOG = [
+    {"date": "2026-07-12", "title": "v1.7.0 — Classic und Network Workbench",
+     "text": "Teilnehmer können zwischen der vertrauten Classic-Oberfläche und der neuen "
+             "Network Workbench wechseln. Beide Ansichten verwenden dieselben Kurse, Module, "
+             "Widgets, Lernstände und API-Endpunkte; die Auswahl wird lokal im Browser gespeichert "
+             "und lässt sich jederzeit zurücksetzen."},
     {"date": "2026-07-12", "title": "v1.6.0 — Sieben weitere Netzwerkvisualisierungen",
      "text": "Die Visualisierungs-Suite zeigt jetzt zusätzlich den 802.1Q-Tag-Pfad, "
              "ARP-Auflösung für lokale und entfernte Ziele, Longest-Prefix-Matching, "

@@ -12,7 +12,7 @@
   <img alt="React" src="https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=0f172a" />
   <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white" />
   <img alt="SQLAlchemy" src="https://img.shields.io/badge/SQLAlchemy-SQLite%20%2F%20PostgreSQL-4169E1?logo=sqlite&logoColor=white" />
-  <img alt="Version" src="https://img.shields.io/badge/Version-1.6.0-teal" />
+  <img alt="Version" src="https://img.shields.io/badge/Version-1.7.0-teal" />
   <img alt="License" src="https://img.shields.io/badge/License-MIT-yellow" />
 </p>
 
@@ -22,6 +22,7 @@ Trainer legen Kurse an, Teilnehmer treten per Kurs-Code + Name bei (kein Passwor
 
 ## Highlights
 
+- **Zwei Oberflächen, ein Kurs**: Teilnehmer können zwischen Classic und der Network Workbench wechseln. Inhalte, Fortschritt und interaktive Widgets bleiben identisch; die Auswahl merkt sich der Browser.
 - **17 Module**, prereq-gated: Paketaufbau (OSI-Animation), Switching (MAC-Lernen), VLAN, Subnetting, ARP, Routing, NAT, DNS, DHCP, TCP/UDP-Ports, ICMP, Firewall, IPv6, WLAN, VPN, Troubleshooting und Wireshark/tcpdump — jeweils mit eigenem interaktiven Widget (Switch-Simulator, Frame-Builder, Subnetz-Rechner, Router-CLI, DORA-Demo, Mini-Wireshark, …).
 - **Abschlussfallakte** im Troubleshooting: Adressplanung, VLAN/Firewall, Paketreise und Diagnose werden in einem zusammenhängenden Szenario angewendet.
 - **Interaktive Visualisierungen**: Live-Netzwerktopologie, Encapsulation Explorer, Subnetz-Landkarte, Firewall-Regelfluss, DNS-Baum, VLAN-Tag-Pfad, ARP-Auflösung, Routenauswahl, NAT/PAT-Übersetzung, DHCP-Lease, TCP-Sitzung und IPv6-Autokonfiguration.
@@ -53,7 +54,8 @@ Trainer legen Kurse an, Teilnehmer treten per Kurs-Code + Name bei (kein Passwor
 
 1. Trainer: `/trainer` → Login (`ADMIN_EMAIL`/`ADMIN_PASSWORD`) → Kurs anlegen → Code merken.
 2. Teilnehmer: `/` → Kurs-Code + Name → Sprache wählen → Module der Reihe nach durcharbeiten.
-3. Trainer-Dashboard zeigt Fortschritt + besten Quiz-Score je Teilnehmer, live wer gerade aktiv ist, und erlaubt Modul-Inhalte direkt zu bearbeiten (`✎`-Link je Modul).
+3. Teilnehmer können in der Kursoberfläche jederzeit zwischen **Classic** und **Network Workbench** wechseln; die Auswahl gilt für diesen Browser.
+4. Trainer-Dashboard zeigt Fortschritt + besten Quiz-Score je Teilnehmer, live wer gerade aktiv ist, und erlaubt Modul-Inhalte direkt zu bearbeiten (`✎`-Link je Modul).
 
 ## Deployment (Coolify / Docker Compose)
 
@@ -78,7 +80,7 @@ kommt ausschließlich aus `ADMIN_PASSWORD`. PostgreSQL-Daten liegen im Volume
 ## Tests
 
     cd backend && pytest          # 95 Tests
-    cd frontend && npm run test   # 95 Tests
+    cd frontend && npm run test   # 102 Tests
 
 ## Weitere Module andocken
 

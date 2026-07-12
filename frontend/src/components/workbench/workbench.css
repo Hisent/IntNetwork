@@ -1,0 +1,110 @@
+.workbench {
+  --wb-canvas: #f4f7f8;
+  --wb-surface: #ffffff;
+  --wb-subtle: #eaf0f1;
+  --wb-ink: #102a2e;
+  --wb-muted: #587075;
+  --wb-border: #d4e0e2;
+  --wb-accent: #087e78;
+  --wb-accent-hover: #066a66;
+  --wb-accent-soft: #ddf3f0;
+  --wb-success: #18794e;
+  --wb-warning: #9a6700;
+  min-width: 0;
+  min-height: 100dvh;
+  background: var(--wb-canvas);
+  color: var(--wb-ink);
+}
+
+.workbench *:focus-visible {
+  outline-color: var(--wb-accent);
+  outline-offset: 3px;
+}
+
+.wb-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  min-height: 56px;
+  border-bottom: 1px solid var(--wb-border);
+  background: rgb(244 247 248 / 92%);
+  backdrop-filter: blur(18px);
+}
+
+.wb-shell {
+  width: min(100%, 1440px);
+  margin-inline: auto;
+  padding: 24px 16px 64px;
+}
+
+.wb-surface {
+  border: 1px solid var(--wb-border);
+  border-radius: 12px;
+  background: var(--wb-surface);
+}
+
+.wb-control {
+  min-height: 44px;
+}
+
+.workbench .wb-topbar fieldset button,
+.workbench .wb-topbar > div > div > button {
+  min-height: 44px;
+}
+
+.wb-module-grid {
+  display: grid;
+  gap: 24px;
+}
+
+.wb-module-content {
+  min-width: 0;
+  max-width: 720px;
+  margin-inline: auto;
+}
+
+.workbench [id^="block-"],
+.workbench [id^="block-"] > *,
+.workbench svg,
+.workbench img {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.workbench table {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.workbench pre {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.wb-module-content > .flex.flex-col.gap-6 > [id^="block-"]:has(> p),
+.wb-module-content > .flex.flex-col.gap-6 > [id^="block-"]:has(> h2) {
+  background: transparent;
+}
+
+@media (min-width: 640px) {
+  .wb-shell { padding-inline: 24px; }
+}
+
+@media (min-width: 1024px) {
+  .wb-module-grid { grid-template-columns: 264px minmax(0, 720px); justify-content: center; gap: 32px; }
+}
+
+@media (min-width: 1280px) {
+  .wb-module-grid { grid-template-columns: 264px minmax(0, 720px) 280px; justify-content: stretch; }
+  .wb-module-content { margin-inline: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .workbench *, .workbench *::before, .workbench *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
