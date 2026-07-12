@@ -51,6 +51,8 @@ SUBNETTING_MODULE = {
         {"type": "widget", "id": "subnet-calc",
          "note": "Mit /24 starten, dann das Präfix auf /26 schieben — zeigen, wie "
                  "Netz- und Broadcast-Adresse wandern und die Hostzahl sinkt."},
+        {"type": "widget", "id": "visual-subnet-map",
+         "note": "Ein /24 visuell bis /28 teilen und die entstehenden Netze vergleichen."},
         {"type": "widget", "id": "learning-subnet", "note": "Kleinste passende Subnetze für Abteilungen planen."},
         {"type": "check", "payload": {
             "kind": "number",

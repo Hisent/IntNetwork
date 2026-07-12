@@ -21,6 +21,8 @@ VALID_WIDGET_IDS = {
     "learning-route", "learning-policy", "learning-dhcp", "learning-dns",
     "learning-packet", "learning-subnet", "learning-filter", "learning-attack",
     "learning-ipv6", "learning-evidence",
+    "visual-topology", "visual-encapsulation", "visual-subnet-map",
+    "visual-firewall-flow", "visual-dns-tree",
 }
 
 KEY_RE = re.compile(r"^[a-z0-9-]+$")

@@ -34,6 +34,8 @@ PAKET_MODULE = {
         {"type": "widget", "id": "osi-model",
          "note": "Erst die Encapsulation beim Sender Schicht für Schicht zeigen, dann "
                  "die Decapsulation beim Empfänger — auf die Umkehrung hinweisen."},
+        {"type": "widget", "id": "visual-encapsulation",
+         "note": "Die Kapselung bis zum Ethernet-Frame schrittweise aufbauen."},
         {"type": "text",
          "value": {
              "de": "## Der Ethernet-Frame\n\nEin Frame hat einen festen "

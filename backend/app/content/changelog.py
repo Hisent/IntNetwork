@@ -1,5 +1,11 @@
 # Projekt-Changelog (nur für Trainer sichtbar). Neueste zuerst.
 CHANGELOG = [
+    {"date": "2026-07-12", "title": "v1.5.0 — Fünf interaktive Netzwerkvisualisierungen",
+     "text": "Neue Visualisierungs-Suite mit Live-Netzwerktopologie für DNS/ERP/Internet, "
+             "schrittweiser Kapselung, grafischer Subnetz-Aufteilung, First-Match-Regelfluss "
+             "der Firewall und DNS-Hierarchie samt Cache-Pfad. Die Visualisierungen sind "
+             "zweisprachig, haben eigene Aufgaben und werden einmalig an ihrer fachlich "
+             "passenden Modulposition migriert."},
     {"date": "2026-07-12", "title": "v1.4.0 — Review-Findings umgesetzt",
      "text": "Learning Labs werden über eine einmalige, versionierte Migration hinter "
              "ihrem fachlichen Haupt-Widget positioniert; spätere Trainer-Änderungen bleiben "

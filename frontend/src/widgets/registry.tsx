@@ -34,4 +34,9 @@ export const WIDGETS: Record<string, ComponentType<{ lang: Lang }>> = {
   'learning-attack': lazy(() => import('@/widgets/learning/LearningLab').then((m) => ({ default: (p: { lang: Lang }) => <m.LearningLabForId id="learning-attack" {...p} /> }))),
   'learning-ipv6': lazy(() => import('@/widgets/learning/LearningLab').then((m) => ({ default: (p: { lang: Lang }) => <m.LearningLabForId id="learning-ipv6" {...p} /> }))),
   'learning-evidence': lazy(() => import('@/widgets/learning/LearningLab').then((m) => ({ default: (p: { lang: Lang }) => <m.LearningLabForId id="learning-evidence" {...p} /> }))),
+  'visual-topology': lazy(() => import('@/widgets/visuals/NetworkVisuals').then((m) => ({ default: (p: { lang: Lang }) => <m.NetworkVisualForId id="visual-topology" {...p} /> }))),
+  'visual-encapsulation': lazy(() => import('@/widgets/visuals/NetworkVisuals').then((m) => ({ default: (p: { lang: Lang }) => <m.NetworkVisualForId id="visual-encapsulation" {...p} /> }))),
+  'visual-subnet-map': lazy(() => import('@/widgets/visuals/NetworkVisuals').then((m) => ({ default: (p: { lang: Lang }) => <m.NetworkVisualForId id="visual-subnet-map" {...p} /> }))),
+  'visual-firewall-flow': lazy(() => import('@/widgets/visuals/NetworkVisuals').then((m) => ({ default: (p: { lang: Lang }) => <m.NetworkVisualForId id="visual-firewall-flow" {...p} /> }))),
+  'visual-dns-tree': lazy(() => import('@/widgets/visuals/NetworkVisuals').then((m) => ({ default: (p: { lang: Lang }) => <m.NetworkVisualForId id="visual-dns-tree" {...p} /> }))),
 }

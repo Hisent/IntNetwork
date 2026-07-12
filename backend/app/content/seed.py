@@ -22,34 +22,43 @@ LEARNING_LAB_ANCHORS = {
     "troubleshooting": ("learning-evidence", "troubleshoot-demo"),
     "wireshark": ("learning-filter", "wireshark-demo"),
 }
+NETWORK_VISUALS_MIGRATION = "content-migration:network-visuals-v1"
+NETWORK_VISUAL_ANCHORS = {
+    "paket": ("visual-encapsulation", "osi-model"),
+    "subnetting": ("visual-subnet-map", "subnet-calc"),
+    "dns": ("visual-dns-tree", "dns-demo"),
+    "firewall": ("visual-firewall-flow", "firewall-demo"),
+    "troubleshooting": ("visual-topology", "capstone-demo"),
+}
 
 
-def _migrate_learning_labs(db: Session) -> None:
-    """Fügt Release-Labore genau einmal ein und setzt sie hinter ihr
-    fachliches Haupt-Widget. Spätere Trainer-Änderungen bleiben unangetastet."""
-    if db.get(Setting, LEARNING_LABS_MIGRATION):
+def _migrate_widgets(db: Session, migration_key: str,
+                     anchors: dict[str, tuple[str, str]]) -> None:
+    """Fügt Release-Widgets genau einmal hinter ihrem fachlichen Anker ein.
+    Spätere Trainer-Änderungen bleiben unangetastet."""
+    if db.get(Setting, migration_key):
         return
-    for module_key, (lab_id, anchor_id) in LEARNING_LAB_ANCHORS.items():
+    for module_key, (widget_id, anchor_id) in anchors.items():
         blocks = db.query(ContentBlock).filter(
             ContentBlock.module_key == module_key
         ).order_by(ContentBlock.position).all()
         if not blocks:
             continue
-        lab = next((block for block in blocks if block.widget_id == lab_id), None)
-        if lab is None:
+        release_widget = next((block for block in blocks if block.widget_id == widget_id), None)
+        if release_widget is None:
             source = next(block for block in MODULES[module_key]["blocks"]
-                          if block.get("id") == lab_id)
-            lab = ContentBlock(module_key=module_key, position=len(blocks),
-                               type="widget", widget_id=lab_id,
-                               note=source.get("note"))
-            db.add(lab)
+                          if block.get("id") == widget_id)
+            release_widget = ContentBlock(module_key=module_key, position=len(blocks),
+                                          type="widget", widget_id=widget_id,
+                                          note=source.get("note"))
+            db.add(release_widget)
         old_positions = {block.id: block.position for block in blocks if block.id is not None}
-        ordered = [block for block in blocks if block is not lab]
+        ordered = [block for block in blocks if block is not release_widget]
         anchor_index = next(
             (i for i, block in enumerate(ordered) if block.widget_id == anchor_id),
             len(ordered) - 1,
         )
-        ordered.insert(anchor_index + 1, lab)
+        ordered.insert(anchor_index + 1, release_widget)
         for position, block in enumerate(ordered):
             block.position = position
         new_positions = {block.id: block.position for block in ordered if block.id is not None}
@@ -58,8 +67,16 @@ def _migrate_learning_labs(db: Session) -> None:
                                 if old_position == comment.block_index), None)
             if matching_id in new_positions:
                 comment.block_index = new_positions[matching_id]
-    db.add(Setting(key=LEARNING_LABS_MIGRATION, value="applied"))
+    db.add(Setting(key=migration_key, value="applied"))
     db.flush()
+
+
+def _migrate_learning_labs(db: Session) -> None:
+    _migrate_widgets(db, LEARNING_LABS_MIGRATION, LEARNING_LAB_ANCHORS)
+
+
+def _migrate_network_visuals(db: Session) -> None:
+    _migrate_widgets(db, NETWORK_VISUALS_MIGRATION, NETWORK_VISUAL_ANCHORS)
 
 
 def seed_missing_content(db: Session) -> None:
@@ -117,4 +134,5 @@ def seed_missing_content(db: Session) -> None:
                 answer=q["answer"],
             ))
     _migrate_learning_labs(db)
+    _migrate_network_visuals(db)
     db.commit()

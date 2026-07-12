@@ -45,6 +45,8 @@ DNS_MODULE = {
         {"type": "widget", "id": "dns-demo",
          "note": "Einen bekannten Namen auflösen und die drei Stufen vorlesen, dann "
                  "einen unbekannten Namen → NXDOMAIN zeigen."},
+        {"type": "widget", "id": "visual-dns-tree",
+         "note": "Vollständige Hierarchie und Cache-Treffer als zwei Pfade vergleichen."},
         {"type": "widget", "id": "learning-dns", "note": "DNS-Auflösung mit leerem und gefülltem Cache vergleichen."},
         {"type": "order", "payload": {
             "prompt_de": "Bring die Schritte einer DNS-Auflösung (ohne Cache) in die richtige Reihenfolge.",

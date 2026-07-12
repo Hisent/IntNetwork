@@ -175,6 +175,8 @@ TROUBLESHOOTING_MODULE = {
         }},
         {"type": "widget", "id": "capstone-demo",
          "note": "Abschluss in vier Schritten: Anforderungen in Subnetze übersetzen, Gäste segmentieren, DNS/ARP/NAT als Paketreise einordnen und einen DNS-Störfall belegen. Erst allein entscheiden, dann die Begründung zu zweit vergleichen."},
+        {"type": "widget", "id": "visual-topology",
+         "note": "DNS-, ERP- und Internetpfade in der Nordwind-Topologie vergleichen."},
         {"type": "reflect", "payload": {
             "prompt_de": "Welche Entscheidung aus der Fallakte würdest du bei einem echten Standort zuerst mit dem Team abstimmen — Adressplan, VLAN-/Firewall-Regeln oder DNS-Betrieb? Begründe kurz mit dem Risiko, das du vermeiden willst.",
             "prompt_en": "Which decision from the case file would you align on with the team first at a real site — addressing, VLAN/firewall rules or DNS operations? Briefly explain the risk you want to avoid.",

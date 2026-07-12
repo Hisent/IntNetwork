@@ -4,7 +4,8 @@ from app.database import SessionLocal
 from app.content.registry import MODULES
 from app.models.content import ContentBlock, ContentModule, ContentQuizQuestion
 from app.models.setting import Setting
-from app.content.seed import LEARNING_LABS_MIGRATION, seed_missing_content
+from app.content.seed import (LEARNING_LABS_MIGRATION, NETWORK_VISUALS_MIGRATION,
+                              seed_missing_content)
 
 
 def test_seed_adds_missing_module_to_existing_db():
@@ -83,6 +84,33 @@ def test_learning_lab_migration_runs_once_and_uses_anchor_position():
                                                  ContentBlock.widget_id == "learning-route").count() == 0
         finally:
             db.query(Setting).filter(Setting.key == LEARNING_LABS_MIGRATION).delete()
+            db.commit()
+            seed_missing_content(db)
+            db.close()
+
+
+def test_network_visual_migration_uses_anchor_and_respects_later_removal():
+    with TestClient(app):
+        db = SessionLocal()
+        try:
+            db.query(Setting).filter(Setting.key == NETWORK_VISUALS_MIGRATION).delete()
+            db.query(ContentBlock).filter(ContentBlock.module_key == "dns",
+                                          ContentBlock.widget_id == "visual-dns-tree").delete()
+            db.commit()
+            seed_missing_content(db)
+            widgets = [b.widget_id for b in db.query(ContentBlock)
+                       .filter(ContentBlock.module_key == "dns")
+                       .order_by(ContentBlock.position)]
+            assert widgets.index("visual-dns-tree") == widgets.index("dns-demo") + 1
+
+            db.query(ContentBlock).filter(ContentBlock.module_key == "dns",
+                                          ContentBlock.widget_id == "visual-dns-tree").delete()
+            db.commit()
+            seed_missing_content(db)
+            assert db.query(ContentBlock).filter(ContentBlock.module_key == "dns",
+                                                 ContentBlock.widget_id == "visual-dns-tree").count() == 0
+        finally:
+            db.query(Setting).filter(Setting.key == NETWORK_VISUALS_MIGRATION).delete()
             db.commit()
             seed_missing_content(db)
             db.close()

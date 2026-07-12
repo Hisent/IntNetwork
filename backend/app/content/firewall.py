@@ -60,6 +60,8 @@ FIREWALL_MODULE = {
         {"type": "widget", "id": "firewall-demo",
          "note": "Die Presets durchklicken: HTTPS erlaubt, Telnet blockiert, RDP → "
                  "Default-Deny. Jeweils zeigen, welche Regel greift (Hervorhebung)."},
+        {"type": "widget", "id": "visual-firewall-flow",
+         "note": "Pakete Regel für Regel bis zum ersten Treffer verfolgen."},
         {"type": "widget", "id": "learning-policy", "note": "Eine minimale Policy für Gäste und Büro bauen."},
         {"type": "text",
          "value": {
