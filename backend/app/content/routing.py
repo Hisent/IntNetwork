@@ -20,7 +20,6 @@ ROUTING_MODULE = {
               "decide where a packet goes?",
     },
     "blocks": [
-        {"type": "widget", "id": "learning-route", "note": "Lokale oder entfernte Zustellung per Switch/Gateway entscheiden."},
         {"type": "text",
          "value": {
              "de": "## Wozu ein Router?\n\nEin **Switch** verbindet "
@@ -64,6 +63,7 @@ ROUTING_MODULE = {
          "note": "Die drei Preset-Ziele nacheinander klicken (gleiches Netz, anderes "
                  "internes Netz, Internet) und die Match-Entscheidung vorlesen. Danach "
                  "in der CLI `show ip route`."},
+        {"type": "widget", "id": "learning-route", "note": "Lokale oder entfernte Zustellung per Switch/Gateway entscheiden."},
         {"type": "debug", "payload": {
             "prompt_de": "Ein PC im Lager-Netz (192.168.10.0/24) erreicht das Internet nicht. Finde den Fehler in der Konfiguration:",
             "prompt_en": "A PC in the warehouse network (192.168.10.0/24) cannot reach the internet. Find the error in the configuration:",

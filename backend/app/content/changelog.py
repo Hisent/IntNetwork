@@ -1,5 +1,12 @@
 # Projekt-Changelog (nur für Trainer sichtbar). Neueste zuerst.
 CHANGELOG = [
+    {"date": "2026-07-12", "title": "v1.4.0 — Review-Findings umgesetzt",
+     "text": "Learning Labs werden über eine einmalige, versionierte Migration hinter "
+             "ihrem fachlichen Haupt-Widget positioniert; spätere Trainer-Änderungen bleiben "
+             "erhalten. DNS, DHCP, Paketreise und IPv6 verlangen jetzt echte Entscheidungen, "
+             "Wireshark akzeptiert gleichwertige Filter und alle Labor-Texte sind zweisprachig. "
+             "Zusätzlich zeigen Quiz-Abgaben Netzwerkfehler sichtbar an. Trainer-Sessions laufen "
+             "nach acht Stunden ab und Tokens werden nur noch im Session Storage gehalten."},
     {"date": "2026-07-10", "title": "v1.3.2 — Lernlabore an Widget-Design angepasst",
      "text": "Alle Learning Labs verwenden jetzt dieselbe Aufgabenbox wie die übrigen "
              "Widgets: klarer Aufgabentext mit Icon sowie ein sichtbarer grüner Abschlusszustand. "

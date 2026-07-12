@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import type { Question } from '@/types'
 import { learnApi } from '@/lib/learnApi'
+import { errMsg } from '@/lib/api'
 import { t, type Lang } from '@/lib/i18n'
 import { termsForModule } from '@/lib/glossary'
 
@@ -52,6 +53,7 @@ export function Quiz({ moduleKey, questions, lang, onResult }: {
   const [result, setResult] = useState<Result | null>(null)
   const [best, setBest] = useState<number | null>(null)
   const [busy, setBusy] = useState(false)
+  const [error, setError] = useState('')
   const [hintLevels, setHintLevels] = useState<Record<string, number>>({})
 
   const set = (id: string, value: unknown) => setAnswers((a) => ({ ...a, [id]: value }))
@@ -62,12 +64,17 @@ export function Quiz({ moduleKey, questions, lang, onResult }: {
     })
 
   async function submit() {
+    setError('')
     setBusy(true)
     try {
       const r = await learnApi.submitQuiz(moduleKey, answers)
       setResult(r.data)
       setBest(r.data.best)
       onResult?.(r.data.passed)
+    } catch (error) {
+      setError(errMsg(error, lang === 'de'
+        ? 'Der Wissenscheck konnte nicht gespeichert werden. Bitte versuche es erneut.'
+        : 'The knowledge check could not be saved. Please try again.'))
     } finally {
       setBusy(false)
     }
@@ -77,6 +84,7 @@ export function Quiz({ moduleKey, questions, lang, onResult }: {
     setAnswers({})
     setResult(null)
     setHintLevels({})
+    setError('')
   }
 
   // einmal pro Modul mischen (nicht bei jedem Render); Sprachwechsel laedt die
@@ -184,12 +192,15 @@ export function Quiz({ moduleKey, questions, lang, onResult }: {
       </div>
 
       {!locked ? (
-        <div className="mt-6 flex items-center gap-3">
-          <button onClick={submit} disabled={busy || !allAnswered}
-            className="rounded-lg bg-teal-600 hover:bg-teal-700 text-white px-5 py-2 font-medium disabled:opacity-50 disabled:cursor-not-allowed">
-            {busy ? t(lang, 'evaluating') : t(lang, 'submit')}
-          </button>
-          {!allAnswered && <span className="text-xs text-slate-400">{t(lang, 'answerAllHint')}</span>}
+        <div className="mt-6">
+          <div className="flex items-center gap-3">
+            <button onClick={submit} disabled={busy || !allAnswered}
+              className="rounded-lg bg-teal-600 hover:bg-teal-700 text-white px-5 py-2 font-medium disabled:opacity-50 disabled:cursor-not-allowed">
+              {busy ? t(lang, 'evaluating') : t(lang, 'submit')}
+            </button>
+            {!allAnswered && <span className="text-xs text-slate-400">{t(lang, 'answerAllHint')}</span>}
+          </div>
+          {error && <p role="alert" className="mt-3 rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-700">{error}</p>}
         </div>
       ) : (
         <div className="mt-6 animate-fade-up">

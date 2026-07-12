@@ -18,7 +18,6 @@ DNS_MODULE = {
               "Who translates the name into the address?",
     },
     "blocks": [
-        {"type": "widget", "id": "learning-dns", "note": "DNS-Auflösung mit leerem und gefülltem Cache vergleichen."},
         {"type": "text",
          "value": {
              "de": "## Wozu DNS?\n\n**DNS** (Domain Name System) ist das "
@@ -46,6 +45,7 @@ DNS_MODULE = {
         {"type": "widget", "id": "dns-demo",
          "note": "Einen bekannten Namen auflösen und die drei Stufen vorlesen, dann "
                  "einen unbekannten Namen → NXDOMAIN zeigen."},
+        {"type": "widget", "id": "learning-dns", "note": "DNS-Auflösung mit leerem und gefülltem Cache vergleichen."},
         {"type": "order", "payload": {
             "prompt_de": "Bring die Schritte einer DNS-Auflösung (ohne Cache) in die richtige Reihenfolge.",
             "prompt_en": "Put the steps of a DNS resolution (without cache) in the correct order.",

@@ -18,7 +18,6 @@ WLAN_MODULE = {
               "right on the ceiling. What's causing that, and how do you keep the Wi-Fi secure?",
     },
     "blocks": [
-        {"type": "widget", "id": "learning-attack", "note": "Bedrohung und passende Gegenmaßnahme zuordnen."},
         {"type": "text",
          "value": {
              "de": "## WLAN ist Schicht 1+2 per Funk\n\nEin **Access Point "
@@ -52,6 +51,7 @@ WLAN_MODULE = {
         {"type": "widget", "id": "wlan-demo",
          "note": "Zwei APs auf Kanal 1 und 3 stellen → Überlappung; dann auf 1 und 6 → "
                  "frei. Danach die Sicherheitstabelle durchgehen."},
+        {"type": "widget", "id": "learning-attack", "note": "Bedrohung und passende Gegenmaßnahme zuordnen."},
         {"type": "text",
          "value": {
              "de": "## Sicherheit\n\nFunk hört jeder in Reichweite mit — "

@@ -20,7 +20,6 @@ DHCP_MODULE = {
               "on its own?",
     },
     "blocks": [
-        {"type": "widget", "id": "learning-dhcp", "note": "DHCP-Symptome der Fehlerquelle zuordnen."},
         {"type": "text",
          "value": {
              "de": "## Wozu DHCP?\n\nEin Gerät braucht mindestens **IP**, "
@@ -48,6 +47,7 @@ DHCP_MODULE = {
         {"type": "widget", "id": "dhcp-demo",
          "note": "Mehrmals einen neuen Client verbinden lassen → jeder bekommt die "
                  "nächste Pool-Adresse; die vier DORA-Schritte des letzten durchgehen."},
+        {"type": "widget", "id": "learning-dhcp", "note": "DHCP-Symptome der Fehlerquelle zuordnen."},
         {"type": "text",
          "value": {
              "de": "## Lease & Pool\n\nEine Adresse wird nur **auf Zeit** "

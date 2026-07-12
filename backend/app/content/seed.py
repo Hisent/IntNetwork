@@ -4,38 +4,74 @@ from sqlalchemy import inspect, text
 from sqlalchemy.orm import Session
 
 from app.content.registry import MODULES
+from app.models.comment import Comment
 from app.models.content import ContentBlock, ContentModule, ContentQuizQuestion
+from app.models.setting import Setting
+
+
+LEARNING_LABS_MIGRATION = "content-migration:learning-labs-v1"
+LEARNING_LAB_ANCHORS = {
+    "paket": ("learning-packet", "frame-builder"),
+    "subnetting": ("learning-subnet", "subnet-calc"),
+    "routing": ("learning-route", "routing-demo"),
+    "dns": ("learning-dns", "dns-demo"),
+    "dhcp": ("learning-dhcp", "dhcp-demo"),
+    "firewall": ("learning-policy", "firewall-demo"),
+    "ipv6": ("learning-ipv6", "ipv6-demo"),
+    "wlan": ("learning-attack", "wlan-demo"),
+    "troubleshooting": ("learning-evidence", "troubleshoot-demo"),
+    "wireshark": ("learning-filter", "wireshark-demo"),
+}
+
+
+def _migrate_learning_labs(db: Session) -> None:
+    """Fügt Release-Labore genau einmal ein und setzt sie hinter ihr
+    fachliches Haupt-Widget. Spätere Trainer-Änderungen bleiben unangetastet."""
+    if db.get(Setting, LEARNING_LABS_MIGRATION):
+        return
+    for module_key, (lab_id, anchor_id) in LEARNING_LAB_ANCHORS.items():
+        blocks = db.query(ContentBlock).filter(
+            ContentBlock.module_key == module_key
+        ).order_by(ContentBlock.position).all()
+        if not blocks:
+            continue
+        lab = next((block for block in blocks if block.widget_id == lab_id), None)
+        if lab is None:
+            source = next(block for block in MODULES[module_key]["blocks"]
+                          if block.get("id") == lab_id)
+            lab = ContentBlock(module_key=module_key, position=len(blocks),
+                               type="widget", widget_id=lab_id,
+                               note=source.get("note"))
+            db.add(lab)
+        old_positions = {block.id: block.position for block in blocks if block.id is not None}
+        ordered = [block for block in blocks if block is not lab]
+        anchor_index = next(
+            (i for i, block in enumerate(ordered) if block.widget_id == anchor_id),
+            len(ordered) - 1,
+        )
+        ordered.insert(anchor_index + 1, lab)
+        for position, block in enumerate(ordered):
+            block.position = position
+        new_positions = {block.id: block.position for block in ordered if block.id is not None}
+        for comment in db.query(Comment).filter(Comment.module_key == module_key):
+            matching_id = next((block_id for block_id, old_position in old_positions.items()
+                                if old_position == comment.block_index), None)
+            if matching_id in new_positions:
+                comment.block_index = new_positions[matching_id]
+    db.add(Setting(key=LEARNING_LABS_MIGRATION, value="applied"))
+    db.flush()
 
 
 def seed_missing_content(db: Session) -> None:
     """Seedet alle Module, deren Key noch nicht in der DB steht — beim ersten
-    Start also alles, bei Updates nur neu hinzugekommene Module. Bestehende
-    (ggf. vom Trainer editierte) Module werden nie angefasst."""
+    Start also alles, bei Updates nur neu hinzugekommene Module. Versionierte
+    Release-Migrationen laufen separat und jeweils nur einmal."""
     existing = {key for (key,) in db.query(ContentModule.key)}
     legacy_pass_threshold = "pass_threshold" in {
         col["name"] for col in inspect(db.bind).get_columns("content_module")
     }
     for m in MODULES.values():
         if m["key"] in existing:
-            # Neue Widgets werden additiv nachgezogen, ohne bestehende
-            # Trainertexte, Positionen oder Quizfragen zu überschreiben.
-            existing_widgets = {
-                b.widget_id for b in db.query(ContentBlock)
-                .filter(ContentBlock.module_key == m["key"], ContentBlock.type == "widget")
-            }
-            current_max = db.query(ContentBlock.position).filter(
-                ContentBlock.module_key == m["key"]
-            ).order_by(ContentBlock.position.desc()).first()
-            next_position = (current_max[0] + 1) if current_max else 0
-            for block in m["blocks"]:
-                widget_id = block.get("id")
-                if block.get("type") != "widget" or widget_id in existing_widgets:
-                    continue
-                db.add(ContentBlock(module_key=m["key"], position=next_position,
-                                    type="widget", widget_id=widget_id,
-                                    note=block.get("note")))
-                existing_widgets.add(widget_id)
-                next_position += 1
             continue
         values = {
             "key": m["key"], "order": m["order"],
@@ -80,4 +116,5 @@ def seed_missing_content(db: Session) -> None:
                 options_en=q["options"]["en"] if has_options else None,
                 answer=q["answer"],
             ))
+    _migrate_learning_labs(db)
     db.commit()

@@ -20,7 +20,6 @@ IPV6_MODULE = {
               "what changes?",
     },
     "blocks": [
-        {"type": "widget", "id": "learning-ipv6", "note": "IPv4 und IPv6 bei Auflösung, Broadcast und Adressvergabe vergleichen."},
         {"type": "text",
          "value": {
              "de": "## Warum IPv6?\n\nIPv4 hat **32 Bit** — rund 4 Milliarden "
@@ -55,6 +54,7 @@ IPV6_MODULE = {
         {"type": "widget", "id": "ipv6-demo",
          "note": "Eine lange Adresse eingeben und die Kurzform zeigen, dann fe80::1 und "
                  "::1 → die Typ-Erkennung vorlesen."},
+        {"type": "widget", "id": "learning-ipv6", "note": "IPv4 und IPv6 bei Auflösung, Broadcast und Adressvergabe vergleichen."},
         {"type": "text",
          "value": {
              "de": "## Wichtige Adresstypen\n\n- **Global Unicast** "

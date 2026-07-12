@@ -18,7 +18,6 @@ PAKET_MODULE = {
               "the first place — as a **frame** over the wire.",
     },
     "blocks": [
-        {"type": "widget", "id": "learning-packet", "note": "Einen Webaufruf Schicht für Schicht verfolgen."},
         {"type": "text",
          "value": {
              "de": "## Das OSI-Schichtenmodell\n\nNetzwerk-Kommunikation "
@@ -53,6 +52,7 @@ PAKET_MODULE = {
                    "- **FCS** (4 B): checksum for error detection.",
          }},
         {"type": "widget", "id": "frame-builder"},
+        {"type": "widget", "id": "learning-packet", "note": "Einen Webaufruf Schicht für Schicht verfolgen."},
         {"type": "check", "payload": {
             "prompt_de": "Wofür ist die FCS am Ende des Frames da?",
             "prompt_en": "What is the FCS at the end of the frame for?",

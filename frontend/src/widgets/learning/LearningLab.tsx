@@ -65,6 +65,21 @@ const tasks = {
   },
 } as const
 
+export type DhcpSymptom = 'apipa' | 'existing-only' | 'names-fail'
+export type DhcpDiagnosis = 'server' | 'pool' | 'dns'
+
+export function diagnosisForSymptom(symptom: DhcpSymptom): DhcpDiagnosis {
+  return symptom === 'apipa' ? 'server' : symptom === 'existing-only' ? 'pool' : 'dns'
+}
+
+export function isValidAddressFilter(value: string): boolean {
+  const normalized = value.toLowerCase().replace(/[\s()]/g, '')
+  const ip = '192.168.20.34'
+  return normalized === `ip.addr==${ip}`
+    || normalized === `ip.src==${ip}||ip.dst==${ip}`
+    || normalized === `ip.dst==${ip}||ip.src==${ip}`
+}
+
 function Result({ ok, lang, hint }: { ok: boolean | null; lang: Lang; hint?: string }) {
   if (ok === null) return null
   return <p className={`mt-3 rounded-lg px-3 py-2 text-sm ${ok ? 'bg-green-50 text-green-800' : 'bg-amber-50 text-amber-800'}`}>
@@ -101,32 +116,74 @@ function RouteLab({ lang }: { lang: Lang }) {
 }
 
 function PolicyLab({ lang }: { lang: Lang }) {
-  const [rules, setRules] = useState({ internet: true, erp: false, office: true }); const [ok, setOk] = useState<boolean | null>(null)
+  const [rules, setRules] = useState({ internet: false, erp: false, office: false }); const [ok, setOk] = useState<boolean | null>(null)
   return <Shell mode="policy" lang={lang} done={ok === true}><div className="space-y-2 text-sm text-slate-700">{[['internet', lang === 'de' ? 'Gäste → Internet erlauben' : 'Guests → allow Internet'], ['erp', lang === 'de' ? 'Gäste → ERP erlauben' : 'Guests → allow ERP'], ['office', lang === 'de' ? 'Büro → ERP erlauben' : 'Office → allow ERP']].map(([k, text]) => <label key={k} className="flex items-center gap-2"><input type="checkbox" checked={rules[k as keyof typeof rules]} onChange={e => setRules({ ...rules, [k]: e.target.checked })} />{text}</label>)}</div><button onClick={() => setOk(rules.internet && !rules.erp && rules.office)} className="mt-4 rounded-lg bg-teal-600 px-3 py-2 text-sm font-medium text-white">{labels[lang].check}</button><Result lang={lang} ok={ok} hint={lang === 'de' ? 'Gäste brauchen Internet, aber keinen ERP-Zugriff.' : 'Guests need Internet, but not ERP access.'} /></Shell>
 }
 
 function DhcpLab({ lang }: { lang: Lang }) {
-  const [symptom, setSymptom] = useState('apipa'); const [answer, setAnswer] = useState(''); const ok = answer ? answer === symptom : null
-  const options = lang === 'de' ? { apipa: '169.254.x.x-Adresse', pool: 'Pool erschöpft', dns: 'IP geht, Namen nicht' } : { apipa: '169.254.x.x address', pool: 'Pool exhausted', dns: 'IP works, names do not' }
-  return <Shell mode="dhcp" lang={lang} done={ok === true}><select value={symptom} onChange={e => { setSymptom(e.target.value); setAnswer('') }} className="w-full rounded-lg border px-3 py-2 text-sm">{Object.entries(options).map(([k, v]) => <option key={k} value={k}>{v}</option>)}</select><div className="mt-3 flex flex-wrap gap-2">{Object.keys(options).map(k => <button key={k} onClick={() => setAnswer(k)} className="rounded-lg border border-teal-200 px-3 py-2 text-sm text-teal-700">{k === 'apipa' ? 'DHCP prüfen' : k === 'pool' ? 'Pool prüfen' : 'DNS prüfen'}</button>)}</div><Result lang={lang} ok={ok} hint={lang === 'de' ? '169.254.x.x deutet auf fehlende DHCP-Antwort hin.' : '169.254.x.x points to a missing DHCP response.'} /></Shell>
+  const [symptom, setSymptom] = useState<DhcpSymptom>('apipa')
+  const [answer, setAnswer] = useState<DhcpDiagnosis | ''>('')
+  const ok = answer ? answer === diagnosisForSymptom(symptom) : null
+  const symptoms: Record<DhcpSymptom, string> = lang === 'de'
+    ? { apipa: 'Der neue Laptop erhält 169.254.83.12.', 'existing-only': 'Vorhandene Geräte funktionieren, neue erhalten keine Adresse.', 'names-fail': 'IP-Ziele sind erreichbar, Namen jedoch nicht.' }
+    : { apipa: 'The new laptop receives 169.254.83.12.', 'existing-only': 'Existing devices work, but new devices receive no address.', 'names-fail': 'IP destinations are reachable, but names are not.' }
+  const diagnoses: Record<DhcpDiagnosis, string> = lang === 'de'
+    ? { server: 'DHCP-Erreichbarkeit prüfen', pool: 'Adress-Pool prüfen', dns: 'DNS-Konfiguration prüfen' }
+    : { server: 'Check DHCP reachability', pool: 'Check the address pool', dns: 'Check DNS configuration' }
+  return <Shell mode="dhcp" lang={lang} done={ok === true}>
+    <label className="block text-xs font-medium text-slate-500">
+      {lang === 'de' ? 'Beobachtung' : 'Observation'}
+      <select value={symptom} onChange={e => { setSymptom(e.target.value as DhcpSymptom); setAnswer('') }} className="mt-1 w-full rounded-lg border px-3 py-2 text-sm text-slate-700">
+        {Object.entries(symptoms).map(([key, value]) => <option key={key} value={key}>{value}</option>)}
+      </select>
+    </label>
+    <div className="mt-3 flex flex-wrap gap-2">
+      {(Object.keys(diagnoses) as DhcpDiagnosis[]).map(key => <button key={key} onClick={() => setAnswer(key)} className="rounded-lg border border-teal-200 px-3 py-2 text-sm text-teal-700">{diagnoses[key]}</button>)}
+    </div>
+    <Result lang={lang} ok={ok} hint={lang === 'de' ? 'Leite die Ursache aus dem beobachteten Verhalten ab.' : 'Infer the cause from the observed behaviour.'} />
+  </Shell>
 }
 
 function DnsLab({ lang }: { lang: Lang }) {
-  const [cached, setCached] = useState(false); const [looked, setLooked] = useState(false)
+  const [cached, setCached] = useState(false)
+  const [prediction, setPrediction] = useState<'cache' | 'hierarchy' | ''>('')
+  const [looked, setLooked] = useState(false)
   const items = cached ? (lang === 'de' ? ['Resolver-Cache trifft', 'Antwort sofort zurück'] : ['Resolver cache hit', 'Return the answer immediately']) : (lang === 'de' ? ['Resolver fragt Root/TLD/autoritativen Server', 'Antwort wird mit TTL gecacht'] : ['Resolver asks root/TLD/authoritative server', 'Answer is cached with a TTL'])
-  return <Shell mode="dns" lang={lang} done={looked}><label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={cached} onChange={e => { setCached(e.target.checked); setLooked(false) }} />{lang === 'de' ? 'Cache ist bereits gefüllt' : 'Cache is already populated'}</label><button onClick={() => setLooked(true)} className="mt-3 rounded-lg bg-teal-600 px-3 py-2 text-sm font-medium text-white">{lang === 'de' ? 'Namen auflösen' : 'Resolve name'}</button>{looked && <ol className="mt-3 list-decimal space-y-1 pl-5 text-sm text-slate-700">{items.map(i => <li key={i}>{i}</li>)}</ol>}</Shell>
+  const expected = cached ? 'cache' : 'hierarchy'
+  const ok = looked ? prediction === expected : null
+  return <Shell mode="dns" lang={lang} done={ok === true}>
+    <label className="flex items-center gap-2 text-sm text-slate-700"><input type="checkbox" checked={cached} onChange={e => { setCached(e.target.checked); setPrediction(''); setLooked(false) }} />{lang === 'de' ? 'Cache ist bereits gefüllt' : 'Cache is already populated'}</label>
+    <p className="mt-3 text-xs font-medium text-slate-500">{lang === 'de' ? 'Was passiert als Nächstes?' : 'What happens next?'}</p>
+    <div className="mt-1 flex flex-wrap gap-2">
+      <button onClick={() => { setPrediction('cache'); setLooked(false) }} className="rounded-lg border border-teal-200 px-3 py-2 text-sm text-teal-700">{lang === 'de' ? 'Antwort aus dem Cache' : 'Answer from cache'}</button>
+      <button onClick={() => { setPrediction('hierarchy'); setLooked(false) }} className="rounded-lg border border-teal-200 px-3 py-2 text-sm text-teal-700">{lang === 'de' ? 'Hierarchie abfragen' : 'Query the hierarchy'}</button>
+    </div>
+    <button disabled={!prediction} onClick={() => setLooked(true)} className="mt-3 rounded-lg bg-teal-600 px-3 py-2 text-sm font-medium text-white disabled:opacity-50">{lang === 'de' ? 'Auflösung starten' : 'Start lookup'}</button>
+    {looked && <ol className="mt-3 list-decimal space-y-1 pl-5 text-sm text-slate-700">{items.map(i => <li key={i}>{i}</li>)}</ol>}
+    <Result lang={lang} ok={ok} hint={lang === 'de' ? 'Die TTL bestimmt, wie lange eine vorhandene Antwort genutzt wird.' : 'The TTL determines how long an existing answer is reused.'} />
+  </Shell>
 }
 
-function PacketLab({ lang }: { lang: Lang }) { const [step, setStep] = useState(0); const list = steps[lang]; return <Shell mode="packet" lang={lang} done={step === list.length - 1}><div className="space-y-2">{list.map((s, i) => <div key={s} className={`rounded-lg px-3 py-2 text-sm ${i <= step ? 'bg-teal-50 text-teal-900' : 'bg-slate-50 text-slate-400'}`}><span className="mr-2 font-mono">{i + 1}</span>{s}</div>)}</div><button onClick={() => setStep(step === list.length - 1 ? 0 : step + 1)} className="mt-4 rounded-lg bg-teal-600 px-3 py-2 text-sm font-medium text-white">{step === list.length - 1 ? labels[lang].reset : labels[lang].next}</button></Shell> }
+function PacketLab({ lang }: { lang: Lang }) {
+  const [step, setStep] = useState(0)
+  const [decision, setDecision] = useState('')
+  const list = steps[lang]
+  const complete = step === list.length - 1 && decision === 'gateway'
+  return <Shell mode="packet" lang={lang} done={complete}>
+    <div className="space-y-2">{list.map((item, index) => <div key={item} className={`rounded-lg px-3 py-2 text-sm ${index <= step ? 'bg-teal-50 text-teal-900' : 'bg-slate-50 text-slate-400'}`}><span className="mr-2 font-mono">{index + 1}</span>{item}</div>)}</div>
+    {step === list.length - 1 && <div className="mt-3"><p className="text-sm text-slate-700">{lang === 'de' ? 'Das Ziel liegt außerhalb des eigenen /24. Wohin geht der Ethernet-Frame zuerst?' : 'The destination is outside the local /24. Where does the Ethernet frame go first?'}</p><div className="mt-2 flex gap-2"><button onClick={() => setDecision('target')} className="rounded-lg border border-teal-200 px-3 py-2 text-sm text-teal-700">{lang === 'de' ? 'Direkt zum Ziel' : 'Directly to destination'}</button><button onClick={() => setDecision('gateway')} className="rounded-lg border border-teal-200 px-3 py-2 text-sm text-teal-700">{lang === 'de' ? 'Zum Standard-Gateway' : 'To the default gateway'}</button></div><Result lang={lang} ok={decision ? complete : null} /></div>}
+    <button onClick={() => { if (step === list.length - 1) { setStep(0); setDecision('') } else setStep(step + 1) }} className="mt-4 rounded-lg bg-teal-600 px-3 py-2 text-sm font-medium text-white">{step === list.length - 1 ? labels[lang].reset : labels[lang].next}</button>
+  </Shell>
+}
 
 function SubnetLab({ lang }: { lang: Lang }) { const [plan, setPlan] = useState(''); const ok = plan ? plan === 'good' : null; return <Shell mode="subnet" lang={lang} done={ok === true}><p className="rounded-lg bg-slate-50 p-3 text-sm text-slate-700">{lang === 'de' ? 'Anforderungen: Büro 50 Hosts · Gäste 20 · Drucker 10' : 'Requirements: office 50 hosts · guests 20 · printers 10'}</p><select value={plan} onChange={e => setPlan(e.target.value)} className="mt-3 w-full rounded-lg border px-3 py-2 text-sm"><option value="">{labels[lang].choose}</option><option value="good">/26, /27, /28</option><option value="bad">/24, /24, /24</option></select><Result lang={lang} ok={ok} hint={lang === 'de' ? 'Wähle die kleinsten Netze, die alle Hosts aufnehmen.' : 'Choose the smallest networks that fit all hosts.'} /></Shell> }
 
-function FilterLab({ lang }: { lang: Lang }) { const [value, setValue] = useState(''); const ok = value.trim() === 'ip.addr == 192.168.20.34' ? true : value ? false : null; return <Shell mode="filter" lang={lang} done={ok === true}><p className="text-sm text-slate-700">{lang === 'de' ? 'Alle Pakete von oder zu 192.168.20.34 anzeigen:' : 'Show all packets from or to 192.168.20.34:'}</p><input value={value} onChange={e => setValue(e.target.value)} placeholder="ip.addr == …" className="mt-3 w-full rounded-lg border px-3 py-2 font-mono text-sm" /><Result lang={lang} ok={ok} hint="ip.addr matches source or destination." /></Shell> }
+function FilterLab({ lang }: { lang: Lang }) { const [value, setValue] = useState(''); const ok = value ? isValidAddressFilter(value) : null; return <Shell mode="filter" lang={lang} done={ok === true}><label className="block text-sm text-slate-700">{lang === 'de' ? 'Alle Pakete von oder zu 192.168.20.34 anzeigen:' : 'Show all packets from or to 192.168.20.34:'}<input value={value} onChange={e => setValue(e.target.value)} placeholder="ip.addr == …" className="mt-3 w-full rounded-lg border px-3 py-2 font-mono text-sm" /></label><Result lang={lang} ok={ok} hint={lang === 'de' ? 'Du kannst ip.addr oder eine Kombination aus ip.src und ip.dst verwenden.' : 'You can use ip.addr or combine ip.src and ip.dst.'} /></Shell> }
 
-function AttackLab({ lang }: { lang: Lang }) { const [value, setValue] = useState(''); const ok = value ? value === 'arp' : null; return <Shell mode="attack" lang={lang} done={ok === true}><p className="text-sm text-slate-700">{lang === 'de' ? 'Ein Angreifer fälscht im LAN die Gateway-MAC. Welche Bedrohung und welcher Schutz passen?' : 'An attacker spoofs the gateway MAC on the LAN. Which threat and protection fit?'}</p><select value={value} onChange={e => setValue(e.target.value)} className="mt-3 w-full rounded-lg border px-3 py-2 text-sm"><option value="">{labels[lang].choose}</option><option value="arp">ARP-Spoofing → statische Prüfung/DAI</option><option value="dns">DNS → größeres Subnetz</option><option value="vlan">VLAN → mehr Broadcasts</option></select><Result lang={lang} ok={ok} hint={lang === 'de' ? 'Die gefälschte Zuordnung IP → MAC ist ARP-Spoofing.' : 'The forged IP → MAC mapping is ARP spoofing.'} /></Shell> }
+function AttackLab({ lang }: { lang: Lang }) { const [value, setValue] = useState(''); const ok = value ? value === 'arp' : null; const options = lang === 'de' ? [['arp', 'ARP-Spoofing → DHCP Snooping + Dynamic ARP Inspection'], ['dns', 'DNS-Fehler → größeres Subnetz'], ['vlan', 'VLAN-Fehler → mehr Broadcasts']] : [['arp', 'ARP spoofing → DHCP snooping + Dynamic ARP Inspection'], ['dns', 'DNS failure → larger subnet'], ['vlan', 'VLAN failure → more broadcasts']]; return <Shell mode="attack" lang={lang} done={ok === true}><p className="text-sm text-slate-700">{lang === 'de' ? 'Ein Angreifer fälscht im LAN die Gateway-MAC. Welche Bedrohung und welcher Schutz passen?' : 'An attacker spoofs the gateway MAC on the LAN. Which threat and protection fit?'}</p><label className="block"><span className="sr-only">{labels[lang].choose}</span><select value={value} onChange={e => setValue(e.target.value)} className="mt-3 w-full rounded-lg border px-3 py-2 text-sm"><option value="">{labels[lang].choose}</option>{options.map(([key, text]) => <option key={key} value={key}>{text}</option>)}</select></label><Result lang={lang} ok={ok} hint={lang === 'de' ? 'Die gefälschte Zuordnung IP → MAC ist ARP-Spoofing.' : 'The forged IP → MAC mapping is ARP spoofing.'} /></Shell> }
 
-function Ipv6Lab({ lang }: { lang: Lang }) { const [v6, setV6] = useState(false); const rows = v6 ? [['Adressauflösung', 'NDP / Multicast'], ['Broadcast', lang === 'de' ? 'nicht vorhanden' : 'not used'], ['Adressierung', 'SLAAC / DHCPv6']] : [['Adressauflösung', 'ARP / Broadcast'], ['Broadcast', lang === 'de' ? 'vorhanden' : 'used'], ['Adressierung', 'DHCP / statisch']]; return <Shell mode="ipv6" lang={lang} done={v6}><button onClick={() => setV6(!v6)} className="rounded-lg bg-teal-600 px-3 py-2 text-sm font-medium text-white">{v6 ? 'IPv6' : 'IPv4'} ⇄ {v6 ? 'IPv4' : 'IPv6'}</button><div className="mt-4 overflow-x-auto"><table className="w-full text-left text-sm"><tbody>{rows.map(([a, b]) => <tr key={a} className="border-b"><th className="py-2 pr-4 font-medium text-slate-600">{a}</th><td className="py-2 text-slate-800">{b}</td></tr>)}</tbody></table></div></Shell> }
+function Ipv6Lab({ lang }: { lang: Lang }) { const [v6, setV6] = useState(false); const [answer, setAnswer] = useState(''); const rowLabels = lang === 'de' ? ['Adressauflösung', 'Broadcast', 'Adressierung'] : ['Address resolution', 'Broadcast', 'Address assignment']; const rows = v6 ? [[rowLabels[0], 'NDP / Multicast'], [rowLabels[1], lang === 'de' ? 'nicht vorhanden' : 'not used'], [rowLabels[2], 'SLAAC / DHCPv6']] : [[rowLabels[0], 'ARP / Broadcast'], [rowLabels[1], lang === 'de' ? 'vorhanden' : 'used'], [rowLabels[2], lang === 'de' ? 'DHCP / statisch' : 'DHCP / static']]; const ok = answer ? answer === 'ndp' : null; return <Shell mode="ipv6" lang={lang} done={v6 && ok === true}><button onClick={() => { setV6(!v6); setAnswer('') }} className="rounded-lg bg-teal-600 px-3 py-2 text-sm font-medium text-white">{v6 ? 'IPv6' : 'IPv4'} ⇄ {v6 ? 'IPv4' : 'IPv6'}</button><div className="mt-4 overflow-x-auto"><table className="w-full text-left text-sm"><tbody>{rows.map(([a, b]) => <tr key={a} className="border-b"><th className="py-2 pr-4 font-medium text-slate-600">{a}</th><td className="py-2 text-slate-800">{b}</td></tr>)}</tbody></table></div>{v6 && <div className="mt-3"><p className="text-sm text-slate-700">{lang === 'de' ? 'Welches Verfahren ersetzt ARP?' : 'Which mechanism replaces ARP?'}</p><div className="mt-2 flex gap-2"><button onClick={() => setAnswer('arp')} className="rounded-lg border border-teal-200 px-3 py-2 text-sm text-teal-700">ARP</button><button onClick={() => setAnswer('ndp')} className="rounded-lg border border-teal-200 px-3 py-2 text-sm text-teal-700">NDP</button></div><Result lang={lang} ok={ok} /></div>}</Shell> }
 
-function EvidenceLab({ lang }: { lang: Lang }) { const [value, setValue] = useState(''); const ok = value ? value === 'dns' : null; return <Shell mode="evidence" lang={lang} done={ok === true}><p className="text-sm text-slate-700">{lang === 'de' ? 'ping 8.8.8.8 funktioniert, aber www.nordwind.de nicht. Welcher Beweis folgt?' : 'ping 8.8.8.8 works, but www.nordwind.de does not. Which evidence comes next?'}</p><div className="mt-3 flex flex-wrap gap-2">{['dns','cable','router'].map(k => <button key={k} onClick={() => setValue(k)} className="rounded-lg border border-teal-200 px-3 py-2 text-sm text-teal-700">{k === 'dns' ? 'nslookup' : k === 'cable' ? 'Kabel prüfen' : 'Gateway pingen'}</button>)}</div><Result lang={lang} ok={ok} hint={lang === 'de' ? 'Wenn eine IP erreichbar ist, ist die Namensauflösung der nächste Beweis.' : 'If an IP is reachable, name resolution is the next evidence.'} /></Shell> }
+function EvidenceLab({ lang }: { lang: Lang }) { const [value, setValue] = useState(''); const ok = value ? value === 'dns' : null; const choices = lang === 'de' ? { dns: 'nslookup ausführen', cable: 'Kabel prüfen', router: 'Gateway erneut pingen' } : { dns: 'Run nslookup', cable: 'Check the cable', router: 'Ping the gateway again' }; return <Shell mode="evidence" lang={lang} done={ok === true}><p className="text-sm text-slate-700">{lang === 'de' ? 'ping 8.8.8.8 funktioniert, aber www.nordwind.de nicht. Welcher Beweis folgt?' : 'ping 8.8.8.8 works, but www.nordwind.de does not. Which evidence comes next?'}</p><div className="mt-3 flex flex-wrap gap-2">{Object.entries(choices).map(([key, text]) => <button key={key} onClick={() => setValue(key)} className="rounded-lg border border-teal-200 px-3 py-2 text-sm text-teal-700">{text}</button>)}</div><Result lang={lang} ok={ok} hint={lang === 'de' ? 'Wenn eine IP erreichbar ist, ist die Namensauflösung der nächste Beweis.' : 'If an IP is reachable, name resolution is the next evidence.'} /></Shell> }
 
 export function LearningLabForId({ id, lang }: { id: string; lang: Lang }) { return <LearningLab mode={id.replace('learning-', '') as Mode} lang={lang} /> }

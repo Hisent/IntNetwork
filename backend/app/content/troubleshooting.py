@@ -20,7 +20,6 @@ TROUBLESHOOTING_MODULE = {
               "pulling cables, you work systematically.",
     },
     "blocks": [
-        {"type": "widget", "id": "learning-evidence", "note": "Den nächsten Beweisschritt der Diagnose wählen."},
         {"type": "text",
          "value": {
              "de": "## Erst denken, dann tippen\n\nGute Fehlersuche beginnt nicht am "
@@ -113,6 +112,7 @@ TROUBLESHOOTING_MODULE = {
          "note": "Drei Störfälle: APIPA/DHCP, DNS-Ausfall, falsches VLAN nach Dosen-Umzug. "
                  "Teilnehmer sollen erst Befehle ausführen (mind. 2), dann diagnostizieren — "
                  "gut als Partnerarbeit: einer liest die Ausgaben vor, einer stellt die Diagnose."},
+        {"type": "widget", "id": "learning-evidence", "note": "Den nächsten Beweisschritt der Diagnose wählen."},
         {"type": "debug", "payload": {
             "prompt_de": "Ein Praktikant hat einen PC statisch konfiguriert — der erreicht das "
                          "Gateway 192.168.10.1 nicht. Finde den Fehler:",

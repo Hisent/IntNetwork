@@ -3,7 +3,8 @@ from app.main import app
 from app.database import SessionLocal
 from app.content.registry import MODULES
 from app.models.content import ContentBlock, ContentModule, ContentQuizQuestion
-from app.content.seed import seed_missing_content
+from app.models.setting import Setting
+from app.content.seed import LEARNING_LABS_MIGRATION, seed_missing_content
 
 
 def test_seed_adds_missing_module_to_existing_db():
@@ -57,15 +58,31 @@ def test_seed_is_idempotent():
             db.close()
 
 
-def test_seed_adds_new_widgets_to_existing_modules_without_duplicates():
+def test_learning_lab_migration_runs_once_and_uses_anchor_position():
     with TestClient(app):
         db = SessionLocal()
         try:
+            db.query(Setting).filter(Setting.key == LEARNING_LABS_MIGRATION).delete()
+            db.query(ContentBlock).filter(ContentBlock.module_key == "routing",
+                                          ContentBlock.widget_id == "learning-route").delete()
+            db.commit()
             seed_missing_content(db)
+            widgets = [b.widget_id for b in db.query(ContentBlock)
+                       .filter(ContentBlock.module_key == "routing")
+                       .order_by(ContentBlock.position)]
+            assert widgets.index("learning-route") == widgets.index("routing-demo") + 1
+            assert db.get(Setting, LEARNING_LABS_MIGRATION) is not None
+
+            # Nach erfolgreicher Migration gilt die DB als Trainer-Inhalt:
+            # bewusstes Entfernen darf beim nächsten Start nicht rückgängig werden.
+            db.query(ContentBlock).filter(ContentBlock.module_key == "routing",
+                                          ContentBlock.widget_id == "learning-route").delete()
+            db.commit()
             seed_missing_content(db)
-            for key in ("routing", "subnetting", "troubleshooting"):
-                widgets = [b.widget_id for b in db.query(ContentBlock)
-                           .filter(ContentBlock.module_key == key, ContentBlock.type == "widget")]
-                assert sum(w == {"routing": "learning-route", "subnetting": "learning-subnet", "troubleshooting": "learning-evidence"}[key] for w in widgets) == 1
+            assert db.query(ContentBlock).filter(ContentBlock.module_key == "routing",
+                                                 ContentBlock.widget_id == "learning-route").count() == 0
         finally:
+            db.query(Setting).filter(Setting.key == LEARNING_LABS_MIGRATION).delete()
+            db.commit()
+            seed_missing_content(db)
             db.close()

@@ -21,7 +21,8 @@ def verify_password(password: str, password_hash: str) -> bool:
 
 
 def create_token(sub: str, role: str, extra: dict | None = None) -> str:
-    payload = {"sub": sub, "role": role, "exp": utc_now() + timedelta(days=30)}
+    lifetime = timedelta(hours=8) if role == "trainer" else timedelta(days=30)
+    payload = {"sub": sub, "role": role, "exp": utc_now() + lifetime}
     if extra:
         payload.update(extra)
     return jwt.encode(payload, settings.secret_key, algorithm=ALGORITHM)

@@ -22,7 +22,6 @@ WIRESHARK_MODULE = {
               "is a capture in which someone logged in unencrypted …",
     },
     "blocks": [
-        {"type": "widget", "id": "learning-filter", "note": "Den passenden Wireshark-Display-Filter finden."},
         {"type": "text",
          "value": {
              "de": "## Was ein Sniffer sieht\n\nEin **Paket-Sniffer** schneidet den "
@@ -68,6 +67,7 @@ WIRESHARK_MODULE = {
                  "(gelb markiert). Danach Paket 14 (TLS Application Data) zeigen: nur "
                  "Datensalat. Der Aha-Moment ist der direkte Vergleich HTTP vs. HTTPS. "
                  "Auch den TCP-Handshake (Pakete 5–7) und DORA-artige DNS-Paare zeigen."},
+        {"type": "widget", "id": "learning-filter", "note": "Den passenden Wireshark-Display-Filter finden."},
         {"type": "check", "payload": {
             "prompt_de": "Du suchst in 50.000 Paketen alle Pakete von/zu 192.168.20.34. Welcher Filter?",
             "prompt_en": "You are looking for all packets from/to 192.168.20.34 among 50,000 packets. Which filter?",

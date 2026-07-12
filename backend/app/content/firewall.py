@@ -20,7 +20,6 @@ FIREWALL_MODULE = {
               "in and out?",
     },
     "blocks": [
-        {"type": "widget", "id": "learning-policy", "note": "Eine minimale Policy für Gäste und Büro bauen."},
         {"type": "text",
          "value": {
              "de": "## Was eine Firewall tut\n\nEine **Firewall** sitzt an "
@@ -61,6 +60,7 @@ FIREWALL_MODULE = {
         {"type": "widget", "id": "firewall-demo",
          "note": "Die Presets durchklicken: HTTPS erlaubt, Telnet blockiert, RDP → "
                  "Default-Deny. Jeweils zeigen, welche Regel greift (Hervorhebung)."},
+        {"type": "widget", "id": "learning-policy", "note": "Eine minimale Policy für Gäste und Büro bauen."},
         {"type": "text",
          "value": {
              "de": "## Stateful & mehr\n\nModerne Firewalls sind "
