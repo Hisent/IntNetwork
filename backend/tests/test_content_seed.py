@@ -1,3 +1,4 @@
+import pytest
 from fastapi.testclient import TestClient
 from app.main import app
 from app.database import SessionLocal
@@ -5,7 +6,9 @@ from app.content.registry import MODULES
 from app.models.content import ContentBlock, ContentModule, ContentQuizQuestion
 from app.models.setting import Setting
 from app.content.seed import (LEARNING_LABS_MIGRATION, NETWORK_VISUALS_MIGRATION,
+                              NETWORK_VISUALS_V2_MIGRATION, NETWORK_VISUAL_V2_ANCHORS,
                               seed_missing_content)
+from app.routers.trainer_content import VALID_WIDGET_IDS
 
 
 def test_seed_adds_missing_module_to_existing_db():
@@ -111,6 +114,42 @@ def test_network_visual_migration_uses_anchor_and_respects_later_removal():
                                                  ContentBlock.widget_id == "visual-dns-tree").count() == 0
         finally:
             db.query(Setting).filter(Setting.key == NETWORK_VISUALS_MIGRATION).delete()
+            db.commit()
+            seed_missing_content(db)
+            db.close()
+
+
+@pytest.mark.parametrize("module_key,widget_id,anchor_id", [
+    (module_key, widget_id, anchor_id)
+    for module_key, (widget_id, anchor_id) in NETWORK_VISUAL_V2_ANCHORS.items()
+])
+def test_network_visual_v2_migration_uses_anchor_and_respects_removal(
+        module_key, widget_id, anchor_id):
+    assert widget_id in VALID_WIDGET_IDS
+    assert any(block.get("id") == widget_id for block in MODULES[module_key]["blocks"])
+    with TestClient(app):
+        db = SessionLocal()
+        try:
+            db.query(Setting).filter(Setting.key == NETWORK_VISUALS_V2_MIGRATION).delete()
+            db.query(ContentBlock).filter(ContentBlock.module_key == module_key,
+                                          ContentBlock.widget_id == widget_id).delete()
+            db.commit()
+
+            seed_missing_content(db)
+            widgets = [block.widget_id for block in db.query(ContentBlock)
+                       .filter(ContentBlock.module_key == module_key)
+                       .order_by(ContentBlock.position)]
+            assert widgets.index(widget_id) == widgets.index(anchor_id) + 1
+            assert db.get(Setting, NETWORK_VISUALS_V2_MIGRATION) is not None
+
+            db.query(ContentBlock).filter(ContentBlock.module_key == module_key,
+                                          ContentBlock.widget_id == widget_id).delete()
+            db.commit()
+            seed_missing_content(db)
+            assert db.query(ContentBlock).filter(ContentBlock.module_key == module_key,
+                                                 ContentBlock.widget_id == widget_id).count() == 0
+        finally:
+            db.query(Setting).filter(Setting.key == NETWORK_VISUALS_V2_MIGRATION).delete()
             db.commit()
             seed_missing_content(db)
             db.close()

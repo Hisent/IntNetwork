@@ -1,5 +1,12 @@
 # Projekt-Changelog (nur für Trainer sichtbar). Neueste zuerst.
 CHANGELOG = [
+    {"date": "2026-07-12", "title": "v1.6.0 — Sieben weitere Netzwerkvisualisierungen",
+     "text": "Die Visualisierungs-Suite zeigt jetzt zusätzlich den 802.1Q-Tag-Pfad, "
+             "ARP-Auflösung für lokale und entfernte Ziele, Longest-Prefix-Matching, "
+             "NAT/PAT-Übersetzungen, den DHCP-Lease-Lebenszyklus, eine vollständige "
+             "TCP-Sitzung und die IPv6-Autokonfiguration mit SLAAC und DAD. Die neuen "
+             "Widgets sind zweisprachig und werden über eine unabhängige, einmalige "
+             "Migration an ihrer fachlich passenden Modulposition ergänzt."},
     {"date": "2026-07-12", "title": "v1.5.0 — Fünf interaktive Netzwerkvisualisierungen",
      "text": "Neue Visualisierungs-Suite mit Live-Netzwerktopologie für DNS/ERP/Internet, "
              "schrittweiser Kapselung, grafischer Subnetz-Aufteilung, First-Match-Regelfluss "

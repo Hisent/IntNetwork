@@ -30,6 +30,16 @@ NETWORK_VISUAL_ANCHORS = {
     "firewall": ("visual-firewall-flow", "firewall-demo"),
     "troubleshooting": ("visual-topology", "capstone-demo"),
 }
+NETWORK_VISUALS_V2_MIGRATION = "content-migration:network-visuals-v2"
+NETWORK_VISUAL_V2_ANCHORS = {
+    "vlan": ("visual-vlan-tag-path", "vlan-switch"),
+    "arp": ("visual-arp-resolution", "arp-demo"),
+    "routing": ("visual-route-match", "routing-demo"),
+    "nat": ("visual-nat-translation", "nat-demo"),
+    "dhcp": ("visual-dhcp-lease", "dhcp-demo"),
+    "ports": ("visual-tcp-session", "ports-demo"),
+    "ipv6": ("visual-ipv6-autoconfig", "ipv6-demo"),
+}
 
 
 def _migrate_widgets(db: Session, migration_key: str,
@@ -77,6 +87,10 @@ def _migrate_learning_labs(db: Session) -> None:
 
 def _migrate_network_visuals(db: Session) -> None:
     _migrate_widgets(db, NETWORK_VISUALS_MIGRATION, NETWORK_VISUAL_ANCHORS)
+
+
+def _migrate_network_visuals_v2(db: Session) -> None:
+    _migrate_widgets(db, NETWORK_VISUALS_V2_MIGRATION, NETWORK_VISUAL_V2_ANCHORS)
 
 
 def seed_missing_content(db: Session) -> None:
@@ -135,4 +149,5 @@ def seed_missing_content(db: Session) -> None:
             ))
     _migrate_learning_labs(db)
     _migrate_network_visuals(db)
+    _migrate_network_visuals_v2(db)
     db.commit()

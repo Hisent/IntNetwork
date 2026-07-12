@@ -63,6 +63,10 @@ ROUTING_MODULE = {
          "note": "Die drei Preset-Ziele nacheinander klicken (gleiches Netz, anderes "
                  "internes Netz, Internet) und die Match-Entscheidung vorlesen. Danach "
                  "in der CLI `show ip route`."},
+        {"type": "widget", "id": "visual-route-match",
+         "note": "DE: Mehrere passende Routen vergleichen und per längstem Präfix die "
+                 "gewählte Route bestimmen. EN: Compare matching routes and use longest-prefix "
+                 "matching to identify the selected route."},
         {"type": "widget", "id": "learning-route", "note": "Lokale oder entfernte Zustellung per Switch/Gateway entscheiden."},
         {"type": "debug", "payload": {
             "prompt_de": "Ein PC im Lager-Netz (192.168.10.0/24) erreicht das Internet nicht. Finde den Fehler in der Konfiguration:",

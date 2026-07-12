@@ -23,6 +23,9 @@ VALID_WIDGET_IDS = {
     "learning-ipv6", "learning-evidence",
     "visual-topology", "visual-encapsulation", "visual-subnet-map",
     "visual-firewall-flow", "visual-dns-tree",
+    "visual-vlan-tag-path", "visual-arp-resolution", "visual-route-match",
+    "visual-nat-translation", "visual-dhcp-lease", "visual-tcp-session",
+    "visual-ipv6-autoconfig",
 }
 
 KEY_RE = re.compile(r"^[a-z0-9-]+$")

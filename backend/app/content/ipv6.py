@@ -54,6 +54,10 @@ IPV6_MODULE = {
         {"type": "widget", "id": "ipv6-demo",
          "note": "Eine lange Adresse eingeben und die Kurzform zeigen, dann fe80::1 und "
                  "::1 → die Typ-Erkennung vorlesen."},
+        {"type": "widget", "id": "visual-ipv6-autoconfig",
+         "note": "DE: Von Router Advertisement und Präfix über SLAAC und DAD bis zur "
+                 "nutzbaren IPv6-Adresse gehen. EN: Follow router advertisement and prefix "
+                 "through SLAAC and DAD to a usable IPv6 address."},
         {"type": "widget", "id": "learning-ipv6", "note": "IPv4 und IPv6 bei Auflösung, Broadcast und Adressvergabe vergleichen."},
         {"type": "text",
          "value": {

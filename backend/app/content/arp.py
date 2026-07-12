@@ -49,6 +49,10 @@ ARP_MODULE = {
         {"type": "widget", "id": "arp-demo",
          "note": "Erst Cache leeren, dann eine unbekannte IP anfragen → Broadcast + "
                  "Reply zeigen. Dieselbe IP erneut → Cache-Treffer, kein Broadcast."},
+        {"type": "widget", "id": "visual-arp-resolution",
+         "note": "DE: Lokales und entferntes Ziel vergleichen: ARP ermittelt die Ziel-MAC "
+                 "oder die Gateway-MAC. EN: Compare local and remote targets: ARP resolves "
+                 "the destination MAC or the gateway MAC."},
         {"type": "text",
          "value": {
              "de": "## ARP nur im eigenen Netz\n\nARP funktioniert **nur "

@@ -72,6 +72,10 @@ NAT_MODULE = {
          "note": "Zwei verschiedene Hosts senden lassen → gleiche öffentliche IP, "
                  "verschiedene Ports. Dann denselben Host:Port erneut → Eintrag wird "
                  "wiederverwendet."},
+        {"type": "widget", "id": "visual-nat-translation",
+         "note": "DE: Adressen und Ports vor und nach PAT vergleichen und der "
+                 "Übersetzungstabelle zuordnen. EN: Compare addresses and ports before and "
+                 "after PAT, then map them to the translation table."},
         {"type": "text",
          "value": {
              "de": "## Folgen von NAT\n\n- Nach außen erscheinen alle Geräte "

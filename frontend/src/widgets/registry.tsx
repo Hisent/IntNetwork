@@ -39,4 +39,11 @@ export const WIDGETS: Record<string, ComponentType<{ lang: Lang }>> = {
   'visual-subnet-map': lazy(() => import('@/widgets/visuals/NetworkVisuals').then((m) => ({ default: (p: { lang: Lang }) => <m.NetworkVisualForId id="visual-subnet-map" {...p} /> }))),
   'visual-firewall-flow': lazy(() => import('@/widgets/visuals/NetworkVisuals').then((m) => ({ default: (p: { lang: Lang }) => <m.NetworkVisualForId id="visual-firewall-flow" {...p} /> }))),
   'visual-dns-tree': lazy(() => import('@/widgets/visuals/NetworkVisuals').then((m) => ({ default: (p: { lang: Lang }) => <m.NetworkVisualForId id="visual-dns-tree" {...p} /> }))),
+  'visual-vlan-tag-path': lazy(() => import('@/widgets/visuals/NetworkVisualsMore').then((m) => ({ default: (p: { lang: Lang }) => <m.NetworkVisualMoreForId id="visual-vlan-tag-path" {...p} /> }))),
+  'visual-arp-resolution': lazy(() => import('@/widgets/visuals/NetworkVisualsMore').then((m) => ({ default: (p: { lang: Lang }) => <m.NetworkVisualMoreForId id="visual-arp-resolution" {...p} /> }))),
+  'visual-route-match': lazy(() => import('@/widgets/visuals/NetworkVisualsMore').then((m) => ({ default: (p: { lang: Lang }) => <m.NetworkVisualMoreForId id="visual-route-match" {...p} /> }))),
+  'visual-nat-translation': lazy(() => import('@/widgets/visuals/NetworkVisualsMore').then((m) => ({ default: (p: { lang: Lang }) => <m.NetworkVisualMoreForId id="visual-nat-translation" {...p} /> }))),
+  'visual-dhcp-lease': lazy(() => import('@/widgets/visuals/NetworkVisualsMore').then((m) => ({ default: (p: { lang: Lang }) => <m.NetworkVisualMoreForId id="visual-dhcp-lease" {...p} /> }))),
+  'visual-tcp-session': lazy(() => import('@/widgets/visuals/NetworkVisualsMore').then((m) => ({ default: (p: { lang: Lang }) => <m.NetworkVisualMoreForId id="visual-tcp-session" {...p} /> }))),
+  'visual-ipv6-autoconfig': lazy(() => import('@/widgets/visuals/NetworkVisualsMore').then((m) => ({ default: (p: { lang: Lang }) => <m.NetworkVisualMoreForId id="visual-ipv6-autoconfig" {...p} /> }))),
 }

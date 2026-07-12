@@ -12,7 +12,7 @@
   <img alt="React" src="https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=0f172a" />
   <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white" />
   <img alt="SQLAlchemy" src="https://img.shields.io/badge/SQLAlchemy-SQLite%20%2F%20PostgreSQL-4169E1?logo=sqlite&logoColor=white" />
-  <img alt="Version" src="https://img.shields.io/badge/Version-1.5.0-teal" />
+  <img alt="Version" src="https://img.shields.io/badge/Version-1.6.0-teal" />
   <img alt="License" src="https://img.shields.io/badge/License-MIT-yellow" />
 </p>
 
@@ -24,7 +24,7 @@ Trainer legen Kurse an, Teilnehmer treten per Kurs-Code + Name bei (kein Passwor
 
 - **17 Module**, prereq-gated: Paketaufbau (OSI-Animation), Switching (MAC-Lernen), VLAN, Subnetting, ARP, Routing, NAT, DNS, DHCP, TCP/UDP-Ports, ICMP, Firewall, IPv6, WLAN, VPN, Troubleshooting und Wireshark/tcpdump — jeweils mit eigenem interaktiven Widget (Switch-Simulator, Frame-Builder, Subnetz-Rechner, Router-CLI, DORA-Demo, Mini-Wireshark, …).
 - **Abschlussfallakte** im Troubleshooting: Adressplanung, VLAN/Firewall, Paketreise und Diagnose werden in einem zusammenhängenden Szenario angewendet.
-- **Interaktive Visualisierungen**: Live-Netzwerktopologie, Encapsulation Explorer, Subnetz-Landkarte, Firewall-Regelfluss und DNS-Baum mit Cache-Vergleich.
+- **Interaktive Visualisierungen**: Live-Netzwerktopologie, Encapsulation Explorer, Subnetz-Landkarte, Firewall-Regelfluss, DNS-Baum, VLAN-Tag-Pfad, ARP-Auflösung, Routenauswahl, NAT/PAT-Übersetzung, DHCP-Lease, TCP-Sitzung und IPv6-Autokonfiguration.
 - **Lernhilfe im Modul**: kontextbezogenes Glossar, zwei gestufte Quiz-Hinweise und Wiederholungsempfehlungen nach Fehlversuchen.
 - **Kursnavigation**: sticky Modulübersicht mit Fortschritt, Bestwerten und gesperrten Voraussetzungen; auf Mobil als ausklappbare Navigation.
 - **Lernphasen**: Inhalte sind sichtbar in Verstehen, Ausprobieren und Reflektieren gegliedert.
@@ -77,8 +77,8 @@ kommt ausschließlich aus `ADMIN_PASSWORD`. PostgreSQL-Daten liegen im Volume
 
 ## Tests
 
-    cd backend && pytest          # 85 Tests
-    cd frontend && npm run test   # 84 Tests
+    cd backend && pytest          # 95 Tests
+    cd frontend && npm run test   # 95 Tests
 
 ## Weitere Module andocken
 

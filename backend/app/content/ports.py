@@ -66,6 +66,10 @@ PORTS_MODULE = {
         {"type": "widget", "id": "ports-demo",
          "note": "Ein paar Ports nachschlagen (443/22/53), dann den 3-Wege-Handshake "
                  "durchgehen und den TCP/UDP-Vergleich zeigen."},
+        {"type": "widget", "id": "visual-tcp-session",
+         "note": "DE: TCP-Sitzung mit Handshake, Datenbestätigung und geordnetem Abbau "
+                 "verfolgen. EN: Trace a TCP session through handshake, data acknowledgement "
+                 "and orderly teardown."},
         {"type": "text",
          "value": {
              "de": "## Wann was?\n\nBraucht die Anwendung **Vollständigkeit** "

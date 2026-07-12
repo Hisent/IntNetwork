@@ -82,6 +82,10 @@ VLAN_MODULE = {
          "note": "Bei einem Access-Port einen Frame senden → nur gleiches VLAN leuchtet; "
                  "der Trunk (Port 6) zeigt das 802.1Q-Tag. Dann zwei Ports aufs selbe VLAN "
                  "stellen → sie erreichen sich."},
+        {"type": "widget", "id": "visual-vlan-tag-path",
+         "note": "DE: Frame vom Access-Port über den Trunk verfolgen und erkennen, wo der "
+                 "802.1Q-Tag ergänzt oder entfernt wird. EN: Trace a frame from an access port "
+                 "across the trunk and observe where its 802.1Q tag is added or removed."},
         {"type": "text",
          "value": {
              "de": "## Broadcast-Domänen\n\nJedes VLAN ist eine eigene "

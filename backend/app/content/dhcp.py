@@ -47,6 +47,10 @@ DHCP_MODULE = {
         {"type": "widget", "id": "dhcp-demo",
          "note": "Mehrmals einen neuen Client verbinden lassen → jeder bekommt die "
                  "nächste Pool-Adresse; die vier DORA-Schritte des letzten durchgehen."},
+        {"type": "widget", "id": "visual-dhcp-lease",
+         "note": "DE: Eine Lease von der Vergabe über T1/T2 bis Erneuerung oder Ablauf "
+                 "verfolgen. EN: Follow a lease from assignment through T1/T2 to renewal or "
+                 "expiration."},
         {"type": "widget", "id": "learning-dhcp", "note": "DHCP-Symptome der Fehlerquelle zuordnen."},
         {"type": "text",
          "value": {

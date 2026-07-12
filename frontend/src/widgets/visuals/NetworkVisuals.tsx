@@ -137,5 +137,14 @@ export function NetworkVisual({ mode, lang }: { mode: VisualMode; lang: Lang }) 
 }
 
 export function NetworkVisualForId({ id, lang }: { id: string; lang: Lang }) {
-  return <NetworkVisual mode={id.replace('visual-', '') as VisualMode} lang={lang}/>
+  const modes: Record<string, VisualMode> = {
+    'visual-topology': 'topology',
+    'visual-encapsulation': 'encapsulation',
+    'visual-subnet-map': 'subnet-map',
+    'visual-firewall-flow': 'firewall-flow',
+    'visual-dns-tree': 'dns-tree',
+  }
+  const mode = modes[id]
+  if (!mode) return null
+  return <NetworkVisual mode={mode} lang={lang}/>
 }
