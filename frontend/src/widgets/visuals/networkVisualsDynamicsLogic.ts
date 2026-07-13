@@ -22,7 +22,7 @@ export function relaySteps(relayOn: boolean, lang: 'de' | 'en'): string[] {
     return lang === 'de'
       ? [
           'Client (VLAN 20): DHCPDISCOVER als Broadcast',
-          'Router-Interface VLAN 20: Discover ankommt, ip helper-address konfiguriert',
+          'Router-Interface VLAN 20: Discover kommt an, ip helper-address ist konfiguriert',
           'Router wandelt in Unicast an DHCP-Server (VLAN 10) um, setzt giaddr = VLAN-20-Interface',
           'DHCP-Server erkennt VLAN 20 anhand giaddr, sendet Offer an den Router zurück',
           'Router leitet Offer an den Client in VLAN 20 weiter',

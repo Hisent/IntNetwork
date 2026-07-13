@@ -227,12 +227,13 @@ CONTENT_TEXT_EDITS = [
 ]
 
 
-def _migrate_text_edits(db: Session) -> None:
-    """Präzisiert zwei Formulierungen (WLAN 6-GHz, DNS rekursiv/iterativ) — nur
-    dort, wo der Trainer den Text seit dem Seed nicht selbst verändert hat."""
-    if db.get(Setting, CONTENT_EDITS_MIGRATION):
+def _apply_text_edits(db: Session, migration_key: str,
+                      edits: list[tuple[str, str, str, str]]) -> None:
+    """Ersetzt Textblöcke nur dort, wo der Trainer den Text seit dem Seed nicht
+    selbst verändert hat (exakter Abgleich auf den alten value_de)."""
+    if db.get(Setting, migration_key):
         return
-    for module_key, old_de, new_de, new_en in CONTENT_TEXT_EDITS:
+    for module_key, old_de, new_de, new_en in edits:
         block = db.query(ContentBlock).filter(
             ContentBlock.module_key == module_key, ContentBlock.type == "text",
             ContentBlock.value_de == old_de,
@@ -240,8 +241,42 @@ def _migrate_text_edits(db: Session) -> None:
         if block is not None:
             block.value_de = new_de
             block.value_en = new_en
-    db.add(Setting(key=CONTENT_EDITS_MIGRATION, value="applied"))
+    db.add(Setting(key=migration_key, value="applied"))
     db.flush()
+
+
+def _migrate_text_edits(db: Session) -> None:
+    """Präzisiert zwei Formulierungen (WLAN 6-GHz, DNS rekursiv/iterativ)."""
+    _apply_text_edits(db, CONTENT_EDITS_MIGRATION, CONTENT_TEXT_EDITS)
+
+
+CONTENT_EDITS_V2_MIGRATION = "content-migration:content-edits-v2"
+# Der Masken-Block wurde zunächst mit einer GFM-Tabelle ausgeliefert, die der
+# Markdown-Renderer (react-markdown ohne remark-gfm) nur als Rohtext anzeigt.
+_TABLE_MASK_DE = (
+    "## Zwei Schreibweisen, eine Maske\n\n`/24` und `255.255.255.0` sind "
+    "dieselbe Maske: 32 Bit, von links mit Einsen gefüllt.\n\n"
+    "| Präfix | Dezimalform | Nutzbare Hosts |\n"
+    "|---|---|---|\n"
+    "| /24 | 255.255.255.0 | 254 |\n"
+    "| /25 | 255.255.255.128 | 126 |\n"
+    "| /26 | 255.255.255.192 | 62 |\n"
+    "| /27 | 255.255.255.224 | 30 |\n"
+    "| /28 | 255.255.255.240 | 14 |\n"
+    "| /30 | 255.255.255.252 | 2 |\n\n"
+    "In Konfig-Masken (`ipconfig`, Router) begegnet dir fast immer die "
+    "Dezimalform — beide Schreibweisen solltest du flüssig lesen können."
+)
+CONTENT_TEXT_EDITS_V2 = [
+    ("subnetting", _TABLE_MASK_DE,
+     _source_block("subnetting", "text-mask-notation")["value"]["de"],
+     _source_block("subnetting", "text-mask-notation")["value"]["en"]),
+]
+
+
+def _migrate_text_edits_v2(db: Session) -> None:
+    """Ersetzt die nicht renderbare Masken-Tabelle durch die Listenform."""
+    _apply_text_edits(db, CONTENT_EDITS_V2_MIGRATION, CONTENT_TEXT_EDITS_V2)
 
 
 NETWORK_VISUALS_V3_MIGRATION = "content-migration:network-visuals-v3"
@@ -347,6 +382,7 @@ def seed_missing_content(db: Session) -> None:
     _migrate_network_visuals_v2(db)
     _migrate_content_texts(db)
     _migrate_text_edits(db)
+    _migrate_text_edits_v2(db)
     _migrate_course_order(db)
     _migrate_network_visuals_v3(db)
     db.commit()

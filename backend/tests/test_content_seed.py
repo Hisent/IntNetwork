@@ -9,6 +9,7 @@ from app.content.seed import (LEARNING_LABS_MIGRATION, NETWORK_VISUALS_MIGRATION
                               NETWORK_VISUALS_V2_MIGRATION, NETWORK_VISUAL_V2_ANCHORS,
                               NETWORK_VISUALS_V3_MIGRATION, NETWORK_VISUAL_V3_ANCHORS,
                               CONTENT_TEXTS_MIGRATION, CONTENT_EDITS_MIGRATION,
+                              CONTENT_EDITS_V2_MIGRATION, CONTENT_TEXT_EDITS_V2,
                               CONTENT_TEXT_EDITS, COURSE_ORDER_MIGRATION,
                               _OLD_COURSE_ORDERS, _NEW_COURSE_ORDERS,
                               _source_block, _block_matches_source,
@@ -294,6 +295,39 @@ def test_text_edit_migration_replaces_unchanged_and_skips_manual_change():
                 wlan_block.value_en = wlan_new_en
             if dns_block is not None:
                 dns_block.value_de = dns_new_de
+            db.commit()
+            seed_missing_content(db)
+            db.close()
+
+
+def test_text_edit_v2_replaces_table_variant_of_mask_block():
+    """DBs, die den Masken-Block noch als (nicht renderbare) GFM-Tabelle tragen,
+    bekommen einmalig die Listenform; Trainer-Anpassungen bleiben unangetastet."""
+    key, old_de, new_de, new_en = CONTENT_TEXT_EDITS_V2[0]
+    with TestClient(app):
+        db = SessionLocal()
+        block = None
+        try:
+            db.query(Setting).filter(Setting.key == CONTENT_EDITS_V2_MIGRATION).delete()
+            block = db.query(ContentBlock).filter(
+                ContentBlock.module_key == key, ContentBlock.type == "text",
+                ContentBlock.value_de == new_de).first()
+            assert block is not None
+            block.value_de = old_de  # Tabellen-Variante aus texts-v1
+            db.commit()
+
+            seed_missing_content(db)
+
+            db.refresh(block)
+            assert block.value_de == new_de
+            assert block.value_en == new_en
+            assert "|---|" not in block.value_de
+            assert db.get(Setting, CONTENT_EDITS_V2_MIGRATION) is not None
+        finally:
+            db.query(Setting).filter(Setting.key == CONTENT_EDITS_V2_MIGRATION).delete()
+            if block is not None:
+                block.value_de = new_de
+                block.value_en = new_en
             db.commit()
             seed_missing_content(db)
             db.close()
