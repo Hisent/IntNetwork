@@ -113,24 +113,30 @@ function EphemeralPorts({ lang }: { lang: Lang }) {
   const [opened, setOpened] = useState(0)
   const [responseIndex, setResponseIndex] = useState(0)
   const [correct, setCorrect] = useState(0)
-  const [wrong, setWrong] = useState(false)
+  const [wrongIndex, setWrongIndex] = useState<number | null>(null)
+  const wrongTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  useEffect(() => () => { if (wrongTimer.current) clearTimeout(wrongTimer.current) }, [])
   const flows = EPHEMERAL_PORTS.slice(0, opened)
   const done = correct >= 2
   const openTab = () => { if (opened < 3) setOpened(o => o + 1) }
   const handleClick = (index: number) => {
-    const target = responseIndex < 2 ? EPHEMERAL_PORTS[responseIndex] : null
-    if (target === null) return
-    const match = matchResponse(target, EPHEMERAL_PORTS)
-    if (index === match) { setCorrect(c => c + 1); setResponseIndex(r => r + 1); setWrong(false) }
-    else { setWrong(true); setTimeout(() => setWrong(false), 500) }
+    // Zuordnen erst, wenn alle drei Verbindungen offen sind und ein Antwortpaket angezeigt wird.
+    if (opened < 3 || responseIndex >= 2) return
+    const match = matchResponse(EPHEMERAL_PORTS[responseIndex], EPHEMERAL_PORTS)
+    if (index === match) { setCorrect(c => c + 1); setResponseIndex(r => r + 1); setWrongIndex(null) }
+    else {
+      setWrongIndex(index)
+      if (wrongTimer.current) clearTimeout(wrongTimer.current)
+      wrongTimer.current = setTimeout(() => setWrongIndex(null), 500)
+    }
   }
   return <Frame mode="ephemeral-ports" lang={lang} done={done}>
     <button type="button" onClick={openTab} className="rounded-lg bg-teal-600 px-3 py-2 text-sm font-medium text-white disabled:opacity-40" disabled={opened >= 3}>{copy[lang].openTab}</button>
     <div className="mt-3 flex flex-wrap gap-2" aria-live="polite">
-      {flows.map((port, index) => <button type="button" key={port} aria-pressed={false} onClick={() => handleClick(index)}
-        className={`rounded border px-3 py-1.5 text-sm ${wrong ? 'border-rose-400 bg-rose-50' : 'border-slate-200'}`}>
-        192.168.10.37:{port} → 203.0.113.11:443
-      </button>)}
+      {flows.map((port, index) => { const matched = index < responseIndex; return <button type="button" key={port} aria-pressed={matched} onClick={() => handleClick(index)}
+        className={`rounded border px-3 py-1.5 text-sm ${wrongIndex === index ? 'border-rose-400 bg-rose-50' : matched ? 'border-green-400 bg-green-50' : 'border-slate-200'}`}>
+        {matched && '✓ '}192.168.10.37:{port} → 203.0.113.11:443
+      </button> })}
     </div>
     {opened === 3 && responseIndex < 2 && <p className="mt-3 rounded-lg border border-teal-200 bg-teal-50 px-3 py-2 text-sm">{copy[lang].incoming}: 203.0.113.11:443 → 192.168.10.37:<strong>{EPHEMERAL_PORTS[responseIndex]}</strong></p>}
     <p className="mt-2 text-xs text-slate-500">{correct}/2 {lang === 'de' ? 'korrekt zugeordnet' : 'matched correctly'}</p>
