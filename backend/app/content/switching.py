@@ -49,6 +49,25 @@ SWITCHING_MODULE = {
                    "once the destination replies, it is learned.",
          }},
         {"type": "widget", "id": "mac-learning"},
+        {"type": "reveal", "id": "reveal-switch-loop",
+         "payload": {
+             "teaser_de": "Was passiert, wenn jemand zwei Ports desselben Switches (oder "
+                          "zweier Switches) direkt mit einem Kabel verbindet?",
+             "teaser_en": "What happens if someone connects two ports of the same switch "
+                          "(or two switches) directly with a cable?",
+         },
+         "value": {
+             "de": "**Broadcast-Sturm.** Ein Broadcast wird an alle Ports geflutet — über "
+                   "das Loop-Kabel kommt er sofort wieder rein und wird erneut geflutet. Auf "
+                   "Schicht 2 gibt es **keine TTL**: Frames kreisen endlos und vervielfachen "
+                   "sich, bis das Netz zusammenbricht. Profi-Switches verhindern das mit "
+                   "**STP** (Spanning Tree Protocol), das Loops erkennt und Ports blockiert.",
+             "en": "**Broadcast storm.** A broadcast is flooded to every port — over the "
+                   "loop cable it immediately comes back in and gets flooded again. Layer 2 "
+                   "has **no TTL**: frames circle endlessly and multiply until the network "
+                   "collapses. Professional switches prevent this with **STP** (Spanning Tree "
+                   "Protocol), which detects loops and blocks ports.",
+         }},
         {"type": "reveal",
          "payload": {
              "teaser_de": "Was würde eigentlich passieren, wenn zwei Geräte dieselbe MAC-Adresse hätten?",

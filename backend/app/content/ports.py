@@ -2,7 +2,7 @@ PORTS_MODULE = {
     "key": "ports",
     "title": "TCP, UDP & Ports",
     "title_en": "TCP, UDP & Ports",
-    "order": 10,
+    "order": 7,
     "prerequisites": ["paket"],
     "goals": [
         "Die Transportschicht und Portnummern verstehen",
@@ -70,6 +70,40 @@ PORTS_MODULE = {
          "note": "DE: TCP-Sitzung mit Handshake, Datenbestätigung und geordnetem Abbau "
                  "verfolgen. EN: Trace a TCP session through handshake, data acknowledgement "
                  "and orderly teardown."},
+        {"type": "text", "id": "text-source-ports",
+         "value": {
+             "de": "## Quell-Port: die Gegenstelle der Verbindung\n\nBisher ging es um "
+                   "Ziel-Ports (well-known). Der Client wählt für jede Verbindung zusätzlich "
+                   "einen zufälligen hohen **Quell-Port** (ephemeral port, typisch 49152–65535). "
+                   "Eine Verbindung ist eindeutig durch das Paar Quell-IP:Quell-Port ↔ "
+                   "Ziel-IP:Ziel-Port.\n\nBeispiel: Browser → `192.168.10.37:51512 → "
+                   "203.0.113.11:443`; die Antwort kommt an :51512 zurück und findet so den "
+                   "richtigen Prozess/Tab. Drei Browser-Tabs zur selben Webseite = drei "
+                   "Quell-Ports.\n\nGenau darauf bauen **NAT/PAT** (Modul NAT) und die Zeilen "
+                   "in **Wireshark** auf.",
+             "en": "## Source Port: The Other Side of the Connection\n\nSo far this was about "
+                   "destination ports (well-known). For every connection, the client also picks "
+                   "a random high **source port** (ephemeral port, typically 49152–65535). A "
+                   "connection is uniquely identified by the pair source-IP:source-port ↔ "
+                   "destination-IP:destination-port.\n\nExample: browser → "
+                   "`192.168.10.37:51512 → 203.0.113.11:443`; the reply comes back to :51512 "
+                   "and thereby finds the right process/tab. Three browser tabs to the same "
+                   "website = three source ports.\n\n**NAT/PAT** (the NAT module) and the "
+                   "lines you see in **Wireshark** build exactly on this.",
+         }},
+        {"type": "check", "id": "check-source-ports", "payload": {
+            "prompt_de": "Ein Browser öffnet drei Verbindungen zum selben Server "
+                         "203.0.113.11:443. Woran hält der Server (und der Client) die drei "
+                         "Verbindungen auseinander?",
+            "prompt_en": "A browser opens three connections to the same server "
+                         "203.0.113.11:443. How do the server (and the client) tell the three "
+                         "connections apart?",
+            "options_de": ["Am unterschiedlichen Quell-Port des Clients", "An der MAC-Adresse",
+                           "An der TTL im IP-Header"],
+            "options_en": ["By the client's different source port", "By the MAC address",
+                           "By the TTL in the IP header"],
+            "answer": 0,
+        }},
         {"type": "text",
          "value": {
              "de": "## Wann was?\n\nBraucht die Anwendung **Vollständigkeit** "

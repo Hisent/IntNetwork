@@ -2,7 +2,7 @@ DHCP_MODULE = {
     "key": "dhcp",
     "title": "DHCP — Adressen automatisch",
     "title_en": "DHCP — Automatic Addressing",
-    "order": 9,
+    "order": 10,
     "prerequisites": ["subnetting"],
     "goals": [
         "Wissen, welche Parameter ein Gerät zum Start braucht (IP/Maske/Gateway/DNS)",
@@ -51,6 +51,24 @@ DHCP_MODULE = {
          "note": "DE: Eine Lease von der Vergabe über T1/T2 bis Erneuerung oder Ablauf "
                  "verfolgen. EN: Follow a lease from assignment through T1/T2 to renewal or "
                  "expiration."},
+        {"type": "text", "id": "text-dhcp-relay",
+         "value": {
+             "de": "## DHCP über VLAN-Grenzen: Relay\n\nDORA startet mit Broadcast — und "
+                   "Broadcasts enden an der Router-/VLAN-Grenze (siehe VLAN-Modul). Trotzdem "
+                   "steht bei Nordwind nur **ein** DHCP-Server für alle VLANs.\n\nLösung: "
+                   "**DHCP-Relay** (Cisco: `ip helper-address`) auf dem Router-Interface: er "
+                   "nimmt den Discover-Broadcast entgegen und leitet ihn als **Unicast** an "
+                   "den Server weiter; anhand der eingetragenen Relay-Adresse (giaddr) erkennt "
+                   "der Server, aus welchem Netz die Anfrage kommt, und vergibt aus dem "
+                   "passenden Pool.",
+             "en": "## DHCP Across VLAN Boundaries: Relay\n\nDORA starts with a broadcast — "
+                   "and broadcasts stop at the router/VLAN boundary (see the VLAN module). Yet "
+                   "Nordwind runs just **one** DHCP server for all VLANs.\n\nSolution: **DHCP "
+                   "relay** (Cisco: `ip helper-address`) on the router interface: it catches "
+                   "the Discover broadcast and forwards it as **unicast** to the server; from "
+                   "the configured relay address (giaddr) the server recognizes which network "
+                   "the request came from and assigns an address from the matching pool.",
+         }},
         {"type": "widget", "id": "learning-dhcp", "note": "DHCP-Symptome der Fehlerquelle zuordnen."},
         {"type": "text",
          "value": {

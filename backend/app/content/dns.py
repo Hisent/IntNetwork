@@ -2,7 +2,7 @@ DNS_MODULE = {
     "key": "dns",
     "title": "DNS — Namensauflösung",
     "title_en": "DNS — Name Resolution",
-    "order": 8,
+    "order": 9,
     "prerequisites": ["routing"],
     "goals": [
         "DNS als Namen-zu-IP-Auflösung einordnen",
@@ -35,12 +35,16 @@ DNS_MODULE = {
                    "- **Root-Server** (`.`): kennen die Server der Top-Level-Domains.\n"
                    "- **TLD-Server** (`.de`, `.com`): kennen die zuständigen Nameserver je Domain.\n"
                    "- **Autoritative Server**: halten die echten Einträge einer Domain.\n\n"
-                   "Der **Resolver** fragt sich von oben nach unten durch — bis er die IP hat.",
+                   "Der Client stellt **eine** Anfrage an den Resolver (rekursiv) — der "
+                   "Resolver hangelt sich dann selbst **iterativ** von Root über TLD zum "
+                   "autoritativen Server durch, bis er die IP hat.",
              "en": "## The Hierarchy\n\nDNS is a distributed tree:\n\n"
                    "- **Root servers** (`.`): know the servers for the top-level domains.\n"
                    "- **TLD servers** (`.de`, `.com`): know the responsible name servers for each domain.\n"
                    "- **Authoritative servers**: hold the real records of a domain.\n\n"
-                   "The **resolver** works its way down from the top — until it has the IP.",
+                   "The client makes **one** request to the resolver (recursive) — the "
+                   "resolver then works its way down **iteratively** from root to TLD to the "
+                   "authoritative server itself, until it has the IP.",
          }},
         {"type": "widget", "id": "dns-demo",
          "note": "Einen bekannten Namen auflösen und die drei Stufen vorlesen, dann "

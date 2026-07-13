@@ -33,7 +33,9 @@ WLAN_MODULE = {
          "value": {
              "de": "## Frequenzbänder & Kanäle\n\nWLAN funkt v.a. auf "
                    "**2,4 GHz** (große Reichweite, aber langsamer und überfüllt) und **5 GHz** "
-                   "(schneller, mehr Kanäle, kürzere Reichweite).\n\n"
+                   "(schneller, mehr Kanäle, kürzere Reichweite). Moderne Geräte (Wi-Fi 6E/7) "
+                   "funken zusätzlich auf **6 GHz** — viele breite Kanäle, kaum Altgeräte, "
+                   "dafür die kürzeste Reichweite.\n\n"
                    "Ein Kanal ist breiter als sein Abstand zum Nachbarn — deshalb **überlappen** "
                    "sich benachbarte 2,4-GHz-Kanäle und stören sich. Bei **20 MHz** sind "
                    "**1, 6 und 11** die übliche überlappungsfreie Planungsempfehlung; erlaubte "
@@ -41,7 +43,9 @@ WLAN_MODULE = {
                    "unterschiedliche, überlappungsfreie Kanäle nutzen.",
              "en": "## Frequency Bands & Channels\n\nWi-Fi mostly transmits on "
                    "**2.4 GHz** (long range, but slower and crowded) and **5 GHz** "
-                   "(faster, more channels, shorter range).\n\n"
+                   "(faster, more channels, shorter range). Modern devices (Wi-Fi 6E/7) "
+                   "additionally transmit on **6 GHz** — many wide channels, hardly any legacy "
+                   "devices, but the shortest range.\n\n"
                    "A channel is wider than its spacing to its neighbor — that's why adjacent "
                    "2.4 GHz channels **overlap** and interfere with each other. At **20 MHz**, "
                    "**1, 6 and 11** are the common non-overlapping planning recommendation; allowed "

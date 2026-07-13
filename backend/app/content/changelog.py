@@ -1,5 +1,16 @@
 # Projekt-Changelog (nur für Trainer sichtbar). Neueste zuerst.
 CHANGELOG = [
+    {"date": "2026-07-13", "title": "v1.8.0 — Fachliche Vertiefung der Kursinhalte",
+     "text": "Fünf neue Inhaltsblöcke vertiefen bestehende Module: Quell-Ports im "
+             "Ports-Modul, Masken-Schreibweisen (/x vs. Dezimalform) im Subnetting-Modul, "
+             "DHCP-Relay über VLAN-Grenzen, Switch-Loop/Broadcast-Sturm im Switching-Modul "
+             "und Dual Stack im IPv6-Modul. Dazu zwei Präzisierungen: 6-GHz-Band im "
+             "WLAN-Modul ergänzt, DNS-Auflösung als rekursiv (Client→Resolver) und "
+             "iterativ (Resolver→Root/TLD/autoritativ) beschrieben. Das Ports-Modul rückt "
+             "in der Kursreihenfolge vor NAT, da NAT/PAT direkt auf Ports aufbaut. "
+             "Bestehende Installationen ziehen alle Änderungen über einmalige, "
+             "versionierte Migrationen nach; vom Trainer bereits geänderte Texte oder "
+             "Reihenfolgen bleiben unangetastet."},
     {"date": "2026-07-13", "title": "v1.7.1 — Review-Feinschliff",
      "text": "Gesperrte Module in der Workbench-Navigation sind für Screenreader jetzt "
              "korrekt als deaktiviert markiert, die DNS-Baum-Aufgabe bleibt nach dem "

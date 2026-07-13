@@ -59,6 +59,21 @@ IPV6_MODULE = {
                  "nutzbaren IPv6-Adresse gehen. EN: Follow router advertisement and prefix "
                  "through SLAAC and DAD to a usable IPv6 address."},
         {"type": "widget", "id": "learning-ipv6", "note": "IPv4 und IPv6 bei Auflösung, Broadcast und Adressvergabe vergleichen."},
+        {"type": "text", "id": "text-dual-stack",
+         "value": {
+             "de": "## Der Übergang: Dual Stack\n\nIPv4 und IPv6 laufen jahrzehntelang "
+                   "**parallel**. Beim Dual Stack hat ein Gerät beide Adressen gleichzeitig; "
+                   "DNS liefert **A** (IPv4) und **AAAA** (IPv6). Moderne Systeme bevorzugen "
+                   "IPv6 und fallen unauffällig auf IPv4 zurück, wenn es schneller antwortet "
+                   "(„Happy Eyeballs“) — der Nutzer merkt davon nichts.\n\nFür Nordwind heißt "
+                   "das: IPv6 einführen ≠ IPv4 abschalten.",
+             "en": "## The Transition: Dual Stack\n\nIPv4 and IPv6 run **in parallel** for "
+                   "decades. With dual stack, a device has both addresses at the same time; "
+                   "DNS returns **A** (IPv4) and **AAAA** (IPv6) records. Modern systems "
+                   "prefer IPv6 and quietly fall back to IPv4 if it responds faster (“Happy "
+                   "Eyeballs”) — the user notices nothing.\n\nFor Nordwind that means: "
+                   "adopting IPv6 ≠ switching off IPv4.",
+         }},
         {"type": "text",
          "value": {
              "de": "## Wichtige Adresstypen\n\n- **Global Unicast** "

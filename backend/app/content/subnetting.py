@@ -51,6 +51,39 @@ SUBNETTING_MODULE = {
         {"type": "widget", "id": "subnet-calc",
          "note": "Mit /24 starten, dann das Präfix auf /26 schieben — zeigen, wie "
                  "Netz- und Broadcast-Adresse wandern und die Hostzahl sinkt."},
+        {"type": "text", "id": "text-mask-notation",
+         "value": {
+             "de": "## Zwei Schreibweisen, eine Maske\n\n`/24` und `255.255.255.0` sind "
+                   "dieselbe Maske: 32 Bit, von links mit Einsen gefüllt.\n\n"
+                   "| Präfix | Dezimalform | Nutzbare Hosts |\n"
+                   "|---|---|---|\n"
+                   "| /24 | 255.255.255.0 | 254 |\n"
+                   "| /25 | 255.255.255.128 | 126 |\n"
+                   "| /26 | 255.255.255.192 | 62 |\n"
+                   "| /27 | 255.255.255.224 | 30 |\n"
+                   "| /28 | 255.255.255.240 | 14 |\n"
+                   "| /30 | 255.255.255.252 | 2 |\n\n"
+                   "In Konfig-Masken (`ipconfig`, Router) begegnet dir fast immer die "
+                   "Dezimalform — beide Schreibweisen solltest du flüssig lesen können.",
+             "en": "## Two Notations, One Mask\n\n`/24` and `255.255.255.0` are the same "
+                   "mask: 32 bits, filled with ones from the left.\n\n"
+                   "| Prefix | Decimal form | Usable hosts |\n"
+                   "|---|---|---|\n"
+                   "| /24 | 255.255.255.0 | 254 |\n"
+                   "| /25 | 255.255.255.128 | 126 |\n"
+                   "| /26 | 255.255.255.192 | 62 |\n"
+                   "| /27 | 255.255.255.224 | 30 |\n"
+                   "| /28 | 255.255.255.240 | 14 |\n"
+                   "| /30 | 255.255.255.252 | 2 |\n\n"
+                   "In config masks (`ipconfig`, routers) you almost always encounter the "
+                   "decimal form — you should be able to read both notations fluently.",
+         }},
+        {"type": "check", "id": "check-mask-notation", "payload": {
+            "kind": "number",
+            "prompt_de": "Welchem Präfix (/x) entspricht die Subnetzmaske 255.255.255.240?",
+            "prompt_en": "Which prefix (/x) does the subnet mask 255.255.255.240 correspond to?",
+            "answer": 28,
+        }},
         {"type": "widget", "id": "visual-subnet-map",
          "note": "Ein /24 visuell bis /28 teilen und die entstehenden Netze vergleichen."},
         {"type": "widget", "id": "learning-subnet", "note": "Kleinste passende Subnetze für Abteilungen planen."},

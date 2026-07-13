@@ -2,8 +2,8 @@ NAT_MODULE = {
     "key": "nat",
     "title": "NAT & Internet-Zugang",
     "title_en": "NAT & Internet Access",
-    "order": 7,
-    "prerequisites": ["routing"],
+    "order": 8,
+    "prerequisites": ["routing", "ports"],
     "goals": [
         "Private und öffentliche IP-Adressen unterscheiden",
         "NAT/PAT als Adressübersetzung im Router erklären",
