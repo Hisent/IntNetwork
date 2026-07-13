@@ -26,6 +26,8 @@ VALID_WIDGET_IDS = {
     "visual-vlan-tag-path", "visual-arp-resolution", "visual-route-match",
     "visual-nat-translation", "visual-dhcp-lease", "visual-tcp-session",
     "visual-ipv6-autoconfig",
+    "visual-bitmask", "visual-broadcast-storm", "visual-dhcp-relay",
+    "visual-ephemeral-ports", "visual-stateful-firewall",
 }
 
 KEY_RE = re.compile(r"^[a-z0-9-]+$")

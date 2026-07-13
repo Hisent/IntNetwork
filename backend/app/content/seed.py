@@ -128,6 +128,8 @@ def _block_matches_source(block: ContentBlock, source: dict) -> bool:
         return block.type == "check" and (block.payload or {}).get("prompt_de") == source["payload"].get("prompt_de")
     if source["type"] == "reveal":
         return block.type == "reveal" and (block.payload or {}).get("teaser_de") == source["payload"].get("teaser_de")
+    if source["type"] == "widget":
+        return block.type == "widget" and block.widget_id == source["id"]
     return False
 
 
@@ -136,6 +138,9 @@ def _build_block(module_key: str, source: dict) -> ContentBlock:
         return ContentBlock(module_key=module_key, type="text",
                             value_de=source["value"]["de"], value_en=source["value"]["en"],
                             note=source.get("note"))
+    if source["type"] == "widget":
+        return ContentBlock(module_key=module_key, type="widget",
+                            widget_id=source["id"], note=source.get("note"))
     value = source.get("value") or {}
     return ContentBlock(module_key=module_key, type=source["type"],
                         value_de=value.get("de"), value_en=value.get("en"),
@@ -157,13 +162,15 @@ def _find_anchor_index(ordered: list[ContentBlock], module_key: str, anchor_ref:
     return len(ordered) - 1
 
 
-def _migrate_content_blocks(db: Session) -> None:
-    """Fügt die fünf fachlichen Vertiefungsblöcke aus v1.8.0 (Quell-Ports,
-    Masken-Schreibweisen, DHCP-Relay, Switch-Loop, Dual Stack) einmalig hinter
-    ihrem Anker ein. Bereits inhaltsgleich vorhandene Blöcke werden übersprungen."""
-    if db.get(Setting, CONTENT_TEXTS_MIGRATION):
+def _migrate_content_blocks(db: Session, migration_key: str,
+                            anchors: list[tuple[str, str, str]]) -> None:
+    """Fügt beliebige fachliche Blöcke (Text/Check/Reveal/Widget) einmalig hinter
+    ihrem Anker ein. anchor_ref kann eine widget_id oder die Quell-id eines
+    zuvor in derselben Migration eingefügten Blocks sein. Bereits inhaltsgleich
+    vorhandene Blöcke werden übersprungen."""
+    if db.get(Setting, migration_key):
         return
-    for module_key, source_id, anchor_ref in CONTENT_BLOCK_ANCHORS:
+    for module_key, source_id, anchor_ref in anchors:
         blocks = db.query(ContentBlock).filter(
             ContentBlock.module_key == module_key
         ).order_by(ContentBlock.position).all()
@@ -181,8 +188,15 @@ def _migrate_content_blocks(db: Session) -> None:
         ordered.insert(anchor_index + 1, new_block)
         _reindex_and_remap_comments(db, module_key, old_positions, ordered)
         db.flush()  # neuer Block braucht eine id, bevor ein Folgeeintrag ihn per Inhalt als Anker findet
-    db.add(Setting(key=CONTENT_TEXTS_MIGRATION, value="applied"))
+    db.add(Setting(key=migration_key, value="applied"))
     db.flush()
+
+
+def _migrate_content_texts(db: Session) -> None:
+    """Fügt die fünf fachlichen Vertiefungsblöcke aus v1.8.0 (Quell-Ports,
+    Masken-Schreibweisen, DHCP-Relay, Switch-Loop, Dual Stack) einmalig hinter
+    ihrem Anker ein."""
+    _migrate_content_blocks(db, CONTENT_TEXTS_MIGRATION, CONTENT_BLOCK_ANCHORS)
 
 
 CONTENT_EDITS_MIGRATION = "content-migration:content-edits-v1"
@@ -228,6 +242,22 @@ def _migrate_text_edits(db: Session) -> None:
             block.value_en = new_en
     db.add(Setting(key=CONTENT_EDITS_MIGRATION, value="applied"))
     db.flush()
+
+
+NETWORK_VISUALS_V3_MIGRATION = "content-migration:network-visuals-v3"
+# Fünf dynamische Widgets aus v1.9.0, jeweils hinter einem bereits vorhandenen
+# fachlichen Anker (Widget, Check, Text oder Reveal) eingefügt.
+NETWORK_VISUAL_V3_ANCHORS = [
+    ("switching", "visual-broadcast-storm", "reveal-switch-loop"),
+    ("subnetting", "visual-bitmask", "check-mask-notation"),
+    ("ports", "visual-ephemeral-ports", "check-source-ports"),
+    ("dhcp", "visual-dhcp-relay", "text-dhcp-relay"),
+    ("firewall", "visual-stateful-firewall", "visual-firewall-flow"),
+]
+
+
+def _migrate_network_visuals_v3(db: Session) -> None:
+    _migrate_content_blocks(db, NETWORK_VISUALS_V3_MIGRATION, NETWORK_VISUAL_V3_ANCHORS)
 
 
 COURSE_ORDER_MIGRATION = "content-migration:course-order-v1"
@@ -315,7 +345,8 @@ def seed_missing_content(db: Session) -> None:
     _migrate_learning_labs(db)
     _migrate_network_visuals(db)
     _migrate_network_visuals_v2(db)
-    _migrate_content_blocks(db)
+    _migrate_content_texts(db)
     _migrate_text_edits(db)
     _migrate_course_order(db)
+    _migrate_network_visuals_v3(db)
     db.commit()

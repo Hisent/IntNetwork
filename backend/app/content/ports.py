@@ -104,6 +104,11 @@ PORTS_MODULE = {
                            "By the TTL in the IP header"],
             "answer": 0,
         }},
+        {"type": "widget", "id": "visual-ephemeral-ports",
+         "note": "DE: Drei Verbindungen mit festen Quell-Ports öffnen und ankommende "
+                 "Antwortpakete der richtigen Verbindung zuordnen. EN: Open three "
+                 "connections with fixed source ports and match incoming response "
+                 "packets to the right connection."},
         {"type": "text",
          "value": {
              "de": "## Wann was?\n\nBraucht die Anwendung **Vollständigkeit** "

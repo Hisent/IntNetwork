@@ -68,6 +68,10 @@ SWITCHING_MODULE = {
                    "collapses. Professional switches prevent this with **STP** (Spanning Tree "
                    "Protocol), which detects loops and blocks ports.",
          }},
+        {"type": "widget", "id": "visual-broadcast-storm",
+         "note": "DE: Den Broadcast-Sturm eskalieren lassen (Frames verdoppeln sich pro "
+                 "Tick) und dann den Loop trennen. EN: Let the broadcast storm escalate "
+                 "(frames double each tick), then disconnect the loop."},
         {"type": "reveal",
          "payload": {
              "teaser_de": "Was würde eigentlich passieren, wenn zwei Geräte dieselbe MAC-Adresse hätten?",

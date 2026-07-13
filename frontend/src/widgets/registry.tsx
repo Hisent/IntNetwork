@@ -46,4 +46,9 @@ export const WIDGETS: Record<string, ComponentType<{ lang: Lang }>> = {
   'visual-dhcp-lease': lazy(() => import('@/widgets/visuals/NetworkVisualsMore').then((m) => ({ default: (p: { lang: Lang }) => <m.NetworkVisualMoreForId id="visual-dhcp-lease" {...p} /> }))),
   'visual-tcp-session': lazy(() => import('@/widgets/visuals/NetworkVisualsMore').then((m) => ({ default: (p: { lang: Lang }) => <m.NetworkVisualMoreForId id="visual-tcp-session" {...p} /> }))),
   'visual-ipv6-autoconfig': lazy(() => import('@/widgets/visuals/NetworkVisualsMore').then((m) => ({ default: (p: { lang: Lang }) => <m.NetworkVisualMoreForId id="visual-ipv6-autoconfig" {...p} /> }))),
+  'visual-bitmask': lazy(() => import('@/widgets/visuals/NetworkVisualsDynamics').then((m) => ({ default: (p: { lang: Lang }) => <m.NetworkVisualDynamicForId id="visual-bitmask" {...p} /> }))),
+  'visual-broadcast-storm': lazy(() => import('@/widgets/visuals/NetworkVisualsDynamics').then((m) => ({ default: (p: { lang: Lang }) => <m.NetworkVisualDynamicForId id="visual-broadcast-storm" {...p} /> }))),
+  'visual-dhcp-relay': lazy(() => import('@/widgets/visuals/NetworkVisualsDynamics').then((m) => ({ default: (p: { lang: Lang }) => <m.NetworkVisualDynamicForId id="visual-dhcp-relay" {...p} /> }))),
+  'visual-ephemeral-ports': lazy(() => import('@/widgets/visuals/NetworkVisualsDynamics').then((m) => ({ default: (p: { lang: Lang }) => <m.NetworkVisualDynamicForId id="visual-ephemeral-ports" {...p} /> }))),
+  'visual-stateful-firewall': lazy(() => import('@/widgets/visuals/NetworkVisualsDynamics').then((m) => ({ default: (p: { lang: Lang }) => <m.NetworkVisualDynamicForId id="visual-stateful-firewall" {...p} /> }))),
 }

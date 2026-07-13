@@ -7,9 +7,11 @@ from app.models.content import ContentBlock, ContentModule, ContentQuizQuestion
 from app.models.setting import Setting
 from app.content.seed import (LEARNING_LABS_MIGRATION, NETWORK_VISUALS_MIGRATION,
                               NETWORK_VISUALS_V2_MIGRATION, NETWORK_VISUAL_V2_ANCHORS,
+                              NETWORK_VISUALS_V3_MIGRATION, NETWORK_VISUAL_V3_ANCHORS,
                               CONTENT_TEXTS_MIGRATION, CONTENT_EDITS_MIGRATION,
                               CONTENT_TEXT_EDITS, COURSE_ORDER_MIGRATION,
                               _OLD_COURSE_ORDERS, _NEW_COURSE_ORDERS,
+                              _source_block, _block_matches_source,
                               seed_missing_content)
 from app.routers.trainer_content import VALID_WIDGET_IDS
 
@@ -391,4 +393,94 @@ def test_course_order_migration_skips_when_orders_deviate_from_expected_old_set(
                     modules[key].order = new_order
             db.commit()
             seed_missing_content(db)
+            db.close()
+
+
+@pytest.mark.parametrize("module_key,widget_id,anchor_ref", NETWORK_VISUAL_V3_ANCHORS)
+def test_network_visual_v3_migration_uses_anchor_and_respects_removal(
+        module_key, widget_id, anchor_ref):
+    """v1.9.0: fünf neue dynamische Widgets, jeweils genau hinter ihrem fachlichen
+    Anker eingefügt; Entfernen nach der Migration darf nicht rückgängig gemacht werden."""
+    assert widget_id in VALID_WIDGET_IDS
+    assert any(block.get("id") == widget_id for block in MODULES[module_key]["blocks"])
+    anchor_source = _source_block(module_key, anchor_ref)
+    with TestClient(app):
+        db = SessionLocal()
+        try:
+            db.query(Setting).filter(Setting.key == NETWORK_VISUALS_V3_MIGRATION).delete()
+            db.query(ContentBlock).filter(ContentBlock.module_key == module_key,
+                                          ContentBlock.widget_id == widget_id).delete()
+            db.commit()
+
+            seed_missing_content(db)
+
+            blocks = db.query(ContentBlock).filter(ContentBlock.module_key == module_key) \
+                .order_by(ContentBlock.position).all()
+            widget_idx = next(i for i, b in enumerate(blocks) if b.widget_id == widget_id)
+            anchor_idx = next(i for i, b in enumerate(blocks)
+                              if _block_matches_source(b, anchor_source))
+            assert widget_idx == anchor_idx + 1
+            assert db.get(Setting, NETWORK_VISUALS_V3_MIGRATION) is not None
+
+            db.query(ContentBlock).filter(ContentBlock.module_key == module_key,
+                                          ContentBlock.widget_id == widget_id).delete()
+            db.commit()
+            seed_missing_content(db)
+            assert db.query(ContentBlock).filter(ContentBlock.module_key == module_key,
+                                                 ContentBlock.widget_id == widget_id).count() == 0
+        finally:
+            db.query(Setting).filter(Setting.key == NETWORK_VISUALS_V3_MIGRATION).delete()
+            db.commit()
+            seed_missing_content(db)
+            db.close()
+
+
+def _identifiable_block_signature(block: ContentBlock) -> str | int | None:
+    """Reduziert einen Block auf ein stabiles, vergleichbares Merkmal: widget_id
+    für Widgets, sonst value_de bzw. der Prompt aus dem Payload."""
+    if block.widget_id is not None:
+        return block.widget_id
+    if block.value_de:
+        return block.value_de
+    if block.payload:
+        return block.payload.get("prompt_de") or block.payload.get("teaser_de")
+    return None
+
+
+def _source_block_signature(source: dict) -> str | int | None:
+    if source["type"] == "widget":
+        return source["id"]
+    if source["type"] == "text":
+        return source["value"]["de"]
+    value = source.get("value") or {}
+    if value.get("de"):
+        return value["de"]
+    payload = source.get("payload") or {}
+    return payload.get("prompt_de") or payload.get("teaser_de")
+
+
+@pytest.mark.parametrize("module_key", ["switching", "subnetting", "ports", "dhcp", "firewall"])
+def test_migrated_module_block_order_matches_source_order(module_key):
+    """Schützt alle künftigen Releases: die Blockreihenfolge eines über die Migration
+    nachgezogenen Moduls in einer Bestands-DB muss exakt der Reihenfolge in MODULES
+    entsprechen. Das Modul wird komplett entfernt (Bestands-DB, die dieses Modul noch
+    nicht kennt — derselbe Fall wie test_seed_adds_missing_module_to_existing_db) und
+    dann erneut über seed_missing_content nachgezogen."""
+    with TestClient(app):
+        db = SessionLocal()
+        try:
+            db.query(ContentBlock).filter(ContentBlock.module_key == module_key).delete()
+            db.query(ContentQuizQuestion).filter(ContentQuizQuestion.module_key == module_key).delete()
+            db.query(ContentModule).filter(ContentModule.key == module_key).delete()
+            db.commit()
+
+            seed_missing_content(db)
+
+            blocks = db.query(ContentBlock).filter(ContentBlock.module_key == module_key) \
+                .order_by(ContentBlock.position).all()
+            db_sequence = [sig for sig in (_identifiable_block_signature(b) for b in blocks) if sig is not None]
+            source_sequence = [sig for sig in (_source_block_signature(b) for b in MODULES[module_key]["blocks"])
+                               if sig is not None]
+            assert db_sequence == source_sequence
+        finally:
             db.close()

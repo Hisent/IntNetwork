@@ -62,6 +62,12 @@ FIREWALL_MODULE = {
                  "Default-Deny. Jeweils zeigen, welche Regel greift (Hervorhebung)."},
         {"type": "widget", "id": "visual-firewall-flow",
          "note": "Pakete Regel für Regel bis zum ersten Treffer verfolgen."},
+        {"type": "widget", "id": "visual-stateful-firewall",
+         "note": "DE: Erlaubte ausgehende Verbindung erzeugt einen State-Eintrag, die "
+                 "Antwort passiert ohne eigene Regel; externes SYN ohne State fällt unter "
+                 "Default-Deny. EN: An allowed outbound connection creates a state entry, "
+                 "the reply passes without its own rule; external SYN without state falls "
+                 "under default deny."},
         {"type": "widget", "id": "learning-policy", "note": "Eine minimale Policy für Gäste und Büro bauen."},
         {"type": "text",
          "value": {

@@ -69,6 +69,10 @@ DHCP_MODULE = {
                    "the configured relay address (giaddr) the server recognizes which network "
                    "the request came from and assigns an address from the matching pool.",
          }},
+        {"type": "widget", "id": "visual-dhcp-relay",
+         "note": "DE: Den Pfad Client (VLAN 20) → Router → DHCP-Server (VLAN 10) ohne und "
+                 "mit Relay durchspielen. EN: Play through the path client (VLAN 20) → "
+                 "router → DHCP server (VLAN 10) without and with relay."},
         {"type": "widget", "id": "learning-dhcp", "note": "DHCP-Symptome der Fehlerquelle zuordnen."},
         {"type": "text",
          "value": {

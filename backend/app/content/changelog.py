@@ -1,5 +1,19 @@
 # Projekt-Changelog (nur für Trainer sichtbar). Neueste zuerst.
 CHANGELOG = [
+    {"date": "2026-07-13", "title": "v1.9.0 — Fünf dynamische Visualisierungen",
+     "text": "Fünf neue interaktive Widgets ergänzen die Kursmodule: eine Bitmasken-Ansicht "
+             "im Subnetting-Modul (Präfix-Slider mit synchroner Binär-/Dezimalform), eine "
+             "Broadcast-Sturm-Simulation im Switching-Modul (Frames verdoppeln sich pro "
+             "Tick bis zur Überlastung, danach Loop trennen), ein DHCP-Relay-Pfad über "
+             "VLAN-Grenzen (mit und ohne ip helper-address), eine Quell-Port-Zuordnung im "
+             "Ports-Modul (ankommende Antwortpakete der richtigen Verbindung zuordnen) und "
+             "eine Stateful-Firewall-Tabelle im Firewall-Modul (State-Eintrag bei erlaubter "
+             "ausgehender Verbindung, Default-Deny ohne State). Zusätzlich zeigt die "
+             "VPN-Demo jetzt die Sicht eines Angreifers im offenen WLAN — ohne VPN Klartext, "
+             "mit VPN nur Gateway-zu-Gateway-Metadaten und ein verschlüsselter Block. "
+             "Bestehende Installationen ziehen die neuen Widgets über eine einmalige "
+             "Migration an ihrer fachlichen Position nach; vom Trainer bereits geänderte "
+             "Inhalte bleiben unangetastet."},
     {"date": "2026-07-13", "title": "v1.8.0 — Fachliche Vertiefung der Kursinhalte",
      "text": "Fünf neue Inhaltsblöcke vertiefen bestehende Module: Quell-Ports im "
              "Ports-Modul, Masken-Schreibweisen (/x vs. Dezimalform) im Subnetting-Modul, "

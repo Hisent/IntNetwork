@@ -84,6 +84,10 @@ SUBNETTING_MODULE = {
             "prompt_en": "Which prefix (/x) does the subnet mask 255.255.255.240 correspond to?",
             "answer": 28,
         }},
+        {"type": "widget", "id": "visual-bitmask",
+         "note": "DE: Präfix-Slider /8–/30 durchgehen und Binärform, Dezimalform und "
+                 "nutzbare Hosts synchron vergleichen. EN: Step through the /8–/30 prefix "
+                 "slider and compare binary form, decimal form and usable hosts in sync."},
         {"type": "widget", "id": "visual-subnet-map",
          "note": "Ein /24 visuell bis /28 teilen und die entstehenden Netze vergleichen."},
         {"type": "widget", "id": "learning-subnet", "note": "Kleinste passende Subnetze für Abteilungen planen."},
