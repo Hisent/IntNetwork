@@ -266,7 +266,7 @@ export function WorkbenchLearnView({ lang, displayName, modules, groups, progres
       <div className="wb-shell">
         <div className="mb-8 grid gap-5 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-end">
           <div>
-            <p className="mb-2 text-sm font-medium text-[var(--wb-accent)]">{lang === 'de' ? 'Network Workbench' : 'Network Workbench'}</p>
+            <p className="mb-2 text-sm font-medium text-[var(--wb-accent)]">Network Workbench</p>
             <h1 className="max-w-3xl text-3xl font-bold leading-tight tracking-tight text-[var(--wb-ink)] sm:text-4xl">
               {t(lang, 'hello')} {displayName ?? ''}
             </h1>

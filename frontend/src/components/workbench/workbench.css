@@ -47,8 +47,7 @@
   min-height: 44px;
 }
 
-.workbench .wb-topbar fieldset button,
-.workbench .wb-topbar > div > div > button {
+.workbench .wb-topbar button {
   min-height: 44px;
 }
 
@@ -82,8 +81,8 @@
   overflow-x: auto;
 }
 
-.wb-module-content > .flex.flex-col.gap-6 > [id^="block-"]:has(> p),
-.wb-module-content > .flex.flex-col.gap-6 > [id^="block-"]:has(> h2) {
+.wb-module-content .content-blocks > [id^="block-"]:has(> p),
+.wb-module-content .content-blocks > [id^="block-"]:has(> h2) {
   background: transparent;
 }
 

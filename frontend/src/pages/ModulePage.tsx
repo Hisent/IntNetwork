@@ -289,13 +289,14 @@ function WorkbenchModuleNav({ lang, current, modules, progress }: { lang: Lang; 
       {modules.map((module) => {
         const available = unlocked(module)
         const itemProgress = progressOf(module.key)
-        return (
-          <Link key={module.key} to={available ? `/lernen/${module.key}` : '#'} onClick={(event) => { if (!available) event.preventDefault() }} aria-current={module.key === current ? 'page' : undefined}
-            className={`wb-control grid grid-cols-[28px_minmax(0,1fr)] items-center gap-2 rounded-lg px-2 py-1.5 text-sm ${module.key === current ? 'bg-[var(--wb-accent-soft)] font-semibold text-[var(--wb-accent)]' : available ? 'text-[var(--wb-muted)] hover:bg-white hover:text-[var(--wb-ink)]' : 'cursor-not-allowed text-slate-400'}`}>
+        const rowClass = `wb-control grid grid-cols-[28px_minmax(0,1fr)] items-center gap-2 rounded-lg px-2 py-1.5 text-sm ${module.key === current ? 'bg-[var(--wb-accent-soft)] font-semibold text-[var(--wb-accent)]' : available ? 'text-[var(--wb-muted)] hover:bg-white hover:text-[var(--wb-ink)]' : 'cursor-not-allowed text-slate-400'}`
+        const rowContent = <>
             <span aria-hidden="true" className={`grid h-6 w-6 place-items-center rounded-md text-[10px] font-bold ${itemProgress?.done ? 'bg-emerald-100 text-[var(--wb-success)]' : module.key === current ? 'bg-[var(--wb-accent)] text-white' : 'bg-white'}`}>{itemProgress?.done ? '✓' : module.order}</span>
             <span className="min-w-0">{lang === 'de' ? module.title : module.title_en}</span>
-          </Link>
-        )
+          </>
+        return available
+          ? <Link key={module.key} to={`/lernen/${module.key}`} aria-current={module.key === current ? 'page' : undefined} className={rowClass}>{rowContent}</Link>
+          : <div key={module.key} aria-disabled="true" className={rowClass}>{rowContent}</div>
       })}
     </nav>
   )

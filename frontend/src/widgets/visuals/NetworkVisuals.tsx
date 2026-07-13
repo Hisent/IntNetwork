@@ -118,13 +118,19 @@ function FirewallFlow({ lang }: { lang: Lang }) {
 
 function DnsTree({ lang }: { lang: Lang }) {
   const [cached, setCached] = useState(false)
+  const [completed, setCompleted] = useState(false)
   const full = ['Resolver', 'Root', 'TLD .de', lang === 'de' ? 'Autoritativ' : 'Authoritative', '203.0.113.11']
   const path = cached ? ['Resolver', 'Cache', '203.0.113.11'] : full
   const [step, setStep] = useState(0)
-  return <Frame mode="dns-tree" lang={lang} done={!cached && step === path.length - 1}>
+  const advance = () => {
+    const next = step === path.length - 1 ? 0 : step + 1
+    if (!cached && next === path.length - 1) setCompleted(true)
+    setStep(next)
+  }
+  return <Frame mode="dns-tree" lang={lang} done={completed}>
     <label className="flex items-center gap-2 text-sm text-slate-700"><input type="checkbox" checked={cached} onChange={event => { setCached(event.target.checked); setStep(0) }}/>{copy[lang].cache}</label>
     <div className="mt-5 flex flex-wrap items-center justify-center gap-2" aria-live="polite">{path.map((node,index) => <div key={node} className="flex items-center gap-2"><div className={`rounded-full border px-3 py-2 text-sm ${index <= step ? 'border-teal-400 bg-teal-50 text-teal-900' : 'border-slate-200 text-slate-400'}`}>{node}</div>{index < path.length - 1 && <span className={index < step ? 'text-teal-600' : 'text-slate-300'}>→</span>}</div>)}</div>
-    <button onClick={() => setStep(step === path.length - 1 ? 0 : step + 1)} className="mt-4 rounded-lg bg-teal-600 px-3 py-2 text-sm font-medium text-white">{step === path.length - 1 ? copy[lang].reset : copy[lang].next}</button>
+    <button onClick={advance} className="mt-4 rounded-lg bg-teal-600 px-3 py-2 text-sm font-medium text-white">{step === path.length - 1 ? copy[lang].reset : copy[lang].next}</button>
   </Frame>
 }
 

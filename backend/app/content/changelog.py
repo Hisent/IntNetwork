@@ -1,5 +1,9 @@
 # Projekt-Changelog (nur für Trainer sichtbar). Neueste zuerst.
 CHANGELOG = [
+    {"date": "2026-07-13", "title": "v1.7.1 — Review-Feinschliff",
+     "text": "Gesperrte Module in der Workbench-Navigation sind für Screenreader jetzt "
+             "korrekt als deaktiviert markiert, die DNS-Baum-Aufgabe bleibt nach dem "
+             "Cache-Vergleich erledigt und interne Style-Selektoren wurden robuster gemacht."},
     {"date": "2026-07-12", "title": "v1.7.0 — Classic und Network Workbench",
      "text": "Teilnehmer können zwischen der vertrauten Classic-Oberfläche und der neuen "
              "Network Workbench wechseln. Beide Ansichten verwenden dieselben Kurse, Module, "

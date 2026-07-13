@@ -280,7 +280,7 @@ export function Blocks({
   }
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="content-blocks flex flex-col gap-6">
       {blocks.map((b, i) => (
         <div key={i} id={`block-${i}`} className="flex flex-col gap-1 scroll-mt-20">
           {(i === 0 || phaseOf(blocks[i - 1].type) !== phaseOf(b.type)) && (
