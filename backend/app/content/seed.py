@@ -248,8 +248,11 @@ def _migrate_course_order(db: Session) -> None:
             modules[key].order == old_order for key, old_order in _OLD_COURSE_ORDERS.items()):
         for key, new_order in _NEW_COURSE_ORDERS.items():
             modules[key].order = new_order
-    nat = modules.get("nat") or db.query(ContentModule).filter(ContentModule.key == "nat").first()
-    if nat is not None and nat.prerequisites == ["routing"]:
+    # Voraussetzung nur ergänzen, wenn Ports tatsächlich vor NAT liegt — sonst
+    # würde NAT ein Modul voraussetzen, das die Kursreihenfolge noch nicht freischaltet.
+    nat, ports = modules.get("nat"), modules.get("ports")
+    if (nat is not None and ports is not None and ports.order < nat.order
+            and nat.prerequisites == ["routing"]):
         nat.prerequisites = ["routing", "ports"]
     db.add(Setting(key=COURSE_ORDER_MIGRATION, value="applied"))
     db.flush()

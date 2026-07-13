@@ -330,6 +330,40 @@ def test_course_order_migration_updates_orders_and_prerequisites():
             db.close()
 
 
+def test_course_order_migration_never_adds_prerequisite_when_ports_sits_after_nat():
+    """Trainer hat Ports hinter NAT geschoben: Guard verhindert die Umsortierung,
+    dann darf NAT auch keine Ports-Voraussetzung bekommen — sie wäre in dieser
+    Reihenfolge nicht freischaltbar."""
+    with TestClient(app):
+        db = SessionLocal()
+        modules = {}
+        try:
+            db.query(Setting).filter(Setting.key == COURSE_ORDER_MIGRATION).delete()
+            modules = {m.key: m for m in db.query(ContentModule).filter(
+                ContentModule.key.in_(_OLD_COURSE_ORDERS.keys())).all()}
+            for key, old_order in _OLD_COURSE_ORDERS.items():
+                modules[key].order = old_order
+            modules["ports"].order = 12  # hinter NAT (7)
+            modules["nat"].prerequisites = ["routing"]
+            db.commit()
+
+            seed_missing_content(db)
+
+            db.refresh(modules["nat"])
+            assert modules["nat"].prerequisites == ["routing"]
+            assert db.get(Setting, COURSE_ORDER_MIGRATION) is not None
+        finally:
+            db.query(Setting).filter(Setting.key == COURSE_ORDER_MIGRATION).delete()
+            for key, new_order in _NEW_COURSE_ORDERS.items():
+                if key in modules:
+                    modules[key].order = new_order
+            if "nat" in modules:
+                modules["nat"].prerequisites = ["routing", "ports"]
+            db.commit()
+            seed_missing_content(db)
+            db.close()
+
+
 def test_course_order_migration_skips_when_orders_deviate_from_expected_old_set():
     with TestClient(app):
         db = SessionLocal()
