@@ -1,5 +1,13 @@
 # Projekt-Changelog (nur für Trainer sichtbar). Neueste zuerst.
 CHANGELOG = [
+    {"date": "2026-07-20", "title": "v1.21.0 — Trainer-Dashboard neu & CLI-Session pro Teilnehmer",
+     "text": "Das Trainer-Dashboard ist als Master-Detail aufgebaut: Kurse links wählen, "
+             "Details (Module, Präsenz, Fortschritt, Feedback) rechts; globale Verwaltung "
+             "(Trainer-Zugänge, Module, Einstellungen, Log) darunter. Kurskarten zeigen die "
+             "Teilnehmerzahl, die Fortschrittstabelle ist farbcodiert mit fixierter erster "
+             "Spalte, Formulare haben sichtbare Labels und Ladefehler eine Meldung. "
+             "Die Live-CLI-Übung speichert ihre Sitzung jetzt pro Teilnehmer (überlebt "
+             "Neuladen, getrennt je Person am geteilten Browser)."},
     {"date": "2026-07-20", "title": "v1.20.0 — Dark Mode, prüfbare Bestätigung & mehr",
      "text": "Neuer Dunkelmodus (Umschalter oben; folgt anfangs der Systemeinstellung). "
              "Die Teilnahmebestätigung bekommt eine Prüf-ID und ist öffentlich unter "

@@ -43,7 +43,10 @@ def create_course(data: CourseCreate, db: Session = Depends(get_db), _=Depends(g
 
 @router.get("")
 def list_courses(db: Session = Depends(get_db), _=Depends(get_trainer)):
-    return [{"id": c.id, "name": c.name, "join_code": c.join_code, "workshop_key": c.workshop_key}
+    counts = dict(db.query(Participant.course_id, func.count(Participant.id))
+                  .group_by(Participant.course_id).all())
+    return [{"id": c.id, "name": c.name, "join_code": c.join_code, "workshop_key": c.workshop_key,
+             "participant_count": counts.get(c.id, 0)}
             for c in db.query(Course).order_by(Course.created_at.desc()).all()]
 
 

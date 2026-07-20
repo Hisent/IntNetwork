@@ -32,6 +32,10 @@ def test_course_and_join_flow():
         assert me.json()["name"] == "Anna"
         assert any(p["module_key"] == "vlan" for p in me.json()["progress"])
 
+        # Kursliste zeigt Teilnehmerzahl (für die Trainer-Kurskarten)
+        listed = next(x for x in c.get("/api/courses", headers=h).json() if x["join_code"] == code)
+        assert listed["participant_count"] == 1
+
         assert c.post("/api/join", json={"code": "ZZZZZZ", "name": "X"}).status_code == 404
         assert c.post("/api/courses", json={"name": "x"},
                       headers={"Authorization": f"Bearer {tok}"}).status_code == 403

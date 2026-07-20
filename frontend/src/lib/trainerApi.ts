@@ -2,7 +2,7 @@ import { api } from '@/lib/api'
 import type { ModuleMeta, TrainerModuleDetail } from '@/types'
 import type { TrainerComment } from '@/components/commentGroups'
 
-export interface Course { id: number; name: string; join_code: string; workshop_key: string | null }
+export interface Course { id: number; name: string; join_code: string; workshop_key: string | null; participant_count?: number }
 export interface Dashboard {
   course: Course
   modules: { key: string; title: string; order: number }[]
