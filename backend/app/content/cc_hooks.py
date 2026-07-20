@@ -190,6 +190,27 @@ HOOKS_MODULE = {'key': 'hooks',
                              'finer control, a hook can return JSON with a `permissionDecision` '
                              '(`deny`/`allow`).'}},
             {'type': 'text',
+             'value': {'de': '## Hooks selbst absichern\n'
+                             '\n'
+                             'Ein Command-Hook läuft mit den Rechten des angemeldeten Benutzers. '
+                             'Er ist daher **keine Sandbox** und darf nicht unkritisch aus einem '
+                             'fremden Repository oder Plugin übernommen werden. Prüfe Hook-Code wie '
+                             'Produktionscode: Quelle vertrauen, Eingaben und Pfade validieren, '
+                             'keine Secrets ausgeben und nur die nötigen Kommandos ausführen.\n'
+                             '\n'
+                             'Für technische Sperren verwende `PreToolUse` oder Permission-Regeln; '
+                             'ein Hinweis in CLAUDE.md allein ist keine Zugriffskontrolle.',
+                       'en': '## Secure hooks themselves\n'
+                             '\n'
+                             'A command hook runs with the signed-in user\'s permissions. It is '
+                             'therefore **not a sandbox** and must not be copied blindly from an '
+                             'untrusted repository or plugin. Review hook code like production code: '
+                             'trust the source, validate inputs and paths, do not output secrets, '
+                             'and run only the commands that are needed.\n'
+                             '\n'
+                             'For technical blocking, use `PreToolUse` or permission rules; a note '
+                             'in CLAUDE.md alone is not access control.'}},
+            {'type': 'text',
              'value': {'de': '## Beispiel: Kontext beim Sessionstart\n'
                              '\n'
                              'Ein `SessionStart`-Hook kann nützliche Infos beilegen — hier Branch '

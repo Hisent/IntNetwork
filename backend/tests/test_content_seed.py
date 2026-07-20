@@ -11,6 +11,7 @@ from app.content.seed import (LEARNING_LABS_MIGRATION, NETWORK_VISUALS_MIGRATION
                               CONTENT_TEXTS_MIGRATION, CONTENT_EDITS_MIGRATION,
                               CONTENT_EDITS_V2_MIGRATION, CONTENT_TEXT_EDITS_V2,
                               CONTENT_TEXT_EDITS, COURSE_ORDER_MIGRATION,
+                              CLAUDE_WORKSHOP_ORDER_MIGRATION,
                               _OLD_COURSE_ORDERS, _NEW_COURSE_ORDERS,
                               _source_block, _block_matches_source,
                               seed_missing_content)
@@ -363,6 +364,19 @@ def test_course_order_migration_updates_orders_and_prerequisites():
                 modules["nat"].prerequisites = ["routing", "ports"]
             db.commit()
             seed_missing_content(db)
+            db.close()
+
+
+def test_claude_workshop_order_migration_moves_capstone_after_new_modules():
+    with TestClient(app):
+        db = SessionLocal()
+        try:
+            capstone = db.query(ContentModule).filter(ContentModule.key == "capstone").first()
+            assert capstone is not None
+            assert capstone.order == 118
+            assert capstone.prerequisites[-2:] == ["effective-workflows", "git-collaboration"]
+            assert db.get(Setting, CLAUDE_WORKSHOP_ORDER_MIGRATION) is not None
+        finally:
             db.close()
 
 

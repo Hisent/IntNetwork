@@ -323,6 +323,26 @@ def _migrate_course_order(db: Session) -> None:
     db.flush()
 
 
+CLAUDE_WORKSHOP_ORDER_MIGRATION = "content-migration:claude-workshop-order-v2"
+
+
+def _migrate_claude_workshop_order(db: Session) -> None:
+    """Schiebt den Capstone hinter die neuen Team-Workflow-Module.
+    Nur unveränderte Seed-Metadaten werden angepasst; Trainer-Reihenfolgen bleiben erhalten."""
+    if db.get(Setting, CLAUDE_WORKSHOP_ORDER_MIGRATION):
+        return
+    capstone = db.query(ContentModule).filter(ContentModule.key == "capstone").first()
+    if (capstone is not None and capstone.order == 116
+            and capstone.prerequisites == ["orchestration", "spec-driven-bmad", "safe-ai-workflows"]):
+        capstone.order = 118
+        capstone.prerequisites = [
+            "orchestration", "spec-driven-bmad", "safe-ai-workflows",
+            "effective-workflows", "git-collaboration",
+        ]
+    db.add(Setting(key=CLAUDE_WORKSHOP_ORDER_MIGRATION, value="applied"))
+    db.flush()
+
+
 def seed_missing_content(db: Session) -> None:
     """Seedet alle Module, deren Key noch nicht in der DB steht — beim ersten
     Start also alles, bei Updates nur neu hinzugekommene Module. Versionierte
@@ -384,6 +404,7 @@ def seed_missing_content(db: Session) -> None:
     _migrate_text_edits(db)
     _migrate_text_edits_v2(db)
     _migrate_course_order(db)
+    _migrate_claude_workshop_order(db)
     _migrate_network_visuals_v3(db)
     # Neue Module können auch später nachgeseedet werden. Die Workshop-Familie
     # wird dabei gleich mitgeschrieben, damit sie nicht still in keinem Kurs

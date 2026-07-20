@@ -80,6 +80,23 @@ def test_every_module_has_goals_and_notes():
         assert any("note" in b for b in m["blocks"]), f"{key} ohne Block-Notiz"
 
 
+def test_ai_safety_module_requires_verification_before_capstone():
+    safety = registry.MODULES["safe-ai-workflows"]
+    assert safety["prerequisites"] == ["security-enterprise"]
+    assert "safe-ai-workflows" in registry.MODULES["capstone"]["prerequisites"]
+    assert any(block["type"] == "debug" for block in safety["blocks"])
+
+
+def test_workshop_has_task_and_team_collaboration_path_before_capstone():
+    workflow = registry.MODULES["effective-workflows"]
+    git = registry.MODULES["git-collaboration"]
+    assert workflow["prerequisites"] == ["safe-ai-workflows"]
+    assert git["prerequisites"] == ["effective-workflows"]
+    assert "git-collaboration" in registry.MODULES["capstone"]["prerequisites"]
+    assert any(block["type"] == "order" for block in workflow["blocks"])
+    assert any("worktree" in block.get("value", {}).get("de", "").lower() for block in git["blocks"])
+
+
 def test_public_module_resolves_language():
     with TestClient(app):
         db = SessionLocal()
