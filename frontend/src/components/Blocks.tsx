@@ -4,6 +4,7 @@ import type { Block } from '@/types'
 import { WIDGETS } from '@/widgets/registry'
 import { shuffledIndices } from '@/components/Quiz'
 import { t, type Lang } from '@/lib/i18n'
+import { WidgetScopeContext } from '@/lib/widgetScope'
 
 function InlineCode({ className, children }: {
   className?: string
@@ -321,6 +322,7 @@ export function Blocks({
   }
 
   return (
+    <WidgetScopeContext.Provider value={keyScope}>
     <div className="content-blocks flex flex-col gap-6">
       {blocks.map((b, i) => (
         <div key={i} id={`block-${i}`} className="flex flex-col gap-1 scroll-mt-20">
@@ -341,5 +343,6 @@ export function Blocks({
         </div>
       ))}
     </div>
+    </WidgetScopeContext.Provider>
   )
 }

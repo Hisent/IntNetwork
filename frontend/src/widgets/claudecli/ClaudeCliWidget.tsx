@@ -1,7 +1,32 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { createTerminalState, runCommand, runTerminalCommand, type CliMode, type TerminalState } from '@/widgets/claudecli/claudeCli'
 import { ChallengeBox } from '@/components/ChallengeBox'
+import { useWidgetScope } from '@/lib/widgetScope'
 import type { Lang } from '@/lib/i18n'
+
+interface CliSnapshot { mode: CliMode; lines: string[]; terminal: TerminalState; solved: boolean; sessionId: string }
+
+const newSessionId = () => Math.random().toString(36).slice(2, 8)
+
+// Pro Teilnehmer gespeichert (localStorage, wie Lese-Merker/Reflexionen) — die
+// Session überlebt Reload und gehört dem eingeloggten Teilnehmer, nicht dem Browser.
+export function loadSnapshot(storageKey: string | null, intro: string): CliSnapshot {
+  if (storageKey) {
+    try {
+      const raw = localStorage.getItem(storageKey)
+      if (raw) {
+        const p = JSON.parse(raw)
+        if (p && p.terminal?.files && Array.isArray(p.lines)) {
+          return { mode: p.mode ?? 'default', lines: p.lines, terminal: p.terminal,
+            solved: !!p.solved, sessionId: p.sessionId ?? newSessionId() }
+        }
+      }
+    } catch {
+      // beschädigter Eintrag -> frische Session
+    }
+  }
+  return { mode: 'default', lines: [intro], terminal: createTerminalState(), solved: false, sessionId: newSessionId() }
+}
 
 const STR = {
   de: {
@@ -22,12 +47,25 @@ const STR = {
 
 export function ClaudeCli({ lang }: { lang: Lang }) {
   const s = STR[lang]
-  const [mode, setMode] = useState<CliMode>('default')
-  const [lines, setLines] = useState<string[]>([s.intro])
+  const scope = useWidgetScope()
+  const storageKey = scope ? `intnetwork-cli-${scope}` : null
+  const [snap] = useState(() => loadSnapshot(storageKey, s.intro))
+  const [mode, setMode] = useState<CliMode>(snap.mode)
+  const [lines, setLines] = useState<string[]>(snap.lines)
   const [input, setInput] = useState('')
-  const [solved, setSolved] = useState(false)
-  const [terminal, setTerminal] = useState<TerminalState>(createTerminalState)
-  const [sessionId, setSessionId] = useState(() => Math.random().toString(36).slice(2, 8))
+  const [solved, setSolved] = useState(snap.solved)
+  const [terminal, setTerminal] = useState<TerminalState>(snap.terminal)
+  const [sessionId, setSessionId] = useState(snap.sessionId)
+
+  // Session pro Teilnehmer persistieren; ohne Teilnehmerkontext (Trainer-Vorschau) nicht.
+  useEffect(() => {
+    if (!storageKey) return
+    try {
+      localStorage.setItem(storageKey, JSON.stringify({ mode, lines, terminal, solved, sessionId }))
+    } catch {
+      // Speicher voll/blockiert — die Session läuft für die Seite trotzdem weiter.
+    }
+  }, [storageKey, mode, lines, terminal, solved, sessionId])
 
   function submit() {
     const trimmed = input.trim()
@@ -48,7 +86,7 @@ export function ClaudeCli({ lang }: { lang: Lang }) {
     setTerminal(createTerminalState())
     setLines([s.intro])
     setSolved(false)
-    setSessionId(Math.random().toString(36).slice(2, 8))
+    setSessionId(newSessionId())
   }
 
   const modes: [CliMode, string][] = [
