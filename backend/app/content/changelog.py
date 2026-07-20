@@ -1,5 +1,9 @@
 # Projekt-Changelog (nur für Trainer sichtbar). Neueste zuerst.
 CHANGELOG = [
+    {"date": "2026-07-20", "title": "v1.15.0 — Saubere Inline- und Terminal-Codeausgabe",
+     "text": "Markdown-Code im Claude-Workshop wird jetzt korrekt unterschieden: "
+             "Inline-Kommandos bleiben kompakt, fenced Shell-/Console-Ausgaben erscheinen "
+             "als abgesetzter, horizontal scrollbar dargestellter und kopierbarer Codeblock."},
     {"date": "2026-07-20", "title": "v1.14.0 — Seed-Synchronisierung für bestehende Kurse",
      "text": "Neue ausgelieferte Module werden beim Start auch in bestehende Kurse "
              "desselben Workshops aufgenommen; Trainer-eigene Module bleiben Opt-in. "

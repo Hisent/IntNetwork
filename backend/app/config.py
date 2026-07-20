@@ -1,7 +1,7 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 DEFAULT_SECRET_KEY = "change-me-intnetwork-default-secret"
-APP_VERSION = "1.14.0"
+APP_VERSION = "1.15.0"
 
 
 class Settings(BaseSettings):

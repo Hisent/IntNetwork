@@ -1,22 +1,23 @@
-import { Suspense, useMemo, useState, type ReactNode } from 'react'
+import { Children, isValidElement, Suspense, useMemo, useState, type ReactNode } from 'react'
 import Markdown from 'react-markdown'
 import type { Block } from '@/types'
 import { WIDGETS } from '@/widgets/registry'
 import { shuffledIndices } from '@/components/Quiz'
 import { t, type Lang } from '@/lib/i18n'
 
-function CodeBlock({ inline, className, children }: {
-  inline?: boolean
+function InlineCode({ className, children }: {
   className?: string
   children?: ReactNode
 }) {
-  const [copied, setCopied] = useState(false)
-  const source = String(children ?? '').replace(/\n$/, '')
-  const language = className?.match(/language-([\w-]+)/)?.[1]
+  return <code className={`rounded bg-slate-100 px-1 py-0.5 font-mono text-[0.9em] text-teal-800 ${className ?? ''}`}>{children}</code>
+}
 
-  if (inline) {
-    return <code className="rounded bg-slate-100 px-1 py-0.5 font-mono text-[0.9em] text-teal-800">{children}</code>
-  }
+function CodeBlock({ children }: { children?: ReactNode }) {
+  const [copied, setCopied] = useState(false)
+  const child = Children.toArray(children)[0]
+  const childProps = isValidElement<{ children?: ReactNode; className?: string }>(child) ? child.props : {}
+  const source = String(childProps.children ?? '').replace(/\n$/, '')
+  const language = childProps.className?.match(/language-([\w-]+)/)?.[1]
 
   const copy = async () => {
     try {
@@ -35,7 +36,7 @@ function CodeBlock({ inline, className, children }: {
           {copied ? 'Kopiert / Copied' : 'Kopieren / Copy'}
         </button>
       </div>
-      <pre className="overflow-x-auto p-4 text-sm leading-relaxed text-slate-100"><code className="font-mono">{children}</code></pre>
+      <pre className="overflow-x-auto p-4 text-sm leading-relaxed text-slate-100"><code className="font-mono">{childProps.children}</code></pre>
     </div>
   )
 }
@@ -47,8 +48,8 @@ export const MD_COMPONENTS = {
   ul: (p: object) => <ul className="list-disc pl-5 text-slate-700 space-y-1 my-1" {...p} />,
   ol: (p: object) => <ol className="list-decimal pl-5 text-slate-700 space-y-1 my-1" {...p} />,
   strong: (p: object) => <strong className="font-semibold text-slate-900" {...p} />,
-  pre: ({ children }: { children?: ReactNode }) => <>{children}</>,
-  code: CodeBlock,
+  pre: CodeBlock,
+  code: InlineCode,
 }
 
 export function WidgetBlock({ id, lang }: { id: string; lang: Lang }) {
