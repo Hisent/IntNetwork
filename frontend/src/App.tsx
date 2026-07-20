@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { NotFoundPage } from '@/pages/NotFoundPage'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { LandingPage } from '@/pages/LandingPage'
+import { WorkshopPage } from '@/pages/WorkshopPage'
 import { LearnPage } from '@/pages/LearnPage'
 import { ModulePage } from '@/pages/ModulePage'
 import { CertificatePage } from '@/pages/CertificatePage'
@@ -18,6 +19,7 @@ export default function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<LandingPage />} />
+          <Route path="/workshops/:key" element={<WorkshopPage />} />
           <Route path="/lernen" element={<LearnPage />} />
           <Route path="/lernen/zertifikat" element={<CertificatePage />} />
           <Route path="/lernen/:key" element={<ModulePage />} />

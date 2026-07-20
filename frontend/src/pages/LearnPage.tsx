@@ -10,16 +10,9 @@ import { ExperienceSwitch } from '@/components/ExperienceSwitch'
 import { useUiModeStore } from '@/store/uiMode'
 import type { ReactNode } from 'react'
 import { WorkbenchProgress, WorkbenchSectionTitle, WorkbenchTopbar } from '@/components/workbench/WorkbenchShell'
+import { WorkshopTheme } from '@/components/WorkshopTheme'
 
-// Kurs-Kapitel: gruppiert die Modulliste nach order-Bereichen.
-// Trainer-eigene Module (order 18+) landen in „Weitere Module".
-const GROUPS = [
-  { key: 'groupBasics', from: 1, to: 4 },
-  { key: 'groupServices', from: 5, to: 10 },
-  { key: 'groupSecurity', from: 11, to: 15 },
-  { key: 'groupPractice', from: 16, to: 17 },
-  { key: 'groupMore', from: 18, to: Infinity },
-] as const
+type Group = { key: string; title: string; mods: ModuleMeta[] }
 
 export function LearnPage() {
   const nav = useNavigate()
@@ -29,8 +22,9 @@ export function LearnPage() {
   const me = useQuery({ queryKey: ['me'], queryFn: () => learnApi.me().then((r) => r.data) })
   const lang: Lang = me.data?.language ?? 'de'
   const mods = useQuery({ queryKey: ['modules', lang], queryFn: () => learnApi.listModules().then((r) => r.data) })
-  const company = useQuery({ queryKey: ['company', lang], queryFn: () => learnApi.company().then((r) => r.data) })
-  const links = useQuery({ queryKey: ['links'], queryFn: () => learnApi.links().then((r) => r.data) })
+  const networkWorkshop = me.data?.workshop?.key === 'network'
+  const company = useQuery({ queryKey: ['company', lang], queryFn: () => learnApi.company().then((r) => r.data), enabled: networkWorkshop })
+  const links = useQuery({ queryKey: ['links'], queryFn: () => learnApi.links().then((r) => r.data), enabled: networkWorkshop })
   const setLang = useMutation({
     mutationFn: (l: Lang) => learnApi.setLanguage(l),
     onSuccess: () => {
@@ -60,9 +54,12 @@ export function LearnPage() {
   const isLocked = (m: ModuleMeta) => m.prerequisites.length > 0 && !prereqsMet(m.prerequisites)
   // „Hier weitermachen“: erstes offenes, nicht gesperrtes Modul in Kurs-Reihenfolge
   const continueAt = sorted.find((m) => !isDone(m.key) && !isLocked(m))
-  const grouped = GROUPS
-    .map((g) => ({ ...g, mods: sorted.filter((m) => m.order >= g.from && m.order <= g.to) }))
+  const grouped: Group[] = (me.data?.workshop?.sections ?? [{ key: 'modules', from: -Infinity, to: Infinity, title_de: 'Module', title_en: 'Modules' }])
+    .map((g) => ({ key: g.key, title: lang === 'de' ? g.title_de : g.title_en, mods: sorted.filter((m) => m.order >= g.from && m.order <= g.to) }))
     .filter((g) => g.mods.length > 0)
+  const workshopTitle = me.data?.workshop?.title[lang] ?? 'IntNetwork'
+  const workshopSummary = me.data?.workshop?.summary?.[lang] ?? t(lang, 'tagline')
+  const completionText = lang === 'de' ? 'Alle Module dieses Workshops sind bestanden.' : 'All modules in this workshop are passed.'
 
   const content = (
     <div className="min-h-dvh bg-slate-50 p-6 sm:p-10">
@@ -84,14 +81,14 @@ export function LearnPage() {
             </button>
           </div>
         </div>
-        <p className="text-slate-500 text-sm mb-4">{t(lang, 'tagline')}</p>
+        <p className="text-slate-500 text-sm mb-4">{workshopSummary}</p>
 
         {total > 0 && doneCount === total && (
           <div className="mb-6 rounded-2xl border border-teal-200 bg-gradient-to-r from-teal-50 to-emerald-50 p-5 flex items-center gap-4">
             <span className="text-4xl" aria-hidden="true">🏆</span>
             <div className="flex-1">
               <p className="font-bold text-teal-900">{t(lang, 'courseComplete')}</p>
-              <p className="text-sm text-teal-800">{t(lang, 'courseCompleteText')}</p>
+              <p className="text-sm text-teal-800">{completionText}</p>
             </div>
             <Link to="/lernen/zertifikat"
               className="shrink-0 rounded-lg bg-teal-600 hover:bg-teal-700 text-white px-3 py-2 text-sm font-medium">
@@ -144,7 +141,7 @@ export function LearnPage() {
           {grouped.map((g) => (
             <div key={g.key}>
               <h2 className="text-xs font-semibold uppercase tracking-wide text-slate-400 mb-2">
-                {t(lang, g.key)}
+                {g.title}
               </h2>
               <div className="flex flex-col gap-3">
                 {g.mods.map((m) => {
@@ -204,7 +201,7 @@ export function LearnPage() {
     </div>
   )
 
-  return mode === 'workbench'
+  const view = mode === 'workbench'
     ? <WorkbenchLearnView
         lang={lang}
         displayName={displayName}
@@ -217,9 +214,13 @@ export function LearnPage() {
         donePct={donePct}
         continueAt={continueAt}
         titleOf={titleOf}
+        workshopTitle={workshopTitle}
+        workshopSummary={workshopSummary}
+        completionText={completionText}
         setLanguage={(value) => setLang.mutate(value)}
       />
     : <ClassicLearnView lang={lang}>{content}</ClassicLearnView>
+  return <WorkshopTheme theme={me.data?.workshop?.theme}>{view}</WorkshopTheme>
 }
 
 export interface LearnViewProps {
@@ -235,7 +236,7 @@ export interface WorkbenchLearnProps {
   lang: Lang
   displayName: string | null
   modules: ModuleMeta[]
-  groups: { key: (typeof GROUPS)[number]['key']; mods: ModuleMeta[] }[]
+  groups: Group[]
   progress: ProgressItem[]
   company?: Company
   links: { category: Record<Lang, string>; items: { url: string; title: string; desc: Record<Lang, string> }[] }[]
@@ -243,10 +244,13 @@ export interface WorkbenchLearnProps {
   donePct: number
   continueAt?: ModuleMeta
   titleOf: (key: string) => string
+  workshopTitle: string
+  workshopSummary: string
+  completionText: string
   setLanguage: (lang: Lang) => void
 }
 
-export function WorkbenchLearnView({ lang, displayName, modules, groups, progress, company, links, doneCount, donePct, continueAt, titleOf, setLanguage }: WorkbenchLearnProps) {
+export function WorkbenchLearnView({ lang, displayName, modules, groups, progress, company, links, doneCount, donePct, continueAt, titleOf, workshopTitle, workshopSummary, completionText, setLanguage }: WorkbenchLearnProps) {
   const progressOf = (key: string) => progress.find((item) => item.module_key === key)
   const complete = modules.length > 0 && doneCount === modules.length
   const langControl = (
@@ -262,22 +266,22 @@ export function WorkbenchLearnView({ lang, displayName, modules, groups, progres
 
   return (
     <div className="workbench">
-      <WorkbenchTopbar lang={lang} title="IntNetwork" actions={langControl} />
+      <WorkbenchTopbar lang={lang} title={workshopTitle} actions={langControl} />
       <div className="wb-shell">
         <div className="mb-8 grid gap-5 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-end">
           <div>
-            <p className="mb-2 text-sm font-medium text-[var(--wb-accent)]">Network Workbench</p>
+            <p className="mb-2 text-sm font-medium text-[var(--wb-accent)]">{workshopTitle}</p>
             <h1 className="max-w-3xl text-3xl font-bold leading-tight tracking-tight text-[var(--wb-ink)] sm:text-4xl">
               {t(lang, 'hello')} {displayName ?? ''}
             </h1>
-            <p className="mt-2 max-w-[65ch] text-[var(--wb-muted)]">{t(lang, 'tagline')}</p>
+            <p className="mt-2 max-w-[65ch] text-[var(--wb-muted)]">{workshopSummary}</p>
           </div>
           <div className="wb-surface p-5"><WorkbenchProgress value={donePct} label={t(lang, 'courseProgress')} /></div>
         </div>
 
         {complete && (
           <div className="wb-surface mb-6 flex flex-col gap-4 border-[var(--wb-accent)] bg-[var(--wb-accent-soft)] p-5 sm:flex-row sm:items-center sm:justify-between">
-            <div><p className="font-semibold">{t(lang, 'courseComplete')}</p><p className="text-sm text-[var(--wb-muted)]">{t(lang, 'courseCompleteText')}</p></div>
+            <div><p className="font-semibold">{t(lang, 'courseComplete')}</p><p className="text-sm text-[var(--wb-muted)]">{completionText}</p></div>
             <Link to="/lernen/zertifikat" className="wb-control inline-flex items-center justify-center rounded-lg bg-[var(--wb-accent)] px-4 font-semibold text-white hover:bg-[var(--wb-accent-hover)]">{t(lang, 'certButton')}</Link>
           </div>
         )}
@@ -296,7 +300,7 @@ export function WorkbenchLearnView({ lang, displayName, modules, groups, progres
             <div className="space-y-8">
               {groups.map((group) => (
                 <section key={group.key}>
-                  <WorkbenchSectionTitle meta={`${group.mods.filter((m) => progressOf(m.key)?.done).length}/${group.mods.length}`}>{t(lang, group.key)}</WorkbenchSectionTitle>
+                  <WorkbenchSectionTitle meta={`${group.mods.filter((m) => progressOf(m.key)?.done).length}/${group.mods.length}`}>{group.title}</WorkbenchSectionTitle>
                   <div className="wb-surface divide-y divide-[var(--wb-border)] overflow-hidden">
                     {group.mods.map((module) => {
                       const itemProgress = progressOf(module.key)

@@ -45,6 +45,23 @@ p { text-wrap: pretty; }
 
 ::selection { background: #99f6e4; color: #134e4a; }
 
+/* Workshop-Akzent bleibt ein zentraler Token. Die fachlichen Farben in den
+   Netzwerk-Simulatoren bleiben bewusst unverändert. */
+.workshop-theme--claude { --workshop-accent: #c2410c; --workshop-accent-hover: #9a3412; }
+.workshop-theme--claude :focus-visible { outline-color: var(--workshop-accent); }
+.workshop-theme--claude .bg-teal-600 { background-color: var(--workshop-accent); }
+.workshop-theme--claude .bg-teal-500 { background-color: #ea580c; }
+.workshop-theme--claude .bg-teal-50 { background-color: #fff7ed; }
+.workshop-theme--claude .from-teal-50 { --tw-gradient-from: #fff7ed; }
+.workshop-theme--claude .to-emerald-50 { --tw-gradient-to: #fff7ed; }
+.workshop-theme--claude .text-teal-600, .workshop-theme--claude .text-teal-700 { color: var(--workshop-accent); }
+.workshop-theme--claude .text-teal-800, .workshop-theme--claude .text-teal-900 { color: #7c2d12; }
+.workshop-theme--claude .text-teal-100, .workshop-theme--claude .text-teal-200, .workshop-theme--claude .text-teal-300, .workshop-theme--claude .text-teal-400 { color: #ffedd5; }
+.workshop-theme--claude .border-teal-600, .workshop-theme--claude .border-teal-200, .workshop-theme--claude .border-teal-100 { border-color: #fdba74; }
+.workshop-theme--claude .ring-teal-500 { --tw-ring-color: #ea580c; }
+.workshop-theme--claude .hover\:bg-teal-700:hover { background-color: var(--workshop-accent-hover); }
+.workshop-theme--claude .workbench { --wb-accent: #c2410c; --wb-accent-hover: #9a3412; --wb-accent-soft: #fff7ed; }
+
 /* ruhiger Einstieg (nur wenn Motion erwünscht) */
 @media (prefers-reduced-motion: no-preference) {
   @keyframes fade-up {

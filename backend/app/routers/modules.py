@@ -10,7 +10,7 @@ from app.models.progress import Progress
 from app.models.quiz_result import QuizResult
 from app.services.deps import get_participant
 from app.services import grading
-from app.services.activation import disabled_keys
+from app.services.course_membership import active_module_keys
 from app.content.registry import module_meta, public_module, trainer_module
 from app.utils import utc_now
 
@@ -19,13 +19,13 @@ router = APIRouter(prefix="/modules", tags=["modules"])
 
 @router.get("")
 def list_modules(db: Session = Depends(get_db), p: Participant = Depends(get_participant)):
-    off = disabled_keys(db, p.course_id)
-    return [m for m in module_meta(db) if m["key"] not in off]
+    active = active_module_keys(db, p.course_id)
+    return [m for m in module_meta(db) if m["key"] in active]
 
 
 @router.get("/{key}")
 def get_module(key: str, db: Session = Depends(get_db), p: Participant = Depends(get_participant)):
-    if key in disabled_keys(db, p.course_id):
+    if key not in active_module_keys(db, p.course_id):
         raise HTTPException(status_code=404, detail="Modul nicht gefunden")
     pub = public_module(db, key, p.language)
     if not pub:
@@ -40,7 +40,7 @@ class QuizSubmit(BaseModel):
 @router.post("/{key}/quiz")
 def submit_quiz(key: str, data: QuizSubmit, db: Session = Depends(get_db),
                 p: Participant = Depends(get_participant)):
-    if key in disabled_keys(db, p.course_id):
+    if key not in active_module_keys(db, p.course_id):
         raise HTTPException(status_code=404, detail="Modul nicht gefunden")
     module = trainer_module(db, key)
     if not module:
@@ -86,7 +86,7 @@ def submit_quiz(key: str, data: QuizSubmit, db: Session = Depends(get_db),
 def heartbeat(key: str, db: Session = Depends(get_db), p: Participant = Depends(get_participant)):
     # sonst landet jeder beliebige URL-String als current_module_key in der DB
     # und die Presence-Ansicht zeigt Rohtext an
-    if not db.query(ContentModule).filter(ContentModule.key == key).first():
+    if key not in active_module_keys(db, p.course_id):
         raise HTTPException(status_code=404, detail="Modul nicht gefunden")
     p.current_module_key = key
     p.last_seen = utc_now()

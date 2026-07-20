@@ -1,9 +1,9 @@
 import { api } from '@/lib/api'
-import type { Company, ModuleDetail, ModuleMeta, ProgressItem } from '@/types'
+import type { Company, ModuleDetail, ModuleMeta, ProgressItem, Workshop } from '@/types'
 import type { Lang } from '@/lib/i18n'
 
 export const learnApi = {
-  me: () => api.get<{ name: string; course_id: number; language: Lang; progress: ProgressItem[] }>('/me'),
+  me: () => api.get<{ name: string; course_id: number; language: Lang; course: { id: number; name: string }; workshop: Workshop | null; progress: ProgressItem[] }>('/me'),
   setLanguage: (language: Lang) => api.patch<{ language: Lang }>('/me/language', { language }),
   company: () => api.get<Company>('/company'),
   listModules: () => api.get<ModuleMeta[]>('/modules'),

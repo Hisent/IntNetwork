@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 
 from app.models.content import ContentBlock, ContentModule
 from app.models.course import Course
-from app.services.activation import disabled_keys
+from app.services.course_membership import active_module_keys
 
 
 def require_course(db: Session, course_id: int) -> None:
@@ -14,7 +14,7 @@ def require_course(db: Session, course_id: int) -> None:
 def require_visible_module(db: Session, course_id: int, key: str) -> None:
     if not db.query(ContentModule).filter(ContentModule.key == key).first():
         raise HTTPException(status_code=404, detail="Modul nicht gefunden")
-    if key in disabled_keys(db, course_id):
+    if key not in active_module_keys(db, course_id):
         raise HTTPException(status_code=404, detail="Modul nicht gefunden")
 
 

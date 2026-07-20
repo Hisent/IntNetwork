@@ -8,6 +8,7 @@ from sqlalchemy.orm import Session
 from app.content.registry import MODULES
 from app.database import get_db
 from app.models.content import ContentBlock, ContentModule, ContentModuleSnapshot, ContentQuizQuestion
+from app.models.workshop import Workshop
 from app.services.deps import get_trainer
 
 router = APIRouter(prefix="/trainer/content/modules", tags=["trainer-content"])
@@ -68,10 +69,12 @@ class ModuleIn(BaseModel):
 class ModuleCreateIn(BaseModel):
     key: str
     title_de: str
+    workshop_key: str = "network"
 
 
 def _meta(m: ContentModule) -> dict:
-    return {"key": m.key, "title_de": m.title_de, "title_en": m.title_en, "order": m.order}
+    return {"key": m.key, "title_de": m.title_de, "title_en": m.title_en,
+            "order": m.order, "workshop_key": m.workshop_key}
 
 
 def _load_blocks_and_quiz(db: Session, key: str) -> tuple[list[ContentBlock], list[ContentQuizQuestion]]:
@@ -231,7 +234,8 @@ def get_module(key: str, db: Session = Depends(get_db), _t: dict = Depends(get_t
         raise HTTPException(status_code=404, detail="Modul nicht gefunden")
     blocks, questions = _load_blocks_and_quiz(db, key)
     has_snapshot = db.query(ContentModuleSnapshot).filter(ContentModuleSnapshot.module_key == key).first() is not None
-    return {"key": m.key, "has_snapshot": has_snapshot, "has_seed": key in MODULES,
+    return {"key": m.key, "workshop_key": m.workshop_key,
+            "has_snapshot": has_snapshot, "has_seed": key in MODULES,
             **_serialize_module(m, blocks, questions)}
 
 
@@ -241,8 +245,12 @@ def create_module(data: ModuleCreateIn, db: Session = Depends(get_db), _t: dict 
         raise HTTPException(status_code=422, detail="Key darf nur a-z, 0-9 und - enthalten")
     if db.query(ContentModule).filter(ContentModule.key == data.key).first():
         raise HTTPException(status_code=422, detail="Key bereits vergeben")
-    max_order = db.query(ContentModule).count()
-    m = ContentModule(key=data.key, order=max_order + 1,
+    if not db.get(Workshop, data.workshop_key):
+        raise HTTPException(status_code=422, detail="Unbekannter Workshop")
+    max_order = db.query(ContentModule.order).filter(
+        ContentModule.workshop_key == data.workshop_key).order_by(ContentModule.order.desc()).first()
+    order = (max_order[0] if max_order else (100 if data.workshop_key == "claude-code" else 0)) + 1
+    m = ContentModule(key=data.key, workshop_key=data.workshop_key, order=order,
                       prerequisites=[], title_de=data.title_de, title_en=data.title_de,
                       goals=[], scenario_de="", scenario_en="")
     db.add(m)

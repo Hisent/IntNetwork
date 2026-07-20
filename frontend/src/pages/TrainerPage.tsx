@@ -6,6 +6,7 @@ import { trainerApi } from '@/lib/trainerApi'
 import { TrainerFeedback } from '@/components/TrainerFeedback'
 import { useAuthStore } from '@/store/auth'
 import { VersionBadge } from '@/components/VersionBadge'
+import { workshopApi } from '@/lib/workshopApi'
 
 function CopyCode({ code }: { code: string }) {
   const [copied, setCopied] = useState(false)
@@ -57,11 +58,13 @@ function TrainerDashboard({ onLogout }: { onLogout: () => void }) {
   const qc = useQueryClient()
   const navigate = useNavigate()
   const [name, setName] = useState('')
+  const [workshopKey, setWorkshopKey] = useState('network')
+  const [moduleWorkshopKey, setModuleWorkshopKey] = useState('network')
   const [selected, setSelected] = useState<number | null>(null)
   const [newKey, setNewKey] = useState('')
   const [newTitle, setNewTitle] = useState('')
   const createContent = useMutation({
-    mutationFn: () => trainerApi.createContentModule(newKey.trim(), newTitle.trim()),
+    mutationFn: () => trainerApi.createContentModule(newKey.trim(), newTitle.trim(), moduleWorkshopKey),
     onSuccess: (r) => {
       setNewKey('')
       setNewTitle('')
@@ -92,7 +95,7 @@ function TrainerDashboard({ onLogout }: { onLogout: () => void }) {
   })
   const courses = useQuery({ queryKey: ['courses'], queryFn: () => trainerApi.listCourses().then((r) => r.data) })
   const create = useMutation({
-    mutationFn: () => trainerApi.createCourse(name).then((r) => r.data),
+    mutationFn: () => trainerApi.createCourse(name, workshopKey).then((r) => r.data),
     onSuccess: () => { setName(''); qc.invalidateQueries({ queryKey: ['courses'] }) },
   })
   const dash = useQuery({
@@ -101,6 +104,7 @@ function TrainerDashboard({ onLogout }: { onLogout: () => void }) {
   })
   const changelog = useQuery({ queryKey: ['changelog'], queryFn: () => trainerApi.changelog().then((r) => r.data) })
   const presentMods = useQuery({ queryKey: ['trainer-modules'], queryFn: () => trainerApi.trainerModules().then((r) => r.data) })
+  const workshops = useQuery({ queryKey: ['workshops'], queryFn: () => workshopApi.list().then((r) => r.data) })
   const features = useQuery({ queryKey: ['features'], queryFn: () => trainerApi.features().then((r) => r.data) })
   const toggleFeature = useMutation({
     mutationFn: (v: boolean) => trainerApi.setFeature(v),
@@ -132,8 +136,11 @@ function TrainerDashboard({ onLogout }: { onLogout: () => void }) {
           <button onClick={onLogout} className="text-sm text-slate-400 hover:text-slate-600">Abmelden</button>
         </div>
 
-        <div className="flex gap-2 mb-6">
+        <div className="flex flex-wrap gap-2 mb-6">
           <input className="border rounded-lg px-3 py-2" placeholder="Neuer Kurs-Name" value={name} onChange={(e) => setName(e.target.value)} />
+          <select value={workshopKey} onChange={(event) => setWorkshopKey(event.target.value)} className="border rounded-lg px-3 py-2 text-sm">
+            {workshops.data?.map((workshop) => <option key={workshop.key} value={workshop.key}>{workshop.title.de}</option>)}
+          </select>
           <button onClick={() => name.trim() && create.mutate()} className="rounded-lg bg-teal-600 hover:bg-teal-700 text-white px-4 font-medium">Kurs anlegen</button>
         </div>
 
@@ -143,7 +150,7 @@ function TrainerDashboard({ onLogout }: { onLogout: () => void }) {
               onClick={() => setSelected(c.id)}
               onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && setSelected(c.id)}
               className={`rounded-xl border bg-white p-4 text-left flex justify-between items-center cursor-pointer ${selected === c.id ? 'ring-2 ring-teal-500' : ''}`}>
-              <span className="font-medium text-slate-800">{c.name}</span>
+              <span className="font-medium text-slate-800">{c.name} <span className="ml-1 text-xs font-normal text-slate-400">{workshops.data?.find((workshop) => workshop.key === c.workshop_key)?.title.de ?? 'Bestandskurs'}</span></span>
               <CopyCode code={c.join_code} />
             </div>
           ))}
@@ -204,11 +211,14 @@ function TrainerDashboard({ onLogout }: { onLogout: () => void }) {
                 </div>
               ))}
             </div>
-            <div className="flex gap-2 mt-3">
+            <div className="flex flex-wrap gap-2 mt-3">
               <input className="border rounded-lg px-3 py-1.5 text-sm" placeholder="Key (z.B. mein-modul)"
                 value={newKey} onChange={(e) => setNewKey(e.target.value)} />
               <input className="border rounded-lg px-3 py-1.5 text-sm" placeholder="Titel DE"
                 value={newTitle} onChange={(e) => setNewTitle(e.target.value)} />
+              <select value={moduleWorkshopKey} onChange={(event) => setModuleWorkshopKey(event.target.value)} className="border rounded-lg px-3 py-1.5 text-sm">
+                {workshops.data?.map((workshop) => <option key={workshop.key} value={workshop.key}>{workshop.title.de}</option>)}
+              </select>
               <button onClick={() => newKey.trim() && newTitle.trim() && createContent.mutate()}
                 className="rounded-lg bg-teal-600 hover:bg-teal-700 text-white px-3 py-1.5 text-sm font-medium">
                 + Neues Modul

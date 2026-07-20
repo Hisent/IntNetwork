@@ -10,4 +10,5 @@ class Course(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     name: Mapped[str] = mapped_column(String, nullable=False)
     join_code: Mapped[str] = mapped_column(String, unique=True, index=True, nullable=False)
+    workshop_key: Mapped[str | None] = mapped_column(String, index=True, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=utc_now)

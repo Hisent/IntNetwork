@@ -16,6 +16,7 @@ import type { ReactNode } from 'react'
 import type { Block, ModuleDetail, ModuleMeta, ProgressItem } from '@/types'
 import { WorkbenchProgress, WorkbenchSectionTitle, WorkbenchTopbar } from '@/components/workbench/WorkbenchShell'
 import { readPercent } from '@/components/workbench/workbenchLogic'
+import { WorkshopTheme } from '@/components/WorkshopTheme'
 
 export function ModulePage() {
   const { key = '' } = useParams()
@@ -32,7 +33,6 @@ export function ModulePage() {
   }, [key])
 
   const [read, setRead] = useState<number[]>([])
-  useEffect(() => setRead(loadRead(key)), [key])
 
   // Scroll-Fortschritt für die Sticky-Leiste (0–100 % der Seitenhöhe)
   const [scrollPct, setScrollPct] = useState(0)
@@ -47,6 +47,10 @@ export function ModulePage() {
     return () => window.removeEventListener('scroll', onScroll)
   }, [key])
   const me = useQuery({ queryKey: ['me'], queryFn: () => learnApi.me().then((r) => r.data) })
+  const courseId = me.data?.course_id
+  useEffect(() => {
+    if (courseId != null) setRead(loadRead(courseId, key))
+  }, [courseId, key])
   const lang: Lang = me.data?.language ?? 'de'
   const mod = useQuery({ queryKey: ['module', key, lang], queryFn: () => learnApi.getModule(key).then((r) => r.data) })
   const features = useQuery({ queryKey: ['features'], queryFn: () => learnApi.features().then((r) => r.data) })
@@ -91,7 +95,7 @@ export function ModulePage() {
           <span className="w-full truncate font-medium text-slate-700 sm:w-auto sm:flex-1">{mod.data.title}</span>
           <div className="ml-auto flex min-w-0 items-center gap-2">
             <ExperienceSwitch lang={lang} confirmBeforeChange />
-            <GlossaryPanel moduleKey={key} lang={lang} />
+            {me.data?.workshop?.key === 'network' && <GlossaryPanel moduleKey={key} lang={lang} />}
             {textIndexes.length > 0 && (
               <span className="hidden text-xs text-slate-400 sm:inline">
                 {readCount} / {textIndexes.length} {t(lang, 'read')}
@@ -194,7 +198,7 @@ export function ModulePage() {
           footer={(b, i) =>
             b.type === 'text' ? (
               <div className="flex flex-col gap-1">
-                <button onClick={() => setRead(toggleRead(key, read, i))}
+                <button onClick={() => courseId != null && setRead(toggleRead(courseId, key, read, i))}
                   className={`self-start text-xs ${read.includes(i) ? 'text-teal-600 font-medium' : 'text-slate-400 hover:text-slate-600'}`}>
                   {read.includes(i) ? `✓ ${t(lang, 'read')}` : t(lang, 'markRead')}
                 </button>
@@ -235,7 +239,7 @@ export function ModulePage() {
     </div>
   )
 
-  return mode === 'workbench'
+  const view = mode === 'workbench'
     ? <WorkbenchModuleView
         lang={lang}
         moduleKey={key}
@@ -246,13 +250,15 @@ export function ModulePage() {
         textIndexes={textIndexes}
         toc={toc}
         commentsOn={commentsOn}
+        showGlossary={me.data?.workshop?.key === 'network'}
         nextModule={nextModule}
         justPassed={justPassed}
         setLanguage={(value) => setLang.mutate(value)}
-        onToggleRead={(index) => setRead(toggleRead(key, read, index))}
+        onToggleRead={(index) => courseId != null && setRead(toggleRead(courseId, key, read, index))}
         onQuizResult={(passed) => { setJustPassed(passed); qc.invalidateQueries({ queryKey: ['me'] }) }}
       />
     : <ClassicModuleView lang={lang}>{content}</ClassicModuleView>
+  return <WorkshopTheme theme={me.data?.workshop?.theme}>{view}</WorkshopTheme>
 }
 
 export interface ModuleViewProps {
@@ -274,6 +280,7 @@ export interface WorkbenchModuleProps {
   textIndexes: number[]
   toc: { i: number; title: string }[]
   commentsOn: boolean
+  showGlossary: boolean
   nextModule: ModuleMeta | null
   justPassed: boolean
   setLanguage: (lang: Lang) => void
@@ -302,10 +309,10 @@ function WorkbenchModuleNav({ lang, current, modules, progress }: { lang: Lang; 
   )
 }
 
-export function WorkbenchModuleView({ lang, moduleKey, module, modules, progress, read, textIndexes, toc, commentsOn, nextModule, justPassed, setLanguage, onToggleRead, onQuizResult }: WorkbenchModuleProps) {
+export function WorkbenchModuleView({ lang, moduleKey, module, modules, progress, read, textIndexes, toc, commentsOn, showGlossary, nextModule, justPassed, setLanguage, onToggleRead, onQuizResult }: WorkbenchModuleProps) {
   const readPct = readPercent(textIndexes, read)
   const languageControl = (
-    <><div className="hidden sm:flex" aria-label={lang === 'de' ? 'Sprache' : 'Language'}>{(['de', 'en'] as Lang[]).map((value) => <button key={value} type="button" onClick={() => setLanguage(value)} aria-pressed={lang === value} className={`wb-control min-w-11 text-xs font-semibold uppercase ${lang === value ? 'text-[var(--wb-accent)]' : 'text-[var(--wb-muted)]'}`}>{value}</button>)}</div><div className="xl:hidden"><GlossaryPanel moduleKey={moduleKey} lang={lang} /></div></>
+    <><div className="hidden sm:flex" aria-label={lang === 'de' ? 'Sprache' : 'Language'}>{(['de', 'en'] as Lang[]).map((value) => <button key={value} type="button" onClick={() => setLanguage(value)} aria-pressed={lang === value} className={`wb-control min-w-11 text-xs font-semibold uppercase ${lang === value ? 'text-[var(--wb-accent)]' : 'text-[var(--wb-muted)]'}`}>{value}</button>)}</div>{showGlossary && <div className="xl:hidden"><GlossaryPanel moduleKey={moduleKey} lang={lang} /></div>}</>
   )
   return (
     <div className="workbench">
@@ -345,7 +352,7 @@ export function WorkbenchModuleView({ lang, moduleKey, module, modules, progress
           </main>
 
           <aside className="sticky top-20 hidden max-h-[calc(100dvh-6rem)] space-y-5 overflow-y-auto xl:block">
-            <section className="wb-surface p-4"><WorkbenchProgress value={readPct} label={lang === 'de' ? 'Gelesen' : 'Read'} /><div className="mt-4"><GlossaryPanel moduleKey={moduleKey} lang={lang} /></div></section>
+            <section className="wb-surface p-4"><WorkbenchProgress value={readPct} label={lang === 'de' ? 'Gelesen' : 'Read'} />{showGlossary && <div className="mt-4"><GlossaryPanel moduleKey={moduleKey} lang={lang} /></div>}</section>
             {toc.length > 0 && <section><WorkbenchSectionTitle>{t(lang, 'tocTitle')}</WorkbenchSectionTitle><nav className="space-y-1">{toc.map((item, index) => <a key={`${item.i}-${index}`} href={`#block-${item.i}`} className="wb-control flex items-center border-l border-[var(--wb-border)] px-3 text-sm text-[var(--wb-muted)] hover:border-[var(--wb-accent)] hover:text-[var(--wb-accent)]">{item.title}</a>)}</nav></section>}
           </aside>
         </div>

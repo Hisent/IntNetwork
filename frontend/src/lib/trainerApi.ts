@@ -2,7 +2,7 @@ import { api } from '@/lib/api'
 import type { ModuleMeta, TrainerModuleDetail } from '@/types'
 import type { TrainerComment } from '@/components/commentGroups'
 
-export interface Course { id: number; name: string; join_code: string }
+export interface Course { id: number; name: string; join_code: string; workshop_key: string | null }
 export interface Dashboard {
   course: Course
   modules: { key: string; title: string; order: number }[]
@@ -10,7 +10,7 @@ export interface Dashboard {
 }
 
 export interface ChangelogEntry { date: string; title: string; text: string }
-export interface CourseModule { key: string; title: string; order: number; active: boolean }
+export interface CourseModule { key: string; title: string; order: number; workshop_key: string | null; active: boolean }
 export interface PresenceEntry { name: string; module_key: string; module_title: string }
 
 // typ-spezifische Zusatzdaten: check nutzt prompt/options/answer (kind
@@ -63,14 +63,14 @@ export interface EditorModule {
   has_snapshot: boolean
   has_seed: boolean
 }
-export interface EditorModuleMeta { key: string; title_de: string; title_en: string; order: number }
+export interface EditorModuleMeta { key: string; title_de: string; title_en: string; order: number; workshop_key: string | null }
 export interface TrainerAccount { id: number; email: string; name: string }
 export interface QuizQuestionStat { id: string; prompt: string; correct: number; attempts: number }
 export interface QuizStats { submissions: number; questions: QuizQuestionStat[] }
 
 export const trainerApi = {
   listCourses: () => api.get<Course[]>('/courses'),
-  createCourse: (name: string) => api.post<Course>('/courses', { name }),
+  createCourse: (name: string, workshop_key: string) => api.post<Course>('/courses', { name, workshop_key }),
   dashboard: (id: number) => api.get<Dashboard>(`/courses/${id}/dashboard`),
   changelog: () => api.get<ChangelogEntry[]>('/changelog'),
   courseModules: (id: number) => api.get<CourseModule[]>(`/courses/${id}/modules`),
@@ -89,8 +89,8 @@ export const trainerApi = {
   coursePresence: (cid: number) => api.get<PresenceEntry[]>(`/trainer/courses/${cid}/presence`),
   listContentModules: () => api.get<EditorModuleMeta[]>('/trainer/content/modules'),
   getContentModule: (key: string) => api.get<EditorModule>(`/trainer/content/modules/${key}`),
-  createContentModule: (key: string, title_de: string) =>
-    api.post<EditorModuleMeta>('/trainer/content/modules', { key, title_de }),
+  createContentModule: (key: string, title_de: string, workshop_key: string) =>
+    api.post<EditorModuleMeta>('/trainer/content/modules', { key, title_de, workshop_key }),
   saveContentModule: (key: string, data: Omit<EditorModule, 'key'>) =>
     api.put<EditorModuleMeta>(`/trainer/content/modules/${key}`, data),
   restoreContentModule: (key: string) => api.post<EditorModuleMeta>(`/trainer/content/modules/${key}/restore`),

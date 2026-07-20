@@ -40,6 +40,6 @@ export function errMsg(e: unknown, fallback = 'Fehler.'): string {
 export const authApi = {
   trainerLogin: (email: string, password: string) =>
     api.post<{ access_token: string }>('/trainer/login', { email, password }),
-  join: (code: string, name: string) =>
-    api.post<{ access_token: string; course_name: string; name: string }>('/join', { code, name }),
+  join: (code: string, name: string, workshopKey?: string) =>
+    api.post<{ access_token: string; course_name: string; name: string }>('/join', { code, name, workshop_key: workshopKey }),
 }

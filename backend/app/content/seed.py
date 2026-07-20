@@ -385,4 +385,10 @@ def seed_missing_content(db: Session) -> None:
     _migrate_text_edits_v2(db)
     _migrate_course_order(db)
     _migrate_network_visuals_v3(db)
+    # Neue Module können auch später nachgeseedet werden. Die Workshop-Familie
+    # wird dabei gleich mitgeschrieben, damit sie nicht still in keinem Kurs
+    # erscheint.
+    from app.content.workshops import workshop_for_order
+    for module in db.query(ContentModule).filter(ContentModule.workshop_key.is_(None)):
+        module.workshop_key = workshop_for_order(module.order)
     db.commit()

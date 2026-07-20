@@ -6,6 +6,7 @@ from app.database import Base
 class ContentModule(Base):
     __tablename__ = "content_module"
     key: Mapped[str] = mapped_column(String, primary_key=True)
+    workshop_key: Mapped[str | None] = mapped_column(String, index=True, nullable=True)
     order: Mapped[int] = mapped_column(Integer)
     prerequisites: Mapped[list] = mapped_column(JSON, default=list)
     title_de: Mapped[str] = mapped_column(String)

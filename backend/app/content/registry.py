@@ -119,7 +119,8 @@ def _module_dict(m: ContentModule, blocks: list[ContentBlock], questions: list[C
 def module_meta(db: Session) -> list[dict]:
     mods = db.query(ContentModule).order_by(ContentModule.order).all()
     return [{"key": m.key, "title": m.title_de, "title_en": m.title_en,
-             "order": m.order, "prerequisites": m.prerequisites} for m in mods]
+             "workshop_key": m.workshop_key, "order": m.order,
+             "prerequisites": m.prerequisites} for m in mods]
 
 
 def public_module(db: Session, key: str, lang: str = "de") -> dict | None:

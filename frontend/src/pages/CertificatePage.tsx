@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { learnApi } from '@/lib/learnApi'
 import { useAuthStore } from '@/store/auth'
 import { t, type Lang } from '@/lib/i18n'
+import { WorkshopTheme } from '@/components/WorkshopTheme'
 
 // Druckbares Abschluss-Zertifikat: erst verfügbar, wenn alle Module bestanden
 // sind. „Drucken" nutzt den Browser-Dialog — PDF gibt es dort gratis dazu.
@@ -21,19 +22,20 @@ export function CertificatePage() {
   const allDone = total > 0 && mods.data.every((m) => isDone(m.key))
   const today = new Date().toLocaleDateString(lang === 'de' ? 'de-DE' : 'en-GB',
     { day: '2-digit', month: 'long', year: 'numeric' })
+  const workshopTitle = me.data?.workshop?.title[lang] ?? 'IntNetwork'
 
   if (!allDone)
     return (
-      <div className="min-h-dvh bg-slate-50 flex items-center justify-center p-6">
+      <WorkshopTheme theme={me.data?.workshop?.theme}><div className="min-h-dvh bg-slate-50 flex items-center justify-center p-6">
         <div className="text-center">
           <p className="text-slate-600 mb-3">{t(lang, 'certNotYet')}</p>
           <Link to="/lernen" className="text-teal-600 hover:underline">← {t(lang, 'backToOverview')}</Link>
         </div>
-      </div>
+      </div></WorkshopTheme>
     )
 
   return (
-    <div className="min-h-dvh bg-slate-100 flex flex-col items-center justify-center p-6 print:bg-white print:p-0">
+    <WorkshopTheme theme={me.data?.workshop?.theme}><div className="min-h-dvh bg-slate-100 flex flex-col items-center justify-center p-6 print:bg-white print:p-0">
       <div className="w-full max-w-2xl rounded-2xl border-4 border-double border-teal-600 bg-white p-10 sm:p-14 text-center shadow-lg print:shadow-none print:border-teal-700">
         <img src="/favicon.svg" alt="" className="h-12 w-12 mx-auto mb-4" />
         <p className="text-xs font-semibold uppercase tracking-[0.3em] text-teal-600 mb-1">IntNetwork</p>
@@ -42,7 +44,7 @@ export function CertificatePage() {
 
         <p className="text-2xl font-semibold text-slate-900 mb-4">{displayName}</p>
         <p className="text-slate-600 leading-relaxed mb-8">
-          {t(lang, 'certText')} <b>{total}</b> {t(lang, 'certText2')}
+          {lang === 'de' ? 'hat den Workshop' : 'has completed the workshop'} <b>{workshopTitle}</b> {lang === 'de' ? 'mit allen' : 'with all'} <b>{total}</b> {lang === 'de' ? 'Modulen erfolgreich abgeschlossen.' : 'modules successfully.'}
         </p>
 
         <div className="mx-auto mb-8 h-px w-40 bg-slate-200" />
@@ -61,6 +63,6 @@ export function CertificatePage() {
           ← {t(lang, 'backToOverview')}
         </Link>
       </div>
-    </div>
+    </div></WorkshopTheme>
   )
 }
