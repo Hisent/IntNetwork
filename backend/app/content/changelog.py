@@ -1,5 +1,11 @@
 # Projekt-Changelog (nur für Trainer sichtbar). Neueste zuerst.
 CHANGELOG = [
+    {"date": "2026-07-20", "title": "v1.10.0 — Claude-Code-Workshop erweitert",
+     "text": "Der Claude-Code-Workshop enthält jetzt einen sicheren KI-Workflow mit "
+             "Prompt-Injection-Lab, ein Modul für Arbeitsaufträge, Planung und Verifikation "
+             "sowie Git-Zusammenarbeit mit Branches, Worktrees und Review-Übergaben. "
+             "Der Capstone wurde nach diesen Grundlagen eingeordnet; bestehende Datenbanken "
+             "werden über eine idempotente Migration aktualisiert."},
     {"date": "2026-07-13", "title": "v1.9.0 — Fünf dynamische Visualisierungen",
      "text": "Fünf neue interaktive Widgets ergänzen die Kursmodule: eine Bitmasken-Ansicht "
              "im Subnetting-Modul (Präfix-Slider mit synchroner Binär-/Dezimalform), eine "
