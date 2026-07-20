@@ -1,4 +1,4 @@
-export type CliMode = 'normal' | 'plan' | 'accept'
+export type CliMode = 'default' | 'plan' | 'acceptEdits'
 
 export interface CliResult {
   output: string

@@ -6,7 +6,7 @@ CLI_WORKFLOWS_MODULE = {'key': 'cli-workflows',
  'title_en': 'Mastering the CLI: Modes, Commands, Context',
  'order': 104,
  'prerequisites': ['installation-setup'],
- 'goals': ['Plan-Modus und Auto-Accept-Modus gezielt einsetzen',
+ 'goals': ['Plan- und Accept-Edits-Modus gezielt einsetzen',
            'Wichtige eingebaute Slash-Commands kennen und nutzen',
            'Sessions fortsetzen, wieder aufnehmen und den Kontext im Blick behalten',
            'Mit /context und /compact das Kontextfenster bewusst managen'],
@@ -24,12 +24,12 @@ CLI_WORKFLOWS_MODULE = {'key': 'cli-workflows',
                              'Claude Code kann unterschiedlich „mutig” agieren. Die wichtigsten '
                              'Modi (umschaltbar u.a. mit **Shift+Tab** in der Session):\n'
                              '\n'
-                             '- **Normal** — Claude fragt bei Änderungen und Kommandos um '
+                             '- **Standard-Modus** (`default`) — Claude fragt bei Änderungen und Kommandos um '
                              'Erlaubnis.\n'
                              '- **Plan-Modus** — Claude **plant nur** und ändert nichts: Es '
                              'erklärt sein Vorgehen, du gibst frei, bevor irgendetwas passiert. '
                              'Perfekt für größere oder heikle Aufgaben.\n'
-                             '- **Auto-Accept / Accept-Edits** — Datei-Änderungen werden ohne '
+                             '- **Accept Edits** (`acceptEdits`) — Datei-Änderungen werden ohne '
                              'Rückfrage übernommen; nützlich, wenn du dem Vorgehen vertraust und '
                              'Tempo willst.\n'
                              '\n'
@@ -42,18 +42,18 @@ CLI_WORKFLOWS_MODULE = {'key': 'cli-workflows',
                              'important modes (toggleable with **Shift+Tab** in the session, among '
                              'others):\n'
                              '\n'
-                             '- **Normal** — Claude asks for permission before making changes and '
+                             '- **Default mode** (`default`) — Claude asks for permission before making changes and '
                              'running commands.\n'
                              '- **Plan mode** — Claude **only plans** and changes nothing: it '
                              'explains its approach, and you approve before anything happens. '
                              'Perfect for larger or sensitive tasks.\n'
-                             '- **Auto-Accept / Accept-Edits** — file changes are applied without '
+                             '- **Accept Edits** (`acceptEdits`) — file changes are applied without '
                              'asking; useful when you trust the approach and want speed.\n'
                              '\n'
                              'Rule of thumb: **plan first, then let it run.** With unfamiliar '
                              'code, start in plan mode, review the plan, and then switch to '
                              'execution.'},
-             'note': 'Plan-Modus und Auto-Accept live umschalten (Shift+Tab); /context und '
+             'note': 'Plan- und Accept-Edits-Modus live umschalten (Shift+Tab); /context und '
                      '/compact an einer vollen Session zeigen.'},
             {'type': 'text',
              'value': {'de': '## Eingebaute Slash-Commands\n'
@@ -93,8 +93,8 @@ CLI_WORKFLOWS_MODULE = {'key': 'cli-workflows',
                          'prompt_en': "You're about to start a risky refactor in unfamiliar code. "
                                       'Which mode is the best starting point?',
                          'answer': 1,
-                         'options_de': ['Auto-Accept sofort', 'Plan-Modus', 'Verlauf leeren'],
-                         'options_en': ['Auto-Accept immediately', 'Plan mode', 'Clear history']}},
+                         'options_de': ['Accept Edits sofort', 'Plan-Modus', 'Verlauf leeren'],
+                         'options_en': ['Accept Edits immediately', 'Plan mode', 'Clear history']}},
             {'type': 'text',
              'value': {'de': '## @-Mentions & Dateien referenzieren\n'
                              '\n'
@@ -198,13 +198,13 @@ CLI_WORKFLOWS_MODULE = {'key': 'cli-workflows',
                          'prompt_en': 'A colleague describes the modes. Which statement is false?',
                          'lines_de': ['Im Plan-Modus ändert Claude keine Dateien, sondern schlägt '
                                       'nur ein Vorgehen vor.',
-                                      'Im Auto-Accept-Modus werden Edits ohne Rückfrage '
+                                      'Im Accept-Edits-Modus werden Edits ohne Rückfrage '
                                       'übernommen.',
                                       '/context zeigt, was gerade im Kontextfenster liegt.',
                                       '/compact löscht dauerhaft deine CLAUDE.md aus dem Projekt.'],
                          'lines_en': ["In plan mode, Claude doesn't change any files but only "
                                       'proposes an approach.',
-                                      'In Auto-Accept mode, edits are applied without asking for '
+                                      'In Accept Edits mode, edits are applied without asking for '
                                       'confirmation.',
                                       '/context shows what is currently in the context window.',
                                       '/compact permanently deletes your CLAUDE.md from the '

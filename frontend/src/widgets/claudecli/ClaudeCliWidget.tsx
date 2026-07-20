@@ -5,13 +5,13 @@ import type { Lang } from '@/lib/i18n'
 
 const STR = {
   de: {
-    title: 'Claude-Code-CLI (Demo)', modeNormal: 'Normal', modePlan: 'Plan', modeAccept: 'Auto-Accept',
+    title: 'Claude-Code-CLI (Demo)', modeDefault: 'Vor Änderungen fragen', modePlan: 'Plan', modeAccept: 'Edits automatisch akzeptieren',
     modeLabel: 'Modus', hint: 'Slash-Commands ausprobieren (/help). Modus oben umschalten.',
     intro: 'Tippe /help für die Befehlsliste.',
     challenge: 'Wechsle in den Plan-Modus und rufe /context auf.',
   },
   en: {
-    title: 'Claude Code CLI (demo)', modeNormal: 'Normal', modePlan: 'Plan', modeAccept: 'Auto-accept',
+    title: 'Claude Code CLI (demo)', modeDefault: 'Ask before edits', modePlan: 'Plan', modeAccept: 'Auto accept edits',
     modeLabel: 'Mode', hint: 'Try slash commands (/help). Toggle the mode above.',
     intro: 'Type /help for the command list.',
     challenge: 'Switch to plan mode and run /context.',
@@ -20,7 +20,7 @@ const STR = {
 
 export function ClaudeCli({ lang }: { lang: Lang }) {
   const s = STR[lang]
-  const [mode, setMode] = useState<CliMode>('normal')
+  const [mode, setMode] = useState<CliMode>('default')
   const [lines, setLines] = useState<string[]>([s.intro])
   const [input, setInput] = useState('')
   const [solved, setSolved] = useState(false)
@@ -39,7 +39,7 @@ export function ClaudeCli({ lang }: { lang: Lang }) {
   }
 
   const modes: [CliMode, string][] = [
-    ['normal', s.modeNormal], ['plan', s.modePlan], ['accept', s.modeAccept],
+    ['default', s.modeDefault], ['plan', s.modePlan], ['acceptEdits', s.modeAccept],
   ]
 
   return (

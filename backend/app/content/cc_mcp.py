@@ -7,7 +7,7 @@ MCP_MODULE = {'key': 'mcp',
  'order': 108,
  'prerequisites': ['cli-workflows'],
  'goals': ['Verstehen, was MCP ist und wofür es dient',
-           'Die Transporte (stdio, SSE, HTTP) und Scopes (local/project/user) kennen',
+           'Die aktuellen Transporte (stdio, HTTP) sowie SSE als veralteten Transport kennen',
            'Einen MCP-Server hinzufügen und .mcp.json im Team teilen',
            'MCP-Tools und -Resources nutzen und das Namensschema verstehen'],
  'scenario': {'de': 'Claude Code kann Code lesen und Kommandos ausführen — aber deine Issues '
@@ -62,24 +62,26 @@ MCP_MODULE = {'key': 'mcp',
                              '\n'
                              '- **stdio** — ein lokaler Prozess, mit dem Claude Code über '
                              'Standard-Ein-/Ausgabe redet. Typisch für lokal installierte Server.\n'
-                             '- **SSE** (Server-Sent Events) — ein laufender Dienst über '
-                             'HTTP-Streaming.\n'
+                             '- **SSE** (Server-Sent Events) — ein älterer Dienst über '
+                             'HTTP-Streaming; **veraltet**, für neue Integrationen HTTP nutzen.\n'
                              '- **HTTP** — ein erreichbarer HTTP-Endpunkt (oft remote/gehostet).\n'
                              '\n'
                              'Für lokale Tools nimmst du meist stdio; für gehostete Dienste '
-                             'HTTP/SSE, häufig mit OAuth-Anmeldung.',
+                             'HTTP, häufig mit OAuth-Anmeldung. SSE nur für bestehende Server, '
+                             'wenn keine HTTP-Alternative verfügbar ist.',
                        'en': '## Transports\n'
                              '\n'
                              'MCP servers talk to Claude Code over one of three **transports**:\n'
                              '\n'
                              '- **stdio** — a local process that Claude Code talks to over '
                              'standard input/output. Typical for locally installed servers.\n'
-                             '- **SSE** (Server-Sent Events) — a running service over HTTP '
-                             'streaming.\n'
+                             '- **SSE** (Server-Sent Events) — an older service over HTTP '
+                             'streaming; **deprecated**, so use HTTP for new integrations.\n'
                              '- **HTTP** — a reachable HTTP endpoint (often remote/hosted).\n'
                              '\n'
                              "For local tools you'll usually use stdio; for hosted services, "
-                             'HTTP/SSE, often with OAuth sign-in.'}},
+                             'HTTP, often with OAuth sign-in. Use SSE only for existing servers '
+                             'when no HTTP alternative is available.'}},
             {'type': 'text',
              'value': {'de': '## Server hinzufügen & Scopes\n'
                              '\n'
@@ -219,14 +221,14 @@ MCP_MODULE = {'key': 'mcp',
                          'prompt_en': 'Statements about MCP — which one is false?',
                          'lines_de': ['MCP verbindet Claude Code mit externen Tools und '
                                       'Datenquellen.',
-                                      'Transporte sind u.a. stdio, SSE und HTTP.',
+                                      'Transporte sind u.a. stdio und HTTP; SSE ist veraltet.',
                                       'Der project-Scope teilt Server über eine eingecheckte '
                                       '.mcp.json.',
                                       'Man sollte API-Keys direkt im Klartext in die .mcp.json '
                                       'committen.'],
                          'lines_en': ['MCP connects Claude Code to external tools and data '
                                       'sources.',
-                                      'Transports include stdio, SSE, and HTTP, among others.',
+                                      'Transports include stdio and HTTP; SSE is deprecated.',
                                       'The project scope shares servers via a checked-in '
                                       '.mcp.json.',
                                       'You should commit API keys directly in plain text to '
@@ -267,11 +269,11 @@ MCP_MODULE = {'key': 'mcp',
                                             'A Git hosting service']}},
                         {'id': 'mcp2',
                          'type': 'multi',
-                         'prompt': {'de': 'Welche MCP-Transporte gibt es? (mehrere)',
-                                    'en': 'Which MCP transports exist? (multiple)'},
+                         'prompt': {'de': 'Welche MCP-Transporte unterstützt Claude Code? (SSE ist veraltet)',
+                                    'en': 'Which MCP transports does Claude Code support? (SSE is deprecated)'},
                          'answer': [0, 1, 2],
-                         'options': {'de': ['stdio', 'SSE', 'HTTP', 'FTP'],
-                                     'en': ['stdio', 'SSE', 'HTTP', 'FTP']}},
+                         'options': {'de': ['stdio', 'SSE (veraltet)', 'HTTP', 'FTP'],
+                                     'en': ['stdio', 'SSE (deprecated)', 'HTTP', 'FTP']}},
                         {'id': 'mcp3',
                          'type': 'single',
                          'prompt': {'de': 'Welche Datei teilt MCP-Server im project-Scope über das '
