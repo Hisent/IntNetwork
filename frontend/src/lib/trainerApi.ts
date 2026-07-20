@@ -2,11 +2,11 @@ import { api } from '@/lib/api'
 import type { ModuleMeta, TrainerModuleDetail } from '@/types'
 import type { TrainerComment } from '@/components/commentGroups'
 
-export interface Course { id: number; name: string; join_code: string; workshop_key: string | null; participant_count?: number }
+export interface Course { id: number; name: string; join_code: string; workshop_key: string | null; participant_count?: number; require_approval?: boolean }
 export interface Dashboard {
   course: Course
   modules: { key: string; title: string; order: number }[]
-  participants: { name: string; cells: Record<string, { done: boolean; best: number | null }> }[]
+  participants: { id: number; name: string; approved: boolean; cells: Record<string, { done: boolean; best: number | null }> }[]
 }
 
 export interface ChangelogEntry { date: string; title: string; text: string }
@@ -75,6 +75,10 @@ export const trainerApi = {
   dashboard: (id: number) => api.get<Dashboard>(`/courses/${id}/dashboard`),
   changelog: () => api.get<ChangelogEntry[]>('/changelog'),
   courseModules: (id: number) => api.get<CourseModule[]>(`/courses/${id}/modules`),
+  setCourseApproval: (id: number, require_approval: boolean) =>
+    api.patch<{ require_approval: boolean }>(`/courses/${id}/approval`, { require_approval }),
+  approveParticipant: (courseId: number, participantId: number, approved: boolean) =>
+    api.post<{ id: number; approved: boolean }>(`/courses/${courseId}/participants/${participantId}/approve`, { approved }),
   setCourseModule: (id: number, module_key: string, active: boolean) =>
     api.put(`/courses/${id}/modules`, { module_key, active }),
   trainerModules: () => api.get<ModuleMeta[]>('/trainer/modules'),

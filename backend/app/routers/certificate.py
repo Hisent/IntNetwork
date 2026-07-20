@@ -41,6 +41,10 @@ def issue_certificate(db: Session = Depends(get_db), p: Participant = Depends(ge
         raise HTTPException(status_code=403, detail="Es sind noch nicht alle Module abgeschlossen.")
 
     course = db.get(Course, p.course_id)
+    if course and course.require_approval and not p.approved:
+        # Eigener Statuscode 409, damit das Frontend „wartet auf Freigabe" von
+        # „noch nicht alle Module" (403) unterscheiden kann.
+        raise HTTPException(status_code=409, detail="Die Teilnahmebestätigung wartet auf die Trainerfreigabe.")
     workshop = db.get(Workshop, course.workshop_key) if course and course.workshop_key else None
     cert = Certificate(
         id=generate_certificate_id(), participant_id=p.id, course_id=p.course_id,

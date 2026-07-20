@@ -393,6 +393,43 @@ def _migrate_claude_workshop_order(db: Session) -> None:
     db.flush()
 
 
+MEMORY_CONTEXT_MIGRATION = "content-migration:memory-context-wording-v1"
+# Präzisiert die /memory- vs. /context-Unterscheidung (v1.21.0). Substring-Ersatz
+# statt Voll-Block-Abgleich: robust gegen den langen Blocktext und idempotent.
+_MC_EDITS = [
+    ("beides; mit `/context` prüfst du, was tatsächlich geladen wurde.",
+     "die geladenen CLAUDE.md- und Memory-Dateien; mit `/context` siehst du die "
+     "Kontextfensternutzung — wie viele Tokens Systemprompt, Dateien, Tools und "
+     "Verlauf gerade belegen."),
+    ("both; use `/context` to check what was actually loaded.",
+     "the loaded CLAUDE.md and memory files; use `/context` to see context-window "
+     "usage — how many tokens the system prompt, files, tools and history currently "
+     "take up."),
+]
+
+
+AGENT_MODES_MIGRATION = "content-migration:agent-modes-v1"
+AGENT_MODES_ANCHORS = [("subagents", "reveal-agent-modes", "agent-orchestrator")]
+
+
+def _migrate_agent_modes(db: Session) -> None:
+    """Ergänzt die Abgrenzung Subagent/Agent-View/Teams/Worktree (v1.21.0)."""
+    _migrate_content_blocks(db, AGENT_MODES_MIGRATION, AGENT_MODES_ANCHORS)
+
+
+def _migrate_memory_context_wording(db: Session) -> None:
+    if db.get(Setting, MEMORY_CONTEXT_MIGRATION):
+        return
+    for block in db.query(ContentBlock).filter(ContentBlock.type == "text"):
+        for old, new in _MC_EDITS:
+            if block.value_de and old in block.value_de:
+                block.value_de = block.value_de.replace(old, new)
+            if block.value_en and old in block.value_en:
+                block.value_en = block.value_en.replace(old, new)
+    db.add(Setting(key=MEMORY_CONTEXT_MIGRATION, value="applied"))
+    db.flush()
+
+
 def seed_missing_content(db: Session) -> None:
     """Seedet alle Module, deren Key noch nicht in der DB steht — beim ersten
     Start also alles, bei Updates nur neu hinzugekommene Module. Versionierte
@@ -460,6 +497,8 @@ def seed_missing_content(db: Session) -> None:
     _migrate_platform_commands(db)
     _migrate_capstone_rubric(db)
     _migrate_hooks_diagnose_lab(db)
+    _migrate_memory_context_wording(db)
+    _migrate_agent_modes(db)
     # Neue Module können auch später nachgeseedet werden. Die Workshop-Familie
     # wird dabei gleich mitgeschrieben, damit sie nicht still in keinem Kurs
     # erscheint.

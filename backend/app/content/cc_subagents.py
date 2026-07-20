@@ -231,6 +231,31 @@ SUBAGENTS_MODULE = {'key': 'subagents',
              'id': 'agent-orchestrator',
              'note': 'Fan-out mehrerer Subagents visualisieren: drei parallele Prüfer, die jeweils '
                      'nur ihre Zusammenfassung zurückgeben.'},
+            {'type': 'reveal',
+             'id': 'reveal-agent-modes',
+             'payload': {'teaser_de': 'Nicht verwechseln: Subagent vs. Agent View vs. Agent Teams vs. Git-Worktree',
+                         'teaser_en': 'Don’t mix up: subagent vs. Agent View vs. Agent Teams vs. git worktree'},
+             'value': {'de': '- **Subagent** (Task-Tool): eine Nebenaufgabe in eigenem '
+                             'Kontextfenster; gibt nur ihr Ergebnis zurück. Der Alltagsfall.\n'
+                             '- **Agent View / FleetView**: die Ansicht, in der du mehrere '
+                             'laufende Agents beobachtest — kein eigener Mechanismus, nur '
+                             'Sichtbarkeit.\n'
+                             '- **Agent Teams**: **experimentell und standardmäßig aus**. '
+                             'Mehrere Agents arbeiten zusammen an einer Aufgabe — mächtig, '
+                             'aber noch unfertig; für Kurszwecke bewusst nicht aktivieren.\n'
+                             '- **Git-Worktree**: kein Agent-Feature, sondern eine isolierte '
+                             'Arbeitskopie des Repos. Nützlich, wenn parallele Agents '
+                             'gleichzeitig Dateien ändern, ohne sich zu überschreiben.',
+                       'en': '- **Subagent** (Task tool): one side task in its own context '
+                             'window; returns only its result. The everyday case.\n'
+                             '- **Agent View / FleetView**: the view where you watch several '
+                             'running agents — not a mechanism of its own, just visibility.\n'
+                             '- **Agent Teams**: **experimental and off by default**. Several '
+                             'agents collaborate on one task — powerful but unfinished; leave '
+                             'it disabled for course purposes.\n'
+                             '- **Git worktree**: not an agent feature but an isolated working '
+                             'copy of the repo. Useful when parallel agents edit files at the '
+                             'same time without clobbering each other.'}},
             {'type': 'reflect',
              'payload': {'prompt_de': 'Welche Nebenaufgabe bläht in deinen Sessions am ehesten das '
                                       'Hauptgespräch auf und wäre ein guter Kandidat für einen '

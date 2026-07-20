@@ -1,5 +1,12 @@
 # Projekt-Changelog (nur für Trainer sichtbar). Neueste zuerst.
 CHANGELOG = [
+    {"date": "2026-07-20", "title": "v1.22.0 — Trainerfreigabe, Claude-Links & Feinschliff",
+     "text": "Optionale Trainerfreigabe: pro Kurs aktivierbar, dann wird die "
+             "Teilnahmebestätigung erst nach Freigabe je Teilnehmer ausgestellt (Häkchen "
+             "in der Fortschrittstabelle). Der Claude-Workshop hat jetzt eigene "
+             "Vertiefungslinks. Neue Inhalte: klare Abgrenzung Subagent/Agent-View/"
+             "Agent-Teams/Git-Worktree und präzisere /memory-vs-/context-Erklärung. "
+             "Dunkelmodus deckt jetzt auch Status- und Diagrammfarben ab."},
     {"date": "2026-07-20", "title": "v1.21.0 — Trainer-Dashboard neu & CLI-Session pro Teilnehmer",
      "text": "Das Trainer-Dashboard ist als Master-Detail aufgebaut: Kurse links wählen, "
              "Details (Module, Präsenz, Fortschritt, Feedback) rechts; globale Verwaltung "

@@ -1,6 +1,7 @@
 # Kuratierte Linksammlung „Wissenswertes & Vertiefung" — wird am Ende der
 # Kursübersicht angezeigt. Statisch wie changelog.py/company.py (kein DB-Editor).
-LINKS = [
+# Pro Workshop eine eigene Sammlung (LINKS_BY_WORKSHOP).
+NETWORK_LINKS = [
     {"category": {"de": "Nachschlagen & Grundlagen", "en": "Reference & Fundamentals"},
      "items": [
          {"title": "Cloudflare Learning Center",
@@ -58,3 +59,47 @@ LINKS = [
                    "en": "The classic if you want to write network code yourself (sockets, TCP/UDP)."}},
      ]},
 ]
+
+CLAUDE_LINKS = [
+    {"category": {"de": "Dokumentation", "en": "Documentation"},
+     "items": [
+         {"title": "Claude Code — Offizielle Doku",
+          "url": "https://docs.claude.com/en/docs/claude-code",
+          "desc": {"de": "Installation, CLI, Hooks, Slash-Commands, Subagents — die maßgebliche Quelle.",
+                   "en": "Install, CLI, hooks, slash commands, subagents — the authoritative source."}},
+         {"title": "Claude Docs",
+          "url": "https://docs.claude.com/",
+          "desc": {"de": "Gesamte Anthropic-Doku: API, Modelle, Prompting, Tool-Use.",
+                   "en": "Full Anthropic docs: API, models, prompting, tool use."}},
+         {"title": "Prompt Engineering",
+          "url": "https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/overview",
+          "desc": {"de": "Wie man Claude präzise instruiert — direkt übertragbar auf CLAUDE.md.",
+                   "en": "How to instruct Claude precisely — carries straight over to CLAUDE.md."}},
+     ]},
+    {"category": {"de": "Erweitern & Anbinden", "en": "Extend & Integrate"},
+     "items": [
+         {"title": "Model Context Protocol",
+          "url": "https://modelcontextprotocol.io/",
+          "desc": {"de": "Der offene Standard hinter MCP — Server, Clients, Spezifikation.",
+                   "en": "The open standard behind MCP — servers, clients, specification."}},
+         {"title": "Anthropic Cookbook",
+          "url": "https://github.com/anthropics/anthropic-cookbook",
+          "desc": {"de": "Praktische Rezepte und Beispielcode für den Bau mit Claude.",
+                   "en": "Practical recipes and sample code for building with Claude."}},
+     ]},
+    {"category": {"de": "Weiterdenken", "en": "Beyond"},
+     "items": [
+         {"title": "Anthropic Research",
+          "url": "https://www.anthropic.com/research",
+          "desc": {"de": "Hintergrund zu Fähigkeiten, Grenzen und Sicherheit der Modelle.",
+                   "en": "Background on model capabilities, limits and safety."}},
+     ]},
+]
+
+# Rückwärtskompatibel (Tests/alte Importe) — Standard bleibt die Netzwerksammlung.
+LINKS = NETWORK_LINKS
+
+LINKS_BY_WORKSHOP = {
+    "network": NETWORK_LINKS,
+    "claude-code": CLAUDE_LINKS,
+}

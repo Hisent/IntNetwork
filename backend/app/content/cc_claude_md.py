@@ -268,7 +268,9 @@ CLAUDE_MD_MODULE = {'key': 'claude-md',
                              'Sagst du „merk dir: wir nutzen pnpm, nicht npm”, landet das in '
                              'Auto-Memory. Willst du es *team-geteilt*, bitte stattdessen explizit '
                              '„füge das der CLAUDE.md hinzu”. Mit `/memory` siehst und bearbeitest '
-                             'du beides; mit `/context` prüfst du, was tatsächlich geladen wurde.',
+                             'du die geladenen CLAUDE.md- und Memory-Dateien; mit `/context` siehst '
+                             'du die Kontextfensternutzung — wie viele Tokens Systemprompt, Dateien, '
+                             'Tools und Verlauf gerade belegen.',
                        'en': '## CLAUDE.md vs. Auto-Memory\n'
                              '\n'
                              "Besides CLAUDE.md, there's **Auto-Memory**: notes Claude writes for "
@@ -284,8 +286,10 @@ CLAUDE_MD_MODULE = {'key': 'claude-md',
                              '\n'
                              'If you say "remember: we use pnpm, not npm", that goes into '
                              'Auto-Memory. If you want it *team-shared*, instead explicitly say '
-                             '"add this to CLAUDE.md". Use `/memory` to view and edit both; use '
-                             '`/context` to check what was actually loaded.'}},
+                             '"add this to CLAUDE.md". Use `/memory` to view and edit the loaded '
+                             'CLAUDE.md and memory files; use `/context` to see context-window usage '
+                             '— how many tokens the system prompt, files, tools and history currently '
+                             'take up.'}},
             {'type': 'reveal',
              'payload': {'teaser_de': 'Lab: Schreibe eine pfad-spezifische Rule, die nur für '
                                       'Test-Dateien (`**/*.test.ts`) gilt und vorschreibt, dass '

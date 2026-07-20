@@ -29,11 +29,15 @@ export function CertificatePage() {
     { day: '2-digit', month: 'long', year: 'numeric' })
   const workshopTitle = me.data?.workshop?.title[lang] ?? 'IntLab'
 
-  if (!allDone)
+  // Kurs mit Trainerfreigabe: alle Module done, aber noch nicht freigegeben (409).
+  const awaitingApproval = allDone && cert.isError
+  if (!allDone || awaitingApproval)
     return (
       <WorkshopTheme theme={me.data?.workshop?.theme}><div className="min-h-dvh bg-slate-50 flex items-center justify-center p-6">
-        <div className="text-center">
-          <p className="text-slate-600 mb-3">{t(lang, 'certNotYet')}</p>
+        <div className="max-w-md text-center">
+          <p className="text-slate-600 mb-3">{awaitingApproval
+            ? (lang === 'de' ? 'Alle Module geschafft! Die Teilnahmebestätigung wird nach der Freigabe durch die Kursleitung verfügbar.' : 'All modules done! The certificate becomes available once your trainer approves it.')
+            : t(lang, 'certNotYet')}</p>
           <Link to="/lernen" className="text-teal-600 hover:underline">← {t(lang, 'backToOverview')}</Link>
         </div>
       </div></WorkshopTheme>

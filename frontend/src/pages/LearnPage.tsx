@@ -20,7 +20,7 @@ export function LearnPage() {
   const mods = useQuery({ queryKey: ['modules', lang], queryFn: () => learnApi.listModules().then((r) => r.data) })
   const networkWorkshop = me.data?.workshop?.key === 'network'
   const company = useQuery({ queryKey: ['company', lang], queryFn: () => learnApi.company().then((r) => r.data), enabled: networkWorkshop })
-  const links = useQuery({ queryKey: ['links'], queryFn: () => learnApi.links().then((r) => r.data), enabled: networkWorkshop })
+  const links = useQuery({ queryKey: ['links', me.data?.workshop?.key], queryFn: () => learnApi.links().then((r) => r.data), enabled: !!me.data?.workshop })
   const setLang = useMutation({
     mutationFn: (l: Lang) => learnApi.setLanguage(l),
     onSuccess: () => {

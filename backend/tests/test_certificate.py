@@ -60,6 +60,37 @@ def test_certificate_requires_all_done_then_issues_and_verifies():
         assert c.get("/api/verify/does-not-exist").status_code == 404
 
 
+def test_certificate_gated_by_trainer_approval():
+    with TestClient(app) as c:
+        h = _trainer(c)
+        course = c.post("/api/courses", json={"name": "ApprKurs", "workshop_key": "network"}, headers=h).json()
+        assert c.patch(f"/api/courses/{course['id']}/approval",
+                       json={"require_approval": True}, headers=h).status_code == 200
+
+        joined = c.post("/api/join", json={"code": course["join_code"], "name": "Max"}).json()
+        auth = {"Authorization": f"Bearer {joined['access_token']}"}
+        db = SessionLocal()
+        part = db.query(Participant).filter(Participant.name == "Max").first()
+        pid, cid = part.id, part.course_id
+        db.close()
+        _mark_all_done(cid, pid)
+
+        # Alle Module done, aber ohne Freigabe -> 409 (nicht 403 „Module offen")
+        assert c.post("/api/certificate", headers=auth).status_code == 409
+
+        approved = c.post(f"/api/courses/{course['id']}/participants/{pid}/approve",
+                          json={"approved": True}, headers=h)
+        assert approved.status_code == 200 and approved.json()["approved"] is True
+
+        # Nach Freigabe wird ausgestellt
+        assert c.post("/api/certificate", headers=auth).status_code == 200
+
+        # Dashboard zeigt Freigabe-Status
+        dash = c.get(f"/api/courses/{course['id']}/dashboard", headers=h).json()
+        assert dash["course"]["require_approval"] is True
+        assert any(p["id"] == pid and p["approved"] for p in dash["participants"])
+
+
 def test_legacy_participant_without_resume_code_can_rejoin_and_gets_one():
     """Teilnehmer von vor der Code-Einführung (resume_code IS NULL) dürfen weiter
     per Name fort — bekommen dabei nachträglich einen Code."""

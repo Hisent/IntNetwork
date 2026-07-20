@@ -216,6 +216,15 @@ function CourseDetail({ course, workshopTitle }: { course: Course; workshopTitle
     mutationFn: (v: { module_key: string; active: boolean }) => trainerApi.setCourseModule(cid, v.module_key, v.active),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['course-modules', cid] }),
   })
+  const setApproval = useMutation({
+    mutationFn: (v: boolean) => trainerApi.setCourseApproval(cid, v),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['courses'] }); qc.invalidateQueries({ queryKey: ['dashboard', cid] }) },
+  })
+  const approve = useMutation({
+    mutationFn: (v: { pid: number; approved: boolean }) => trainerApi.approveParticipant(cid, v.pid, v.approved),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['dashboard', cid] }),
+  })
+  const requireApproval = course.require_approval ?? false
 
   return (
     <div className="flex flex-col gap-6">
@@ -253,8 +262,13 @@ function CourseDetail({ course, workshopTitle }: { course: Course; workshopTitle
         </QueryState>
       </Section>
 
-      <Section title="Fortschritt">
-        <ProgressTable dash={dash} />
+      <Section title="Fortschritt" action={
+        <label className="flex items-center gap-1.5 text-xs font-normal text-slate-500">
+          <input type="checkbox" checked={requireApproval} disabled={setApproval.isPending}
+            onChange={(e) => setApproval.mutate(e.target.checked)} />
+          Freigabe für Bestätigung nötig
+        </label>}>
+        <ProgressTable dash={dash} requireApproval={requireApproval} onApprove={(pid, a) => approve.mutate({ pid, approved: a })} />
       </Section>
 
       {features.data?.comments && (
@@ -264,7 +278,11 @@ function CourseDetail({ course, workshopTitle }: { course: Course; workshopTitle
   )
 }
 
-function ProgressTable({ dash }: { dash: ReturnType<typeof useQuery<import('@/lib/trainerApi').Dashboard>> }) {
+function ProgressTable({ dash, requireApproval, onApprove }: {
+  dash: ReturnType<typeof useQuery<import('@/lib/trainerApi').Dashboard>>
+  requireApproval: boolean
+  onApprove: (participantId: number, approved: boolean) => void
+}) {
   return (
     <QueryState query={dash}>
       <div className="overflow-x-auto">
@@ -273,11 +291,12 @@ function ProgressTable({ dash }: { dash: ReturnType<typeof useQuery<import('@/li
             <tr>
               <th className="sticky left-0 z-10 bg-slate-50 px-3 py-2 text-left font-semibold text-slate-600">Teilnehmer</th>
               {dash.data?.modules.map((m) => <th key={m.key} className="whitespace-nowrap bg-slate-50 px-3 py-2 text-xs font-medium text-slate-500">{m.title}</th>)}
+              {requireApproval && <th className="whitespace-nowrap bg-slate-50 px-3 py-2 text-xs font-medium text-slate-500">Freigabe</th>}
             </tr>
           </thead>
           <tbody>
             {dash.data?.participants.map((p) => (
-              <tr key={p.name}>
+              <tr key={p.id}>
                 <td className="sticky left-0 z-10 border-t bg-white px-3 py-2 font-medium text-slate-700">{p.name}</td>
                 {dash.data!.modules.map((m) => {
                   const cell = p.cells[m.key]
@@ -289,10 +308,16 @@ function ProgressTable({ dash }: { dash: ReturnType<typeof useQuery<import('@/li
                     </td>
                   )
                 })}
+                {requireApproval && (
+                  <td className="border-t px-3 py-2 text-center">
+                    <input type="checkbox" checked={p.approved} onChange={(e) => onApprove(p.id, e.target.checked)}
+                      aria-label={`${p.name} freigeben`} />
+                  </td>
+                )}
               </tr>
             ))}
             {dash.data?.participants.length === 0 && (
-              <tr><td colSpan={(dash.data?.modules.length ?? 0) + 1} className="px-3 py-6 text-center text-slate-400">Noch keine Teilnehmer.</td></tr>
+              <tr><td colSpan={(dash.data?.modules.length ?? 0) + (requireApproval ? 2 : 1)} className="px-3 py-6 text-center text-slate-400">Noch keine Teilnehmer.</td></tr>
             )}
           </tbody>
         </table>

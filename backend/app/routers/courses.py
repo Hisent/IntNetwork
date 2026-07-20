@@ -46,8 +46,39 @@ def list_courses(db: Session = Depends(get_db), _=Depends(get_trainer)):
     counts = dict(db.query(Participant.course_id, func.count(Participant.id))
                   .group_by(Participant.course_id).all())
     return [{"id": c.id, "name": c.name, "join_code": c.join_code, "workshop_key": c.workshop_key,
-             "participant_count": counts.get(c.id, 0)}
+             "participant_count": counts.get(c.id, 0), "require_approval": c.require_approval}
             for c in db.query(Course).order_by(Course.created_at.desc()).all()]
+
+
+class ApprovalToggle(BaseModel):
+    require_approval: bool
+
+
+@router.patch("/{course_id}/approval")
+def set_course_approval(course_id: int, data: ApprovalToggle,
+                        db: Session = Depends(get_db), _=Depends(get_trainer)):
+    course = db.query(Course).filter(Course.id == course_id).first()
+    if not course:
+        raise HTTPException(status_code=404, detail="Kurs nicht gefunden")
+    course.require_approval = data.require_approval
+    db.commit()
+    return {"require_approval": course.require_approval}
+
+
+class ParticipantApproval(BaseModel):
+    approved: bool
+
+
+@router.post("/{course_id}/participants/{participant_id}/approve")
+def approve_participant(course_id: int, participant_id: int, data: ParticipantApproval,
+                        db: Session = Depends(get_db), _=Depends(get_trainer)):
+    p = db.query(Participant).filter(
+        Participant.id == participant_id, Participant.course_id == course_id).first()
+    if not p:
+        raise HTTPException(status_code=404, detail="Teilnehmer nicht gefunden")
+    p.approved = data.approved
+    db.commit()
+    return {"id": p.id, "approved": p.approved}
 
 
 @router.get("/{course_id}/dashboard")
@@ -74,9 +105,9 @@ def dashboard(course_id: int, db: Session = Depends(get_db), _=Depends(get_train
             pct = best_map.get((p.id, m["key"]))
             cells[m["key"]] = {"done": (p.id, m["key"]) in done_pairs,
                                "best": round(pct * 100) if pct is not None else None}
-        rows.append({"name": p.name, "cells": cells})
+        rows.append({"id": p.id, "name": p.name, "approved": p.approved, "cells": cells})
     return {"course": {"id": course.id, "name": course.name, "join_code": course.join_code,
-                       "workshop_key": course.workshop_key},
+                       "workshop_key": course.workshop_key, "require_approval": course.require_approval},
             "modules": metas, "participants": rows}
 
 
