@@ -9,7 +9,7 @@ export const parseUiMode = (value: string | null | undefined): UiMode | null =>
 
 export const resolveUiMode = (search = '', stored?: string | null): UiMode => {
   const preview = parseUiMode(new URLSearchParams(search).get('ui'))
-  return preview ?? parseUiMode(stored) ?? 'classic'
+  return preview ?? parseUiMode(stored) ?? 'workbench'
 }
 
 export const readUiMode = (search: string, readStored: () => string | null): UiMode => {
@@ -21,7 +21,7 @@ export const readUiMode = (search: string, readStored: () => string | null): UiM
 }
 
 const initialMode = typeof window === 'undefined'
-  ? 'classic'
+  ? 'workbench'
   : readUiMode(window.location.search, () => window.localStorage.getItem(STORAGE_KEY))
 
 interface UiModeState {

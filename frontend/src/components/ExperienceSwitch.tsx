@@ -26,7 +26,7 @@ export function ExperienceSwitch({ lang = 'de', confirmBeforeChange = false, con
         }}
           aria-pressed={mode === option.value}
           className={`rounded px-2 py-1 border ${mode === option.value
-            ? 'border-teal-600 bg-teal-600 text-white'
+            ? 'border-[var(--workshop-accent)] bg-[var(--workshop-accent)] text-white'
             : 'border-slate-200 text-slate-500 hover:bg-slate-50'}`}>
           {option.label}
         </button>

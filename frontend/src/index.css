@@ -47,7 +47,22 @@ p { text-wrap: pretty; }
 
 /* Workshop-Akzent bleibt ein zentraler Token. Die fachlichen Farben in den
    Netzwerk-Simulatoren bleiben bewusst unverändert. */
-.workshop-theme--claude { --workshop-accent: #c2410c; --workshop-accent-hover: #9a3412; }
+.workshop-theme--network {
+  --workshop-accent: #0f766e;
+  --workshop-accent-hover: #115e59;
+  --workshop-accent-soft: #ccfbf1;
+  --workshop-accent-surface: #f0fdfa;
+  --workshop-accent-line: #99f6e4;
+  --workshop-accent-ink: #134e4a;
+}
+.workshop-theme--claude {
+  --workshop-accent: #c2410c;
+  --workshop-accent-hover: #9a3412;
+  --workshop-accent-soft: #ffedd5;
+  --workshop-accent-surface: #fff7ed;
+  --workshop-accent-line: #fdba74;
+  --workshop-accent-ink: #7c2d12;
+}
 .workshop-theme--claude :focus-visible { outline-color: var(--workshop-accent); }
 .workshop-theme--claude .bg-teal-600 { background-color: var(--workshop-accent); }
 .workshop-theme--claude .bg-teal-500 { background-color: #ea580c; }

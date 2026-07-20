@@ -1,5 +1,8 @@
 # Projekt-Changelog (nur für Trainer sichtbar). Neueste zuerst.
 CHANGELOG = [
+    {"date": "2026-07-20", "title": "v1.16.0 — Workshop-Katalog und Workbench-Standard",
+     "text": "Die Startseite führt jetzt als klarer Workshop-Katalog mit Suche, sichtbaren Teilnahme-Hinweisen und farblich getrennten Themen in die Lehrgänge. "
+             "Theme-Farben werden über zentrale Tokens vererbt, Ladezustände springen nicht mehr und die Workbench ist für neue Teilnehmende die Standardansicht."},
     {"date": "2026-07-20", "title": "v1.15.0 — Saubere Inline- und Terminal-Codeausgabe",
      "text": "Markdown-Code im Claude-Workshop wird jetzt korrekt unterschieden: "
              "Inline-Kommandos bleiben kompakt, fenced Shell-/Console-Ausgaben erscheinen "

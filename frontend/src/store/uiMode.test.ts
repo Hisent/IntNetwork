@@ -8,13 +8,13 @@ describe('UI mode', () => {
   })
 
   it('defaults defensively and lets a preview override storage', () => {
-    expect(resolveUiMode('', 'broken')).toBe('classic')
+    expect(resolveUiMode('', 'broken')).toBe('workbench')
     expect(resolveUiMode('?ui=workbench', 'classic')).toBe('workbench')
     expect(resolveUiMode('?ui=broken', 'workbench')).toBe('workbench')
   })
 
   it('falls back when browser storage is unavailable', () => {
-    expect(readUiMode('', () => { throw new Error('blocked') })).toBe('classic')
+    expect(readUiMode('', () => { throw new Error('blocked') })).toBe('workbench')
     expect(readUiMode('?ui=workbench', () => { throw new Error('blocked') })).toBe('workbench')
   })
 })
