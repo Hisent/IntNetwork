@@ -7,6 +7,9 @@ import { trainerApi, type EditorBlock, type EditorModule, type EditorQuestion } 
 import { addOption, emptyBlock, emptyQuestion, moveItem, removeAt, removeOption } from '@/components/editorOps'
 import { MD_COMPONENTS } from '@/components/Blocks'
 import { WIDGETS } from '@/widgets/registry'
+import { BrandLogo } from '@/components/BrandLogo'
+import { WorkshopTheme } from '@/components/WorkshopTheme'
+import { workshopTheme } from '@/lib/workshopTheme'
 
 const TYPE_LABELS: Record<EditorBlock['type'], string> = {
   text: 'Text', widget: 'Widget', check: 'Kurz-Check', reveal: 'Aufdecken',
@@ -101,9 +104,12 @@ export function TrainerModuleEditPage() {
   }
 
   return (
-    <div className="min-h-dvh bg-slate-50 p-6 sm:p-10">
+    <WorkshopTheme theme={workshopTheme(form.workshop_key)}><div className="min-h-dvh bg-slate-50 p-6 sm:p-10">
       <div className="max-w-2xl mx-auto">
-        <Link to={`/trainer/modul/${key}`} className="text-sm text-slate-400 hover:text-slate-600">← Zur Trainer-Ansicht</Link>
+        <div className="flex items-center justify-between gap-4">
+          <Link to={`/trainer/modul/${key}`} className="text-sm text-slate-400 hover:text-slate-600">← Zur Trainer-Ansicht</Link>
+          <Link to="/"><BrandLogo className="h-8 text-base" showName /></Link>
+        </div>
         <h1 className="text-2xl font-bold text-slate-900 mt-2 mb-4">Modul bearbeiten: {key}</h1>
 
         {error && <p className="mb-4 rounded-lg bg-red-50 text-red-700 text-sm px-3 py-2">{error}</p>}
@@ -471,6 +477,6 @@ export function TrainerModuleEditPage() {
           Zurück
         </button>
       </div>
-    </div>
+    </div></WorkshopTheme>
   )
 }

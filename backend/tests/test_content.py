@@ -164,6 +164,7 @@ def test_trainer_module_keeps_notes_answers_goals():
             assert m["quiz"]["questions"][0]["answer"] is not None
             assert isinstance(m["scenario"], str)
             assert isinstance(m["blocks"][0]["value"], str)
+            assert m["workshop_key"] == "network"
             assert registry.trainer_module(db, "nope") is None
         finally:
             db.close()

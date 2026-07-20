@@ -7,6 +7,9 @@ import { TrainerBlocks } from '@/components/TrainerBlocks'
 import { PageSkeleton } from '@/components/PageSkeleton'
 import { TrainerQuiz } from '@/components/TrainerQuiz'
 import { useAuthStore } from '@/store/auth'
+import { BrandLogo } from '@/components/BrandLogo'
+import { WorkshopTheme } from '@/components/WorkshopTheme'
+import { workshopTheme } from '@/lib/workshopTheme'
 
 // Ampelfarbe je Erfolgsquote: ab 70% grün, ab 40% gelb, darunter rot.
 function rateColor(rate: number) {
@@ -85,9 +88,12 @@ export function TrainerModulePage() {
   const m = mod.data
 
   return (
-    <div className="min-h-dvh bg-slate-50 p-6 sm:p-10">
+    <WorkshopTheme theme={workshopTheme(m.workshop_key)}><div className="min-h-dvh bg-slate-50 p-6 sm:p-10">
       <div className="max-w-2xl mx-auto">
-        <Link to="/trainer" className="text-sm text-slate-400 hover:text-slate-600">← Trainer</Link>
+        <div className="flex items-center justify-between gap-4">
+          <Link to="/trainer" className="text-sm text-slate-400 hover:text-slate-600">← Trainer</Link>
+          <Link to="/"><BrandLogo className="h-8 text-base" showName /></Link>
+        </div>
         <div className="flex items-start justify-between gap-3 mt-2 mb-4">
           <h1 className="text-2xl font-bold text-slate-900">
             {m.title} <span className="text-sm font-normal text-slate-400">· Trainer-Ansicht</span>
@@ -141,6 +147,6 @@ export function TrainerModulePage() {
         <TrainerBlocks blocks={m.blocks} />
         <TrainerQuiz questions={m.quiz.questions} />
       </div>
-    </div>
+    </div></WorkshopTheme>
   )
 }

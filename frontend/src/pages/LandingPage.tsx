@@ -5,6 +5,7 @@ import { workshopApi } from '@/lib/workshopApi'
 import type { Lang } from '@/lib/i18n'
 import { VersionBadge } from '@/components/VersionBadge'
 import { WorkshopTheme } from '@/components/WorkshopTheme'
+import { BrandLogo } from '@/components/BrandLogo'
 
 const COPY = {
   de: {
@@ -68,8 +69,7 @@ export function LandingPage() {
       <div className="relative mx-auto max-w-6xl">
         <header className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <img src="/favicon.svg" alt="" className="h-9 w-9" />
-            <span className="text-lg font-semibold tracking-tight text-slate-950">IntLab</span>
+            <BrandLogo className="h-9 text-lg" showName />
             <VersionBadge tone="dark" />
           </div>
           <div className="flex items-center gap-3 text-xs font-semibold">

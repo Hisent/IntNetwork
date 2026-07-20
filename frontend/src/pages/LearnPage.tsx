@@ -11,6 +11,7 @@ import { useUiModeStore } from '@/store/uiMode'
 import type { ReactNode } from 'react'
 import { WorkbenchProgress, WorkbenchSectionTitle, WorkbenchTopbar } from '@/components/workbench/WorkbenchShell'
 import { WorkshopTheme } from '@/components/WorkshopTheme'
+import { BrandLogo } from '@/components/BrandLogo'
 
 type Group = { key: string; title: string; mods: ModuleMeta[] }
 
@@ -65,9 +66,9 @@ export function LearnPage() {
     <div className="min-h-dvh bg-slate-50 p-6 sm:p-10">
       <div className="max-w-2xl mx-auto">
         <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-center gap-2">
+          <div>
+            <div className="mb-4 flex items-center gap-2"><BrandLogo className="h-8 text-base" showName /><VersionBadge tone="dark" /></div>
             <h1 className="text-2xl font-bold text-slate-900">{t(lang, 'hello')} {displayName}</h1>
-            <VersionBadge tone="dark" />
           </div>
           <div className="flex w-full flex-wrap items-center gap-2 text-xs font-medium sm:w-auto sm:flex-nowrap">
             <ExperienceSwitch lang={lang} />

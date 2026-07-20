@@ -6,6 +6,9 @@ import { trainerApi } from '@/lib/trainerApi'
 import { TrainerBlocks } from '@/components/TrainerBlocks'
 import { MD_COMPONENTS } from '@/components/Blocks'
 import { useAuthStore } from '@/store/auth'
+import { BrandLogo } from '@/components/BrandLogo'
+import { WorkshopTheme } from '@/components/WorkshopTheme'
+import { workshopTheme } from '@/lib/workshopTheme'
 
 // Beamer-Modus: Folie 0 = Titel/Szenario/Lernziele, danach ein Block pro Folie.
 // Navigation: Pfeiltasten/Leertaste, Esc beendet. Notizen bleiben einklappbar
@@ -51,11 +54,12 @@ export function TrainerPresentPage() {
   const m = mod.data
 
   return (
-    <div className="min-h-[100dvh] bg-white flex flex-col">
+    <WorkshopTheme theme={workshopTheme(m.workshop_key)}><div className="min-h-[100dvh] bg-white flex flex-col">
       <div className="flex-1 flex items-center justify-center p-8 sm:p-14">
         <div className="w-full max-w-3xl text-lg">
           {slide === 0 ? (
             <div>
+              <BrandLogo className="mb-8 h-10 text-lg" showName />
               <p className="text-sm font-semibold uppercase tracking-widest text-teal-600 mb-3">
                 Modul {m.order}
               </p>
@@ -98,6 +102,6 @@ export function TrainerPresentPage() {
         </div>
         <span className="text-xs text-slate-300 hidden sm:block">Pfeiltasten / Leertaste</span>
       </div>
-    </div>
+    </div></WorkshopTheme>
   )
 }

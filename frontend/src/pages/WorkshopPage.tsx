@@ -7,6 +7,7 @@ import { useAuthStore } from '@/store/auth'
 import type { Lang } from '@/lib/i18n'
 import { PageSkeleton } from '@/components/PageSkeleton'
 import { WorkshopTheme } from '@/components/WorkshopTheme'
+import { BrandLogo } from '@/components/BrandLogo'
 
 export function WorkshopPage() {
   const { key = '' } = useParams()
@@ -44,7 +45,10 @@ export function WorkshopPage() {
       <main className="min-h-[100dvh] bg-[var(--workshop-accent-surface)] px-5 py-6 sm:px-10 sm:py-8">
         <div className="mx-auto max-w-6xl">
           <header className="flex items-center justify-between gap-4">
-            <Link to="/" className="text-sm font-semibold text-[var(--workshop-accent)]">← {lang === 'de' ? 'Alle Workshops' : 'All workshops'}</Link>
+            <div className="flex items-center gap-4 sm:gap-6">
+              <Link to="/" aria-label="IntLab"><BrandLogo className="h-9 text-lg" showName /></Link>
+              <Link to="/" className="hidden text-sm font-semibold text-[var(--workshop-accent)] sm:block">← {lang === 'de' ? 'Alle Workshops' : 'All workshops'}</Link>
+            </div>
             <div className="flex gap-2 text-xs font-semibold"><button onClick={() => setLang('de')} className={lang === 'de' ? 'text-[var(--workshop-accent)]' : 'text-slate-400'}>DE</button><button onClick={() => setLang('en')} className={lang === 'en' ? 'text-[var(--workshop-accent)]' : 'text-slate-400'}>EN</button></div>
           </header>
 

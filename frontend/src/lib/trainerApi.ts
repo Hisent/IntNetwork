@@ -51,6 +51,7 @@ export interface EditorQuestion {
 }
 export interface EditorModule {
   key: string
+  workshop_key: string | null
   title_de: string
   title_en: string
   order: number

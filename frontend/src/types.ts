@@ -14,6 +14,7 @@ export type Question =
 
 export interface ModuleDetail {
   key: string
+  workshop_key?: string | null
   title: string
   order: number
   scenario?: string

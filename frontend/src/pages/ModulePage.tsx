@@ -17,6 +17,7 @@ import type { Block, ModuleDetail, ModuleMeta, ProgressItem } from '@/types'
 import { WorkbenchProgress, WorkbenchSectionTitle, WorkbenchTopbar } from '@/components/workbench/WorkbenchShell'
 import { readPercent } from '@/components/workbench/workbenchLogic'
 import { WorkshopTheme } from '@/components/WorkshopTheme'
+import { BrandLogo } from '@/components/BrandLogo'
 
 export function ModulePage() {
   const { key = '' } = useParams()
@@ -92,7 +93,8 @@ export function ModulePage() {
     <div className="min-h-dvh bg-slate-50">
       <div className="sticky top-0 z-10 border-b border-slate-200 bg-white/90 backdrop-blur">
         <div className="max-w-2xl mx-auto flex flex-wrap items-center gap-2 px-4 py-2 text-sm sm:flex-nowrap sm:justify-between sm:gap-3 sm:px-6">
-          <span className="w-full truncate font-medium text-slate-700 sm:w-auto sm:flex-1">{mod.data.title}</span>
+          <BrandLogo className="h-7" />
+          <span className="min-w-0 flex-1 truncate font-medium text-slate-700">{mod.data.title}</span>
           <div className="ml-auto flex min-w-0 items-center gap-2">
             <ExperienceSwitch lang={lang} confirmBeforeChange />
             {me.data?.workshop?.key === 'network' && <GlossaryPanel moduleKey={key} lang={lang} />}

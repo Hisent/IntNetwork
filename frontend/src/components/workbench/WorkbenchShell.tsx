@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { ExperienceSwitch } from '@/components/ExperienceSwitch'
+import { BrandLogo } from '@/components/BrandLogo'
 import type { Lang } from '@/lib/i18n'
 import './workbench.css'
 
@@ -9,7 +10,7 @@ export function WorkbenchTopbar({ lang, title, actions, confirmExperienceChange 
     <header className="wb-topbar">
       <div className="mx-auto flex min-h-14 w-full max-w-[1440px] items-center justify-between gap-3 px-4 sm:px-6">
         <Link to="/lernen" className="wb-control flex min-w-0 items-center gap-3 font-semibold text-[var(--wb-ink)]">
-          <img src="/favicon.svg" alt="" className="h-8 w-8 shrink-0 rounded-lg" />
+          <BrandLogo className="h-8" />
           <span className="truncate">{title}</span>
         </Link>
         <div className="flex shrink-0 items-center gap-2">

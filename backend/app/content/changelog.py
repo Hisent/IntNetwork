@@ -1,5 +1,7 @@
 # Projekt-Changelog (nur für Trainer sichtbar). Neueste zuerst.
 CHANGELOG = [
+    {"date": "2026-07-20", "title": "v1.18.0 - Workshop-Logo",
+     "text": "Das IntLab-Logo ist jetzt auf den zentralen Workshop-, Lern-, Zertifikats- und Trainerseiten sichtbar. Im Netzwerk-Workshop erscheint es grün, im Claude-Code-Workshop orange."},
     {"date": "2026-07-20", "title": "v1.17.0 — IntLab-Marke",
      "text": "Die Plattform heißt jetzt IntLab. Das neue modulare I-Zeichen mit zentralem Lernpunkt ersetzt das netzwerkspezifische Dreieck und funktioniert als gemeinsame Marke für alle Workshops."},
     {"date": "2026-07-20", "title": "v1.16.0 — Workshop-Katalog und Workbench-Standard",

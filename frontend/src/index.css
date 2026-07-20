@@ -54,6 +54,9 @@ p { text-wrap: pretty; }
   --workshop-accent-surface: #f0fdfa;
   --workshop-accent-line: #99f6e4;
   --workshop-accent-ink: #134e4a;
+  --workshop-logo-line: #2dd4bf;
+  --workshop-logo-node: #5eead4;
+  --workshop-logo-center: #0f766e;
 }
 .workshop-theme--claude {
   --workshop-accent: #c2410c;
@@ -62,6 +65,9 @@ p { text-wrap: pretty; }
   --workshop-accent-surface: #fff7ed;
   --workshop-accent-line: #fdba74;
   --workshop-accent-ink: #7c2d12;
+  --workshop-logo-line: #fb923c;
+  --workshop-logo-node: #fdba74;
+  --workshop-logo-center: #c2410c;
 }
 .workshop-theme--claude :focus-visible { outline-color: var(--workshop-accent); }
 .workshop-theme--claude .bg-teal-600 { background-color: var(--workshop-accent); }
