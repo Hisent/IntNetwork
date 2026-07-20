@@ -1,5 +1,10 @@
 # Projekt-Changelog (nur für Trainer sichtbar). Neueste zuerst.
 CHANGELOG = [
+    {"date": "2026-07-20", "title": "v1.12.0 — Codeblöcke im Lehrgang",
+     "text": "Markdown-Code wird im Teilnehmer- und Trainerbereich jetzt als klar "
+             "abgesetzter Block mit horizontalem Scrollen, Sprachlabel und "
+             "Kopieraktion dargestellt. Inline-Code bleibt kompakt lesbar; die "
+             "Darstellung funktioniert ohne zusätzliche Syntaxhighlighting-Abhängigkeit."},
     {"date": "2026-07-20", "title": "v1.11.0 — Kontext- und Verbrauchs-Workflow",
      "text": "Der Claude-Code-Workshop erklärt jetzt einen belastbaren Umgang mit "
              "Kontextfenster und Nutzung: /usage (inklusive /cost und /stats), /context, "
