@@ -1,5 +1,10 @@
 # Projekt-Changelog (nur für Trainer sichtbar). Neueste zuerst.
 CHANGELOG = [
+    {"date": "2026-07-20", "title": "v1.13.0 — Virtuelle Claude-CLI-Prototyp-Session",
+     "text": "Das Claude-Modul enthält jetzt einen ausdrücklich als Browser-Prototyp "
+             "gekennzeichneten virtuellen Workspace. Teilnehmende können help, pwd, ls, "
+             "cat, echo, touch, whoami und clear ausprobieren; jede Browser-Instanz "
+             "besitzt ihren eigenen In-Memory-Dateistand und eine zurücksetzbare Session."},
     {"date": "2026-07-20", "title": "v1.12.0 — Codeblöcke im Lehrgang",
      "text": "Markdown-Code wird im Teilnehmer- und Trainerbereich jetzt als klar "
              "abgesetzter Block mit horizontalem Scrollen, Sprachlabel und "

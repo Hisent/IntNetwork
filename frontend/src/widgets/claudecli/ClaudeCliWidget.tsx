@@ -1,20 +1,22 @@
 import { useState } from 'react'
-import { runCommand, type CliMode } from '@/widgets/claudecli/claudeCli'
+import { createTerminalState, runCommand, runTerminalCommand, type CliMode, type TerminalState } from '@/widgets/claudecli/claudeCli'
 import { ChallengeBox } from '@/components/ChallengeBox'
 import type { Lang } from '@/lib/i18n'
 
 const STR = {
   de: {
     title: 'Claude-Code-CLI (Demo)', modeDefault: 'Vor Änderungen fragen', modePlan: 'Plan', modeAccept: 'Edits automatisch akzeptieren',
-    modeLabel: 'Modus', hint: 'Slash-Commands ausprobieren (/help). Modus oben umschalten.',
-    intro: 'Tippe /help für die Befehlsliste.',
+    modeLabel: 'Modus', hint: 'Virtuelle Shell: help, ls, cat README.md. Slash-Commands mit /help.',
+    intro: 'Browser-Prototyp — keine echte Host-Shell. Tippe help für Befehle.',
     challenge: 'Wechsle in den Plan-Modus und rufe /context auf.',
+    session: 'Session', reset: 'Session zurücksetzen',
   },
   en: {
     title: 'Claude Code CLI (demo)', modeDefault: 'Ask before edits', modePlan: 'Plan', modeAccept: 'Auto accept edits',
-    modeLabel: 'Mode', hint: 'Try slash commands (/help). Toggle the mode above.',
-    intro: 'Type /help for the command list.',
+    modeLabel: 'Mode', hint: 'Virtual shell: help, ls, cat README.md. Try slash commands with /help.',
+    intro: 'Browser prototype — no real host shell. Type help for commands.',
     challenge: 'Switch to plan mode and run /context.',
+    session: 'Session', reset: 'Reset session',
   },
 } as const
 
@@ -24,18 +26,29 @@ export function ClaudeCli({ lang }: { lang: Lang }) {
   const [lines, setLines] = useState<string[]>([s.intro])
   const [input, setInput] = useState('')
   const [solved, setSolved] = useState(false)
+  const [terminal, setTerminal] = useState<TerminalState>(createTerminalState)
+  const [sessionId, setSessionId] = useState(() => Math.random().toString(36).slice(2, 8))
 
   function submit() {
     const trimmed = input.trim()
     if (trimmed === '') return
-    const res = runCommand(trimmed, mode, lang)
+    const terminalResult = trimmed.startsWith('/') ? undefined : runTerminalCommand(terminal, trimmed, lang)
+    const res = terminalResult ?? runCommand(trimmed, mode, lang)
     if (trimmed === '/context' && mode === 'plan') setSolved(true)
     if (res.output === '__CLEAR__') {
       setLines([s.intro])
     } else {
-      setLines((l) => [...l, `${mode}> ${trimmed}`, ...(res.output ? [res.output] : [])])
+      setLines((l) => [...l, mode + '> ' + trimmed, ...(res.output ? [res.output] : [])])
     }
+    if (terminalResult) setTerminal(terminalResult.state)
     setInput('')
+  }
+
+  function resetSession() {
+    setTerminal(createTerminalState())
+    setLines([s.intro])
+    setSolved(false)
+    setSessionId(Math.random().toString(36).slice(2, 8))
   }
 
   const modes: [CliMode, string][] = [
@@ -46,6 +59,10 @@ export function ClaudeCli({ lang }: { lang: Lang }) {
     <div className="rounded-2xl border bg-white p-5">
       <p className="text-sm font-semibold text-slate-700 mb-1">{s.title}</p>
       <p className="text-xs text-slate-500 mb-2">{s.hint}</p>
+      <div className="mb-2 flex items-center justify-between gap-2 text-[11px] text-slate-400">
+        <span>{s.session}: <code className="font-mono text-slate-600">{sessionId}</code></span>
+        <button type="button" onClick={resetSession} className="rounded border border-slate-200 px-2 py-1 hover:bg-slate-50">{s.reset}</button>
+      </div>
 
       <div className="flex gap-1 mb-2 items-center">
         <span className="text-xs text-slate-500 mr-1">{s.modeLabel}:</span>

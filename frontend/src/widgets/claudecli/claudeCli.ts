@@ -4,6 +4,72 @@ export interface CliResult {
   output: string
 }
 
+export interface TerminalState {
+  files: Record<string, string>
+}
+
+export function createTerminalState(): TerminalState {
+  return {
+    files: {
+      'README.md': '# Claude-Code-Workspace\n\nDies ist ein isolierter Browser-Prototyp.',
+      'src/app.ts': 'export const answer = 42\n',
+    },
+  }
+}
+
+export function runTerminalCommand(
+  state: TerminalState,
+  input: string,
+  lang: 'de' | 'en',
+): { output: string; state: TerminalState } {
+  const cmd = input.trim()
+  const de = lang !== 'en'
+  const [name, ...args] = cmd.split(/\s+/)
+  if (cmd === '') return { output: '', state }
+
+  switch (name) {
+    case 'help':
+      return {
+        output: de
+          ? 'Befehle: help · pwd · ls · cat <datei> · echo <text> > <datei> · touch <datei> · whoami · clear'
+          : 'Commands: help · pwd · ls · cat <file> · echo <text> > <file> · touch <file> · whoami · clear',
+        state,
+      }
+    case 'pwd':
+      return { output: '/workspace', state }
+    case 'ls':
+      return { output: Object.keys(state.files).sort().join('  '), state }
+    case 'cat': {
+      const file = args[0]
+      if (!file) return { output: de ? 'Nutzung: cat <datei>' : 'Usage: cat <file>', state }
+      return {
+        output: state.files[file] ?? (de ? 'Datei nicht gefunden: ' + file : 'File not found: ' + file),
+        state,
+      }
+    }
+    case 'touch': {
+      const file = args[0]
+      if (!file) return { output: de ? 'Nutzung: touch <datei>' : 'Usage: touch <file>', state }
+      return { output: '', state: { files: { ...state.files, [file]: state.files[file] ?? '' } } }
+    }
+    case 'echo': {
+      const redirect = cmd.match(/^echo\s+(.+?)\s*>\s*(\S+)$/)
+      if (!redirect) return { output: args.join(' '), state }
+      const [, value, file] = redirect
+      return { output: '', state: { files: { ...state.files, [file]: value } } }
+    }
+    case 'whoami':
+      return { output: 'participant (sandbox prototype)', state }
+    case 'clear':
+      return { output: '__CLEAR__', state }
+    default:
+      return {
+        output: de ? name + ': Befehl nicht gefunden. Tippe help.' : name + ': command not found. Type help.',
+        state,
+      }
+  }
+}
+
 // Stark vereinfachte Nachbildung der Claude-Code-Prompt-Zeile — nur zur
 // Veranschaulichung der eingebauten Slash-Commands. "__CLEAR__" signalisiert
 // der UI, den Verlauf zu leeren.
