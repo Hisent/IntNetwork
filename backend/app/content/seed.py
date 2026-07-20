@@ -279,6 +279,17 @@ def _migrate_text_edits_v2(db: Session) -> None:
     _apply_text_edits(db, CONTENT_EDITS_V2_MIGRATION, CONTENT_TEXT_EDITS_V2)
 
 
+CONTENT_EDITS_V3_MIGRATION = "content-migration:content-edits-v3"
+CONTENT_EDITS_V3_ANCHORS = [
+    ("cli-workflows", "text-context-budget", "text-context-window"),
+]
+
+
+def _migrate_text_edits_v3(db: Session) -> None:
+    """Ergänzt die belastbare Kontext-/Verbrauchs-Anleitung aus v1.11.0."""
+    _migrate_content_blocks(db, CONTENT_EDITS_V3_MIGRATION, CONTENT_EDITS_V3_ANCHORS)
+
+
 NETWORK_VISUALS_V3_MIGRATION = "content-migration:network-visuals-v3"
 # Fünf dynamische Widgets aus v1.9.0, jeweils hinter einem bereits vorhandenen
 # fachlichen Anker (Widget, Check, Text oder Reveal) eingefügt.
@@ -403,6 +414,7 @@ def seed_missing_content(db: Session) -> None:
     _migrate_content_texts(db)
     _migrate_text_edits(db)
     _migrate_text_edits_v2(db)
+    _migrate_text_edits_v3(db)
     _migrate_course_order(db)
     _migrate_claude_workshop_order(db)
     _migrate_network_visuals_v3(db)

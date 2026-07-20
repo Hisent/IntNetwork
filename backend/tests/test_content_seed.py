@@ -11,6 +11,7 @@ from app.content.seed import (LEARNING_LABS_MIGRATION, NETWORK_VISUALS_MIGRATION
                               CONTENT_TEXTS_MIGRATION, CONTENT_EDITS_MIGRATION,
                               CONTENT_EDITS_V2_MIGRATION, CONTENT_TEXT_EDITS_V2,
                               CONTENT_TEXT_EDITS, COURSE_ORDER_MIGRATION,
+                              CONTENT_EDITS_V3_MIGRATION, CONTENT_EDITS_V3_ANCHORS,
                               CLAUDE_WORKSHOP_ORDER_MIGRATION,
                               _OLD_COURSE_ORDERS, _NEW_COURSE_ORDERS,
                               _source_block, _block_matches_source,
@@ -329,6 +330,43 @@ def test_text_edit_v2_replaces_table_variant_of_mask_block():
             if block is not None:
                 block.value_de = new_de
                 block.value_en = new_en
+            db.commit()
+            seed_missing_content(db)
+            db.close()
+
+
+def test_text_edit_v3_adds_context_usage_guidance_once():
+    """Bestehende Installationen erhalten die neue Kontext-Anleitung genau einmal."""
+    module_key, source_id, anchor_id = CONTENT_EDITS_V3_ANCHORS[0]
+    source = _source_block(module_key, source_id)
+    with TestClient(app):
+        db = SessionLocal()
+        try:
+            db.query(Setting).filter(Setting.key == CONTENT_EDITS_V3_MIGRATION).delete()
+            db.query(ContentBlock).filter(
+                ContentBlock.module_key == module_key,
+                ContentBlock.type == "text",
+                ContentBlock.value_de == source["value"]["de"],
+            ).delete(synchronize_session=False)
+            db.commit()
+
+            seed_missing_content(db)
+
+            blocks = db.query(ContentBlock).filter(
+                ContentBlock.module_key == module_key
+            ).order_by(ContentBlock.position).all()
+            inserted = next(b for b in blocks if b.value_de == source["value"]["de"])
+            anchor = next(b for b in blocks if b.value_de == _source_block(
+                module_key, anchor_id)["value"]["de"])
+            assert inserted.position == anchor.position + 1
+            assert db.get(Setting, CONTENT_EDITS_V3_MIGRATION) is not None
+        finally:
+            db.query(ContentBlock).filter(
+                ContentBlock.module_key == module_key,
+                ContentBlock.type == "text",
+                ContentBlock.value_de == source["value"]["de"],
+            ).delete(synchronize_session=False)
+            db.query(Setting).filter(Setting.key == CONTENT_EDITS_V3_MIGRATION).delete()
             db.commit()
             seed_missing_content(db)
             db.close()

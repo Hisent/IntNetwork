@@ -1,5 +1,11 @@
 # Projekt-Changelog (nur für Trainer sichtbar). Neueste zuerst.
 CHANGELOG = [
+    {"date": "2026-07-20", "title": "v1.11.0 — Kontext- und Verbrauchs-Workflow",
+     "text": "Der Claude-Code-Workshop erklärt jetzt einen belastbaren Umgang mit "
+             "Kontextfenster und Nutzung: /usage (inklusive /cost und /stats), /context, "
+             "/compact, /clear und /statusline werden eingeordnet. Die Anleitung trennt "
+             "prüfbare Funktionen von unbelegten Versprechen und wird bei bestehenden "
+             "Installationen über eine idempotente Migration nachgezogen."},
     {"date": "2026-07-20", "title": "v1.10.0 — Claude-Code-Workshop erweitert",
      "text": "Der Claude-Code-Workshop enthält jetzt einen sicheren KI-Workflow mit "
              "Prompt-Injection-Lab, ein Modul für Arbeitsaufträge, Planung und Verifikation "
