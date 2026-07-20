@@ -1,14 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 380 72" width="380" height="72">
   <rect x="4" y="4" width="64" height="64" rx="16" fill="#0f172a"/>
-  <g stroke="#2dd4bf" stroke-width="3" stroke-linecap="round">
-    <line x1="22" y1="22" x2="50" y2="36"/>
-    <line x1="22" y1="22" x2="22" y2="50"/>
-    <line x1="22" y1="50" x2="50" y2="36"/>
-  </g>
-  <g fill="#5eead4">
-    <circle cx="22" cy="22" r="6.5"/>
-    <circle cx="22" cy="50" r="6.5"/>
-    <circle cx="50" cy="36" r="6.5"/>
-  </g>
-  <text x="88" y="46" font-family="'Segoe UI', -apple-system, Helvetica, Arial, sans-serif" font-size="34" font-weight="700" fill="#0f172a">Int<tspan fill="#0d9488">Network</tspan></text>
+  <path d="M26 22h20M36 22v28M26 50h20" fill="none" stroke="#2dd4bf" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="36" cy="36" r="5" fill="#fb923c"/>
+  <circle cx="26" cy="22" r="4" fill="#5eead4"/>
+  <circle cx="26" cy="50" r="4" fill="#5eead4"/>
+  <circle cx="46" cy="22" r="4" fill="#5eead4"/>
+  <circle cx="46" cy="50" r="4" fill="#5eead4"/>
+  <text x="88" y="46" font-family="'Segoe UI', -apple-system, Helvetica, Arial, sans-serif" font-size="34" font-weight="700" fill="#0f172a">Int<tspan fill="#0d9488">Lab</tspan></text>
 </svg>

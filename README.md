@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/logo.svg" alt="IntNetwork" width="380" height="72" />
+  <img src="assets/logo.svg" alt="IntLab" width="380" height="72" />
 </p>
 
 <p align="center">

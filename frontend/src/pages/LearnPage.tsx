@@ -57,7 +57,7 @@ export function LearnPage() {
   const grouped: Group[] = (me.data?.workshop?.sections ?? [{ key: 'modules', from: -Infinity, to: Infinity, title_de: 'Module', title_en: 'Modules' }])
     .map((g) => ({ key: g.key, title: lang === 'de' ? g.title_de : g.title_en, mods: sorted.filter((m) => m.order >= g.from && m.order <= g.to) }))
     .filter((g) => g.mods.length > 0)
-  const workshopTitle = me.data?.workshop?.title[lang] ?? 'IntNetwork'
+  const workshopTitle = me.data?.workshop?.title[lang] ?? 'IntLab'
   const workshopSummary = me.data?.workshop?.summary?.[lang] ?? t(lang, 'tagline')
   const completionText = lang === 'de' ? 'Alle Module dieses Workshops sind bestanden.' : 'All modules in this workshop are passed.'
 

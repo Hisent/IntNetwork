@@ -9,7 +9,7 @@ export function WorkbenchTopbar({ lang, title, actions, confirmExperienceChange 
     <header className="wb-topbar">
       <div className="mx-auto flex min-h-14 w-full max-w-[1440px] items-center justify-between gap-3 px-4 sm:px-6">
         <Link to="/lernen" className="wb-control flex min-w-0 items-center gap-3 font-semibold text-[var(--wb-ink)]">
-          <span aria-hidden="true" className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-[var(--wb-ink)] text-xs font-bold text-white">IN</span>
+          <img src="/favicon.svg" alt="" className="h-8 w-8 shrink-0 rounded-lg" />
           <span className="truncate">{title}</span>
         </Link>
         <div className="flex shrink-0 items-center gap-2">

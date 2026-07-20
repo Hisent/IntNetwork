@@ -52,7 +52,7 @@ try:
 finally:
     _seed_db.close()
 
-app = FastAPI(title="IntNetwork", version=APP_VERSION)
+app = FastAPI(title="IntLab", version=APP_VERSION)
 app.add_middleware(
     CORSMiddleware, allow_origins=["http://localhost:5173"],
     allow_credentials=True, allow_methods=["*"], allow_headers=["*"],

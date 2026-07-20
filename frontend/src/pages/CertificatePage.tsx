@@ -22,7 +22,7 @@ export function CertificatePage() {
   const allDone = total > 0 && mods.data.every((m) => isDone(m.key))
   const today = new Date().toLocaleDateString(lang === 'de' ? 'de-DE' : 'en-GB',
     { day: '2-digit', month: 'long', year: 'numeric' })
-  const workshopTitle = me.data?.workshop?.title[lang] ?? 'IntNetwork'
+  const workshopTitle = me.data?.workshop?.title[lang] ?? 'IntLab'
 
   if (!allDone)
     return (
@@ -38,7 +38,7 @@ export function CertificatePage() {
     <WorkshopTheme theme={me.data?.workshop?.theme}><div className="min-h-dvh bg-slate-100 flex flex-col items-center justify-center p-6 print:bg-white print:p-0">
       <div className="w-full max-w-2xl rounded-2xl border-4 border-double border-teal-600 bg-white p-10 sm:p-14 text-center shadow-lg print:shadow-none print:border-teal-700">
         <img src="/favicon.svg" alt="" className="h-12 w-12 mx-auto mb-4" />
-        <p className="text-xs font-semibold uppercase tracking-[0.3em] text-teal-600 mb-1">IntNetwork</p>
+        <p className="text-xs font-semibold uppercase tracking-[0.3em] text-teal-600 mb-1">IntLab</p>
         <h1 className="text-4xl font-bold text-slate-900 mb-1">{t(lang, 'certTitle')}</h1>
         <p className="text-sm text-slate-500 mb-8">{t(lang, 'certSubtitle')}</p>
 

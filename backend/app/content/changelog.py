@@ -1,5 +1,7 @@
 # Projekt-Changelog (nur für Trainer sichtbar). Neueste zuerst.
 CHANGELOG = [
+    {"date": "2026-07-20", "title": "v1.17.0 — IntLab-Marke",
+     "text": "Die Plattform heißt jetzt IntLab. Das neue modulare I-Zeichen mit zentralem Lernpunkt ersetzt das netzwerkspezifische Dreieck und funktioniert als gemeinsame Marke für alle Workshops."},
     {"date": "2026-07-20", "title": "v1.16.0 — Workshop-Katalog und Workbench-Standard",
      "text": "Die Startseite führt jetzt als klarer Workshop-Katalog mit Suche, sichtbaren Teilnahme-Hinweisen und farblich getrennten Themen in die Lehrgänge. "
              "Theme-Farben werden über zentrale Tokens vererbt, Ladezustände springen nicht mehr und die Workbench ist für neue Teilnehmende die Standardansicht."},

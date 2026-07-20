@@ -8,7 +8,7 @@ import { WorkshopTheme } from '@/components/WorkshopTheme'
 
 const COPY = {
   de: {
-    eyebrow: 'IntNetwork / Learning hub',
+    eyebrow: 'IntLab / Learning hub',
     title: 'Lernen, das zu eurem Team passt.',
     body: 'Wähle einen Workshop und starte mit dem Kurs-Code deiner Trainerin oder deines Trainers direkt im passenden Durchlauf.',
     search: 'Workshops durchsuchen',
@@ -22,7 +22,7 @@ const COPY = {
     progress: 'Fortschritt im Browser gespeichert',
   },
   en: {
-    eyebrow: 'IntNetwork / Learning hub',
+    eyebrow: 'IntLab / Learning hub',
     title: 'Learning that fits your team.',
     body: 'Choose a workshop and use your trainer’s course code to start in the right course run.',
     search: 'Search workshops',
@@ -69,7 +69,7 @@ export function LandingPage() {
         <header className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <img src="/favicon.svg" alt="" className="h-9 w-9" />
-            <span className="text-lg font-semibold tracking-tight text-slate-950">IntNetwork</span>
+            <span className="text-lg font-semibold tracking-tight text-slate-950">IntLab</span>
             <VersionBadge tone="dark" />
           </div>
           <div className="flex items-center gap-3 text-xs font-semibold">
