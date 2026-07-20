@@ -1,5 +1,6 @@
 from fastapi.testclient import TestClient
 
+from app.content.registry import MODULES
 from app.content.workshops import seed_workshops
 from app.database import SessionLocal
 from app.main import app
@@ -87,4 +88,35 @@ def test_legacy_course_migrates_to_network_only():
         assert legacy.workshop_key == "network"
         assert active == network_keys
     finally:
+        db.close()
+
+
+def test_existing_course_receives_new_seeded_modules_but_not_trainer_opt_ins():
+    db = SessionLocal()
+    course = None
+    try:
+        seeded_key = next(key for key in MODULES if MODULES[key]["order"] < 100)
+        course = Course(name="Existing", join_code="EXISTING", workshop_key="network")
+        db.add(course)
+        db.flush()
+        db.query(CourseModule).filter(CourseModule.course_id == course.id,
+                                      CourseModule.module_key == seeded_key).delete()
+        custom = ContentModule(key="trainer-only-sync-test", workshop_key="network", order=999,
+                               title_de="Trainer", title_en="Trainer", goals=[],
+                               scenario_de="", scenario_en="")
+        db.add(custom)
+        db.commit()
+
+        seed_workshops(db)
+
+        active = {row.module_key for row in db.query(CourseModule)
+                  .filter(CourseModule.course_id == course.id).all()}
+        assert seeded_key in active
+        assert custom.key not in active
+    finally:
+        if course is not None:
+            db.query(CourseModule).filter(CourseModule.course_id == course.id).delete()
+            db.query(Course).filter(Course.id == course.id).delete()
+        db.query(ContentModule).filter(ContentModule.key == "trainer-only-sync-test").delete()
+        db.commit()
         db.close()

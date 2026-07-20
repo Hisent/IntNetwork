@@ -1,5 +1,6 @@
 from sqlalchemy.orm import Session
 
+from app.content.registry import MODULES
 from app.models.content import ContentModule
 from app.models.course import Course
 from app.models.course_module import CourseModule
@@ -54,17 +55,22 @@ def seed_workshops(db: Session) -> None:
             module.workshop_key = workshop_for_order(module.order)
     db.flush()
 
-    # Alle Bestandskurse stammen aus der Zeit vor mehreren Workshops und sind
-    # deshalb Netzwerkdurchläufe. Claude-Module, die damals global nachgerückt
-    # sind, werden nicht still als Teil eines alten Netzwerk-Kurses übernommen.
-    network_keys = {module.key for module in modules if module.workshop_key == "network"}
+    # Neue ausgelieferte Module müssen in bestehende Durchläufe nachrücken.
+    # Trainer-Module bleiben bewusst opt-in und werden nicht automatisch aktiviert.
+    seeded_keys = set(MODULES)
     for course in db.query(Course).all():
-        if course.workshop_key is not None:
-            continue
+        legacy_course = course.workshop_key is None
+        if course.workshop_key is None:
+            course.workshop_key = "network"
         disabled = {row.module_key for row in db.query(ModuleDisabled)
                     .filter(ModuleDisabled.course_id == course.id).all()}
-        course.workshop_key = "network"
-        db.query(CourseModule).filter(CourseModule.course_id == course.id).delete()
-        for key in network_keys - disabled:
+        if legacy_course:
+            db.query(CourseModule).filter(CourseModule.course_id == course.id).delete()
+        active = {row.module_key for row in db.query(CourseModule)
+                  .filter(CourseModule.course_id == course.id).all()}
+        workshop_keys = {module.key for module in modules
+                         if module.workshop_key == course.workshop_key
+                         and (legacy_course or module.key in seeded_keys)}
+        for key in workshop_keys - active - disabled:
             db.add(CourseModule(course_id=course.id, module_key=key))
     db.commit()

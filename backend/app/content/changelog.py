@@ -1,5 +1,10 @@
 # Projekt-Changelog (nur für Trainer sichtbar). Neueste zuerst.
 CHANGELOG = [
+    {"date": "2026-07-20", "title": "v1.14.0 — Seed-Synchronisierung für bestehende Kurse",
+     "text": "Neue ausgelieferte Module werden beim Start auch in bestehende Kurse "
+             "desselben Workshops aufgenommen; Trainer-eigene Module bleiben Opt-in. "
+             "Mit backend/reset_dev_db.py --yes lässt sich die nichtproduktive Datenbank "
+             "vollständig leeren und aus dem aktuellen Lehrgangscode neu aufbauen."},
     {"date": "2026-07-20", "title": "v1.13.0 — Virtuelle Claude-CLI-Prototyp-Session",
      "text": "Das Claude-Modul enthält jetzt einen ausdrücklich als Browser-Prototyp "
              "gekennzeichneten virtuellen Workspace. Teilnehmende können help, pwd, ls, "

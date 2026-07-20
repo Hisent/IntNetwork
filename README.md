@@ -63,8 +63,24 @@ cd backend && pytest
 cd frontend && npm run test && npm run build
 ```
 
+## Inhalte aktualisieren / Entwicklungsreset
+
+Beim App-Start werden neue Seed-Module automatisch in bestehende Kurse des
+passenden Workshops aufgenommen. Trainer-eigene Module bleiben bewusst Opt-in.
+
+Für die nichtproduktive lokale Datenbank kann jederzeit ein kompletter Neustart
+mit dem aktuellen Lehrgangscode erfolgen:
+
+```bash
+cd backend
+python reset_dev_db.py --yes
+```
+
+Der Reset löscht Kurse, Teilnehmer, Fortschritte und Trainerdaten der
+konfigurierten SQLite-Datenbank und seedet anschließend alle Workshops und Inhalte neu.
+
 ## Inhalte und Widgets erweitern
 
-Kursinhalte werden aus `backend/app/content/*.py` beim ersten Start in die Datenbank übernommen. Bereits ausgelieferte Inhalte bleiben erhalten; Trainer können sie im Editor anpassen oder den Auslieferungszustand laden.
+Kursinhalte werden aus `backend/app/content/*.py` beim ersten Start in die Datenbank übernommen. Bereits ausgelieferte Inhalte bleiben erhalten; Trainer können sie im Editor anpassen oder den Auslieferungszustand laden. Für lokale Inhaltsänderungen die nichtproduktive Datenbank mit `python reset_dev_db.py --yes` neu seeden; produktive Textänderungen bekommen eine versionierte Migration in `backend/app/content/seed.py`.
 
 Neue Widgets benötigen eine React-Komponente unter `frontend/src/widgets/`, einen Eintrag in `frontend/src/widgets/registry.tsx` und dieselbe ID in `backend/app/routers/trainer_content.py`.
