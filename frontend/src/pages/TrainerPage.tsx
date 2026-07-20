@@ -8,6 +8,7 @@ import { useAuthStore } from '@/store/auth'
 import { VersionBadge } from '@/components/VersionBadge'
 import { workshopApi } from '@/lib/workshopApi'
 import { BrandLogo } from '@/components/BrandLogo'
+import { ThemeToggle } from '@/components/ThemeToggle'
 
 function CopyCode({ code }: { code: string }) {
   const [copied, setCopied] = useState(false)
@@ -47,8 +48,12 @@ function TrainerLogin({ onLogin }: { onLogin: (t: string) => void }) {
       <form onSubmit={submit} className="w-full max-w-sm rounded-2xl bg-white shadow p-8 flex flex-col gap-3">
         <Link to="/" className="mb-3"><BrandLogo className="h-9 text-lg" showName /></Link>
         <h1 className="text-xl font-bold text-slate-900">Trainer-Login</h1>
-        <input className="border rounded-lg px-3 py-2" placeholder="E-Mail" value={email} onChange={(e) => setEmail(e.target.value)} />
-        <input className="border rounded-lg px-3 py-2" type="password" placeholder="Passwort" value={pw} onChange={(e) => setPw(e.target.value)} />
+        <label htmlFor="trainer-email" className="text-sm font-medium text-slate-700">E-Mail
+          <input id="trainer-email" type="email" autoComplete="username" className="mt-1 w-full border rounded-lg px-3 py-2" placeholder="trainer@beispiel.de" value={email} onChange={(e) => setEmail(e.target.value)} />
+        </label>
+        <label htmlFor="trainer-pw" className="text-sm font-medium text-slate-700">Passwort
+          <input id="trainer-pw" type="password" autoComplete="current-password" className="mt-1 w-full border rounded-lg px-3 py-2" placeholder="••••••••" value={pw} onChange={(e) => setPw(e.target.value)} />
+        </label>
         {err && <p className="text-sm text-red-600">{err}</p>}
         <button className="rounded-lg bg-teal-600 hover:bg-teal-700 text-white py-2 font-medium">Anmelden</button>
       </form>
@@ -136,7 +141,10 @@ function TrainerDashboard({ onLogout }: { onLogout: () => void }) {
             <h1 className="text-2xl font-bold text-slate-900">Trainer</h1>
             <VersionBadge tone="dark" />
           </div>
-          <button onClick={onLogout} className="text-sm text-slate-400 hover:text-slate-600">Abmelden</button>
+          <div className="flex items-center gap-2">
+            <ThemeToggle className="text-slate-400" />
+            <button onClick={onLogout} className="text-sm text-slate-400 hover:text-slate-600">Abmelden</button>
+          </div>
         </div>
 
         <div className="flex flex-wrap gap-2 mb-6">

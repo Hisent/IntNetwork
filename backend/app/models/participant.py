@@ -15,3 +15,6 @@ class Participant(Base):
     language: Mapped[str] = mapped_column(String, default="de", nullable=False)
     current_module_key: Mapped[str | None] = mapped_column(String, nullable=True)
     last_seen: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    # Persönlicher Wiederaufnahme-Code. Nullable für Bestands-Teilnehmer, die vor
+    # Einführung des Codes beigetreten sind — die dürfen weiter nur per Name fort.
+    resume_code: Mapped[str | None] = mapped_column(String, nullable=True)

@@ -1,8 +1,15 @@
 @import "tailwindcss";
 
+/* Dark Mode über das data-theme-Attribut am <html> (gesetzt vom Theme-Store).
+   Erlaubt `dark:`-Utilities dort, wo Arbitrary-Werte nicht per Klasse remappbar sind. */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
 @theme {
   --font-sans: 'Outfit Variable', ui-sans-serif, system-ui, sans-serif;
 }
+
+:root { color-scheme: light; }
+[data-theme="dark"] { color-scheme: dark; }
 
 html { scroll-behavior: smooth; }
 
@@ -11,6 +18,42 @@ body {
   color: #0f172a;                      /* slate-900 */
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+}
+
+[data-theme="dark"] body {
+  background-color: #0d1417;
+  color: #e6eeec;
+}
+[data-theme="dark"] .workshop-theme--network { --workshop-accent-surface: #0d1417; --workshop-accent-line: #1f4b45; --workshop-accent-soft: #123531; }
+[data-theme="dark"] .workshop-theme--claude { --workshop-accent-surface: #17110b; --workshop-accent-line: #5a3a1c; --workshop-accent-soft: #35210f; }
+
+/* Globaler Utility-Remap für die nicht tokenisierten Seiten (Landing, Workshop,
+   Trainer, Zertifikat). Nur am Bildschirm — Druck (Teilnahmebestätigung) bleibt hell.
+   Farbige Akzent-Flächen (bg-teal-600 etc.) bleiben absichtlich unangetastet. */
+@media screen {
+  [data-theme="dark"] .bg-white { background-color: #16211f; }
+  [data-theme="dark"] .bg-slate-50 { background-color: #0f1719; }
+  [data-theme="dark"] .bg-slate-100 { background-color: #1a2626; }
+  [data-theme="dark"] .bg-slate-200 { background-color: #24302f; }
+  [data-theme="dark"] .bg-teal-50 { background-color: #0f2a28; }
+  [data-theme="dark"] .bg-amber-50 { background-color: #2a220f; }
+  [data-theme="dark"] .bg-green-50 { background-color: #0f2417; }
+  [data-theme="dark"] .border-green-200 { border-color: #1c4a2e; }
+  [data-theme="dark"] .text-slate-900 { color: #e6eeec; }
+  [data-theme="dark"] .text-slate-800 { color: #d6e0de; }
+  [data-theme="dark"] .text-slate-700 { color: #c2cfcc; }
+  [data-theme="dark"] .text-slate-600 { color: #a7b6b3; }
+  [data-theme="dark"] .text-slate-500 { color: #8fa19e; }
+  [data-theme="dark"] .text-slate-400 { color: #78908c; }
+  [data-theme="dark"] .text-teal-900 { color: #99f6e4; }
+  [data-theme="dark"] .text-teal-800 { color: #5eead4; }
+  [data-theme="dark"] .text-teal-700 { color: #2dd4bf; }
+  [data-theme="dark"] .border-slate-200 { border-color: #263433; }
+  [data-theme="dark"] .border-slate-300 { border-color: #30403e; }
+  [data-theme="dark"] .border-teal-100 { border-color: #163f39; }
+  [data-theme="dark"] .border-teal-200 { border-color: #17594f; }
+  /* Landing-Grundfläche (Arbitrary-Wert, nicht per Utility remappbar) */
+  [data-theme="dark"] .grain { background-color: #0d1417 !important; }
 }
 
 /* eine konsistente, akzentfarbene Fokus-Markierung */

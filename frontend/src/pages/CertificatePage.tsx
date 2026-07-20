@@ -5,6 +5,7 @@ import { useAuthStore } from '@/store/auth'
 import { t, type Lang } from '@/lib/i18n'
 import { WorkshopTheme } from '@/components/WorkshopTheme'
 import { BrandLogo } from '@/components/BrandLogo'
+import { Icon } from '@/components/Icon'
 
 // Druckbares Abschluss-Zertifikat: erst verfügbar, wenn alle Module bestanden
 // sind. „Drucken" nutzt den Browser-Dialog — PDF gibt es dort gratis dazu.
@@ -14,13 +15,16 @@ export function CertificatePage() {
   const me = useQuery({ queryKey: ['me'], queryFn: () => learnApi.me().then((r) => r.data) })
   const lang: Lang = me.data?.language ?? 'de'
   const mods = useQuery({ queryKey: ['modules', lang], queryFn: () => learnApi.listModules().then((r) => r.data) })
+  // allDone undefined-sicher, damit der cert-Hook vor den Early-Returns stehen kann
+  // (Rules of Hooks). Ausstellen erst, wenn wirklich alle Module bestanden sind.
+  const allDone = !!mods.data && mods.data.length > 0 &&
+    mods.data.every((m) => me.data?.progress.find((p) => p.module_key === m.key)?.done)
+  const cert = useQuery({ queryKey: ['certificate'], queryFn: () => learnApi.issueCertificate().then((r) => r.data), enabled: allDone })
 
   if (role !== 'participant') { nav('/'); return null }
   if (me.isLoading || mods.isLoading || !mods.data) return <div className="p-10">{t(lang, 'loading')}</div>
 
-  const isDone = (key: string) => me.data?.progress.find((p) => p.module_key === key)?.done ?? false
   const total = mods.data.length
-  const allDone = total > 0 && mods.data.every((m) => isDone(m.key))
   const today = new Date().toLocaleDateString(lang === 'de' ? 'de-DE' : 'en-GB',
     { day: '2-digit', month: 'long', year: 'numeric' })
   const workshopTitle = me.data?.workshop?.title[lang] ?? 'IntLab'
@@ -52,12 +56,19 @@ export function CertificatePage() {
         <p className="text-sm text-slate-500">
           {t(lang, 'certDate')} <b className="text-slate-700">{today}</b>
         </p>
+        {cert.data && (
+          <p className="mt-4 text-xs text-slate-400">
+            {lang === 'de' ? 'Prüf-ID' : 'Verification ID'}: <span className="select-all font-mono text-slate-500">{cert.data.id}</span>
+            <br />
+            {lang === 'de' ? 'Prüfbar unter' : 'Verify at'} {window.location.origin}/verifizieren/{cert.data.id}
+          </p>
+        )}
       </div>
 
       <div className="mt-6 flex gap-3 print:hidden">
         <button onClick={() => window.print()}
-          className="rounded-lg bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 font-medium">
-          🖨 {t(lang, 'certPrint')}
+          className="inline-flex items-center gap-2 rounded-lg bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 font-medium">
+          <Icon name="printer" className="h-4 w-4" /> {t(lang, 'certPrint')}
         </button>
         <Link to="/lernen"
           className="rounded-lg border border-slate-300 bg-white px-4 py-2 font-medium text-slate-700 hover:bg-slate-50">

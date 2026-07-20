@@ -1,4 +1,5 @@
 from fastapi.testclient import TestClient
+from app.config import APP_VERSION
 from app.main import app
 
 
@@ -6,4 +7,4 @@ def test_health():
     with TestClient(app) as c:
         r = c.get("/api/health")
         assert r.status_code == 200
-        assert r.json() == {"status": "ok", "version": "1.18.0"}
+        assert r.json() == {"status": "ok", "version": APP_VERSION}

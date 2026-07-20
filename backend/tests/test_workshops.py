@@ -1,7 +1,7 @@
 from fastapi.testclient import TestClient
 
 from app.content.registry import MODULES
-from app.content.workshops import seed_workshops
+from app.content.workshops import WORKSHOPS, seed_workshops, workshop_for_order
 from app.database import SessionLocal
 from app.main import app
 from app.models.content import ContentModule
@@ -14,6 +14,19 @@ def _trainer(client):
         "email": "trainer@test.de", "password": "trainerpass1",
     }).json()["access_token"]
     return {"Authorization": f"Bearer {token}"}
+
+
+def test_every_seeded_module_maps_to_exactly_one_section():
+    """Regression zu v1.19.0: neue Module dürfen nicht still in keinem Abschnitt
+    landen (Ursache: Module 116–118 ohne passende Section). Jedes ausgelieferte
+    Modul muss über seine order in genau einen Abschnitt seines Workshops fallen."""
+    for key, module in MODULES.items():
+        workshop_key = workshop_for_order(module["order"])
+        sections = WORKSHOPS[workshop_key]["sections"]
+        hits = [s for s in sections if s["from"] <= module["order"] <= s["to"]]
+        assert len(hits) == 1, (
+            f"Modul {key!r} (order {module['order']}) fällt in {len(hits)} "
+            f"Abschnitte von Workshop {workshop_key!r}, erwartet genau 1")
 
 
 def test_workshop_catalog_and_code_bound_join():

@@ -33,6 +33,7 @@ WORKSHOPS = {
             {"key": "day1", "from": 101, "to": 105, "title_de": "Tag 1 · Grundlagen", "title_en": "Day 1 · Fundamentals"},
             {"key": "day2", "from": 106, "to": 110, "title_de": "Tag 2 · Erweiterung", "title_en": "Day 2 · Extension"},
             {"key": "day3", "from": 111, "to": 115, "title_de": "Tag 3 · Team & Enterprise", "title_en": "Day 3 · Team & enterprise"},
+            {"key": "day4", "from": 116, "to": 118, "title_de": "Tag 4 · Workflows & Abschluss", "title_en": "Day 4 · Workflows & capstone"},
         ],
         "context": None,
     },
@@ -44,9 +45,17 @@ def workshop_for_order(order: int) -> str:
 
 
 def seed_workshops(db: Session) -> None:
+    # Workshop-Metadaten (Titel, Zusammenfassung, Sektionen, Kontext) sind
+    # code-owned und nicht im Editor änderbar — daher bei jedem Start aus der
+    # Quelle synchen. Ohne diesen Sync erscheinen neue Module (z.B. 116–118)
+    # zwar in der DB, aber in keiner Sektion und damit nicht in der Navigation.
     for key, values in WORKSHOPS.items():
-        if not db.get(Workshop, key):
+        existing = db.get(Workshop, key)
+        if existing is None:
             db.add(Workshop(key=key, **values))
+        else:
+            for field, value in values.items():
+                setattr(existing, field, value)
     db.flush()
 
     modules = db.query(ContentModule).all()

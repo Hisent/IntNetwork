@@ -306,6 +306,45 @@ def _migrate_network_visuals_v3(db: Session) -> None:
     _migrate_content_blocks(db, NETWORK_VISUALS_V3_MIGRATION, NETWORK_VISUAL_V3_ANCHORS)
 
 
+PLATFORM_COMMANDS_MIGRATION = "content-migration:platform-commands-v1"
+# Plattformübergreifender Befehlsvergleich + Anschluss-Check im Troubleshooting-Modul,
+# hinter dem Hands-on-Widget eingefügt (Text zuerst, Check dahinter).
+PLATFORM_COMMANDS_ANCHORS = [
+    ("troubleshooting", "text-crossplatform-cmds", "troubleshoot-demo"),
+    ("troubleshooting", "check-crossplatform-cmds", "text-crossplatform-cmds"),
+]
+
+
+def _migrate_platform_commands(db: Session) -> None:
+    """Ergänzt den Windows-vs-Linux/macOS-Befehlsvergleich (plus Check) im
+    Troubleshooting-Modul."""
+    _migrate_content_blocks(db, PLATFORM_COMMANDS_MIGRATION, PLATFORM_COMMANDS_ANCHORS)
+
+
+CAPSTONE_RUBRIC_MIGRATION = "content-migration:capstone-rubric-v1"
+# Objektive Abnahme-Kriterien direkt hinter dem bestehenden Selbst-Check-Raster.
+CAPSTONE_RUBRIC_ANCHORS = [
+    ("capstone", "text-rubric-checklist", "text-rubric-selfcheck"),
+]
+
+
+def _migrate_capstone_rubric(db: Session) -> None:
+    """Ergänzt den überprüfbaren Bewertungsraster-Block im Capstone-Modul."""
+    _migrate_content_blocks(db, CAPSTONE_RUBRIC_MIGRATION, CAPSTONE_RUBRIC_ANCHORS)
+
+
+HOOKS_DIAGNOSE_LAB_MIGRATION = "content-migration:hooks-diagnose-lab-v1"
+# Reveal-Übungslabor zu den Diagnose-Slash-Commands hinter dem Lifecycle-Widget.
+HOOKS_DIAGNOSE_LAB_ANCHORS = [
+    ("hooks", "reveal-diagnose-lab", "hook-lifecycle"),
+]
+
+
+def _migrate_hooks_diagnose_lab(db: Session) -> None:
+    """Ergänzt das Diagnose-Slash-Command-Labor (reveal) im Hooks-Modul."""
+    _migrate_content_blocks(db, HOOKS_DIAGNOSE_LAB_MIGRATION, HOOKS_DIAGNOSE_LAB_ANCHORS)
+
+
 COURSE_ORDER_MIGRATION = "content-migration:course-order-v1"
 # Alte Reihenfolge vor v1.8.0: NAT erklärte PAT über Ports, aber Ports kam erst danach.
 _OLD_COURSE_ORDERS = {"nat": 7, "dns": 8, "dhcp": 9, "ports": 10}
@@ -418,6 +457,9 @@ def seed_missing_content(db: Session) -> None:
     _migrate_course_order(db)
     _migrate_claude_workshop_order(db)
     _migrate_network_visuals_v3(db)
+    _migrate_platform_commands(db)
+    _migrate_capstone_rubric(db)
+    _migrate_hooks_diagnose_lab(db)
     # Neue Module können auch später nachgeseedet werden. Die Workshop-Familie
     # wird dabei gleich mitgeschrieben, damit sie nicht still in keinem Kurs
     # erscheint.

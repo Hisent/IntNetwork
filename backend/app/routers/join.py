@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from sqlalchemy import func
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
@@ -11,7 +11,9 @@ from app.models.progress import Progress
 from app.models.quiz_result import QuizResult
 from app.models.workshop import Workshop
 from app.services.deps import get_participant
+from app.services.ratelimit import rate_limit
 from app.services.security import create_token
+from app.utils import generate_resume_code
 from app.content.registry import module_meta, _resolve
 from app.content.company import COMPANY
 from app.services.course_membership import active_module_keys
@@ -20,12 +22,13 @@ router = APIRouter(tags=["join"])
 
 
 class JoinReq(BaseModel):
-    code: str
-    name: str
-    workshop_key: str | None = None
+    code: str = Field(max_length=32)
+    name: str = Field(max_length=80)
+    workshop_key: str | None = Field(default=None, max_length=64)
+    resume_code: str | None = Field(default=None, max_length=16)
 
 
-@router.post("/join")
+@router.post("/join", dependencies=[Depends(rate_limit(60, 60))])
 def join(data: JoinReq, db: Session = Depends(get_db)):
     name = data.name.strip()
     if not name:
@@ -37,8 +40,13 @@ def join(data: JoinReq, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Kurs-Code passt nicht zu diesem Workshop")
     p = db.query(Participant).filter(
         Participant.course_id == course.id, Participant.name == name).first()
+    # resume_code_out wird genau dann zurückgegeben, wenn der Teilnehmer ihn sich
+    # neu merken muss (Erstbeitritt oder Bestands-Teilnehmer ohne Code). Bei normaler
+    # Wiederaufnahme mit korrektem Code bleibt er null (kennt ihn schon).
+    resume_code_out: str | None = None
     if not p:
-        p = Participant(course_id=course.id, name=name)
+        code = generate_resume_code()
+        p = Participant(course_id=course.id, name=name, resume_code=code)
         db.add(p)
         try:
             db.commit()
@@ -48,11 +56,26 @@ def join(data: JoinReq, db: Session = Depends(get_db)):
             db.rollback()
             p = db.query(Participant).filter(
                 Participant.course_id == course.id, Participant.name == name).first()
+            resume_code_out = p.resume_code
         else:
             db.refresh(p)
+            resume_code_out = code
+    elif p.resume_code is None:
+        # Bestands-Teilnehmer von vor Einführung des Codes: nachträglich vergeben
+        # und einmal anzeigen, statt ihn auszusperren.
+        p.resume_code = generate_resume_code()
+        db.commit()
+        resume_code_out = p.resume_code
+    else:
+        supplied = (data.resume_code or "").strip().upper()
+        if supplied != p.resume_code:
+            raise HTTPException(
+                status_code=403,
+                detail="Dieser Name ist bereits vergeben. Bitte gib deinen persönlichen Wiederaufnahme-Code ein.")
     token = create_token(sub=name, role="participant",
                          extra={"participant_id": p.id, "course_id": course.id})
-    return {"access_token": token, "course_name": course.name, "name": name}
+    return {"access_token": token, "course_name": course.name, "name": name,
+            "resume_code": resume_code_out}
 
 
 @router.get("/me")
@@ -78,7 +101,8 @@ def me(db: Session = Depends(get_db), p: Participant = Depends(get_participant))
         "sections": workshop.sections,
         "context": workshop.context,
     }
-    return {"name": p.name, "course_id": p.course_id, "language": p.language,
+    return {"name": p.name, "participant_id": p.id, "course_id": p.course_id,
+            "language": p.language,
             "course": {"id": course.id, "name": course.name}, "workshop": workshop_data,
             "progress": progress}
 

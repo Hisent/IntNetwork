@@ -3,7 +3,7 @@ import type { Company, ModuleDetail, ModuleMeta, ProgressItem, Workshop } from '
 import type { Lang } from '@/lib/i18n'
 
 export const learnApi = {
-  me: () => api.get<{ name: string; course_id: number; language: Lang; course: { id: number; name: string }; workshop: Workshop | null; progress: ProgressItem[] }>('/me'),
+  me: () => api.get<{ name: string; participant_id: number; course_id: number; language: Lang; course: { id: number; name: string }; workshop: Workshop | null; progress: ProgressItem[] }>('/me'),
   setLanguage: (language: Lang) => api.patch<{ language: Lang }>('/me/language', { language }),
   company: () => api.get<Company>('/company'),
   listModules: () => api.get<ModuleMeta[]>('/modules'),
@@ -18,6 +18,17 @@ export const learnApi = {
   deleteComment: (id: number) => api.delete(`/comments/${id}`),
   heartbeat: (key: string) => api.post(`/modules/${key}/heartbeat`),
   links: () => api.get<LinkCategory[]>('/links'),
+  issueCertificate: () => api.post<CertificateData>('/certificate'),
+  verifyCertificate: (id: string) => api.get<CertificateData>(`/verify/${id}`),
+}
+
+export interface CertificateData {
+  id: string
+  participant_name: string
+  course_name: string
+  workshop_title: string
+  module_count: number
+  issued_at: string
 }
 
 export interface LinkItem {

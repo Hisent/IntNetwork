@@ -18,8 +18,13 @@ def test_course_and_join_flow():
         r = c.post("/api/join", json={"code": code, "name": "Anna"})
         assert r.status_code == 200
         tok = r.json()["access_token"]
+        resume = r.json()["resume_code"]
+        assert resume  # Erstbeitritt liefert den persönlichen Wiederaufnahme-Code
 
-        r2 = c.post("/api/join", json={"code": code, "name": "Anna"})
+        # Wiederaufnahme unter gleichem Namen braucht jetzt den Code ...
+        assert c.post("/api/join", json={"code": code, "name": "Anna"}).status_code == 403
+        # ... mit korrektem Code klappt sie (auch klein geschrieben).
+        r2 = c.post("/api/join", json={"code": code, "name": "Anna", "resume_code": resume.lower()})
         assert r2.status_code == 200
 
         me = c.get("/api/me", headers={"Authorization": f"Bearer {tok}"})
@@ -74,9 +79,11 @@ def test_concurrent_join_same_name_never_500s():
         with ThreadPoolExecutor(max_workers=8) as ex:
             list(ex.map(lambda _: join(), range(8)))
 
-        assert all(r.status_code == 200 for r in results)
-        names = {r.json()["name"] for r in results}
-        assert names == {"Racer"}
+        # Kein 500 im Rennen. Späte Threads, die die schon committete Zeile sehen,
+        # dürfen mit 403 (Name vergeben, Code nötig) antworten — nur nie crashen.
+        assert all(r.status_code in (200, 403) for r in results)
+        assert any(r.status_code == 200 for r in results)
+        assert all(r.json()["name"] == "Racer" for r in results if r.status_code == 200)
 
 
 def test_changelog_trainer_only():

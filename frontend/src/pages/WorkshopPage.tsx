@@ -6,6 +6,7 @@ import { workshopApi } from '@/lib/workshopApi'
 import { useAuthStore } from '@/store/auth'
 import type { Lang } from '@/lib/i18n'
 import { PageSkeleton } from '@/components/PageSkeleton'
+import { LoadError } from '@/components/LoadError'
 import { WorkshopTheme } from '@/components/WorkshopTheme'
 import { BrandLogo } from '@/components/BrandLogo'
 
@@ -16,10 +17,13 @@ export function WorkshopPage() {
   const [lang, setLang] = useState<Lang>('de')
   const [code, setCode] = useState('')
   const [name, setName] = useState('')
+  const [resumeCode, setResumeCode] = useState('')
   const [error, setError] = useState('')
+  const [issuedCode, setIssuedCode] = useState<string | null>(null)
   const workshop = useQuery({ queryKey: ['workshop', key], queryFn: () => workshopApi.get(key).then((r) => r.data) })
 
   if (workshop.isLoading) return <PageSkeleton />
+  if (workshop.isError) return <LoadError lang={lang} onRetry={() => workshop.refetch()} />
   if (!workshop.data) return <main className="min-h-dvh bg-slate-50 p-8"><Link to="/" className="font-semibold text-teal-700">← Workshops</Link></main>
 
   const data = workshop.data
@@ -32,13 +36,35 @@ export function WorkshopPage() {
     event.preventDefault()
     setError('')
     try {
-      const result = await authApi.join(code, name, data.key)
+      const result = await authApi.join(code, name, data.key, resumeCode)
       setAuth(result.data.access_token, 'participant', result.data.name)
-      nav('/lernen')
+      // Neuer/erstmaliger Beitritt liefert den persönlichen Code — einmal zeigen,
+      // bevor es weitergeht. Normale Wiederaufnahme (Code stimmte) navigiert direkt.
+      if (result.data.resume_code) setIssuedCode(result.data.resume_code)
+      else nav('/lernen')
     } catch (reason) {
       setError(errMsg(reason, lang === 'de' ? 'Teilnahme nicht möglich.' : 'Unable to join.'))
     }
   }
+
+  if (issuedCode) return (
+    <WorkshopTheme theme={data.theme}>
+      <main className="grid min-h-[100dvh] place-items-center bg-[var(--workshop-accent-surface)] p-6">
+        <div className="w-full max-w-md rounded-2xl border border-[var(--workshop-accent-line)] bg-white p-8 text-center shadow-lg">
+          <BrandLogo className="mx-auto mb-4 h-9" />
+          <h1 className="text-xl font-bold text-slate-900">{lang === 'de' ? 'Dein persönlicher Code' : 'Your personal code'}</h1>
+          <p className="mt-2 text-sm text-slate-500">{lang === 'de'
+            ? 'Notiere ihn dir. Du brauchst ihn, um später unter deinem Namen fortzusetzen.'
+            : 'Note it down. You need it to resume under your name later.'}</p>
+          <p className="my-6 select-all rounded-xl bg-[var(--workshop-accent-surface)] px-4 py-4 font-mono text-3xl font-bold tracking-[0.3em] text-[var(--workshop-accent)]">{issuedCode}</p>
+          <button onClick={() => nav('/lernen')}
+            className="w-full rounded-lg bg-[var(--workshop-accent)] px-4 py-2.5 font-semibold text-white hover:bg-[var(--workshop-accent-hover)]">
+            {lang === 'de' ? 'Zum Workshop' : 'Start workshop'} →
+          </button>
+        </div>
+      </main>
+    </WorkshopTheme>
+  )
 
   return (
     <WorkshopTheme theme={data.theme}>
@@ -70,6 +96,7 @@ export function WorkshopPage() {
               <form onSubmit={join} className="mt-6 space-y-4">
                 <label className="block text-sm font-medium text-slate-700">{lang === 'de' ? 'Kurs-Code' : 'Course code'}<input required value={code} onChange={(event) => setCode(event.target.value.toUpperCase())} autoComplete="one-time-code" className="mt-1.5 block w-full rounded-lg border border-slate-300 px-3 py-2 font-mono uppercase tracking-widest outline-none focus:border-[var(--workshop-accent)] focus:ring-2 focus:ring-[var(--workshop-accent-soft)]" /></label>
                 <label className="block text-sm font-medium text-slate-700">{lang === 'de' ? 'Dein Name' : 'Your name'}<input required value={name} onChange={(event) => setName(event.target.value)} autoComplete="name" className="mt-1.5 block w-full rounded-lg border border-slate-300 px-3 py-2 outline-none focus:border-[var(--workshop-accent)] focus:ring-2 focus:ring-[var(--workshop-accent-soft)]" /></label>
+                <label className="block text-sm font-medium text-slate-700">{lang === 'de' ? 'Wiederaufnahme-Code' : 'Resume code'} <span className="font-normal text-slate-400">({lang === 'de' ? 'nur beim erneuten Beitritt' : 'only when rejoining'})</span><input value={resumeCode} onChange={(event) => setResumeCode(event.target.value.toUpperCase())} autoComplete="off" className="mt-1.5 block w-full rounded-lg border border-slate-300 px-3 py-2 font-mono uppercase tracking-widest outline-none focus:border-[var(--workshop-accent)] focus:ring-2 focus:ring-[var(--workshop-accent-soft)]" /></label>
                 {error && <p role="alert" className="text-sm text-rose-600">{error}</p>}
                 <button className="w-full rounded-lg bg-[var(--workshop-accent)] px-4 py-2.5 font-semibold text-white hover:bg-[var(--workshop-accent-hover)]">{lang === 'de' ? 'Workshop starten' : 'Start workshop'} →</button>
               </form>

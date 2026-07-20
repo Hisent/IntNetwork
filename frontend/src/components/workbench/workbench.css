@@ -16,6 +16,25 @@
   color: var(--wb-ink);
 }
 
+/* Dark Mode: nur die Tokens umschreiben — die gesamte Lern-/Modulansicht ist
+   tokengetrieben und flippt damit vollständig. */
+[data-theme="dark"] .workbench {
+  --wb-canvas: #0d1417;
+  --wb-surface: #16211f;
+  --wb-subtle: #1b2827;
+  --wb-ink: #e6eeec;
+  --wb-muted: #93a8a6;
+  --wb-border: #2a3a39;
+  --wb-accent: #14b8a6;
+  --wb-accent-hover: #2dd4bf;
+  --wb-accent-soft: #123531;
+  --wb-success: #4ade80;
+  --wb-warning: #fbbf24;
+}
+[data-theme="dark"] .wb-topbar { background: rgb(13 20 23 / 92%); }
+/* Claude-Workshop im Dark Mode: warmes Akzent-Soft statt des hellen Cremetons. */
+[data-theme="dark"] .workshop-theme--claude .workbench { --wb-accent-soft: #35210f; }
+
 .workbench *:focus-visible {
   outline-color: var(--wb-accent);
   outline-offset: 3px;

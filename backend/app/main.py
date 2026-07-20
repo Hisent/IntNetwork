@@ -6,7 +6,8 @@ from sqlalchemy import text
 from sqlalchemy.exc import OperationalError
 
 from app.config import APP_VERSION, DEFAULT_SECRET_KEY, settings
-from app.database import Base, SessionLocal, engine, sync_missing_columns
+from app.database import Base, SessionLocal, engine
+from app.db_migrate import run_migrations
 from app.models import course as _course  # noqa: F401
 from app.models import course_module as _course_module  # noqa: F401
 from app.models import participant as _participant  # noqa: F401
@@ -18,6 +19,7 @@ from app.models import comment as _comment  # noqa: F401
 from app.models import content as _content  # noqa: F401
 from app.models import workshop as _workshop  # noqa: F401
 from app.models import trainer as _trainer  # noqa: F401
+from app.models import certificate as _certificate  # noqa: F401
 
 if not settings.debug and settings.secret_key == DEFAULT_SECRET_KEY:
     raise RuntimeError("SECRET_KEY ist nicht gesetzt (noch der Default).")
@@ -37,8 +39,11 @@ def _wait_for_db(retries: int = 30, delay: float = 2.0) -> None:
 
 
 _wait_for_db()
+# Schema wird jetzt von Alembic verwaltet (migrations/). create_all bleibt als
+# reiner Sicherheits-No-op danach: legt nur echte fehlende Tabellen an, ändert nie
+# bestehende — falls eine Migration mal nicht durchlief, startet die App trotzdem.
+run_migrations()
 Base.metadata.create_all(bind=engine)
-sync_missing_columns()
 
 from app.content.seed import seed_missing_content  # noqa: E402
 from app.content.workshops import seed_workshops  # noqa: E402
@@ -80,6 +85,7 @@ from app.routers import presence as presence_router  # noqa: E402
 from app.routers import trainer_content as trainer_content_router  # noqa: E402
 from app.routers import trainer_accounts as trainer_accounts_router  # noqa: E402
 from app.routers import workshops as workshops_router  # noqa: E402
+from app.routers import certificate as certificate_router  # noqa: E402
 _api.include_router(auth_router.router)
 _api.include_router(courses_router.router)
 _api.include_router(join_router.router)
@@ -94,5 +100,6 @@ _api.include_router(presence_router.router)
 _api.include_router(trainer_content_router.router)
 _api.include_router(trainer_accounts_router.router)
 _api.include_router(workshops_router.router)
+_api.include_router(certificate_router.router)
 
 app.include_router(_api)

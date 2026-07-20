@@ -112,6 +112,7 @@ CAPSTONE_MODULE = {'key': 'capstone',
                                         'With setup/memory and a short spec',
                                         'With the deployment']}},
             {'type': 'text',
+             'id': 'text-rubric-selfcheck',
              'value': {'de': '## Bewertungsraster (Selbst-Check)\n'
                              '\n'
                              'Dein Workflow ist gelungen, wenn …\n'
@@ -142,6 +143,51 @@ CAPSTONE_MODULE = {'key': 'capstone',
                              'before accepting it;\n'
                              '- you can explain **why** you used a subagent (instead of the main '
                              'conversation) where you did.'}},
+            {'type': 'text',
+             'id': 'text-rubric-checklist',
+             'value': {'de': '## Objektive Abnahme-Kriterien\n'
+                             '\n'
+                             'Anders als der Selbst-Check oben lassen sich diese Punkte '
+                             '**nachprüfen** — geh sie am Ende Zeile für Zeile durch:\n'
+                             '\n'
+                             '- **CLAUDE.md vorhanden & sinnvoll** — existiert im Repo und '
+                             'enthält konkrete, projektspezifische Regeln (kein generischer '
+                             'Platzhalter).\n'
+                             '- **Mind. eine funktionierende Automatisierung** — ein Hook, '
+                             'Skill oder MCP-Server ist eingerichtet und lässt sich '
+                             'vorführen.\n'
+                             '- **Sauberer Git-Verlauf** — kleine, thematisch getrennte '
+                             'Commits mit aussagekräftigen Nachrichten (kein Wust aus '
+                             '„wip“ und „fix“).\n'
+                             '- **Tests laufen grün** — eine Testsuite ist vorhanden und '
+                             'läuft ohne Fehler durch.\n'
+                             '- **Security-Grundlagen beachtet** — keine Secrets im Repo, '
+                             'Review-Subagent read-only, riskante Kommandos per '
+                             'Hook/Permission abgesichert.\n'
+                             '- **Entscheidungen begründbar** — du kannst Spec, Plan und '
+                             'den Einsatz von Subagenten in eigenen Worten erklären.',
+                       'en': '## Objective Acceptance Criteria\n'
+                             '\n'
+                             'Unlike the self-check above, these points can be '
+                             '**verified** — walk through them line by line at the end:\n'
+                             '\n'
+                             '- **CLAUDE.md present & meaningful** — exists in the repo and '
+                             'contains concrete, project-specific rules (not a generic '
+                             'placeholder).\n'
+                             '- **At least one working automation** — a hook, skill, or MCP '
+                             'server is set up and can be demonstrated.\n'
+                             '- **Clean Git history** — small, thematically separated '
+                             'commits with meaningful messages (no pile of “wip” and '
+                             '“fix”).\n'
+                             '- **Tests pass green** — a test suite exists and runs without '
+                             'errors.\n'
+                             '- **Security basics respected** — no secrets in the repo, '
+                             'review subagent read-only, risky commands guarded via '
+                             'hook/permission.\n'
+                             '- **Decisions justifiable** — you can explain the spec, the '
+                             'plan, and your use of subagents in your own words.'},
+             'note': 'Als Abnahme-Checkliste am Ende der Projektarbeit gemeinsam '
+                     'durchgehen; jeder Punkt ist objektiv prüfbar.'},
             {'type': 'reveal',
              'payload': {'teaser_de': 'Brauchst du eine Idee? Klapp einen konkreten Beispiel-Scope '
                                       'auf.',

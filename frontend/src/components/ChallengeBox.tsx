@@ -1,4 +1,5 @@
 import { t, type Lang } from '@/lib/i18n'
+import { Icon } from '@/components/Icon'
 
 // Kleine Aufgabenzeile unter einem Widget: `done` wird vom Widget live aus
 // seinem Zustand berechnet — erreicht der Teilnehmer den Zielzustand, springt
@@ -7,7 +8,9 @@ export function ChallengeBox({ task, done, lang }: { task: string; done: boolean
   return (
     <div className={`mt-3 rounded-lg border px-3 py-2 text-sm flex items-start gap-2 transition-colors ${
       done ? 'border-green-200 bg-green-50' : 'border-slate-200 bg-slate-50'}`}>
-      <span className="shrink-0" aria-hidden="true">{done ? '✅' : '🎯'}</span>
+      <span className={`shrink-0 ${done ? 'text-green-600' : 'text-slate-400'}`}>
+        <Icon name={done ? 'check' : 'target'} className="h-4 w-4" />
+      </span>
       <p className="min-w-0 break-words text-slate-700">
         <span className="font-semibold">{t(lang, 'challenge')}:</span> {task}
         {done && <span className="ml-2 font-medium text-green-700">{t(lang, 'challengeDone')}</span>}

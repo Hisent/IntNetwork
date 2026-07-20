@@ -1,5 +1,25 @@
 # Projekt-Changelog (nur für Trainer sichtbar). Neueste zuerst.
 CHANGELOG = [
+    {"date": "2026-07-20", "title": "v1.20.0 — Dark Mode, prüfbare Bestätigung & mehr",
+     "text": "Neuer Dunkelmodus (Umschalter oben; folgt anfangs der Systemeinstellung). "
+             "Die Teilnahmebestätigung bekommt eine Prüf-ID und ist öffentlich unter "
+             "/verifizieren prüfbar. Beim ersten Beitritt gibt es einen persönlichen "
+             "Wiederaufnahme-Code — nur damit lässt sich später unter demselben Namen "
+             "fortsetzen. Die doppelte „Classic“-Ansicht wurde entfernt (die Workbench "
+             "ist jetzt die einzige Ansicht), Emoji-Symbole durch ein einheitliches "
+             "Icon-Set ersetzt. Neue Inhalte: plattformübergreifende Netzwerk-Befehle "
+             "(Linux/macOS), eine Capstone-Abnahme-Rubrik und ein Claude-Diagnose-Labor. "
+             "Das Datenbankschema wird ab jetzt mit Alembic-Migrationen verwaltet."},
+    {"date": "2026-07-20", "title": "v1.19.0 — Claude-Workshop Tag 4 sichtbar",
+     "text": "Die drei neuen Claude-Module (Effektive Workflows, Git-Zusammenarbeit, "
+             "Abschlussprojekt) erscheinen jetzt als eigener Abschnitt „Tag 4“ in der "
+             "Workshop-Navigation. Workshop-Metadaten (Abschnitte, Titel) werden beim "
+             "Start aus dem Quellcode nachgezogen, damit neue Module nicht mehr still in "
+             "keinem Abschnitt landen. Lese-Merker und Reflexionen sind jetzt pro "
+             "Teilnehmer getrennt gespeichert; Join/Login sind gegen Missbrauch begrenzt. "
+             "Seiten laden schneller (nach Route aufgeteiltes Bundle), fehlgeschlagene "
+             "Ladevorgänge zeigen jetzt eine Meldung mit Wiederholen statt endlos zu laden, "
+             "und das Abschlussdokument heißt jetzt korrekt „Teilnahmebestätigung“."},
     {"date": "2026-07-20", "title": "v1.18.0 - Workshop-Logo",
      "text": "Das IntLab-Logo ist jetzt auf den zentralen Workshop-, Lern-, Zertifikats- und Trainerseiten sichtbar. Im Netzwerk-Workshop erscheint es grün, im Claude-Code-Workshop orange."},
     {"date": "2026-07-20", "title": "v1.17.0 — IntLab-Marke",

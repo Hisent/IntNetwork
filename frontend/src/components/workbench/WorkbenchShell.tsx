@@ -1,11 +1,11 @@
 import type { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
-import { ExperienceSwitch } from '@/components/ExperienceSwitch'
 import { BrandLogo } from '@/components/BrandLogo'
+import { ThemeToggle } from '@/components/ThemeToggle'
 import type { Lang } from '@/lib/i18n'
 import './workbench.css'
 
-export function WorkbenchTopbar({ lang, title, actions, confirmExperienceChange = false }: { lang: Lang; title: string; actions?: ReactNode; confirmExperienceChange?: boolean }) {
+export function WorkbenchTopbar({ lang = 'de', title, actions }: { lang?: Lang; title: string; actions?: ReactNode }) {
   return (
     <header className="wb-topbar">
       <div className="mx-auto flex min-h-14 w-full max-w-[1440px] items-center justify-between gap-3 px-4 sm:px-6">
@@ -15,7 +15,7 @@ export function WorkbenchTopbar({ lang, title, actions, confirmExperienceChange 
         </Link>
         <div className="flex shrink-0 items-center gap-2">
           {actions}
-          <ExperienceSwitch lang={lang} confirmBeforeChange={confirmExperienceChange} />
+          <ThemeToggle lang={lang} />
         </div>
       </div>
     </header>

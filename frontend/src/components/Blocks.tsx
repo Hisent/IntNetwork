@@ -300,11 +300,14 @@ export function Blocks({
   blocks,
   lang = 'de',
   moduleKey = '',
+  keyScope = '',
   footer,
 }: {
   blocks: Block[]
   lang?: Lang
   moduleKey?: string
+  // Teilnehmer-/Kurs-Präfix, damit Reflexionen am geteilten Browser nicht durchsickern.
+  keyScope?: string
   footer?: (block: Block, index: number) => ReactNode
 }) {
   const phaseOf = (type: Block['type']): 'understand' | 'practice' | 'reflect' => {
@@ -333,7 +336,7 @@ export function Blocks({
           {b.type === 'reveal' && <RevealBlock teaser={b.teaser} value={b.value} lang={lang} />}
           {b.type === 'order' && <OrderBlock prompt={b.prompt} items={b.items} lang={lang} />}
           {b.type === 'debug' && <DebugBlock prompt={b.prompt} lines={b.lines} wrong={b.wrong} explanation={b.explanation} lang={lang} />}
-          {b.type === 'reflect' && <ReflectBlock prompt={b.prompt} storageKey={`intnetwork-reflect-${moduleKey}-${i}`} lang={lang} />}
+          {b.type === 'reflect' && <ReflectBlock prompt={b.prompt} storageKey={`intnetwork-reflect-${keyScope}-${moduleKey}-${i}`} lang={lang} />}
           {footer?.(b, i)}
         </div>
       ))}

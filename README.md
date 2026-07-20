@@ -19,14 +19,16 @@ Trainer erstellen Kurse und aktivieren die passenden Module. Teilnehmer treten m
 ## Kurse
 
 - **Netzwerk-Grundlagen:** 17 aufeinander aufbauende Module von Paketaufbau und Switching bis Wireshark, jeweils mit Theorie, Simulator und serverseitig bewertetem Quiz.
-- **Claude-Code-Workshop:** 15 Module zu LLMs, CLI-Workflows, CLAUDE.md, MCP, Subagents, Hooks, CI/CD und sicherem Enterprise-Einsatz.
+- **Claude-Code-Workshop:** 18 Module zu LLMs, CLI-Workflows, CLAUDE.md, MCP, Subagents, Hooks, CI/CD, sicherem Enterprise-Einsatz, effektiven Workflows, Git-Zusammenarbeit und einem Abschlussprojekt.
 
 ## Funktionen
 
 - Deutsch/Englisch für Teilnehmer, deutschsprachiger Trainer-Bereich
+- Heller und dunkler Modus (folgt anfangs der Systemeinstellung)
 - Interaktive Widgets, Visualisierungen und Lernphasen
 - Trainer-Dashboard mit Kursen, Modul-Aktivierung, Fortschritt, Live-Präsenz und Kommentaren
 - Modul-Editor mit einer Wiederherstellungsstufe
+- Persönlicher Wiederaufnahme-Code beim Beitritt; öffentlich prüfbare Teilnahmebestätigung unter `/verifizieren`
 
 ## Lokal starten
 
@@ -84,3 +86,21 @@ konfigurierten SQLite-Datenbank und seedet anschließend alle Workshops und Inha
 Kursinhalte werden aus `backend/app/content/*.py` beim ersten Start in die Datenbank übernommen. Bereits ausgelieferte Inhalte bleiben erhalten; Trainer können sie im Editor anpassen oder den Auslieferungszustand laden. Für lokale Inhaltsänderungen die nichtproduktive Datenbank mit `python reset_dev_db.py --yes` neu seeden; produktive Textänderungen bekommen eine versionierte Migration in `backend/app/content/seed.py`.
 
 Neue Widgets benötigen eine React-Komponente unter `frontend/src/widgets/`, einen Eintrag in `frontend/src/widgets/registry.tsx` und dieselbe ID in `backend/app/routers/trainer_content.py`.
+
+## Datenbank-Migrationen
+
+Das Schema wird mit **Alembic** verwaltet (`backend/migrations/`). Beim App-Start
+laufen ausstehende Migrationen automatisch auf `head`. Bestehende Datenbanken aus
+der Zeit vor Alembic werden dabei einmalig auf die Baseline gestampt und danach
+nur mit den Folge-Revisionen nachgezogen — es läuft nie eine Baseline-DDL erneut.
+
+Nach einer Modelländerung eine Revision erzeugen und prüfen:
+
+```bash
+cd backend
+.venv/Scripts/python.exe -m alembic revision --autogenerate -m "beschreibung"
+.venv/Scripts/python.exe -m alembic upgrade head
+```
+
+Inhaltliche Änderungen an bereits ausgelieferten Modulen bleiben davon getrennt und
+laufen weiter als versionierte Content-Migrationen in `backend/app/content/seed.py`.

@@ -13,6 +13,9 @@ from app.content.seed import (LEARNING_LABS_MIGRATION, NETWORK_VISUALS_MIGRATION
                               CONTENT_TEXT_EDITS, COURSE_ORDER_MIGRATION,
                               CONTENT_EDITS_V3_MIGRATION, CONTENT_EDITS_V3_ANCHORS,
                               CLAUDE_WORKSHOP_ORDER_MIGRATION,
+                              PLATFORM_COMMANDS_MIGRATION, PLATFORM_COMMANDS_ANCHORS,
+                              CAPSTONE_RUBRIC_MIGRATION, CAPSTONE_RUBRIC_ANCHORS,
+                              HOOKS_DIAGNOSE_LAB_MIGRATION, HOOKS_DIAGNOSE_LAB_ANCHORS,
                               _OLD_COURSE_ORDERS, _NEW_COURSE_ORDERS,
                               _source_block, _block_matches_source,
                               seed_missing_content)
@@ -569,4 +572,120 @@ def test_migrated_module_block_order_matches_source_order(module_key):
                                if sig is not None]
             assert db_sequence == source_sequence
         finally:
+            db.close()
+
+
+def test_platform_commands_migration_inserts_text_then_check_once():
+    """Zwei sequenzielle Blöcke im Troubleshooting-Modul: der Cross-Plattform-Text
+    landet hinter dem Hands-on-Widget, der Check dahinter — genau einmal."""
+    text_source = _source_block("troubleshooting", "text-crossplatform-cmds")
+    check_source = _source_block("troubleshooting", "check-crossplatform-cmds")
+    with TestClient(app):
+        db = SessionLocal()
+
+        def _drop_new_blocks():
+            for b in db.query(ContentBlock).filter(ContentBlock.module_key == "troubleshooting").all():
+                if _block_matches_source(b, text_source) or _block_matches_source(b, check_source):
+                    db.delete(b)
+
+        try:
+            db.query(Setting).filter(Setting.key == PLATFORM_COMMANDS_MIGRATION).delete()
+            _drop_new_blocks()  # nur die beiden neuen Blöcke entfernen, die Original-Checks behalten
+            db.commit()
+
+            seed_missing_content(db)
+
+            blocks = db.query(ContentBlock).filter(ContentBlock.module_key == "troubleshooting") \
+                .order_by(ContentBlock.position).all()
+            anchor_idx = next(i for i, b in enumerate(blocks) if b.widget_id == "troubleshoot-demo")
+            text_idx = next(i for i, b in enumerate(blocks) if _block_matches_source(b, text_source))
+            check_idx = next(i for i, b in enumerate(blocks) if _block_matches_source(b, check_source))
+            assert text_idx == anchor_idx + 1
+            assert check_idx == text_idx + 1
+            assert db.get(Setting, PLATFORM_COMMANDS_MIGRATION) is not None
+
+            seed_missing_content(db)  # zweiter Lauf darf nichts doppelt einfügen
+            assert db.query(ContentBlock).filter(
+                ContentBlock.module_key == "troubleshooting", ContentBlock.type == "text",
+                ContentBlock.value_de == text_source["value"]["de"]).count() == 1
+        finally:
+            _drop_new_blocks()
+            db.query(Setting).filter(Setting.key == PLATFORM_COMMANDS_MIGRATION).delete()
+            db.commit()
+            seed_missing_content(db)
+            db.close()
+
+
+def test_capstone_rubric_migration_inserts_checklist_after_selfcheck_once():
+    """Der objektive Abnahme-Raster wird genau einmal direkt hinter dem
+    Selbst-Check-Block eingefügt."""
+    module_key, source_id, anchor_id = CAPSTONE_RUBRIC_ANCHORS[0]
+    source = _source_block(module_key, source_id)
+    anchor_source = _source_block(module_key, anchor_id)
+    with TestClient(app):
+        db = SessionLocal()
+        try:
+            db.query(Setting).filter(Setting.key == CAPSTONE_RUBRIC_MIGRATION).delete()
+            db.query(ContentBlock).filter(
+                ContentBlock.module_key == module_key, ContentBlock.type == "text",
+                ContentBlock.value_de == source["value"]["de"]).delete(synchronize_session=False)
+            db.commit()
+
+            seed_missing_content(db)
+
+            blocks = db.query(ContentBlock).filter(ContentBlock.module_key == module_key) \
+                .order_by(ContentBlock.position).all()
+            inserted_idx = next(i for i, b in enumerate(blocks) if _block_matches_source(b, source))
+            anchor_idx = next(i for i, b in enumerate(blocks) if _block_matches_source(b, anchor_source))
+            assert inserted_idx == anchor_idx + 1
+            assert db.get(Setting, CAPSTONE_RUBRIC_MIGRATION) is not None
+
+            seed_missing_content(db)
+            assert db.query(ContentBlock).filter(
+                ContentBlock.module_key == module_key, ContentBlock.type == "text",
+                ContentBlock.value_de == source["value"]["de"]).count() == 1
+        finally:
+            db.query(ContentBlock).filter(
+                ContentBlock.module_key == module_key, ContentBlock.type == "text",
+                ContentBlock.value_de == source["value"]["de"]).delete(synchronize_session=False)
+            db.query(Setting).filter(Setting.key == CAPSTONE_RUBRIC_MIGRATION).delete()
+            db.commit()
+            seed_missing_content(db)
+            db.close()
+
+
+def test_hooks_diagnose_lab_migration_inserts_reveal_after_widget_once():
+    """Das Diagnose-Slash-Command-Labor (reveal) landet genau einmal hinter dem
+    Lifecycle-Widget im Hooks-Modul."""
+    module_key, source_id, anchor_ref = HOOKS_DIAGNOSE_LAB_ANCHORS[0]
+    source = _source_block(module_key, source_id)
+    with TestClient(app):
+        db = SessionLocal()
+        try:
+            db.query(Setting).filter(Setting.key == HOOKS_DIAGNOSE_LAB_MIGRATION).delete()
+            db.query(ContentBlock).filter(
+                ContentBlock.module_key == module_key, ContentBlock.type == "reveal",
+                ContentBlock.value_de == source["value"]["de"]).delete(synchronize_session=False)
+            db.commit()
+
+            seed_missing_content(db)
+
+            blocks = db.query(ContentBlock).filter(ContentBlock.module_key == module_key) \
+                .order_by(ContentBlock.position).all()
+            reveal_idx = next(i for i, b in enumerate(blocks) if _block_matches_source(b, source))
+            anchor_idx = next(i for i, b in enumerate(blocks) if b.widget_id == anchor_ref)
+            assert reveal_idx == anchor_idx + 1
+            assert db.get(Setting, HOOKS_DIAGNOSE_LAB_MIGRATION) is not None
+
+            seed_missing_content(db)
+            assert db.query(ContentBlock).filter(
+                ContentBlock.module_key == module_key, ContentBlock.type == "reveal",
+                ContentBlock.value_de == source["value"]["de"]).count() == 1
+        finally:
+            db.query(ContentBlock).filter(
+                ContentBlock.module_key == module_key, ContentBlock.type == "reveal",
+                ContentBlock.value_de == source["value"]["de"]).delete(synchronize_session=False)
+            db.query(Setting).filter(Setting.key == HOOKS_DIAGNOSE_LAB_MIGRATION).delete()
+            db.commit()
+            seed_missing_content(db)
             db.close()

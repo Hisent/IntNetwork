@@ -112,6 +112,51 @@ TROUBLESHOOTING_MODULE = {
          "note": "Drei Störfälle: APIPA/DHCP, DNS-Ausfall, falsches VLAN nach Dosen-Umzug. "
                  "Teilnehmer sollen erst Befehle ausführen (mind. 2), dann diagnostizieren — "
                  "gut als Partnerarbeit: einer liest die Ausgaben vor, einer stellt die Diagnose."},
+        {"type": "text", "id": "text-crossplatform-cmds",
+         "value": {
+             "de": "## Windows vs. Linux/macOS — gleiche Fragen, andere Befehle\n\n"
+                   "Die Diagnose-Logik ist überall dieselbe, nur die Werkzeuge heißen "
+                   "anders. Wer beide Welten kennt, bleibt im gemischten Netz sofort "
+                   "handlungsfähig:\n\n"
+                   "- **Eigene IP & Interfaces** — Windows: `ipconfig` · Linux: `ip addr` "
+                   "(älter: `ifconfig`) · macOS: `ifconfig`.\n"
+                   "- **Routing-Tabelle / Gateway** — Windows: `route print` · Linux: "
+                   "`ip route` · macOS: `netstat -rn`.\n"
+                   "- **Weg zum Ziel (Hops)** — Windows: `tracert` · Linux/macOS: "
+                   "`traceroute`.\n"
+                   "- **Namensauflösung** — Windows: `nslookup` · Linux/macOS: `dig` "
+                   "(ausführlich) oder ebenfalls `nslookup`.\n"
+                   "- **Offene Ports & Verbindungen** — Windows: `netstat -ano` · Linux: "
+                   "`ss -tulpen` (löst `netstat` ab) · macOS: `netstat -an` / `lsof -i`.\n\n"
+                   "**Merke:** Unter Linux ist `ip` das Schweizer Taschenmesser "
+                   "(`ip addr`, `ip route`, `ip neigh`), und `ss` ersetzt das ältere "
+                   "`netstat`.",
+             "en": "## Windows vs. Linux/macOS — Same Questions, Different Commands\n\n"
+                   "The diagnostic logic is the same everywhere; only the tools have "
+                   "different names. Knowing both worlds keeps you effective in a mixed "
+                   "network:\n\n"
+                   "- **Own IP & interfaces** — Windows: `ipconfig` · Linux: `ip addr` "
+                   "(older: `ifconfig`) · macOS: `ifconfig`.\n"
+                   "- **Routing table / gateway** — Windows: `route print` · Linux: "
+                   "`ip route` · macOS: `netstat -rn`.\n"
+                   "- **Path to target (hops)** — Windows: `tracert` · Linux/macOS: "
+                   "`traceroute`.\n"
+                   "- **Name resolution** — Windows: `nslookup` · Linux/macOS: `dig` "
+                   "(verbose) or also `nslookup`.\n"
+                   "- **Open ports & connections** — Windows: `netstat -ano` · Linux: "
+                   "`ss -tulpen` (replaces `netstat`) · macOS: `netstat -an` / `lsof -i`.\n\n"
+                   "**Remember:** On Linux, `ip` is the Swiss army knife (`ip addr`, "
+                   "`ip route`, `ip neigh`), and `ss` supersedes the older `netstat`.",
+         }},
+        {"type": "check", "id": "check-crossplatform-cmds", "payload": {
+            "prompt_de": "Du sitzt an einem Linux-Rechner und willst die Routing-Tabelle "
+                         "sehen. Welcher Befehl passt?",
+            "prompt_en": "You are on a Linux machine and want to see the routing table. "
+                         "Which command fits?",
+            "options_de": ["`ip route`", "`ipconfig`", "`tracert`"],
+            "options_en": ["`ip route`", "`ipconfig`", "`tracert`"],
+            "answer": 0,
+        }},
         {"type": "widget", "id": "learning-evidence", "note": "Den nächsten Beweisschritt der Diagnose wählen."},
         {"type": "debug", "payload": {
             "prompt_de": "Ein Praktikant hat einen PC statisch konfiguriert — der erreicht das "
