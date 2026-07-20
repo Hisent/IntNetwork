@@ -14,6 +14,8 @@ router = APIRouter(prefix="/trainer/content/modules", tags=["trainer-content"])
 
 # Muss synchron zu frontend/src/widgets/registry.tsx (WIDGETS-Objekt) gepflegt werden.
 VALID_WIDGET_IDS = {
+    "mcp-inspector", "agent-orchestrator",
+    "tokenizer-demo", "cli-simulator", "permission-simulator", "hook-lifecycle",
     "vlan-switch", "frame-builder", "osi-model", "mac-learning", "subnet-calc",
     "arp-demo", "routing-demo", "nat-demo", "dns-demo", "dhcp-demo", "ports-demo",
     "icmp-demo", "firewall-demo", "ipv6-demo", "wlan-demo", "vpn-demo",

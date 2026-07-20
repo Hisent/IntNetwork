@@ -51,4 +51,10 @@ export const WIDGETS: Record<string, ComponentType<{ lang: Lang }>> = {
   'visual-dhcp-relay': lazy(() => import('@/widgets/visuals/NetworkVisualsDynamics').then((m) => ({ default: (p: { lang: Lang }) => <m.NetworkVisualDynamicForId id="visual-dhcp-relay" {...p} /> }))),
   'visual-ephemeral-ports': lazy(() => import('@/widgets/visuals/NetworkVisualsDynamics').then((m) => ({ default: (p: { lang: Lang }) => <m.NetworkVisualDynamicForId id="visual-ephemeral-ports" {...p} /> }))),
   'visual-stateful-firewall': lazy(() => import('@/widgets/visuals/NetworkVisualsDynamics').then((m) => ({ default: (p: { lang: Lang }) => <m.NetworkVisualDynamicForId id="visual-stateful-firewall" {...p} /> }))),
+  'tokenizer-demo': lazy(() => import('@/widgets/tokenizer/TokenizerWidget').then((m) => ({ default: m.Tokenizer }))),
+  'cli-simulator': lazy(() => import('@/widgets/claudecli/ClaudeCliWidget').then((m) => ({ default: m.ClaudeCli }))),
+  'permission-simulator': lazy(() => import('@/widgets/permissions/PermissionWidget').then((m) => ({ default: m.PermissionSim }))),
+  'hook-lifecycle': lazy(() => import('@/widgets/hooklife/HookLifecycleWidget').then((m) => ({ default: m.HookLifecycle }))),
+  'mcp-inspector': lazy(() => import('@/widgets/mcpinspector/McpInspectorWidget').then((m) => ({ default: m.McpInspector }))),
+  'agent-orchestrator': lazy(() => import('@/widgets/orchestrator/OrchestratorWidget').then((m) => ({ default: m.Orchestrator }))),
 }

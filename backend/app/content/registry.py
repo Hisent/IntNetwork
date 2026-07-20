@@ -17,11 +17,28 @@ from app.content.vpn import VPN_MODULE
 from app.content.vlan import VLAN_MODULE
 from app.content.troubleshooting import TROUBLESHOOTING_MODULE
 from app.content.wireshark import WIRESHARK_MODULE
+# --- Claude-Code-Workshop-Module (angedockt) ---
+from app.content.cc_llm_grundlagen import LLM_GRUNDLAGEN_MODULE
+from app.content.cc_agentic_coding import AGENTIC_CODING_MODULE
+from app.content.cc_installation_setup import INSTALLATION_SETUP_MODULE
+from app.content.cc_cli_workflows import CLI_WORKFLOWS_MODULE
+from app.content.cc_claude_md import CLAUDE_MD_MODULE
+from app.content.cc_skills_commands import SKILLS_COMMANDS_MODULE
+from app.content.cc_plugins import PLUGINS_MODULE
+from app.content.cc_mcp import MCP_MODULE
+from app.content.cc_subagents import SUBAGENTS_MODULE
+from app.content.cc_spec_driven_bmad import SPEC_DRIVEN_BMAD_MODULE
+from app.content.cc_hooks import HOOKS_MODULE
+from app.content.cc_ci_cd import CI_CD_MODULE
+from app.content.cc_orchestration import ORCHESTRATION_MODULE
+from app.content.cc_security_enterprise import SECURITY_ENTERPRISE_MODULE
+from app.content.cc_capstone import CAPSTONE_MODULE
+
 from app.models.content import ContentBlock, ContentModule, ContentQuizQuestion
 
 # Nur noch Seed-Quelle für seed_missing_content() (app/content/seed.py) — die
 # Trainer-/Teilnehmer-Auslieferung unten liest ausschließlich aus der DB.
-MODULES = {m["key"]: m for m in (PAKET_MODULE, SWITCHING_MODULE, VLAN_MODULE, SUBNETTING_MODULE, ARP_MODULE, ROUTING_MODULE, NAT_MODULE, DNS_MODULE, DHCP_MODULE, PORTS_MODULE, ICMP_MODULE, FIREWALL_MODULE, IPV6_MODULE, WLAN_MODULE, VPN_MODULE, TROUBLESHOOTING_MODULE, WIRESHARK_MODULE)}
+MODULES = {m["key"]: m for m in (PAKET_MODULE, SWITCHING_MODULE, VLAN_MODULE, SUBNETTING_MODULE, ARP_MODULE, ROUTING_MODULE, NAT_MODULE, DNS_MODULE, DHCP_MODULE, PORTS_MODULE, ICMP_MODULE, FIREWALL_MODULE, IPV6_MODULE, WLAN_MODULE, VPN_MODULE, TROUBLESHOOTING_MODULE, WIRESHARK_MODULE, LLM_GRUNDLAGEN_MODULE, AGENTIC_CODING_MODULE, INSTALLATION_SETUP_MODULE, CLI_WORKFLOWS_MODULE, CLAUDE_MD_MODULE, SKILLS_COMMANDS_MODULE, PLUGINS_MODULE, MCP_MODULE, SUBAGENTS_MODULE, SPEC_DRIVEN_BMAD_MODULE, HOOKS_MODULE, CI_CD_MODULE, ORCHESTRATION_MODULE, SECURITY_ENTERPRISE_MODULE, CAPSTONE_MODULE)}
 
 
 def _resolve(value, lang: str):
