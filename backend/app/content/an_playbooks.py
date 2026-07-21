@@ -314,7 +314,7 @@ PLAYBOOKS_MODULE = {
                          'host at that point. `web02` completed both tasks without error '
                          '(`ok=2`, `failed=0`). Overall, only one host made it through the '
                          'playbook completely without error.'}},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-lab-fehler',
          'value': {'de': '## Praxis: Das Ansible-Lab ausprobieren\n'
                          '\n'
                          'Ab hier lässt sich ein Playbook nicht nur lesen, sondern im Lab-Widget '

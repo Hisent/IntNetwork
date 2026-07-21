@@ -192,6 +192,34 @@ def _migrate_content_blocks(db: Session, migration_key: str,
     db.flush()
 
 
+ANSIBLE_LAB_MIGRATION = "content-migration:ansible-lab-v1"
+# Das Lab kam nach dem Ausliefern des Ansible-Lehrgangs dazu. Bestands-Datenbanken
+# haben die vier Module bereits, deshalb erreicht sie seed_missing_content nicht —
+# ohne diese Migration erscheint das Lab dort nie. Reihenfolge je Modul: erst der
+# erklaerende Text, dann das Widget dahinter.
+ANSIBLE_LAB_ANCHORS = [
+    ("playbooks-grundlagen", "text-lab-fehler", "__ende__"),
+    ("playbooks-grundlagen", "ansible-lab", "text-lab-fehler"),
+    ("schleifen-handler", "text-lab-kontrollfluss", "__ende__"),
+    ("schleifen-handler", "ansible-lab", "text-lab-kontrollfluss"),
+    ("fehlerbehandlung-idempotenz", "text-lab-idempotenz", "__ende__"),
+    ("fehlerbehandlung-idempotenz", "ansible-lab", "text-lab-idempotenz"),
+    ("variablen-vorrang", "text-lab-variablen", "__ende__"),
+    ("variablen-vorrang", "ansible-lab", "text-lab-variablen"),
+]
+
+
+def _migrate_ansible_lab(db: Session) -> None:
+    """Haengt Erklaertext und Lab-Widget einmalig an die vier Ansible-Module.
+
+    Anker "__ende__" existiert bewusst nicht: _find_anchor_index faellt dann auf
+    das Ende der Blockliste zurueck, also direkt vor das Quiz. Das ist die
+    richtige Stelle fuer eine Praxisuebung und unabhaengig davon, wie ein Trainer
+    die Bloecke davor umsortiert hat.
+    """
+    _migrate_content_blocks(db, ANSIBLE_LAB_MIGRATION, ANSIBLE_LAB_ANCHORS)
+
+
 def _migrate_content_texts(db: Session) -> None:
     """Fügt die fünf fachlichen Vertiefungsblöcke aus v1.8.0 (Quell-Ports,
     Masken-Schreibweisen, DHCP-Relay, Switch-Loop, Dual Stack) einmalig hinter
@@ -490,6 +518,7 @@ def seed_missing_content(db: Session) -> None:
     _migrate_content_texts(db)
     _migrate_text_edits(db)
     _migrate_text_edits_v2(db)
+    _migrate_ansible_lab(db)
     _migrate_text_edits_v3(db)
     _migrate_course_order(db)
     _migrate_claude_workshop_order(db)

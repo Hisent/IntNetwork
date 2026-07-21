@@ -129,7 +129,7 @@ VARIABLEN_MODULE = {
                                     'httpd (Extra-Vars)'],
                      'options_en': ['nginx (role default)', 'apache2 (group_vars)',
                                     'httpd (extra-vars)']}},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-lab-variablen',
          'value': {'de': '## Praxis: Vorrang selbst auslösen\n'
                          '\n'
                          'Wähle im Lab die Vorlage **Variablen-Vorrang**. Sie setzt dieselbe '

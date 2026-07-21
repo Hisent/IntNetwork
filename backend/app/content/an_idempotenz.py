@@ -281,7 +281,7 @@ IDEMPOTENZ_MODULE = {
                              'earlier in the same run can produce incorrect predictions. The '
                              'reliable idempotency test remains running twice for real: run it '
                              'once, run it a second time, expect `changed=0`.'}},
-            {'type': 'text',
+            {'type': 'text', 'id': 'text-lab-idempotenz',
              'value': {'de': '## Praxis: Idempotenz im Lab prüfen\n'
                              '\n'
                              'Wähle im Lab die Vorlage **Idempotenz** und lass das Playbook '

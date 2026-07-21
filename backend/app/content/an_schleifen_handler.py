@@ -303,7 +303,7 @@ SCHLEIFEN_HANDLER_MODULE = {
                              'for example, when an already rolled-out configuration state needs '
                              'to be reloaded consistently, even if a later, unrelated task '
                              'fails.'}},
-            {'type': 'text',
+            {'type': 'text', 'id': 'text-lab-kontrollfluss',
              'value': {'de': '## Praxis: Kontrollfluss im Lab testen\n'
                              '\n'
                              'Wähle im Lab-Widget unten die Vorlage **Kontrollfluss**. Sie '
