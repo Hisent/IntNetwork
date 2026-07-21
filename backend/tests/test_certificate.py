@@ -91,6 +91,30 @@ def test_certificate_gated_by_trainer_approval():
         assert any(p["id"] == pid and p["approved"] for p in dash["participants"])
 
 
+def test_trainer_resets_code_and_deletes_participant():
+    with TestClient(app) as c:
+        h = _trainer(c)
+        course = c.post("/api/courses", json={"name": "MgmtKurs"}, headers=h).json()
+        code, cid = course["join_code"], course["id"]
+        old = c.post("/api/join", json={"code": code, "name": "Nils"}).json()["resume_code"]
+        db = SessionLocal()
+        pid = db.query(Participant).filter(Participant.name == "Nils").first().id
+        db.close()
+
+        reset = c.post(f"/api/courses/{cid}/participants/{pid}/reset-code", headers=h)
+        assert reset.status_code == 200
+        new = reset.json()["resume_code"]
+        assert new and new != old
+        # Alter Code ungültig, neuer gültig
+        assert c.post("/api/join", json={"code": code, "name": "Nils", "resume_code": old}).status_code == 403
+        assert c.post("/api/join", json={"code": code, "name": "Nils", "resume_code": new}).status_code == 200
+
+        # Löschen entfernt den Teilnehmer -> Name danach wieder frei (neuer Datensatz)
+        assert c.delete(f"/api/courses/{cid}/participants/{pid}", headers=h).status_code == 200
+        again = c.post("/api/join", json={"code": code, "name": "Nils"})
+        assert again.status_code == 200 and again.json()["resume_code"]
+
+
 def test_legacy_participant_without_resume_code_can_rejoin_and_gets_one():
     """Teilnehmer von vor der Code-Einführung (resume_code IS NULL) dürfen weiter
     per Name fort — bekommen dabei nachträglich einen Code."""

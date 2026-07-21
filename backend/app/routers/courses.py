@@ -10,11 +10,14 @@ from app.models.progress import Progress
 from app.models.quiz_result import QuizResult
 from app.models.course_module import CourseModule
 from app.models.workshop import Workshop
+from app.models.certificate import Certificate
+from app.models.comment import Comment
 from app.services.codes import new_code
 from app.services.deps import get_trainer
 from app.services.course_membership import active_module_keys
 from app.content.registry import module_meta
 from app.models.content import ContentModule
+from app.utils import generate_resume_code
 
 router = APIRouter(prefix="/courses", tags=["courses"])
 
@@ -79,6 +82,38 @@ def approve_participant(course_id: int, participant_id: int, data: ParticipantAp
     p.approved = data.approved
     db.commit()
     return {"id": p.id, "approved": p.approved}
+
+
+@router.post("/{course_id}/participants/{participant_id}/reset-code")
+def reset_resume_code(course_id: int, participant_id: int,
+                      db: Session = Depends(get_db), _=Depends(get_trainer)):
+    """Vergibt einen neuen Wiederaufnahme-Code — für Teilnehmer, die ihren verloren
+    haben. Der alte wird ungültig; der Trainer gibt den neuen persönlich weiter."""
+    p = db.query(Participant).filter(
+        Participant.id == participant_id, Participant.course_id == course_id).first()
+    if not p:
+        raise HTTPException(status_code=404, detail="Teilnehmer nicht gefunden")
+    p.resume_code = generate_resume_code()
+    db.commit()
+    return {"id": p.id, "resume_code": p.resume_code}
+
+
+@router.delete("/{course_id}/participants/{participant_id}")
+def delete_participant(course_id: int, participant_id: int,
+                       db: Session = Depends(get_db), _=Depends(get_trainer)):
+    """Entfernt einen Teilnehmer samt aller personenbezogenen Daten (Fortschritt,
+    Quiz-Ergebnisse, Kommentare, Bestätigung) — für Abmeldungen/DSGVO-Löschungen."""
+    p = db.query(Participant).filter(
+        Participant.id == participant_id, Participant.course_id == course_id).first()
+    if not p:
+        raise HTTPException(status_code=404, detail="Teilnehmer nicht gefunden")
+    db.query(Progress).filter(Progress.participant_id == participant_id).delete()
+    db.query(QuizResult).filter(QuizResult.participant_id == participant_id).delete()
+    db.query(Comment).filter(Comment.participant_id == participant_id).delete()
+    db.query(Certificate).filter(Certificate.participant_id == participant_id).delete()
+    db.delete(p)
+    db.commit()
+    return {"ok": True}
 
 
 @router.get("/{course_id}/dashboard")

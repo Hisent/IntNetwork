@@ -79,6 +79,10 @@ export const trainerApi = {
     api.patch<{ require_approval: boolean }>(`/courses/${id}/approval`, { require_approval }),
   approveParticipant: (courseId: number, participantId: number, approved: boolean) =>
     api.post<{ id: number; approved: boolean }>(`/courses/${courseId}/participants/${participantId}/approve`, { approved }),
+  resetResumeCode: (courseId: number, participantId: number) =>
+    api.post<{ id: number; resume_code: string }>(`/courses/${courseId}/participants/${participantId}/reset-code`),
+  deleteParticipant: (courseId: number, participantId: number) =>
+    api.delete(`/courses/${courseId}/participants/${participantId}`),
   setCourseModule: (id: number, module_key: string, active: boolean) =>
     api.put(`/courses/${id}/modules`, { module_key, active }),
   trainerModules: () => api.get<ModuleMeta[]>('/trainer/modules'),

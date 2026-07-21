@@ -2,6 +2,7 @@ import { lazy, Suspense } from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { PageSkeleton } from '@/components/PageSkeleton'
+import { ErrorBoundary } from '@/components/ErrorBoundary'
 import { LandingPage } from '@/pages/LandingPage'
 
 // Landing bleibt eager (erste Route). Alles andere lazy — vor allem die vier
@@ -23,6 +24,13 @@ export default function App() {
   return (
     <QueryClientProvider client={qc}>
       <BrowserRouter>
+        <ErrorBoundary fallback={
+          <main className="grid min-h-dvh place-items-center bg-slate-50 p-6 text-center">
+            <div>
+              <p className="text-slate-600">Etwas ist schiefgelaufen.</p>
+              <button onClick={() => window.location.reload()} className="mt-3 rounded-lg bg-teal-600 px-4 py-2 text-sm font-medium text-white hover:bg-teal-700">Neu laden</button>
+            </div>
+          </main>}>
         <Suspense fallback={<PageSkeleton />}>
           <Routes>
             <Route path="/" element={<LandingPage />} />
@@ -39,6 +47,7 @@ export default function App() {
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </Suspense>
+        </ErrorBoundary>
       </BrowserRouter>
     </QueryClientProvider>
   )

@@ -1,5 +1,12 @@
 # Projekt-Changelog (nur für Trainer sichtbar). Neueste zuerst.
 CHANGELOG = [
+    {"date": "2026-07-20", "title": "v1.23.0 — Teilnehmerverwaltung & Robustheit",
+     "text": "Trainer können Teilnehmer jetzt verwalten: Wiederaufnahme-Code zurücksetzen "
+             "(für verlorene Codes) und Teilnehmer inkl. aller Daten löschen (Abmeldung/"
+             "Datenschutz). Erlaubte Frontend-Adressen (CORS) sind über ALLOWED_ORIGINS "
+             "konfigurierbar — wichtig fürs Produktiv-Deployment. Ein abgestürztes "
+             "interaktives Element leert nicht mehr die ganze Seite, sondern zeigt nur "
+             "an dieser Stelle einen Hinweis."},
     {"date": "2026-07-20", "title": "v1.22.0 — Trainerfreigabe, Claude-Links & Feinschliff",
      "text": "Optionale Trainerfreigabe: pro Kurs aktivierbar, dann wird die "
              "Teilnahmebestätigung erst nach Freigabe je Teilnehmer ausgestellt (Häkchen "

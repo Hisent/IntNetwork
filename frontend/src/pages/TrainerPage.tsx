@@ -224,6 +224,15 @@ function CourseDetail({ course, workshopTitle }: { course: Course; workshopTitle
     mutationFn: (v: { pid: number; approved: boolean }) => trainerApi.approveParticipant(cid, v.pid, v.approved),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['dashboard', cid] }),
   })
+  const [shownCode, setShownCode] = useState<{ name: string; code: string } | null>(null)
+  const resetCode = useMutation({
+    mutationFn: (pid: number) => trainerApi.resetResumeCode(cid, pid).then((r) => r.data),
+    onSuccess: (d) => setShownCode({ name: dash.data?.participants.find((x) => x.id === d.id)?.name ?? '', code: d.resume_code }),
+  })
+  const removeParticipant = useMutation({
+    mutationFn: (pid: number) => trainerApi.deleteParticipant(cid, pid),
+    onSuccess: () => { setShownCode(null); qc.invalidateQueries({ queryKey: ['dashboard', cid] }); qc.invalidateQueries({ queryKey: ['courses'] }) },
+  })
   const requireApproval = course.require_approval ?? false
 
   return (
@@ -269,6 +278,29 @@ function CourseDetail({ course, workshopTitle }: { course: Course; workshopTitle
           Freigabe für Bestätigung nötig
         </label>}>
         <ProgressTable dash={dash} requireApproval={requireApproval} onApprove={(pid, a) => approve.mutate({ pid, approved: a })} />
+      </Section>
+
+      <Section title="Teilnehmer verwalten">
+        <QueryState query={dash} empty={dash.data?.participants.length === 0}>
+          <div className="flex flex-col gap-1.5">
+            {dash.data?.participants.map((p) => (
+              <div key={p.id} className="flex items-center justify-between gap-2 text-sm">
+                <span className="min-w-0 truncate text-slate-700">{p.name}</span>
+                <div className="flex shrink-0 items-center gap-2">
+                  <button onClick={() => resetCode.mutate(p.id)} disabled={resetCode.isPending}
+                    className="text-xs text-slate-500 hover:text-teal-700">Code zurücksetzen</button>
+                  <button onClick={() => window.confirm(`${p.name} inkl. Fortschritt endgültig löschen?`) && removeParticipant.mutate(p.id)}
+                    aria-label={`${p.name} löschen`} className="text-rose-600 hover:text-rose-700"><Icon name="trash" className="h-4 w-4" /></button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </QueryState>
+        {shownCode && (
+          <p className="mt-3 rounded-lg bg-teal-50 px-3 py-2 text-sm text-teal-900">
+            Neuer Wiederaufnahme-Code für <b>{shownCode.name}</b>: <code className="select-all font-mono font-bold">{shownCode.code}</code> — bitte persönlich weitergeben.
+          </p>
+        )}
       </Section>
 
       {features.data?.comments && (

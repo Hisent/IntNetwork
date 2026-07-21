@@ -5,6 +5,7 @@ import { WIDGETS } from '@/widgets/registry'
 import { shuffledIndices } from '@/components/Quiz'
 import { t, type Lang } from '@/lib/i18n'
 import { WidgetScopeContext } from '@/lib/widgetScope'
+import { ErrorBoundary } from '@/components/ErrorBoundary'
 
 function InlineCode({ className, children }: {
   className?: string
@@ -60,9 +61,11 @@ export function WidgetBlock({ id, lang }: { id: string; lang: Lang }) {
     // Widgets bleiben innerhalb der aktuellen Inhalts-/Navigationsspalte.
     // Tabellen und lange Inhalte müssen sich darin selbst scrollbar machen.
     <div className="w-full min-w-0">
-      <Suspense fallback={<div className="rounded-xl border bg-white p-6 text-sm text-slate-400 animate-pulse">{t(lang, 'loading')}</div>}>
-        <W lang={lang} />
-      </Suspense>
+      <ErrorBoundary fallback={<div className="rounded-xl border bg-white p-6 text-sm text-slate-400">{lang === 'de' ? 'Dieses interaktive Element konnte nicht geladen werden.' : 'This interactive element could not be loaded.'}</div>}>
+        <Suspense fallback={<div className="rounded-xl border bg-white p-6 text-sm text-slate-400 animate-pulse">{t(lang, 'loading')}</div>}>
+          <W lang={lang} />
+        </Suspense>
+      </ErrorBoundary>
     </div>
   )
 }

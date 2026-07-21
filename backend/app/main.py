@@ -59,7 +59,7 @@ finally:
 
 app = FastAPI(title="IntLab", version=APP_VERSION)
 app.add_middleware(
-    CORSMiddleware, allow_origins=["http://localhost:5173"],
+    CORSMiddleware, allow_origins=settings.origins,
     allow_credentials=True, allow_methods=["*"], allow_headers=["*"],
 )
 
