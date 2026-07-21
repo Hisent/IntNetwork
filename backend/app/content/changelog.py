@@ -1,5 +1,16 @@
 # Projekt-Changelog (nur für Trainer sichtbar). Neueste zuerst.
 CHANGELOG = [
+    {"date": "2026-07-21", "title": "v1.28.0 — Modulnummern, Löschschutz & Feinschliff",
+     "text": "Die Module des Claude-Code-Workshops wurden als „Modul 101“ bis "
+             "„Modul 118“ gezählt — das war eine interne Sortiernummer. Sie zählen "
+             "jetzt sichtbar von 1 an, passend zur Angabe „x von 18“. Das Entfernen "
+             "eines Trainer-Zugangs fragt jetzt nach, genau wie das Löschen eines "
+             "Teilnehmers — vorher passierte es sofort beim Klick. „Weitere Module "
+             "anzeigen“ wechselt beim Aufklappen auf „Weniger anzeigen“, die "
+             "Modulauswahl eines Kurses ist nach Tagen gruppiert, die "
+             "Fortschrittstabelle zeigt an, dass rechts mehr steht, und die Seite "
+             "der Teilnahmebestätigung zeigt vor dem Abschluss den eigenen "
+             "Fortschritt statt einer leeren Notiz."},
     {"date": "2026-07-21", "title": "v1.27.0 — Trainerbereich auf Kurs-Niveau, Glossar für beide Workshops",
      "text": "Der Trainerbereich sah bisher aus wie ein internes Hilfsmittel und "
              "nicht wie Teil der Anwendung — das ist behoben: gleiche Farben und "

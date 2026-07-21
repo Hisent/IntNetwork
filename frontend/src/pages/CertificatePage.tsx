@@ -6,6 +6,7 @@ import { t, useDocumentLang, type Lang } from '@/lib/i18n'
 import { WorkshopTheme } from '@/components/WorkshopTheme'
 import { BrandLogo } from '@/components/BrandLogo'
 import { Icon } from '@/components/Icon'
+import { WorkbenchProgress, WorkbenchTopbar } from '@/components/workbench/WorkbenchShell'
 
 // Druckbares Abschluss-Zertifikat: erst verfügbar, wenn alle Module bestanden
 // sind. „Drucken" nutzt den Browser-Dialog — PDF gibt es dort gratis dazu.
@@ -32,17 +33,40 @@ export function CertificatePage() {
 
   // Kurs mit Trainerfreigabe: alle Module done, aber noch nicht freigegeben (409).
   const awaitingApproval = allDone && cert.isError
-  if (!allDone || awaitingApproval)
+  if (!allDone || awaitingApproval) {
+    // Zwischenzustand (noch nicht alle Module bestanden bzw. Freigabe steht
+    // aus): eigener Fortschritt statt einer leeren Seite, mit Kopfzeile wie
+    // auf den übrigen Seiten — sonst wirkt dieser Screen wie vergessen.
+    const progressOf = (key: string) => me.data?.progress.find((p) => p.module_key === key)
+    const isDone = (key: string) => progressOf(key)?.done ?? false
+    const sorted = [...mods.data].sort((a, b) => a.order - b.order)
+    const doneCount = sorted.filter((m) => isDone(m.key)).length
+    const donePct = total ? Math.round((doneCount / total) * 100) : 0
+    const isLocked = (m: (typeof sorted)[number]) => m.prerequisites.some((k) => !isDone(k))
+    const nextOpen = sorted.find((m) => !isDone(m.key) && !isLocked(m))
     return (
-      <WorkshopTheme theme={me.data?.workshop?.theme}><main id="main-content" tabIndex={-1} className="min-h-dvh bg-slate-50 flex items-center justify-center p-6">
-        <div className="max-w-md text-center">
-          <p className="text-slate-600 mb-3">{awaitingApproval
-            ? (lang === 'de' ? 'Alle Module geschafft! Die Teilnahmebestätigung wird nach der Freigabe durch die Kursleitung verfügbar.' : 'All modules done! The certificate becomes available once your trainer approves it.')
-            : t(lang, 'certNotYet')}</p>
-          <Link to="/lernen" className="text-teal-600 hover:underline">← {t(lang, 'backToOverview')}</Link>
+      <WorkshopTheme theme={me.data?.workshop?.theme}>
+        <div className="workbench flex min-h-dvh flex-col">
+          <WorkbenchTopbar lang={lang} title={workshopTitle} />
+          <main id="main-content" tabIndex={-1} className="wb-shell flex flex-1 items-center justify-center py-16">
+            <div className="wb-surface w-full max-w-md p-8 text-center">
+              <p className="text-[var(--wb-muted)] mb-6">{awaitingApproval
+                ? (lang === 'de' ? 'Alle Module geschafft! Die Teilnahmebestätigung wird nach der Freigabe durch die Kursleitung verfügbar.' : 'All modules done! The certificate becomes available once your trainer approves it.')
+                : t(lang, 'certNotYet')}</p>
+              <WorkbenchProgress value={donePct} label={t(lang, 'courseProgress')} />
+              <p className="mt-2 mb-6 text-xs text-[var(--wb-muted)]">{doneCount}/{total} {t(lang, 'modules')}</p>
+              {nextOpen && (
+                <Link to={`/lernen/${nextOpen.key}`} className="wb-control mb-3 flex items-center justify-center gap-1.5 rounded-lg bg-[var(--wb-accent)] px-4 py-2 font-semibold text-white hover:bg-[var(--wb-accent-hover)]">
+                  {t(lang, 'continueHere')}: {lang === 'de' ? nextOpen.title : nextOpen.title_en}<Icon name="arrowRight" className="h-4 w-4" />
+                </Link>
+              )}
+              <Link to="/lernen" className="wb-control inline-flex items-center gap-1 text-sm font-medium text-[var(--wb-muted)] hover:text-[var(--wb-accent)]"><Icon name="arrowLeft" className="h-4 w-4" />{t(lang, 'backToOverview')}</Link>
+            </div>
+          </main>
         </div>
-      </main></WorkshopTheme>
+      </WorkshopTheme>
     )
+  }
 
   return (
     <WorkshopTheme theme={me.data?.workshop?.theme}><main id="main-content" tabIndex={-1} className="min-h-dvh bg-slate-100 flex flex-col items-center justify-center p-6 print:bg-white print:p-0">

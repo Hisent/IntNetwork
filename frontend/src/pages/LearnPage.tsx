@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Link, useNavigate } from 'react-router-dom'
 import { learnApi } from '@/lib/learnApi'
@@ -8,6 +9,7 @@ import { useAuthStore } from '@/store/auth'
 import { t, useDocumentLang, type Lang } from '@/lib/i18n'
 import { LangToggle, WorkbenchProgress, WorkbenchSectionTitle, WorkbenchTopbar } from '@/components/workbench/WorkbenchShell'
 import { groupModulesBySection } from '@/lib/moduleGroups'
+import { modulePositions } from '@/lib/modulePosition'
 import { markLockedVisibility } from '@/lib/lockedModules'
 import { WorkshopTheme } from '@/components/WorkshopTheme'
 import { Icon } from '@/components/Icon'
@@ -104,7 +106,15 @@ export interface WorkbenchLearnProps {
 
 export function WorkbenchLearnView({ lang, displayName, modules, groups, progress, company, links, doneCount, donePct, continueAt, titleOf, workshopTitle, workshopSummary, completionText, setLanguage }: WorkbenchLearnProps) {
   const progressOf = (key: string) => progress.find((item) => item.module_key === key)
+  // Anzeigeposition (1..n) statt des internen `order`-Sortierschlüssels —
+  // sonst zeigt der Claude-Workshop "Modul 101" statt "Modul 1" (siehe modulePosition.ts).
+  const positions = modulePositions(modules)
   const complete = modules.length > 0 && doneCount === modules.length
+  // <details> bleibt bewusst uncontrolled (ein kontrolliertes `open`-Prop aus
+  // React-State klappt beim Tippen wieder zu) — der Aufklapp-Zustand pro
+  // Gruppe wird stattdessen über onToggle mitgeführt, nur um Label/Pfeil
+  // passend zum tatsächlichen Zustand zu zeigen.
+  const [openGroups, setOpenGroups] = useState<Set<string>>(() => new Set())
   const isLocked = (module: ModuleMeta) => module.prerequisites.some((key) => !progressOf(key)?.done)
   const hasLocked = modules.some(isLocked)
   // Nur die nächsten paar gesperrten Module bleiben sichtbar (Kursreihenfolge)
@@ -125,7 +135,7 @@ export function WorkbenchLearnView({ lang, displayName, modules, groups, progres
     const rowClass = 'wb-control grid min-w-0 gap-1 px-4 py-3 sm:grid-cols-[40px_minmax(0,1fr)_auto] sm:items-center sm:gap-3'
     const rowContent = <>
         <span aria-hidden="true" className={`row-span-2 grid h-8 w-8 place-items-center rounded-lg text-xs font-bold ${itemProgress?.done ? 'bg-emerald-100 text-[var(--wb-success)]' : locked ? 'bg-[var(--wb-subtle)] text-[var(--wb-muted)]' : 'bg-[var(--wb-accent-soft)] text-[var(--wb-accent)]'}`}>
-          {itemProgress?.done ? <Icon name="check" className="h-4 w-4" /> : module.order}
+          {itemProgress?.done ? <Icon name="check" className="h-4 w-4" /> : positions.get(module.key)}
         </span>
         <span className="min-w-0 font-medium text-[var(--wb-ink)]">{lang === 'de' ? module.title : module.title_en}</span>
         <span className="text-xs tabular-nums text-[var(--wb-muted)]">{itemProgress?.best != null ? `${t(lang, 'best')} ${itemProgress.best}%` : locked ? (lang === 'de' ? 'Voraussetzung offen' : 'Prerequisite open') : t(lang, 'open')}</span>
@@ -186,9 +196,20 @@ export function WorkbenchLearnView({ lang, displayName, modules, groups, progres
                     <div className="wb-surface divide-y divide-[var(--wb-border)] overflow-hidden">
                       {shownMods.map(renderModuleRow)}
                       {hiddenMods.length > 0 && (
-                        <details>
-                          <summary className="wb-control flex cursor-pointer items-center px-4 py-3 text-sm font-medium text-[var(--wb-accent)] hover:underline">
-                            {t(lang, 'showMoreModules')} ({hiddenMods.length})
+                        <details onToggle={(e) => {
+                          // Wert sofort auslesen statt im Updater: `e.currentTarget`
+                          // wird von React nach Abschluss des Handlers genullt, der
+                          // Updater von setState läuft aber ggf. verzögert.
+                          const isOpen = e.currentTarget.open
+                          setOpenGroups((prev) => {
+                            const next = new Set(prev)
+                            if (isOpen) next.add(group.key); else next.delete(group.key)
+                            return next
+                          })
+                        }}>
+                          <summary className="wb-control flex cursor-pointer items-center gap-1.5 px-4 py-3 text-sm font-medium text-[var(--wb-accent)] hover:underline">
+                            {openGroups.has(group.key) ? t(lang, 'showFewerModules') : `${t(lang, 'showMoreModules')} (${hiddenMods.length})`}
+                            <Icon name="arrowUp" className={`h-3.5 w-3.5 transition-transform ${openGroups.has(group.key) ? '' : 'rotate-180'}`} />
                           </summary>
                           <div className="divide-y divide-[var(--wb-border)]">{hiddenMods.map(renderModuleRow)}</div>
                         </details>

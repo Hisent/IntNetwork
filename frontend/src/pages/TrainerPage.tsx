@@ -11,7 +11,9 @@ import { BrandLogo } from '@/components/BrandLogo'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { Icon } from '@/components/Icon'
 import { groupModulesByWorkshop } from '@/lib/trainerModules'
+import { groupModulesBySection } from '@/lib/moduleGroups'
 import { ConfirmDialog } from '@/components/ConfirmDialog'
+import type { ModuleMeta, Workshop } from '@/types'
 // Eigenständiger Lazy-Chunk (siehe App.tsx) — ohne diesen Import würde ein
 // Teilnehmer, der nie /lernen besucht, die Tokens hier nie geladen bekommen.
 import '@/components/workbench/workbench.css'
@@ -138,7 +140,7 @@ function TrainerDashboard({ onLogout }: { onLogout: () => void }) {
             selected={selected} onSelect={setSelected} />
           <div className="min-w-0">
             {selectedCourse
-              ? <CourseDetail course={selectedCourse} workshopTitle={workshopTitle} portalContainer={workbenchRootRef.current} />
+              ? <CourseDetail course={selectedCourse} workshopTitle={workshopTitle} workshops={workshops.data ?? []} portalContainer={workbenchRootRef.current} />
               : <div className="grid h-full min-h-48 place-items-center rounded-xl border border-dashed border-[var(--wb-border)] p-8 text-center text-sm text-[var(--wb-muted)]">
                   Kurs links auswählen, um Module, Präsenz, Feedback und Fortschritt zu sehen.
                 </div>}
@@ -157,7 +159,7 @@ function TrainerDashboard({ onLogout }: { onLogout: () => void }) {
                 Module gebraucht (neuer Trainer-Zugang, gelegentliche
                 Einstellung) — gleichrangig nebeneinander, kleiner als oben. */}
             <div className="grid gap-6 lg:grid-cols-2">
-              <TrainerAccounts />
+              <TrainerAccounts portalContainer={workbenchRootRef.current} />
               <SettingsBlock />
             </div>
             {/* Tertiär: reine Nachschlage-Protokolle, kein Werkzeug für den
@@ -234,7 +236,7 @@ function CourseList({ courses, workshops, workshopTitle, selected, onSelect }: {
 
 // --- Kurs-Detail (Detail) -----------------------------------------------------
 
-function CourseDetail({ course, workshopTitle, portalContainer }: { course: Course; workshopTitle: (key: string | null) => string; portalContainer: HTMLElement | null }) {
+function CourseDetail({ course, workshopTitle, workshops, portalContainer }: { course: Course; workshopTitle: (key: string | null) => string; workshops: Workshop[]; portalContainer: HTMLElement | null }) {
   const qc = useQueryClient()
   const cid = course.id
   const courseMods = useQuery({ queryKey: ['course-modules', cid], queryFn: () => trainerApi.courseModules(cid).then((r) => r.data) })
@@ -272,6 +274,24 @@ function CourseDetail({ course, workshopTitle, portalContainer }: { course: Cour
   const [deleteTarget, setDeleteTarget] = useState<{ id: number; name: string } | null>(null)
   const deleteTriggerRef = useRef<HTMLButtonElement | null>(null)
 
+  // "Module in diesem Kurs" gehört zu genau einem Workshop (der des Kurses) —
+  // anders als ModuleAdmin unten, das über ALLE Workshops hinweg gruppiert.
+  // Trotzdem sind es bei network/claude-code je ~17-18 Module, flach als
+  // Checkbox-Wand kaum überblickbar. Statt ModuleAdmins Suchfeld + zuklappbare
+  // Gruppen (gedacht für Content-Pflege über 30+ Module) reicht hier die
+  // ohnehin vorhandene Tages-/Themen-Gliederung des Workshops
+  // (groupModulesBySection, dieselbe wie in LearnPage/ModulePage für
+  // Teilnehmer) — 4-6 Module je Abschnitt bleiben auf einen Blick lesbar.
+  // Kein Suchfeld (bei dieser Größe kein Skalierungsproblem) und Gruppen
+  // bleiben offen statt <details>: hier soll ein Trainer mehrere Module in
+  // Folge an-/abwählen, nicht erst pro Abschnitt aufklappen.
+  const courseModulesByKey = new Map(courseMods.data?.map((m) => [m.key, m]))
+  const courseModuleMetas: ModuleMeta[] = (courseMods.data ?? []).map((m) => (
+    { key: m.key, title: m.title, title_en: m.title, order: m.order, prerequisites: [], workshop_key: m.workshop_key ?? undefined }
+  ))
+  const courseWorkshop = workshops.find((w) => w.key === course.workshop_key)
+  const courseModuleGroups = groupModulesBySection(courseModuleMetas, courseWorkshop?.sections)
+
   return (
     <div className="flex flex-col gap-6">
       <div className="wb-surface p-4">
@@ -296,13 +316,26 @@ function CourseDetail({ course, workshopTitle, portalContainer }: { course: Cour
 
       <Section title="Module in diesem Kurs">
         <QueryState query={courseMods} empty={courseMods.data?.length === 0}>
-          <div className="grid gap-1.5 sm:grid-cols-2">
-            {courseMods.data?.map((m) => (
-              <label key={m.key} className="flex items-center gap-2 text-sm text-[var(--wb-ink)]">
-                <input type="checkbox" checked={m.active} disabled={toggleMod.isPending}
-                  onChange={(e) => toggleMod.mutate({ module_key: m.key, active: e.target.checked })} />
-                {m.title}
-              </label>
+          <div className="flex flex-col gap-3">
+            {courseModuleGroups.map((g) => (
+              <div key={g.key}>
+                {courseModuleGroups.length > 1 && (
+                  <p className="mb-1 px-0.5 text-[10px] font-semibold uppercase tracking-wide text-[var(--wb-muted)]">{g.title_de}</p>
+                )}
+                <div className="grid gap-1.5 sm:grid-cols-2">
+                  {g.modules.map((meta) => {
+                    const m = courseModulesByKey.get(meta.key)
+                    if (!m) return null
+                    return (
+                      <label key={m.key} className="flex items-center gap-2 text-sm text-[var(--wb-ink)]">
+                        <input type="checkbox" checked={m.active} disabled={toggleMod.isPending}
+                          onChange={(e) => toggleMod.mutate({ module_key: m.key, active: e.target.checked })} />
+                        {m.title}
+                      </label>
+                    )
+                  })}
+                </div>
+              </div>
             ))}
           </div>
         </QueryState>
@@ -364,10 +397,33 @@ function ProgressTable({ dash, requireApproval, onApprove }: {
   requireApproval: boolean
   onApprove: (participantId: number, approved: boolean) => void
 }) {
+  // Scroll-Andeutung statt hartem Abbruch am Kartenrand: klassischer CSS-only
+  // "Scroll-Schatten" (vier Hintergrund-Ebenen, zwei davon scroll-fix
+  // positioniert, zwei mit dem Inhalt mitscrollend). Der Trick blendet den
+  // Schatten automatisch aus, sobald man an den jeweiligen Rand gescrollt
+  // ist bzw. wenn gar nichts zu scrollen ist — keine JS-Scroll-Messung nötig.
+  // Farben über --wb-surface/--wb-border, damit es in beiden Themes passt.
+  // Wichtig: die globale Regel ".workbench table" (workbench.css) setzt JEDE
+  // Tabelle in diesem Bereich selbst auf display:block + overflow-x:auto —
+  // dadurch scrollt hier tatsächlich die <table>, nicht der umgebende
+  // .overflow-x-auto-Div (der bleibt ohne eigenen Overflow). Der Schatten muss
+  // deshalb an der Tabelle selbst hängen, sonst bewegt er sich nie mit.
+  const scrollShadowStyle: React.CSSProperties = {
+    backgroundImage:
+      'linear-gradient(to right, var(--wb-surface) 30%, transparent),' +
+      'linear-gradient(to left, var(--wb-surface) 30%, transparent),' +
+      'radial-gradient(farthest-side at 0 50%, var(--wb-border), transparent),' +
+      'radial-gradient(farthest-side at 100% 50%, var(--wb-border), transparent)',
+    backgroundPosition: 'left, right, left, right',
+    backgroundRepeat: 'no-repeat',
+    backgroundColor: 'var(--wb-surface)',
+    backgroundSize: '32px 100%, 32px 100%, 12px 100%, 12px 100%',
+    backgroundAttachment: 'local, local, scroll, scroll',
+  }
   return (
     <QueryState query={dash}>
       <div className="overflow-x-auto">
-        <table className="w-full border-separate border-spacing-0 text-sm">
+        <table className="w-full border-separate border-spacing-0 text-sm" style={scrollShadowStyle}>
           <thead>
             <tr>
               <th className="sticky left-0 z-10 bg-[var(--wb-subtle)] px-3 py-2 text-left font-semibold text-[var(--wb-ink)]">Teilnehmer</th>
@@ -451,7 +507,7 @@ function ModuleAdmin({ workshops }: { workshops: { key: string; title: { de: str
           ? <p className="text-sm text-[var(--wb-muted)]">Keine Module gefunden.</p>
           : <div className="flex flex-col gap-2">
               {groups.map((g) => (
-                <details key={g.key} open={isGroupOpen(g.key)}
+                <details key={g.key} className="group" open={isGroupOpen(g.key)}
                   onToggle={(e) => {
                     const isOpen = e.currentTarget.open
                     setOpenGroups((prev) => {
@@ -460,7 +516,16 @@ function ModuleAdmin({ workshops }: { workshops: { key: string; title: { de: str
                       return next
                     })
                   }}>
+                  {/* Label allein hätte hier über den Zustand gelogen (bleibt
+                      als reiner Gruppentitel korrekt, aber ohne jede
+                      Rückmeldung ob auf-/zugeklappt). Pfeil dreht sich rein
+                      über CSS (group-open:), NICHT über ein kontrolliertes
+                      open-Prop — sonst würde ein Tastendruck im Suchfeld
+                      (das isGroupOpen()/open oben steuert) den Pfeil aus dem
+                      Tritt bringen, während <details> selbst uncontrolled
+                      bleiben muss (siehe onToggle-Kommentar in ModuleAdmin). */}
                   <summary className="wb-control flex cursor-pointer select-none items-center gap-2 rounded-lg px-1 text-xs font-semibold uppercase tracking-wide text-[var(--wb-muted)] hover:text-[var(--wb-ink)]">
+                    <Icon name="arrowRight" className="h-3.5 w-3.5 shrink-0 transition-transform duration-150 group-open:rotate-90" />
                     {g.title} <span className="font-normal normal-case tracking-normal">({g.modules.length})</span>
                   </summary>
                   <ul className="flex flex-col divide-y divide-[var(--wb-border)]">
@@ -496,7 +561,7 @@ function ModuleAdmin({ workshops }: { workshops: { key: string; title: { de: str
 
 // --- Verwaltung: Trainer-Zugänge ---------------------------------------------
 
-function TrainerAccounts() {
+function TrainerAccounts({ portalContainer }: { portalContainer: HTMLElement | null }) {
   const qc = useQueryClient()
   const [email, setEmail] = useState('')
   const [name, setName] = useState('')
@@ -513,6 +578,13 @@ function TrainerAccounts() {
     onSuccess: () => { setError(''); qc.invalidateQueries({ queryKey: ['trainer-accounts'] }) },
     onError: (e) => setError(errMsg(e)),
   })
+  // Gleiches Sicherheitsniveau wie beim Teilnehmer-Löschen weiter oben in
+  // dieser Datei: ein Trainer-Zugang ist der eigene Login-Zugriff, nicht nur
+  // ein Datensatz — sofortiges Löschen per Klick (ohne Rückfrage) hätte hier
+  // ein höheres Risiko als beim Teilnehmer. Derselbe ConfirmDialog statt
+  // eines zweiten, damit sich beide Löschwege gleich anfühlen.
+  const [deleteTarget, setDeleteTarget] = useState<{ id: number; name: string } | null>(null)
+  const deleteTriggerRef = useRef<HTMLButtonElement | null>(null)
   return (
     <Section title="Trainer-Zugänge">
       <QueryState query={accounts} empty={accounts.data?.length === 0}>
@@ -520,8 +592,9 @@ function TrainerAccounts() {
           {accounts.data?.map((t) => (
             <div key={t.id} className="flex items-center justify-between text-sm">
               <span className="text-[var(--wb-ink)]">{t.name} <span className="text-[var(--wb-muted)]">({t.email})</span></span>
-              <button onClick={() => remove.mutate(t.id)} aria-label={`${t.name} entfernen`}
-                className="text-rose-600 hover:text-rose-700"><Icon name="trash" className="h-4 w-4" /></button>
+              <button
+                onClick={(e) => { deleteTriggerRef.current = e.currentTarget; setDeleteTarget({ id: t.id, name: t.name }) }}
+                aria-label={`${t.name} entfernen`} className="text-rose-600 hover:text-rose-700"><Icon name="trash" className="h-4 w-4" /></button>
             </div>
           ))}
         </div>
@@ -536,6 +609,17 @@ function TrainerAccounts() {
         </button>
       </form>
       {error && <p className="mt-1 text-sm text-rose-600">{error}</p>}
+      <ConfirmDialog
+        open={deleteTarget !== null}
+        title="Trainer-Zugang entfernen"
+        description={<>Zugang von „{deleteTarget?.name}“ endgültig entfernen? Die Person kann sich danach nicht mehr anmelden.</>}
+        confirmLabel="Endgültig entfernen"
+        cancelLabel="Abbrechen"
+        triggerRef={deleteTriggerRef}
+        container={portalContainer}
+        onConfirm={() => { if (deleteTarget) remove.mutate(deleteTarget.id); setDeleteTarget(null) }}
+        onCancel={() => setDeleteTarget(null)}
+      />
     </Section>
   )
 }

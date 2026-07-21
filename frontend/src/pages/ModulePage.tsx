@@ -17,6 +17,7 @@ import type { Block, ModuleDetail, ModuleMeta, ProgressItem } from '@/types'
 import { LangToggle, WorkbenchProgress, WorkbenchSectionTitle, WorkbenchTopbar } from '@/components/workbench/WorkbenchShell'
 import { readPercent } from '@/components/workbench/workbenchLogic'
 import { groupModulesBySection, type ModuleSection } from '@/lib/moduleGroups'
+import { modulePositions } from '@/lib/modulePosition'
 import { WorkshopTheme } from '@/components/WorkshopTheme'
 
 export function ModulePage() {
@@ -134,6 +135,9 @@ function WorkbenchModuleNav({ lang, current, modules, sections, progress }: { la
   const progressOf = (key: string) => progress.find((item) => item.module_key === key)
   const unlocked = (module: ModuleMeta) => module.key === current || module.prerequisites.every((key) => progressOf(key)?.done)
   const groups = groupModulesBySection(modules, sections)
+  // Anzeigeposition (1..n) statt des internen `order`-Sortierschlüssels —
+  // sonst zeigt der Claude-Workshop "101" statt "1" (siehe modulePosition.ts).
+  const positions = modulePositions(modules)
   return (
     <nav aria-label={lang === 'de' ? 'Kursmodule' : 'Course modules'} className="space-y-3">
       {groups.map((group) => (
@@ -145,7 +149,7 @@ function WorkbenchModuleNav({ lang, current, modules, sections, progress }: { la
               const itemProgress = progressOf(module.key)
               const rowClass = `wb-control grid grid-cols-[28px_minmax(0,1fr)] items-center gap-2 rounded-lg px-2 py-1.5 text-sm ${module.key === current ? 'bg-[var(--wb-accent-soft)] font-semibold text-[var(--wb-accent)]' : available ? 'text-[var(--wb-muted)] hover:bg-white hover:text-[var(--wb-ink)]' : 'cursor-not-allowed text-slate-400'}`
               const rowContent = <>
-                  <span aria-hidden="true" className={`grid h-6 w-6 place-items-center rounded-md text-[10px] font-bold ${itemProgress?.done ? 'bg-emerald-100 text-[var(--wb-success)]' : module.key === current ? 'bg-[var(--wb-accent)] text-white' : 'bg-white'}`}>{itemProgress?.done ? <Icon name="check" className="h-3.5 w-3.5" /> : module.order}</span>
+                  <span aria-hidden="true" className={`grid h-6 w-6 place-items-center rounded-md text-[10px] font-bold ${itemProgress?.done ? 'bg-emerald-100 text-[var(--wb-success)]' : module.key === current ? 'bg-[var(--wb-accent)] text-white' : 'bg-white'}`}>{itemProgress?.done ? <Icon name="check" className="h-3.5 w-3.5" /> : positions.get(module.key)}</span>
                   <span className="min-w-0">{lang === 'de' ? module.title : module.title_en}</span>
                 </>
               return available
@@ -161,6 +165,9 @@ function WorkbenchModuleNav({ lang, current, modules, sections, progress }: { la
 
 export function WorkbenchModuleView({ lang, moduleKey, keyScope, module, modules, sections, progress, read, textIndexes, toc, commentsOn, showGlossary, nextModule, justPassed, setLanguage, onToggleRead, onQuizResult }: WorkbenchModuleProps) {
   const readPct = readPercent(textIndexes, read)
+  // Position in der Kursreihenfolge (1..n) statt des internen `order`-Werts
+  // (siehe modulePosition.ts) — betrifft auch den Claude-Workshop (order 101+).
+  const position = modulePositions(modules).get(moduleKey) ?? module.order
   const languageControl = (
     <><LangToggle lang={lang} onChange={setLanguage} className="hidden sm:flex" />{showGlossary && <div className="xl:hidden"><GlossaryPanel moduleKey={moduleKey} lang={lang} /></div>}</>
   )
@@ -185,7 +192,7 @@ export function WorkbenchModuleView({ lang, moduleKey, keyScope, module, modules
 
           <main id="main-content" tabIndex={-1} className="wb-module-content">
             <Link to="/lernen" className="wb-control mb-2 inline-flex items-center gap-1 text-sm font-medium text-[var(--wb-muted)] hover:text-[var(--wb-accent)]"><Icon name="arrowLeft" className="h-4 w-4" />{t(lang, 'modules')}</Link>
-            <p className="text-sm font-semibold text-[var(--wb-accent)]">{lang === 'de' ? `Modul ${module.order}` : `Module ${module.order}`}</p>
+            <p className="text-sm font-semibold text-[var(--wb-accent)]">{lang === 'de' ? `Modul ${position}` : `Module ${position}`}</p>
             <h1 className="mt-2 text-3xl font-bold leading-tight tracking-tight text-[var(--wb-ink)] sm:text-4xl">{module.title}</h1>
             {module.scenario && <div className="wb-scenario mt-5 border-l-2 border-[var(--wb-accent)] pl-4 text-sm leading-relaxed text-[var(--wb-muted)]"><Markdown>{module.scenario}</Markdown></div>}
 
