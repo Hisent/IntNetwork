@@ -132,6 +132,21 @@ aufrufen — die Antwort ist `{"enabled": false}`.
 
   Erwartet: `none`. Steht dort etwas anderes, hat die Plattform die Vorgabe
   überschrieben — dann das Lab abschalten, bis das geklärt ist.
+- **`PermissionError: '/queue/in'` im Runner-Log:** Das Volume gehört `root`,
+  der Runner läuft unprivilegiert (uid 10001). Das Image legt `/queue/in` und
+  `/queue/out` bereits mit passender Eigentümerschaft an; Docker übernimmt sie
+  aber nur, wenn das Volume beim ersten Start **leer** ist. Wurde das Volume
+  vorher schon von einer älteren Fassung angelegt, einmal entfernen und neu
+  ausrollen — es enthält nur Aufträge in Bearbeitung, nichts Bewahrenswertes:
+
+  ```
+  docker volume ls | grep lab_queue
+  docker volume rm <projekt>_lab_queue
+  ```
+
+  Der Runner stirbt in diesem Fall übrigens nicht, sondern meldet die Ursache
+  und versucht es alle fünf Sekunden erneut; nach dem Beheben läuft er ohne
+  Eingriff weiter.
 - **Dauerlast:** `RUNNER_MAX_PARALLEL` senken oder das Lab abschalten. Läufe,
   die regelmäßig in die Zeitgrenze laufen, deuten eher auf zu ambitionierte
   Übungs-Playbooks hin als auf Missbrauch.

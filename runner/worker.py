@@ -193,13 +193,33 @@ def _aufraeumen() -> None:
                 pass
 
 
-def main() -> None:
+def _warteschlange_vorbereiten() -> bool:
+    """Legt in/ und out/ an. Gibt False zurück, wenn die Rechte fehlen.
+
+    Bewusst kein Absturz: Ein Container, der beim Start sofort stirbt, landet in
+    einer Neustartschleife und die eigentliche Ursache scrollt aus dem Log. Wir
+    melden sie stattdessen deutlich und versuchen es weiter — sobald die Rechte
+    stimmen, arbeitet der Runner ohne Eingriff weiter.
+    """
     for ordner in ("in", "out"):
-        (QUEUE / ordner).mkdir(parents=True, exist_ok=True)
+        try:
+            (QUEUE / ordner).mkdir(parents=True, exist_ok=True)
+        except OSError as fehler:
+            log(f"Warteschlange {QUEUE / ordner} nicht nutzbar: {fehler}. "
+                f"Erwartet wird ein Volume, in das der Runner-Benutzer (uid "
+                f"{os.getuid()}) schreiben darf — siehe runner/Dockerfile und "
+                f"docs/lab-sicherheit.md.")
+            return False
         try:
             os.chmod(QUEUE / ordner, 0o777)  # Backend und Runner laufen als verschiedene Nutzer
         except OSError:
-            pass
+            pass  # Rechte reichen bereits, sonst waere das mkdir gescheitert
+    return True
+
+
+def main() -> None:
+    while not _warteschlange_vorbereiten():
+        time.sleep(5)
     log(f"Lab-Runner bereit. Warteschlange: {QUEUE}, parallel: {MAX_PARALLEL}, "
         f"Zeitgrenze: {TIMEOUT_SECONDS:.0f}s, Netzwerk: keines")
 
