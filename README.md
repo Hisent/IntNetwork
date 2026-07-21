@@ -118,3 +118,11 @@ automatisch gelöscht. Für einen täglichen Cron-Lauf:
 
 Zurückspielen mit `ops/restore.sh pfad/zum/dump.sql.gz` (fragt vor dem
 Überschreiben der laufenden DB explizit nach Bestätigung).
+
+## Ansible-Lab
+
+Ein optionaler Runner-Dienst (`runner/`) kann Teilnehmer-Playbooks aus dem
+Claude-Code-Workshop-Kurs wirklich ausführen — isoliert in einem eigenen
+Container ohne Geheimnisse und ohne Weg ins Internet. Standardmäßig ist er
+aus: Bevor er aktiviert wird, unbedingt [`docs/lab-sicherheit.md`](docs/lab-sicherheit.md)
+lesen (Bedrohungsmodell, Grenzen, Ein-/Ausschalten, Betrieb).

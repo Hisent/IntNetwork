@@ -57,4 +57,5 @@ export const WIDGETS: Record<string, ComponentType<{ lang: Lang }>> = {
   'hook-lifecycle': lazy(() => import('@/widgets/hooklife/HookLifecycleWidget').then((m) => ({ default: m.HookLifecycle }))),
   'mcp-inspector': lazy(() => import('@/widgets/mcpinspector/McpInspectorWidget').then((m) => ({ default: m.McpInspector }))),
   'agent-orchestrator': lazy(() => import('@/widgets/orchestrator/OrchestratorWidget').then((m) => ({ default: m.Orchestrator }))),
+  'ansible-lab': lazy(() => import('@/widgets/ansiblelab/AnsibleLabWidget').then((m) => ({ default: m.AnsibleLab }))),
 }

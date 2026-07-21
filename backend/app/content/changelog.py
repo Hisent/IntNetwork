@@ -1,5 +1,17 @@
 # Projekt-Changelog (nur für Trainer sichtbar). Neueste zuerst.
 CHANGELOG = [
+    {"date": "2026-07-21", "title": "v1.30.0 — Ansible-Lab: echte Playbook-Ausführung",
+     "text": "Vier Module des Ansible-Lehrgangs haben jetzt ein echtes Lab: Playbook "
+             "im Browser schreiben, ausführen lassen und die Originalausgabe von "
+             "ansible-playbook lesen — samt PLAY RECAP. Beim zweiten Lauf ordnet die "
+             "Oberfläche ein, was sich geändert hat und warum manche Tasks weiterhin "
+             "changed melden; damit wird Idempotenz erlebbar statt nur beschrieben. "
+             "Übungen gibt es für Idempotenz, Fehlermeldungen, Kontrollfluss und "
+             "Variablen-Vorrang. Jeder Mensch bekommt ein eigenes Arbeitsverzeichnis, "
+             "das zwischen den Läufen bestehen bleibt. Die Ausführung läuft in einem "
+             "abgeschotteten Dienst ohne Zugriff auf Daten und ohne Internetverbindung "
+             "und ist standardmäßig ausgeschaltet — ohne sie bleiben die Aufgaben als "
+             "Denkaufgaben lesbar. Details in docs/lab-sicherheit.md."},
     {"date": "2026-07-21", "title": "v1.29.0 — Zwei neue Lehrgänge: Infoblox DDI und Ansible Automation",
      "text": "Das Portal hat zwei weitere Lehrgänge. „Infoblox DDI“ mit 16 Modulen führt "
              "von der Grid-Architektur über DNS, DHCP und IPAM bis zu Backup, WAPI und "

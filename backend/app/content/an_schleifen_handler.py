@@ -302,7 +302,31 @@ SCHLEIFEN_HANDLER_MODULE = {
                              'Ansible configuration) forces the handlers to run anyway. Useful, '
                              'for example, when an already rolled-out configuration state needs '
                              'to be reloaded consistently, even if a later, unrelated task '
-                             'fails.'}}],
+                             'fails.'}},
+            {'type': 'text',
+             'value': {'de': '## Praxis: Kontrollfluss im Lab testen\n'
+                             '\n'
+                             'Wähle im Lab-Widget unten die Vorlage **Kontrollfluss**. Sie '
+                             'kombiniert `when`, `loop` und einen per `notify` ausgelösten '
+                             'Handler. Lass sie laufen und beobachte in der Ausgabe genau: '
+                             'Welche Iterationen der Schleife werden durch `when` als `skipped` '
+                             'markiert, und feuert der Handler am Ende tatsächlich nur einmal? '
+                             'Ist das Lab bei euch nicht aktiv, überlege anhand des '
+                             'Playbook-Texts, welche Zeilen `skipped` melden müssten und wann '
+                             'genau der Handler laufen würde.',
+                       'en': '## Hands-on: testing control flow in the lab\n'
+                             '\n'
+                             'Choose the **Control flow** template in the lab widget below. It '
+                             'combines `when`, `loop`, and a handler triggered via `notify`. Run '
+                             'it and watch the output closely: which loop iterations does `when` '
+                             'mark as `skipped`, and does the handler actually fire only once at '
+                             'the end? If the lab is not enabled for you, work out from the '
+                             'playbook text which lines should report `skipped` and exactly when '
+                             'the handler would run.'}},
+            {'type': 'widget', 'id': 'ansible-lab',
+             'note': 'Die Kontrollfluss-Vorlage macht sichtbar, was die Theorie oben nur '
+                     'beschreibt: skipped-Zeilen durch when und der genaue Zeitpunkt des '
+                     'Handler-Laufs.'}],
  'quiz': {'questions': [{'id': 'sh1',
                          'type': 'single',
                          'prompt': {'de': 'Ein Task nutzt loop: [a, b, c]. Wie oft läuft der '

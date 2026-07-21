@@ -280,7 +280,28 @@ IDEMPOTENZ_MODULE = {
                              'than in a real run, and tasks that depend on changes simulated '
                              'earlier in the same run can produce incorrect predictions. The '
                              'reliable idempotency test remains running twice for real: run it '
-                             'once, run it a second time, expect `changed=0`.'}}],
+                             'once, run it a second time, expect `changed=0`.'}},
+            {'type': 'text',
+             'value': {'de': '## Praxis: Idempotenz im Lab prüfen\n'
+                             '\n'
+                             'Wähle im Lab die Vorlage **Idempotenz** und lass das Playbook '
+                             'zweimal laufen. Achte auf die Zeile `PLAY RECAP` — was ändert sich '
+                             'beim zweiten Lauf, und warum bleibt genau eine Aufgabe bei '
+                             '`changed`? Ist das Lab bei euch nicht aktiv, überlege anhand der '
+                             'Beispiele oben, welche Tasks beim zweiten Lauf voraussichtlich `ok` '
+                             'statt `changed` melden würden.',
+                       'en': '## Hands-on: checking idempotency in the lab\n'
+                             '\n'
+                             'Choose the **Idempotency** template in the lab and run the '
+                             'playbook twice. Watch the `PLAY RECAP` line — what changes on the '
+                             'second run, and why does exactly one task stay at `changed`? If '
+                             'the lab is not enabled for you, use the examples above to work out '
+                             'which tasks would likely report `ok` instead of `changed` on the '
+                             'second run.'}},
+            {'type': 'widget', 'id': 'ansible-lab',
+             'note': 'Kernübung des Kurses — hier zeigt sich live, was der Abschnitt zu Grenzen '
+                     'des Check-Modus oben ankündigt: der doppelte echte Lauf als verlässlicher '
+                     'Idempotenz-Test.'}],
  'quiz': {'questions': [{'id': 'fi1',
                          'type': 'single',
                          'prompt': {'de': 'Wie testest du praktisch, ob ein Playbook idempotent '

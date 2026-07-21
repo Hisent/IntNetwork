@@ -107,6 +107,7 @@ from app.routers import trainer_content as trainer_content_router  # noqa: E402
 from app.routers import trainer_accounts as trainer_accounts_router  # noqa: E402
 from app.routers import workshops as workshops_router  # noqa: E402
 from app.routers import certificate as certificate_router  # noqa: E402
+from app.routers import lab as lab_router  # noqa: E402
 from app.routers import trainer_audit as trainer_audit_router  # noqa: E402
 _api.include_router(auth_router.router)
 _api.include_router(courses_router.router)
@@ -123,6 +124,7 @@ _api.include_router(trainer_content_router.router)
 _api.include_router(trainer_accounts_router.router)
 _api.include_router(workshops_router.router)
 _api.include_router(certificate_router.router)
+_api.include_router(lab_router.router)
 _api.include_router(trainer_audit_router.router)
 
 app.include_router(_api)

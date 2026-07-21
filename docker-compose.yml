@@ -28,9 +28,20 @@ services:
       SECRET_KEY: ${SECRET_KEY}
       ADMIN_EMAIL: ${ADMIN_EMAIL}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      # Ansible-Lab: nur aktiv, wenn BEIDE Werte gesetzt sind (siehe
+      # backend/app/config.py und docs/lab-sicherheit.md). Leer in der .env
+      # lassen, um das Lab auszuschalten — die API antwortet dann mit 503.
+      LAB_RUNNER_URL: ${LAB_RUNNER_URL}
+      LAB_RUNNER_TOKEN: ${LAB_RUNNER_TOKEN}
     depends_on:
       db:
         condition: service_healthy
+    # Zusaetzlich am internen Lab-Netz, damit es den Runner erreicht (siehe
+    # runner-Dienst unten). "default" muss hier explizit mit rein, sonst
+    # verliert das Backend seine bisherige Verbindung zu db/frontend.
+    networks:
+      - default
+      - lab_internal
     # ACHTUNG: KEINEN healthcheck für backend/frontend eintragen. Coolify routet
     # per Traefik ausschliesslich auf Container im Zustand "healthy" — ein Check,
     # der in dieser Umgebung anders ausfaellt als lokal gedacht, nimmt den Dienst
@@ -59,5 +70,72 @@ services:
           cpus: "0.5"
           memory: 256M
 
+  # Ansible-Lab-Runner: fuehrt Teilnehmer-Playbooks wirklich aus (siehe
+  # runner/app.py, dort steht der Kommentarkopf mit dem Bedrohungsmodell —
+  # bitte vor Aenderungen an diesem Dienst lesen). Ohne gesetzte
+  # LAB_RUNNER_URL/LAB_RUNNER_TOKEN beim Backend bleibt er zwar erreichbar,
+  # aber der Runner selbst lehnt dann jede Anfrage ab (RUNNER_TOKEN waere
+  # leer), das Backend ruft ihn in dem Fall ohnehin nie an.
+  runner:
+    build:
+      context: ./runner
+    restart: unless-stopped
+    # Kein "ports:"! Der Runner fuehrt Fremdcode aus (Playbooks) und darf
+    # ausschliesslich vom Backend ueber das interne Netz erreichbar sein,
+    # nie direkt von aussen.
+    networks:
+      - lab_internal
+    environment:
+      # Muss mit LAB_RUNNER_TOKEN beim Backend uebereinstimmen (derselbe
+      # Wert aus der .env) — das ist die einzige Authentifizierung vor /run.
+      RUNNER_TOKEN: ${LAB_RUNNER_TOKEN}
+      # Harte Zeitgrenze je Playbook-Lauf in Sekunden; verhindert, dass ein
+      # haengender/absichtlich langsamer Lauf einen Ausfuehrungsslot blockiert.
+      RUNNER_TIMEOUT: ${RUNNER_TIMEOUT:-30}
+      # Wie viele Laeufe gleichzeitig ausgefuehrt werden duerfen; begrenzt die
+      # Gesamtlast, die Teilnehmende gemeinsam erzeugen koennen.
+      RUNNER_MAX_PARALLEL: ${RUNNER_MAX_PARALLEL:-2}
+    # Haertung passend zum Bedrohungsmodell in runner/app.py: ein Playbook ist
+    # ausfuehrbarer Code, deshalb ist dieser Container die Sicherheitsgrenze,
+    # nicht eine Filterliste fuer Ansible-Module. Jede Zeile unten nimmt dem
+    # Container etwas weg, das ein boesartiges Playbook sonst missbrauchen
+    # koennte — bitte nicht "aufraeumen", ohne das Bedrohungsmodell neu zu
+    # bewerten.
+    cap_drop:
+      - ALL  # keine einzige Linux-Capability wird fuer "ansible-playbook -c local" gebraucht
+    security_opt:
+      - no-new-privileges:true  # verhindert Rechteausweitung z.B. ueber SUID-Binaries im Image
+    read_only: true  # Root-Dateisystem nur lesbar: ein Playbook kann das Image/den Code nicht veraendern
+    tmpfs:
+      # Einziger Schreibort im Container. Der Runner legt hier je Lauf ein
+      # frisches Arbeitsverzeichnis an (siehe runner/app.py, tempfile.mkdtemp)
+      # und loescht es danach wieder; "noexec" verhindert, dass ein Playbook
+      # sich hier eine eigene Binärdatei ablegt und ausfuehrt.
+      - /tmp:size=64m,mode=1777,noexec
+    pids_limit: 128  # Bremse gegen Fork-Bomben/Prozess-Explosion durch ein boesartiges Playbook
+    deploy:
+      resources:
+        limits:
+          # Bewusst knapp: reicht fuer RUNNER_MAX_PARALLEL=2 kleine
+          # Lab-Playbooks, begrenzt aber, wie viel Rechenzeit/Speicher
+          # angemeldete Teilnehmende gemeinsam beanspruchen koennen.
+          cpus: "1"
+          memory: 768M
+    # ACHTUNG: KEIN healthcheck hier eintragen! Genau ein fehlschlagender
+    # Healthcheck (beim Backend/Frontend) hat heute (2026-07-21) schon einen
+    # Ausfall verursacht, siehe Warnkommentar oben beim Backend-Dienst. Der
+    # Runner haengt zusaetzlich nicht hinter Traefik (kein "ports:"), ein
+    # "unhealthy" wuerde ihn aber trotzdem vom internen Netz trennen und dem
+    # Backend die Verbindung kappen, ohne dass es dafuer einen Nutzen gibt.
+
 volumes:
   postgres_data:
+
+# Getrenntes, internes Netz fuer den Lab-Runner: "internal: true" heisst, das
+# Netz hat keine Route ins Internet und keinen Zugriff auf Traefik/aussen. Der
+# Runner haengt NUR hier, das Backend zusaetzlich noch am normalen
+# "default"-Netz (fuer db/frontend). db und frontend bleiben unangetastet auf
+# "default" (implizit, da sie kein eigenes "networks:" definieren).
+networks:
+  lab_internal:
+    internal: true

@@ -314,6 +314,40 @@ PLAYBOOKS_MODULE = {
                          'host at that point. `web02` completed both tasks without error '
                          '(`ok=2`, `failed=0`). Overall, only one host made it through the '
                          'playbook completely without error.'}},
+        {'type': 'text',
+         'value': {'de': '## Praxis: Das Ansible-Lab ausprobieren\n'
+                         '\n'
+                         'Ab hier lässt sich ein Playbook nicht nur lesen, sondern im Lab-Widget '
+                         'unten wirklich ausführen. Wähle dort die Vorlage **Fehler lesen**: Sie '
+                         'enthält ein Playbook mit einem absichtlich kaputten Modulnamen bzw. '
+                         'YAML-Fehler, ähnlich dem Beispiel weiter oben. Lass es laufen, lies die '
+                         'Fehlermeldung genau, korrigiere die betroffene Zeile und starte erneut, '
+                         'bis das Playbook sauber durchläuft.\n'
+                         '\n'
+                         'Das Lab ist nicht auf jedem Server aktiviert — es steht nur zur '
+                         'Verfügung, wenn eure Umgebung dafür freigeschaltet wurde. Ist es bei '
+                         'euch verfügbar, probiere es direkt aus. Fehlt es, funktioniert die '
+                         'Übung trotzdem als Denkaufgabe: Überlege anhand des kaputten Playbooks '
+                         'oben, welche Fehlermeldung `ansible-playbook` ausgeben würde, und wie '
+                         'du sie reparieren würdest.',
+                   'en': '## Hands-on: trying the Ansible lab\n'
+                         '\n'
+                         'From here on, a playbook can not only be read but actually run, in the '
+                         'lab widget below. Choose the **Reading errors** template there: it '
+                         'contains a playbook with a deliberately broken module name or YAML '
+                         'error, similar to the example above. Run it, read the error message '
+                         'carefully, fix the offending line, and rerun until the playbook '
+                         'completes cleanly.\n'
+                         '\n'
+                         'The lab is not enabled on every server — it is only available if your '
+                         'environment has it switched on. If it is available for you, try it '
+                         'directly. If it is missing, the exercise still works as a thought '
+                         'exercise: using the broken playbook above, work out what error message '
+                         '`ansible-playbook` would print, and how you would fix it.'}},
+        {'type': 'widget', 'id': 'ansible-lab',
+         'note': 'Erste Begegnung mit dem echten Lab im Kurs — kurz ansagen, dass es je nach '
+                 'Server-Konfiguration deaktiviert sein kann, damit die Denkaufgaben-Variante '
+                 'nicht wie ein Fehler wirkt.'},
     ],
     'quiz': {'questions': [
         {'id': 'pb1',

@@ -130,6 +130,26 @@ VARIABLEN_MODULE = {
                      'options_en': ['nginx (role default)', 'apache2 (group_vars)',
                                     'httpd (extra-vars)']}},
         {'type': 'text',
+         'value': {'de': '## Praxis: Vorrang selbst auslösen\n'
+                         '\n'
+                         'Wähle im Lab die Vorlage **Variablen-Vorrang**. Sie setzt dieselbe '
+                         'Variable einmal in `vars` und übergibt beim Aufruf zusätzlich einen '
+                         'abweichenden Wert per `extra_vars`. Lass das Playbook laufen und prüfe, '
+                         'welcher Wert sich tatsächlich durchsetzt — passt das Ergebnis zur Regel '
+                         'oben? Ist das Lab bei euch nicht aktiv, beantworte die Frage anhand des '
+                         '`paket_name`-Beispiels oben, statt sie praktisch nachzuvollziehen.',
+                   'en': '## Hands-on: triggering precedence yourself\n'
+                         '\n'
+                         'Choose the **Variable precedence** template in the lab. It sets the '
+                         'same variable once in `vars` and additionally passes a different value '
+                         'at invocation via `extra_vars`. Run the playbook and check which value '
+                         'actually wins — does the result match the rule above? If the lab is '
+                         'not enabled for you, answer the question using the `paket_name` '
+                         'example above instead of trying it hands-on.'}},
+        {'type': 'widget', 'id': 'ansible-lab',
+         'note': 'Direkte praktische Fortsetzung des paket_name-Beispiels oben — diesmal mit '
+                 'echtem -e-Aufruf statt nur auf dem Papier.'},
+        {'type': 'text',
          'value': {'de': '## Laufzeit-Variablen: `set_fact` und `register`\n'
                          '\n'
                          'Nicht alle Variablen stehen schon vor dem Lauf fest — manche entstehen '
