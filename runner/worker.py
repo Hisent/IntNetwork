@@ -112,6 +112,12 @@ def _ausfuehren(auftrag: dict) -> dict:
             "ANSIBLE_NOCOLOR": "1",
             "ANSIBLE_DEPRECATION_WARNINGS": "0",
             "ANSIBLE_SYSTEM_WARNINGS": "0",
+            # Ohne das steht ueber JEDEM Lauf eine Warnung, dass der
+            # Python-Interpreter automatisch gefunden wurde. Im Container ist
+            # genau ein Interpreter installiert, die Warnung hat also keinen
+            # Erkenntniswert und lenkt von der eigentlichen Ausgabe ab.
+            # "auto_silent" behaelt die automatische Erkennung und schweigt nur.
+            "ANSIBLE_PYTHON_INTERPRETER": "auto_silent",
             # Nur Interpreter-Rauschen unterdrücken; Ansibles eigene Meldungen
             # bleiben sichtbar, sie sind Lernstoff.
             "PYTHONWARNINGS": "ignore::SyntaxWarning",
