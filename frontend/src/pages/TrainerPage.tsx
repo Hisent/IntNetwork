@@ -1,4 +1,4 @@
-import { useId, useState, type ReactNode } from 'react'
+import { useId, useRef, useState, type ReactNode } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { authApi, errMsg } from '@/lib/api'
@@ -11,24 +11,33 @@ import { BrandLogo } from '@/components/BrandLogo'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { Icon } from '@/components/Icon'
 import { groupModulesByWorkshop } from '@/lib/trainerModules'
+import { ConfirmDialog } from '@/components/ConfirmDialog'
+// Eigenständiger Lazy-Chunk (siehe App.tsx) — ohne diesen Import würde ein
+// Teilnehmer, der nie /lernen besucht, die Tokens hier nie geladen bekommen.
+import '@/components/workbench/workbench.css'
 
 // --- kleine Bausteine ---------------------------------------------------------
+// Ab hier durchgehend auf den Token-Klassen aus workbench.css (--wb-surface,
+// --wb-ink, --wb-muted, --wb-border, --wb-accent, --wb-accent-soft) statt
+// rohem slate/teal/white — damit sich das Trainer-Dashboard wie Teil derselben
+// Anwendung anfühlt und Dark Mode ohne Sonderregeln erbt (Umschaltung über
+// die .workbench-Wurzel in TrainerDashboard/TrainerLogin unten).
 
 function Field({ label, className = '', ...props }: { label: string } & React.InputHTMLAttributes<HTMLInputElement>) {
   const id = useId()
   return (
-    <label htmlFor={id} className="flex min-w-40 flex-1 flex-col gap-1 text-xs font-medium text-slate-600">
+    <label htmlFor={id} className="flex min-w-40 flex-1 flex-col gap-1 text-xs font-medium text-[var(--wb-muted)]">
       {label}
-      <input id={id} className={`rounded-lg border px-3 py-2 text-sm font-normal text-slate-900 ${className}`} {...props} />
+      <input id={id} className={`wb-control rounded-lg border border-[var(--wb-border)] bg-[var(--wb-surface)] px-3 py-2 text-sm font-normal text-[var(--wb-ink)] outline-none focus:border-[var(--wb-accent)] focus:ring-2 focus:ring-[var(--wb-accent-soft)] ${className}`} {...props} />
     </label>
   )
 }
 
-function Section({ title, action, children }: { title: string; action?: ReactNode; children: ReactNode }) {
+function Section({ title, action, children, className = '' }: { title: string; action?: ReactNode; children: ReactNode; className?: string }) {
   return (
-    <section className="rounded-xl border bg-white p-4">
+    <section className={`wb-surface p-4 ${className}`}>
       <div className="mb-3 flex items-center justify-between gap-2">
-        <h3 className="text-sm font-semibold text-slate-700">{title}</h3>
+        <h3 className="text-sm font-semibold text-[var(--wb-ink)]">{title}</h3>
         {action}
       </div>
       {children}
@@ -37,9 +46,9 @@ function Section({ title, action, children }: { title: string; action?: ReactNod
 }
 
 function QueryState({ query, empty, children }: { query: { isLoading: boolean; isError: boolean }; empty?: boolean; children: ReactNode }) {
-  if (query.isLoading) return <p className="text-sm text-slate-400">Lädt …</p>
+  if (query.isLoading) return <p className="text-sm text-[var(--wb-muted)]">Lädt …</p>
   if (query.isError) return <p className="text-sm text-rose-600">Konnte nicht geladen werden.</p>
-  if (empty) return <p className="text-sm text-slate-400">Nichts vorhanden.</p>
+  if (empty) return <p className="text-sm text-[var(--wb-muted)]">Nichts vorhanden.</p>
   return <>{children}</>
 }
 
@@ -54,7 +63,7 @@ function CopyCode({ code }: { code: string }) {
         setTimeout(() => setCopied(false), 1500)
       }}
       title="Kurs-Code kopieren"
-      className="shrink-0 font-mono text-sm text-teal-600 hover:text-teal-700 hover:underline"
+      className="shrink-0 font-mono text-sm text-[var(--wb-accent)] hover:text-[var(--wb-accent-hover)] hover:underline"
     >
       {copied ? 'Kopiert ✓' : code}
     </button>
@@ -79,14 +88,14 @@ function TrainerLogin({ onLogin }: { onLogin: (t: string) => void }) {
     catch { setErr('Login fehlgeschlagen.') }
   }
   return (
-    <div className="min-h-dvh flex items-center justify-center bg-slate-50 p-4">
-      <form onSubmit={submit} className="w-full max-w-sm rounded-2xl bg-white shadow p-8 flex flex-col gap-3">
+    <div className="workbench flex min-h-dvh items-center justify-center p-4">
+      <form onSubmit={submit} className="wb-surface flex w-full max-w-sm flex-col gap-3 p-8 shadow">
         <Link to="/" className="mb-3"><BrandLogo className="h-9 text-lg" showName /></Link>
-        <h1 className="text-xl font-bold text-slate-900">Trainer-Login</h1>
+        <h1 className="text-xl font-bold text-[var(--wb-ink)]">Trainer-Login</h1>
         <Field label="E-Mail" type="email" autoComplete="username" placeholder="trainer@beispiel.de" value={email} onChange={(e) => setEmail(e.target.value)} />
         <Field label="Passwort" type="password" autoComplete="current-password" placeholder="••••••••" value={pw} onChange={(e) => setPw(e.target.value)} />
-        {err && <p className="text-sm text-red-600">{err}</p>}
-        <button className="mt-1 rounded-lg bg-teal-600 hover:bg-teal-700 text-white py-2 font-medium">Anmelden</button>
+        {err && <p className="text-sm text-rose-600">{err}</p>}
+        <button className="wb-control mt-1 rounded-lg bg-[var(--wb-accent)] py-2 font-medium text-white hover:bg-[var(--wb-accent-hover)]">Anmelden</button>
       </form>
     </div>
   )
@@ -100,46 +109,63 @@ function TrainerDashboard({ onLogout }: { onLogout: () => void }) {
   const workshops = useQuery({ queryKey: ['workshops'], queryFn: () => workshopApi.list().then((r) => r.data) })
   const workshopTitle = (key: string | null) => workshops.data?.find((w) => w.key === key)?.title.de ?? 'Bestandskurs'
   const selectedCourse = courses.data?.find((c) => c.id === selected) ?? null
+  // Portal-Ziel für ConfirmDialog: die --wb-*-Tokens werden nur innerhalb
+  // dieser .workbench-Wurzel definiert (siehe workbench.css). Ein Portal nach
+  // document.body (wie GlossaryPanel.tsx es macht) läge außerhalb davon und
+  // die Dialogkarte bliebe ohne Hintergrundfarbe.
+  const workbenchRootRef = useRef<HTMLDivElement | null>(null)
 
   return (
-    <div className="min-h-dvh bg-slate-50 p-6 sm:p-10">
-      <div className="max-w-6xl mx-auto">
+    <div className="workbench p-6 sm:p-10" ref={workbenchRootRef}>
+      <div className="mx-auto max-w-6xl">
         <header className="mb-8 flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <Link to="/"><BrandLogo className="h-9 text-lg" showName /></Link>
-            <h1 className="text-2xl font-bold text-slate-900">Trainer</h1>
+            <h1 className="text-2xl font-bold text-[var(--wb-ink)]">Trainer</h1>
             <VersionBadge tone="dark" />
           </div>
           <div className="flex items-center gap-2">
-            <ThemeToggle className="text-slate-400" />
-            <button onClick={onLogout} className="text-sm text-slate-400 hover:text-slate-600">Abmelden</button>
+            <ThemeToggle className="text-[var(--wb-muted)]" />
+            <button onClick={onLogout} className="text-sm text-[var(--wb-muted)] hover:text-[var(--wb-ink)]">Abmelden</button>
           </div>
         </header>
 
         {/* Master-Detail: Kurse wählen (links) → Kurs-Detail (rechts) */}
-        <h2 className="mb-4 text-xs font-bold uppercase tracking-[0.16em] text-slate-400">Kursübersicht</h2>
+        <h2 className="mb-4 text-xs font-bold uppercase tracking-[0.16em] text-[var(--wb-muted)]">Kursübersicht</h2>
         <div className="grid gap-6 lg:grid-cols-[340px_minmax(0,1fr)] lg:items-start">
           <CourseList
             courses={courses} workshopTitle={workshopTitle} workshops={workshops.data ?? []}
             selected={selected} onSelect={setSelected} />
           <div className="min-w-0">
             {selectedCourse
-              ? <CourseDetail course={selectedCourse} workshopTitle={workshopTitle} />
-              : <div className="grid h-full min-h-48 place-items-center rounded-xl border border-dashed bg-white p-8 text-center text-sm text-slate-400">
+              ? <CourseDetail course={selectedCourse} workshopTitle={workshopTitle} portalContainer={workbenchRootRef.current} />
+              : <div className="grid h-full min-h-48 place-items-center rounded-xl border border-dashed border-[var(--wb-border)] p-8 text-center text-sm text-[var(--wb-muted)]">
                   Kurs links auswählen, um Module, Präsenz, Feedback und Fortschritt zu sehen.
                 </div>}
           </div>
         </div>
 
-        {/* Verwaltung: globale, kursunabhängige Bereiche */}
+        {/* Verwaltung: globale, kursunabhängige Bereiche. Gewichtet statt
+            gleichrangig aneinandergereiht — siehe Begründung je Zeile unten. */}
         <div className="mt-12">
-          <h2 className="mb-4 text-xs font-bold uppercase tracking-[0.16em] text-slate-400">Verwaltung</h2>
-          <div className="grid gap-6 lg:grid-cols-2">
+          <h2 className="mb-4 text-xs font-bold uppercase tracking-[0.16em] text-[var(--wb-muted)]">Verwaltung</h2>
+          <div className="flex flex-col gap-6">
+            {/* Primär: Modulverwaltung ist das täglich genutzte Werkzeug
+                (Content-Erstellung/-Pflege) — volle Breite, oben, ungeklappt. */}
             <ModuleAdmin workshops={workshops.data ?? []} />
-            <TrainerAccounts />
-            <SettingsBlock />
-            <ChangelogBlock />
-            <AuditLogBlock />
+            {/* Sekundär: beide werden regelmäßig, aber deutlich seltener als
+                Module gebraucht (neuer Trainer-Zugang, gelegentliche
+                Einstellung) — gleichrangig nebeneinander, kleiner als oben. */}
+            <div className="grid gap-6 lg:grid-cols-2">
+              <TrainerAccounts />
+              <SettingsBlock />
+            </div>
+            {/* Tertiär: reine Nachschlage-Protokolle, kein Werkzeug für den
+                Alltag — nachrangig platziert und per <details> geschlossen. */}
+            <div className="grid gap-6 lg:grid-cols-2">
+              <ChangelogBlock />
+              <AuditLogBlock />
+            </div>
           </div>
         </div>
       </div>
@@ -165,17 +191,17 @@ function CourseList({ courses, workshops, workshopTitle, selected, onSelect }: {
   })
 
   return (
-    <section className="rounded-xl border bg-white p-4 lg:sticky lg:top-6">
-      <h3 className="mb-3 text-sm font-semibold text-slate-700">Kurse</h3>
+    <section className="wb-surface p-4 lg:sticky lg:top-6">
+      <h3 className="mb-3 text-sm font-semibold text-[var(--wb-ink)]">Kurse</h3>
       <form onSubmit={(e) => { e.preventDefault(); name.trim() && create.mutate() }} className="mb-4 flex flex-col gap-2">
         <Field label="Neuer Kurs" placeholder="Kurs-Name" value={name} onChange={(e) => setName(e.target.value)} />
-        <label className="flex flex-col gap-1 text-xs font-medium text-slate-600">Workshop
-          <select value={workshopKey} onChange={(e) => setWorkshopKey(e.target.value)} className="rounded-lg border px-3 py-2 text-sm font-normal text-slate-900">
+        <label className="flex flex-col gap-1 text-xs font-medium text-[var(--wb-muted)]">Workshop
+          <select value={workshopKey} onChange={(e) => setWorkshopKey(e.target.value)} className="wb-control rounded-lg border border-[var(--wb-border)] bg-[var(--wb-surface)] px-3 py-2 text-sm font-normal text-[var(--wb-ink)]">
             {workshops.map((w) => <option key={w.key} value={w.key}>{w.title.de}</option>)}
           </select>
         </label>
         <button disabled={!name.trim() || create.isPending}
-          className="inline-flex items-center justify-center gap-1 rounded-lg bg-teal-600 px-4 py-2 text-sm font-medium text-white hover:bg-teal-700 disabled:opacity-50">
+          className="wb-control inline-flex items-center justify-center gap-1 rounded-lg bg-[var(--wb-accent)] px-4 text-sm font-medium text-white hover:bg-[var(--wb-accent-hover)] disabled:opacity-50">
           <Icon name="plus" className="h-4 w-4" /> Kurs anlegen
         </button>
         {create.isError && <p className="text-xs text-rose-600">Anlegen fehlgeschlagen.</p>}
@@ -186,13 +212,13 @@ function CourseList({ courses, workshops, workshopTitle, selected, onSelect }: {
           {courses.data?.map((c) => (
             <li key={c.id}
               className={`flex items-start justify-between gap-2 rounded-lg p-3 transition-colors ${
-                selected === c.id ? 'bg-teal-50/70 ring-1 ring-teal-400/40' : 'hover:bg-slate-50'}`}>
+                selected === c.id ? 'bg-[var(--wb-accent-soft)] ring-1 ring-[var(--wb-accent)]/40' : 'hover:bg-[var(--wb-subtle)]'}`}>
               {/* Eigener <button> statt div[role=button] — kein verschachteltes
                   Interaktionselement mehr mit dem Kopieren-Button daneben. */}
               <button type="button" onClick={() => onSelect(c.id)} aria-pressed={selected === c.id}
                 className="min-w-0 flex-1 text-left">
-                <span className="block min-w-0 truncate font-medium text-slate-800">{c.name}</span>
-                <span className="mt-1 flex items-center gap-3 text-xs text-slate-400">
+                <span className="block min-w-0 truncate font-medium text-[var(--wb-ink)]">{c.name}</span>
+                <span className="mt-1 flex items-center gap-3 text-xs text-[var(--wb-muted)]">
                   <span>{workshopTitle(c.workshop_key)}</span>
                   <span className="inline-flex items-center gap-1"><Icon name="users" className="h-3.5 w-3.5" />{c.participant_count ?? 0}</span>
                 </span>
@@ -208,7 +234,7 @@ function CourseList({ courses, workshops, workshopTitle, selected, onSelect }: {
 
 // --- Kurs-Detail (Detail) -----------------------------------------------------
 
-function CourseDetail({ course, workshopTitle }: { course: Course; workshopTitle: (key: string | null) => string }) {
+function CourseDetail({ course, workshopTitle, portalContainer }: { course: Course; workshopTitle: (key: string | null) => string; portalContainer: HTMLElement | null }) {
   const qc = useQueryClient()
   const cid = course.id
   const courseMods = useQuery({ queryKey: ['course-modules', cid], queryFn: () => trainerApi.courseModules(cid).then((r) => r.data) })
@@ -238,12 +264,20 @@ function CourseDetail({ course, workshopTitle }: { course: Course; workshopTitle
   })
   const requireApproval = course.require_approval ?? false
 
+  // Eigener Bestätigungsdialog statt window.confirm() für die einzige
+  // unwiderrufliche Aktion hier: Teilnehmer inkl. Fortschritt löschen.
+  // deleteTarget hält Name+ID für den Dialogtext, deleteTriggerRef das
+  // anklickte <button>-Element, damit der Fokus beim Schließen dorthin
+  // zurückkehrt (statt auf ein generisches Element).
+  const [deleteTarget, setDeleteTarget] = useState<{ id: number; name: string } | null>(null)
+  const deleteTriggerRef = useRef<HTMLButtonElement | null>(null)
+
   return (
     <div className="flex flex-col gap-6">
-      <div className="rounded-xl border bg-white p-4">
+      <div className="wb-surface p-4">
         <div className="flex flex-wrap items-baseline justify-between gap-2">
-          <h2 className="text-lg font-bold text-slate-900">{course.name}</h2>
-          <span className="text-xs text-slate-400">{workshopTitle(course.workshop_key)} · {course.participant_count ?? 0} Teilnehmer · Code <span className="font-mono text-slate-500">{course.join_code}</span></span>
+          <h2 className="text-lg font-bold text-[var(--wb-ink)]">{course.name}</h2>
+          <span className="text-xs text-[var(--wb-muted)]">{workshopTitle(course.workshop_key)} · {course.participant_count ?? 0} Teilnehmer · Code <span className="font-mono">{course.join_code}</span></span>
         </div>
       </div>
 
@@ -252,8 +286,8 @@ function CourseDetail({ course, workshopTitle }: { course: Course; workshopTitle
           <div className="flex flex-col gap-1.5">
             {presence.data?.map((entry) => (
               <div key={entry.name} className="flex justify-between text-sm">
-                <span className="text-slate-700">{entry.name}</span>
-                <span className="text-slate-500">{entry.module_title}</span>
+                <span className="text-[var(--wb-ink)]">{entry.name}</span>
+                <span className="text-[var(--wb-muted)]">{entry.module_title}</span>
               </div>
             ))}
           </div>
@@ -264,7 +298,7 @@ function CourseDetail({ course, workshopTitle }: { course: Course; workshopTitle
         <QueryState query={courseMods} empty={courseMods.data?.length === 0}>
           <div className="grid gap-1.5 sm:grid-cols-2">
             {courseMods.data?.map((m) => (
-              <label key={m.key} className="flex items-center gap-2 text-sm text-slate-700">
+              <label key={m.key} className="flex items-center gap-2 text-sm text-[var(--wb-ink)]">
                 <input type="checkbox" checked={m.active} disabled={toggleMod.isPending}
                   onChange={(e) => toggleMod.mutate({ module_key: m.key, active: e.target.checked })} />
                 {m.title}
@@ -275,7 +309,7 @@ function CourseDetail({ course, workshopTitle }: { course: Course; workshopTitle
       </Section>
 
       <Section title="Fortschritt" action={
-        <label className="flex items-center gap-1.5 text-xs font-normal text-slate-500">
+        <label className="flex items-center gap-1.5 text-xs font-normal text-[var(--wb-muted)]">
           <input type="checkbox" checked={requireApproval} disabled={setApproval.isPending}
             onChange={(e) => setApproval.mutate(e.target.checked)} />
           Freigabe für Bestätigung nötig
@@ -288,11 +322,12 @@ function CourseDetail({ course, workshopTitle }: { course: Course; workshopTitle
           <div className="flex flex-col gap-1.5">
             {dash.data?.participants.map((p) => (
               <div key={p.id} className="flex items-center justify-between gap-2 text-sm">
-                <span className="min-w-0 truncate text-slate-700">{p.name}</span>
+                <span className="min-w-0 truncate text-[var(--wb-ink)]">{p.name}</span>
                 <div className="flex shrink-0 items-center gap-2">
                   <button onClick={() => resetCode.mutate(p.id)} disabled={resetCode.isPending}
-                    className="text-xs text-slate-500 hover:text-teal-700">Code zurücksetzen</button>
-                  <button onClick={() => window.confirm(`${p.name} inkl. Fortschritt endgültig löschen?`) && removeParticipant.mutate(p.id)}
+                    className="text-xs text-[var(--wb-muted)] hover:text-[var(--wb-accent-hover)]">Code zurücksetzen</button>
+                  <button
+                    onClick={(e) => { deleteTriggerRef.current = e.currentTarget; setDeleteTarget({ id: p.id, name: p.name }) }}
                     aria-label={`${p.name} löschen`} className="text-rose-600 hover:text-rose-700"><Icon name="trash" className="h-4 w-4" /></button>
                 </div>
               </div>
@@ -300,10 +335,21 @@ function CourseDetail({ course, workshopTitle }: { course: Course; workshopTitle
           </div>
         </QueryState>
         {shownCode && (
-          <p className="mt-3 rounded-lg bg-teal-50 px-3 py-2 text-sm text-teal-900">
+          <p className="mt-3 rounded-lg bg-[var(--wb-accent-soft)] px-3 py-2 text-sm text-[var(--wb-ink)]">
             Neuer Wiederaufnahme-Code für <b>{shownCode.name}</b>: <code className="select-all font-mono font-bold">{shownCode.code}</code> — bitte persönlich weitergeben.
           </p>
         )}
+        <ConfirmDialog
+          open={deleteTarget !== null}
+          title="Teilnehmer löschen"
+          description={<>„{deleteTarget?.name}“ endgültig löschen? Fortschritt, Quizergebnisse und Teilnahmebestätigung gehen unwiderruflich mit verloren.</>}
+          confirmLabel="Endgültig löschen"
+          cancelLabel="Abbrechen"
+          triggerRef={deleteTriggerRef}
+          container={portalContainer}
+          onConfirm={() => { if (deleteTarget) removeParticipant.mutate(deleteTarget.id); setDeleteTarget(null) }}
+          onCancel={() => setDeleteTarget(null)}
+        />
       </Section>
 
       {features.data?.comments && (
@@ -324,27 +370,27 @@ function ProgressTable({ dash, requireApproval, onApprove }: {
         <table className="w-full border-separate border-spacing-0 text-sm">
           <thead>
             <tr>
-              <th className="sticky left-0 z-10 bg-slate-50 px-3 py-2 text-left font-semibold text-slate-600">Teilnehmer</th>
-              {dash.data?.modules.map((m) => <th key={m.key} className="whitespace-nowrap bg-slate-50 px-3 py-2 text-xs font-medium text-slate-500">{m.title}</th>)}
-              {requireApproval && <th className="whitespace-nowrap bg-slate-50 px-3 py-2 text-xs font-medium text-slate-500">Freigabe</th>}
+              <th className="sticky left-0 z-10 bg-[var(--wb-subtle)] px-3 py-2 text-left font-semibold text-[var(--wb-ink)]">Teilnehmer</th>
+              {dash.data?.modules.map((m) => <th key={m.key} className="whitespace-nowrap bg-[var(--wb-subtle)] px-3 py-2 text-xs font-medium text-[var(--wb-muted)]">{m.title}</th>)}
+              {requireApproval && <th className="whitespace-nowrap bg-[var(--wb-subtle)] px-3 py-2 text-xs font-medium text-[var(--wb-muted)]">Freigabe</th>}
             </tr>
           </thead>
           <tbody>
             {dash.data?.participants.map((p) => (
               <tr key={p.id}>
-                <td className="sticky left-0 z-10 border-t bg-white px-3 py-2 font-medium text-slate-700">{p.name}</td>
+                <td className="sticky left-0 z-10 border-t border-[var(--wb-border)] bg-[var(--wb-surface)] px-3 py-2 font-medium text-[var(--wb-ink)]">{p.name}</td>
                 {dash.data!.modules.map((m) => {
                   const cell = p.cells[m.key]
                   return (
-                    <td key={m.key} className="border-t px-3 py-2 text-center">
+                    <td key={m.key} className="border-t border-[var(--wb-border)] px-3 py-2 text-center">
                       {cell?.done
-                        ? <span className="inline-flex items-center gap-1 text-emerald-600"><Icon name="check" className="h-4 w-4" />{cell.best != null ? <span className="text-xs text-slate-400">{cell.best}%</span> : null}</span>
-                        : <span className="text-slate-300">–</span>}
+                        ? <span className="inline-flex items-center gap-1 text-[var(--wb-success)]"><Icon name="check" className="h-4 w-4" />{cell.best != null ? <span className="text-xs text-[var(--wb-muted)]">{cell.best}%</span> : null}</span>
+                        : <span className="text-[var(--wb-muted)] opacity-50">–</span>}
                     </td>
                   )
                 })}
                 {requireApproval && (
-                  <td className="border-t px-3 py-2 text-center">
+                  <td className="border-t border-[var(--wb-border)] px-3 py-2 text-center">
                     <input type="checkbox" checked={p.approved} onChange={(e) => onApprove(p.id, e.target.checked)}
                       aria-label={`${p.name} freigeben`} />
                   </td>
@@ -352,7 +398,7 @@ function ProgressTable({ dash, requireApproval, onApprove }: {
               </tr>
             ))}
             {dash.data?.participants.length === 0 && (
-              <tr><td colSpan={(dash.data?.modules.length ?? 0) + (requireApproval ? 2 : 1)} className="px-3 py-6 text-center text-slate-400">Noch keine Teilnehmer.</td></tr>
+              <tr><td colSpan={(dash.data?.modules.length ?? 0) + (requireApproval ? 2 : 1)} className="px-3 py-6 text-center text-[var(--wb-muted)]">Noch keine Teilnehmer.</td></tr>
             )}
           </tbody>
         </table>
@@ -370,6 +416,9 @@ function ModuleAdmin({ workshops }: { workshops: { key: string; title: { de: str
   const [newTitle, setNewTitle] = useState('')
   const [moduleWorkshopKey, setModuleWorkshopKey] = useState('network')
   const [filter, setFilter] = useState('')
+  // Welche Workshop-Gruppen der Nutzer manuell aufgeklappt hat (Key der
+  // Gruppe). Start: leer, also alle Gruppen zu.
+  const [openGroups, setOpenGroups] = useState<Set<string>>(new Set())
   const presentMods = useQuery({ queryKey: ['trainer-modules'], queryFn: () => trainerApi.trainerModules().then((r) => r.data) })
   const createContent = useMutation({
     mutationFn: () => trainerApi.createContentModule(newKey.trim(), newTitle.trim(), moduleWorkshopKey),
@@ -384,43 +433,59 @@ function ModuleAdmin({ workshops }: { workshops: { key: string; title: { de: str
   const needle = filter.trim().toLowerCase()
   const filtered = presentMods.data?.filter((m) => m.title.toLowerCase().includes(needle)) ?? []
   const groups = groupModulesByWorkshop(filtered, workshops)
+  // Gruppen sind <details>: standardmäßig zu (spart Tab-Stopps auf dem Weg zu
+  // den Karten darunter — bei ~35 Zeilen mit je zwei fokussierbaren Elementen
+  // macht das den Unterschied zwischen ~70 und wenigen Tabs). Sobald gesucht
+  // wird, klappen Treffergruppen automatisch auf, damit der Filter sofort
+  // etwas zeigt; manuelles Auf-/Zuklappen bleibt über openGroups erhalten.
+  const isGroupOpen = (key: string) => needle !== '' || openGroups.has(key)
   return (
     <Section title="Module präsentieren & bearbeiten">
-      <label className="mb-3 flex max-w-xs flex-col gap-1 text-xs font-medium text-slate-600">
+      <label className="mb-3 flex max-w-xs flex-col gap-1 text-xs font-medium text-[var(--wb-muted)]">
         Modul suchen
         <input value={filter} onChange={(e) => setFilter(e.target.value)} placeholder="Titel filtern …"
-          className="rounded-lg border px-3 py-2 text-sm font-normal text-slate-900" />
+          className="wb-control rounded-lg border border-[var(--wb-border)] bg-[var(--wb-surface)] px-3 py-2 text-sm font-normal text-[var(--wb-ink)]" />
       </label>
       <QueryState query={presentMods} empty={presentMods.data?.length === 0}>
         {filtered.length === 0
-          ? <p className="text-sm text-slate-400">Keine Module gefunden.</p>
-          : <div className="flex flex-col gap-4">
+          ? <p className="text-sm text-[var(--wb-muted)]">Keine Module gefunden.</p>
+          : <div className="flex flex-col gap-2">
               {groups.map((g) => (
-                <div key={g.key}>
-                  <h4 className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-slate-400">{g.title}</h4>
-                  <ul className="flex flex-col divide-y divide-slate-100">
+                <details key={g.key} open={isGroupOpen(g.key)}
+                  onToggle={(e) => {
+                    const isOpen = e.currentTarget.open
+                    setOpenGroups((prev) => {
+                      const next = new Set(prev)
+                      if (isOpen) next.add(g.key); else next.delete(g.key)
+                      return next
+                    })
+                  }}>
+                  <summary className="wb-control flex cursor-pointer select-none items-center gap-2 rounded-lg px-1 text-xs font-semibold uppercase tracking-wide text-[var(--wb-muted)] hover:text-[var(--wb-ink)]">
+                    {g.title} <span className="font-normal normal-case tracking-normal">({g.modules.length})</span>
+                  </summary>
+                  <ul className="flex flex-col divide-y divide-[var(--wb-border)]">
                     {g.modules.map((m) => (
                       <li key={m.key} className="flex items-center justify-between gap-2 py-1.5">
-                        <Link to={`/trainer/modul/${m.key}`} className="min-w-0 truncate text-sm text-slate-700 hover:text-teal-700 hover:underline">{m.title}</Link>
+                        <Link to={`/trainer/modul/${m.key}`} className="min-w-0 truncate text-sm text-[var(--wb-ink)] hover:text-[var(--wb-accent-hover)] hover:underline">{m.title}</Link>
                         <Link to={`/trainer/modul/${m.key}/bearbeiten`} title="Bearbeiten" aria-label={`${m.title} bearbeiten`}
-                          className="shrink-0 rounded-lg p-1.5 text-slate-400 hover:bg-slate-50 hover:text-slate-700"><Icon name="pencil" className="h-4 w-4" /></Link>
+                          className="shrink-0 rounded-lg p-1.5 text-[var(--wb-muted)] hover:bg-[var(--wb-subtle)] hover:text-[var(--wb-ink)]"><Icon name="pencil" className="h-4 w-4" /></Link>
                       </li>
                     ))}
                   </ul>
-                </div>
+                </details>
               ))}
             </div>}
       </QueryState>
       <form onSubmit={(e) => { e.preventDefault(); newKey.trim() && newTitle.trim() && createContent.mutate() }} className="mt-4 flex flex-wrap items-end gap-2">
         <Field label="Key" placeholder="mein-modul" value={newKey} onChange={(e) => setNewKey(e.target.value)} />
         <Field label="Titel DE" placeholder="Mein Modul" value={newTitle} onChange={(e) => setNewTitle(e.target.value)} />
-        <label className="flex flex-col gap-1 text-xs font-medium text-slate-600">Workshop
-          <select value={moduleWorkshopKey} onChange={(e) => setModuleWorkshopKey(e.target.value)} className="rounded-lg border px-3 py-2 text-sm font-normal text-slate-900">
+        <label className="flex flex-col gap-1 text-xs font-medium text-[var(--wb-muted)]">Workshop
+          <select value={moduleWorkshopKey} onChange={(e) => setModuleWorkshopKey(e.target.value)} className="wb-control rounded-lg border border-[var(--wb-border)] bg-[var(--wb-surface)] px-3 py-2 text-sm font-normal text-[var(--wb-ink)]">
             {workshops.map((w) => <option key={w.key} value={w.key}>{w.title.de}</option>)}
           </select>
         </label>
         <button disabled={!newKey.trim() || !newTitle.trim() || createContent.isPending}
-          className="inline-flex items-center gap-1 rounded-lg bg-teal-600 px-3 py-2 text-sm font-medium text-white hover:bg-teal-700 disabled:opacity-50">
+          className="wb-control inline-flex items-center gap-1 rounded-lg bg-[var(--wb-accent)] px-3 text-sm font-medium text-white hover:bg-[var(--wb-accent-hover)] disabled:opacity-50">
           <Icon name="plus" className="h-4 w-4" /> Neues Modul
         </button>
       </form>
@@ -454,7 +519,7 @@ function TrainerAccounts() {
         <div className="mb-3 flex flex-col gap-1.5">
           {accounts.data?.map((t) => (
             <div key={t.id} className="flex items-center justify-between text-sm">
-              <span className="text-slate-700">{t.name} <span className="text-slate-400">({t.email})</span></span>
+              <span className="text-[var(--wb-ink)]">{t.name} <span className="text-[var(--wb-muted)]">({t.email})</span></span>
               <button onClick={() => remove.mutate(t.id)} aria-label={`${t.name} entfernen`}
                 className="text-rose-600 hover:text-rose-700"><Icon name="trash" className="h-4 w-4" /></button>
             </div>
@@ -466,7 +531,7 @@ function TrainerAccounts() {
         <Field label="Name" placeholder="Vorname" value={name} onChange={(e) => setName(e.target.value)} />
         <Field label="Passwort" type="password" autoComplete="new-password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} />
         <button disabled={!email.trim() || !name.trim() || !password || create.isPending}
-          className="inline-flex items-center gap-1 rounded-lg bg-teal-600 px-3 py-2 text-sm font-medium text-white hover:bg-teal-700 disabled:opacity-50">
+          className="wb-control inline-flex items-center gap-1 rounded-lg bg-[var(--wb-accent)] px-3 text-sm font-medium text-white hover:bg-[var(--wb-accent-hover)] disabled:opacity-50">
           <Icon name="plus" className="h-4 w-4" /> Trainer
         </button>
       </form>
@@ -487,7 +552,7 @@ function SettingsBlock() {
   return (
     <Section title="Einstellungen">
       <QueryState query={features}>
-        <label className="flex items-center gap-2 text-sm text-slate-700">
+        <label className="flex items-center gap-2 text-sm text-[var(--wb-ink)]">
           <input type="checkbox" checked={features.data?.comments ?? false} disabled={toggle.isPending}
             onChange={(e) => toggle.mutate(e.target.checked)} />
           Feedback-Kommentare für Teilnehmer aktiv
@@ -500,18 +565,18 @@ function SettingsBlock() {
 function ChangelogBlock() {
   const changelog = useQuery({ queryKey: ['changelog'], queryFn: () => trainerApi.changelog().then((r) => r.data) })
   return (
-    <Section title="Änderungslog">
+    <Section title="Änderungslog" className="opacity-90">
       <QueryState query={changelog} empty={changelog.data?.length === 0}>
         <details>
-          <summary className="cursor-pointer select-none text-sm text-slate-500 hover:text-slate-700">{changelog.data?.length ?? 0} Einträge anzeigen</summary>
-          <ul className="mt-3 flex max-h-96 flex-col divide-y divide-slate-100 overflow-y-auto">
+          <summary className="wb-control cursor-pointer select-none text-sm text-[var(--wb-muted)] hover:text-[var(--wb-ink)]">{changelog.data?.length ?? 0} Einträge anzeigen</summary>
+          <ul className="mt-3 flex max-h-96 flex-col divide-y divide-[var(--wb-border)] overflow-y-auto">
             {changelog.data?.map((e, i) => (
               <li key={i} className="py-2">
                 <div className="flex items-baseline justify-between gap-2">
-                  <span className="text-sm font-medium text-slate-800">{e.title}</span>
-                  <span className="shrink-0 text-xs text-slate-400">{e.date}</span>
+                  <span className="text-sm font-medium text-[var(--wb-ink)]">{e.title}</span>
+                  <span className="shrink-0 text-xs text-[var(--wb-muted)]">{e.date}</span>
                 </div>
-                <p className="mt-1 text-sm text-slate-600">{e.text}</p>
+                <p className="mt-1 text-sm text-[var(--wb-muted)]">{e.text}</p>
               </li>
             ))}
           </ul>
@@ -526,20 +591,20 @@ function ChangelogBlock() {
 function AuditLogBlock() {
   const audit = useQuery({ queryKey: ['audit-log'], queryFn: () => trainerApi.auditLog().then((r) => r.data) })
   return (
-    <Section title="Protokoll">
+    <Section title="Protokoll" className="opacity-90">
       <QueryState query={audit} empty={audit.data?.length === 0}>
         <details>
-          <summary className="cursor-pointer select-none text-sm text-slate-500 hover:text-slate-700">
+          <summary className="wb-control cursor-pointer select-none text-sm text-[var(--wb-muted)] hover:text-[var(--wb-ink)]">
             Letzte {audit.data?.length ?? 0} Aktionen anzeigen
           </summary>
-          <ul className="mt-3 flex max-h-96 flex-col divide-y divide-slate-100 overflow-y-auto">
+          <ul className="mt-3 flex max-h-96 flex-col divide-y divide-[var(--wb-border)] overflow-y-auto">
             {audit.data?.map((e) => (
               <li key={e.id} className="py-2 text-sm">
                 <div className="flex items-baseline justify-between gap-2">
-                  <span className="font-medium text-slate-800">{e.action}</span>
-                  <span className="shrink-0 text-xs text-slate-400">{new Date(e.created_at).toLocaleString('de-DE')}</span>
+                  <span className="font-medium text-[var(--wb-ink)]">{e.action}</span>
+                  <span className="shrink-0 text-xs text-[var(--wb-muted)]">{new Date(e.created_at).toLocaleString('de-DE')}</span>
                 </div>
-                <p className="mt-1 text-slate-600">
+                <p className="mt-1 text-[var(--wb-muted)]">
                   {e.trainer_email}
                   {e.target ? <> · {e.target}</> : null}
                   {e.detail ? <> · {e.detail}</> : null}

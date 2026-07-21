@@ -4,6 +4,7 @@ import { learnApi } from '@/lib/learnApi'
 import { errMsg } from '@/lib/api'
 import { t, type Lang } from '@/lib/i18n'
 import { termsForModule } from '@/lib/glossary'
+import { Icon } from '@/components/Icon'
 
 interface Result {
   score: number
@@ -115,7 +116,11 @@ export function Quiz({ moduleKey, questions, lang, onResult }: {
         <div className="h-px flex-1 bg-slate-200" aria-hidden="true" />
       </div>
 
-      <div className="rounded-2xl border border-slate-200 bg-white p-6 sm:p-7">
+      {/* Kein umschließender Karten-Rahmen mehr: die einzelnen Fragen tragen
+          bereits eigene Karten (rounded-xl border), ein zusätzlicher äußerer
+          Rahmen erzeugte "Karte in Karte". Die Übergangs-Trennlinie oben
+          reicht als Gruppierung. */}
+      <div>
       <div className="flex items-baseline justify-between gap-3 mb-5">
         <p className="text-sm text-slate-500">{t(lang, 'knowledgeCheckIntro')}</p>
         {best != null && <span className="shrink-0 text-sm text-slate-500">{t(lang, 'bestSoFar')}: <b className="tabular-nums">{best}%</b></span>}
@@ -145,7 +150,7 @@ export function Quiz({ moduleKey, questions, lang, onResult }: {
                 </p>
                 {locked && (
                   <span className={`shrink-0 inline-flex items-center gap-1 text-xs font-semibold rounded-full px-2 py-0.5 ${correct ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}`}>
-                    {correct ? `✓ ${t(lang, 'correct')}` : `✗ ${t(lang, 'incorrect')}`}
+                    <Icon name={correct ? 'check' : 'close'} className="h-3.5 w-3.5" />{correct ? t(lang, 'correct') : t(lang, 'incorrect')}
                   </span>
                 )}
               </div>
@@ -173,8 +178,8 @@ export function Quiz({ moduleKey, questions, lang, onResult }: {
               {!locked && (
                 <div className="mt-3">
                   {hintLevels[q.id] ? (
-                    <p className="rounded-lg bg-teal-50 px-3 py-2 text-xs leading-relaxed text-teal-900">
-                      💡 {hintFor(q.type, termLabels, lang, hintLevels[q.id])}
+                    <p className="flex items-start gap-1.5 rounded-lg bg-teal-50 px-3 py-2 text-xs leading-relaxed text-teal-900">
+                      <Icon name="lightbulb" className="mt-0.5 h-3.5 w-3.5 shrink-0" />{hintFor(q.type, termLabels, lang, hintLevels[q.id])}
                     </p>
                   ) : null}
                   <button
@@ -210,7 +215,7 @@ export function Quiz({ moduleKey, questions, lang, onResult }: {
               <p className="text-xs uppercase tracking-wide text-slate-500 font-semibold">{t(lang, 'yourResult')}</p>
               <p className={`text-2xl font-bold ${result.passed ? 'text-green-600' : 'text-amber-600'}`}>
                 {result.score} / {result.total}
-                <span className="text-base font-medium ml-2">{result.passed ? `✓ ${t(lang, 'passed')}` : t(lang, 'notPassedYet')}</span>
+                <span className="ml-2 inline-flex items-center gap-1 text-base font-medium">{result.passed ? <><Icon name="check" className="h-4 w-4" />{t(lang, 'passed')}</> : t(lang, 'notPassedYet')}</span>
               </p>
             </div>
             <button onClick={retry} className="shrink-0 rounded-lg border border-slate-300 bg-white text-slate-700 px-4 py-2 font-medium hover:bg-slate-50">
@@ -229,8 +234,8 @@ export function Quiz({ moduleKey, questions, lang, onResult }: {
                 {termLabels.map((label) => <span key={label} className="rounded-full bg-white px-2 py-0.5 text-xs font-medium text-teal-800">{label}</span>)}
               </div>
               <button onClick={() => document.getElementById('block-0')?.scrollIntoView({ behavior: 'smooth' })}
-                className="mt-3 text-sm font-medium text-teal-700 hover:underline">
-                {lang === 'de' ? 'Zum Lernstoff zurück' : 'Back to the learning material'} ↑
+                className="mt-3 inline-flex items-center gap-1 text-sm font-medium text-teal-700 hover:underline">
+                {lang === 'de' ? 'Zum Lernstoff zurück' : 'Back to the learning material'}<Icon name="arrowUp" className="h-3.5 w-3.5" />
               </button>
             </div>
           )}

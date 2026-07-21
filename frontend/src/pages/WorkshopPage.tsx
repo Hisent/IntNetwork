@@ -11,6 +11,7 @@ import { WorkshopTheme } from '@/components/WorkshopTheme'
 import { BrandLogo } from '@/components/BrandLogo'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { LangToggle } from '@/components/workbench/WorkbenchShell'
+import { Icon } from '@/components/Icon'
 
 export function WorkshopPage() {
   const { key = '' } = useParams()
@@ -27,7 +28,7 @@ export function WorkshopPage() {
 
   if (workshop.isLoading) return <PageSkeleton />
   if (workshop.isError) return <LoadError lang={lang} onRetry={() => workshop.refetch()} />
-  if (!workshop.data) return <main className="min-h-dvh bg-slate-50 p-8"><Link to="/" className="font-semibold text-teal-700">← Workshops</Link></main>
+  if (!workshop.data) return <main className="min-h-dvh bg-slate-50 p-8"><Link to="/" className="inline-flex items-center gap-1 font-semibold text-teal-700"><Icon name="arrowLeft" className="h-4 w-4" />Workshops</Link></main>
 
   const data = workshop.data
   const grouped = data.sections
@@ -61,8 +62,8 @@ export function WorkshopPage() {
             : 'Note it down. You need it to resume under your name later.'}</p>
           <p className="my-6 select-all rounded-xl bg-[var(--workshop-accent-surface)] px-4 py-4 font-mono text-3xl font-bold tracking-[0.3em] text-[var(--workshop-accent)]">{issuedCode}</p>
           <button onClick={() => nav('/lernen')}
-            className="w-full rounded-lg bg-[var(--workshop-accent)] px-4 py-2.5 font-semibold text-white hover:bg-[var(--workshop-accent-hover)]">
-            {lang === 'de' ? 'Zum Workshop' : 'Start workshop'} →
+            className="inline-flex w-full items-center justify-center gap-1.5 rounded-lg bg-[var(--workshop-accent)] px-4 py-2.5 font-semibold text-white hover:bg-[var(--workshop-accent-hover)]">
+            {lang === 'de' ? 'Zum Workshop' : 'Start workshop'}<Icon name="arrowRight" className="h-4 w-4" />
           </button>
         </div>
       </main>
@@ -76,7 +77,7 @@ export function WorkshopPage() {
           <header className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-4 sm:gap-6">
               <Link to="/" aria-label="IntLab"><BrandLogo className="h-9 text-lg" showName /></Link>
-              <Link to="/" className="hidden text-sm font-semibold text-[var(--workshop-accent)] sm:block">← {lang === 'de' ? 'Alle Workshops' : 'All workshops'}</Link>
+              <Link to="/" className="hidden items-center gap-1 text-sm font-semibold text-[var(--workshop-accent)] sm:flex"><Icon name="arrowLeft" className="h-4 w-4" />{lang === 'de' ? 'Alle Workshops' : 'All workshops'}</Link>
             </div>
             <div className="flex items-center gap-2"><LangToggle lang={lang} onChange={setLang} /><ThemeToggle lang={lang} className="text-slate-500" /></div>
           </header>
@@ -106,7 +107,7 @@ export function WorkshopPage() {
                 <label className="block text-sm font-medium text-slate-700">{lang === 'de' ? 'Dein Name' : 'Your name'}<input required value={name} onChange={(event) => setName(event.target.value)} autoComplete="name" className="mt-1.5 block w-full rounded-lg border border-slate-300 px-3 py-2 outline-none focus:border-[var(--workshop-accent)] focus:ring-2 focus:ring-[var(--workshop-accent-soft)]" /></label>
                 <label className="block text-sm font-medium text-slate-700">{lang === 'de' ? 'Wiederaufnahme-Code' : 'Resume code'} <span className="font-normal text-slate-400">({lang === 'de' ? 'nur beim erneuten Beitritt' : 'only when rejoining'})</span><input value={resumeCode} onChange={(event) => setResumeCode(event.target.value.toUpperCase())} autoComplete="off" className="mt-1.5 block w-full rounded-lg border border-slate-300 px-3 py-2 font-mono uppercase tracking-widest outline-none focus:border-[var(--workshop-accent)] focus:ring-2 focus:ring-[var(--workshop-accent-soft)]" /></label>
                 {error && <p role="alert" className="text-sm text-rose-600">{error}</p>}
-                <button className="w-full rounded-lg bg-[var(--workshop-accent)] px-4 py-2.5 font-semibold text-white hover:bg-[var(--workshop-accent-hover)]">{lang === 'de' ? 'Workshop starten' : 'Start workshop'} →</button>
+                <button className="inline-flex w-full items-center justify-center gap-1.5 rounded-lg bg-[var(--workshop-accent)] px-4 py-2.5 font-semibold text-white hover:bg-[var(--workshop-accent-hover)]">{lang === 'de' ? 'Workshop starten' : 'Start workshop'}<Icon name="arrowRight" className="h-4 w-4" /></button>
               </form>
             </aside>
           </div>

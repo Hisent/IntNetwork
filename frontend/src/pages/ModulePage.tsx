@@ -11,6 +11,8 @@ import { PageSkeleton } from '@/components/PageSkeleton'
 import { LoadError } from '@/components/LoadError'
 import { t, useDocumentLang, type Lang } from '@/lib/i18n'
 import { GlossaryPanel } from '@/components/GlossaryPanel'
+import { termsForModule } from '@/lib/glossary'
+import { Icon } from '@/components/Icon'
 import type { Block, ModuleDetail, ModuleMeta, ProgressItem } from '@/types'
 import { LangToggle, WorkbenchProgress, WorkbenchSectionTitle, WorkbenchTopbar } from '@/components/workbench/WorkbenchShell'
 import { readPercent } from '@/components/workbench/workbenchLogic'
@@ -93,7 +95,7 @@ export function ModulePage() {
         textIndexes={textIndexes}
         toc={toc}
         commentsOn={commentsOn}
-        showGlossary={me.data?.workshop?.key === 'network'}
+        showGlossary={termsForModule(key).length > 0}
         nextModule={nextModule}
         justPassed={justPassed}
         setLanguage={(value) => setLang.mutate(value)}
@@ -143,7 +145,7 @@ function WorkbenchModuleNav({ lang, current, modules, sections, progress }: { la
               const itemProgress = progressOf(module.key)
               const rowClass = `wb-control grid grid-cols-[28px_minmax(0,1fr)] items-center gap-2 rounded-lg px-2 py-1.5 text-sm ${module.key === current ? 'bg-[var(--wb-accent-soft)] font-semibold text-[var(--wb-accent)]' : available ? 'text-[var(--wb-muted)] hover:bg-white hover:text-[var(--wb-ink)]' : 'cursor-not-allowed text-slate-400'}`
               const rowContent = <>
-                  <span aria-hidden="true" className={`grid h-6 w-6 place-items-center rounded-md text-[10px] font-bold ${itemProgress?.done ? 'bg-emerald-100 text-[var(--wb-success)]' : module.key === current ? 'bg-[var(--wb-accent)] text-white' : 'bg-white'}`}>{itemProgress?.done ? '✓' : module.order}</span>
+                  <span aria-hidden="true" className={`grid h-6 w-6 place-items-center rounded-md text-[10px] font-bold ${itemProgress?.done ? 'bg-emerald-100 text-[var(--wb-success)]' : module.key === current ? 'bg-[var(--wb-accent)] text-white' : 'bg-white'}`}>{itemProgress?.done ? <Icon name="check" className="h-3.5 w-3.5" /> : module.order}</span>
                   <span className="min-w-0">{lang === 'de' ? module.title : module.title_en}</span>
                 </>
               return available
@@ -182,27 +184,27 @@ export function WorkbenchModuleView({ lang, moduleKey, keyScope, module, modules
           </aside>
 
           <main id="main-content" tabIndex={-1} className="wb-module-content">
-            <Link to="/lernen" className="wb-control mb-2 inline-flex items-center text-sm font-medium text-[var(--wb-muted)] hover:text-[var(--wb-accent)]">← {t(lang, 'modules')}</Link>
+            <Link to="/lernen" className="wb-control mb-2 inline-flex items-center gap-1 text-sm font-medium text-[var(--wb-muted)] hover:text-[var(--wb-accent)]"><Icon name="arrowLeft" className="h-4 w-4" />{t(lang, 'modules')}</Link>
             <p className="text-sm font-semibold text-[var(--wb-accent)]">{lang === 'de' ? `Modul ${module.order}` : `Module ${module.order}`}</p>
             <h1 className="mt-2 text-3xl font-bold leading-tight tracking-tight text-[var(--wb-ink)] sm:text-4xl">{module.title}</h1>
-            {module.scenario && <div className="mt-5 border-l-2 border-[var(--wb-accent)] pl-4 text-sm leading-relaxed text-[var(--wb-muted)]"><Markdown>{module.scenario}</Markdown></div>}
+            {module.scenario && <div className="wb-scenario mt-5 border-l-2 border-[var(--wb-accent)] pl-4 text-sm leading-relaxed text-[var(--wb-muted)]"><Markdown>{module.scenario}</Markdown></div>}
 
             {toc.length >= 4 && <details className="wb-surface mt-6 p-4 xl:hidden"><summary className="wb-control flex cursor-pointer items-center font-semibold">{t(lang, 'tocTitle')}</summary><ol className="mt-2 space-y-1">{toc.map((item, index) => <li key={`${item.i}-${index}`}><a href={`#block-${item.i}`} className="wb-control flex items-center text-sm text-[var(--wb-accent)] hover:underline">{item.title}</a></li>)}</ol></details>}
 
             <div className="mt-8">
-              <Blocks blocks={module.blocks} lang={lang} moduleKey={moduleKey} keyScope={keyScope} footer={(block: Block, index) => block.type === 'text' ? <div className="flex flex-col gap-1"><button onClick={() => onToggleRead(index)} className={`wb-control self-start text-xs font-medium ${read.includes(index) ? 'text-[var(--wb-success)]' : 'text-[var(--wb-muted)] hover:text-[var(--wb-accent)]'}`}>{read.includes(index) ? `✓ ${t(lang, 'read')}` : t(lang, 'markRead')}</button>{commentsOn && <BlockComments moduleKey={moduleKey} blockIndex={index} lang={lang} />}</div> : null} />
+              <Blocks blocks={module.blocks} lang={lang} moduleKey={moduleKey} keyScope={keyScope} footer={(block: Block, index) => block.type === 'text' ? <div className="flex flex-col gap-1"><button onClick={() => onToggleRead(index)} className={`wb-control inline-flex items-center gap-1 self-start text-xs font-medium ${read.includes(index) ? 'text-[var(--wb-success)]' : 'text-[var(--wb-muted)] hover:text-[var(--wb-accent)]'}`}>{read.includes(index) && <Icon name="check" className="h-3.5 w-3.5" />}{read.includes(index) ? t(lang, 'read') : t(lang, 'markRead')}</button>{commentsOn && <BlockComments moduleKey={moduleKey} blockIndex={index} lang={lang} />}</div> : null} />
             </div>
 
             <Quiz moduleKey={moduleKey} questions={module.quiz.questions} lang={lang} onResult={onQuizResult} />
             <div className="mt-10 border-t border-[var(--wb-border)] pt-6 text-right">
-              {nextModule ? <Link to={`/lernen/${nextModule.key}`} className={`wb-control inline-flex max-w-full items-center justify-center rounded-lg px-5 text-center font-semibold ${justPassed ? 'bg-[var(--wb-accent)] text-white hover:bg-[var(--wb-accent-hover)]' : 'border border-[var(--wb-border)] bg-white text-[var(--wb-ink)] hover:border-[var(--wb-accent)]'}`}>{t(lang, 'nextModule')}: {lang === 'de' ? nextModule.title : nextModule.title_en} →</Link> : <Link to="/lernen" className="wb-control inline-flex items-center rounded-lg border border-[var(--wb-border)] bg-white px-5 font-semibold">{t(lang, 'backToOverview')} →</Link>}
+              {nextModule ? <Link to={`/lernen/${nextModule.key}`} className={`wb-control inline-flex max-w-full items-center justify-center gap-1.5 rounded-lg px-5 text-center font-semibold ${justPassed ? 'bg-[var(--wb-accent)] text-white hover:bg-[var(--wb-accent-hover)]' : 'border border-[var(--wb-border)] bg-white text-[var(--wb-ink)] hover:border-[var(--wb-accent)]'}`}>{t(lang, 'nextModule')}: {lang === 'de' ? nextModule.title : nextModule.title_en}<Icon name="arrowRight" className="h-4 w-4" /></Link> : <Link to="/lernen" className="wb-control inline-flex items-center gap-1.5 rounded-lg border border-[var(--wb-border)] bg-white px-5 font-semibold">{t(lang, 'backToOverview')}<Icon name="arrowRight" className="h-4 w-4" /></Link>}
             </div>
 
             {/* Auf schmalen Viewports (Sidebar nicht permanent sichtbar) ein
                 kurzer Rückweg zur Kursnavigation, statt vollständigen
                 Hochscrollens nach einer Unterbrechung im Quiz. */}
             <a href="#module-nav" className="wb-control mt-4 flex items-center justify-center gap-1.5 text-sm font-medium text-[var(--wb-muted)] hover:text-[var(--wb-accent)] lg:hidden">
-              <span aria-hidden="true">↑</span>{lang === 'de' ? 'Zur Kursnavigation' : 'To course navigation'}
+              <Icon name="arrowUp" className="h-4 w-4" />{lang === 'de' ? 'Zur Kursnavigation' : 'To course navigation'}
             </a>
           </main>
 

@@ -6,6 +6,7 @@ import { shuffledIndices } from '@/components/Quiz'
 import { t, type Lang } from '@/lib/i18n'
 import { WidgetScopeContext } from '@/lib/widgetScope'
 import { ErrorBoundary } from '@/components/ErrorBoundary'
+import { Icon } from '@/components/Icon'
 
 function InlineCode({ className, children }: {
   className?: string
@@ -96,8 +97,8 @@ function NumberCheck({ answer, lang }: { answer: number; lang: Lang }) {
       </div>
       {checked && (
         <div className="mt-2 flex items-center gap-3 text-sm">
-          <span className={correct ? 'text-green-600 font-medium' : 'text-amber-600 font-medium'}>
-            {correct ? `✓ ${t(lang, 'correct')}` : `✗ ${t(lang, 'incorrect')}`}
+          <span className={`inline-flex items-center gap-1 ${correct ? 'text-green-600 font-medium' : 'text-amber-600 font-medium'}`}>
+            <Icon name={correct ? 'check' : 'close'} className="h-4 w-4" />{correct ? t(lang, 'correct') : t(lang, 'incorrect')}
           </span>
           {!correct && (
             <button onClick={() => { setChecked(false); setVal('') }}
@@ -143,8 +144,8 @@ export function CheckBlock({ prompt, options, answer, kind, lang }: {
       </div>
       {picked !== null && (
         <div className="mt-2 flex items-center gap-3 text-sm">
-          <span className={correct ? 'text-green-600 font-medium' : 'text-amber-600 font-medium'}>
-            {correct ? `✓ ${t(lang, 'correct')}` : `✗ ${t(lang, 'incorrect')}`}
+          <span className={`inline-flex items-center gap-1 ${correct ? 'text-green-600 font-medium' : 'text-amber-600 font-medium'}`}>
+            <Icon name={correct ? 'check' : 'close'} className="h-4 w-4" />{correct ? t(lang, 'correct') : t(lang, 'incorrect')}
           </span>
           {!correct && (
             <button onClick={() => setPicked(null)} className="text-xs text-slate-500 underline hover:text-slate-700">
@@ -163,7 +164,7 @@ export function RevealBlock({ teaser, value, lang }: { teaser: string; value: st
     <div className="rounded-xl border border-slate-200 bg-white p-4">
       <p className="font-medium text-slate-800">{teaser}</p>
       {open ? (
-        <div className="mt-2 animate-fade-up">
+        <div className="wb-reveal-content mt-2 animate-fade-up">
           <CodeLangContext.Provider value={lang}><Markdown components={MD_COMPONENTS}>{value}</Markdown></CodeLangContext.Provider>
         </div>
       ) : (
@@ -201,7 +202,12 @@ export function OrderBlock({ prompt, items, lang }: { prompt: string; items: str
                   : idx === pos ? 'border-green-300 bg-green-50 text-green-800'
                   : 'border-amber-300 bg-amber-50 text-amber-800'}`}>
                 <span className="font-mono text-xs text-slate-400">{pos + 1}.</span> {items[idx]}
-                {checked && <span className="ml-auto">{idx === pos ? '✓' : '✗'}</span>}
+                {checked && (
+                  <span className="ml-auto inline-flex items-center gap-1">
+                    <Icon name={idx === pos ? 'check' : 'close'} className="h-4 w-4" />
+                    <span className="sr-only">{idx === pos ? t(lang, 'correct') : t(lang, 'incorrect')}</span>
+                  </span>
+                )}
               </button>
             </li>
           ))}
@@ -225,8 +231,8 @@ export function OrderBlock({ prompt, items, lang }: { prompt: string; items: str
       )}
       {checked && (
         <div className="flex items-center gap-3 text-sm">
-          <span className={allCorrect ? 'text-green-600 font-medium' : 'text-amber-600 font-medium'}>
-            {allCorrect ? `✓ ${t(lang, 'correct')}` : `✗ ${t(lang, 'incorrect')}`}
+          <span className={`inline-flex items-center gap-1 ${allCorrect ? 'text-green-600 font-medium' : 'text-amber-600 font-medium'}`}>
+            <Icon name={allCorrect ? 'check' : 'close'} className="h-4 w-4" />{allCorrect ? t(lang, 'correct') : t(lang, 'incorrect')}
           </span>
           {!allCorrect && (
             <button onClick={reset} className="text-xs text-slate-500 underline hover:text-slate-700">
@@ -280,8 +286,8 @@ export function DebugBlock({ prompt, lines, wrong, explanation, lang }: {
       ) : (
         <div className="text-sm">
           <div className="flex items-center gap-3 mb-1">
-            <span className={solved ? 'text-green-600 font-medium' : 'text-amber-600 font-medium'}>
-              {solved ? `✓ ${t(lang, 'correct')}` : `✗ ${t(lang, 'incorrect')}`}
+            <span className={`inline-flex items-center gap-1 ${solved ? 'text-green-600 font-medium' : 'text-amber-600 font-medium'}`}>
+              <Icon name={solved ? 'check' : 'close'} className="h-4 w-4" />{solved ? t(lang, 'correct') : t(lang, 'incorrect')}
             </span>
             {!solved && (
               <button onClick={() => { setSel(new Set()); setChecked(false) }}

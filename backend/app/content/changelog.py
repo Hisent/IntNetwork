@@ -1,5 +1,18 @@
 # Projekt-Changelog (nur für Trainer sichtbar). Neueste zuerst.
 CHANGELOG = [
+    {"date": "2026-07-21", "title": "v1.27.0 — Trainerbereich auf Kurs-Niveau, Glossar für beide Workshops",
+     "text": "Der Trainerbereich sah bisher aus wie ein internes Hilfsmittel und "
+             "nicht wie Teil der Anwendung — das ist behoben: gleiche Farben und "
+             "Flächen wie im Kursbereich (inklusive Dunkelmodus), die Verwaltung "
+             "ist nach Nutzungshäufigkeit sortiert statt fünf gleich große Kästen, "
+             "und die Modulgruppen lassen sich zuklappen. Für Tastaturbedienung "
+             "heißt das: der Weg quer durch die Verwaltung ist von 101 auf 33 "
+             "Schritte geschrumpft. Das Löschen eines Teilnehmers fragt jetzt in "
+             "einem eigenen Fenster nach, das benennt, was verloren geht, statt im "
+             "nüchternen Browser-Hinweis. Neu außerdem: das Glossar gibt es jetzt "
+             "auch im Claude-Code-Workshop mit 19 Fachbegriffen. Feinschliff: "
+             "einheitliche Symbole statt gemischter Sonderzeichen, weniger "
+             "verschachtelte Rahmen in den Modulen, lesbarere Zeilenlängen."},
     {"date": "2026-07-21", "title": "v1.26.0 — Einstieg, Navigation & Trainer-Verwaltung",
      "text": "Aus einem Design-Review umgesetzt: Auf dem Handy steht das Kurs-Code-"
              "Formular jetzt vor der Modulliste, statt dahinter. Gesperrte Module "

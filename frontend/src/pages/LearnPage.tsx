@@ -10,6 +10,7 @@ import { LangToggle, WorkbenchProgress, WorkbenchSectionTitle, WorkbenchTopbar }
 import { groupModulesBySection } from '@/lib/moduleGroups'
 import { markLockedVisibility } from '@/lib/lockedModules'
 import { WorkshopTheme } from '@/components/WorkshopTheme'
+import { Icon } from '@/components/Icon'
 
 type Group = { key: string; title: string; mods: ModuleMeta[] }
 
@@ -124,7 +125,7 @@ export function WorkbenchLearnView({ lang, displayName, modules, groups, progres
     const rowClass = 'wb-control grid min-w-0 gap-1 px-4 py-3 sm:grid-cols-[40px_minmax(0,1fr)_auto] sm:items-center sm:gap-3'
     const rowContent = <>
         <span aria-hidden="true" className={`row-span-2 grid h-8 w-8 place-items-center rounded-lg text-xs font-bold ${itemProgress?.done ? 'bg-emerald-100 text-[var(--wb-success)]' : locked ? 'bg-[var(--wb-subtle)] text-[var(--wb-muted)]' : 'bg-[var(--wb-accent-soft)] text-[var(--wb-accent)]'}`}>
-          {itemProgress?.done ? '✓' : module.order}
+          {itemProgress?.done ? <Icon name="check" className="h-4 w-4" /> : module.order}
         </span>
         <span className="min-w-0 font-medium text-[var(--wb-ink)]">{lang === 'de' ? module.title : module.title_en}</span>
         <span className="text-xs tabular-nums text-[var(--wb-muted)]">{itemProgress?.best != null ? `${t(lang, 'best')} ${itemProgress.best}%` : locked ? (lang === 'de' ? 'Voraussetzung offen' : 'Prerequisite open') : t(lang, 'open')}</span>
@@ -168,7 +169,7 @@ export function WorkbenchLearnView({ lang, displayName, modules, groups, progres
               <Link to={`/lernen/${continueAt.key}`} className="wb-surface wb-surface--highlight group mb-8 block border-[var(--wb-accent)] p-5 hover:border-[var(--wb-accent)]">
                 <span className="text-xs font-semibold uppercase tracking-[0.14em] text-teal-200">{t(lang, 'continueHere')}</span>
                 <span className="mt-2 flex items-center justify-between gap-4 text-xl font-semibold">
-                  {lang === 'de' ? continueAt.title : continueAt.title_en}<span aria-hidden="true" className="text-teal-300 transition-transform group-hover:translate-x-1">→</span>
+                  {lang === 'de' ? continueAt.title : continueAt.title_en}<Icon name="arrowRight" className="h-4 w-4 text-teal-300 transition-transform group-hover:translate-x-1" />
                 </span>
               </Link>
             )}
@@ -201,7 +202,7 @@ export function WorkbenchLearnView({ lang, displayName, modules, groups, progres
 
           <aside className="min-w-0 space-y-5 xl:sticky xl:top-20 xl:self-start">
             {company && <section className="wb-surface p-5"><WorkbenchSectionTitle>{company.name}</WorkbenchSectionTitle><p className="text-sm leading-relaxed text-[var(--wb-muted)]">{company.blurb}</p><p className="mt-4 text-xs font-semibold text-[var(--wb-ink)]">{t(lang, 'sites')}</p><p className="mt-1 text-sm text-[var(--wb-muted)]">{company.sites.join(', ')}</p><div className="mt-3 flex flex-wrap gap-2">{company.devices.map((device) => <span key={device} className="rounded-md bg-[var(--wb-subtle)] px-2 py-1 text-xs text-[var(--wb-muted)]">{device}</span>)}</div></section>}
-            {links.length > 0 && <details className="wb-surface p-5"><summary className="wb-control flex cursor-pointer items-center font-semibold">{t(lang, 'linksTitle')}</summary><div className="mt-3 space-y-4">{links.map((category) => <div key={category.category.de}><p className="text-xs font-semibold text-[var(--wb-muted)]">{category.category[lang]}</p>{category.items.map((item) => <a key={item.url} href={item.url} target="_blank" rel="noreferrer" className="wb-control flex items-center text-sm font-medium text-[var(--wb-accent)] hover:underline">{item.title}<span aria-hidden="true" className="ml-auto">↗</span></a>)}</div>)}</div></details>}
+            {links.length > 0 && <details className="wb-surface p-5"><summary className="wb-control flex cursor-pointer items-center font-semibold">{t(lang, 'linksTitle')}</summary><div className="mt-3 space-y-4">{links.map((category) => <div key={category.category.de}><p className="text-xs font-semibold text-[var(--wb-muted)]">{category.category[lang]}</p>{category.items.map((item) => <a key={item.url} href={item.url} target="_blank" rel="noreferrer" className="wb-control flex items-center text-sm font-medium text-[var(--wb-accent)] hover:underline">{item.title}<Icon name="external" className="ml-auto h-3.5 w-3.5" /></a>)}</div>)}</div></details>}
           </aside>
         </div>
       </div>

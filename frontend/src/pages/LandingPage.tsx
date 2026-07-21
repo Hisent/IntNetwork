@@ -7,6 +7,7 @@ import { WorkshopTheme } from '@/components/WorkshopTheme'
 import { BrandLogo } from '@/components/BrandLogo'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { LangToggle } from '@/components/workbench/WorkbenchShell'
+import { Icon } from '@/components/Icon'
 
 const COPY = {
   de: {
@@ -88,7 +89,7 @@ export function LandingPage() {
             <label className="relative mt-8 block max-w-xl">
               <span className="sr-only">{copy.search}</span>
               <input aria-label={copy.search} value={query} onChange={(event) => setQuery(event.target.value)} placeholder={copy.search} className="w-full rounded-xl border border-slate-300 bg-white/90 px-4 py-3.5 pr-12 text-slate-900 shadow-sm outline-none placeholder:text-slate-400 focus:border-teal-600 focus:ring-2 focus:ring-teal-100" />
-              <span aria-hidden="true" className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-slate-400">⌕</span>
+              <Icon name="search" className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
             </label>
           </div>
 
@@ -115,7 +116,7 @@ export function LandingPage() {
                       <span className="rounded-full bg-[var(--workshop-accent-surface)] px-2.5 py-1 text-[11px] font-bold uppercase tracking-[0.12em] text-[var(--workshop-accent-ink)]">{workshop.theme === 'claude' ? 'AI' : 'NET'}</span>
                     </div>
                     <p className="mt-3 min-h-12 max-w-lg leading-relaxed text-slate-600">{workshop.summary?.[lang]}</p>
-                    <span className="mt-7 inline-flex items-center gap-2 text-sm font-semibold text-[var(--workshop-accent)]">{copy.open}<span aria-hidden="true" className="transition-transform group-hover:translate-x-1">→</span></span>
+                    <span className="mt-7 inline-flex items-center gap-2 text-sm font-semibold text-[var(--workshop-accent)]">{copy.open}<Icon name="arrowRight" className="h-4 w-4 transition-transform group-hover:translate-x-1" /></span>
                   </Link>
                 </WorkshopTheme>
               ))}
