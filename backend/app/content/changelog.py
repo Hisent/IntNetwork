@@ -1,5 +1,13 @@
 # Projekt-Changelog (nur für Trainer sichtbar). Neueste zuerst.
 CHANGELOG = [
+    {"date": "2026-07-21", "title": "v1.24.1 — Startproblem behoben",
+     "text": "Nach dem letzten Rollout konnte der Server unter Umständen nicht "
+             "starten: die Schema-Aktualisierung wartete unbegrenzt auf eine noch "
+             "offene Datenbank-Sitzung des vorherigen Containers, und das Frontend "
+             "startete gar nicht erst mit. Beides ist behoben — die Aktualisierung "
+             "bricht jetzt nach kurzer Wartezeit mit klarer Meldung ab und "
+             "wiederholt sich, und die Lernoberfläche startet unabhängig vom "
+             "Backend."},
     {"date": "2026-07-21", "title": "v1.24.0 — Protokoll, Sitzungsschutz & Betriebshärtung",
      "text": "Neues Trainer-Protokoll: wer hat wann Teilnehmer gelöscht, Codes "
              "zurückgesetzt, Inhalte gespeichert oder Kurse umgestellt (Abschnitt "

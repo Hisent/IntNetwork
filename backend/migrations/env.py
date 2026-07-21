@@ -1,6 +1,6 @@
 from logging.config import fileConfig
 
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text as sa_text
 from alembic import context
 
 from app.config import settings
@@ -42,6 +42,12 @@ def run_migrations_offline() -> None:
 def run_migrations_online() -> None:
     connectable = create_engine(settings.database_url)
     with connectable.connect() as connection:
+        if connection.dialect.name == "postgresql":
+            # Ohne lock_timeout wartet ein ALTER TABLE unbegrenzt auf eine fremde
+            # Sperre (z.B. die noch offene Session des alten Containers beim Deploy)
+            # — der Start hing dann still, statt zu scheitern. Jetzt bricht das DDL
+            # nach 10s mit klarer Meldung ab; run_migrations() versucht es erneut.
+            connection.execute(sa_text("SET lock_timeout = '10s'"))
         # render_as_batch=True: SQLite kennt kein natives ALTER — Batch-Modus baut
         # Tabellen bei Änderungen sauber um. Auf Postgres ein No-op.
         context.configure(connection=connection, target_metadata=target_metadata,

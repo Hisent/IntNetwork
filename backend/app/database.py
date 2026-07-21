@@ -3,8 +3,20 @@ from sqlalchemy.orm import DeclarativeBase, sessionmaker
 
 from app.config import settings
 
-connect_args = {"check_same_thread": False} if settings.database_url.startswith("sqlite") else {}
-engine = create_engine(settings.database_url, connect_args=connect_args)
+if settings.database_url.startswith("sqlite"):
+    connect_args = {"check_same_thread": False}
+    engine = create_engine(settings.database_url, connect_args=connect_args)
+else:
+    # idle_in_transaction_session_timeout: eine Session, die eine Transaktion offen
+    # liegen lässt, hält Tabellensperren und blockiert damit jedes ALTER TABLE beim
+    # nächsten Deploy (genau so hing v1.24 beim Start). Postgres beendet solche
+    # Sessions jetzt nach 60s selbst. pool_pre_ping fängt Connections ab, die ein
+    # DB-Neustart unter uns geschlossen hat.
+    engine = create_engine(
+        settings.database_url,
+        connect_args={"options": "-c idle_in_transaction_session_timeout=60000"},
+        pool_pre_ping=True,
+    )
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 

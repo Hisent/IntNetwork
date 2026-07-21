@@ -47,9 +47,12 @@ services:
     build:
       context: ./frontend
     restart: unless-stopped
+    # Bewusst KEIN "condition: service_healthy": kommt das Backend nicht hoch,
+    # soll das Frontend trotzdem starten und die API-Fehler anzeigen. Sonst fehlt
+    # dem Proxy jeder Container und der Nutzer sieht nur noch "no available
+    # server" (genau so eskalierte der v1.24-Startup-Hänger zum Totalausfall).
     depends_on:
-      backend:
-        condition: service_healthy
+      - backend
     healthcheck:
       test: ["CMD-SHELL", "wget -q --spider http://localhost/ || exit 1"]
       interval: 10s
