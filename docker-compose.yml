@@ -112,7 +112,6 @@ services:
       # und loescht es danach wieder; "noexec" verhindert, dass ein Playbook
       # sich hier eine eigene Binärdatei ablegt und ausfuehrt.
       - /tmp:size=64m,mode=1777,noexec
-    pids_limit: 128  # Bremse gegen Fork-Bomben/Prozess-Explosion durch ein boesartiges Playbook
     deploy:
       resources:
         limits:
@@ -121,6 +120,12 @@ services:
           # angemeldete Teilnehmende gemeinsam beanspruchen koennen.
           cpus: "1"
           memory: 768M
+          # Bremse gegen Fork-Bomben. Bewusst HIER und nicht als top-level
+          # "pids_limit": Coolify ergaenzt die deploy-Form selbst, und Compose
+          # lehnt beide Schreibweisen mit unterschiedlichen Werten ab
+          # ("can't set distinct values on 'pids_limit' and
+          # 'deploy.resources.limits.pids'", Deploy-Abbruch 2026-07-21).
+          pids: 128
     # ACHTUNG: KEIN healthcheck hier eintragen! Genau ein fehlschlagender
     # Healthcheck (beim Backend/Frontend) hat heute (2026-07-21) schon einen
     # Ausfall verursacht, siehe Warnkommentar oben beim Backend-Dienst. Der
