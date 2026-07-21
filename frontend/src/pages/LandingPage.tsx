@@ -9,6 +9,15 @@ import { ThemeToggle } from '@/components/ThemeToggle'
 import { LangToggle } from '@/components/workbench/WorkbenchShell'
 import { Icon } from '@/components/Icon'
 
+// Kurzabzeichen je Workshop-Thema. Fehlt ein Eintrag, greift der NET-Fallback —
+// bei einem neuen Workshop also hier ergänzen, sonst trägt er fälschlich „NET“.
+const THEME_BADGE: Record<string, string> = {
+  network: 'NET',
+  claude: 'AI',
+  infoblox: 'DDI',
+  ansible: 'AUTO',
+}
+
 const COPY = {
   de: {
     eyebrow: 'IntLab / Learning hub',
@@ -113,7 +122,7 @@ export function LandingPage() {
                     <div className="mb-8 h-2 w-16 rounded-full bg-[var(--workshop-accent)]" />
                     <div className="flex items-start justify-between gap-4">
                       <h2 className="text-2xl font-bold tracking-tight text-slate-950">{workshop.title[lang]}</h2>
-                      <span className="rounded-full bg-[var(--workshop-accent-surface)] px-2.5 py-1 text-[11px] font-bold uppercase tracking-[0.12em] text-[var(--workshop-accent-ink)]">{workshop.theme === 'claude' ? 'AI' : 'NET'}</span>
+                      <span className="rounded-full bg-[var(--workshop-accent-surface)] px-2.5 py-1 text-[11px] font-bold uppercase tracking-[0.12em] text-[var(--workshop-accent-ink)]">{THEME_BADGE[workshop.theme] ?? 'NET'}</span>
                     </div>
                     <p className="mt-3 min-h-12 max-w-lg leading-relaxed text-slate-600">{workshop.summary?.[lang]}</p>
                     <span className="mt-7 inline-flex items-center gap-2 text-sm font-semibold text-[var(--workshop-accent)]">{copy.open}<Icon name="arrowRight" className="h-4 w-4 transition-transform group-hover:translate-x-1" /></span>

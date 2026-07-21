@@ -13,6 +13,16 @@ import { ThemeToggle } from '@/components/ThemeToggle'
 import { LangToggle } from '@/components/workbench/WorkbenchShell'
 import { Icon } from '@/components/Icon'
 
+// Kicker über dem Workshop-Titel. Bewusst englisch wie zuvor (Marken-Duktus der
+// Landing). Fehlt ein Eintrag, steht dort neutral „Workshop“ — bei einem neuen
+// Lehrgang also hier ergänzen.
+const THEME_KICKER: Record<string, string> = {
+  network: 'Network workshop',
+  claude: 'AI workshop',
+  infoblox: 'DDI workshop',
+  ansible: 'Automation workshop',
+}
+
 export function WorkshopPage() {
   const { key = '' } = useParams()
   const nav = useNavigate()
@@ -90,7 +100,7 @@ export function WorkshopPage() {
           <div className="mt-14 grid gap-12 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start">
             <section className="order-2 lg:order-none">
               <div className="mb-5 h-2 w-20 rounded-full bg-[var(--workshop-accent)]" />
-              <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--workshop-accent)]">{data.theme === 'claude' ? 'AI workshop' : 'Network workshop'}</p>
+              <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--workshop-accent)]">{THEME_KICKER[data.theme] ?? 'Workshop'}</p>
               <h1 className="mt-3 max-w-3xl text-4xl font-bold tracking-[-0.03em] text-slate-950 sm:text-6xl">{data.title[lang]}</h1>
               <p className="mt-5 max-w-2xl text-lg leading-relaxed text-slate-600">{data.summary?.[lang]}</p>
               <div className="mt-10 space-y-7">

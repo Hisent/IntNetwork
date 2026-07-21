@@ -37,11 +37,54 @@ WORKSHOPS = {
         ],
         "context": None,
     },
+    "infoblox": {
+        "title_de": "Infoblox DDI",
+        "title_en": "Infoblox DDI",
+        "summary_de": "DNS, DHCP und IPAM als ein System betreiben — vom Grid bis zur Automatisierung.",
+        "summary_en": "Run DNS, DHCP and IPAM as one system — from the grid to automation.",
+        "theme": "infoblox",
+        "sections": [
+            {"key": "ib1", "from": 201, "to": 204, "title_de": "Block 1 · Grundlagen & Architektur", "title_en": "Block 1 · Fundamentals & architecture"},
+            {"key": "ib2", "from": 205, "to": 209, "title_de": "Block 2 · DNS", "title_en": "Block 2 · DNS"},
+            {"key": "ib3", "from": 210, "to": 213, "title_de": "Block 3 · DHCP & IPAM", "title_en": "Block 3 · DHCP & IPAM"},
+            {"key": "ib4", "from": 214, "to": 216, "title_de": "Block 4 · Betrieb & Automatisierung", "title_en": "Block 4 · Operations & automation"},
+        ],
+        "context": None,
+    },
+    "ansible": {
+        "title_de": "Ansible Automation",
+        "title_en": "Ansible Automation",
+        "summary_de": "Von der ersten Playbook-Zeile bis zum Betrieb der Automation Platform.",
+        "summary_en": "From your first playbook line to running the Automation Platform.",
+        "theme": "ansible",
+        "sections": [
+            {"key": "an1", "from": 301, "to": 304, "title_de": "Block 1 · Grundlagen", "title_en": "Block 1 · Fundamentals"},
+            {"key": "an2", "from": 305, "to": 309, "title_de": "Block 2 · Daten & Kontrollfluss", "title_en": "Block 2 · Data & control flow"},
+            {"key": "an3", "from": 310, "to": 312, "title_de": "Block 3 · Struktur, Geheimnisse & Qualität", "title_en": "Block 3 · Structure, secrets & quality"},
+            {"key": "an4", "from": 313, "to": 315, "title_de": "Block 4 · Plattform & Netzwerk", "title_en": "Block 4 · Platform & network"},
+        ],
+        "context": None,
+    },
 }
+
+# Der order-Wert eines Moduls entscheidet, zu welchem Workshop es gehört — die
+# Bereiche sind die einzige Zuordnung, es gibt kein zweites Feld in der
+# Seed-Quelle. Neue Workshops brauchen deshalb einen eigenen Hunderterblock,
+# und bestehende Module dürfen NIE umnummeriert werden (das verschöbe sie
+# stillschweigend in einen anderen Kurs). Absteigend geprüft, damit der
+# Standardfall (Netzwerk, 1-99) am Ende steht.
+_ORDER_RANGES = (
+    (300, "ansible"),
+    (200, "infoblox"),
+    (100, "claude-code"),
+)
 
 
 def workshop_for_order(order: int) -> str:
-    return "claude-code" if order >= 100 else "network"
+    for start, key in _ORDER_RANGES:
+        if order >= start:
+            return key
+    return "network"
 
 
 def seed_workshops(db: Session) -> None:

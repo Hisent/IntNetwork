@@ -1,5 +1,7 @@
 import type { ReactNode } from 'react'
 
-export function WorkshopTheme({ theme = 'network', children }: { theme?: 'network' | 'claude'; children: ReactNode }) {
+export type WorkshopThemeName = 'network' | 'claude' | 'infoblox' | 'ansible'
+
+export function WorkshopTheme({ theme = 'network', children }: { theme?: WorkshopThemeName; children: ReactNode }) {
   return <div className={`workshop-theme workshop-theme--${theme}`}>{children}</div>
 }

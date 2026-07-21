@@ -29,6 +29,29 @@ def test_every_seeded_module_maps_to_exactly_one_section():
             f"Abschnitte von Workshop {workshop_key!r}, erwartet genau 1")
 
 
+def test_workshop_for_order_ranges():
+    """Die order-Bereiche sind die EINZIGE Workshop-Zuordnung eines Seed-Moduls.
+    Ein Fehler hier verschiebt Module stillschweigend in den falschen Kurs,
+    deshalb die Grenzen explizit festnageln."""
+    for order, expected in [
+        (1, "network"), (17, "network"), (99, "network"),
+        (100, "claude-code"), (118, "claude-code"), (199, "claude-code"),
+        (200, "infoblox"), (216, "infoblox"), (299, "infoblox"),
+        (300, "ansible"), (315, "ansible"), (399, "ansible"),
+    ]:
+        assert workshop_for_order(order) == expected, f"order {order} falsch zugeordnet"
+
+
+def test_every_workshop_has_modules():
+    """Ein Workshop ohne Module erscheint im Katalog, ist aber leer — das soll
+    nicht unbemerkt passieren."""
+    counts = {key: 0 for key in WORKSHOPS}
+    for module in MODULES.values():
+        counts[workshop_for_order(module["order"])] += 1
+    leer = [key for key, count in counts.items() if count == 0]
+    assert not leer, f"Workshops ohne Module: {leer}"
+
+
 def test_workshop_catalog_and_code_bound_join():
     with TestClient(app) as client:
         workshops = client.get("/api/workshops")

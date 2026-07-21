@@ -1,5 +1,17 @@
 # Projekt-Changelog (nur für Trainer sichtbar). Neueste zuerst.
 CHANGELOG = [
+    {"date": "2026-07-21", "title": "v1.29.0 — Zwei neue Lehrgänge: Infoblox DDI und Ansible Automation",
+     "text": "Das Portal hat zwei weitere Lehrgänge. „Infoblox DDI“ mit 16 Modulen führt "
+             "von der Grid-Architektur über DNS, DHCP und IPAM bis zu Backup, WAPI und "
+             "einer Abschluss-Fehlersuche. „Ansible Automation“ mit 15 Modulen geht von "
+             "den Grundlagen über Playbooks, Variablen, Rollen und Vault bis zur "
+             "Automation Platform und zur Netzwerk-Automatisierung. Beide sind "
+             "zweisprachig, haben eigene Farbwelten (Blau bzw. Violett) und arbeiten mit "
+             "Selbst-Checks, Sortier- und Fehlersuchaufgaben — sie brauchen also weder "
+             "ein Infoblox-Grid noch eine Ansible-Umgebung zum Üben. Die Inhalte "
+             "entstanden auf Grundlage öffentlicher Herstellerdokumentation und "
+             "veröffentlichter Kurspläne; unsichere Punkte wie Versionsstände sind "
+             "bewusst offen formuliert."},
     {"date": "2026-07-21", "title": "v1.28.0 — Modulnummern, Löschschutz & Feinschliff",
      "text": "Die Module des Claude-Code-Workshops wurden als „Modul 101“ bis "
              "„Modul 118“ gezählt — das war eine interne Sortiernummer. Sie zählen "

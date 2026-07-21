@@ -36,12 +36,46 @@ from app.content.cc_safe_ai_workflows import SAFE_AI_WORKFLOWS_MODULE
 from app.content.cc_effective_workflows import EFFECTIVE_WORKFLOWS_MODULE
 from app.content.cc_git_collaboration import GIT_COLLABORATION_MODULE
 from app.content.cc_capstone import CAPSTONE_MODULE
+# --- Infoblox-DDI-Workshop (order 201-216) ---
+from app.content.ib_ueberblick import INFOBLOX_UEBERBLICK_MODULE
+from app.content.ib_grid import GRID_ARCHITEKTUR_MODULE
+from app.content.ib_rollen import ROLLEN_BERECHTIGUNGEN_MODULE
+from app.content.ib_extensible_attributes import EXTENSIBLE_ATTRIBUTES_MODULE
+from app.content.ib_dns_zonen import DNS_ZONEN_MODULE
+from app.content.ib_dns_views import DNS_VIEWS_MODULE
+from app.content.ib_dns_ha import DNS_HA_MODULE
+from app.content.ib_dnssec import DNSSEC_MODULE
+from app.content.ib_rpz import RPZ_MODULE
+from app.content.ib_dhcp import DHCP_INFOBLOX_MODULE
+from app.content.ib_dhcp_failover import DHCP_FAILOVER_MODULE
+from app.content.ib_ipam import IPAM_MODULE
+from app.content.ib_reporting import REPORTING_MODULE
+from app.content.ib_betrieb import BETRIEB_MODULE
+from app.content.ib_wapi import WAPI_MODULE
+from app.content.ib_troubleshooting import IB_TROUBLESHOOTING_MODULE
+# --- Ansible-Automation-Workshop (order 301-315) ---
+from app.content.an_grundlagen import ANSIBLE_GRUNDLAGEN_MODULE
+from app.content.an_inventare import INVENTARE_MODULE
+from app.content.an_playbooks import PLAYBOOKS_MODULE
+from app.content.an_module_collections import MODULE_COLLECTIONS_MODULE
+from app.content.an_variablen import VARIABLEN_MODULE
+from app.content.an_fakten_bedingungen import FAKTEN_BEDINGUNGEN_MODULE
+from app.content.an_schleifen_handler import SCHLEIFEN_HANDLER_MODULE
+from app.content.an_templates import TEMPLATES_MODULE
+from app.content.an_idempotenz import IDEMPOTENZ_MODULE
+from app.content.an_rollen import ROLLEN_MODULE
+from app.content.an_vault import VAULT_MODULE
+from app.content.an_qualitaet import QUALITAET_MODULE
+from app.content.an_aap_ueberblick import AAP_UEBERBLICK_MODULE
+from app.content.an_controller import CONTROLLER_MODULE
+from app.content.an_netzwerk import NETZWERK_MODULE
 
 from app.models.content import ContentBlock, ContentModule, ContentQuizQuestion
 
 # Nur noch Seed-Quelle für seed_missing_content() (app/content/seed.py) — die
 # Trainer-/Teilnehmer-Auslieferung unten liest ausschließlich aus der DB.
-MODULES = {m["key"]: m for m in (PAKET_MODULE, SWITCHING_MODULE, VLAN_MODULE, SUBNETTING_MODULE, ARP_MODULE, ROUTING_MODULE, NAT_MODULE, DNS_MODULE, DHCP_MODULE, PORTS_MODULE, ICMP_MODULE, FIREWALL_MODULE, IPV6_MODULE, WLAN_MODULE, VPN_MODULE, TROUBLESHOOTING_MODULE, WIRESHARK_MODULE, LLM_GRUNDLAGEN_MODULE, AGENTIC_CODING_MODULE, INSTALLATION_SETUP_MODULE, CLI_WORKFLOWS_MODULE, CLAUDE_MD_MODULE, SKILLS_COMMANDS_MODULE, PLUGINS_MODULE, MCP_MODULE, SUBAGENTS_MODULE, SPEC_DRIVEN_BMAD_MODULE, HOOKS_MODULE, CI_CD_MODULE, ORCHESTRATION_MODULE, SECURITY_ENTERPRISE_MODULE, SAFE_AI_WORKFLOWS_MODULE, EFFECTIVE_WORKFLOWS_MODULE, GIT_COLLABORATION_MODULE, CAPSTONE_MODULE)}
+MODULES = {m["key"]: m for m in (PAKET_MODULE, SWITCHING_MODULE, VLAN_MODULE, SUBNETTING_MODULE, ARP_MODULE, ROUTING_MODULE, NAT_MODULE, DNS_MODULE, DHCP_MODULE, PORTS_MODULE, ICMP_MODULE, FIREWALL_MODULE, IPV6_MODULE, WLAN_MODULE, VPN_MODULE, TROUBLESHOOTING_MODULE, WIRESHARK_MODULE, LLM_GRUNDLAGEN_MODULE, AGENTIC_CODING_MODULE, INSTALLATION_SETUP_MODULE, CLI_WORKFLOWS_MODULE, CLAUDE_MD_MODULE, SKILLS_COMMANDS_MODULE, PLUGINS_MODULE, MCP_MODULE, SUBAGENTS_MODULE, SPEC_DRIVEN_BMAD_MODULE, HOOKS_MODULE, CI_CD_MODULE, ORCHESTRATION_MODULE, SECURITY_ENTERPRISE_MODULE, SAFE_AI_WORKFLOWS_MODULE, EFFECTIVE_WORKFLOWS_MODULE, GIT_COLLABORATION_MODULE, CAPSTONE_MODULE,
+    INFOBLOX_UEBERBLICK_MODULE, GRID_ARCHITEKTUR_MODULE, ROLLEN_BERECHTIGUNGEN_MODULE, EXTENSIBLE_ATTRIBUTES_MODULE, DNS_ZONEN_MODULE, DNS_VIEWS_MODULE, DNS_HA_MODULE, DNSSEC_MODULE, RPZ_MODULE, DHCP_INFOBLOX_MODULE, DHCP_FAILOVER_MODULE, IPAM_MODULE, REPORTING_MODULE, BETRIEB_MODULE, WAPI_MODULE, IB_TROUBLESHOOTING_MODULE, ANSIBLE_GRUNDLAGEN_MODULE, INVENTARE_MODULE, PLAYBOOKS_MODULE, MODULE_COLLECTIONS_MODULE, VARIABLEN_MODULE, FAKTEN_BEDINGUNGEN_MODULE, SCHLEIFEN_HANDLER_MODULE, TEMPLATES_MODULE, IDEMPOTENZ_MODULE, ROLLEN_MODULE, VAULT_MODULE, QUALITAET_MODULE, AAP_UEBERBLICK_MODULE, CONTROLLER_MODULE, NETZWERK_MODULE)}
 
 
 def _resolve(value, lang: str):

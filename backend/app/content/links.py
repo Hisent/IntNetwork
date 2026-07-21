@@ -99,7 +99,71 @@ CLAUDE_LINKS = [
 # Rückwärtskompatibel (Tests/alte Importe) — Standard bleibt die Netzwerksammlung.
 LINKS = NETWORK_LINKS
 
+INFOBLOX_LINKS = [
+    {"category": {"de": "Herstellerdoku", "en": "Vendor documentation"},
+     "items": [
+         {"title": "Infoblox Documentation Portal",
+          "url": "https://docs.infoblox.com/",
+          "desc": {"de": "Die offizielle Dokumentation zu NIOS und Universal DDI — erste Anlaufstelle bei konkreten Fragen.",
+                   "en": "Official documentation for NIOS and Universal DDI — the first stop for concrete questions."}},
+         {"title": "Infoblox Community",
+          "url": "https://community.infoblox.com/",
+          "desc": {"de": "Forum mit Praxisfragen anderer Betreiber — oft findet sich hier ein Fehlerbild wieder.",
+                   "en": "Forum with practitioners' questions — often the place where a symptom already has an answer."}},
+     ]},
+    {"category": {"de": "Standards hinter den Diensten", "en": "Standards behind the services"},
+     "items": [
+         {"title": "RFC 1035 — Domain Names",
+          "url": "https://www.rfc-editor.org/rfc/rfc1035",
+          "desc": {"de": "Der DNS-Basisstandard: Zonen, Records, Abfrageformat.",
+                   "en": "The DNS base standard: zones, records, query format."}},
+         {"title": "RFC 2131 — DHCP",
+          "url": "https://www.rfc-editor.org/rfc/rfc2131",
+          "desc": {"de": "Der DHCP-Standard mit dem vollständigen DORA-Ablauf und den Lease-Regeln.",
+                   "en": "The DHCP standard with the full DORA exchange and lease rules."}},
+         {"title": "ICANN: Was ist DNSSEC?",
+          "url": "https://www.icann.org/resources/pages/dnssec-what-is-it-why-important-2019-03-05-en",
+          "desc": {"de": "Kompakte Erklärung der Vertrauenskette — gute Ergänzung zum DNSSEC-Modul.",
+                   "en": "A compact explanation of the chain of trust — a good companion to the DNSSEC module."}},
+         {"title": "ISC: Response Policy Zones",
+          "url": "https://www.isc.org/rpz/",
+          "desc": {"de": "Ursprung und Funktionsweise der DNS-Firewall, auf der RPZ-Produkte aufsetzen.",
+                   "en": "Origin and mechanics of the DNS firewall that RPZ products build on."}},
+     ]},
+]
+
+ANSIBLE_LINKS = [
+    {"category": {"de": "Offizielle Dokumentation", "en": "Official documentation"},
+     "items": [
+         {"title": "Ansible Documentation",
+          "url": "https://docs.ansible.com/",
+          "desc": {"de": "Referenz für Module, Plugins und Sprachelemente — das Nachschlagewerk im Alltag.",
+                   "en": "Reference for modules, plugins and language elements — the day-to-day manual."}},
+         {"title": "Ansible Galaxy",
+          "url": "https://galaxy.ansible.com/",
+          "desc": {"de": "Verzeichnis der Collections und Rollen: erst schauen, ob es das schon gibt.",
+                   "en": "Directory of collections and roles: check whether it already exists."}},
+         {"title": "Jinja-Template-Dokumentation",
+          "url": "https://jinja.palletsprojects.com/",
+          "desc": {"de": "Die Template-Sprache hinter allen Ansible-Templates und Variablenausdrücken.",
+                   "en": "The template language behind every Ansible template and variable expression."}},
+     ]},
+    {"category": {"de": "Üben & Qualität", "en": "Practice & quality"},
+     "items": [
+         {"title": "Red Hat Ansible Workshops",
+          "url": "https://github.com/ansible/workshops",
+          "desc": {"de": "Offenes Übungsmaterial mit vollständigen Lab-Abläufen — gut zum Weiterüben nach dem Kurs.",
+                   "en": "Open workshop material with complete lab flows — good for practising beyond this course."}},
+         {"title": "ansible-lint",
+          "url": "https://docs.ansible.com/projects/lint/",
+          "desc": {"de": "Prüft Playbooks auf Stil- und Zuverlässigkeitsprobleme, bevor sie irgendwo laufen.",
+                   "en": "Checks playbooks for style and reliability problems before they run anywhere."}},
+     ]},
+]
+
 LINKS_BY_WORKSHOP = {
     "network": NETWORK_LINKS,
     "claude-code": CLAUDE_LINKS,
+    "infoblox": INFOBLOX_LINKS,
+    "ansible": ANSIBLE_LINKS,
 }

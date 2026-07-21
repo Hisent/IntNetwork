@@ -38,8 +38,10 @@
   --wb-warning: #fbbf24;
 }
 [data-theme="dark"] .wb-topbar { background: rgb(13 20 23 / 92%); }
-/* Claude-Workshop im Dark Mode: warmes Akzent-Soft statt des hellen Cremetons. */
-[data-theme="dark"] .workshop-theme--claude .workbench { --wb-accent-soft: #35210f; }
+/* Die Kursakzente (Claude, Infoblox, Ansible) setzen --wb-accent/-hover/-soft
+   gesammelt in index.css aus den Theme-Variablen — hell wie dunkel. Hier stand
+   früher eine Claude-Sonderregel für den Dark Mode; sie ist damit überflüssig
+   und würde sich mit dem gemeinsamen Block nur um die Spezifität streiten. */
 
 .workbench *:focus-visible {
   outline-color: var(--wb-accent);

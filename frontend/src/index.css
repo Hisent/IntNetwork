@@ -25,7 +25,9 @@ body {
   color: #e6eeec;
 }
 [data-theme="dark"] .workshop-theme--network { --workshop-accent-surface: #0d1417; --workshop-accent-line: #1f4b45; --workshop-accent-soft: #123531; }
-[data-theme="dark"] .workshop-theme--claude { --workshop-accent-surface: #17110b; --workshop-accent-line: #5a3a1c; --workshop-accent-soft: #35210f; }
+[data-theme="dark"] .workshop-theme--claude { --workshop-accent-surface: #17110b; }
+[data-theme="dark"] .workshop-theme--infoblox { --workshop-accent-surface: #0d1420; }
+[data-theme="dark"] .workshop-theme--ansible { --workshop-accent-surface: #150f22; }
 
 /* ---------------------------------------------------------------------------
  * Dark-Mode-Palette (Paletten-Override statt Einzelklassen-Handliste).
@@ -256,50 +258,119 @@ p { text-wrap: pretty; }
   --workshop-logo-node: #5eead4;
   --workshop-logo-center: #0f766e;
 }
+/* Die Nicht-Netzwerk-Themes setzen NUR Variablen. Die eigentliche Umschreibung
+   der teal-Utilities (die in Quiz/Blocks fest verdrahtet sind) steht einmal
+   weiter unten und liest diese Variablen — vorher stand derselbe Regelblock
+   je Theme zweimal da (hell + dunkel), was pro neuem Workshop ~28 Zeilen
+   Kopie bedeutet hätte.
+   --workshop-accent-strong = teal-500-Rolle, --workshop-accent-pale = die
+   hellen teal-100..400-Rollen (Text auf farbigem Grund). */
 .workshop-theme--claude {
   --workshop-accent: #c2410c;
   --workshop-accent-hover: #9a3412;
+  --workshop-accent-strong: #ea580c;
   --workshop-accent-soft: #ffedd5;
   --workshop-accent-surface: #fff7ed;
   --workshop-accent-line: #fdba74;
   --workshop-accent-ink: #7c2d12;
+  --workshop-accent-pale: #ffedd5;
   --workshop-logo-line: #fb923c;
   --workshop-logo-node: #fdba74;
   --workshop-logo-center: #c2410c;
 }
-.workshop-theme--claude :focus-visible { outline-color: var(--workshop-accent); }
+/* Infoblox: kühles Blau — bewusst weit weg vom Teal des Netzwerkkurses und vom
+   Orange des Claude-Kurses, damit sich die drei Lehrgänge auf einen Blick
+   unterscheiden. */
+.workshop-theme--infoblox {
+  --workshop-accent: #1d4ed8;
+  --workshop-accent-hover: #1e40af;
+  --workshop-accent-strong: #2563eb;
+  --workshop-accent-soft: #dbeafe;
+  --workshop-accent-surface: #eff6ff;
+  --workshop-accent-line: #93c5fd;
+  --workshop-accent-ink: #1e3a8a;
+  --workshop-accent-pale: #dbeafe;
+  --workshop-logo-line: #60a5fa;
+  --workshop-logo-node: #93c5fd;
+  --workshop-logo-center: #1d4ed8;
+}
+/* Ansible: Violett statt des naheliegenden Rots — Rot ist in dieser App die
+   Fehlerfarbe (rose/red bei falschen Antworten, Löschaktionen). Ein roter
+   Kursakzent würde diese Bedeutung verwässern. */
+.workshop-theme--ansible {
+  --workshop-accent: #6d28d9;
+  --workshop-accent-hover: #5b21b6;
+  --workshop-accent-strong: #7c3aed;
+  --workshop-accent-soft: #ede9fe;
+  --workshop-accent-surface: #f5f3ff;
+  --workshop-accent-line: #c4b5fd;
+  --workshop-accent-ink: #4c1d95;
+  --workshop-accent-pale: #ede9fe;
+  --workshop-logo-line: #a78bfa;
+  --workshop-logo-node: #c4b5fd;
+  --workshop-logo-center: #6d28d9;
+}
+.workshop-theme:not(.workshop-theme--network) :focus-visible { outline-color: var(--workshop-accent); }
 
-/* Diese Claude-Workshop-Overrides gelten nur im Light Mode (Cremeton-Akzent
-   auf hellem Grund). Im Dark Mode gilt stattdessen der Block weiter unten —
-   sonst kippt der warme Akzent den Dark Mode auf Hellwerte zurück (Bug). */
-:root:not([data-theme="dark"]) .workshop-theme--claude .bg-teal-600 { background-color: var(--workshop-accent); }
-:root:not([data-theme="dark"]) .workshop-theme--claude .bg-teal-500 { background-color: #ea580c; }
-:root:not([data-theme="dark"]) .workshop-theme--claude .bg-teal-50 { background-color: #fff7ed; }
-:root:not([data-theme="dark"]) .workshop-theme--claude .from-teal-50 { --tw-gradient-from: #fff7ed; }
-:root:not([data-theme="dark"]) .workshop-theme--claude .to-emerald-50 { --tw-gradient-to: #fff7ed; }
-:root:not([data-theme="dark"]) .workshop-theme--claude .text-teal-600, :root:not([data-theme="dark"]) .workshop-theme--claude .text-teal-700 { color: var(--workshop-accent); }
-:root:not([data-theme="dark"]) .workshop-theme--claude .text-teal-800, :root:not([data-theme="dark"]) .workshop-theme--claude .text-teal-900 { color: #7c2d12; }
-:root:not([data-theme="dark"]) .workshop-theme--claude .text-teal-100, :root:not([data-theme="dark"]) .workshop-theme--claude .text-teal-200, :root:not([data-theme="dark"]) .workshop-theme--claude .text-teal-300, :root:not([data-theme="dark"]) .workshop-theme--claude .text-teal-400 { color: #ffedd5; }
-:root:not([data-theme="dark"]) .workshop-theme--claude .border-teal-600, :root:not([data-theme="dark"]) .workshop-theme--claude .border-teal-200, :root:not([data-theme="dark"]) .workshop-theme--claude .border-teal-100 { border-color: #fdba74; }
-:root:not([data-theme="dark"]) .workshop-theme--claude .ring-teal-500 { --tw-ring-color: #ea580c; }
-:root:not([data-theme="dark"]) .workshop-theme--claude .hover\:bg-teal-700:hover { background-color: var(--workshop-accent-hover); }
-:root:not([data-theme="dark"]) .workshop-theme--claude .workbench { --wb-accent: #c2410c; --wb-accent-hover: #9a3412; --wb-accent-soft: #fff7ed; }
-
-/* Dark-Gegenstück: derselbe warme Orange-Akzent, aber auf dunklem Grund statt
-   Cremeton. Nur am Bildschirm (Druck bleibt hell, s.o.). */
+/* Dark-Werte je Theme: nur die Variablen umschreiben, der Regelblock darunter
+   bleibt unverändert. Nur am Bildschirm — im Druck gelten die hellen Werte. */
 @media screen {
-  [data-theme="dark"] .workshop-theme--claude .bg-teal-600 { background-color: #fb923c; }
-  [data-theme="dark"] .workshop-theme--claude .bg-teal-500 { background-color: #fdba74; }
-  [data-theme="dark"] .workshop-theme--claude .bg-teal-50 { background-color: #35210f; }
-  [data-theme="dark"] .workshop-theme--claude .from-teal-50 { --tw-gradient-from: #35210f; }
-  [data-theme="dark"] .workshop-theme--claude .to-emerald-50 { --tw-gradient-to: #35210f; }
-  [data-theme="dark"] .workshop-theme--claude .text-teal-600, [data-theme="dark"] .workshop-theme--claude .text-teal-700 { color: #fdba74; }
-  [data-theme="dark"] .workshop-theme--claude .text-teal-800, [data-theme="dark"] .workshop-theme--claude .text-teal-900 { color: #ffedd5; }
-  [data-theme="dark"] .workshop-theme--claude .text-teal-100, [data-theme="dark"] .workshop-theme--claude .text-teal-200, [data-theme="dark"] .workshop-theme--claude .text-teal-300, [data-theme="dark"] .workshop-theme--claude .text-teal-400 { color: #5a3a1c; }
-  [data-theme="dark"] .workshop-theme--claude .border-teal-600, [data-theme="dark"] .workshop-theme--claude .border-teal-200, [data-theme="dark"] .workshop-theme--claude .border-teal-100 { border-color: #5a3a1c; }
-  [data-theme="dark"] .workshop-theme--claude .ring-teal-500 { --tw-ring-color: #fdba74; }
-  [data-theme="dark"] .workshop-theme--claude .hover\:bg-teal-700:hover { background-color: #9a3412; }
-  [data-theme="dark"] .workshop-theme--claude .workbench { --wb-accent: #fb923c; --wb-accent-hover: #fdba74; --wb-accent-soft: #35210f; }
+  [data-theme="dark"] .workshop-theme--claude {
+    --workshop-accent: #fb923c;
+    --workshop-accent-hover: #9a3412;
+    --workshop-accent-strong: #fdba74;
+    --workshop-accent-soft: #35210f;
+    --workshop-accent-line: #5a3a1c;
+    --workshop-accent-ink: #ffedd5;
+    --workshop-accent-pale: #5a3a1c;
+  }
+  [data-theme="dark"] .workshop-theme--infoblox {
+    --workshop-accent: #60a5fa;
+    --workshop-accent-hover: #93c5fd;
+    --workshop-accent-strong: #93c5fd;
+    --workshop-accent-soft: #12203a;
+    --workshop-accent-line: #2b4a7a;
+    --workshop-accent-ink: #dbeafe;
+    --workshop-accent-pale: #2b4a7a;
+  }
+  [data-theme="dark"] .workshop-theme--ansible {
+    --workshop-accent: #a78bfa;
+    --workshop-accent-hover: #c4b5fd;
+    --workshop-accent-strong: #c4b5fd;
+    --workshop-accent-soft: #241a3a;
+    --workshop-accent-line: #3f2f66;
+    --workshop-accent-ink: #ede9fe;
+    --workshop-accent-pale: #3f2f66;
+  }
+}
+
+/* Ein Regelblock für ALLE Nicht-Netzwerk-Themes. Quiz.tsx und Blocks.tsx
+   verdrahten teal-Utilities fest; hier werden sie auf den Kursakzent
+   umgeschrieben. Der Netzwerkkurs ist ausgenommen, weil teal dort die
+   Originalfarbe ist. Werte kommen aus den Theme-Variablen oben, deshalb gilt
+   derselbe Block in beiden Modi. */
+.workshop-theme:not(.workshop-theme--network) .bg-teal-600 { background-color: var(--workshop-accent); }
+.workshop-theme:not(.workshop-theme--network) .bg-teal-500 { background-color: var(--workshop-accent-strong); }
+.workshop-theme:not(.workshop-theme--network) .bg-teal-50 { background-color: var(--workshop-accent-soft); }
+.workshop-theme:not(.workshop-theme--network) .from-teal-50 { --tw-gradient-from: var(--workshop-accent-soft); }
+.workshop-theme:not(.workshop-theme--network) .to-emerald-50 { --tw-gradient-to: var(--workshop-accent-soft); }
+.workshop-theme:not(.workshop-theme--network) .text-teal-600,
+.workshop-theme:not(.workshop-theme--network) .text-teal-700 { color: var(--workshop-accent); }
+.workshop-theme:not(.workshop-theme--network) .text-teal-800,
+.workshop-theme:not(.workshop-theme--network) .text-teal-900 { color: var(--workshop-accent-ink); }
+.workshop-theme:not(.workshop-theme--network) .text-teal-100,
+.workshop-theme:not(.workshop-theme--network) .text-teal-200,
+.workshop-theme:not(.workshop-theme--network) .text-teal-300,
+.workshop-theme:not(.workshop-theme--network) .text-teal-400 { color: var(--workshop-accent-pale); }
+.workshop-theme:not(.workshop-theme--network) .border-teal-600,
+.workshop-theme:not(.workshop-theme--network) .border-teal-200,
+.workshop-theme:not(.workshop-theme--network) .border-teal-100 { border-color: var(--workshop-accent-line); }
+.workshop-theme:not(.workshop-theme--network) .ring-teal-500 { --tw-ring-color: var(--workshop-accent-strong); }
+.workshop-theme:not(.workshop-theme--network) .hover\:bg-teal-700:hover { background-color: var(--workshop-accent-hover); }
+.workshop-theme:not(.workshop-theme--network) .workbench {
+  --wb-accent: var(--workshop-accent);
+  --wb-accent-hover: var(--workshop-accent-hover);
+  --wb-accent-soft: var(--workshop-accent-soft);
 }
 
 /* ruhiger Einstieg (nur wenn Motion erwünscht) */
