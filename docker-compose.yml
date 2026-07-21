@@ -31,12 +31,12 @@ services:
     depends_on:
       db:
         condition: service_healthy
-    healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://localhost:8000/api/health', timeout=3).status == 200 else 1)"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
-      start_period: 20s
+    # ACHTUNG: KEINEN healthcheck für backend/frontend eintragen. Coolify routet
+    # per Traefik ausschliesslich auf Container im Zustand "healthy" — ein Check,
+    # der in dieser Umgebung anders ausfaellt als lokal gedacht, nimmt den Dienst
+    # sofort komplett vom Netz ("no available server", Vorfall 2026-07-21). Wenn
+    # Healthchecks doch gewuenscht sind: erst in Coolify gegen einen Test-Deploy
+    # verifizieren, nicht blind hier eintragen.
     deploy:
       resources:
         limits:
@@ -53,12 +53,6 @@ services:
     # server" (genau so eskalierte der v1.24-Startup-Hänger zum Totalausfall).
     depends_on:
       - backend
-    healthcheck:
-      test: ["CMD-SHELL", "wget -q --spider http://localhost/ || exit 1"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
-      start_period: 10s
     deploy:
       resources:
         limits:

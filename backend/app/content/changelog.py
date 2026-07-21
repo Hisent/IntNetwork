@@ -1,5 +1,12 @@
 # Projekt-Changelog (nur für Trainer sichtbar). Neueste zuerst.
 CHANGELOG = [
+    {"date": "2026-07-21", "title": "v1.24.2 — Erreichbarkeit wiederhergestellt",
+     "text": "Die mit v1.24.0 eingeführten Container-Statusprüfungen sind wieder "
+             "entfernt: der Reverse-Proxy leitet nur auf Container mit Status "
+             "„gesund“, und die neuen Prüfungen fielen in der Serverumgebung "
+             "anders aus als vorgesehen — dadurch war die Anwendung nicht mehr "
+             "erreichbar. Backup-Skripte, Sicherheits-Header und der "
+             "Migrationsschutz aus v1.24 bleiben unverändert erhalten."},
     {"date": "2026-07-21", "title": "v1.24.1 — Startproblem behoben",
      "text": "Nach dem letzten Rollout konnte der Server unter Umständen nicht "
              "starten: die Schema-Aktualisierung wartete unbegrenzt auf eine noch "
