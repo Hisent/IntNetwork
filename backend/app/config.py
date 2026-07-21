@@ -1,7 +1,7 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 DEFAULT_SECRET_KEY = "change-me-intnetwork-default-secret"
-APP_VERSION = "1.30.0"
+APP_VERSION = "1.31.0"
 
 
 class Settings(BaseSettings):
@@ -15,12 +15,12 @@ class Settings(BaseSettings):
     # Kommaseparierte erlaubte Frontend-Origins für CORS. In Prod auf die echte
     # Domain setzen (z.B. "https://kurs.example.com"); Default = lokale Entwicklung.
     allowed_origins: str = "http://localhost:5173"
-    # Ansible-Lab: nur aktiv, wenn BEIDE Werte gesetzt sind. Ohne Runner
+    # Ansible-Lab: nur aktiv, wenn dieses Verzeichnis gesetzt ist und ein
+    # in/-Unterordner existiert (gemeinsames Volume mit dem Runner). Ohne das
     # antwortet /api/lab mit 503 und das Widget zeigt einen Hinweis — der Kurs
-    # funktioniert weiter. Der Runner laeuft absichtlich in einem eigenen
-    # Container ohne Geheimnisse und ohne Weg ins Internet (siehe runner/app.py).
-    lab_runner_url: str = ""
-    lab_runner_token: str = ""
+    # funktioniert weiter. Der Runner-Container hat network_mode: none, also
+    # gar kein Netz; der Austausch laeuft ueber Dateien (siehe runner/worker.py).
+    lab_queue_dir: str = ""
     lab_timeout_seconds: int = 30
 
     @property

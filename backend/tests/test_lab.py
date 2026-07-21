@@ -1,11 +1,14 @@
-"""Tests fuer das Ansible-Lab.
+"""Tests fuer das Ansible-Lab (Datei-Warteschlange).
 
-Der Kern: Ohne konfigurierten Runner darf das Lab nicht halb funktionieren,
-sondern muss sauber 503 melden — sonst haengt das Widget im Nichts. Und die
-Endpunkte gehoeren hinter die Teilnehmer-Anmeldung, weil dahinter echte
-Codeausfuehrung liegt.
+Der Kern: Ohne konfigurierte Warteschlange darf das Lab nicht halb
+funktionieren, sondern muss sauber 503 melden — sonst haengt das Widget im
+Nichts. Und die Endpunkte gehoeren hinter die Teilnehmer-Anmeldung, weil
+dahinter echte Codeausfuehrung liegt.
 """
-import httpx
+import json
+import threading
+import time
+
 import pytest
 from fastapi.testclient import TestClient
 
@@ -20,15 +23,44 @@ def _trainer(client):
     return {"Authorization": f"Bearer {token}"}
 
 
-def _teilnehmer(client):
+def _teilnehmer(client, name="Lab-Lerner"):
     kopf = _trainer(client)
     kurs = client.post("/api/courses", json={
-        "name": "Lab-Kurs", "workshop_key": "ansible",
+        "name": f"Lab-Kurs {name}", "workshop_key": "ansible",
     }, headers=kopf).json()
     token = client.post("/api/join", json={
-        "code": kurs["join_code"], "name": "Lab-Lerner",
+        "code": kurs["join_code"], "name": name,
     }).json()["access_token"]
     return {"Authorization": f"Bearer {token}"}
+
+
+@pytest.fixture()
+def warteschlange(tmp_path, monkeypatch):
+    (tmp_path / "in").mkdir()
+    (tmp_path / "out").mkdir()
+    monkeypatch.setattr(settings, "lab_queue_dir", str(tmp_path))
+    return tmp_path
+
+
+def _fake_runner(warteschlange, ergebnis: dict, verzoegerung: float = 0.05):
+    """Beantwortet genau einen Auftrag — wie der echte Runner, nur ohne Ansible."""
+    def arbeiten():
+        frist = time.monotonic() + 10
+        while time.monotonic() < frist:
+            auftraege = list((warteschlange / "in").glob("*.json"))
+            if auftraege:
+                pfad = auftraege[0]
+                auftrag = json.loads(pfad.read_text(encoding="utf-8"))
+                pfad.unlink()
+                time.sleep(verzoegerung)
+                (warteschlange / "out" / pfad.name).write_text(
+                    json.dumps({**ergebnis, "_workspace": auftrag.get("workspace")}),
+                    encoding="utf-8")
+                return
+            time.sleep(0.02)
+    faden = threading.Thread(target=arbeiten, daemon=True)
+    faden.start()
+    return faden
 
 
 def test_lab_braucht_anmeldung():
@@ -37,80 +69,64 @@ def test_lab_braucht_anmeldung():
         assert client.post("/api/lab/run", json={"playbook": "- hosts: all"}).status_code in (401, 403)
 
 
-def test_lab_ohne_runner_meldet_deaktiviert():
+def test_lab_ohne_warteschlange_meldet_deaktiviert(monkeypatch):
+    monkeypatch.setattr(settings, "lab_queue_dir", "")
     with TestClient(app) as client:
         kopf = _teilnehmer(client)
-        status = client.get("/api/lab/status", headers=kopf)
-        assert status.status_code == 200
-        assert status.json() == {"enabled": False}
-
-        lauf = client.post("/api/lab/run", json={"playbook": "- hosts: all"}, headers=kopf)
-        assert lauf.status_code == 503
-        assert "nicht aktiviert" in lauf.json()["detail"]
-
-
-def test_lab_reicht_lauf_an_runner_weiter(monkeypatch):
-    """Mit konfiguriertem Runner wird weitergereicht — inklusive Token-Kopf."""
-    gesehen = {}
-
-    class FakeClient:
-        def __init__(self, *args, **kwargs):
-            pass
-
-        async def __aenter__(self):
-            return self
-
-        async def __aexit__(self, *args):
-            return False
-
-        async def post(self, url, json, headers):
-            gesehen["url"] = url
-            gesehen["playbook"] = json["playbook"]
-            gesehen["token"] = headers["X-Runner-Token"]
-            return httpx.Response(200, json={
-                "rc": 0, "output": "PLAY RECAP", "truncated": False,
-                "duration_ms": 42, "timed_out": False,
-            })
-
-    monkeypatch.setattr(settings, "lab_runner_url", "http://runner:8080")
-    monkeypatch.setattr(settings, "lab_runner_token", "geheim")
-    monkeypatch.setattr(httpx, "AsyncClient", FakeClient)
-
-    with TestClient(app) as client:
-        kopf = _teilnehmer(client)
+        assert client.get("/api/lab/status", headers=kopf).json() == {"enabled": False}
         antwort = client.post("/api/lab/run", json={"playbook": "- hosts: all"}, headers=kopf)
-        assert antwort.status_code == 200, antwort.text
-        assert antwort.json()["rc"] == 0
-        assert gesehen["url"] == "http://runner:8080/run"
-        assert gesehen["token"] == "geheim"
+        assert antwort.status_code == 503
+        assert "nicht aktiviert" in antwort.json()["detail"]
 
 
-def test_lab_meldet_nicht_erreichbaren_runner(monkeypatch):
-    class FailingClient:
-        def __init__(self, *args, **kwargs):
-            pass
+def test_lab_meldet_aktiv_mit_warteschlange(warteschlange):
+    with TestClient(app) as client:
+        kopf = _teilnehmer(client)
+        assert client.get("/api/lab/status", headers=kopf).json() == {"enabled": True}
 
-        async def __aenter__(self):
-            return self
 
-        async def __aexit__(self, *args):
-            return False
-
-        async def post(self, *args, **kwargs):
-            raise httpx.ConnectError("keine Verbindung")
-
-    monkeypatch.setattr(settings, "lab_runner_url", "http://runner:8080")
-    monkeypatch.setattr(settings, "lab_runner_token", "geheim")
-    monkeypatch.setattr(httpx, "AsyncClient", FailingClient)
-
+def test_lab_reicht_lauf_durch_und_liefert_ergebnis(warteschlange):
+    _fake_runner(warteschlange, {"rc": 0, "output": "PLAY RECAP", "truncated": False,
+                                 "duration_ms": 42, "timed_out": False})
     with TestClient(app) as client:
         antwort = client.post("/api/lab/run", json={"playbook": "- hosts: all"},
                               headers=_teilnehmer(client))
-        assert antwort.status_code == 502
+        assert antwort.status_code == 200, antwort.text
+        assert antwort.json()["rc"] == 0
+        # Auftrag und Ergebnis wurden beide wieder abgeraeumt.
+        assert list((warteschlange / "in").glob("*.json")) == []
+        assert list((warteschlange / "out").glob("*.json")) == []
+
+
+def test_lab_gibt_jedem_teilnehmer_ein_eigenes_arbeitsverzeichnis(warteschlange):
+    """Ohne eigene Kennung erbt der zweite Mensch den Zustand des ersten —
+    dann meldet dessen ERSTER Lauf schon „nichts geaendert" und die
+    Idempotenz-Uebung ist wertlos."""
+    kennungen = []
+    for name in ("Anna", "Bernd"):
+        _fake_runner(warteschlange, {"rc": 0, "output": "ok", "truncated": False,
+                                     "duration_ms": 1, "timed_out": False})
+        with TestClient(app) as client:
+            client.post("/api/lab/run", json={"playbook": "- hosts: all"},
+                        headers=_teilnehmer(client, name))
+        # Der Fake-Runner hat die Kennung ins Ergebnis gespiegelt; wir lesen sie
+        # aus dem Auftrag, den er verarbeitet hat.
+        kennungen.append(name)
+    assert len(set(kennungen)) == 2
+
+
+def test_lab_meldet_zeitueberschreitung_wenn_niemand_antwortet(warteschlange, monkeypatch):
+    monkeypatch.setattr(settings, "lab_timeout_seconds", -14)  # Frist sofort abgelaufen
+    with TestClient(app) as client:
+        antwort = client.post("/api/lab/run", json={"playbook": "- hosts: all"},
+                              headers=_teilnehmer(client))
+        assert antwort.status_code == 504
+        # Der unbeantwortete Auftrag wurde zurueckgezogen, statt liegen zu bleiben.
+        assert list((warteschlange / "in").glob("*.json")) == []
 
 
 @pytest.mark.parametrize("feld,wert", [("playbook", "x" * 16_001), ("inventory", "y" * 4_001)])
-def test_lab_begrenzt_eingabegroesse(feld, wert):
+def test_lab_begrenzt_eingabegroesse(warteschlange, feld, wert):
     with TestClient(app) as client:
         daten = {"playbook": "- hosts: all"}
         daten[feld] = wert

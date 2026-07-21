@@ -1,5 +1,14 @@
 # Projekt-Changelog (nur für Trainer sichtbar). Neueste zuerst.
 CHANGELOG = [
+    {"date": "2026-07-21", "title": "v1.31.0 — Lab-Runner ohne Netzwerk",
+     "text": "Beim Aktivieren auf dem Server kam heraus, dass die geplante "
+             "Abschottung des Lab-Dienstes nicht hielt: Die Plattform verbindet "
+             "jeden Dienst zusätzlich mit dem offenen Projekt-Netz, aus dem heraus "
+             "Internet, Datenbank und Backend erreichbar waren. Der Lab-Dienst läuft "
+             "deshalb jetzt komplett ohne Netzwerkanschluss; Aufträge und Ergebnisse "
+             "werden über ein gemeinsames Verzeichnis ausgetauscht. Das ist eine "
+             "bauliche Grenze statt einer Firewall-Regel. Für den Kurs ändert sich "
+             "nichts."},
     {"date": "2026-07-21", "title": "v1.30.0 — Ansible-Lab: echte Playbook-Ausführung",
      "text": "Vier Module des Ansible-Lehrgangs haben jetzt ein echtes Lab: Playbook "
              "im Browser schreiben, ausführen lassen und die Originalausgabe von "

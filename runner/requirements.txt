@@ -1,5 +1,3 @@
-# Versionen bewusst gleich gepinnt wie im Backend (backend/requirements.txt),
-# damit beide Dienste dasselbe FastAPI-/Uvicorn-Verhalten zeigen.
-fastapi==0.138.2
-uvicorn[standard]==0.49.0
+# Nur Ansible: Der Runner hat keinen Netzwerkdienst mehr (network_mode: none),
+# er liest Auftraege aus einem gemeinsamen Volume. Kein FastAPI, kein uvicorn.
 ansible-core==2.21.2

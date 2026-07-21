@@ -121,8 +121,14 @@ Zurückspielen mit `ops/restore.sh pfad/zum/dump.sql.gz` (fragt vor dem
 
 ## Ansible-Lab
 
-Ein optionaler Runner-Dienst (`runner/`) kann Teilnehmer-Playbooks aus dem
-Claude-Code-Workshop-Kurs wirklich ausführen — isoliert in einem eigenen
-Container ohne Geheimnisse und ohne Weg ins Internet. Standardmäßig ist er
-aus: Bevor er aktiviert wird, unbedingt [`docs/lab-sicherheit.md`](docs/lab-sicherheit.md)
-lesen (Bedrohungsmodell, Grenzen, Ein-/Ausschalten, Betrieb).
+Vier Module des **Ansible-Lehrgangs** haben ein echtes Lab: Playbook schreiben,
+ausführen lassen, die Originalausgabe von `ansible-playbook` lesen. Ausgeführt
+wird in einem eigenen Container (`runner/`), der **kein Netzwerk** hat
+(`network_mode: none`) — Aufträge und Ergebnisse laufen über ein gemeinsames
+Volume. Eingeschaltet wird mit `LAB_QUEUE_DIR=/queue` beim Backend.
+
+Standardmäßig ist das Lab **aus**; ohne Konfiguration bleibt der Kurs
+vollständig benutzbar. Vor dem Aktivieren unbedingt
+[`docs/lab-sicherheit.md`](docs/lab-sicherheit.md) lesen — dort stehen
+Bedrohungsmodell, die Grenzen (auch die, die nicht abgedeckt sind) und der
+Betrieb.
