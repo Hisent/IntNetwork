@@ -1,5 +1,14 @@
 # Projekt-Changelog (nur für Trainer sichtbar). Neueste zuerst.
 CHANGELOG = [
+    {"date": "2026-07-21", "title": "v1.25.0 — Dunkelmodus lesbar, Umschalter im Kurs",
+     "text": "Der Dunkelmodus war stellenweise kaum lesbar: er deckte nur einen Teil "
+             "der verwendeten Farben ab, der Rest blieb hell — im Claude-Workshop "
+             "wurde er zusätzlich wieder auf helle Farben zurückgesetzt. Beides ist "
+             "behoben, die Farbumstellung greift jetzt durchgängig für alle Seiten, "
+             "Widgets und Code-Blöcke. Der Hell-/Dunkel-Umschalter fehlte auf der "
+             "Kursseite und ist dort ergänzt. Neu ist außerdem eine automatische "
+             "Kontrastprüfung, die Farbkombinationen unter den Lesbarkeitsstandard "
+             "WCAG AA stellt, damit das nicht wieder passiert."},
     {"date": "2026-07-21", "title": "v1.24.2 — Erreichbarkeit wiederhergestellt",
      "text": "Die mit v1.24.0 eingeführten Container-Statusprüfungen sind wieder "
              "entfernt: der Reverse-Proxy leitet nur auf Container mit Status "

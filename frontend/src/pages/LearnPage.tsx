@@ -139,7 +139,7 @@ export function WorkbenchLearnView({ lang, displayName, modules, groups, progres
         <div className="grid min-w-0 gap-8 xl:grid-cols-[minmax(0,1fr)_320px]">
           <main id="main-content" tabIndex={-1} className="min-w-0">
             {continueAt && (
-              <Link to={`/lernen/${continueAt.key}`} className="wb-surface group mb-8 block border-[var(--wb-accent)] bg-[var(--wb-ink)] p-5 text-white hover:border-[var(--wb-accent)]">
+              <Link to={`/lernen/${continueAt.key}`} className="wb-surface group mb-8 block border-[var(--wb-accent)] bg-[var(--wb-highlight)] p-5 text-white hover:border-[var(--wb-accent)]">
                 <span className="text-xs font-semibold uppercase tracking-[0.14em] text-teal-200">{t(lang, 'continueHere')}</span>
                 <span className="mt-2 flex items-center justify-between gap-4 text-xl font-semibold">
                   {lang === 'de' ? continueAt.title : continueAt.title_en}<span aria-hidden="true" className="text-teal-300 transition-transform group-hover:translate-x-1">→</span>

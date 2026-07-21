@@ -10,6 +10,12 @@
   --wb-accent-soft: #ddf3f0;
   --wb-success: #18794e;
   --wb-warning: #9a6700;
+  /* Eigene, theme-unabhängige "Umkehr"-Fläche für Hervorhebungs-Karten (z.B.
+     "Weiter geht's"-Kachel auf LearnPage): bewusst NICHT im Dark-Mode-Block
+     unten überschrieben, sonst würde die Karte im Dark Mode hell statt dunkel
+     (die Karte nutzte früher --wb-ink als Hintergrund — das kippt aber im
+     Dark Mode, weil --wb-ink dort zu Text-Helligkeit invertiert). */
+  --wb-highlight: #102a2e;
   min-width: 0;
   min-height: 100dvh;
   background: var(--wb-canvas);

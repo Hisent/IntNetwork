@@ -27,44 +27,186 @@ body {
 [data-theme="dark"] .workshop-theme--network { --workshop-accent-surface: #0d1417; --workshop-accent-line: #1f4b45; --workshop-accent-soft: #123531; }
 [data-theme="dark"] .workshop-theme--claude { --workshop-accent-surface: #17110b; --workshop-accent-line: #5a3a1c; --workshop-accent-soft: #35210f; }
 
-/* Globaler Utility-Remap für die nicht tokenisierten Seiten (Landing, Workshop,
-   Trainer, Zertifikat). Nur am Bildschirm — Druck (Teilnahmebestätigung) bleibt hell.
-   Farbige Akzent-Flächen (bg-teal-600 etc.) bleiben absichtlich unangetastet. */
+/* ---------------------------------------------------------------------------
+ * Dark-Mode-Palette (Paletten-Override statt Einzelklassen-Handliste).
+ *
+ * Tailwind v4 kompiliert jede Farb-Utility zu var(--color-<name>-<stufe>)
+ * (im gebauten CSS geprüft). Statt ~112 einzelne .bg-x/.text-x-Regeln zu
+ * pflegen, überschreiben wir hier die Variablen selbst — das kippt ALLE
+ * Utilities einer Stufe auf einmal, unabhängig von bg-/text-/border-/…-Präfix
+ * und auch für hover:/focus:/sm:-Varianten, die dieselbe Variable referenzieren.
+ *
+ * Prinzip „Spiegelung": Stufe N (hell gedacht) bekommt im Dark Mode den
+ * Original-Farbwert der Gegenstufe (1000-N), z.B. teal-50 -> teal-900,
+ * teal-800 -> teal-200. So bleiben Hell-Flächen (bg-teal-50) dunkel-getönt
+ * und Dunkel-Texte (text-teal-800) hell — bei erhaltener Rampen-Identität
+ * (Farbton/Chroma der jeweiligen Familie).
+ *
+ * Ausnahmen von der reinen Spiegelung (mit Begründung):
+ * - teal-500/teal-600 werden NICHT überschrieben: das ist die Marken-Akzentfarbe
+ *   (CTA-Buttons, aktive Zustände) — die soll in beiden Themes gleich aussehen.
+ * - Die Slate-Rampe (Text-Rollen 300-950) nutzt keine reine Spiegelung, sondern
+ *   handverlesene, kontrastgeprüfte Werte: eine reine Spiegelung ergäbe für
+ *   400/500 zu wenig Sprung gegenüber den sehr dunklen Flächen dieser App
+ *   (gemessen < 4.5:1 AA) — siehe darkContrast.test.ts.
+ * - --color-white/--color-black bleiben unangetastet (Vorgabe): text-white auf
+ *   Akzent-Flächen (bg-teal-600) muss weiß bleiben.
+ *
+ * Nur am Bildschirm aktiv — im Druck (Teilnahmebestätigung) bleibt alles hell,
+ * das ist Absicht (siehe CertificatePage print:-Klassen).
+ * ------------------------------------------------------------------------- */
 @media screen {
+  [data-theme="dark"] {
+    /* Neutrale Rampe (Slate): dunkelste Fläche bei 50, hellster Text bei 950.
+       Handverlesen statt gespiegelt (Begründung s.o.); 500 deckt sich bewusst
+       mit --wb-muted, 900 mit --wb-ink aus workbench.css (ein Grauton-System). */
+    --color-slate-50: #0f1719;
+    --color-slate-100: #1a2626;
+    --color-slate-200: #24302f;
+    --color-slate-300: #3a4d4a;
+    --color-slate-400: #7f9792;
+    --color-slate-500: #93a8a6;
+    --color-slate-600: #a7b6b3;
+    --color-slate-700: #c2cfcc;
+    --color-slate-800: #d6e0de;
+    --color-slate-900: #e6eeec;
+    --color-slate-950: #f4f8f7;
+
+    /* Teal: 500/600 bewusst ausgenommen (Marken-Akzent, s.o.). */
+    --color-teal-50: oklch(38.6% 0.063 188.416);
+    --color-teal-100: oklch(43.7% 0.078 188.216);
+    /* 200 nutzt bewusst den 800er-Kanonwert statt der reinen 700er-Spiegelung
+       (etwas dunkler): gegen das ebenfalls gespiegelte text-teal-800
+       (VpnWidget: "bg-teal-200 ... text-teal-800") reichte 51.1% L nur für
+       4.28:1 — mit 43.7% L sind es 5.98:1, siehe darkContrast.test.ts. */
+    --color-teal-200: oklch(43.7% 0.078 188.216);
+    --color-teal-300: oklch(60% 0.118 184.704);
+    --color-teal-400: oklch(70.4% 0.14 182.503);
+    --color-teal-700: oklch(85.5% 0.138 181.071);
+    --color-teal-800: oklch(91% 0.096 180.426);
+    --color-teal-900: oklch(95.3% 0.051 180.801);
+
+    /* Amber */
+    --color-amber-50: oklch(41.4% 0.112 45.904);
+    --color-amber-100: oklch(47.3% 0.137 46.201);
+    --color-amber-200: oklch(55.5% 0.163 48.998);
+    --color-amber-300: oklch(66.6% 0.179 58.318);
+    --color-amber-400: oklch(76.9% 0.188 70.08);
+    --color-amber-500: oklch(82.8% 0.189 84.429);
+    --color-amber-600: oklch(87.9% 0.169 91.605);
+    --color-amber-700: oklch(92.4% 0.12 95.746);
+    --color-amber-800: oklch(96.2% 0.059 95.617);
+    --color-amber-900: oklch(98.7% 0.022 95.277);
+
+    /* Green */
+    --color-green-50: oklch(39.3% 0.095 152.535);
+    --color-green-100: oklch(44.8% 0.119 151.328);
+    --color-green-200: oklch(52.7% 0.154 150.069);
+    --color-green-300: oklch(62.7% 0.194 149.214);
+    --color-green-400: oklch(72.3% 0.219 149.579);
+    --color-green-500: oklch(79.2% 0.209 151.711);
+    --color-green-600: oklch(87.1% 0.15 154.449);
+    --color-green-700: oklch(92.5% 0.084 155.995);
+    --color-green-800: oklch(96.2% 0.044 156.743);
+    --color-green-900: oklch(98.2% 0.018 155.826);
+
+    /* Emerald: nur die zwei tatsächlich genutzten Stufen. 100 minimal dunkler
+       als die reine Spiegelung (900 statt 800), damit sie gegen --wb-success
+       (#4ade80, siehe workbench.css) 4.5:1 hält. */
+    --color-emerald-100: oklch(37.8% 0.077 168.94);
+    --color-emerald-600: oklch(84.5% 0.143 164.978);
+
+    /* Rose */
+    --color-rose-50: oklch(41% 0.159 10.272);
+    --color-rose-200: oklch(51.4% 0.222 16.935);
+    --color-rose-300: oklch(58.6% 0.253 17.585);
+    --color-rose-400: oklch(64.5% 0.246 16.439);
+    --color-rose-500: oklch(71.2% 0.194 13.428);
+    --color-rose-600: oklch(81% 0.117 11.638);
+    --color-rose-700: oklch(89.2% 0.058 10.001);
+    --color-rose-800: oklch(94.1% 0.03 12.58);
+    --color-rose-900: oklch(96.9% 0.015 12.422);
+
+    /* Red */
+    --color-red-50: oklch(39.6% 0.141 25.723);
+    --color-red-500: oklch(70.4% 0.191 22.216);
+    --color-red-600: oklch(80.8% 0.114 19.571);
+    --color-red-700: oklch(88.5% 0.062 18.334);
+
+    /* Blue */
+    --color-blue-100: oklch(42.4% 0.199 265.638);
+    --color-blue-400: oklch(62.3% 0.214 259.815);
+    --color-blue-700: oklch(88.2% 0.059 254.128);
+    --color-blue-800: oklch(93.2% 0.032 255.585);
+
+    /* Sky */
+    --color-sky-50: oklch(39.1% 0.09 240.876);
+    --color-sky-100: oklch(44.3% 0.11 240.79);
+    --color-sky-200: oklch(50% 0.134 242.749);
+    --color-sky-400: oklch(68.5% 0.169 237.323);
+    --color-sky-800: oklch(90.1% 0.058 230.902);
+    --color-sky-900: oklch(95.1% 0.026 236.824);
+
+    /* Purple */
+    --color-purple-100: oklch(43.8% 0.218 303.724);
+    --color-purple-200: oklch(49.6% 0.265 301.924);
+    --color-purple-400: oklch(62.7% 0.265 303.9);
+    --color-purple-500: oklch(71.4% 0.203 305.504);
+    --color-purple-700: oklch(90.2% 0.063 306.703);
+    --color-purple-800: oklch(94.6% 0.033 307.174);
+    --color-purple-900: oklch(97.7% 0.014 308.299);
+
+    /* Violet / Fuchsia (nur je 2 Stufen genutzt) */
+    --color-violet-50: oklch(38% 0.189 293.745);
+    --color-violet-900: oklch(96.9% 0.016 293.756);
+    --color-fuchsia-50: oklch(40.1% 0.17 325.612);
+    --color-fuchsia-900: oklch(97.7% 0.017 320.058);
+  }
+
+  /* Ausnahmen: Flächen, die schon im Light Mode dunkle "Terminal/CLI"-Flächen
+     sind (Code-Blöcke, CLI-Widgets, Diagnose-Zeilen). Eine reine Spiegelung
+     würde sie hell machen — sie bleiben bewusst dunkel, ihr heller Vordergrund
+     bleibt lesbar. Betroffene Komponenten: Blocks.tsx (CodeBlock, DebugBlock),
+     TrainerBlocks.tsx, ClaudeCliWidget, DeviceCli, TroubleshootWidget,
+     WiresharkWidget (Tabellenkopf), GlossaryPanel (Modal-Backdrop). */
+  [data-theme="dark"] .bg-slate-800,
+  [data-theme="dark"] .hover\:bg-slate-800:hover { background-color: oklch(27.9% 0.041 260.031); }
+  [data-theme="dark"] .bg-slate-900 { background-color: oklch(20.8% 0.042 265.755); }
+  [data-theme="dark"] .bg-slate-950 { background-color: oklch(12.9% 0.042 264.695); }
+  [data-theme="dark"] .border-slate-800 { border-color: oklch(27.9% 0.041 260.031); }
+  [data-theme="dark"] .bg-slate-900\/30 { background-color: oklch(20.8% 0.042 265.755 / 30%); }
+  [data-theme="dark"] .bg-rose-900\/60 { background-color: oklch(41% 0.159 10.272 / 60%); }
+  /* text-slate-100 kommt ausschließlich als Terminal-Vordergrund vor (s.o.) —
+     bleibt darum immer hell, unabhängig von der Slate-Palette oben. */
+  [data-theme="dark"] .text-slate-100 { color: oklch(96.8% 0.007 247.896); }
+  /* Vordergrund innerhalb der bg-slate-950-Terminal-/Highlight-Flächen
+     (Blocks.tsx CodeBlock-Kopf, LandingPage-Katalog-Kachel): der Behälter
+     bleibt dunkel (s.o.), also muss dieser Text hell bleiben statt zu spiegeln. */
+  [data-theme="dark"] .bg-slate-950 .text-teal-300,
+  [data-theme="dark"] .bg-slate-950 .hover\:text-teal-100:hover { color: oklch(85.5% 0.138 181.071); }
+  [data-theme="dark"] .bg-slate-950 .text-slate-300 { color: oklch(86.9% 0.022 252.894); }
+
+  /* bg-white bleibt die Kartenfläche; hover:bg-white (ModulePage-Sidebar)
+     braucht denselben Wert, ist aber technisch eine andere Utility-Klasse. */
   [data-theme="dark"] .bg-white { background-color: #16211f; }
-  [data-theme="dark"] .bg-slate-50 { background-color: #0f1719; }
-  [data-theme="dark"] .bg-slate-100 { background-color: #1a2626; }
-  [data-theme="dark"] .bg-slate-200 { background-color: #24302f; }
-  [data-theme="dark"] .bg-teal-50 { background-color: #0f2a28; }
-  [data-theme="dark"] .bg-amber-50 { background-color: #2a220f; }
-  [data-theme="dark"] .bg-green-50 { background-color: #0f2417; }
-  [data-theme="dark"] .border-green-200 { border-color: #1c4a2e; }
-  /* Status-/Badge-Flächen (Fehler, Erfolg, Diagramm-Marker) */
-  [data-theme="dark"] .bg-rose-50, [data-theme="dark"] .bg-red-50 { background-color: #2a1416; }
-  [data-theme="dark"] .border-rose-200 { border-color: #4a2226; }
-  [data-theme="dark"] .border-rose-300 { border-color: #5a2a2e; }
-  [data-theme="dark"] .bg-amber-100 { background-color: #3a2c10; }
-  [data-theme="dark"] .border-amber-200 { border-color: #4a3a14; }
-  [data-theme="dark"] .border-amber-300 { border-color: #5a4618; }
-  [data-theme="dark"] .bg-green-100, [data-theme="dark"] .bg-emerald-100 { background-color: #123326; }
-  [data-theme="dark"] .border-green-300 { border-color: #1f5a34; }
-  [data-theme="dark"] .bg-blue-100 { background-color: #16273f; }
-  [data-theme="dark"] .bg-sky-100 { background-color: #14314a; }
-  [data-theme="dark"] .bg-sky-50 { background-color: #0f2436; }
-  [data-theme="dark"] .text-slate-300 { color: #6b7d81; }
-  [data-theme="dark"] .text-slate-900 { color: #e6eeec; }
-  [data-theme="dark"] .text-slate-800 { color: #d6e0de; }
-  [data-theme="dark"] .text-slate-700 { color: #c2cfcc; }
-  [data-theme="dark"] .text-slate-600 { color: #a7b6b3; }
-  [data-theme="dark"] .text-slate-500 { color: #8fa19e; }
-  [data-theme="dark"] .text-slate-400 { color: #78908c; }
-  [data-theme="dark"] .text-teal-900 { color: #99f6e4; }
-  [data-theme="dark"] .text-teal-800 { color: #5eead4; }
-  [data-theme="dark"] .text-teal-700 { color: #2dd4bf; }
-  [data-theme="dark"] .border-slate-200 { border-color: #263433; }
-  [data-theme="dark"] .border-slate-300 { border-color: #30403e; }
-  [data-theme="dark"] .border-teal-100 { border-color: #163f39; }
-  [data-theme="dark"] .border-teal-200 { border-color: #17594f; }
+  [data-theme="dark"] .hover\:bg-white:hover { background-color: #16211f; }
+  /* Halbtransparente Weiss-Flaechen folgen der Palette NICHT (--color-white
+     bleibt bewusst weiss, damit text-white auf Akzentflaechen weiss bleibt) —
+     sie blieben deshalb im Dark Mode helle Kaesten mit hellem, invertiertem
+     Text darauf: Suchfeld + Leer-Hinweis (LandingPage), Capstone- und
+     VPN-Widget. Gleiche Flaeche wie bg-white, Transparenz beibehalten.
+     Ausgenommen bleibt bg-white/10 + border-white/25 (VersionBadge) — das ist
+     ein Overlay auf einer Akzentflaeche und dort korrekt. */
+  [data-theme="dark"] .bg-white\/90 { background-color: rgb(22 33 31 / 90%); }
+  [data-theme="dark"] .bg-white\/80 { background-color: rgb(22 33 31 / 80%); }
+  [data-theme="dark"] .bg-white\/70 { background-color: rgb(22 33 31 / 70%); }
+  [data-theme="dark"] .bg-white\/60 { background-color: rgb(22 33 31 / 60%); }
+
+  /* Akzent-Ausnahme: teal-700 wird oben invertiert (Text-Rolle, z.B.
+     text-teal-700-Label), aber hover:bg-teal-700 ist der Hover-Zustand der
+     teal-600-Akzent-Buttons und muss Akzent bleiben (nicht hell kippen). */
+  [data-theme="dark"] .hover\:bg-teal-700:hover { background-color: oklch(51.1% 0.096 186.391); }
+
   /* Landing-Grundfläche (Arbitrary-Wert, nicht per Utility remappbar) */
   [data-theme="dark"] .grain { background-color: #0d1417 !important; }
 }
@@ -126,18 +268,39 @@ p { text-wrap: pretty; }
   --workshop-logo-center: #c2410c;
 }
 .workshop-theme--claude :focus-visible { outline-color: var(--workshop-accent); }
-.workshop-theme--claude .bg-teal-600 { background-color: var(--workshop-accent); }
-.workshop-theme--claude .bg-teal-500 { background-color: #ea580c; }
-.workshop-theme--claude .bg-teal-50 { background-color: #fff7ed; }
-.workshop-theme--claude .from-teal-50 { --tw-gradient-from: #fff7ed; }
-.workshop-theme--claude .to-emerald-50 { --tw-gradient-to: #fff7ed; }
-.workshop-theme--claude .text-teal-600, .workshop-theme--claude .text-teal-700 { color: var(--workshop-accent); }
-.workshop-theme--claude .text-teal-800, .workshop-theme--claude .text-teal-900 { color: #7c2d12; }
-.workshop-theme--claude .text-teal-100, .workshop-theme--claude .text-teal-200, .workshop-theme--claude .text-teal-300, .workshop-theme--claude .text-teal-400 { color: #ffedd5; }
-.workshop-theme--claude .border-teal-600, .workshop-theme--claude .border-teal-200, .workshop-theme--claude .border-teal-100 { border-color: #fdba74; }
-.workshop-theme--claude .ring-teal-500 { --tw-ring-color: #ea580c; }
-.workshop-theme--claude .hover\:bg-teal-700:hover { background-color: var(--workshop-accent-hover); }
-.workshop-theme--claude .workbench { --wb-accent: #c2410c; --wb-accent-hover: #9a3412; --wb-accent-soft: #fff7ed; }
+
+/* Diese Claude-Workshop-Overrides gelten nur im Light Mode (Cremeton-Akzent
+   auf hellem Grund). Im Dark Mode gilt stattdessen der Block weiter unten —
+   sonst kippt der warme Akzent den Dark Mode auf Hellwerte zurück (Bug). */
+:root:not([data-theme="dark"]) .workshop-theme--claude .bg-teal-600 { background-color: var(--workshop-accent); }
+:root:not([data-theme="dark"]) .workshop-theme--claude .bg-teal-500 { background-color: #ea580c; }
+:root:not([data-theme="dark"]) .workshop-theme--claude .bg-teal-50 { background-color: #fff7ed; }
+:root:not([data-theme="dark"]) .workshop-theme--claude .from-teal-50 { --tw-gradient-from: #fff7ed; }
+:root:not([data-theme="dark"]) .workshop-theme--claude .to-emerald-50 { --tw-gradient-to: #fff7ed; }
+:root:not([data-theme="dark"]) .workshop-theme--claude .text-teal-600, :root:not([data-theme="dark"]) .workshop-theme--claude .text-teal-700 { color: var(--workshop-accent); }
+:root:not([data-theme="dark"]) .workshop-theme--claude .text-teal-800, :root:not([data-theme="dark"]) .workshop-theme--claude .text-teal-900 { color: #7c2d12; }
+:root:not([data-theme="dark"]) .workshop-theme--claude .text-teal-100, :root:not([data-theme="dark"]) .workshop-theme--claude .text-teal-200, :root:not([data-theme="dark"]) .workshop-theme--claude .text-teal-300, :root:not([data-theme="dark"]) .workshop-theme--claude .text-teal-400 { color: #ffedd5; }
+:root:not([data-theme="dark"]) .workshop-theme--claude .border-teal-600, :root:not([data-theme="dark"]) .workshop-theme--claude .border-teal-200, :root:not([data-theme="dark"]) .workshop-theme--claude .border-teal-100 { border-color: #fdba74; }
+:root:not([data-theme="dark"]) .workshop-theme--claude .ring-teal-500 { --tw-ring-color: #ea580c; }
+:root:not([data-theme="dark"]) .workshop-theme--claude .hover\:bg-teal-700:hover { background-color: var(--workshop-accent-hover); }
+:root:not([data-theme="dark"]) .workshop-theme--claude .workbench { --wb-accent: #c2410c; --wb-accent-hover: #9a3412; --wb-accent-soft: #fff7ed; }
+
+/* Dark-Gegenstück: derselbe warme Orange-Akzent, aber auf dunklem Grund statt
+   Cremeton. Nur am Bildschirm (Druck bleibt hell, s.o.). */
+@media screen {
+  [data-theme="dark"] .workshop-theme--claude .bg-teal-600 { background-color: #fb923c; }
+  [data-theme="dark"] .workshop-theme--claude .bg-teal-500 { background-color: #fdba74; }
+  [data-theme="dark"] .workshop-theme--claude .bg-teal-50 { background-color: #35210f; }
+  [data-theme="dark"] .workshop-theme--claude .from-teal-50 { --tw-gradient-from: #35210f; }
+  [data-theme="dark"] .workshop-theme--claude .to-emerald-50 { --tw-gradient-to: #35210f; }
+  [data-theme="dark"] .workshop-theme--claude .text-teal-600, [data-theme="dark"] .workshop-theme--claude .text-teal-700 { color: #fdba74; }
+  [data-theme="dark"] .workshop-theme--claude .text-teal-800, [data-theme="dark"] .workshop-theme--claude .text-teal-900 { color: #ffedd5; }
+  [data-theme="dark"] .workshop-theme--claude .text-teal-100, [data-theme="dark"] .workshop-theme--claude .text-teal-200, [data-theme="dark"] .workshop-theme--claude .text-teal-300, [data-theme="dark"] .workshop-theme--claude .text-teal-400 { color: #5a3a1c; }
+  [data-theme="dark"] .workshop-theme--claude .border-teal-600, [data-theme="dark"] .workshop-theme--claude .border-teal-200, [data-theme="dark"] .workshop-theme--claude .border-teal-100 { border-color: #5a3a1c; }
+  [data-theme="dark"] .workshop-theme--claude .ring-teal-500 { --tw-ring-color: #fdba74; }
+  [data-theme="dark"] .workshop-theme--claude .hover\:bg-teal-700:hover { background-color: #9a3412; }
+  [data-theme="dark"] .workshop-theme--claude .workbench { --wb-accent: #fb923c; --wb-accent-hover: #fdba74; --wb-accent-soft: #35210f; }
+}
 
 /* ruhiger Einstieg (nur wenn Motion erwünscht) */
 @media (prefers-reduced-motion: no-preference) {

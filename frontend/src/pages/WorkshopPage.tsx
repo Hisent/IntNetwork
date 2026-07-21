@@ -9,6 +9,7 @@ import { PageSkeleton } from '@/components/PageSkeleton'
 import { LoadError } from '@/components/LoadError'
 import { WorkshopTheme } from '@/components/WorkshopTheme'
 import { BrandLogo } from '@/components/BrandLogo'
+import { ThemeToggle } from '@/components/ThemeToggle'
 
 export function WorkshopPage() {
   const { key = '' } = useParams()
@@ -76,7 +77,7 @@ export function WorkshopPage() {
               <Link to="/" aria-label="IntLab"><BrandLogo className="h-9 text-lg" showName /></Link>
               <Link to="/" className="hidden text-sm font-semibold text-[var(--workshop-accent)] sm:block">← {lang === 'de' ? 'Alle Workshops' : 'All workshops'}</Link>
             </div>
-            <div className="flex gap-2 text-xs font-semibold"><button onClick={() => setLang('de')} className={lang === 'de' ? 'text-[var(--workshop-accent)]' : 'text-slate-400'}>DE</button><button onClick={() => setLang('en')} className={lang === 'en' ? 'text-[var(--workshop-accent)]' : 'text-slate-400'}>EN</button></div>
+            <div className="flex items-center gap-2 text-xs font-semibold"><button onClick={() => setLang('de')} className={lang === 'de' ? 'text-[var(--workshop-accent)]' : 'text-slate-400'}>DE</button><button onClick={() => setLang('en')} className={lang === 'en' ? 'text-[var(--workshop-accent)]' : 'text-slate-400'}>EN</button><ThemeToggle lang={lang} className="text-slate-500" /></div>
           </header>
 
           <div className="mt-14 grid gap-12 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start">
