@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query'
 import { authApi, errMsg } from '@/lib/api'
 import { workshopApi } from '@/lib/workshopApi'
 import { useAuthStore } from '@/store/auth'
-import type { Lang } from '@/lib/i18n'
+import { useDocumentLang, type Lang } from '@/lib/i18n'
 import { PageSkeleton } from '@/components/PageSkeleton'
 import { LoadError } from '@/components/LoadError'
 import { WorkshopTheme } from '@/components/WorkshopTheme'
@@ -15,6 +15,7 @@ export function WorkshopPage() {
   const nav = useNavigate()
   const setAuth = useAuthStore((state) => state.setAuth)
   const [lang, setLang] = useState<Lang>('de')
+  useDocumentLang(lang)
   const [code, setCode] = useState('')
   const [name, setName] = useState('')
   const [resumeCode, setResumeCode] = useState('')
@@ -49,7 +50,7 @@ export function WorkshopPage() {
 
   if (issuedCode) return (
     <WorkshopTheme theme={data.theme}>
-      <main className="grid min-h-[100dvh] place-items-center bg-[var(--workshop-accent-surface)] p-6">
+      <main id="main-content" tabIndex={-1} className="grid min-h-[100dvh] place-items-center bg-[var(--workshop-accent-surface)] p-6">
         <div className="w-full max-w-md rounded-2xl border border-[var(--workshop-accent-line)] bg-white p-8 text-center shadow-lg">
           <BrandLogo className="mx-auto mb-4 h-9" />
           <h1 className="text-xl font-bold text-slate-900">{lang === 'de' ? 'Dein persönlicher Code' : 'Your personal code'}</h1>
@@ -68,7 +69,7 @@ export function WorkshopPage() {
 
   return (
     <WorkshopTheme theme={data.theme}>
-      <main className="min-h-[100dvh] bg-[var(--workshop-accent-surface)] px-5 py-6 sm:px-10 sm:py-8">
+      <main id="main-content" tabIndex={-1} className="min-h-[100dvh] bg-[var(--workshop-accent-surface)] px-5 py-6 sm:px-10 sm:py-8">
         <div className="mx-auto max-w-6xl">
           <header className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-4 sm:gap-6">

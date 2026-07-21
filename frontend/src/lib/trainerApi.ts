@@ -68,6 +68,10 @@ export interface EditorModuleMeta { key: string; title_de: string; title_en: str
 export interface TrainerAccount { id: number; email: string; name: string }
 export interface QuizQuestionStat { id: string; prompt: string; correct: number; attempts: number }
 export interface QuizStats { submissions: number; questions: QuizQuestionStat[] }
+export interface AuditLogEntry {
+  id: number; created_at: string; trainer_email: string
+  action: string; target: string | null; detail: string | null
+}
 
 export const trainerApi = {
   listCourses: () => api.get<Course[]>('/courses'),
@@ -108,4 +112,5 @@ export const trainerApi = {
   createTrainerAccount: (email: string, name: string, password: string) =>
     api.post<TrainerAccount>('/trainer/accounts', { email, name, password }),
   deleteTrainerAccount: (id: number) => api.delete(`/trainer/accounts/${id}`),
+  auditLog: () => api.get<AuditLogEntry[]>('/trainer/audit'),
 }

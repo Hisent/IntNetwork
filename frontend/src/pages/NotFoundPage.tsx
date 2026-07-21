@@ -3,7 +3,7 @@ import { BrandLogo } from '@/components/BrandLogo'
 
 export function NotFoundPage() {
   return (
-    <div className="min-h-dvh bg-slate-50 flex items-center justify-center p-6">
+    <main id="main-content" tabIndex={-1} className="min-h-dvh bg-slate-50 flex items-center justify-center p-6">
       <div className="text-center">
         <Link to="/" className="mb-8 inline-flex"><BrandLogo className="h-10 text-lg" showName /></Link>
         <p className="font-mono text-7xl font-bold text-teal-600 mb-3">404</p>
@@ -15,6 +15,6 @@ export function NotFoundPage() {
           ← Zur Startseite
         </Link>
       </div>
-    </div>
+    </main>
   )
 }

@@ -31,4 +31,9 @@ def get_participant(payload: dict = Depends(_payload), db: Session = Depends(get
     p = db.query(Participant).filter(Participant.id == payload.get("participant_id")).first()
     if not p:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Teilnehmer nicht gefunden")
+    # Fehlt token_version im Payload (Alt-Token von vor dieser Änderung), gilt es
+    # als 0 -> Bestands-Tokens werden nicht schlagartig ungültig.
+    if payload.get("token_version", 0) != p.token_version:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
+                            detail="Sitzung abgelaufen, bitte neu beitreten")
     return p

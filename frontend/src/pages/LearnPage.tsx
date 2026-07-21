@@ -5,7 +5,7 @@ import { PageSkeleton } from '@/components/PageSkeleton'
 import { LoadError } from '@/components/LoadError'
 import type { Company, ModuleMeta, ProgressItem } from '@/types'
 import { useAuthStore } from '@/store/auth'
-import { t, type Lang } from '@/lib/i18n'
+import { t, useDocumentLang, type Lang } from '@/lib/i18n'
 import { WorkbenchProgress, WorkbenchSectionTitle, WorkbenchTopbar } from '@/components/workbench/WorkbenchShell'
 import { WorkshopTheme } from '@/components/WorkshopTheme'
 
@@ -17,6 +17,7 @@ export function LearnPage() {
   const { role, displayName } = useAuthStore()
   const me = useQuery({ queryKey: ['me'], queryFn: () => learnApi.me().then((r) => r.data) })
   const lang: Lang = me.data?.language ?? 'de'
+  useDocumentLang(lang)
   const mods = useQuery({ queryKey: ['modules', lang], queryFn: () => learnApi.listModules().then((r) => r.data) })
   const networkWorkshop = me.data?.workshop?.key === 'network'
   const company = useQuery({ queryKey: ['company', lang], queryFn: () => learnApi.company().then((r) => r.data), enabled: networkWorkshop })
@@ -136,7 +137,7 @@ export function WorkbenchLearnView({ lang, displayName, modules, groups, progres
         )}
 
         <div className="grid min-w-0 gap-8 xl:grid-cols-[minmax(0,1fr)_320px]">
-          <main className="min-w-0">
+          <main id="main-content" tabIndex={-1} className="min-w-0">
             {continueAt && (
               <Link to={`/lernen/${continueAt.key}`} className="wb-surface group mb-8 block border-[var(--wb-accent)] bg-[var(--wb-ink)] p-5 text-white hover:border-[var(--wb-accent)]">
                 <span className="text-xs font-semibold uppercase tracking-[0.14em] text-teal-200">{t(lang, 'continueHere')}</span>

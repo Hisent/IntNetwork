@@ -12,6 +12,7 @@ from app.models.course_module import CourseModule
 from app.models.workshop import Workshop
 from app.models.certificate import Certificate
 from app.models.comment import Comment
+from app.services.audit import log_action
 from app.services.codes import new_code
 from app.services.deps import get_trainer
 from app.services.course_membership import active_module_keys
@@ -28,7 +29,7 @@ class CourseCreate(BaseModel):
 
 
 @router.post("")
-def create_course(data: CourseCreate, db: Session = Depends(get_db), _=Depends(get_trainer)):
+def create_course(data: CourseCreate, db: Session = Depends(get_db), trainer: dict = Depends(get_trainer)):
     if not data.name.strip():
         raise HTTPException(status_code=422, detail="Name fehlt")
     workshop = db.get(Workshop, data.workshop_key)
@@ -41,6 +42,7 @@ def create_course(data: CourseCreate, db: Session = Depends(get_db), _=Depends(g
         db.add(CourseModule(course_id=c.id, module_key=module.key))
     db.commit()
     db.refresh(c)
+    log_action(db, trainer, "course.create", target=f"course:{c.id}", detail=c.name)
     return {"id": c.id, "name": c.name, "join_code": c.join_code, "workshop_key": c.workshop_key}
 
 
@@ -59,12 +61,14 @@ class ApprovalToggle(BaseModel):
 
 @router.patch("/{course_id}/approval")
 def set_course_approval(course_id: int, data: ApprovalToggle,
-                        db: Session = Depends(get_db), _=Depends(get_trainer)):
+                        db: Session = Depends(get_db), trainer: dict = Depends(get_trainer)):
     course = db.query(Course).filter(Course.id == course_id).first()
     if not course:
         raise HTTPException(status_code=404, detail="Kurs nicht gefunden")
     course.require_approval = data.require_approval
     db.commit()
+    log_action(db, trainer, "course.approval_toggle", target=f"course:{course_id}",
+               detail=f"require_approval={data.require_approval}")
     return {"require_approval": course.require_approval}
 
 
@@ -86,33 +90,40 @@ def approve_participant(course_id: int, participant_id: int, data: ParticipantAp
 
 @router.post("/{course_id}/participants/{participant_id}/reset-code")
 def reset_resume_code(course_id: int, participant_id: int,
-                      db: Session = Depends(get_db), _=Depends(get_trainer)):
+                      db: Session = Depends(get_db), trainer: dict = Depends(get_trainer)):
     """Vergibt einen neuen Wiederaufnahme-Code — für Teilnehmer, die ihren verloren
-    haben. Der alte wird ungültig; der Trainer gibt den neuen persönlich weiter."""
+    haben. Der alte wird ungültig; der Trainer gibt den neuen persönlich weiter.
+    Bumpt zugleich token_version: damit trennt der Reset auch die laufende
+    JWT-Sitzung, nicht nur den Wiederaufnahme-Code."""
     p = db.query(Participant).filter(
         Participant.id == participant_id, Participant.course_id == course_id).first()
     if not p:
         raise HTTPException(status_code=404, detail="Teilnehmer nicht gefunden")
     p.resume_code = generate_resume_code()
+    p.token_version += 1
     db.commit()
+    log_action(db, trainer, "participant.reset_code", target=f"participant:{participant_id}",
+               detail=f"course:{course_id}")
     return {"id": p.id, "resume_code": p.resume_code}
 
 
 @router.delete("/{course_id}/participants/{participant_id}")
 def delete_participant(course_id: int, participant_id: int,
-                       db: Session = Depends(get_db), _=Depends(get_trainer)):
+                       db: Session = Depends(get_db), trainer: dict = Depends(get_trainer)):
     """Entfernt einen Teilnehmer samt aller personenbezogenen Daten (Fortschritt,
     Quiz-Ergebnisse, Kommentare, Bestätigung) — für Abmeldungen/DSGVO-Löschungen."""
     p = db.query(Participant).filter(
         Participant.id == participant_id, Participant.course_id == course_id).first()
     if not p:
         raise HTTPException(status_code=404, detail="Teilnehmer nicht gefunden")
+    name = p.name
     db.query(Progress).filter(Progress.participant_id == participant_id).delete()
     db.query(QuizResult).filter(QuizResult.participant_id == participant_id).delete()
     db.query(Comment).filter(Comment.participant_id == participant_id).delete()
     db.query(Certificate).filter(Certificate.participant_id == participant_id).delete()
     db.delete(p)
     db.commit()
+    log_action(db, trainer, "participant.delete", target=f"participant:{participant_id}", detail=name)
     return {"ok": True}
 
 
@@ -166,7 +177,7 @@ class ModuleToggle(BaseModel):
 
 @router.put("/{course_id}/modules")
 def set_course_module(course_id: int, data: ModuleToggle,
-                      db: Session = Depends(get_db), _=Depends(get_trainer)):
+                      db: Session = Depends(get_db), trainer: dict = Depends(get_trainer)):
     course = db.query(Course).filter(Course.id == course_id).first()
     if not course:
         raise HTTPException(status_code=404, detail="Kurs nicht gefunden")
@@ -185,4 +196,6 @@ def set_course_module(course_id: int, data: ModuleToggle,
         if row:
             db.delete(row)
     db.commit()
+    log_action(db, trainer, "course.module_toggle", target=f"course:{course_id}:{data.module_key}",
+               detail=f"active={data.active}")
     return {"ok": True}

@@ -151,6 +151,7 @@ export function Quiz({ moduleKey, questions, lang, onResult }: {
               </div>
               {q.type === 'number' ? (
                 <input type="number" disabled={locked} className="border rounded-lg px-3 py-1.5 w-32 disabled:bg-slate-100"
+                  aria-label={q.prompt}
                   value={(answers[q.id] as string) ?? ''}
                   onChange={(e) => set(q.id, e.target.value)} />
               ) : (

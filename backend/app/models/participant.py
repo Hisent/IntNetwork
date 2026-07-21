@@ -21,3 +21,7 @@ class Participant(Base):
     # Trainerfreigabe für die Teilnahmebestätigung (nur relevant, wenn der Kurs
     # require_approval gesetzt hat).
     approved: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False, server_default="0")
+    # Erlaubt serverseitige Invalidierung des 30-Tage-JWTs: wird bei jedem
+    # Code-Reset erhöht, ins Token geschrieben und beim Prüfen mit der DB
+    # verglichen (siehe app/services/deps.py::get_participant).
+    token_version: Mapped[int] = mapped_column(Integer, default=0, nullable=False, server_default="0")

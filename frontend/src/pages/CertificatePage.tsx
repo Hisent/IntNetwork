@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import { Link, useNavigate } from 'react-router-dom'
 import { learnApi } from '@/lib/learnApi'
 import { useAuthStore } from '@/store/auth'
-import { t, type Lang } from '@/lib/i18n'
+import { t, useDocumentLang, type Lang } from '@/lib/i18n'
 import { WorkshopTheme } from '@/components/WorkshopTheme'
 import { BrandLogo } from '@/components/BrandLogo'
 import { Icon } from '@/components/Icon'
@@ -14,6 +14,7 @@ export function CertificatePage() {
   const { role, displayName } = useAuthStore()
   const me = useQuery({ queryKey: ['me'], queryFn: () => learnApi.me().then((r) => r.data) })
   const lang: Lang = me.data?.language ?? 'de'
+  useDocumentLang(lang)
   const mods = useQuery({ queryKey: ['modules', lang], queryFn: () => learnApi.listModules().then((r) => r.data) })
   // allDone undefined-sicher, damit der cert-Hook vor den Early-Returns stehen kann
   // (Rules of Hooks). Ausstellen erst, wenn wirklich alle Module bestanden sind.
@@ -33,18 +34,18 @@ export function CertificatePage() {
   const awaitingApproval = allDone && cert.isError
   if (!allDone || awaitingApproval)
     return (
-      <WorkshopTheme theme={me.data?.workshop?.theme}><div className="min-h-dvh bg-slate-50 flex items-center justify-center p-6">
+      <WorkshopTheme theme={me.data?.workshop?.theme}><main id="main-content" tabIndex={-1} className="min-h-dvh bg-slate-50 flex items-center justify-center p-6">
         <div className="max-w-md text-center">
           <p className="text-slate-600 mb-3">{awaitingApproval
             ? (lang === 'de' ? 'Alle Module geschafft! Die Teilnahmebestätigung wird nach der Freigabe durch die Kursleitung verfügbar.' : 'All modules done! The certificate becomes available once your trainer approves it.')
             : t(lang, 'certNotYet')}</p>
           <Link to="/lernen" className="text-teal-600 hover:underline">← {t(lang, 'backToOverview')}</Link>
         </div>
-      </div></WorkshopTheme>
+      </main></WorkshopTheme>
     )
 
   return (
-    <WorkshopTheme theme={me.data?.workshop?.theme}><div className="min-h-dvh bg-slate-100 flex flex-col items-center justify-center p-6 print:bg-white print:p-0">
+    <WorkshopTheme theme={me.data?.workshop?.theme}><main id="main-content" tabIndex={-1} className="min-h-dvh bg-slate-100 flex flex-col items-center justify-center p-6 print:bg-white print:p-0">
       <div className="w-full max-w-2xl rounded-2xl border-4 border-double border-teal-600 bg-white p-10 sm:p-14 text-center shadow-lg print:shadow-none print:border-teal-700">
         <BrandLogo className="mx-auto mb-4 h-12" />
         <p className="text-xs font-semibold uppercase tracking-[0.3em] text-teal-600 mb-1">IntLab</p>
@@ -79,6 +80,6 @@ export function CertificatePage() {
           ← {t(lang, 'backToOverview')}
         </Link>
       </div>
-    </div></WorkshopTheme>
+    </main></WorkshopTheme>
   )
 }

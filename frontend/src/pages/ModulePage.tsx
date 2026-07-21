@@ -6,10 +6,10 @@ import { learnApi } from '@/lib/learnApi'
 import { Blocks } from '@/components/Blocks'
 import { BlockComments } from '@/components/BlockComments'
 import { Quiz } from '@/components/Quiz'
-import { loadRead, toggleRead } from '@/lib/readProgress'
+import { loadRead, pruneOtherParticipants, toggleRead } from '@/lib/readProgress'
 import { PageSkeleton } from '@/components/PageSkeleton'
 import { LoadError } from '@/components/LoadError'
-import { t, type Lang } from '@/lib/i18n'
+import { t, useDocumentLang, type Lang } from '@/lib/i18n'
 import { GlossaryPanel } from '@/components/GlossaryPanel'
 import type { Block, ModuleDetail, ModuleMeta, ProgressItem } from '@/types'
 import { WorkbenchProgress, WorkbenchSectionTitle, WorkbenchTopbar } from '@/components/workbench/WorkbenchShell'
@@ -37,9 +37,14 @@ export function ModulePage() {
   // Reflexions-/Lese-Keys pro Teilnehmer trennen (geteilter Browser).
   const keyScope = scoped ? `${participantId}-${courseId}` : ''
   useEffect(() => {
-    if (scoped) setRead(loadRead(participantId, courseId, key))
+    if (!scoped) return
+    // Genau hier wird die participantId app-weit zuerst bekannt — passender
+    // Zeitpunkt, um Reste anderer Teilnehmer am geteilten Browser zu räumen.
+    pruneOtherParticipants(participantId)
+    setRead(loadRead(participantId, courseId, key))
   }, [scoped, participantId, courseId, key])
   const lang: Lang = me.data?.language ?? 'de'
+  useDocumentLang(lang)
   const mod = useQuery({ queryKey: ['module', key, lang], queryFn: () => learnApi.getModule(key).then((r) => r.data) })
   const features = useQuery({ queryKey: ['features'], queryFn: () => learnApi.features().then((r) => r.data) })
   const mods = useQuery({ queryKey: ['modules', lang], queryFn: () => learnApi.listModules().then((r) => r.data) })
@@ -161,7 +166,7 @@ export function WorkbenchModuleView({ lang, moduleKey, keyScope, module, modules
             <WorkbenchModuleNav lang={lang} current={moduleKey} modules={modules} progress={progress} />
           </aside>
 
-          <main className="wb-module-content">
+          <main id="main-content" tabIndex={-1} className="wb-module-content">
             <Link to="/lernen" className="wb-control mb-2 inline-flex items-center text-sm font-medium text-[var(--wb-muted)] hover:text-[var(--wb-accent)]">← {t(lang, 'modules')}</Link>
             <p className="text-sm font-semibold text-[var(--wb-accent)]">{lang === 'de' ? `Modul ${module.order}` : `Module ${module.order}`}</p>
             <h1 className="mt-2 text-3xl font-bold leading-tight tracking-tight text-[var(--wb-ink)] sm:text-4xl">{module.title}</h1>

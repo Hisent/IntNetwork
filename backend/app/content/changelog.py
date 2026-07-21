@@ -1,5 +1,14 @@
 # Projekt-Changelog (nur für Trainer sichtbar). Neueste zuerst.
 CHANGELOG = [
+    {"date": "2026-07-21", "title": "v1.24.0 — Protokoll, Sitzungsschutz & Betriebshärtung",
+     "text": "Neues Trainer-Protokoll: wer hat wann Teilnehmer gelöscht, Codes "
+             "zurückgesetzt, Inhalte gespeichert oder Kurse umgestellt (Abschnitt "
+             "„Protokoll“ in der Verwaltung). Ein zurückgesetzter Wiederaufnahme-Code "
+             "beendet jetzt auch die laufenden Sitzungen des Teilnehmers. Im Hintergrund: "
+             "Sicherheits-Header, Backup-Skripte, Container-Healthchecks und "
+             "Ressourcengrenzen fürs Deployment, Bereinigung alter Browser-Daten auf "
+             "geteilten Rechnern sowie bessere Bedienbarkeit mit Tastatur und Screenreader "
+             "(Sprunglink, Beschriftungen, Sprachkennzeichnung)."},
     {"date": "2026-07-20", "title": "v1.23.0 — Teilnehmerverwaltung & Robustheit",
      "text": "Trainer können Teilnehmer jetzt verwalten: Wiederaufnahme-Code zurücksetzen "
              "(für verlorene Codes) und Teilnehmer inkl. aller Daten löschen (Abmeldung/"

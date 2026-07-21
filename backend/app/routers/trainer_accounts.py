@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.models.trainer import Trainer
+from app.services.audit import log_action
 from app.services.deps import get_trainer
 from app.services.security import hash_password
 
@@ -37,7 +38,7 @@ def list_trainers(db: Session = Depends(get_db), _t: dict = Depends(get_trainer)
 
 
 @router.post("")
-def create_trainer(data: TrainerCreate, db: Session = Depends(get_db), _t: dict = Depends(get_trainer)):
+def create_trainer(data: TrainerCreate, db: Session = Depends(get_db), trainer: dict = Depends(get_trainer)):
     email = data.email.strip().lower()
     if not email or "@" not in email:
         raise HTTPException(status_code=422, detail="Ungültige E-Mail")
@@ -53,17 +54,20 @@ def create_trainer(data: TrainerCreate, db: Session = Depends(get_db), _t: dict 
         db.rollback()
         raise HTTPException(status_code=422, detail="E-Mail bereits vergeben")
     db.refresh(t)
+    log_action(db, trainer, "trainer.create", target=f"trainer:{t.id}", detail=t.email)
     return _serialize(t)
 
 
 @router.delete("/{tid}")
-def delete_trainer(tid: int, db: Session = Depends(get_db), _t: dict = Depends(get_trainer)):
+def delete_trainer(tid: int, db: Session = Depends(get_db), trainer: dict = Depends(get_trainer)):
     with _delete_lock:
         t = db.query(Trainer).filter(Trainer.id == tid).first()
         if not t:
             raise HTTPException(status_code=404, detail="Trainer nicht gefunden")
         if db.query(Trainer).count() <= 1:
             raise HTTPException(status_code=422, detail="Letzter Trainer-Zugang kann nicht gelöscht werden")
+        email = t.email
         db.delete(t)
         db.commit()
+    log_action(db, trainer, "trainer.delete", target=f"trainer:{tid}", detail=email)
     return {"ok": True}

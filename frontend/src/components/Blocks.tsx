@@ -79,6 +79,7 @@ function NumberCheck({ answer, lang }: { answer: number; lang: Lang }) {
       <div className="flex items-center gap-2">
         <input type="number" value={val} disabled={checked}
           onChange={(e) => setVal(e.target.value)}
+          aria-label={t(lang, 'quickCheck')}
           className="w-32 border border-slate-200 rounded-lg px-3 py-1.5 text-sm font-mono" />
         <button onClick={() => setChecked(true)} disabled={checked || val === ''}
           className="rounded-lg border border-teal-200 text-teal-700 px-3 py-1.5 text-sm font-medium hover:bg-teal-50 disabled:opacity-50">
@@ -294,6 +295,7 @@ export function ReflectBlock({ prompt, storageKey, lang }: { prompt: string; sto
       <p className="font-medium text-slate-800 mb-2">{prompt}</p>
       <textarea value={text} rows={3}
         onChange={(e) => { setText(e.target.value); localStorage.setItem(storageKey, e.target.value) }}
+        aria-label={prompt}
         className="w-full border border-slate-200 rounded-lg px-3 py-1.5 text-sm text-slate-700" />
       <p className="text-xs text-slate-400 mt-1">{t(lang, 'reflectHint')}</p>
     </div>

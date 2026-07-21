@@ -45,6 +45,7 @@ export function GlossaryPanel({ moduleKey, lang }: { moduleKey: string; lang: La
               <button onClick={() => setOpen(false)} className="text-sm text-slate-400 hover:text-slate-700" aria-label="Schließen">✕</button>
             </div>
             <input autoFocus value={search} onChange={(event) => setSearch(event.target.value)}
+              aria-label={lang === 'de' ? 'Begriff suchen' : 'Search term'}
               placeholder={lang === 'de' ? 'Begriff suchen …' : 'Search term …'}
               className="mb-3 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-700 focus:border-teal-500" />
             <div className="max-h-[60vh] space-y-3 overflow-y-auto pr-1">

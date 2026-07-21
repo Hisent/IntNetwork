@@ -9,6 +9,7 @@ from app.content.registry import MODULES
 from app.database import get_db
 from app.models.content import ContentBlock, ContentModule, ContentModuleSnapshot, ContentQuizQuestion
 from app.models.workshop import Workshop
+from app.services.audit import log_action
 from app.services.deps import get_trainer
 
 router = APIRouter(prefix="/trainer/content/modules", tags=["trainer-content"])
@@ -240,7 +241,7 @@ def get_module(key: str, db: Session = Depends(get_db), _t: dict = Depends(get_t
 
 
 @router.post("")
-def create_module(data: ModuleCreateIn, db: Session = Depends(get_db), _t: dict = Depends(get_trainer)):
+def create_module(data: ModuleCreateIn, db: Session = Depends(get_db), trainer: dict = Depends(get_trainer)):
     if not KEY_RE.match(data.key):
         raise HTTPException(status_code=422, detail="Key darf nur a-z, 0-9 und - enthalten")
     if db.query(ContentModule).filter(ContentModule.key == data.key).first():
@@ -260,11 +261,12 @@ def create_module(data: ModuleCreateIn, db: Session = Depends(get_db), _t: dict 
         # Zwei gleichzeitige Create-Requests mit demselben Key (z.B. Doppelklick).
         db.rollback()
         raise HTTPException(status_code=422, detail="Key bereits vergeben")
+    log_action(db, trainer, "content.create", target=f"module:{m.key}", detail=data.title_de)
     return _meta(m)
 
 
 @router.put("/{key}")
-def update_module(key: str, data: ModuleIn, db: Session = Depends(get_db), _t: dict = Depends(get_trainer)):
+def update_module(key: str, data: ModuleIn, db: Session = Depends(get_db), trainer: dict = Depends(get_trainer)):
     m = db.query(ContentModule).filter(ContentModule.key == key).first()
     if not m:
         raise HTTPException(status_code=404, detail="Modul nicht gefunden")
@@ -273,6 +275,7 @@ def update_module(key: str, data: ModuleIn, db: Session = Depends(get_db), _t: d
     _upsert_snapshot(db, key, _serialize_module(m, blocks, questions))
     _apply(db, key, m, data)
     db.commit()
+    log_action(db, trainer, "content.save", target=f"module:{key}")
     return _meta(m)
 
 
@@ -298,7 +301,7 @@ def _seed_to_module_in(seed: dict) -> ModuleIn:
 
 
 @router.post("/{key}/reseed")
-def reseed_module(key: str, db: Session = Depends(get_db), _t: dict = Depends(get_trainer)):
+def reseed_module(key: str, db: Session = Depends(get_db), trainer: dict = Depends(get_trainer)):
     """Setzt ein Seed-Modul auf den Auslieferungszustand aus app/content/*.py
     zurück — z.B. um Content-Updates auf eine Bestandsinstallation zu holen.
     Der bisherige Stand landet im Snapshot, Restore macht es rückgängig."""
@@ -313,11 +316,12 @@ def reseed_module(key: str, db: Session = Depends(get_db), _t: dict = Depends(ge
     _upsert_snapshot(db, key, _serialize_module(m, blocks, questions))
     _apply(db, key, m, data)
     db.commit()
+    log_action(db, trainer, "content.reseed", target=f"module:{key}")
     return _meta(m)
 
 
 @router.post("/{key}/restore")
-def restore_module(key: str, db: Session = Depends(get_db), _t: dict = Depends(get_trainer)):
+def restore_module(key: str, db: Session = Depends(get_db), trainer: dict = Depends(get_trainer)):
     m = db.query(ContentModule).filter(ContentModule.key == key).first()
     if not m:
         raise HTTPException(status_code=404, detail="Modul nicht gefunden")
@@ -330,4 +334,5 @@ def restore_module(key: str, db: Session = Depends(get_db), _t: dict = Depends(g
     _apply(db, key, m, restored)
     snap.data = current_data
     db.commit()
+    log_action(db, trainer, "content.restore", target=f"module:{key}")
     return _meta(m)

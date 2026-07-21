@@ -73,7 +73,8 @@ def join(data: JoinReq, db: Session = Depends(get_db)):
                 status_code=403,
                 detail="Dieser Name ist bereits vergeben. Bitte gib deinen persönlichen Wiederaufnahme-Code ein.")
     token = create_token(sub=name, role="participant",
-                         extra={"participant_id": p.id, "course_id": course.id})
+                         extra={"participant_id": p.id, "course_id": course.id,
+                                "token_version": p.token_version})
     return {"access_token": token, "course_name": course.name, "name": name,
             "resume_code": resume_code_out}
 

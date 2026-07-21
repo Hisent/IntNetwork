@@ -58,6 +58,7 @@ export function BlockComments({ moduleKey, blockIndex, lang }: { moduleKey: stri
             <input
               value={text}
               onChange={(e) => setText(e.target.value)}
+              aria-label={t(lang, 'comments')}
               placeholder={t(lang, 'commentPlaceholder')}
               className="flex-1 border rounded-lg px-2 py-1 text-sm"
             />

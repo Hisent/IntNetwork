@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { workshopApi } from '@/lib/workshopApi'
-import type { Lang } from '@/lib/i18n'
+import { useDocumentLang, type Lang } from '@/lib/i18n'
 import { WorkshopTheme } from '@/components/WorkshopTheme'
 import { BrandLogo } from '@/components/BrandLogo'
 import { ThemeToggle } from '@/components/ThemeToggle'
@@ -55,6 +55,7 @@ function LoadingCards({ label }: { label: string }) {
 
 export function LandingPage() {
   const [lang, setLang] = useState<Lang>('de')
+  useDocumentLang(lang)
   const [query, setQuery] = useState('')
   const workshops = useQuery({ queryKey: ['workshops'], queryFn: () => workshopApi.list().then((r) => r.data) })
   const copy = COPY[lang]
@@ -65,7 +66,7 @@ export function LandingPage() {
   )
 
   return (
-    <main className="grain relative min-h-[100dvh] overflow-hidden bg-[#eef4f3] px-5 py-6 sm:px-10 sm:py-8 dark:bg-[#0d1417]">
+    <main id="main-content" tabIndex={-1} className="grain relative min-h-[100dvh] overflow-hidden bg-[#eef4f3] px-5 py-6 sm:px-10 sm:py-8 dark:bg-[#0d1417]">
       <div className="relative mx-auto max-w-6xl">
         <header className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">

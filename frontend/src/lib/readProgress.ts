@@ -21,3 +21,26 @@ export function toggleRead(participantId: number, courseId: number, moduleKey: s
   localStorage.setItem(storageKey(participantId, courseId, moduleKey), JSON.stringify(next))
   return next
 }
+
+// Alle participantId-tragenden Schlüsselarten (Lese-Fortschritt, Reflexionen,
+// Live-CLI-Session — siehe Blocks.tsx / ClaudeCliWidget.tsx). Die participantId
+// steht dabei immer als erstes Zahlen-Segment nach der Art.
+const SCOPED_KEY = /^intnetwork-(?:read|reflect|cli)-(\d+)-/
+
+// Räumt an geteilten Browsern die Reste anderer Teilnehmer auf: ruft man beim
+// Bekanntwerden der aktuellen participantId auf, entfernt sie alle App-eigenen
+// Keys, die erkennbar einer ANDEREN participantId gehören. Nicht zuordenbare
+// App-Keys (z.B. das Theme) und fremde, nicht-App-Keys bleiben unangetastet.
+export function pruneOtherParticipants(currentParticipantId: number): void {
+  try {
+    const stale: string[] = []
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i)
+      const match = key?.match(SCOPED_KEY)
+      if (match && Number(match[1]) !== currentParticipantId) stale.push(key!)
+    }
+    stale.forEach((key) => localStorage.removeItem(key))
+  } catch {
+    // localStorage kann blockiert sein oder key()/length fehlen — dann nichts tun.
+  }
+}

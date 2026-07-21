@@ -104,3 +104,17 @@ cd backend
 
 Inhaltliche Änderungen an bereits ausgelieferten Modulen bleiben davon getrennt und
 laufen weiter als versionierte Content-Migrationen in `backend/app/content/seed.py`.
+
+## Backup
+
+`ops/backup.sh` zieht per `docker compose exec` einen `pg_dump` aus dem
+laufenden `db`-Container, komprimiert ihn mit gzip und legt ihn im
+Zielverzeichnis ab (Default `./backups`); Dumps älter als 14 Tage werden dabei
+automatisch gelöscht. Für einen täglichen Cron-Lauf:
+
+```bash
+0 3 * * * cd /opt/intnetwork && ops/backup.sh /var/backups/intnetwork >> /var/log/intnetwork-backup.log 2>&1
+```
+
+Zurückspielen mit `ops/restore.sh pfad/zum/dump.sql.gz` (fragt vor dem
+Überschreiben der laufenden DB explizit nach Bestätigung).

@@ -20,6 +20,7 @@ from app.models import content as _content  # noqa: F401
 from app.models import workshop as _workshop  # noqa: F401
 from app.models import trainer as _trainer  # noqa: F401
 from app.models import certificate as _certificate  # noqa: F401
+from app.models import audit_log as _audit_log  # noqa: F401
 
 if not settings.debug and settings.secret_key == DEFAULT_SECRET_KEY:
     raise RuntimeError("SECRET_KEY ist nicht gesetzt (noch der Default).")
@@ -58,6 +59,26 @@ finally:
     _seed_db.close()
 
 app = FastAPI(title="IntLab", version=APP_VERSION)
+
+
+@app.middleware("http")
+async def _security_headers(request, call_next):
+    """Setzt Standard-Security-Header auf jede Response.
+
+    Kein CSP hier: das Backend liefert nur JSON, keine HTML-Seiten. HSTS nur in
+    Prod (debug=False) — auf lokalem HTTP würde der Browser sich sonst dauerhaft
+    auf HTTPS festlegen.
+    """
+    response = await call_next(request)
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["Referrer-Policy"] = "no-referrer"
+    response.headers["Permissions-Policy"] = "geolocation=(), microphone=(), camera=()"
+    if not settings.debug:
+        response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+    return response
+
+
 app.add_middleware(
     CORSMiddleware, allow_origins=settings.origins,
     allow_credentials=True, allow_methods=["*"], allow_headers=["*"],
@@ -86,6 +107,7 @@ from app.routers import trainer_content as trainer_content_router  # noqa: E402
 from app.routers import trainer_accounts as trainer_accounts_router  # noqa: E402
 from app.routers import workshops as workshops_router  # noqa: E402
 from app.routers import certificate as certificate_router  # noqa: E402
+from app.routers import trainer_audit as trainer_audit_router  # noqa: E402
 _api.include_router(auth_router.router)
 _api.include_router(courses_router.router)
 _api.include_router(join_router.router)
@@ -101,5 +123,6 @@ _api.include_router(trainer_content_router.router)
 _api.include_router(trainer_accounts_router.router)
 _api.include_router(workshops_router.router)
 _api.include_router(certificate_router.router)
+_api.include_router(trainer_audit_router.router)
 
 app.include_router(_api)

@@ -137,6 +137,7 @@ function TrainerDashboard({ onLogout }: { onLogout: () => void }) {
             <TrainerAccounts />
             <SettingsBlock />
             <ChangelogBlock />
+            <AuditLogBlock />
           </div>
         </div>
       </div>
@@ -489,6 +490,38 @@ function ChangelogBlock() {
                   <span className="shrink-0 text-xs text-slate-400">{e.date}</span>
                 </div>
                 <p className="mt-1 text-sm text-slate-600">{e.text}</p>
+              </div>
+            ))}
+          </div>
+        </details>
+      </QueryState>
+    </Section>
+  )
+}
+
+// --- Verwaltung: Audit-Protokoll ----------------------------------------------
+
+function AuditLogBlock() {
+  const audit = useQuery({ queryKey: ['audit-log'], queryFn: () => trainerApi.auditLog().then((r) => r.data) })
+  return (
+    <Section title="Protokoll">
+      <QueryState query={audit} empty={audit.data?.length === 0}>
+        <details>
+          <summary className="cursor-pointer select-none text-sm text-slate-500 hover:text-slate-700">
+            Letzte {audit.data?.length ?? 0} Aktionen anzeigen
+          </summary>
+          <div className="mt-3 flex max-h-96 flex-col gap-2 overflow-y-auto">
+            {audit.data?.map((e) => (
+              <div key={e.id} className="rounded-lg border bg-white p-3 text-sm">
+                <div className="flex items-baseline justify-between gap-2">
+                  <span className="font-medium text-slate-800">{e.action}</span>
+                  <span className="shrink-0 text-xs text-slate-400">{new Date(e.created_at).toLocaleString('de-DE')}</span>
+                </div>
+                <p className="mt-1 text-slate-600">
+                  {e.trainer_email}
+                  {e.target ? <> · {e.target}</> : null}
+                  {e.detail ? <> · {e.detail}</> : null}
+                </p>
               </div>
             ))}
           </div>

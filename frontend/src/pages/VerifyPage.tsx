@@ -23,7 +23,7 @@ export function VerifyPage() {
     : ''
 
   return (
-    <main className="grid min-h-dvh place-items-center bg-slate-50 p-6">
+    <main id="main-content" tabIndex={-1} className="grid min-h-dvh place-items-center bg-slate-50 p-6">
       <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
         <Link to="/" className="mb-6 inline-block"><BrandLogo className="h-8" showName /></Link>
         <h1 className="text-xl font-bold text-slate-900">Teilnahmebestätigung prüfen</h1>
@@ -33,6 +33,7 @@ export function VerifyPage() {
           onSubmit={(e) => { e.preventDefault(); if (input.trim()) nav(`/verifizieren/${input.trim()}`) }}
           className="mt-5 flex gap-2">
           <input value={input} onChange={(e) => setInput(e.target.value)}
+            aria-label="Prüf-ID"
             placeholder="z. B. a1b2c3d4e5f6a7b8"
             className="min-w-0 flex-1 rounded-lg border border-slate-300 px-3 py-2 font-mono text-sm outline-none focus:border-teal-600 focus:ring-2 focus:ring-teal-100" />
           <button className="rounded-lg bg-teal-600 px-4 py-2 font-medium text-white hover:bg-teal-700">Prüfen</button>

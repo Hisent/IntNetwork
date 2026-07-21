@@ -24,6 +24,12 @@ export default function App() {
   return (
     <QueryClientProvider client={qc}>
       <BrowserRouter>
+        {/* Sichtbar erst bei Tastaturfokus — überspringt Topbar/Navigation und
+            landet direkt im <main id="main-content"> jeder Seite. */}
+        <a href="#main-content"
+          className="sr-only focus:not-sr-only focus:fixed focus:left-2 focus:top-2 focus:z-[200] focus:rounded-lg focus:bg-teal-600 focus:px-4 focus:py-2 focus:font-medium focus:text-white">
+          Zum Inhalt springen / Skip to content
+        </a>
         <ErrorBoundary fallback={
           <main className="grid min-h-dvh place-items-center bg-slate-50 p-6 text-center">
             <div>

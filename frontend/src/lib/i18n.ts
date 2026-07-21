@@ -1,4 +1,14 @@
+import { useEffect } from 'react'
+
 export type Lang = 'de' | 'en'
+
+// Zieht das lang-Attribut des Dokuments mit der aktiven Sprache nach —
+// wichtig für Screenreader, die Aussprache/Regeln pro Sprache umschalten.
+export function useDocumentLang(lang: Lang) {
+  useEffect(() => {
+    document.documentElement.lang = lang
+  }, [lang])
+}
 
 export const STRINGS = {
   de: {
