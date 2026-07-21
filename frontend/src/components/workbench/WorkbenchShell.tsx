@@ -22,6 +22,29 @@ export function WorkbenchTopbar({ lang = 'de', title, actions }: { lang?: Lang; 
   )
 }
 
+// Eine Sprachumschaltung für die ganze App: gleiche Größe, Form und
+// Beschriftung überall (Landing-, Workshop-, Lern- und Modulseite), statt je
+// Seite einer eigenen Variante. `className` steuert nur die Sichtbarkeit
+// (z.B. `hidden sm:flex` für eine Desktop-Variante neben einer
+// Mobil-Variante) — die Standardeinstellung `flex` passt für die meisten
+// Seiten.
+export function LangToggle({ lang, onChange, className = 'flex' }: { lang: Lang; onChange: (lang: Lang) => void; className?: string }) {
+  return (
+    <div className={className} aria-label={lang === 'de' ? 'Sprache' : 'Language'}>
+      {(['de', 'en'] as Lang[]).map((value) => (
+        <button
+          key={value}
+          type="button"
+          onClick={() => onChange(value)}
+          aria-pressed={lang === value}
+          className={`wb-control min-w-11 px-2 text-xs font-semibold uppercase ${lang === value ? 'text-teal-700 dark:text-teal-300' : 'text-slate-400'}`}>
+          {value}
+        </button>
+      ))}
+    </div>
+  )
+}
+
 export function WorkbenchProgress({ value, label }: { value: number; label: string }) {
   return (
     <div aria-label={`${label}: ${value}%`}>

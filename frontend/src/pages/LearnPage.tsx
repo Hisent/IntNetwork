@@ -6,7 +6,9 @@ import { LoadError } from '@/components/LoadError'
 import type { Company, ModuleMeta, ProgressItem } from '@/types'
 import { useAuthStore } from '@/store/auth'
 import { t, useDocumentLang, type Lang } from '@/lib/i18n'
-import { WorkbenchProgress, WorkbenchSectionTitle, WorkbenchTopbar } from '@/components/workbench/WorkbenchShell'
+import { LangToggle, WorkbenchProgress, WorkbenchSectionTitle, WorkbenchTopbar } from '@/components/workbench/WorkbenchShell'
+import { groupModulesBySection } from '@/lib/moduleGroups'
+import { markLockedVisibility } from '@/lib/lockedModules'
 import { WorkshopTheme } from '@/components/WorkshopTheme'
 
 type Group = { key: string; title: string; mods: ModuleMeta[] }
@@ -52,9 +54,8 @@ export function LearnPage() {
   const isLocked = (m: ModuleMeta) => m.prerequisites.length > 0 && !prereqsMet(m.prerequisites)
   // „Hier weitermachen“: erstes offenes, nicht gesperrtes Modul in Kurs-Reihenfolge
   const continueAt = sorted.find((m) => !isDone(m.key) && !isLocked(m))
-  const grouped: Group[] = (me.data?.workshop?.sections ?? [{ key: 'modules', from: -Infinity, to: Infinity, title_de: 'Module', title_en: 'Modules' }])
-    .map((g) => ({ key: g.key, title: lang === 'de' ? g.title_de : g.title_en, mods: sorted.filter((m) => m.order >= g.from && m.order <= g.to) }))
-    .filter((g) => g.mods.length > 0)
+  const grouped: Group[] = groupModulesBySection(sorted, me.data?.workshop?.sections)
+    .map((g) => ({ key: g.key, title: lang === 'de' ? g.title_de : g.title_en, mods: g.modules }))
   const workshopTitle = me.data?.workshop?.title[lang] ?? 'IntLab'
   const workshopSummary = me.data?.workshop?.summary?.[lang] ?? t(lang, 'tagline')
   const completionText = lang === 'de' ? 'Alle Module dieses Workshops sind bestanden.' : 'All modules in this workshop are passed.'
@@ -103,16 +104,36 @@ export interface WorkbenchLearnProps {
 export function WorkbenchLearnView({ lang, displayName, modules, groups, progress, company, links, doneCount, donePct, continueAt, titleOf, workshopTitle, workshopSummary, completionText, setLanguage }: WorkbenchLearnProps) {
   const progressOf = (key: string) => progress.find((item) => item.module_key === key)
   const complete = modules.length > 0 && doneCount === modules.length
-  const langControl = (
-    <div className="flex" aria-label={lang === 'de' ? 'Sprache' : 'Language'}>
-      {(['de', 'en'] as Lang[]).map((value) => (
-        <button key={value} type="button" onClick={() => setLanguage(value)} aria-pressed={lang === value}
-          className={`wb-control min-w-11 px-2 text-xs font-semibold uppercase ${lang === value ? 'text-[var(--wb-accent)]' : 'text-[var(--wb-muted)]'}`}>
-          {value}
-        </button>
-      ))}
-    </div>
+  const isLocked = (module: ModuleMeta) => module.prerequisites.some((key) => !progressOf(key)?.done)
+  const hasLocked = modules.some(isLocked)
+  // Nur die nächsten paar gesperrten Module bleiben sichtbar (Kursreihenfolge)
+  // — der Rest verschwindet hinter "Weitere Module anzeigen", damit der
+  // erste Eindruck nach dem Beitritt nicht aus einer Wand aus "Voraussetzung
+  // offen"-Zeilen besteht. Abgeschlossene/freigeschaltete Module sind davon
+  // nie betroffen.
+  const visibleKeys = new Set(
+    markLockedVisibility(modules.map((module) => ({ key: module.key, locked: isLocked(module) })))
+      .filter((entry) => entry.visible)
+      .map((entry) => entry.key),
   )
+  const langControl = <LangToggle lang={lang} onChange={setLanguage} />
+
+  const renderModuleRow = (module: ModuleMeta) => {
+    const itemProgress = progressOf(module.key)
+    const locked = isLocked(module)
+    const rowClass = 'wb-control grid min-w-0 gap-1 px-4 py-3 sm:grid-cols-[40px_minmax(0,1fr)_auto] sm:items-center sm:gap-3'
+    const rowContent = <>
+        <span aria-hidden="true" className={`row-span-2 grid h-8 w-8 place-items-center rounded-lg text-xs font-bold ${itemProgress?.done ? 'bg-emerald-100 text-[var(--wb-success)]' : locked ? 'bg-[var(--wb-subtle)] text-[var(--wb-muted)]' : 'bg-[var(--wb-accent-soft)] text-[var(--wb-accent)]'}`}>
+          {itemProgress?.done ? '✓' : module.order}
+        </span>
+        <span className="min-w-0 font-medium text-[var(--wb-ink)]">{lang === 'de' ? module.title : module.title_en}</span>
+        <span className="text-xs tabular-nums text-[var(--wb-muted)]">{itemProgress?.best != null ? `${t(lang, 'best')} ${itemProgress.best}%` : locked ? (lang === 'de' ? 'Voraussetzung offen' : 'Prerequisite open') : t(lang, 'open')}</span>
+        {module.prerequisites.length > 0 && <span className="min-w-0 text-xs text-[var(--wb-muted)] sm:col-start-2">{t(lang, 'prerequisitesHint')}: {module.prerequisites.map(titleOf).join(', ')}</span>}
+      </>
+    return locked
+      ? <div key={module.key} aria-disabled="true" className={`${rowClass} cursor-not-allowed opacity-65`}>{rowContent}</div>
+      : <Link key={module.key} to={`/lernen/${module.key}`} className={`${rowClass} hover:bg-[var(--wb-accent-soft)]`}>{rowContent}</Link>
+  }
 
   return (
     <div className="workbench">
@@ -126,7 +147,12 @@ export function WorkbenchLearnView({ lang, displayName, modules, groups, progres
             </h1>
             <p className="mt-2 max-w-[65ch] text-[var(--wb-muted)]">{workshopSummary}</p>
           </div>
-          <div className="wb-surface p-5"><WorkbenchProgress value={donePct} label={t(lang, 'courseProgress')} /></div>
+          <div className="wb-surface p-5">
+            <WorkbenchProgress value={donePct} label={t(lang, 'courseProgress')} />
+            {/* Gesamtumfang bleibt ablesbar, auch wenn gesperrte Module weiter
+                unten zusammengeklappt sind. */}
+            <p className="mt-2 text-xs text-[var(--wb-muted)]">{doneCount}/{modules.length} {t(lang, 'modules')}</p>
+          </div>
         </div>
 
         {complete && (
@@ -139,7 +165,7 @@ export function WorkbenchLearnView({ lang, displayName, modules, groups, progres
         <div className="grid min-w-0 gap-8 xl:grid-cols-[minmax(0,1fr)_320px]">
           <main id="main-content" tabIndex={-1} className="min-w-0">
             {continueAt && (
-              <Link to={`/lernen/${continueAt.key}`} className="wb-surface group mb-8 block border-[var(--wb-accent)] bg-[var(--wb-highlight)] p-5 text-white hover:border-[var(--wb-accent)]">
+              <Link to={`/lernen/${continueAt.key}`} className="wb-surface wb-surface--highlight group mb-8 block border-[var(--wb-accent)] p-5 hover:border-[var(--wb-accent)]">
                 <span className="text-xs font-semibold uppercase tracking-[0.14em] text-teal-200">{t(lang, 'continueHere')}</span>
                 <span className="mt-2 flex items-center justify-between gap-4 text-xl font-semibold">
                   {lang === 'de' ? continueAt.title : continueAt.title_en}<span aria-hidden="true" className="text-teal-300 transition-transform group-hover:translate-x-1">→</span>
@@ -147,30 +173,29 @@ export function WorkbenchLearnView({ lang, displayName, modules, groups, progres
               </Link>
             )}
 
+            {hasLocked && <p className="mb-5 max-w-[65ch] text-sm text-[var(--wb-muted)]">{t(lang, 'lockedOrderHint')}</p>}
+
             <div className="space-y-8">
-              {groups.map((group) => (
-                <section key={group.key}>
-                  <WorkbenchSectionTitle meta={`${group.mods.filter((m) => progressOf(m.key)?.done).length}/${group.mods.length}`}>{group.title}</WorkbenchSectionTitle>
-                  <div className="wb-surface divide-y divide-[var(--wb-border)] overflow-hidden">
-                    {group.mods.map((module) => {
-                      const itemProgress = progressOf(module.key)
-                      const locked = module.prerequisites.some((key) => !progressOf(key)?.done)
-                      const rowClass = 'wb-control grid min-w-0 gap-1 px-4 py-3 sm:grid-cols-[40px_minmax(0,1fr)_auto] sm:items-center sm:gap-3'
-                      const rowContent = <>
-                          <span aria-hidden="true" className={`row-span-2 grid h-8 w-8 place-items-center rounded-lg text-xs font-bold ${itemProgress?.done ? 'bg-emerald-100 text-[var(--wb-success)]' : locked ? 'bg-[var(--wb-subtle)] text-[var(--wb-muted)]' : 'bg-[var(--wb-accent-soft)] text-[var(--wb-accent)]'}`}>
-                            {itemProgress?.done ? '✓' : module.order}
-                          </span>
-                          <span className="min-w-0 font-medium text-[var(--wb-ink)]">{lang === 'de' ? module.title : module.title_en}</span>
-                          <span className="text-xs tabular-nums text-[var(--wb-muted)]">{itemProgress?.best != null ? `${t(lang, 'best')} ${itemProgress.best}%` : locked ? (lang === 'de' ? 'Voraussetzung offen' : 'Prerequisite open') : t(lang, 'open')}</span>
-                          {module.prerequisites.length > 0 && <span className="min-w-0 text-xs text-[var(--wb-muted)] sm:col-start-2">{t(lang, 'prerequisitesHint')}: {module.prerequisites.map(titleOf).join(', ')}</span>}
-                        </>
-                      return locked
-                        ? <div key={module.key} aria-disabled="true" className={`${rowClass} cursor-not-allowed opacity-65`}>{rowContent}</div>
-                        : <Link key={module.key} to={`/lernen/${module.key}`} className={`${rowClass} hover:bg-[var(--wb-accent-soft)]`}>{rowContent}</Link>
-                    })}
-                  </div>
-                </section>
-              ))}
+              {groups.map((group) => {
+                const shownMods = group.mods.filter((module) => visibleKeys.has(module.key))
+                const hiddenMods = group.mods.filter((module) => !visibleKeys.has(module.key))
+                return (
+                  <section key={group.key}>
+                    <WorkbenchSectionTitle meta={`${group.mods.filter((m) => progressOf(m.key)?.done).length}/${group.mods.length}`}>{group.title}</WorkbenchSectionTitle>
+                    <div className="wb-surface divide-y divide-[var(--wb-border)] overflow-hidden">
+                      {shownMods.map(renderModuleRow)}
+                      {hiddenMods.length > 0 && (
+                        <details>
+                          <summary className="wb-control flex cursor-pointer items-center px-4 py-3 text-sm font-medium text-[var(--wb-accent)] hover:underline">
+                            {t(lang, 'showMoreModules')} ({hiddenMods.length})
+                          </summary>
+                          <div className="divide-y divide-[var(--wb-border)]">{hiddenMods.map(renderModuleRow)}</div>
+                        </details>
+                      )}
+                    </div>
+                  </section>
+                )
+              })}
             </div>
           </main>
 

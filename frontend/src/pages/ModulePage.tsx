@@ -12,8 +12,9 @@ import { LoadError } from '@/components/LoadError'
 import { t, useDocumentLang, type Lang } from '@/lib/i18n'
 import { GlossaryPanel } from '@/components/GlossaryPanel'
 import type { Block, ModuleDetail, ModuleMeta, ProgressItem } from '@/types'
-import { WorkbenchProgress, WorkbenchSectionTitle, WorkbenchTopbar } from '@/components/workbench/WorkbenchShell'
+import { LangToggle, WorkbenchProgress, WorkbenchSectionTitle, WorkbenchTopbar } from '@/components/workbench/WorkbenchShell'
 import { readPercent } from '@/components/workbench/workbenchLogic'
+import { groupModulesBySection, type ModuleSection } from '@/lib/moduleGroups'
 import { WorkshopTheme } from '@/components/WorkshopTheme'
 
 export function ModulePage() {
@@ -86,6 +87,7 @@ export function ModulePage() {
         keyScope={keyScope}
         module={mod.data}
         modules={sortedModules}
+        sections={me.data?.workshop?.sections}
         progress={me.data?.progress ?? []}
         read={read}
         textIndexes={textIndexes}
@@ -108,6 +110,7 @@ export interface WorkbenchModuleProps {
   keyScope: string
   module: ModuleDetail
   modules: ModuleMeta[]
+  sections?: ModuleSection[]
   progress: ProgressItem[]
   read: number[]
   textIndexes: number[]
@@ -121,49 +124,61 @@ export interface WorkbenchModuleProps {
   onQuizResult: (passed: boolean) => void
 }
 
-function WorkbenchModuleNav({ lang, current, modules, progress }: { lang: Lang; current: string; modules: ModuleMeta[]; progress: ProgressItem[] }) {
+// Gruppiert wie die Kursübersicht (LearnPage) — dieselbe Gliederungsfunktion,
+// nur kompakter dargestellt (keine WorkbenchSectionTitle-Trennlinie, nur ein
+// schmales Label je Gruppe), damit Sidebar und Übersicht keine zwei leicht
+// unterschiedlichen Ansichten derselben Daten zeigen.
+function WorkbenchModuleNav({ lang, current, modules, sections, progress }: { lang: Lang; current: string; modules: ModuleMeta[]; sections?: ModuleSection[]; progress: ProgressItem[] }) {
   const progressOf = (key: string) => progress.find((item) => item.module_key === key)
   const unlocked = (module: ModuleMeta) => module.key === current || module.prerequisites.every((key) => progressOf(key)?.done)
+  const groups = groupModulesBySection(modules, sections)
   return (
-    <nav aria-label={lang === 'de' ? 'Kursmodule' : 'Course modules'} className="space-y-1">
-      {modules.map((module) => {
-        const available = unlocked(module)
-        const itemProgress = progressOf(module.key)
-        const rowClass = `wb-control grid grid-cols-[28px_minmax(0,1fr)] items-center gap-2 rounded-lg px-2 py-1.5 text-sm ${module.key === current ? 'bg-[var(--wb-accent-soft)] font-semibold text-[var(--wb-accent)]' : available ? 'text-[var(--wb-muted)] hover:bg-white hover:text-[var(--wb-ink)]' : 'cursor-not-allowed text-slate-400'}`
-        const rowContent = <>
-            <span aria-hidden="true" className={`grid h-6 w-6 place-items-center rounded-md text-[10px] font-bold ${itemProgress?.done ? 'bg-emerald-100 text-[var(--wb-success)]' : module.key === current ? 'bg-[var(--wb-accent)] text-white' : 'bg-white'}`}>{itemProgress?.done ? '✓' : module.order}</span>
-            <span className="min-w-0">{lang === 'de' ? module.title : module.title_en}</span>
-          </>
-        return available
-          ? <Link key={module.key} to={`/lernen/${module.key}`} aria-current={module.key === current ? 'page' : undefined} className={rowClass}>{rowContent}</Link>
-          : <div key={module.key} aria-disabled="true" className={rowClass}>{rowContent}</div>
-      })}
+    <nav aria-label={lang === 'de' ? 'Kursmodule' : 'Course modules'} className="space-y-3">
+      {groups.map((group) => (
+        <div key={group.key}>
+          {groups.length > 1 && <p className="px-2 pb-1 text-[10px] font-semibold uppercase tracking-wide text-[var(--wb-muted)]">{lang === 'de' ? group.title_de : group.title_en}</p>}
+          <div className="space-y-1">
+            {group.modules.map((module) => {
+              const available = unlocked(module)
+              const itemProgress = progressOf(module.key)
+              const rowClass = `wb-control grid grid-cols-[28px_minmax(0,1fr)] items-center gap-2 rounded-lg px-2 py-1.5 text-sm ${module.key === current ? 'bg-[var(--wb-accent-soft)] font-semibold text-[var(--wb-accent)]' : available ? 'text-[var(--wb-muted)] hover:bg-white hover:text-[var(--wb-ink)]' : 'cursor-not-allowed text-slate-400'}`
+              const rowContent = <>
+                  <span aria-hidden="true" className={`grid h-6 w-6 place-items-center rounded-md text-[10px] font-bold ${itemProgress?.done ? 'bg-emerald-100 text-[var(--wb-success)]' : module.key === current ? 'bg-[var(--wb-accent)] text-white' : 'bg-white'}`}>{itemProgress?.done ? '✓' : module.order}</span>
+                  <span className="min-w-0">{lang === 'de' ? module.title : module.title_en}</span>
+                </>
+              return available
+                ? <Link key={module.key} to={`/lernen/${module.key}`} aria-current={module.key === current ? 'page' : undefined} className={rowClass}>{rowContent}</Link>
+                : <div key={module.key} aria-disabled="true" className={rowClass}>{rowContent}</div>
+            })}
+          </div>
+        </div>
+      ))}
     </nav>
   )
 }
 
-export function WorkbenchModuleView({ lang, moduleKey, keyScope, module, modules, progress, read, textIndexes, toc, commentsOn, showGlossary, nextModule, justPassed, setLanguage, onToggleRead, onQuizResult }: WorkbenchModuleProps) {
+export function WorkbenchModuleView({ lang, moduleKey, keyScope, module, modules, sections, progress, read, textIndexes, toc, commentsOn, showGlossary, nextModule, justPassed, setLanguage, onToggleRead, onQuizResult }: WorkbenchModuleProps) {
   const readPct = readPercent(textIndexes, read)
   const languageControl = (
-    <><div className="hidden sm:flex" aria-label={lang === 'de' ? 'Sprache' : 'Language'}>{(['de', 'en'] as Lang[]).map((value) => <button key={value} type="button" onClick={() => setLanguage(value)} aria-pressed={lang === value} className={`wb-control min-w-11 text-xs font-semibold uppercase ${lang === value ? 'text-[var(--wb-accent)]' : 'text-[var(--wb-muted)]'}`}>{value}</button>)}</div>{showGlossary && <div className="xl:hidden"><GlossaryPanel moduleKey={moduleKey} lang={lang} /></div>}</>
+    <><LangToggle lang={lang} onChange={setLanguage} className="hidden sm:flex" />{showGlossary && <div className="xl:hidden"><GlossaryPanel moduleKey={moduleKey} lang={lang} /></div>}</>
   )
   return (
     <div className="workbench">
       <WorkbenchTopbar lang={lang} title={module.title} actions={languageControl} />
       <div className="h-1 bg-[var(--wb-subtle)]"><div className="h-full bg-[var(--wb-accent)]" style={{ width: `${readPct}%` }} /></div>
       <div className="wb-shell">
-        <details className="wb-surface mb-5 p-3 lg:hidden">
+        <details id="module-nav" className="wb-surface mb-5 scroll-mt-20 p-3 lg:hidden">
           <summary className="wb-control flex cursor-pointer items-center px-2 font-semibold">{lang === 'de' ? 'Kursnavigation öffnen' : 'Open course navigation'}</summary>
           <div className="mt-2 max-h-[60dvh] overflow-y-auto border-t border-[var(--wb-border)] pt-3">
-            <div className="mb-3 flex sm:hidden" aria-label={lang === 'de' ? 'Sprache' : 'Language'}>{(['de', 'en'] as Lang[]).map((value) => <button key={value} type="button" onClick={() => setLanguage(value)} aria-pressed={lang === value} className={`wb-control min-w-11 text-xs font-semibold uppercase ${lang === value ? 'text-[var(--wb-accent)]' : 'text-[var(--wb-muted)]'}`}>{value}</button>)}</div>
-            <WorkbenchModuleNav lang={lang} current={moduleKey} modules={modules} progress={progress} />
+            <LangToggle lang={lang} onChange={setLanguage} className="mb-3 flex sm:hidden" />
+            <WorkbenchModuleNav lang={lang} current={moduleKey} modules={modules} sections={sections} progress={progress} />
           </div>
         </details>
 
         <div className="wb-module-grid">
           <aside className="sticky top-20 hidden max-h-[calc(100dvh-6rem)] overflow-y-auto lg:block">
             <WorkbenchSectionTitle>{lang === 'de' ? 'Kursmodule' : 'Course modules'}</WorkbenchSectionTitle>
-            <WorkbenchModuleNav lang={lang} current={moduleKey} modules={modules} progress={progress} />
+            <WorkbenchModuleNav lang={lang} current={moduleKey} modules={modules} sections={sections} progress={progress} />
           </aside>
 
           <main id="main-content" tabIndex={-1} className="wb-module-content">
@@ -182,6 +197,13 @@ export function WorkbenchModuleView({ lang, moduleKey, keyScope, module, modules
             <div className="mt-10 border-t border-[var(--wb-border)] pt-6 text-right">
               {nextModule ? <Link to={`/lernen/${nextModule.key}`} className={`wb-control inline-flex max-w-full items-center justify-center rounded-lg px-5 text-center font-semibold ${justPassed ? 'bg-[var(--wb-accent)] text-white hover:bg-[var(--wb-accent-hover)]' : 'border border-[var(--wb-border)] bg-white text-[var(--wb-ink)] hover:border-[var(--wb-accent)]'}`}>{t(lang, 'nextModule')}: {lang === 'de' ? nextModule.title : nextModule.title_en} →</Link> : <Link to="/lernen" className="wb-control inline-flex items-center rounded-lg border border-[var(--wb-border)] bg-white px-5 font-semibold">{t(lang, 'backToOverview')} →</Link>}
             </div>
+
+            {/* Auf schmalen Viewports (Sidebar nicht permanent sichtbar) ein
+                kurzer Rückweg zur Kursnavigation, statt vollständigen
+                Hochscrollens nach einer Unterbrechung im Quiz. */}
+            <a href="#module-nav" className="wb-control mt-4 flex items-center justify-center gap-1.5 text-sm font-medium text-[var(--wb-muted)] hover:text-[var(--wb-accent)] lg:hidden">
+              <span aria-hidden="true">↑</span>{lang === 'de' ? 'Zur Kursnavigation' : 'To course navigation'}
+            </a>
           </main>
 
           <aside className="sticky top-20 hidden max-h-[calc(100dvh-6rem)] space-y-5 overflow-y-auto xl:block">

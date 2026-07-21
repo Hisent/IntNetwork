@@ -68,6 +68,16 @@
   background: var(--wb-surface);
 }
 
+/* Hervorgehobene Karte ("Hier weitermachen"). Flaeche UND Textfarbe muessen hier
+   stehen: diese Datei ist ungelayertes CSS und gewinnt damit gegen Tailwind-
+   Utilities aus @layer utilities. Ein bg-[var(--wb-highlight)] am Element wurde
+   deshalb von .wb-surface ueberschrieben -- im Hellmodus stand weisser Text auf
+   weisser Flaeche. --wb-highlight ist bewusst themenunabhaengig dunkel. */
+.wb-surface--highlight {
+  background: var(--wb-highlight);
+  color: #fff;
+}
+
 .wb-control {
   min-height: 44px;
 }
@@ -85,6 +95,23 @@
   min-width: 0;
   max-width: 720px;
   margin-inline: auto;
+}
+
+/* Prosa (Fließtext aus Markdown-Textblöcken) auf lesbare Zeilenlänge begrenzen.
+   Gezielt nur p/h2/h3/ul/ol als direkte Kinder eines Blocks — nicht der
+   Block-Container selbst, denn ein Textblock kann Absätze UND einen
+   Code-Fence als Geschwister enthalten. Widgets, Tabellen und Code-Blöcke
+   bleiben so bei der vollen Spaltenbreite von .wb-module-content.
+   50ch statt der "üblichen" 68ch, weil in dieser Schrift/Größe 1ch ≈ 10,5px
+   rendert — 68ch käme damit auf ~714px und würde die 720px-Spalte praktisch
+   nicht einengen. Am Bildschirm gemessen liefert 50ch die angestrebten
+   65–75 Zeichen pro Zeile (Ø 70). */
+.wb-module-content .content-blocks > [id^="block-"] > p,
+.wb-module-content .content-blocks > [id^="block-"] > h2,
+.wb-module-content .content-blocks > [id^="block-"] > h3,
+.wb-module-content .content-blocks > [id^="block-"] > ul,
+.wb-module-content .content-blocks > [id^="block-"] > ol {
+  max-width: 50ch;
 }
 
 .workbench [id^="block-"],

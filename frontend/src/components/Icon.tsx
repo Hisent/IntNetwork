@@ -1,7 +1,7 @@
 // Ein kleines, konsistentes Inline-SVG-Set (Lucide-Stil: 24er-Viewbox, stroke
 // currentColor, ohne Dependency) — ersetzt die uneinheitlichen Emoji-Icons.
 const PATHS: Record<string, string> = {
-  sun: 'M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41',
+  sun: 'M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8zM12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41',
   moon: 'M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z',
   trophy: 'M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4zM17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3',
   lock: 'M5 11h14v10H5zM8 11V7a4 4 0 0 1 8 0v4',

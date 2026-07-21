@@ -10,6 +10,7 @@ import { workshopApi } from '@/lib/workshopApi'
 import { BrandLogo } from '@/components/BrandLogo'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { Icon } from '@/components/Icon'
+import { groupModulesByWorkshop } from '@/lib/trainerModules'
 
 // --- kleine Bausteine ---------------------------------------------------------
 
@@ -116,6 +117,7 @@ function TrainerDashboard({ onLogout }: { onLogout: () => void }) {
         </header>
 
         {/* Master-Detail: Kurse wählen (links) → Kurs-Detail (rechts) */}
+        <h2 className="mb-4 text-xs font-bold uppercase tracking-[0.16em] text-slate-400">Kursübersicht</h2>
         <div className="grid gap-6 lg:grid-cols-[340px_minmax(0,1fr)] lg:items-start">
           <CourseList
             courses={courses} workshopTitle={workshopTitle} workshops={workshops.data ?? []}
@@ -180,25 +182,25 @@ function CourseList({ courses, workshops, workshopTitle, selected, onSelect }: {
       </form>
 
       <QueryState query={courses} empty={courses.data?.length === 0}>
-        <div className="flex flex-col gap-1.5">
+        <ul className="flex flex-col gap-1.5">
           {courses.data?.map((c) => (
-            <div key={c.id} role="button" tabIndex={0}
-              onClick={() => onSelect(c.id)}
-              onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && (e.preventDefault(), onSelect(c.id))}
-              aria-pressed={selected === c.id}
-              className={`cursor-pointer rounded-lg border p-3 transition-colors ${
-                selected === c.id ? 'border-teal-400 bg-teal-50/70 ring-1 ring-teal-400/40' : 'border-slate-200 hover:bg-slate-50'}`}>
-              <div className="flex items-center justify-between gap-2">
-                <span className="min-w-0 truncate font-medium text-slate-800">{c.name}</span>
-                <CopyCode code={c.join_code} />
-              </div>
-              <div className="mt-1 flex items-center gap-3 text-xs text-slate-400">
-                <span>{workshopTitle(c.workshop_key)}</span>
-                <span className="inline-flex items-center gap-1"><Icon name="users" className="h-3.5 w-3.5" />{c.participant_count ?? 0}</span>
-              </div>
-            </div>
+            <li key={c.id}
+              className={`flex items-start justify-between gap-2 rounded-lg p-3 transition-colors ${
+                selected === c.id ? 'bg-teal-50/70 ring-1 ring-teal-400/40' : 'hover:bg-slate-50'}`}>
+              {/* Eigener <button> statt div[role=button] — kein verschachteltes
+                  Interaktionselement mehr mit dem Kopieren-Button daneben. */}
+              <button type="button" onClick={() => onSelect(c.id)} aria-pressed={selected === c.id}
+                className="min-w-0 flex-1 text-left">
+                <span className="block min-w-0 truncate font-medium text-slate-800">{c.name}</span>
+                <span className="mt-1 flex items-center gap-3 text-xs text-slate-400">
+                  <span>{workshopTitle(c.workshop_key)}</span>
+                  <span className="inline-flex items-center gap-1"><Icon name="users" className="h-3.5 w-3.5" />{c.participant_count ?? 0}</span>
+                </span>
+              </button>
+              <CopyCode code={c.join_code} />
+            </li>
           ))}
-        </div>
+        </ul>
       </QueryState>
     </section>
   )
@@ -367,6 +369,7 @@ function ModuleAdmin({ workshops }: { workshops: { key: string; title: { de: str
   const [newKey, setNewKey] = useState('')
   const [newTitle, setNewTitle] = useState('')
   const [moduleWorkshopKey, setModuleWorkshopKey] = useState('network')
+  const [filter, setFilter] = useState('')
   const presentMods = useQuery({ queryKey: ['trainer-modules'], queryFn: () => trainerApi.trainerModules().then((r) => r.data) })
   const createContent = useMutation({
     mutationFn: () => trainerApi.createContentModule(newKey.trim(), newTitle.trim(), moduleWorkshopKey),
@@ -376,18 +379,37 @@ function ModuleAdmin({ workshops }: { workshops: { key: string; title: { de: str
       navigate(`/trainer/modul/${r.data.key}/bearbeiten`)
     },
   })
+  // Bei ~35 Modulen über zwei Workshops verteilt skaliert eine flache Pill-Wand
+  // nicht mehr — daher Gruppierung nach Workshop plus Titel-Filter.
+  const needle = filter.trim().toLowerCase()
+  const filtered = presentMods.data?.filter((m) => m.title.toLowerCase().includes(needle)) ?? []
+  const groups = groupModulesByWorkshop(filtered, workshops)
   return (
     <Section title="Module präsentieren & bearbeiten">
+      <label className="mb-3 flex max-w-xs flex-col gap-1 text-xs font-medium text-slate-600">
+        Modul suchen
+        <input value={filter} onChange={(e) => setFilter(e.target.value)} placeholder="Titel filtern …"
+          className="rounded-lg border px-3 py-2 text-sm font-normal text-slate-900" />
+      </label>
       <QueryState query={presentMods} empty={presentMods.data?.length === 0}>
-        <div className="flex flex-wrap gap-2">
-          {presentMods.data?.map((m) => (
-            <div key={m.key} className="flex items-center gap-1">
-              <Link to={`/trainer/modul/${m.key}`} className="rounded-lg border px-3 py-1.5 text-sm text-slate-700 hover:bg-slate-50">{m.title}</Link>
-              <Link to={`/trainer/modul/${m.key}/bearbeiten`} title="Bearbeiten" aria-label={`${m.title} bearbeiten`}
-                className="rounded-lg border px-2 py-1.5 text-slate-500 hover:bg-slate-50"><Icon name="pencil" className="h-4 w-4" /></Link>
-            </div>
-          ))}
-        </div>
+        {filtered.length === 0
+          ? <p className="text-sm text-slate-400">Keine Module gefunden.</p>
+          : <div className="flex flex-col gap-4">
+              {groups.map((g) => (
+                <div key={g.key}>
+                  <h4 className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-slate-400">{g.title}</h4>
+                  <ul className="flex flex-col divide-y divide-slate-100">
+                    {g.modules.map((m) => (
+                      <li key={m.key} className="flex items-center justify-between gap-2 py-1.5">
+                        <Link to={`/trainer/modul/${m.key}`} className="min-w-0 truncate text-sm text-slate-700 hover:text-teal-700 hover:underline">{m.title}</Link>
+                        <Link to={`/trainer/modul/${m.key}/bearbeiten`} title="Bearbeiten" aria-label={`${m.title} bearbeiten`}
+                          className="shrink-0 rounded-lg p-1.5 text-slate-400 hover:bg-slate-50 hover:text-slate-700"><Icon name="pencil" className="h-4 w-4" /></Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>}
       </QueryState>
       <form onSubmit={(e) => { e.preventDefault(); newKey.trim() && newTitle.trim() && createContent.mutate() }} className="mt-4 flex flex-wrap items-end gap-2">
         <Field label="Key" placeholder="mein-modul" value={newKey} onChange={(e) => setNewKey(e.target.value)} />
@@ -482,17 +504,17 @@ function ChangelogBlock() {
       <QueryState query={changelog} empty={changelog.data?.length === 0}>
         <details>
           <summary className="cursor-pointer select-none text-sm text-slate-500 hover:text-slate-700">{changelog.data?.length ?? 0} Einträge anzeigen</summary>
-          <div className="mt-3 flex max-h-96 flex-col gap-2 overflow-y-auto">
+          <ul className="mt-3 flex max-h-96 flex-col divide-y divide-slate-100 overflow-y-auto">
             {changelog.data?.map((e, i) => (
-              <div key={i} className="rounded-lg border bg-white p-3">
+              <li key={i} className="py-2">
                 <div className="flex items-baseline justify-between gap-2">
                   <span className="text-sm font-medium text-slate-800">{e.title}</span>
                   <span className="shrink-0 text-xs text-slate-400">{e.date}</span>
                 </div>
                 <p className="mt-1 text-sm text-slate-600">{e.text}</p>
-              </div>
+              </li>
             ))}
-          </div>
+          </ul>
         </details>
       </QueryState>
     </Section>
@@ -510,9 +532,9 @@ function AuditLogBlock() {
           <summary className="cursor-pointer select-none text-sm text-slate-500 hover:text-slate-700">
             Letzte {audit.data?.length ?? 0} Aktionen anzeigen
           </summary>
-          <div className="mt-3 flex max-h-96 flex-col gap-2 overflow-y-auto">
+          <ul className="mt-3 flex max-h-96 flex-col divide-y divide-slate-100 overflow-y-auto">
             {audit.data?.map((e) => (
-              <div key={e.id} className="rounded-lg border bg-white p-3 text-sm">
+              <li key={e.id} className="py-2 text-sm">
                 <div className="flex items-baseline justify-between gap-2">
                   <span className="font-medium text-slate-800">{e.action}</span>
                   <span className="shrink-0 text-xs text-slate-400">{new Date(e.created_at).toLocaleString('de-DE')}</span>
@@ -522,9 +544,9 @@ function AuditLogBlock() {
                   {e.target ? <> · {e.target}</> : null}
                   {e.detail ? <> · {e.detail}</> : null}
                 </p>
-              </div>
+              </li>
             ))}
-          </div>
+          </ul>
         </details>
       </QueryState>
     </Section>

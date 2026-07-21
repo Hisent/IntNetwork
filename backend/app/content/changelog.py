@@ -1,5 +1,19 @@
 # Projekt-Changelog (nur für Trainer sichtbar). Neueste zuerst.
 CHANGELOG = [
+    {"date": "2026-07-21", "title": "v1.26.0 — Einstieg, Navigation & Trainer-Verwaltung",
+     "text": "Aus einem Design-Review umgesetzt: Auf dem Handy steht das Kurs-Code-"
+             "Formular jetzt vor der Modulliste, statt dahinter. Gesperrte Module "
+             "werden zusammengeklappt — die nächsten Schritte bleiben sichtbar, der "
+             "Rest liegt hinter „weitere Module anzeigen“, samt Erklärung, warum "
+             "Module der Reihe nach freischalten. Die Modul-Seitenleiste zeigt "
+             "dieselben Tagesgruppen wie die Übersicht, und auf dem Handy führt ein "
+             "Link am Seitenende zurück zur Kursnavigation. Das Glossar ist jetzt "
+             "auch per Tastatur ein echtes Fenster (Fokus bleibt darin, Escape "
+             "schließt, danach steht der Fokus wieder auf dem Auslöser). Die "
+             "Trainer-Verwaltung gruppiert Module nach Workshop und hat ein "
+             "Suchfeld. Dazu Feinschliff: lesbarere Zeilenlängen, korrigiertes "
+             "Sonnensymbol, einheitlicher Sprachumschalter, Kopieren-Knopf in der "
+             "gewählten Sprache."},
     {"date": "2026-07-21", "title": "v1.25.0 — Dunkelmodus lesbar, Umschalter im Kurs",
      "text": "Der Dunkelmodus war stellenweise kaum lesbar: er deckte nur einen Teil "
              "der verwendeten Farben ab, der Rest blieb hell — im Claude-Workshop "

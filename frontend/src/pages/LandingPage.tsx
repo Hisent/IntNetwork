@@ -6,6 +6,7 @@ import { useDocumentLang, type Lang } from '@/lib/i18n'
 import { WorkshopTheme } from '@/components/WorkshopTheme'
 import { BrandLogo } from '@/components/BrandLogo'
 import { ThemeToggle } from '@/components/ThemeToggle'
+import { LangToggle } from '@/components/workbench/WorkbenchShell'
 
 const COPY = {
   de: {
@@ -72,9 +73,8 @@ export function LandingPage() {
           <div className="flex items-center gap-3">
             <BrandLogo className="h-9 text-lg" showName />
           </div>
-          <div className="flex items-center gap-3 text-xs font-semibold">
-            <button onClick={() => setLang('de')} className={lang === 'de' ? 'text-teal-700' : 'text-slate-400'}>DE</button>
-            <button onClick={() => setLang('en')} className={lang === 'en' ? 'text-teal-700' : 'text-slate-400'}>EN</button>
+          <div className="flex items-center gap-2 text-xs font-semibold">
+            <LangToggle lang={lang} onChange={setLang} />
             <ThemeToggle lang={lang} className="text-slate-500" />
             <Link to="/trainer" className="ml-2 text-slate-500 hover:text-teal-700">{copy.trainer}</Link>
           </div>
@@ -97,8 +97,8 @@ export function LandingPage() {
             <p className="mt-7 text-5xl font-semibold tracking-tight">{workshops.data?.length ?? 0}</p>
             <p className="mt-1 text-sm text-slate-300">{copy.available}</p>
             <div className="mt-8 space-y-3 border-t border-slate-800 pt-5 text-sm text-slate-300">
-              <p><span className="mr-2 text-teal-300">01</span>{copy.join}</p>
-              <p><span className="mr-2 text-teal-300">02</span>{copy.progress}</p>
+              <p>{copy.join}</p>
+              <p>{copy.progress}</p>
             </div>
           </aside>
         </section>

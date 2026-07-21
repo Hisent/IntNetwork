@@ -1,4 +1,4 @@
-import { Children, isValidElement, Suspense, useMemo, useState, type ReactNode } from 'react'
+import { Children, createContext, isValidElement, Suspense, useContext, useMemo, useState, type ReactNode } from 'react'
 import Markdown from 'react-markdown'
 import type { Block } from '@/types'
 import { WIDGETS } from '@/widgets/registry'
@@ -14,7 +14,15 @@ function InlineCode({ className, children }: {
   return <code className={`rounded bg-slate-100 px-1 py-0.5 font-mono text-[0.9em] text-teal-800 ${className ?? ''}`}>{children}</code>
 }
 
+// MD_COMPONENTS wird von react-markdown ohne Zusatz-Props aufgerufen — CodeBlock
+// braucht die aktive Sprache trotzdem für den Kopieren-Button. Statt MD_COMPONENTS
+// für alle Aufrufer (auch Trainer-Seiten außerhalb dieser Datei) auf eine Fabrik
+// umzustellen, holt sich CodeBlock die Sprache implizit aus dem Kontext — analog
+// zu WidgetScopeContext oben. Ohne Provider (z.B. Trainer-Ansichten) bleibt es bei 'de'.
+const CodeLangContext = createContext<Lang>('de')
+
 function CodeBlock({ children }: { children?: ReactNode }) {
+  const lang = useContext(CodeLangContext)
   const [copied, setCopied] = useState(false)
   const child = Children.toArray(children)[0]
   const childProps = isValidElement<{ children?: ReactNode; className?: string }>(child) ? child.props : {}
@@ -35,7 +43,7 @@ function CodeBlock({ children }: { children?: ReactNode }) {
       <div className="flex items-center justify-between border-b border-slate-800 px-3 py-2">
         <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-slate-500">{language ?? 'code'}</span>
         <button type="button" onClick={() => void copy()} aria-label="Code kopieren / Copy code" className="rounded-md px-2 py-1 text-xs font-medium text-teal-300 hover:bg-slate-800 hover:text-teal-100 focus-visible:outline-teal-300">
-          {copied ? 'Kopiert / Copied' : 'Kopieren / Copy'}
+          {copied ? t(lang, 'copiedCode') : t(lang, 'copyCode')}
         </button>
       </div>
       <pre className="overflow-x-auto p-4 text-sm leading-relaxed text-slate-100"><code className="font-mono">{childProps.children}</code></pre>
@@ -155,7 +163,9 @@ export function RevealBlock({ teaser, value, lang }: { teaser: string; value: st
     <div className="rounded-xl border border-slate-200 bg-white p-4">
       <p className="font-medium text-slate-800">{teaser}</p>
       {open ? (
-        <div className="mt-2 animate-fade-up"><Markdown components={MD_COMPONENTS}>{value}</Markdown></div>
+        <div className="mt-2 animate-fade-up">
+          <CodeLangContext.Provider value={lang}><Markdown components={MD_COMPONENTS}>{value}</Markdown></CodeLangContext.Provider>
+        </div>
       ) : (
         <button onClick={() => setOpen(true)}
           className="mt-2 rounded-lg border border-teal-200 text-teal-700 px-3 py-1.5 text-sm font-medium hover:bg-teal-50">
@@ -325,15 +335,32 @@ export function Blocks({
     if (lang === 'en') return phase === 'understand' ? 'Understand' : phase === 'practice' ? 'Try it' : 'Reflect'
     return phase === 'understand' ? 'Verstehen' : phase === 'practice' ? 'Ausprobieren' : 'Reflektieren'
   }
+  // Die Marke ("VERSTEHEN" etc.) soll nur beim ersten echten Auftreten einer
+  // Phase im Modul erscheinen, nicht bei jedem Rückwechsel — sonst inflationiert
+  // sie bei Modulen, die zwischen den Phasen hin- und herspringen (z.B.
+  // Verstehen -> Ausprobieren -> Verstehen -> ...). Die Trennlinie bleibt bei
+  // jedem Phasenwechsel bestehen, sie trägt den optischen Rhythmus.
+  const firstPhaseOccurrence = useMemo(() => {
+    const seen = new Set<ReturnType<typeof phaseOf>>()
+    const firsts = new Set<number>()
+    blocks.forEach((b, i) => {
+      const phase = phaseOf(b.type)
+      if (!seen.has(phase)) { seen.add(phase); firsts.add(i) }
+    })
+    return firsts
+  }, [blocks])
 
   return (
     <WidgetScopeContext.Provider value={keyScope}>
+    <CodeLangContext.Provider value={lang}>
     <div className="content-blocks flex flex-col gap-6">
       {blocks.map((b, i) => (
         <div key={i} id={`block-${i}`} className="flex flex-col gap-1 scroll-mt-20">
           {(i === 0 || phaseOf(blocks[i - 1].type) !== phaseOf(b.type)) && (
             <div className="mb-1 flex items-center gap-3 pt-2">
-              <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-teal-700">{phaseLabel(phaseOf(b.type))}</span>
+              {firstPhaseOccurrence.has(i) && (
+                <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-teal-700">{phaseLabel(phaseOf(b.type))}</span>
+              )}
               <div className="h-px flex-1 bg-teal-100" aria-hidden="true" />
             </div>
           )}
@@ -348,6 +375,7 @@ export function Blocks({
         </div>
       ))}
     </div>
+    </CodeLangContext.Provider>
     </WidgetScopeContext.Provider>
   )
 }

@@ -10,6 +10,7 @@ import { LoadError } from '@/components/LoadError'
 import { WorkshopTheme } from '@/components/WorkshopTheme'
 import { BrandLogo } from '@/components/BrandLogo'
 import { ThemeToggle } from '@/components/ThemeToggle'
+import { LangToggle } from '@/components/workbench/WorkbenchShell'
 
 export function WorkshopPage() {
   const { key = '' } = useParams()
@@ -77,11 +78,16 @@ export function WorkshopPage() {
               <Link to="/" aria-label="IntLab"><BrandLogo className="h-9 text-lg" showName /></Link>
               <Link to="/" className="hidden text-sm font-semibold text-[var(--workshop-accent)] sm:block">← {lang === 'de' ? 'Alle Workshops' : 'All workshops'}</Link>
             </div>
-            <div className="flex items-center gap-2 text-xs font-semibold"><button onClick={() => setLang('de')} className={lang === 'de' ? 'text-[var(--workshop-accent)]' : 'text-slate-400'}>DE</button><button onClick={() => setLang('en')} className={lang === 'en' ? 'text-[var(--workshop-accent)]' : 'text-slate-400'}>EN</button><ThemeToggle lang={lang} className="text-slate-500" /></div>
+            <div className="flex items-center gap-2"><LangToggle lang={lang} onChange={setLang} /><ThemeToggle lang={lang} className="text-slate-500" /></div>
           </header>
 
+          {/* Auf schmalen Viewports ist das Kurs-Code-Formular die eigentliche
+              Hauptaktion — es steht per order-* visuell vor der Curriculum-
+              Liste, ohne die DOM-Reihenfolge zu ändern (Screenreader hören
+              weiterhin erst den Kursüberblick, dann das Formular). Ab lg
+              greift wieder die ursprüngliche zweispaltige Reihenfolge. */}
           <div className="mt-14 grid gap-12 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start">
-            <section>
+            <section className="order-2 lg:order-none">
               <div className="mb-5 h-2 w-20 rounded-full bg-[var(--workshop-accent)]" />
               <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--workshop-accent)]">{data.theme === 'claude' ? 'AI workshop' : 'Network workshop'}</p>
               <h1 className="mt-3 max-w-3xl text-4xl font-bold tracking-[-0.03em] text-slate-950 sm:text-6xl">{data.title[lang]}</h1>
@@ -91,7 +97,7 @@ export function WorkshopPage() {
               </div>
             </section>
 
-            <aside className="h-fit border border-[var(--workshop-accent-line)] bg-white p-6 shadow-lg shadow-slate-900/5 lg:sticky lg:top-8">
+            <aside className="order-1 h-fit border border-[var(--workshop-accent-line)] bg-white p-6 shadow-lg shadow-slate-900/5 lg:sticky lg:top-8 lg:order-none">
               <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--workshop-accent)]">{data.modules.length} {lang === 'de' ? 'Module' : 'modules'}</p>
               <h2 className="mt-3 text-2xl font-bold tracking-tight text-slate-950">{lang === 'de' ? 'Mit Kurs-Code teilnehmen' : 'Join with course code'}</h2>
               <p className="mt-2 text-sm leading-relaxed text-slate-500">{lang === 'de' ? 'Der Code ordnet dich dem richtigen Durchlauf zu.' : 'The code assigns you to the correct course run.'}</p>
