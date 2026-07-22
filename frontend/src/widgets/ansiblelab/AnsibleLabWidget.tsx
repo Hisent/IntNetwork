@@ -1,7 +1,11 @@
 import { useEffect, useState } from 'react'
 import { ChallengeBox } from '@/components/ChallengeBox'
 import { useWidgetScope } from '@/lib/widgetScope'
-import { fetchLabStatus, labErrorMessage, runLab, type LabRunResult } from '@/lib/labApi'
+import { labErrorMessage, runLab, type LabRunResult } from '@/lib/labApi'
+import { LabDisabledBanner } from '@/widgets/lab/LabDisabledBanner'
+import { LabOutputPanel } from '@/widgets/lab/LabOutputPanel'
+import { readSnapshot } from '@/widgets/lab/snapshot'
+import { useLabAvailability } from '@/widgets/lab/useLabAvailability'
 import { compareIdempotency, parseRecap, type IdempotencyNote, type RecapTotals } from '@/widgets/ansiblelab/labOutput'
 import { DEFAULT_EXERCISE, EXERCISES, exerciseById } from '@/widgets/ansiblelab/templates'
 import type { Lang } from '@/lib/i18n'
@@ -15,29 +19,35 @@ interface Snapshot {
   extraVars: string
 }
 
+// Ungeprüfte Rohform, wie sie aus localStorage kommt: exerciseId/playbook
+// müssen Strings sein, extraVars wird unten separat abgesichert (kann in
+// einem alten/beschädigten Eintrag fehlen oder falsch typisiert sein, ohne
+// dass deswegen der ganze Snapshot verworfen werden muss).
+interface RawSnapshot {
+  exerciseId: string
+  playbook: string
+  extraVars?: unknown
+}
+
+function isRawSnapshot(parsed: unknown): parsed is RawSnapshot {
+  if (typeof parsed !== 'object' || parsed === null) return false
+  const rec = parsed as Record<string, unknown>
+  return typeof rec.exerciseId === 'string' && typeof rec.playbook === 'string'
+}
+
 // Pro Teilnehmer gespeichert (localStorage), exakt nach dem Muster der
 // Live-CLI (ClaudeCliWidget.loadSnapshot): storageKey kommt aus dem
 // Teilnehmer-/Kurs-Scope, ein beschädigter Eintrag fällt auf die Vorlage
 // zurück statt die Seite zu zerlegen.
 export function loadSnapshot(storageKey: string | null): Snapshot {
-  if (storageKey) {
-    try {
-      const raw = localStorage.getItem(storageKey)
-      if (raw) {
-        const p = JSON.parse(raw)
-        if (p && typeof p.playbook === 'string' && typeof p.exerciseId === 'string') {
-          return {
-            exerciseId: p.exerciseId,
-            playbook: p.playbook,
-            extraVars: typeof p.extraVars === 'string' ? p.extraVars : '',
-          }
-        }
-      }
-    } catch {
-      // beschädigter Eintrag -> frische Vorlage
-    }
+  const raw = readSnapshot(storageKey, isRawSnapshot, () => ({
+    exerciseId: DEFAULT_EXERCISE.id, playbook: DEFAULT_EXERCISE.playbook, extraVars: '',
+  }))
+  return {
+    exerciseId: raw.exerciseId,
+    playbook: raw.playbook,
+    extraVars: typeof raw.extraVars === 'string' ? raw.extraVars : '',
   }
-  return { exerciseId: DEFAULT_EXERCISE.id, playbook: DEFAULT_EXERCISE.playbook, extraVars: '' }
 }
 
 const STR = {
@@ -93,16 +103,7 @@ export function AnsibleLab({ lang }: { lang: Lang }) {
     }
   }, [storageKey, exerciseId, playbook, extraVars])
 
-  // Verfügbarkeit einmal beim Laden abfragen — lokal ohne konfigurierten
-  // Runner ist das der Normalfall (enabled: false), nicht der Fehlerfall.
-  const [labEnabled, setLabEnabled] = useState<boolean | null>(null)
-  useEffect(() => {
-    let live = true
-    fetchLabStatus()
-      .then((st) => { if (live) setLabEnabled(st.enabled) })
-      .catch(() => { if (live) setLabEnabled(false) })
-    return () => { live = false }
-  }, [])
+  const { labEnabled } = useLabAvailability()
 
   const [running, setRunning] = useState<'run' | 'check' | null>(null)
   const [result, setResult] = useState<LabRunResult | null>(null)
@@ -175,12 +176,7 @@ export function AnsibleLab({ lang }: { lang: Lang }) {
 
       <p className="mb-3 text-sm text-slate-700">{lang === 'de' ? exercise.task.de : exercise.task.en}</p>
 
-      {labEnabled === false && (
-        <div className="mb-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
-          <p className="font-semibold">{s.disabledTitle}</p>
-          <p>{s.disabledBody}</p>
-        </div>
-      )}
+      {labEnabled === false && <LabDisabledBanner title={s.disabledTitle} body={s.disabledBody} />}
 
       <label className="mb-1 block text-xs font-medium text-slate-600" htmlFor="ansiblelab-playbook">
         {s.playbookLabel}
@@ -221,10 +217,17 @@ export function AnsibleLab({ lang }: { lang: Lang }) {
         {running !== null && <span className="text-[11px] text-slate-400" role="status">{running === 'run' ? s.running : s.checking}</span>}
       </div>
 
-      <p className="mb-2 text-xs font-medium text-slate-600">{s.output}</p>
-      <div aria-live="polite" className="rounded-lg bg-slate-900 p-3">
-        {runError && <p className="mb-2 text-xs text-red-300">{runError}</p>}
-
+      <LabOutputPanel
+        outputLabel={s.output}
+        runError={runError}
+        errorClassName="text-red-300"
+        result={result}
+        noRunYetLabel={s.noRunYet}
+        rcLabel={s.rc}
+        durationLabel={s.duration}
+        truncatedLabel={s.truncated}
+        timedOutLabel={s.timedOut}
+      >
         {/* text-slate-100 an den Kacheln ist Absicht: sie sind immer dunkel, ohne
             eigene Textfarbe erben die Beschriftungen die dunkle Seitenfarbe und
             waren im Hellmodus unlesbar. slate-100 ist in index.css fuer den Dark
@@ -247,20 +250,7 @@ export function AnsibleLab({ lang }: { lang: Lang }) {
             {note.message}
           </p>
         )}
-
-        {result ? (
-          <>
-            <pre className="max-h-72 overflow-y-auto whitespace-pre-wrap font-mono text-xs text-slate-100">{result.output}</pre>
-            <p className="mt-2 text-[11px] text-slate-500">
-              {s.rc}: {result.rc} · {s.duration}: {result.duration_ms} ms
-              {result.truncated && <> · {s.truncated}</>}
-              {result.timed_out && <> · {s.timedOut}</>}
-            </p>
-          </>
-        ) : (
-          <p className="font-mono text-xs text-slate-500">{s.noRunYet}</p>
-        )}
-      </div>
+      </LabOutputPanel>
 
       <ChallengeBox lang={lang} task={s.challenge} done={note !== null} />
     </div>

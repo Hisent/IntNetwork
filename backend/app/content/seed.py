@@ -130,6 +130,10 @@ def _block_matches_source(block: ContentBlock, source: dict) -> bool:
         return block.type == "reveal" and (block.payload or {}).get("teaser_de") == source["payload"].get("teaser_de")
     if source["type"] == "widget":
         return block.type == "widget" and block.widget_id == source["id"]
+    if source["type"] == "debug":
+        return block.type == "debug" and (block.payload or {}).get("prompt_de") == source["payload"].get("prompt_de")
+    if source["type"] == "reflect":
+        return block.type == "reflect" and (block.payload or {}).get("prompt_de") == source["payload"].get("prompt_de")
     return False
 
 
@@ -609,6 +613,27 @@ def _migrate_pki_crossref(db: Session) -> None:
     db.flush()
 
 
+NETWORK_ENRICHMENT_MIGRATION = "content-migration:network-enrichment-v1"
+# Hebt die drei duennen Grundlagenmodule (ARP/ICMP/WLAN) auf das Tiefenniveau der
+# neueren Lehrgaenge: je ein debug-Block (Praxis-Fehlerbild) hinter einem
+# fachlich passenden Anker, und je ein reflect-Block als letzter Inhaltsblock
+# vor dem Quiz (Anker "__ende__", siehe _migrate_ansible_lab).
+NETWORK_ENRICHMENT_ANCHORS = [
+    ("arp", "debug-arp-cache", "arp-demo"),
+    ("arp", "reflect-arp", "__ende__"),
+    ("icmp", "debug-icmp-ping", "icmp-demo"),
+    ("icmp", "reflect-icmp", "__ende__"),
+    ("wlan", "debug-wlan-channel", "wlan-demo"),
+    ("wlan", "reflect-wlan", "__ende__"),
+]
+
+
+def _migrate_network_enrichment(db: Session) -> None:
+    """Ergaenzt debug-/reflect-Bloecke in arp, icmp und wlan (Review: Tiefengefaelle
+    gegenueber den neueren Lehrgaengen, die durchgaengig debug/reflect nutzen)."""
+    _migrate_content_blocks(db, NETWORK_ENRICHMENT_MIGRATION, NETWORK_ENRICHMENT_ANCHORS)
+
+
 def seed_missing_content(db: Session) -> None:
     """Seedet alle Module, deren Key noch nicht in der DB steht — beim ersten
     Start also alles, bei Updates nur neu hinzugekommene Module. Versionierte
@@ -682,6 +707,7 @@ def seed_missing_content(db: Session) -> None:
     _migrate_tool_labs(db)
     _migrate_content_edits_v4(db)
     _migrate_pki_crossref(db)
+    _migrate_network_enrichment(db)
     # Neue Module können auch später nachgeseedet werden. Die Workshop-Familie
     # wird dabei gleich mitgeschrieben, damit sie nicht still in keinem Kurs
     # erscheint.

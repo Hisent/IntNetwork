@@ -49,6 +49,49 @@ ARP_MODULE = {
         {"type": "widget", "id": "arp-demo",
          "note": "Erst Cache leeren, dann eine unbekannte IP anfragen → Broadcast + "
                  "Reply zeigen. Dieselbe IP erneut → Cache-Treffer, kein Broadcast."},
+        {"type": "debug", "id": "debug-arp-cache", "payload": {
+            "prompt_de": "Ein Techniker bei Nordwind Logistik meldet: „Zwei Rechner im "
+                         "Lager-Netz (192.168.10.0/24) haben laut DHCP-Liste unterschiedliche "
+                         "IP-Adressen. Trotzdem verliert der eine kurz die Verbindung, sobald "
+                         "der andere online geht — und `arp -a` zeigt für dieselbe IP "
+                         "abwechselnd zwei verschiedene MAC-Adressen.“ Welche der folgenden "
+                         "Aussagen zu diesem Bild ist falsch?",
+            "prompt_en": "A technician at Nordwind Logistik reports: “Two machines on the "
+                         "warehouse network (192.168.10.0/24) have different IP addresses "
+                         "according to the DHCP list. Still, one keeps briefly losing its "
+                         "connection whenever the other comes online — and `arp -a` shows two "
+                         "different MAC addresses alternating for the same IP.” Which of the "
+                         "following statements about this picture is false?",
+            "lines_de": [
+                "Das Muster deutet auf eine doppelt vergebene IP-Adresse hin (IP-Konflikt).",
+                "Beide Geräte antworten auf denselben ARP-Request für diese IP, deshalb "
+                "wechselt die im Cache hinterlegte MAC-Adresse ständig.",
+                "Ein Neustart des Access Points behebt einen IP-Adresskonflikt dauerhaft.",
+                "Behoben wird das Problem, indem eine der beiden Adressen fest zugewiesen "
+                "oder aus dem DHCP-Bereich entfernt wird.",
+            ],
+            "lines_en": [
+                "The pattern points to a duplicate IP address (an IP conflict).",
+                "Both devices reply to the same ARP request for that IP, which is why the "
+                "MAC address stored in the cache keeps switching.",
+                "Restarting the access point permanently fixes an IP address conflict.",
+                "The fix is to assign one of the two addresses statically or remove it "
+                "from the DHCP range.",
+            ],
+            "wrong": [2],
+            "explanation_de": "Ein Neustart des Access Points hat mit doppelt vergebenen "
+                              "IP-Adressen nichts zu tun und behebt den Konflikt nicht "
+                              "dauerhaft — sobald beide Geräte wieder online sind, tritt "
+                              "derselbe Fehler erneut auf. Ursache ist der IP-Konflikt selbst: "
+                              "Zwei Hosts antworten auf denselben ARP-Request, deshalb wechselt "
+                              "die im Cache hinterlegte MAC-Adresse ständig.",
+            "explanation_en": "Restarting the access point has nothing to do with duplicate "
+                              "IP addresses and does not fix the conflict permanently — as "
+                              "soon as both devices are online again, the same fault reappears. "
+                              "The real cause is the IP conflict itself: two hosts reply to the "
+                              "same ARP request, which is why the MAC address stored in the "
+                              "cache keeps switching.",
+        }},
         {"type": "widget", "id": "visual-arp-resolution",
          "note": "DE: Lokales und entferntes Ziel vergleichen: ARP ermittelt die Ziel-MAC "
                  "oder die Gateway-MAC. EN: Compare local and remote targets: ARP resolves "
@@ -66,6 +109,18 @@ ARP_MODULE = {
                    "ARP for the destination IP, but for the MAC of the **default gateway** — the "
                    "router takes over from there. That's exactly where the next module heads: **routing**.",
          }},
+        {"type": "reflect", "id": "reflect-arp", "payload": {
+            "prompt_de": "Ein Mitarbeiter im Büro-Netz von Nordwind Logistik "
+                         "(192.168.20.0/24) will einen Server im Lager-Netz (192.168.10.0/24) "
+                         "erreichen. Warum bringt ARP ihn hier allein nicht ans Ziel, und nach "
+                         "wessen MAC-Adresse fragt sein PC stattdessen? Was würde passieren, "
+                         "wenn genau dieser Cache-Eintrag fehlt oder veraltet ist?",
+            "prompt_en": "An employee on Nordwind Logistik's office network "
+                         "(192.168.20.0/24) wants to reach a server on the warehouse network "
+                         "(192.168.10.0/24). Why doesn't ARP alone get them there, and whose "
+                         "MAC address does their PC ask for instead? What would happen if "
+                         "exactly that cache entry were missing or stale?",
+        }},
     ],
     "quiz": {"questions": [
         {"id": "a1", "type": "single",

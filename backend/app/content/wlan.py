@@ -55,6 +55,51 @@ WLAN_MODULE = {
         {"type": "widget", "id": "wlan-demo",
          "note": "Zwei APs auf Kanal 1 und 3 stellen → Überlappung; dann auf 1 und 6 → "
                  "frei. Danach die Sicherheitstabelle durchgehen."},
+        {"type": "debug", "id": "debug-wlan-channel", "payload": {
+            "prompt_de": "Ein Techniker richtet im Nordwind-Lager zwei benachbarte Access "
+                         "Points ein und stellt sie auf die 2,4-GHz-Kanäle 3 und 4 — er denkt "
+                         "sich: „unterschiedliche Kanalnummern reichen für eine saubere "
+                         "Trennung“. Kurz danach melden Mitarbeiter zwischen beiden APs "
+                         "ständige Verbindungsabbrüche und Geschwindigkeitseinbrüche. Welche "
+                         "der folgenden Aussagen zu diesem Bild ist falsch?",
+            "prompt_en": "A technician sets up two neighboring access points in the "
+                         "Nordwind warehouse and configures them on 2.4 GHz channels 3 and "
+                         "4 — reasoning that “different channel numbers are enough for clean "
+                         "separation”. Shortly after, employees between the two APs report "
+                         "constant disconnects and speed drops. Which of the following "
+                         "statements about this picture is false?",
+            "lines_de": [
+                "Kanal 3 und Kanal 4 liegen bei 20 MHz Kanalbreite so nah beieinander, "
+                "dass sich ihre Frequenzbereiche überlappen.",
+                "Unterschiedliche Kanalnummern reichen allein nicht aus — erst "
+                "ausreichender Frequenzabstand verhindert Interferenz.",
+                "Die beiden APs sollten stattdessen auf überlappungsfreie Kanäle wie 1 "
+                "und 6 (oder 1 und 11) gestellt werden.",
+                "Da beide APs unterschiedliche Kanalnummern nutzen, ist eine "
+                "gegenseitige Störung technisch ausgeschlossen.",
+            ],
+            "lines_en": [
+                "At 20 MHz channel width, channel 3 and channel 4 sit close enough "
+                "together that their frequency ranges overlap.",
+                "Different channel numbers alone are not enough — only sufficient "
+                "frequency spacing prevents interference.",
+                "The two APs should instead be set to non-overlapping channels such as "
+                "1 and 6 (or 1 and 11).",
+                "Because both APs use different channel numbers, mutual interference "
+                "is technically ruled out.",
+            ],
+            "wrong": [3],
+            "explanation_de": "Unterschiedliche Kanalnummern bedeuten nicht automatisch "
+                              "unterschiedliche Frequenzbereiche. Bei 20 MHz Kanalbreite "
+                              "überlappen sich benachbarte Kanäle wie 3 und 4 stark und "
+                              "stören sich gegenseitig — nur ausreichend weit "
+                              "auseinanderliegende Kanäle wie 1/6/11 sind überlappungsfrei.",
+            "explanation_en": "Different channel numbers do not automatically mean "
+                              "different frequency ranges. At 20 MHz channel width, "
+                              "adjacent channels like 3 and 4 overlap heavily and interfere "
+                              "with each other — only channels spaced far enough apart, "
+                              "like 1/6/11, are non-overlapping.",
+        }},
         {"type": "widget", "id": "learning-attack", "note": "Bedrohung und passende Gegenmaßnahme zuordnen."},
         {"type": "text",
          "value": {
@@ -86,6 +131,20 @@ WLAN_MODULE = {
                    "(microwave ovens!) drag down speed. More APs with cleverly spread-out channels help "
                    "more than a single “stronger” AP.",
          }},
+        {"type": "reflect", "id": "reflect-wlan", "payload": {
+            "prompt_de": "Das Nordwind-Lager-WLAN nutzt heute eine einzige SSID mit einem "
+                         "gemeinsamen WPA2-Passwort für alle Geräte. Soll daraus ein echtes "
+                         "Firmen-WLAN mit individuellen Nutzerkonten werden (Stichwort "
+                         "Enterprise-WLAN), reicht dieses Setup nicht mehr. Was bleibt "
+                         "gleich (SSID, Verschlüsselung), und was müsste grundlegend neu "
+                         "hinzukommen?",
+            "prompt_en": "The Nordwind warehouse Wi-Fi today uses a single SSID with one "
+                         "shared WPA2 password for every device. Turning this into a real "
+                         "enterprise Wi-Fi with individual user accounts (keyword "
+                         "enterprise Wi-Fi) means this setup is no longer enough. What "
+                         "stays the same (SSID, encryption), and what would fundamentally "
+                         "need to be added?",
+        }},
     ],
     "quiz": {"questions": [
         {"id": "w1", "type": "single",

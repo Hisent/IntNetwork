@@ -1,5 +1,17 @@
 # Projekt-Changelog (nur für Trainer sichtbar). Neueste zuerst.
 CHANGELOG = [
+    {"date": "2026-07-22", "title": "v1.39.0 — Didaktik-Feinschliff & Wartbarkeit",
+     "text": "Drei bisher knappe Netzwerk-Grundlagenmodule (ARP, ICMP, WLAN) haben jetzt "
+             "je eine Fehlersuch-Aufgabe und eine Transferfrage bekommen — damit liegen sie "
+             "auf demselben Niveau wie die neueren Lehrgänge. Das WLAN-Modul verweist "
+             "außerdem auf das Firmen-WLAN-Modul. Unter der Oberfläche wurde aufgeräumt, "
+             "ohne dass sich am Verhalten etwas ändert: der überladene Trainer-Bereich ist "
+             "in übersichtliche Einzelteile zerlegt, die drei Lab-Oberflächen (Ansible, "
+             "openssl, git) teilen sich jetzt eine gemeinsame Grundlage statt fast "
+             "identischem Doppelcode, und zwei neue automatische Prüfungen sichern die "
+             "Darstellung ab: ein Kontrasttest für den hellen Modus und ein Wächter, der "
+             "verhindert, dass die Kursfarben in einem der Zusatzlehrgänge unbemerkt auf "
+             "Türkis zurückfallen — 16 solcher Stellen wurden dabei gleich mitkorrigiert."},
     {"date": "2026-07-22", "title": "v1.38.0 — Zweiter Review-Durchgang: Lab-Absicherung & Feinschliff",
      "text": "Ein weiterer, tiefer Review hat vor allem am Lab nachgeschärft. Die "
              "Werkzeuge openssl und git konnten über Pfad-Angaben (z. B. eine Datei "

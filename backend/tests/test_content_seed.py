@@ -18,6 +18,7 @@ from app.content.seed import (LEARNING_LABS_MIGRATION, NETWORK_VISUALS_MIGRATION
                               _OLD_COURSE_ORDERS, _NEW_COURSE_ORDERS,
                               CONTENT_EDITS_V4_MIGRATION, CONTENT_TEXT_EDITS_V4,
                               PKI_XREF_MIGRATION, PKI_XREF_EDITS,
+                              NETWORK_ENRICHMENT_MIGRATION,
                               _source_block, _block_matches_source,
                               seed_missing_content)
 from app.routers.trainer_content import VALID_WIDGET_IDS
@@ -785,6 +786,65 @@ def test_pki_crossref_migration_adds_vpn_and_8021x_examples_to_eku_block():
             if block is not None:
                 block.value_de = block.value_de.replace(old_de, new_de)
                 block.value_en = block.value_en.replace(old_en, new_en)
+            db.commit()
+            seed_missing_content(db)
+            db.close()
+
+
+@pytest.mark.parametrize("module_key,debug_id,anchor_widget,reflect_id", [
+    ("arp", "debug-arp-cache", "arp-demo", "reflect-arp"),
+    ("icmp", "debug-icmp-ping", "icmp-demo", "reflect-icmp"),
+    ("wlan", "debug-wlan-channel", "wlan-demo", "reflect-wlan"),
+])
+def test_network_enrichment_migration_adds_debug_and_reflect_once(
+        module_key, debug_id, anchor_widget, reflect_id):
+    """Hebt arp/icmp/wlan auf das Tiefenniveau der neueren Lehrgaenge: je ein debug-Block
+    hinter seinem fachlichen Widget-Anker und ein reflect-Block als letzter Inhaltsblock
+    vor dem Quiz. Muss Bestands-DBs erreichen, idempotent sein und manuelles Entfernen
+    respektieren."""
+    debug_source = _source_block(module_key, debug_id)
+    reflect_source = _source_block(module_key, reflect_id)
+
+    def _drop_new_blocks(db):
+        for b in db.query(ContentBlock).filter(ContentBlock.module_key == module_key).all():
+            if _block_matches_source(b, debug_source) or _block_matches_source(b, reflect_source):
+                db.delete(b)
+
+    with TestClient(app):
+        db = SessionLocal()
+        try:
+            db.query(Setting).filter(Setting.key == NETWORK_ENRICHMENT_MIGRATION).delete()
+            _drop_new_blocks(db)
+            db.commit()
+
+            seed_missing_content(db)
+
+            blocks = db.query(ContentBlock).filter(ContentBlock.module_key == module_key) \
+                .order_by(ContentBlock.position).all()
+            anchor_idx = next(i for i, b in enumerate(blocks) if b.widget_id == anchor_widget)
+            debug_idx = next(i for i, b in enumerate(blocks) if _block_matches_source(b, debug_source))
+            reflect_idx = next(i for i, b in enumerate(blocks) if _block_matches_source(b, reflect_source))
+            assert debug_idx == anchor_idx + 1
+            assert reflect_idx == len(blocks) - 1  # letzter Inhaltsblock vor dem Quiz
+            assert db.get(Setting, NETWORK_ENRICHMENT_MIGRATION) is not None
+
+            seed_missing_content(db)  # zweiter Lauf darf nichts doppelt einfuegen
+            assert db.query(ContentBlock).filter(
+                ContentBlock.module_key == module_key, ContentBlock.type == "debug").count() == 1
+            assert db.query(ContentBlock).filter(
+                ContentBlock.module_key == module_key, ContentBlock.type == "reflect").count() == 1
+
+            # Nach erfolgreicher Migration gilt die DB als Trainer-Inhalt: bewusstes
+            # Entfernen darf beim naechsten Start nicht rueckgaengig gemacht werden.
+            db.query(ContentBlock).filter(ContentBlock.module_key == module_key,
+                                          ContentBlock.type == "debug").delete()
+            db.commit()
+            seed_missing_content(db)
+            assert db.query(ContentBlock).filter(
+                ContentBlock.module_key == module_key, ContentBlock.type == "debug").count() == 0
+        finally:
+            _drop_new_blocks(db)
+            db.query(Setting).filter(Setting.key == NETWORK_ENRICHMENT_MIGRATION).delete()
             db.commit()
             seed_missing_content(db)
             db.close()

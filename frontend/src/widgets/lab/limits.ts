@@ -2,9 +2,12 @@
 // docs/ideen/2026-07-22-lab-erweiterung.md, Änderung 2/3). Der Server prüft
 // dieselben Grenzen unabhängig noch einmal — hier geht es nur darum, dass eine
 // Verletzung sofort im Formular sichtbar wird statt erst nach einem
-// Server-Fehlschlag. Bewusst der einzige Baustein, den OpensslLabWidget und
-// GitLabWidget teilen: beide brauchen identische Grenzen, alles andere
-// (Layout, Vorlagen, Zustand) bleibt je Widget eigenständig.
+// Server-Fehlschlag.
+//
+// Dieser Ordner (widgets/lab/) bündelt inzwischen mehr als nur die Grenzen:
+// useFileCommandLab/FileCommandLabConsole tragen die komplette Datei-/
+// Befehls-Editor-Logik für OpensslLabWidget und GitLabWidget, useLabAvailability
+// und LabDisabledBanner/LabOutputPanel sind auch für AnsibleLabWidget nutzbar.
 export const MAX_COMMANDS = 6
 export const MAX_COMMAND_CHARS = 512
 export const MAX_FILES = 10
@@ -19,6 +22,13 @@ export interface LabFile {
 export interface LimitViolation {
   de: string
   en: string
+}
+
+// Wandelt die Dateien einer Vorlage (Record<string,string>) in die
+// editierbare Liste um, die OpensslLabWidget/GitLabWidget als Zustand halten.
+// Von beiden Widgets identisch genutzt (Vorlagenwechsel + Erststart).
+export function filesFromRecord(rec: Record<string, string>): LabFile[] {
+  return Object.entries(rec).map(([name, content]) => ({ name, content }))
 }
 
 // Liefert die erste verletzte Regel (bilingual) oder null, wenn Dateien und

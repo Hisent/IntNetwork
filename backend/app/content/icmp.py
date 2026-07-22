@@ -66,6 +66,48 @@ ICMP_MODULE = {
         {"type": "widget", "id": "icmp-demo",
          "note": "Schrittweise den nächsten Hop anfragen → mit jeder TTL meldet sich ein "
                  "weiterer Router (Time Exceeded), am Ende Echo Reply vom Ziel."},
+        {"type": "debug", "id": "debug-icmp-ping", "payload": {
+            "prompt_de": "Ein Kollege bei Nordwind Logistik meldet: „`ping 192.168.10.50` "
+                         "liefert nur `Request timed out`, 100% Paketverlust. Trotzdem lässt "
+                         "sich `https://192.168.10.50` im Browser ganz normal öffnen, die "
+                         "Webanwendung antwortet.“ Welche der folgenden Aussagen zu diesem "
+                         "Bild ist falsch?",
+            "prompt_en": "A colleague at Nordwind Logistik reports: “`ping 192.168.10.50` "
+                         "only returns `Request timed out`, 100% packet loss. Still, "
+                         "`https://192.168.10.50` opens normally in the browser and the web "
+                         "application responds.” Which of the following statements about this "
+                         "picture is false?",
+            "lines_de": [
+                "Der Host ist trotz fehlender ping-Antwort erreichbar und liefert einen "
+                "Dienst aus.",
+                "Vermutlich blockt eine Firewall auf dem Weg gezielt ICMP Echo Request, "
+                "während TCP-Port 443 offen bleibt.",
+                "Weil ping fehlschlägt, ist der Host zweifelsfrei ausgefallen (down).",
+                "Für eine verlässliche Aussage sollte zusätzlich der eigentliche Dienst "
+                "geprüft werden, nicht nur ICMP.",
+            ],
+            "lines_en": [
+                "The host is reachable and serving a service despite the missing ping "
+                "reply.",
+                "A firewall along the path is likely blocking ICMP echo request "
+                "specifically, while TCP port 443 stays open.",
+                "Because ping fails, the host is definitely down.",
+                "For a reliable diagnosis, the actual service should be checked too, not "
+                "just ICMP.",
+            ],
+            "wrong": [2],
+            "explanation_de": "Ping prüft nur die ICMP-Erreichbarkeit, nicht die "
+                              "Anwendung. Ein Host kann laufen und Dienste ausliefern, "
+                              "während ICMP separat blockiert ist — oft bewusst aus "
+                              "Sicherheitsgründen. „ping schlägt fehl“ heißt also nicht "
+                              "automatisch „Host down“, wie der funktionierende "
+                              "Browser-Zugriff hier zeigt.",
+            "explanation_en": "Ping only checks ICMP reachability, not the application. A "
+                              "host can be up and serving traffic while ICMP is blocked "
+                              "separately — often deliberately, for security reasons. "
+                              "“ping fails” does not automatically mean “host down”, as the "
+                              "working browser access here shows.",
+        }},
         {"type": "text",
          "value": {
              "de": "## Grenzen\n\nManche Router und Firewalls **beantworten "
@@ -75,6 +117,16 @@ ICMP_MODULE = {
                    "to ICMP** (for security reasons). Then a hop shows up as `* * *` — "
                    "that doesn't necessarily mean “broken”, just “doesn't reply to ICMP”.",
          }},
+        {"type": "reflect", "id": "reflect-icmp", "payload": {
+            "prompt_de": "Warum darf sich Nordwind Logistik in der Fehlersuche nicht allein "
+                         "auf ping verlassen? Nenne ein Szenario, in dem ping ein falsches "
+                         "Bild liefert (fehlende Antwort trotz laufendem Dienst, oder "
+                         "umgekehrt), und was du zusätzlich prüfen würdest.",
+            "prompt_en": "Why shouldn't Nordwind Logistik rely on ping alone during "
+                         "troubleshooting? Name a scenario where ping gives a misleading "
+                         "picture (no reply despite a running service, or the reverse), and "
+                         "what you would check in addition.",
+        }},
     ],
     "quiz": {"questions": [
         {"id": "i1", "type": "single",
