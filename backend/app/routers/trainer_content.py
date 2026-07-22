@@ -33,6 +33,8 @@ VALID_WIDGET_IDS = {
     "visual-ipv6-autoconfig",
     "visual-bitmask", "visual-broadcast-storm", "visual-dhcp-relay",
     "visual-ephemeral-ports", "visual-stateful-firewall",
+    "crypto-hash", "crypto-aead", "crypto-keyexchange",
+    "cert-inspector", "cert-chain", "tls-handshake-demo", "cert-errors",
 }
 
 KEY_RE = re.compile(r"^[a-z0-9-]+$")
