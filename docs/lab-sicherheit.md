@@ -68,6 +68,41 @@ Netztransporte (`ext`, `ssh`, `http`, `git`, …) auf Umgebungsebene sperrt,
 falls die Allowlist-Prüfung einmal durch einen heute unbekannten Weg umgangen
 werden sollte. Sie ersetzt die Allowlist nicht, sie ergänzt sie.
 
+**Dritte Schicht: die WERTE pfadwertiger Argumente sind auf das
+Arbeitsverzeichnis beschränkt.** Das ist eine Präzisierung einer früher zu
+optimistischen Aussage an dieser Stelle: Subcommand-Allowlist und
+verbotene-Flags-Liste prüfen nur, OB ein Unterkommando bzw. Flag vorkommen
+darf — nicht, WOHIN ein dabei mitgegebener Pfad zeigt. Ohne diese dritte
+Schicht ließ sich trotz beider oberen Schichten beliebiger Dateiinhalt aus
+dem Container lesen (`openssl enc -base64 -in /etc/passwd` — `enc` ist
+erlaubt, `-in` war ungeprüft) oder beliebig schreiben, auch in das mit dem
+Backend GETEILTE, nicht-`read_only` `/queue`-Volume (`git diff
+--output=/queue/x`, `openssl req -out /queue/x`) — ein Disk-DoS- bzw.
+Warteschlangen-Manipulationsweg.
+
+`runner/worker.py` prüft dafür bei jedem der folgenden Flags den WERT gegen
+dieselbe Regel wie für mitgeschickte Dateien (reiner Dateiname, kein `/`,
+kein `\`, kein `..`, nicht absolut):
+
+- **git:** `--output`/`-o` sowie — als Sonderfall, weil dort ein Pfad als
+  Positionsargument statt als Flag-Wert steht — das erste
+  Nicht-Options-Argument nach `worktree add`.
+- **openssl:** `-in`, `-out`, `-keyout`, `-CAfile`, `-CAkey`, `-extfile`,
+  `-signkey`, `-cert`, `-key`, `-CA`. Für `-passin`/`-passout` gilt eine
+  eigene Regel: Der Wert ist eine Passwort-*Quelle*, kein Dateiname direkt —
+  erlaubt ist nur ein inline `pass:...`, `file:...` und `env:...` (Datei-
+  bzw. Umgebungszugriff) werden abgelehnt. Keine Lab-Vorlage braucht diese
+  beiden Flags.
+
+Beide Schreibweisen werden geprüft: `-flag wert` (zwei Tokens, so nimmt
+openssl Werte immer entgegen) und `--flag=wert` (ein Token, git-typisch).
+Bewusst **kein** pauschales „jedes Token mit `/` ablehnen“: Die
+Openssl-Vorlagen geben z. B. `-subj /CN=www.nordwind-logistik.de` mit, ein
+mit `/` beginnender Wert, der zu keinem Pfad-Flag gehört — eine pauschale
+Sperre über alle Token hätte diese Vorlage gebrochen. Die Prüfung bleibt
+darum flag-spezifisch: konservativ heißt hier „die bekannten Pfad-Flags
+lückenlos geprüft“, nicht „jedes Token geprüft“.
+
 **Das bleibt ausdrücklich eine Allowlist, keine Blockliste, mit allen
 Konsequenzen:** Ein neues Unterkommando (auch ein scheinbar harmloses)
 funktioniert erst, wenn es bewusst in `runner/worker.py` freigeschaltet wird.

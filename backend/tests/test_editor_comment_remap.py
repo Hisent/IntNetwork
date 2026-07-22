@@ -70,6 +70,35 @@ def test_deleted_block_orphans_its_comment_instead_of_pointing_elsewhere():
         assert comments == []
 
 
+def test_text_edit_of_commented_block_keeps_comment_at_same_position():
+    """Reiner Tippfehler-Fix am kommentierten Block darf den Kommentar nicht
+    loeschen: die Inhaltssignatur aendert sich zwar, aber Position und Typ
+    bleiben gleich -> der Positions-Fallback muss greifen (Regression zum
+    P2-Datenverlust-Bug: Editor loeschte Kommentare bei reiner Textaenderung)."""
+    with TestClient(app) as c:
+        h = _trainer(c)
+        key = "remap-textedit"
+        c.post("/api/trainer/content/modules", json={"key": key, "title_de": "X"}, headers=h)
+
+        blocks = [_text_block("A"), _text_block("B"), _text_block("C")]
+        assert c.put(f"/api/trainer/content/modules/{key}", json=_minimal_module(blocks), headers=h).status_code == 200
+
+        course = c.post("/api/courses", json={"name": "RemapKurs4"}, headers=h).json()
+        cid = course["id"]
+        comment_url = f"/api/trainer/courses/{cid}/modules/{key}/comments"
+        assert c.post(comment_url, json={"block_index": 1, "body": "An B"}, headers=h).status_code == 200
+
+        edited = [_text_block("A"),
+                  {"type": "text", "value_de": "Text B DE korrigiert", "value_en": "Text B EN fixed"},
+                  _text_block("C")]
+        assert c.put(f"/api/trainer/content/modules/{key}", json=_minimal_module(edited), headers=h).status_code == 200
+
+        comments = c.get(f"/api/trainer/courses/{cid}/comments", headers=h).json()
+        assert len(comments) == 1
+        assert comments[0]["block_index"] == 1
+        assert comments[0]["body"] == "An B"
+
+
 def test_pure_reorder_keeps_comment_on_same_content_block():
     with TestClient(app) as c:
         h = _trainer(c)

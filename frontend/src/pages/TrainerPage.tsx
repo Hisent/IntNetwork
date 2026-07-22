@@ -175,7 +175,7 @@ function TrainerDashboard({ onLogout }: { onLogout: () => void }) {
             selected={selected} onSelect={setSelected} />
           <div className="min-w-0">
             {selectedCourse
-              ? <CourseDetail course={selectedCourse} workshopTitle={workshopTitle} workshops={workshops.data ?? []} portalContainer={workbenchRootRef.current} />
+              ? <CourseDetail course={selectedCourse} workshopTitle={workshopTitle} workshops={workshops.data ?? []} portalContainer={workbenchRootRef.current} onDeleted={() => setSelected(null)} />
               : <div className="grid h-full min-h-48 place-items-center rounded-xl border border-dashed border-[var(--wb-border)] p-8 text-center text-sm text-[var(--wb-muted)]">
                   Kurs links auswählen, um Module, Präsenz, Feedback und Fortschritt zu sehen.
                 </div>}
@@ -275,7 +275,7 @@ function CourseList({ courses, workshops, workshopTitle, selected, onSelect }: {
 
 // --- Kurs-Detail (Detail) -----------------------------------------------------
 
-function CourseDetail({ course, workshopTitle, workshops, portalContainer }: { course: Course; workshopTitle: (key: string | null) => string; workshops: Workshop[]; portalContainer: HTMLElement | null }) {
+function CourseDetail({ course, workshopTitle, workshops, portalContainer, onDeleted }: { course: Course; workshopTitle: (key: string | null) => string; workshops: Workshop[]; portalContainer: HTMLElement | null; onDeleted: () => void }) {
   const qc = useQueryClient()
   const cid = course.id
   const courseMods = useQuery({ queryKey: ['course-modules', cid], queryFn: () => trainerApi.courseModules(cid).then((r) => r.data) })
@@ -302,6 +302,15 @@ function CourseDetail({ course, workshopTitle, workshops, portalContainer }: { c
   const removeParticipant = useMutation({
     mutationFn: (pid: number) => trainerApi.deleteParticipant(cid, pid),
     onSuccess: () => { setShownCode(null); qc.invalidateQueries({ queryKey: ['dashboard', cid] }); qc.invalidateQueries({ queryKey: ['courses'] }) },
+  })
+  // Löscht den gesamten Kurs (Backend-Cascade: Teilnehmer, Fortschritt,
+  // Kommentare gehen mit). onDeleted hebt die Auswahl im Elternteil auf,
+  // damit hier keine CourseDetail mit ungültiger Kurs-ID hängen bleibt.
+  const [deleteCourseConfirm, setDeleteCourseConfirm] = useState(false)
+  const deleteCourseTriggerRef = useRef<HTMLButtonElement | null>(null)
+  const deleteCourse = useMutation({
+    mutationFn: () => trainerApi.deleteCourse(cid),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['courses'] }); onDeleted() },
   })
   const requireApproval = course.require_approval ?? false
 
@@ -338,6 +347,15 @@ function CourseDetail({ course, workshopTitle, workshops, portalContainer }: { c
           <h2 className="text-lg font-bold text-[var(--wb-ink)]">{course.name}</h2>
           <span className="text-xs text-[var(--wb-muted)]">{workshopTitle(course.workshop_key)} · {course.participant_count ?? 0} Teilnehmer · Code <span className="font-mono">{course.join_code}</span></span>
         </div>
+        <div className="mt-3 flex justify-end">
+          <button
+            onClick={(e) => { deleteCourseTriggerRef.current = e.currentTarget; setDeleteCourseConfirm(true) }}
+            disabled={deleteCourse.isPending}
+            className="wb-control inline-flex items-center gap-1.5 rounded-lg border border-rose-300 bg-rose-50 px-3 text-sm font-semibold text-rose-700 hover:border-rose-400 disabled:opacity-50">
+            <Icon name="trash" className="h-4 w-4" /> Kurs löschen
+          </button>
+        </div>
+        {deleteCourse.isError && <p className="mt-2 text-right text-sm text-rose-600">Löschen fehlgeschlagen.</p>}
       </div>
 
       <Section title="Gerade aktiv">
@@ -427,6 +445,18 @@ function CourseDetail({ course, workshopTitle, workshops, portalContainer }: { c
       {features.data?.comments && (
         <Section title="Feedback"><TrainerFeedback courseId={cid} /></Section>
       )}
+
+      <ConfirmDialog
+        open={deleteCourseConfirm}
+        title="Kurs löschen"
+        description={<>„{course.name}“ endgültig löschen? ALLE Teilnehmer, ihr Fortschritt und alle Kommentare dieses Kurses werden unwiderruflich mitgelöscht.</>}
+        confirmLabel="Endgültig löschen"
+        cancelLabel="Abbrechen"
+        triggerRef={deleteCourseTriggerRef}
+        container={portalContainer}
+        onConfirm={() => { deleteCourse.mutate(); setDeleteCourseConfirm(false) }}
+        onCancel={() => setDeleteCourseConfirm(false)}
+      />
     </div>
   )
 }

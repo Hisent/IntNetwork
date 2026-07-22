@@ -228,9 +228,16 @@ button, a, input, select, textarea, [role="button"] {
 button:not(:disabled):active { transform: translateY(1px); }
 
 /* Touch braucht eine verlaessliche Trefferflaeche, auch bei kompakten
-   Sekundaeraktionen wie Glossar, Filtern oder Dialogschliessen. */
+   Sekundaeraktionen wie Glossar, Filtern oder Dialogschliessen.
+   `a` wird bewusst NICHT pauschal aufgenommen: reine Fliesstext-Links in
+   Modulinhalten (aus react-markdown, siehe MD_COMPONENTS in Blocks.tsx) haben
+   dort keinen eigenen className und wuerden bei 44px Mindesthoehe im
+   Lesefluss klobig. Jeder tatsaechliche Aktions-/Navigationslink in der App
+   (Bearbeiten-Icon-Links, Zurueck/Weiter, Skiplink, ToC-Anker, ...) traegt
+   dagegen immer eine Tailwind-Klasse, deshalb reicht `a[class]` als
+   Unterscheidung ohne jede Komponente einzeln markieren zu muessen. */
 @media (pointer: coarse) {
-  button, [role="button"], input, select, textarea { min-block-size: 2.75rem; }
+  button, [role="button"], input, select, textarea, a[class] { min-block-size: 2.75rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {

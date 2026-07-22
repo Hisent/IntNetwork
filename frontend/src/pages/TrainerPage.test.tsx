@@ -223,6 +223,38 @@ describe('TrainerModulePage — Skiplink-Ziel', () => {
   })
 })
 
+describe('TrainerPage — Kurs löschen', () => {
+  it('löscht den Kurs über den Bestätigungsdialog, invalidiert die Kursliste und hebt die Auswahl auf', async () => {
+    useAuthStore.setState({ token: 'demo', role: 'trainer', displayName: 'Trainer' })
+    vi.mocked(api.delete).mockResolvedValue({ data: undefined })
+    mockGet({
+      '/courses': [{ id: 1, name: 'Testkurs', join_code: 'ABC123', workshop_key: 'network', participant_count: 2 }],
+      '/workshops': [],
+      '/trainer/modules': [],
+      '/trainer/accounts': [],
+      '/features': { comments: false },
+      '/changelog': [],
+      '/courses/1/modules': [],
+      '/courses/1/dashboard': { course: { id: 1, name: 'Testkurs', join_code: 'ABC123', workshop_key: 'network' }, modules: [], participants: [] },
+      '/trainer/courses/1/presence': [],
+    })
+
+    renderWithProviders(<TrainerPage />)
+
+    fireEvent.click(await screen.findByText('Testkurs'))
+    fireEvent.click(await screen.findByRole('button', { name: 'Kurs löschen' }))
+
+    const dialog = await screen.findByRole('alertdialog', { name: 'Kurs löschen' })
+    expect(dialog.textContent).toContain('Testkurs')
+    expect(dialog.textContent).toMatch(/Teilnehmer/)
+    fireEvent.click(screen.getByRole('button', { name: 'Endgültig löschen' }))
+
+    await waitFor(() => expect(api.delete).toHaveBeenCalledWith('/courses/1'))
+    // onDeleted hebt die Auswahl auf — die Detail-Ansicht fällt auf den Platzhalter zurück.
+    expect(await screen.findByText('Kurs links auswählen, um Module, Präsenz, Feedback und Fortschritt zu sehen.')).toBeTruthy()
+  })
+})
+
 describe('TrainerPage — Passkeys (Verwaltung)', () => {
   it('zeigt „noch nicht genutzt“ für einen Passkey ohne last_used_at', async () => {
     useAuthStore.setState({ token: 'demo', role: 'trainer', displayName: 'Trainer' })

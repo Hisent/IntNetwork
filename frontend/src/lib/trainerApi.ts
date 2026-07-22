@@ -111,6 +111,7 @@ export const trainerApi = {
   courseModules: (id: number) => api.get<CourseModule[]>(`/courses/${id}/modules`),
   setCourseApproval: (id: number, require_approval: boolean) =>
     api.patch<{ require_approval: boolean }>(`/courses/${id}/approval`, { require_approval }),
+  deleteCourse: (id: number) => api.delete(`/courses/${id}`),
   approveParticipant: (courseId: number, participantId: number, approved: boolean) =>
     api.post<{ id: number; approved: boolean }>(`/courses/${courseId}/participants/${participantId}/approve`, { approved }),
   resetResumeCode: (courseId: number, participantId: number) =>

@@ -14,5 +14,7 @@ pydantic-settings==2.14.2
 PyJWT==2.13.0
 bcrypt==5.0.0
 webauthn==3.0.0
-pytest==9.1.1
-httpx==0.28.1
+
+# Test-only Abhaengigkeiten stehen NICHT hier, sondern in
+# requirements-dev.txt -- sonst landen sie ueber requirements.lock im
+# Produktions-Image (siehe backend/Dockerfile, installiert nur requirements.lock).

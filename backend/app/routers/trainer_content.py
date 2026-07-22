@@ -226,34 +226,56 @@ def _remap_or_orphan_comments(db: Session, key: str, old_blocks: list[ContentBlo
     wuerde jede Umsortierung/Einfuegung im Editor bestehende Kommentare stumm an
     einen fremden, inhaltlich anderen Block haengen.
 
-    Zuordnung ueber die Inhaltssignatur aus _block_signature: pro Signatur eine
-    FIFO-Warteschlange der alten Positionen, beim Durchlauf der neuen Bloecke in
+    Zweistufige Zuordnung:
+
+    Stufe 1 -- Inhaltssignatur (_block_signature): pro Signatur eine FIFO-
+    Warteschlange der alten Positionen, beim Durchlauf der neuen Bloecke in
     Reihenfolge konsumiert. Das bildet reines Umsortieren und Einfuegen korrekt
     ab (Test: Block an Index 2 kommentiert, neuer Block bei 0 eingefuegt ->
     Kommentar zeigt danach auf Index 3, denselben inhaltlichen Block).
 
-    Gewaehlte Semantik fuer den Rest-Fall (Block geloescht oder inhaltlich so
-    veraendert, dass keine Signatur mehr passt): der Kommentar wird geloescht,
-    statt ihn auf einen falschen Block zu clampen oder ihn stumm haengen zu
-    lassen. Eine "verwaist"-Markierung waere transparenter, verlangt aber ein
-    neues Feld auf Comment (block_index ist NOT NULL, kein Status-Feld) --
-    Modelltyp-Aenderungen sind fuer diesen Fix bewusst tabu, daher die simple,
-    aber korrekte Variante: nie zeigt ein Kommentar nach dem Speichern still auf
-    einen inhaltlich anderen Block."""
+    Stufe 2 -- Positions-Fallback fuer alles, was Stufe 1 nicht zuordnen konnte:
+    steht an der ALTEN Position von comment.block_index im neuen Blocklayout
+    noch ein Block MIT GLEICHEM TYP, bleibt der Kommentar dort haengen. Das ist
+    der normale Trainer-Workflow "Tippfehler in Block 2 korrigieren" -- der
+    Block bleibt an seinem Platz und behaelt seinen Typ, nur value_de/value_en/
+    payload aendern sich, wodurch sich zwangslaeufig auch die Signatur aendert.
+    Ohne Fallback wuerde jede reine Textaenderung eines kommentierten Blocks den
+    Kommentar loeschen (Datenverlust bei ganz normaler Nutzung).
+
+    Geloescht wird ein Kommentar nur noch, wenn an seiner alten Position gar
+    kein Block mehr existiert (Block entfernt) ODER sich dort der Block-TYP
+    geaendert hat (z.B. text -> widget) -- dann ist der inhaltliche Bezug
+    tatsaechlich weg und ein Clamp auf einen artfremden Block waere falsch.
+    Eine "verwaist"-Markierung waere transparenter, verlangt aber ein neues Feld
+    auf Comment (block_index ist NOT NULL, kein Status-Feld) -- Modelltyp-
+    Aenderungen sind fuer diesen Fix bewusst tabu."""
     old_queue: dict[tuple, deque[int]] = defaultdict(deque)
     for pos, b in enumerate(old_blocks):
         old_queue[_block_signature(b)].append(pos)
     position_map: dict[int, int] = {}
+    matched_new_positions: set[int] = set()
     for new_pos, b in enumerate(new_blocks):
         queue = old_queue.get(_block_signature(b))
         if queue:
             position_map[queue.popleft()] = new_pos
+            matched_new_positions.add(new_pos)
     for comment in db.query(Comment).filter(Comment.module_key == key):
         new_pos = position_map.get(comment.block_index)
         if new_pos is not None:
             comment.block_index = new_pos
-        else:
-            db.delete(comment)
+            continue
+        # Stufe 2: gleiche Position, gleicher Typ, und diese Position wurde
+        # nicht schon per Signatur von einem ANDEREN alten Block belegt (sonst
+        # sitzt dort durch Umsortieren fremder Inhalt). Kein "Verbrauchen" der
+        # Position hier noetig: mehrere Kommentare auf demselben alten Block
+        # sollen alle gemeinsam an dessen (unveraenderter) Position bleiben.
+        old_pos = comment.block_index
+        if (0 <= old_pos < len(new_blocks) and old_pos not in matched_new_positions
+                and old_pos < len(old_blocks)
+                and old_blocks[old_pos].type == new_blocks[old_pos].type):
+            continue
+        db.delete(comment)
 
 
 def _apply(db: Session, key: str, m: ContentModule, data: ModuleIn,

@@ -483,6 +483,132 @@ def _migrate_memory_context_wording(db: Session) -> None:
     db.flush()
 
 
+CONTENT_EDITS_V4_MIGRATION = "content-migration:content-edits-v4"
+# Drei fachliche Ergänzungen aus dem Review (v1.32.x): Der openssl-Lab-Hinweis
+# fehlte zu s_client/s_server, VPN und PKI verwiesen nie aufeinander, und
+# Enterprise-WLAN erwähnte "eigenes Zertifikat" ohne PKI-Verweis. Jeweils ein
+# Satz an bereits bestehende, ausgelieferte Blöcke angehängt statt neuer
+# Blöcke. Voll-Block-Abgleich wie bei CONTENT_TEXT_EDITS_V2: nur angewendet,
+# wenn der Trainer den Blocktext seither nicht selbst verändert hat.
+_OLD_OPENSSL_LAB_DE = (
+    '## Selbst ausprobieren\n\n'
+    'Bis hierhin hast du die Befehle gelesen. Im Labor unten tippst du sie '
+    'wirklich und bekommst die Originalausgabe zurück — kein nachgebauter Text.\n\n'
+    'Zwei Dinge, die den Unterschied machen:\n\n'
+    '- **Dein Arbeitsverzeichnis bleibt zwischen den Läufen bestehen.** Eine CA, '
+    'die du im ersten Schritt anlegst, kannst du im dritten benutzen. Damit lässt '
+    'sich eine ganze kleine PKI nachbauen.\n'
+    '- **Fehler sind hier der Lehrstoff.** Stell absichtlich ein abgelaufenes '
+    'Zertifikat her oder eines mit falschem Namen und sieh dir an, was `verify` '
+    'dazu sagt. Genau diese Meldungen begegnen dir später im Betrieb.\n\n'
+    'Es gibt kein Netz im Labor — alles, was du prüfst, erzeugst du vorher selbst.'
+)
+_OLD_OPENSSL_LAB_EN = (
+    '## Try It Yourself\n\n'
+    'So far you have read the commands. In the lab below you actually type them '
+    'and get the original output back — not a reconstruction.\n\n'
+    'Two things make the difference:\n\n'
+    '- **Your working directory persists between runs.** A CA you create in the '
+    'first step is still there in the third. That is enough to build a small PKI.\n'
+    '- **Errors are the lesson here.** Deliberately produce an expired certificate '
+    'or one with the wrong name and see what `verify` says about it. These are '
+    'exactly the messages you will meet in operations later.\n\n'
+    'There is no network in the lab — whatever you check, you create yourself first.'
+)
+_OLD_VPN_TUNNEL_DE = (
+    "## Die Idee: ein Tunnel\n\nEin **VPN** (Virtual Private "
+    "Network) baut einen **verschlüsselten Tunnel** durch ein unsicheres Netz "
+    "(das Internet). Zwei Endpunkte handeln Schlüssel aus; alles dazwischen ist "
+    "für Außenstehende unlesbar. So fühlt sich ein entferntes Gerät an, als hinge "
+    "es direkt im Firmennetz."
+)
+_OLD_VPN_TUNNEL_EN = (
+    "## The Idea: a Tunnel\n\nA **VPN** (Virtual Private "
+    "Network) builds an **encrypted tunnel** through an untrusted network "
+    "(the Internet). Two endpoints negotiate keys; everything in between is "
+    "unreadable to outsiders. This makes a remote device feel as if it hangs "
+    "directly on the company network."
+)
+_OLD_WLAN_RADIUS_EAP_DE = (
+    "## RADIUS und EAP\n\nDer Authentication Server ist in der Praxis fast "
+    "immer ein **RADIUS-Server**: Er verwaltet die Konten (oder fragt ein "
+    "Verzeichnis wie Active Directory ab) und antwortet dem Access Point mit "
+    "Zugriff erlaubt oder verweigert. Der Nachweis, mit dem sich der Supplicant "
+    "ausweist, läuft über **EAP** (Extensible Authentication Protocol) — ein "
+    "**Rahmenbegriff** für verschiedene konkrete Verfahren. Sie unterscheiden "
+    "sich vor allem darin, **womit** sich jemand ausweist: über ein Zertifikat "
+    "oder über klassische Zugangsdaten (Benutzername/Passwort). Welches "
+    "konkrete Verfahren zum Einsatz kommt, hängt von der Umgebung ab."
+)
+_OLD_WLAN_RADIUS_EAP_EN = (
+    "## RADIUS and EAP\n\nIn practice, the authentication server is almost "
+    "always a **RADIUS server**: it manages accounts (or queries a directory "
+    "such as Active Directory) and tells the access point whether to grant or "
+    "deny access. The proof a supplicant presents runs over **EAP** "
+    "(Extensible Authentication Protocol) — an **umbrella term** for several "
+    "concrete methods. They differ mainly in **what** someone proves their "
+    "identity with: a certificate or classic credentials (username/password). "
+    "Which specific method is used depends on the environment."
+)
+CONTENT_TEXT_EDITS_V4 = [
+    ("tls-pruefen", _OLD_OPENSSL_LAB_DE,
+     _source_block("tls-pruefen", "text-openssl-lab")["value"]["de"],
+     _source_block("tls-pruefen", "text-openssl-lab")["value"]["en"]),
+    ("vpn", _OLD_VPN_TUNNEL_DE,
+     MODULES["vpn"]["blocks"][0]["value"]["de"], MODULES["vpn"]["blocks"][0]["value"]["en"]),
+    ("enterprise-wlan", _OLD_WLAN_RADIUS_EAP_DE,
+     MODULES["enterprise-wlan"]["blocks"][2]["value"]["de"],
+     MODULES["enterprise-wlan"]["blocks"][2]["value"]["en"]),
+]
+# Hinweis zu obigem Abgleich: der alte openssl-Lab-Wortlaut ist unabhängig
+# davon exakt getroffen, ob der Block ursprünglich direkt geseedet oder erst
+# per _migrate_tool_labs nachgezogen wurde — beide Wege erzeugen denselben
+# value_de.
+
+
+def _migrate_content_edits_v4(db: Session) -> None:
+    """Ergänzt drei Cross-Referenz-/Klarstellungssätze aus dem Review (v1.32.x):
+    openssl-Lab-Hinweis zu s_client/s_server, VPN↔PKI-Verweis, WLAN↔PKI-Verweis."""
+    _apply_text_edits(db, CONTENT_EDITS_V4_MIGRATION, CONTENT_TEXT_EDITS_V4)
+
+
+PKI_XREF_MIGRATION = "content-migration:pki-crossref-v1"
+# Ergänzt die clientAuth-Erläuterung im X.509-Modul um zwei Anwendungsbeispiele
+# (VPN/IPsec-Client-Zertifikate, 802.1X/EAP-TLS). Substring-Ersatz statt
+# Voll-Block-Abgleich: der restliche Blocktext (Key-Usage-Erklärung) bleibt
+# unabhängig von Trainer-Ergänzungen davor/danach unangetastet.
+PKI_XREF_EDITS = [
+    ("x509-zertifikate",
+     "`clientAuth` (TLS-Client-Authentifizierung) oder "
+     "`codeSigning` (Signieren von Software).",
+     "`clientAuth` (TLS-Client-Authentifizierung, etwa für "
+     "VPN-/IPsec-Client-Zertifikate oder 802.1X/EAP-TLS) oder `codeSigning` "
+     "(Signieren von Software)."),
+    ("x509-zertifikate",
+     "`serverAuth` (TLS server), `clientAuth` (TLS client authentication), or "
+     "`codeSigning` (signing software).",
+     "`serverAuth` (TLS server), `clientAuth` (TLS client authentication, e.g. "
+     "for VPN/IPsec client certificates or 802.1X/EAP-TLS), or "
+     "`codeSigning` (signing software)."),
+]
+
+
+def _migrate_pki_crossref(db: Session) -> None:
+    """Ergänzt im X.509-Modul die clientAuth-Erläuterung um VPN/IPsec- und
+    802.1X/EAP-TLS-Beispiele (Gegenverweis zu vpn.py und net_enterprise_wlan.py)."""
+    if db.get(Setting, PKI_XREF_MIGRATION):
+        return
+    for module_key, old, new in PKI_XREF_EDITS:
+        for block in db.query(ContentBlock).filter(
+                ContentBlock.module_key == module_key, ContentBlock.type == "text"):
+            if block.value_de and old in block.value_de:
+                block.value_de = block.value_de.replace(old, new)
+            if block.value_en and old in block.value_en:
+                block.value_en = block.value_en.replace(old, new)
+    db.add(Setting(key=PKI_XREF_MIGRATION, value="applied"))
+    db.flush()
+
+
 def seed_missing_content(db: Session) -> None:
     """Seedet alle Module, deren Key noch nicht in der DB steht — beim ersten
     Start also alles, bei Updates nur neu hinzugekommene Module. Versionierte
@@ -554,6 +680,8 @@ def seed_missing_content(db: Session) -> None:
     _migrate_memory_context_wording(db)
     _migrate_agent_modes(db)
     _migrate_tool_labs(db)
+    _migrate_content_edits_v4(db)
+    _migrate_pki_crossref(db)
     # Neue Module können auch später nachgeseedet werden. Die Workshop-Familie
     # wird dabei gleich mitgeschrieben, damit sie nicht still in keinem Kurs
     # erscheint.

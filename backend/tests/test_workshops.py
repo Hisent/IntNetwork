@@ -117,23 +117,33 @@ def test_workshop_catalog_and_code_bound_join():
 
 
 def test_new_content_is_opt_in_for_existing_course():
-    with TestClient(app) as client:
-        trainer = _trainer(client)
-        course = client.post("/api/courses", json={
-            "name": "Network Opt-in", "workshop_key": "network",
-        }, headers=trainer).json()
-        created = client.post("/api/trainer/content/modules", json={
-            "key": "network-opt-in-test", "title_de": "Opt-in Test", "workshop_key": "network",
-        }, headers=trainer)
-        assert created.status_code == 200
+    db = SessionLocal()
+    try:
+        with TestClient(app) as client:
+            trainer = _trainer(client)
+            course = client.post("/api/courses", json={
+                "name": "Network Opt-in", "workshop_key": "network",
+            }, headers=trainer).json()
+            created = client.post("/api/trainer/content/modules", json={
+                "key": "network-opt-in-test", "title_de": "Opt-in Test", "workshop_key": "network",
+            }, headers=trainer)
+            assert created.status_code == 200
 
-        modules = client.get(f"/api/courses/{course['id']}/modules", headers=trainer).json()
-        added = next(module for module in modules if module["key"] == "network-opt-in-test")
-        assert added["active"] is False
+            modules = client.get(f"/api/courses/{course['id']}/modules", headers=trainer).json()
+            added = next(module for module in modules if module["key"] == "network-opt-in-test")
+            assert added["active"] is False
 
-        token = client.post("/api/join", json={"code": course["join_code"], "name": "Bea"}).json()["access_token"]
-        participant = {"Authorization": f"Bearer {token}"}
-        assert client.get("/api/modules/network-opt-in-test", headers=participant).status_code == 404
+            token = client.post("/api/join", json={"code": course["join_code"], "name": "Bea"}).json()["access_token"]
+            participant = {"Authorization": f"Bearer {token}"}
+            assert client.get("/api/modules/network-opt-in-test", headers=participant).status_code == 404
+    finally:
+        # Ohne Aufraeumen bleibt das per API angelegte ContentModule dauerhaft in
+        # der Test-DB stehen und laesst spaetere count()==len(MODULES)-Checks in
+        # test_content_seed.py fehlschlagen (Test-Isolationsleck).
+        db.query(CourseModule).filter(CourseModule.module_key == "network-opt-in-test").delete()
+        db.query(ContentModule).filter(ContentModule.key == "network-opt-in-test").delete()
+        db.commit()
+        db.close()
 
 
 def test_legacy_course_migrates_to_network_only():

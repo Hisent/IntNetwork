@@ -17,9 +17,16 @@ RETENTION_DAYS=14
 mkdir -p "$BACKUP_DIR"
 
 STAMP=$(date +%Y%m%d-%H%M%S)
-OUT_FILE="$BACKUP_DIR/intnetwork-$STAMP.sql.gz"
+DUMP_FILE="$BACKUP_DIR/intnetwork-$STAMP.sql"
+OUT_FILE="$DUMP_FILE.gz"
 
-docker compose exec -T db pg_dump -U intnetwork intnetwork | gzip > "$OUT_FILE"
+# Zweistufig statt "pg_dump | gzip > datei": in einer Pipe unter
+# dash/#!/bin/sh (kein pipefail) sieht set -e nur den Exit-Code von gzip, nie
+# den von pg_dump -- scheitert pg_dump, entsteht trotzdem eine (leere/kaputte)
+# .gz-Datei und das Skript meldet "Erfolg". Erst in eine Datei dumpen (set -e
+# greift auf den echten pg_dump-Exit-Code), dann separat komprimieren.
+docker compose exec -T db pg_dump -U intnetwork intnetwork > "$DUMP_FILE"
+gzip "$DUMP_FILE"
 
 echo "Backup geschrieben: $OUT_FILE"
 

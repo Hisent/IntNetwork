@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
@@ -23,11 +23,12 @@ class TComReq(BaseModel):
 
 
 @router.get("/trainer/courses/{cid}/comments")
-def course_comments(cid: int, db: Session = Depends(get_db), _t: dict = Depends(get_trainer)):
+def course_comments(cid: int, limit: int = Query(500, ge=1, le=2000), offset: int = Query(0, ge=0),
+                    db: Session = Depends(get_db), _t: dict = Depends(get_trainer)):
     _guard(db)
     require_course(db, cid)
     rows = db.query(Comment).filter(Comment.course_id == cid).order_by(
-        Comment.module_key, Comment.block_index, Comment.created_at).all()
+        Comment.module_key, Comment.block_index, Comment.created_at).offset(offset).limit(limit).all()
     return [_serialize(c) for c in rows]
 
 

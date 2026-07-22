@@ -1,0 +1,12 @@
+# Zusaetzliche Abhaengigkeiten NUR fuer Tests/CI, nicht fuer das
+# Produktions-Image. Siehe requirements.txt fuer den Verweis-Kommentar und
+# backend/Dockerfile: das installiert ausschliesslich requirements.lock.
+#
+# CI installiert fuer Testlaeufe beides:
+#   pip install -r requirements.lock -r requirements-dev.txt
+#
+# Versionen hier sind bewusst NICHT in requirements.lock transitiv
+# durchgepinnt (kein Linux-pip-compile verfuegbar) -- pip loest httpx' eigene
+# Transitiv-Deps (httpcore, idna, certifi, ...) beim Installieren frisch auf.
+pytest==9.1.1
+httpx==0.28.1

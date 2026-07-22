@@ -86,7 +86,9 @@ ENTERPRISE_WLAN_MODULE = {
                    "**Rahmenbegriff** für verschiedene konkrete Verfahren. Sie unterscheiden "
                    "sich vor allem darin, **womit** sich jemand ausweist: über ein Zertifikat "
                    "oder über klassische Zugangsdaten (Benutzername/Passwort). Welches "
-                   "konkrete Verfahren zum Einsatz kommt, hängt von der Umgebung ab.",
+                   "konkrete Verfahren zum Einsatz kommt, hängt von der Umgebung ab. Die "
+                   "Zertifikatsseite von EAP-TLS — Ausstellung, Aufbau und Prüfung der "
+                   "Client-Zertifikate — behandelt der Lehrgang PKI & Verschlüsselung.",
              "en": "## RADIUS and EAP\n\nIn practice, the authentication server is almost "
                    "always a **RADIUS server**: it manages accounts (or queries a directory "
                    "such as Active Directory) and tells the access point whether to grant or "
@@ -94,7 +96,9 @@ ENTERPRISE_WLAN_MODULE = {
                    "(Extensible Authentication Protocol) — an **umbrella term** for several "
                    "concrete methods. They differ mainly in **what** someone proves their "
                    "identity with: a certificate or classic credentials (username/password). "
-                   "Which specific method is used depends on the environment.",
+                   "Which specific method is used depends on the environment. The certificate "
+                   "side of EAP-TLS — issuing, structuring, and validating client "
+                   "certificates — is covered by the PKI & Encryption course.",
          }},
         {"type": "check", "payload": {
             "kind": "choice",

@@ -1,5 +1,23 @@
 # Projekt-Changelog (nur für Trainer sichtbar). Neueste zuerst.
 CHANGELOG = [
+    {"date": "2026-07-22", "title": "v1.38.0 — Zweiter Review-Durchgang: Lab-Absicherung & Feinschliff",
+     "text": "Ein weiterer, tiefer Review hat vor allem am Lab nachgeschärft. Die "
+             "Werkzeuge openssl und git konnten über Pfad-Angaben (z. B. eine Datei "
+             "außerhalb des Übungsverzeichnisses lesen oder ins geteilte "
+             "Austauschverzeichnis schreiben) die Grenze des Übungsbereichs "
+             "überschreiten — Datei-Argumente sind jetzt strikt auf das eigene "
+             "Arbeitsverzeichnis beschränkt. Die Erkennung des anfragenden Rechners "
+             "hinter dem Web-Server wurde korrigiert, damit die Anmeldebremse wieder "
+             "den echten Absender zählt und nicht umgangen werden kann. Neu im "
+             "Trainerbereich: Kurse lassen sich jetzt auch über die Oberfläche löschen "
+             "(mit Rückfrage; alles am Kurs Hängende geht mit). Der zuvor als "
+             "Standard-Reset genannte Weg für die lokale Entwicklungsdatenbank ist "
+             "repariert. Im PKI-Lehrgang steht jetzt ein Hinweis, dass die "
+             "s_client-Diagnose im Lab bewusst nicht verfügbar ist; VPN- und "
+             "WLAN-Module verweisen für die Zertifikatsseite auf den PKI-Lehrgang. "
+             "Dazu Feinschliff an Barrierefreiheit (Touch-Ziele), Betrieb "
+             "(Backup-Fehlererkennung, Abhängigkeits-Lockdatei) und Dokumentation. "
+             "Für den Kursbetrieb ändert sich nichts."},
     {"date": "2026-07-22", "title": "v1.37.0 — Sicherheits- und Härtungsdurchgang",
      "text": "Ein umfassender Review hat mehrere Punkte aufgedeckt, die jetzt behoben "
              "sind. Wichtigster: Das git-Lab konnte über eine Git-Besonderheit beliebigen "

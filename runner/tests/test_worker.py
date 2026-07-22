@@ -1037,3 +1037,197 @@ def test_run_git_setzt_git_allow_protocol_auf_file(workspace_root, monkeypatch):
 
     assert ergebnis["rc"] == 0
     assert "file" in ergebnis["output"]
+
+
+# ---------------------------------------------------------------------------
+# 13. Pfad-Argumente auf das Arbeitsverzeichnis beschraenkt
+#     (_git_pfadargumente_pruefen, _openssl_pfadargumente_pruefen) - P0,
+#     2026-07-22, zweite Fassung: Schicht 1 (Subcommand-Allowlist) und
+#     Schicht 2 (verbotene Flags/Muster) pruefen nur, OB ein Unterkommando/
+#     Flag vorkommen darf - nicht die WERTE der dabei mitgegebenen
+#     Pfad-Argumente. "openssl enc -base64 -in /etc/passwd" las damit
+#     beliebige lesbare Dateien, "git diff --output=/queue/x" bzw.
+#     "openssl req -out /queue/x" schrieb beliebig, auch ins mit dem Backend
+#     geteilte /queue-Volume.
+# ---------------------------------------------------------------------------
+
+def test_werkzeug_argv_pruefen_lehnt_openssl_in_mit_absolutem_pfad_ab():
+    fehlermeldung = worker._werkzeug_argv_pruefen(["enc", "-base64", "-in", "/etc/passwd"], "openssl")
+    assert fehlermeldung is not None
+    assert "/etc/passwd" in fehlermeldung
+    assert "-in" in fehlermeldung
+
+
+def test_werkzeug_argv_pruefen_lehnt_openssl_out_mit_absolutem_pfad_ab():
+    fehlermeldung = worker._werkzeug_argv_pruefen(["req", "-out", "/queue/x"], "openssl")
+    assert fehlermeldung is not None
+    assert "/queue/x" in fehlermeldung
+
+
+@pytest.mark.parametrize("dateiname", ["../x", "..\\x", "/tmp/x", "a/b"])
+def test_werkzeug_argv_pruefen_lehnt_openssl_out_mit_ausbruch_ab(dateiname):
+    fehlermeldung = worker._werkzeug_argv_pruefen(["req", "-out", dateiname], "openssl")
+    assert fehlermeldung is not None
+
+
+def test_werkzeug_argv_pruefen_lehnt_openssl_passin_file_praefix_ab():
+    fehlermeldung = worker._werkzeug_argv_pruefen(["req", "-passin", "file:/etc/x"], "openssl")
+    assert fehlermeldung is not None
+    assert "file:/etc/x" in fehlermeldung
+
+
+def test_werkzeug_argv_pruefen_lehnt_openssl_passin_env_praefix_ab():
+    fehlermeldung = worker._werkzeug_argv_pruefen(["req", "-passin", "env:GEHEIM"], "openssl")
+    assert fehlermeldung is not None
+
+
+def test_werkzeug_argv_pruefen_erlaubt_openssl_passin_inline_pass():
+    assert worker._werkzeug_argv_pruefen(["req", "-passin", "pass:geheim"], "openssl") is None
+
+
+def test_werkzeug_argv_pruefen_lehnt_git_diff_output_mit_absolutem_pfad_ab():
+    fehlermeldung = worker._werkzeug_argv_pruefen(["diff", "--output=/tmp/x"], "git")
+    assert fehlermeldung is not None
+    assert "/tmp/x" in fehlermeldung
+
+
+def test_werkzeug_argv_pruefen_lehnt_git_diff_output_getrennt_mit_absolutem_pfad_ab():
+    fehlermeldung = worker._werkzeug_argv_pruefen(["diff", "-o", "/tmp/x"], "git")
+    assert fehlermeldung is not None
+    assert "/tmp/x" in fehlermeldung
+
+
+def test_werkzeug_argv_pruefen_lehnt_git_worktree_add_mit_absolutem_pfad_ab():
+    fehlermeldung = worker._werkzeug_argv_pruefen(["worktree", "add", "/tmp/x"], "git")
+    assert fehlermeldung is not None
+    assert "/tmp/x" in fehlermeldung
+    assert "worktree add" in fehlermeldung
+
+
+def test_werkzeug_argv_pruefen_lehnt_git_worktree_add_mit_ausbruch_ab():
+    fehlermeldung = worker._werkzeug_argv_pruefen(["worktree", "add", "../x"], "git")
+    assert fehlermeldung is not None
+
+
+def test_werkzeug_argv_pruefen_ueberspringt_wertnehmende_option_vor_worktree_pfad():
+    """`-b <zweig>` steht vor dem eigentlichen Pfad - dessen Wert (ein
+    harmloser Zweigname) darf nicht faelschlich als der zu pruefende Pfad
+    durchgehen und dabei den EIGENTLICHEN, boesartigen Pfad ungeprueft lassen."""
+    fehlermeldung = worker._werkzeug_argv_pruefen(["worktree", "add", "-b", "feature", "/tmp/x"], "git")
+    assert fehlermeldung is not None
+    assert "/tmp/x" in fehlermeldung
+
+
+# Positiv: die legitimen Vorlagen (frontend/src/widgets/opensslab/templates.ts,
+# frontend/src/widgets/gitlab/templates.ts) nutzen ausschliesslich reine
+# Dateinamen im Arbeitsverzeichnis - die neue Pruefung darf sie nicht brechen.
+
+@pytest.mark.parametrize("befehl", [
+    ["genrsa", "-out", "server.key", "2048"],
+    ["req", "-new", "-key", "server.key", "-out", "server.csr", "-subj", "/CN=www.nordwind-logistik.de"],
+    ["req", "-in", "server.csr", "-noout", "-text"],
+    ["req", "-new", "-x509", "-key", "ca.key", "-out", "ca.pem", "-days", "3650", "-subj", "/CN=Kurs-CA"],
+    ["x509", "-req", "-in", "server.csr", "-CA", "ca.pem", "-CAkey", "ca.key",
+     "-CAcreateserial", "-out", "server.pem", "-days", "365"],
+    ["x509", "-in", "server.pem", "-noout", "-text"],
+    ["verify", "-CAfile", "ca.pem", "server.pem"],
+])
+def test_werkzeug_argv_pruefen_laesst_legitime_openssl_vorlagen_durch(befehl):
+    assert worker._werkzeug_argv_pruefen(befehl, "openssl") is None
+
+
+@pytest.mark.parametrize("befehl", [
+    ["init"],
+    ["commit", "--allow-empty", "-m", "base"],
+    ["checkout", "-b", "feature"],
+    ["checkout", "-"],
+    ["merge", "feature"],
+    ["mv", "-f", "feature-version.txt", "shared.txt"],
+    ["worktree", "add", "wt-feature", "-b", "feature-wt"],
+    ["worktree", "list"],
+])
+def test_werkzeug_argv_pruefen_laesst_legitime_git_vorlagen_durch(befehl):
+    assert worker._werkzeug_argv_pruefen(befehl, "git") is None
+
+
+def test_run_openssl_lehnt_absoluten_lesepfad_ab_kein_prozessstart(workspace_root, monkeypatch):
+    monkeypatch.setattr(worker, "OPENSSL_BIN", sys.executable)
+    monkeypatch.setattr(worker, "OPENSSL_TIMEOUT_SECONDS", 15.0)
+
+    aufgerufen = {"popen": False}
+    echtes_popen = worker.subprocess.Popen
+
+    def wachsames_popen(*args, **kwargs):
+        aufgerufen["popen"] = True
+        return echtes_popen(*args, **kwargs)
+
+    monkeypatch.setattr(worker.subprocess, "Popen", wachsames_popen)
+
+    ergebnis = worker._run_openssl({
+        "workspace": "dateiausbruch-lese-test",
+        "commands": ["enc -base64 -in /etc/passwd"],
+    })
+
+    assert ergebnis["rc"] == 2
+    assert aufgerufen["popen"] is False
+    assert "/etc/passwd" in ergebnis["output"]
+
+
+def test_run_openssl_lehnt_schreiben_ins_queue_volume_ab_kein_prozessstart(workspace_root, monkeypatch):
+    monkeypatch.setattr(worker, "OPENSSL_BIN", sys.executable)
+    monkeypatch.setattr(worker, "OPENSSL_TIMEOUT_SECONDS", 15.0)
+
+    aufgerufen = {"popen": False}
+    echtes_popen = worker.subprocess.Popen
+
+    def wachsames_popen(*args, **kwargs):
+        aufgerufen["popen"] = True
+        return echtes_popen(*args, **kwargs)
+
+    monkeypatch.setattr(worker.subprocess, "Popen", wachsames_popen)
+
+    ergebnis = worker._run_openssl({
+        "workspace": "dateiausbruch-schreibe-test",
+        "commands": ["req -out /queue/x"],
+    })
+
+    assert ergebnis["rc"] == 2
+    assert aufgerufen["popen"] is False
+    assert "/queue/x" in ergebnis["output"]
+
+
+def test_run_git_lehnt_worktree_add_mit_absolutem_pfad_ab_kein_prozessstart(workspace_root, monkeypatch):
+    monkeypatch.setattr(worker, "GIT_BIN", sys.executable)
+    monkeypatch.setattr(worker, "GIT_TIMEOUT_SECONDS", 15.0)
+
+    aufgerufen = {"popen": False}
+    echtes_popen = worker.subprocess.Popen
+
+    def wachsames_popen(*args, **kwargs):
+        aufgerufen["popen"] = True
+        return echtes_popen(*args, **kwargs)
+
+    monkeypatch.setattr(worker.subprocess, "Popen", wachsames_popen)
+
+    ergebnis = worker._run_git({
+        "workspace": "worktree-ausbruch-test",
+        "commands": ["worktree add /tmp/x"],
+    })
+
+    assert ergebnis["rc"] == 2
+    assert aufgerufen["popen"] is False
+    assert "/tmp/x" in ergebnis["output"]
+
+
+def test_run_git_worktree_add_mit_reinem_namen_kommt_durch(workspace_root, monkeypatch):
+    monkeypatch.setattr(worker, "GIT_BIN", sys.executable)
+    monkeypatch.setattr(worker, "GIT_TIMEOUT_SECONDS", 15.0)
+
+    ergebnis = worker._run_git({
+        "workspace": "worktree-legitim-test",
+        "files": {"worktree": "print('ok')\n"},
+        "commands": ["worktree add feature"],
+    })
+
+    assert ergebnis["rc"] == 0
+    assert "ok" in ergebnis["output"]

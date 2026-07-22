@@ -2,8 +2,11 @@
 
 import argparse
 
+from sqlalchemy import text
+
 from app.config import settings
-from app.database import Base, SessionLocal, engine, sync_missing_columns
+from app.database import Base, SessionLocal, engine
+from app.db_migrate import run_migrations
 from app.models import comment, content, course, course_module, module_disabled, participant  # noqa: F401
 from app.models import progress, quiz_result, setting, trainer, workshop  # noqa: F401
 from app.content.seed import seed_missing_content
@@ -12,9 +15,29 @@ from app.services.trainer_seed import seed_trainer_if_empty
 
 
 def reset_database() -> None:
+    """Leert die Dev-DB und baut sie wieder auf.
+
+    Nutzt dieselbe Autoritaet wie main.py fuer den Schemaaufbau: Alembic ueber
+    run_migrations(), NICHT Base.metadata.create_all(). Grund (siehe main.py-
+    Kommentar zum Crashloop vom 22.07.2026): create_all legt Tabellen an, ohne
+    alembic_version zu setzen. Der naechste normale App-Start sieht dann "keine
+    alembic_version, aber participant existiert bereits", stampt die Baseline
+    und spielt anschliessend Folgemigrationen erneut ein -- die versuchen
+    bereits vorhandene Spalten/Tabellen nochmal anzulegen und crashen mit
+    "duplicate column name". run_migrations() baut das Schema per Alembic UND
+    setzt alembic_version korrekt, sodass ein anschliessender App-Start keine
+    Migrationen mehr wiederholt.
+
+    alembic_version selbst ist keine ORM-Tabelle (nicht Teil von Base.metadata)
+    und ueberlebt daher drop_all() unveraendert -- staende dort noch "head",
+    wuerde run_migrations() faelschlich annehmen, das Schema sei bereits
+    aktuell, und gar keine Migration mehr ausfuehren, obwohl alle Tabellen
+    gerade gedroppt wurden. Deshalb explizit mitloeschen, damit Alembic von
+    Grund auf neu baut."""
     Base.metadata.drop_all(bind=engine)
-    Base.metadata.create_all(bind=engine)
-    sync_missing_columns()
+    with engine.begin() as conn:
+        conn.execute(text("DROP TABLE IF EXISTS alembic_version"))
+    run_migrations()
     db = SessionLocal()
     try:
         seed_missing_content(db)

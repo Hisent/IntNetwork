@@ -26,12 +26,16 @@ VPN_MODULE = {
                    "Network) baut einen **verschlüsselten Tunnel** durch ein unsicheres Netz "
                    "(das Internet). Zwei Endpunkte handeln Schlüssel aus; alles dazwischen ist "
                    "für Außenstehende unlesbar. So fühlt sich ein entferntes Gerät an, als hinge "
-                   "es direkt im Firmennetz.",
+                   "es direkt im Firmennetz. Zur Authentisierung nutzen VPNs statt "
+                   "Pre-Shared-Keys oft zertifikatsbasierte Verfahren (etwa bei IPsec/IKEv2) — "
+                   "siehe Lehrgang PKI & Verschlüsselung.",
              "en": "## The Idea: a Tunnel\n\nA **VPN** (Virtual Private "
                    "Network) builds an **encrypted tunnel** through an untrusted network "
                    "(the Internet). Two endpoints negotiate keys; everything in between is "
                    "unreadable to outsiders. This makes a remote device feel as if it hangs "
-                   "directly on the company network.",
+                   "directly on the company network. For authentication, VPNs often use "
+                   "certificate-based methods instead of pre-shared keys (for example with "
+                   "IPsec/IKEv2) — see the PKI & Encryption course.",
          }},
         {"type": "text",
          "value": {

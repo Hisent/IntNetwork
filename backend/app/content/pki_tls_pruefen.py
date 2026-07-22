@@ -313,7 +313,11 @@ TLS_PRUEFEN_MODULE = {
                    '- **Fehler sind hier der Lehrstoff.** Stell absichtlich ein abgelaufenes '
                    'Zertifikat her oder eines mit falschem Namen und sieh dir an, was `verify` '
                    'dazu sagt. Genau diese Meldungen begegnen dir später im Betrieb.\n\n'
-                   'Es gibt kein Netz im Labor — alles, was du prüfst, erzeugst du vorher selbst.',
+                   'Es gibt kein Netz im Labor — alles, was du prüfst, erzeugst du vorher selbst. '
+                   '`s_client` und `s_server` stehen deshalb hier nicht zur Verfügung — dieselbe '
+                   'Sicherheitsgrenze wie im Git-Lab (kein Netzwerk). Geübt wird die Diagnose '
+                   'hier an lokalen Zertifikatsdateien (`x509`, `verify`), nicht gegen einen '
+                   'Live-Host.',
              'en': '## Try It Yourself\n\n'
                    'So far you have read the commands. In the lab below you actually type them '
                    'and get the original output back — not a reconstruction.\n\n'
@@ -323,7 +327,10 @@ TLS_PRUEFEN_MODULE = {
                    '- **Errors are the lesson here.** Deliberately produce an expired certificate '
                    'or one with the wrong name and see what `verify` says about it. These are '
                    'exactly the messages you will meet in operations later.\n\n'
-                   'There is no network in the lab — whatever you check, you create yourself first.',
+                   'There is no network in the lab — whatever you check, you create yourself '
+                   'first. `s_client` and `s_server` are therefore not available here — the same '
+                   'security boundary as in the Git lab (no network). Diagnosis here is practiced '
+                   'on local certificate files (`x509`, `verify`), not against a live host.',
          }},
         {'type': 'widget', 'id': 'openssl-lab',
          'note': 'Laeuft im Runner, nicht im Browser. Ohne freigegebene Art "openssl" zeigt das '

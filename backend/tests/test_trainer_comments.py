@@ -35,3 +35,30 @@ def test_trainer_comment_flow():
         assert c.delete(f"/api/trainer/comments/{part_id}", headers=h).status_code == 200
         assert c.delete(f"/api/trainer/comments/{tid}", headers=h).status_code == 200
         assert c.delete(f"/api/trainer/comments/{tid}", headers=h).status_code == 404
+
+
+def test_course_comments_are_paginated():
+    """GET .../comments unterstuetzt limit/offset (Muster wie trainer_audit.py),
+    Default darf nichts abschneiden, was heute ohne Pagination sichtbar war."""
+    with TestClient(app) as c:
+        h = _trainer(c)
+        course = c.post("/api/courses", json={"name": "KursPage"}, headers=h).json()
+        cid = next(x["id"] for x in c.get("/api/courses", headers=h).json()
+                   if x["join_code"] == course["join_code"])
+
+        for i in range(5):
+            r = c.post(f"/api/trainer/courses/{cid}/modules/vlan/comments",
+                      json={"block_index": 1, "body": f"Kommentar {i}"}, headers=h)
+            assert r.status_code == 200
+
+        default = c.get(f"/api/trainer/courses/{cid}/comments", headers=h).json()
+        assert len(default) == 5
+
+        paged = c.get(f"/api/trainer/courses/{cid}/comments", headers=h,
+                     params={"limit": 2, "offset": 0}).json()
+        assert len(paged) == 2
+
+        rest = c.get(f"/api/trainer/courses/{cid}/comments", headers=h,
+                    params={"limit": 2, "offset": 4}).json()
+        assert len(rest) == 1
+        assert rest[0]["body"] == "Kommentar 4"

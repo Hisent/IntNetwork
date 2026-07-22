@@ -16,6 +16,8 @@ from app.content.seed import (LEARNING_LABS_MIGRATION, NETWORK_VISUALS_MIGRATION
                               PLATFORM_COMMANDS_MIGRATION, CAPSTONE_RUBRIC_MIGRATION, CAPSTONE_RUBRIC_ANCHORS,
                               HOOKS_DIAGNOSE_LAB_MIGRATION, HOOKS_DIAGNOSE_LAB_ANCHORS,
                               _OLD_COURSE_ORDERS, _NEW_COURSE_ORDERS,
+                              CONTENT_EDITS_V4_MIGRATION, CONTENT_TEXT_EDITS_V4,
+                              PKI_XREF_MIGRATION, PKI_XREF_EDITS,
                               _source_block, _block_matches_source,
                               seed_missing_content)
 from app.routers.trainer_content import VALID_WIDGET_IDS
@@ -685,6 +687,104 @@ def test_hooks_diagnose_lab_migration_inserts_reveal_after_widget_once():
                 ContentBlock.module_key == module_key, ContentBlock.type == "reveal",
                 ContentBlock.value_de == source["value"]["de"]).delete(synchronize_session=False)
             db.query(Setting).filter(Setting.key == HOOKS_DIAGNOSE_LAB_MIGRATION).delete()
+            db.commit()
+            seed_missing_content(db)
+            db.close()
+
+
+def test_content_edits_v4_replaces_unchanged_and_skips_manual_change():
+    """Drei Review-Ergänzungen (openssl-Lab-Hinweis, VPN-, WLAN-Cross-Verweis) müssen
+    Bestands-DBs erreichen, aber Trainer-Anpassungen dürfen nicht überschrieben werden."""
+    lab_key, lab_old_de, lab_new_de, lab_new_en = CONTENT_TEXT_EDITS_V4[0]
+    vpn_key, vpn_old_de, vpn_new_de, vpn_new_en = CONTENT_TEXT_EDITS_V4[1]
+    wlan_key, wlan_old_de, wlan_new_de, wlan_new_en = CONTENT_TEXT_EDITS_V4[2]
+    with TestClient(app):
+        db = SessionLocal()
+        lab_block = vpn_block = wlan_block = None
+        try:
+            db.query(Setting).filter(Setting.key == CONTENT_EDITS_V4_MIGRATION).delete()
+
+            lab_block = db.query(ContentBlock).filter(
+                ContentBlock.module_key == lab_key, ContentBlock.type == "text",
+                ContentBlock.value_de == lab_new_de).first()
+            assert lab_block is not None
+            lab_block.value_de = lab_old_de  # unveraenderter alter Wortlaut -> soll ersetzt werden
+
+            vpn_block = db.query(ContentBlock).filter(
+                ContentBlock.module_key == vpn_key, ContentBlock.type == "text",
+                ContentBlock.value_de == vpn_new_de).first()
+            assert vpn_block is not None
+            vpn_block.value_de = vpn_old_de
+
+            wlan_block = db.query(ContentBlock).filter(
+                ContentBlock.module_key == wlan_key, ContentBlock.type == "text",
+                ContentBlock.value_de == wlan_new_de).first()
+            assert wlan_block is not None
+            wlan_block.value_de = "Trainer-Text: manuell abgeaendert"  # darf NICHT ueberschrieben werden
+            db.commit()
+
+            seed_missing_content(db)
+
+            db.refresh(lab_block)
+            assert lab_block.value_de == lab_new_de
+            assert lab_block.value_en == lab_new_en
+            assert "s_client" in lab_block.value_de and "s_server" in lab_block.value_de
+
+            db.refresh(vpn_block)
+            assert vpn_block.value_de == vpn_new_de
+            assert vpn_block.value_en == vpn_new_en
+            assert "PKI" in vpn_block.value_de
+
+            db.refresh(wlan_block)
+            assert wlan_block.value_de == "Trainer-Text: manuell abgeaendert"
+            assert db.get(Setting, CONTENT_EDITS_V4_MIGRATION) is not None
+        finally:
+            db.query(Setting).filter(Setting.key == CONTENT_EDITS_V4_MIGRATION).delete()
+            if lab_block is not None:
+                lab_block.value_de = lab_new_de
+                lab_block.value_en = lab_new_en
+            if vpn_block is not None:
+                vpn_block.value_de = vpn_new_de
+                vpn_block.value_en = vpn_new_en
+            if wlan_block is not None:
+                wlan_block.value_de = wlan_new_de
+                wlan_block.value_en = wlan_new_en
+            db.commit()
+            seed_missing_content(db)
+            db.close()
+
+
+def test_pki_crossref_migration_adds_vpn_and_8021x_examples_to_eku_block():
+    """Der X.509-EKU-Block bekommt VPN/IPsec- und 802.1X/EAP-TLS-Beispiele als
+    Gegenverweis nachgetragen — auch in Bestands-DBs, die den alten Wortlaut tragen."""
+    module_key, old_de, new_de = PKI_XREF_EDITS[0]
+    _, old_en, new_en = PKI_XREF_EDITS[1]
+    with TestClient(app):
+        db = SessionLocal()
+        block = None
+        try:
+            db.query(Setting).filter(Setting.key == PKI_XREF_MIGRATION).delete()
+            block = db.query(ContentBlock).filter(
+                ContentBlock.module_key == module_key, ContentBlock.type == "text",
+                ContentBlock.value_de.contains(new_de)).first()
+            assert block is not None
+            block.value_de = block.value_de.replace(new_de, old_de)
+            block.value_en = block.value_en.replace(new_en, old_en)
+            db.commit()
+
+            seed_missing_content(db)
+
+            db.refresh(block)
+            assert "VPN-/IPsec-Client-Zertifikate" in block.value_de
+            assert "802.1X/EAP-TLS" in block.value_de
+            assert "VPN/IPsec client certificates" in block.value_en
+            assert "802.1X/EAP-TLS" in block.value_en
+            assert db.get(Setting, PKI_XREF_MIGRATION) is not None
+        finally:
+            db.query(Setting).filter(Setting.key == PKI_XREF_MIGRATION).delete()
+            if block is not None:
+                block.value_de = block.value_de.replace(old_de, new_de)
+                block.value_en = block.value_en.replace(old_en, new_en)
             db.commit()
             seed_missing_content(db)
             db.close()
