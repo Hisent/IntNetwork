@@ -1,5 +1,12 @@
-# Exakt gepinnt für reproduzierbare Docker-/CI-Builds. Beim Anheben: Version
-# hier ändern, Tests laufen lassen, committen — nicht per Untergrenze driften.
+# Direkte Abhängigkeiten exakt gepinnt. Beim Anheben: Version hier ändern,
+# Tests laufen lassen, committen — nicht per Untergrenze driften.
+#
+# Was hier NICHT steht: die transitiven Pakete (pydantic, starlette, anyio, …).
+# Deren Versionen löst pip zur Bauzeit auf, zwei Builds an verschiedenen Tagen
+# können sich also unterscheiden. Für dieses Projekt bewusst so gelassen —
+# ein vollständiger Lockfile lohnt erst, wenn ein Build tatsächlich einmal an
+# einem transitiven Update zerbricht. Dann: `uv pip compile requirements.txt -o
+# requirements.lock` und Dockerfile/CI auf den Lockfile umstellen.
 fastapi==0.138.2
 uvicorn[standard]==0.49.0
 sqlalchemy==2.0.51

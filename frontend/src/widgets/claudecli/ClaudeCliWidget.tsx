@@ -34,14 +34,14 @@ const STR = {
     modeLabel: 'Modus', hint: 'Virtuelle Shell: help, ls, cat README.md. Slash-Commands mit /help.',
     intro: 'Browser-Prototyp — keine echte Host-Shell. Tippe help für Befehle.',
     challenge: 'Wechsle in den Plan-Modus und rufe /context auf.',
-    session: 'Session', reset: 'Session zurücksetzen',
+    session: 'Session', reset: 'Session zurücksetzen', commandLabel: 'Befehlseingabe',
   },
   en: {
     title: 'Claude Code CLI (demo)', modeDefault: 'Ask before edits', modePlan: 'Plan', modeAccept: 'Auto accept edits',
     modeLabel: 'Mode', hint: 'Virtual shell: help, ls, cat README.md. Try slash commands with /help.',
     intro: 'Browser prototype — no real host shell. Type help for commands.',
     challenge: 'Switch to plan mode and run /context.',
-    session: 'Session', reset: 'Reset session',
+    session: 'Session', reset: 'Reset session', commandLabel: 'Command input',
   },
 } as const
 
@@ -120,7 +120,7 @@ export function ClaudeCli({ lang }: { lang: Lang }) {
           <input
             value={input} onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => { if (e.key === 'Enter') submit() }}
-            spellCheck={false} autoComplete="off"
+            spellCheck={false} autoComplete="off" aria-label={s.commandLabel}
             className="flex-1 bg-transparent text-slate-100 outline-none"
           />
         </div>

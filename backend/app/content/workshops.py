@@ -20,6 +20,7 @@ WORKSHOPS = {
             {"key": "services", "from": 5, "to": 10, "title_de": "Netzdienste", "title_en": "Network services"},
             {"key": "security", "from": 11, "to": 15, "title_de": "Sicherheit & Funk", "title_en": "Security & wireless"},
             {"key": "practice", "from": 16, "to": 17, "title_de": "Praxis", "title_en": "Practice"},
+            {"key": "advanced", "from": 18, "to": 21, "title_de": "Vertiefung", "title_en": "Advanced topics"},
         ],
         "context": {"name": "Nordwind Logistik GmbH", "blurb_de": "Ein fiktives Unternehmen als roter Faden für die Netzwerk-Übungen.", "blurb_en": "A fictional company that connects the network exercises."},
     },

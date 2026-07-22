@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel
 from sqlalchemy import func
 from sqlalchemy.orm import Session
@@ -47,12 +47,18 @@ def create_course(data: CourseCreate, db: Session = Depends(get_db), trainer: di
 
 
 @router.get("")
-def list_courses(db: Session = Depends(get_db), _=Depends(get_trainer)):
+def list_courses(limit: int = Query(100, ge=1, le=500), offset: int = Query(0, ge=0),
+                 db: Session = Depends(get_db), _=Depends(get_trainer)):
+    # Neueste zuerst, seitenweise -> wächst nicht mehr linear mit Jahren Workshop-
+    # Betrieb. Default 100 schneidet heute nichts ab (Muster wie trainer_audit.py).
+    courses = db.query(Course).order_by(Course.created_at.desc()).offset(offset).limit(limit).all()
+    ids = [c.id for c in courses]
     counts = dict(db.query(Participant.course_id, func.count(Participant.id))
+                  .filter(Participant.course_id.in_(ids))
                   .group_by(Participant.course_id).all())
     return [{"id": c.id, "name": c.name, "join_code": c.join_code, "workshop_key": c.workshop_key,
              "participant_count": counts.get(c.id, 0), "require_approval": c.require_approval}
-            for c in db.query(Course).order_by(Course.created_at.desc()).all()]
+            for c in courses]
 
 
 class ApprovalToggle(BaseModel):

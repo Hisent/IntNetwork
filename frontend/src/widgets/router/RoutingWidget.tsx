@@ -167,7 +167,7 @@ export function Routing({ lang }: { lang: Lang }) {
 
       <Traceroute lang={lang} />
 
-      <DeviceCli prompt="Nordwind-R1#" run={(c) => runRouterCommand(ROUTES, c)} />
+      <DeviceCli prompt="Nordwind-R1#" run={(c) => runRouterCommand(ROUTES, c)} lang={lang} />
     </div>
   )
 }

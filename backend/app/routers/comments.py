@@ -8,6 +8,7 @@ from app.models.participant import Participant
 from app.services.comment_validation import require_comment_target, require_visible_module
 from app.services.deps import get_participant
 from app.services.features import require_comments_enabled as _guard
+from app.services.ratelimit import rate_limit
 
 router = APIRouter(tags=["comments"])
 
@@ -33,7 +34,11 @@ def list_comments(key: str, db: Session = Depends(get_db), p: Participant = Depe
     return [_serialize(c, c.author_kind == "participant" and c.participant_id == p.id) for c in rows]
 
 
-@router.post("/modules/{key}/comments")
+# Ein NAT-Klassenraum (bis ~20 Teilnehmer) teilt sich eine WAN-IP, das Limit gilt
+# also für die ganze Gruppe zusammen. Kommentare brauchen Tippzeit -> realistisch
+# max. 1-2 pro Minute und Person; 20 * 1,5 = 30 lässt Luft für die volle Gruppe und
+# bremst nur automatisiertes Spam-Posten.
+@router.post("/modules/{key}/comments", dependencies=[Depends(rate_limit(30, 60))])
 def add_comment(key: str, data: CommentReq, db: Session = Depends(get_db),
                 p: Participant = Depends(get_participant)):
     _guard(db)

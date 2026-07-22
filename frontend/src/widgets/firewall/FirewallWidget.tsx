@@ -35,7 +35,7 @@ const STR = {
     testTab: 'Regeln testen', buildTab: 'Regeln bauen',
     yourRules: 'Dein Regelwerk', noRules: 'noch keine Regeln — alles läuft ins Default-Deny',
     addRule: 'Regel hinzufügen', anyPort: 'leer = beliebiger Port', traffic: 'Live-Traffic',
-    expected: 'Soll', actual: 'Ist',
+    expected: 'Soll', actual: 'Ist', ruleAction: 'Aktion', newRulePort: 'Port für neue Regel',
     buildChallenge: 'Baue ein Regelwerk, das genau HTTPS und DNS erlaubt — alles andere blockt das Default-Deny. Schaffst du es mit höchstens 2 Regeln?',
   },
   en: {
@@ -46,7 +46,7 @@ const STR = {
     testTab: 'Test rules', buildTab: 'Build rules',
     yourRules: 'Your ruleset', noRules: 'no rules yet — everything hits the default deny',
     addRule: 'Add rule', anyPort: 'empty = any port', traffic: 'Live traffic',
-    expected: 'Goal', actual: 'Now',
+    expected: 'Goal', actual: 'Now', ruleAction: 'Action', newRulePort: 'Port for new rule',
     buildChallenge: 'Build a ruleset that allows exactly HTTPS and DNS — the default deny blocks the rest. Can you do it with at most 2 rules?',
   },
 } as const
@@ -84,17 +84,20 @@ function RuleLab({ lang }: { lang: Lang }) {
 
       <div className="flex flex-wrap items-end gap-2 mb-4 text-xs text-slate-600">
         <select value={action} onChange={(e) => setAction(e.target.value as Action)}
+          aria-label={s.ruleAction}
           className="border rounded px-1 py-0.5 font-mono">
           <option value="allow">allow</option>
           <option value="deny">deny</option>
         </select>
         <select value={proto} onChange={(e) => setProto(e.target.value as Proto | 'any')}
+          aria-label={s.protocol}
           className="border rounded px-1 py-0.5 font-mono">
           <option>TCP</option>
           <option>UDP</option>
           <option value="any">any</option>
         </select>
         <input type="number" value={port} onChange={(e) => setPort(e.target.value)} placeholder={s.port}
+          aria-label={s.newRulePort}
           title={s.anyPort} className="w-20 border rounded px-1 py-0.5 font-mono" />
         <button onClick={add} className="rounded-lg border px-2 py-1 hover:bg-slate-50">{s.addRule}</button>
         <span className="text-slate-400">{s.anyPort}</span>

@@ -1,7 +1,8 @@
-import { useId, useRef, useState, type ReactNode } from 'react'
+import { useEffect, useId, useRef, useState, type ReactNode } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { authApi, errMsg } from '@/lib/api'
+import { t, type Lang } from '@/lib/i18n'
 import { trainerApi, type Course } from '@/lib/trainerApi'
 import { TrainerFeedback } from '@/components/TrainerFeedback'
 import { useAuthStore } from '@/store/auth'
@@ -54,21 +55,24 @@ function QueryState({ query, empty, children }: { query: { isLoading: boolean; i
   return <>{children}</>
 }
 
-function CopyCode({ code }: { code: string }) {
+function CopyCode({ code, lang = 'de' as Lang }: { code: string; lang?: Lang }) {
   const [copied, setCopied] = useState(false)
   return (
-    <button
-      onClick={(e) => {
-        e.stopPropagation()
-        navigator.clipboard.writeText(code)
-        setCopied(true)
-        setTimeout(() => setCopied(false), 1500)
-      }}
-      title="Kurs-Code kopieren"
-      className="shrink-0 font-mono text-sm text-[var(--wb-accent)] hover:text-[var(--wb-accent-hover)] hover:underline"
-    >
-      {copied ? 'Kopiert ✓' : code}
-    </button>
+    <span className="relative inline-flex shrink-0">
+      <button
+        onClick={(e) => {
+          e.stopPropagation()
+          navigator.clipboard.writeText(code)
+          setCopied(true)
+          setTimeout(() => setCopied(false), 1500)
+        }}
+        title="Kurs-Code kopieren"
+        className="font-mono text-sm text-[var(--wb-accent)] hover:text-[var(--wb-accent-hover)] hover:underline"
+      >
+        {copied ? `${t(lang, 'copiedCode')} ✓` : code}
+      </button>
+      <span aria-live="polite" className="sr-only">{copied ? t(lang, 'copiedCode') : ''}</span>
+    </span>
   )
 }
 
@@ -84,10 +88,14 @@ function TrainerLogin({ onLogin }: { onLogin: (t: string) => void }) {
   const [email, setEmail] = useState('')
   const [pw, setPw] = useState('')
   const [err, setErr] = useState('')
+  const [busy, setBusy] = useState(false)
   async function submit(e: React.FormEvent) {
-    e.preventDefault(); setErr('')
+    e.preventDefault()
+    if (busy) return
+    setErr(''); setBusy(true)
     try { onLogin((await authApi.trainerLogin(email, pw)).data.access_token) }
     catch { setErr('Login fehlgeschlagen.') }
+    finally { setBusy(false) }
   }
   return (
     <div className="workbench flex min-h-dvh items-center justify-center p-4">
@@ -97,7 +105,7 @@ function TrainerLogin({ onLogin }: { onLogin: (t: string) => void }) {
         <Field label="E-Mail" type="email" autoComplete="username" placeholder="trainer@beispiel.de" value={email} onChange={(e) => setEmail(e.target.value)} />
         <Field label="Passwort" type="password" autoComplete="current-password" placeholder="••••••••" value={pw} onChange={(e) => setPw(e.target.value)} />
         {err && <p className="text-sm text-rose-600">{err}</p>}
-        <button className="wb-control mt-1 rounded-lg bg-[var(--wb-accent)] py-2 font-medium text-white hover:bg-[var(--wb-accent-hover)]">Anmelden</button>
+        <button disabled={busy} className="wb-control mt-1 rounded-lg bg-[var(--wb-accent)] py-2 font-medium text-white hover:bg-[var(--wb-accent-hover)] disabled:opacity-50 disabled:cursor-not-allowed">{busy ? 'Meldet an…' : 'Anmelden'}</button>
       </form>
     </div>
   )
@@ -672,17 +680,47 @@ function ChangelogBlock() {
 
 // --- Verwaltung: Audit-Protokoll ----------------------------------------------
 
+const AUDIT_PAGE_SIZE = 50
+
 function AuditLogBlock() {
-  const audit = useQuery({ queryKey: ['audit-log'], queryFn: () => trainerApi.auditLog().then((r) => r.data) })
+  // Nachschlagewerk statt Analysewerkzeug: erste Seite laden, weitere Seiten
+  // nur auf Anfrage per Button nachladen — kein Filter/Suchfeld, der
+  // Backend-Endpunkt unterstützt limit/offset bereits (siehe trainer_audit.py).
+  const first = useQuery({
+    queryKey: ['audit-log', 'first'],
+    queryFn: () => trainerApi.auditLog(AUDIT_PAGE_SIZE, 0).then((r) => r.data),
+  })
+  const [entries, setEntries] = useState<import('@/lib/trainerApi').AuditLogEntry[]>([])
+  const [hasMore, setHasMore] = useState(false)
+  const [loadingMore, setLoadingMore] = useState(false)
+
+  useEffect(() => {
+    if (first.data) {
+      setEntries(first.data)
+      setHasMore(first.data.length === AUDIT_PAGE_SIZE)
+    }
+  }, [first.data])
+
+  async function loadMore() {
+    setLoadingMore(true)
+    try {
+      const next = await trainerApi.auditLog(AUDIT_PAGE_SIZE, entries.length).then((r) => r.data)
+      setEntries((prev) => [...prev, ...next])
+      setHasMore(next.length === AUDIT_PAGE_SIZE)
+    } finally {
+      setLoadingMore(false)
+    }
+  }
+
   return (
     <Section title="Protokoll" className="opacity-90">
-      <QueryState query={audit} empty={audit.data?.length === 0}>
+      <QueryState query={first} empty={first.isSuccess && entries.length === 0}>
         <details>
           <summary className="wb-control cursor-pointer select-none text-sm text-[var(--wb-muted)] hover:text-[var(--wb-ink)]">
-            Letzte {audit.data?.length ?? 0} Aktionen anzeigen
+            {entries.length}{hasMore ? '+' : ''} Aktionen anzeigen
           </summary>
           <ul className="mt-3 flex max-h-96 flex-col divide-y divide-[var(--wb-border)] overflow-y-auto">
-            {audit.data?.map((e) => (
+            {entries.map((e) => (
               <li key={e.id} className="py-2 text-sm">
                 <div className="flex items-baseline justify-between gap-2">
                   <span className="font-medium text-[var(--wb-ink)]">{e.action}</span>
@@ -696,6 +734,12 @@ function AuditLogBlock() {
               </li>
             ))}
           </ul>
+          {hasMore && (
+            <button onClick={loadMore} disabled={loadingMore}
+              className="mt-2 text-xs font-medium text-[var(--wb-accent)] hover:underline disabled:opacity-50">
+              {loadingMore ? 'Lädt…' : 'Weitere laden'}
+            </button>
+          )}
         </details>
       </QueryState>
     </Section>

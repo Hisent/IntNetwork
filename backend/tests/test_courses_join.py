@@ -41,6 +41,26 @@ def test_course_and_join_flow():
                       headers={"Authorization": f"Bearer {tok}"}).status_code == 403
 
 
+def test_list_courses_pagination_and_order():
+    with TestClient(app) as c:
+        h = _trainer(c)
+        created_ids = [c.post("/api/courses", json={"name": f"PagKurs{i}"}, headers=h).json()["id"]
+                      for i in range(3)]
+
+        full = c.get("/api/courses", headers=h).json()
+        ids_full = [x["id"] for x in full]
+        # Default schneidet nichts ab -- alle drei eben angelegten Kurse sind dabei,
+        # neuester zuerst.
+        assert ids_full.index(created_ids[2]) < ids_full.index(created_ids[1]) < ids_full.index(created_ids[0])
+
+        limited = c.get("/api/courses?limit=1", headers=h).json()
+        assert len(limited) == 1
+        assert limited[0]["id"] == ids_full[0]
+
+        offset_page = c.get("/api/courses?limit=1&offset=1", headers=h).json()
+        assert offset_page[0]["id"] == ids_full[1]
+
+
 def test_dashboard_aggregates_progress_and_best():
     with TestClient(app) as c:
         h = _trainer(c)

@@ -43,11 +43,6 @@ def test_token_without_token_version_claim_treated_as_zero():
         h = _trainer(c)
         code = c.post("/api/courses", json={"name": "LegacyTVKurs"}, headers=h).json()["join_code"]
         joined = c.post("/api/join", json={"code": code, "name": "Lena"}).json()
-        db = SessionLocal()
-        try:
-            pid = db.query(Participant).filter(Participant.name == "Lena").first().id
-        finally:
-            db.close()
         legacy_payload = jwt.decode(joined["access_token"], settings.secret_key, algorithms=[ALGORITHM])
         del legacy_payload["token_version"]
         legacy_token = jwt.encode(legacy_payload, settings.secret_key, algorithm=ALGORITHM)

@@ -65,4 +65,6 @@ export const WIDGETS: Record<string, ComponentType<{ lang: Lang }>> = {
   'cert-chain': lazy(() => import('@/widgets/pki/CertChainWidget').then((m) => ({ default: m.CertChain }))),
   'tls-handshake-demo': lazy(() => import('@/widgets/pki/HandshakeWidget').then((m) => ({ default: m.TlsHandshake }))),
   'cert-errors': lazy(() => import('@/widgets/pki/CertErrorsWidget').then((m) => ({ default: m.CertErrors }))),
+  'ospf-demo': lazy(() => import('@/widgets/ospf/OspfWidget').then((m) => ({ default: m.Ospf }))),
+  'redundancy-demo': lazy(() => import('@/widgets/redundancy/RedundancyWidget').then((m) => ({ default: m.Redundancy }))),
 }

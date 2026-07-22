@@ -20,6 +20,15 @@ def verify_password(password: str, password_hash: str) -> bool:
     return bcrypt.checkpw(password.encode()[:72], password_hash.encode())
 
 
+# Fester Dummy-Hash gegen den Timing-Seitenkanal beim Trainer-Login: existiert die
+# E-Mail nicht, muss trotzdem eine Bcrypt-Prüfung stattfinden (siehe auth.py), sonst
+# kommt diese Antwort messbar schneller zurück als bei falschem Passwort und verrät
+# per Zeitmessung, welche Trainer-E-Mails existieren. Einmalig beim Modulimport
+# erzeugt statt pro Request gehasht — sonst wäre der unbekannte Pfad doppelt so
+# teuer wie der echte und selbst wieder ein (umgekehrter) Seitenkanal.
+DUMMY_PASSWORD_HASH = hash_password("dummy-password-for-timing-parity")
+
+
 def create_token(sub: str, role: str, extra: dict | None = None) -> str:
     lifetime = timedelta(hours=8) if role == "trainer" else timedelta(days=30)
     payload = {"sub": sub, "role": role, "exp": utc_now() + lifetime}

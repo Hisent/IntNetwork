@@ -11,6 +11,12 @@ class AuditLog(Base):
     Bewusst ohne Fremdschlüssel und mit denormalisierter trainer_email: ein
     Eintrag muss lesbar bleiben, auch wenn der zugehörige Trainer- oder
     Teilnehmer-Datensatz später gelöscht wird.
+
+    Wächst um wenige Zeilen pro mutierender Trainer-Aktion — über Jahre
+    Workshop-Betrieb im niedrigen fünf- bis sechsstelligen Bereich, für eine
+    einfache Tabelle unkritisch. Die Trainer-Ansicht (trainer_audit.py) ist
+    bereits paginiert. Bewusst kein Cronjob/Aufräumen dafür; das lohnt sich
+    erst, wenn die Tabelle in Richtung Millionen Zeilen wächst.
     """
     __tablename__ = "audit_log"
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)

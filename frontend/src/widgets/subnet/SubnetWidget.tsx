@@ -6,9 +6,11 @@ import type { Lang } from '@/lib/i18n'
 const STR = {
   de: { title: 'Subnetz-Rechner', prefix: 'Präfix', mask: 'Subnetzmaske', network: 'Netzadresse',
     broadcast: 'Broadcast', firstHost: 'Erster Host', lastHost: 'Letzter Host', usable: 'Nutzbare Hosts',
+    octet: (i: number) => `${i + 1}. Oktett`,
     challenge: 'Stelle 172.16.5.77 mit /26 ein und lies die Broadcast-Adresse ab.' },
   en: { title: 'Subnet Calculator', prefix: 'Prefix', mask: 'Subnet mask', network: 'Network address',
     broadcast: 'Broadcast', firstHost: 'First host', lastHost: 'Last host', usable: 'Usable hosts',
+    octet: (i: number) => `Octet ${i + 1}`,
     challenge: 'Set 172.16.5.77 with /26 and read off the broadcast address.' },
 } as const
 
@@ -44,6 +46,7 @@ export function Subnet({ lang }: { lang: Lang }) {
               <input
                 type="number" min={0} max={255} value={o}
                 onChange={(e) => setOctet(i, e.target.value)}
+                aria-label={s.octet(i)}
                 className="w-14 border rounded px-1 py-1 text-sm font-mono text-center"
               />
               {i < 3 && <span className="text-slate-400">.</span>}

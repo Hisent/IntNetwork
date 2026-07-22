@@ -18,7 +18,7 @@ def test_mutating_actions_are_logged_newest_first():
         h = _trainer(c)
         course = c.post("/api/courses", json={"name": "AuditKurs"}, headers=h).json()
         cid = course["id"]
-        pid = c.post("/api/join", json={"code": course["join_code"], "name": "Aud"}).json()
+        c.post("/api/join", json={"code": course["join_code"], "name": "Aud"})
         # Teilnehmer-Id ermitteln und wieder löschen -> zweiter Audit-Eintrag
         dash = c.get(f"/api/courses/{cid}/dashboard", headers=h).json()
         part_id = next(p["id"] for p in dash["participants"] if p["name"] == "Aud")

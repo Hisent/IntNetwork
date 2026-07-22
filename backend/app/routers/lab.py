@@ -94,8 +94,11 @@ async def lab_run(data: LabRunRequest,
         vorlaeufig.write_text(json.dumps(auftrag), encoding="utf-8")
         # Atomar umbenennen: Der Runner darf nie eine halb geschriebene Datei sehen.
         os.replace(vorlaeufig, eingang)
-    except OSError:
-        raise HTTPException(status_code=502, detail="Der Lab-Dienst ist gerade nicht erreichbar.")
+    except OSError as err:
+        # Ursache mitgeben: Ob das Volume fehlt, voll ist oder die Rechte nicht
+        # stimmen, steht nur im OSError — genau das braucht die Fehlersuche.
+        raise HTTPException(
+            status_code=502, detail="Der Lab-Dienst ist gerade nicht erreichbar.") from err
 
     # Etwas mehr Geduld als der Runner selbst: Der bricht nach seiner eigenen
     # Zeitgrenze ab und schreibt dann noch ein Ergebnis, das wir ausliefern wollen.

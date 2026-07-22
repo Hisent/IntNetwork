@@ -19,7 +19,11 @@ jobs:
           cache: pip
           cache-dependency-path: backend/requirements.txt
       - run: pip install -r requirements.txt
+      # Blockierend: findet ungenutzte Importe, undefinierte Namen und
+      # veraenderliche Default-Argumente. Konfiguration in backend/pyproject.toml.
+      - run: pip install ruff && ruff check .
       - run: pytest
+      - run: python -m pytest ../runner/tests
       # Sicherheitsscan der gepinnten Abhängigkeiten. Nicht blockierend, damit ein
       # neu gemeldeter Advisory nicht sofort den Merge stoppt — Ausgabe im Log prüfen.
       - run: pip install pip-audit && pip-audit -r requirements.txt
@@ -38,6 +42,8 @@ jobs:
           cache: npm
           cache-dependency-path: frontend/package-lock.json
       - run: npm ci
+      # War konfiguriert (package.json "lint": "oxlint"), lief aber nie in CI.
+      - run: npm run lint
       - run: npm run test
       - run: npm run build
       - run: npm audit --omit=dev

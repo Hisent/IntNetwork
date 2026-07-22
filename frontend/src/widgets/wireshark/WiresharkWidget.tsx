@@ -56,8 +56,9 @@ export function Wireshark({ lang }: { lang: Lang }) {
       <p className="text-sm font-semibold text-slate-700 mb-1">{s.title}</p>
       <p className="text-xs text-slate-500 mb-4">{s.subtitle}</p>
 
-      <label className="block mb-1 text-xs font-semibold text-slate-500">{s.filterLabel}</label>
+      <label className="block mb-1 text-xs font-semibold text-slate-500" htmlFor="wireshark-filter">{s.filterLabel}</label>
       <input
+        id="wireshark-filter"
         value={filter}
         onChange={(e) => setFilter(e.target.value)}
         spellCheck={false}

@@ -17,6 +17,11 @@ export function VerifyPage() {
     enabled: !!id,
     retry: false,
   })
+  // Busy-Anzeige folgt direkt dem Query-Status statt einem eigenen State: das
+  // Absenden navigiert lediglich zu /verifizieren/:id, der eigentliche Request
+  // läuft im useQuery oben. So bleibt der Knopf disabled, solange dieser Request
+  // noch offen ist, ohne einen zweiten, redundanten Zustand zu pflegen.
+  const busy = !!id && query.isFetching
 
   const date = query.data
     ? new Date(query.data.issued_at).toLocaleDateString('de-DE', { day: '2-digit', month: 'long', year: 'numeric' })
@@ -30,13 +35,13 @@ export function VerifyPage() {
         <p className="mt-1 text-sm text-slate-500">Gib die Prüf-ID der Bestätigung ein.</p>
 
         <form
-          onSubmit={(e) => { e.preventDefault(); if (input.trim()) nav(`/verifizieren/${input.trim()}`) }}
+          onSubmit={(e) => { e.preventDefault(); if (input.trim() && !busy) nav(`/verifizieren/${input.trim()}`) }}
           className="mt-5 flex gap-2">
           <input value={input} onChange={(e) => setInput(e.target.value)}
             aria-label="Prüf-ID"
             placeholder="z. B. a1b2c3d4e5f6a7b8"
             className="min-w-0 flex-1 rounded-lg border border-slate-300 px-3 py-2 font-mono text-sm outline-none focus:border-teal-600 focus:ring-2 focus:ring-teal-100" />
-          <button className="rounded-lg bg-teal-600 px-4 py-2 font-medium text-white hover:bg-teal-700">Prüfen</button>
+          <button disabled={busy || !input.trim()} className="rounded-lg bg-teal-600 px-4 py-2 font-medium text-white hover:bg-teal-700 disabled:opacity-50 disabled:cursor-not-allowed">{busy ? 'Prüft…' : 'Prüfen'}</button>
         </form>
 
         {id && query.isLoading && <p className="mt-6 text-sm text-slate-500">Prüfe …</p>}

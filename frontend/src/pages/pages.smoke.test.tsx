@@ -4,7 +4,7 @@
 // gemocktem API-Layer (@/lib/api) rendern und je eine zentrale Aussage
 // prüfen. Kein E2E, kein echter Server — nur "rendert es überhaupt sinnvoll".
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { cleanup, screen } from '@testing-library/react'
+import { cleanup, fireEvent, screen } from '@testing-library/react'
 import { renderWithProviders } from '@/test/renderWithProviders'
 import { useAuthStore } from '@/store/auth'
 import { LandingPage } from '@/pages/LandingPage'
@@ -26,7 +26,7 @@ vi.mock('@/lib/api', () => ({
   errMsg: (_e: unknown, fallback = 'Fehler.') => fallback,
 }))
 
-import { api } from '@/lib/api'
+import { api, authApi } from '@/lib/api'
 
 // Kleiner Router für api.get: Tests registrieren nur, was die jeweilige Seite
 // wirklich lädt (fetch-Wrapper antwortet immer mit { data }).
@@ -116,5 +116,27 @@ describe('Seiten-Smoke-Tests', () => {
     renderWithProviders(<WorkshopPage />, { route: '/workshops/network', path: '/workshops/:key' })
 
     expect(await screen.findByText('Konnte nicht geladen werden')).toBeTruthy()
+  })
+
+  it('WorkshopPage deaktiviert den Beitreten-Button während des Requests', async () => {
+    mockGet({
+      '/workshops/network': {
+        key: 'network', title: { de: 'Netzwerk-Grundlagen', en: 'Networking Basics' }, theme: 'network',
+        sections: [], modules: [{ key: 'm1', title: { de: 'Modul Eins', en: 'Module One' }, order: 1 }],
+      },
+    })
+    let resolveJoin: (value: { data: { access_token: string; course_name: string; name: string; resume_code: string | null } }) => void = () => {}
+    vi.mocked(authApi.join).mockImplementation(() => new Promise((resolve) => { resolveJoin = resolve }))
+
+    renderWithProviders(<WorkshopPage />, { route: '/workshops/network', path: '/workshops/:key' })
+
+    fireEvent.change(await screen.findByLabelText(/Kurs-Code/), { target: { value: 'ABC123' } })
+    fireEvent.change(screen.getByLabelText(/Dein Name/), { target: { value: 'Test' } })
+    fireEvent.click(screen.getByRole('button', { name: /Workshop starten/ }))
+
+    const busyButton = await screen.findByRole('button', { name: /Wird gestartet/ })
+    expect((busyButton as HTMLButtonElement).disabled).toBe(true)
+
+    resolveJoin({ data: { access_token: 'tok', course_name: 'Kurs', name: 'Test', resume_code: null } })
   })
 })

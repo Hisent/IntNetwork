@@ -7,11 +7,13 @@ const STR = {
   de: {
     title: 'Tokenizer-Demo', hint: 'Tippe Text oder wähle ein Beispiel — sieh, wie er in Tokens zerfällt.',
     tokens: 'Tokens', chars: 'Zeichen', sentence: 'Deutscher Satz', code: 'Code-Snippet',
+    textLabel: 'Zu tokenisierender Text',
     challenge: 'Bring den Zähler über 25 Tokens.',
   },
   en: {
     title: 'Tokenizer Demo', hint: 'Type text or pick an example — watch it split into tokens.',
     tokens: 'Tokens', chars: 'Characters', sentence: 'German sentence', code: 'Code snippet',
+    textLabel: 'Text to tokenize',
     challenge: 'Push the counter above 25 tokens.',
   },
 } as const
@@ -39,6 +41,7 @@ export function Tokenizer({ lang }: { lang: Lang }) {
       <textarea
         value={text} rows={2} onChange={(e) => setText(e.target.value)}
         spellCheck={false}
+        aria-label={s.textLabel}
         className="w-full border rounded px-2 py-1 text-sm font-mono mb-2"
       />
 

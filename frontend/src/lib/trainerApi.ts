@@ -112,5 +112,5 @@ export const trainerApi = {
   createTrainerAccount: (email: string, name: string, password: string) =>
     api.post<TrainerAccount>('/trainer/accounts', { email, name, password }),
   deleteTrainerAccount: (id: number) => api.delete(`/trainer/accounts/${id}`),
-  auditLog: () => api.get<AuditLogEntry[]>('/trainer/audit'),
+  auditLog: (limit: number, offset: number) => api.get<AuditLogEntry[]>(`/trainer/audit?limit=${limit}&offset=${offset}`),
 }

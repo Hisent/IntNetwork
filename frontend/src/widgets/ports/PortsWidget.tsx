@@ -126,7 +126,7 @@ export function Ports({ lang }: { lang: Lang }) {
 
       <div>
         <p className="text-sm font-semibold text-slate-700">{s.terminal}</p>
-        <DeviceCli prompt="pc-lager-01$" run={(c) => runPortsCommand(lang, c)} />
+        <DeviceCli prompt="pc-lager-01$" run={(c) => runPortsCommand(lang, c)} lang={lang} />
       </div>
     </div>
   )

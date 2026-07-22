@@ -35,6 +35,7 @@ VALID_WIDGET_IDS = {
     "visual-ephemeral-ports", "visual-stateful-firewall",
     "crypto-hash", "crypto-aead", "crypto-keyexchange",
     "cert-inspector", "cert-chain", "tls-handshake-demo", "cert-errors",
+    "ospf-demo", "redundancy-demo",
 }
 
 KEY_RE = re.compile(r"^[a-z0-9-]+$")
@@ -263,7 +264,7 @@ def create_module(data: ModuleCreateIn, db: Session = Depends(get_db), trainer: 
     except IntegrityError:
         # Zwei gleichzeitige Create-Requests mit demselben Key (z.B. Doppelklick).
         db.rollback()
-        raise HTTPException(status_code=422, detail="Key bereits vergeben")
+        raise HTTPException(status_code=422, detail="Key bereits vergeben") from None
     log_action(db, trainer, "content.create", target=f"module:{m.key}", detail=data.title_de)
     return _meta(m)
 

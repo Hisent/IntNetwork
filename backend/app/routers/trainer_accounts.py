@@ -52,7 +52,9 @@ def create_trainer(data: TrainerCreate, db: Session = Depends(get_db), trainer: 
         db.commit()
     except IntegrityError:
         db.rollback()
-        raise HTTPException(status_code=422, detail="E-Mail bereits vergeben")
+        # from None: erwarteter Fall, der Traceback der IntegrityError sagt nichts
+        # aus, was die Meldung nicht schon sagt.
+        raise HTTPException(status_code=422, detail="E-Mail bereits vergeben") from None
     db.refresh(t)
     log_action(db, trainer, "trainer.create", target=f"trainer:{t.id}", detail=t.email)
     return _serialize(t)

@@ -94,7 +94,7 @@ export function VlanSwitch({ lang }: { lang: Lang }) {
       )}
       <ChallengeBox lang={lang} task={s.challenge}
         done={source === 0 && ports[4].vlan === 10 && reached.has(4)} />
-      <DeviceCli prompt="Nordwind-SW1#" run={(c) => runSwitchCommand(ports, c)} />
+      <DeviceCli prompt="Nordwind-SW1#" run={(c) => runSwitchCommand(ports, c)} lang={lang} />
     </div>
   )
 }

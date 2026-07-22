@@ -17,6 +17,7 @@ const labels = {
     ipv6: ['IPv4/IPv6-Vergleichslabor', 'Schalte zwischen den beiden Kommunikationswegen um.'],
     evidence: ['Troubleshooting-Beweisbaum', 'Wähle den nächsten diagnostischen Schritt.'],
     check: 'Prüfen', next: 'Nächster Schritt', reset: 'Zurücksetzen', correct: '✓ Richtig', wrong: 'Noch nicht — prüfe den Hinweis.', choose: 'Auswählen',
+    targetSelect: 'Ziel-IP', planSelect: 'Subnetz-Plan',
   },
   en: {
     route: ['Routing decision', 'Is the destination local or does the gateway take over?'],
@@ -30,6 +31,7 @@ const labels = {
     ipv6: ['IPv4/IPv6 comparison lab', 'Switch between the two communication paths.'],
     evidence: ['Troubleshooting evidence tree', 'Choose the next diagnostic step.'],
     check: 'Check', next: 'Next step', reset: 'Reset', correct: '✓ Correct', wrong: 'Not yet — check the hint.', choose: 'Choose',
+    targetSelect: 'Destination IP', planSelect: 'Subnet plan',
   },
 } as const
 
@@ -112,7 +114,7 @@ export function LearningLab({ mode, lang }: { mode: Mode; lang: Lang }) {
 function RouteLab({ lang }: { lang: Lang }) {
   const [target, setTarget] = useState('local'); const [choice, setChoice] = useState('');
   const ok = choice ? choice === target : null
-  return <Shell mode="route" lang={lang} done={ok === true}><p className="mb-3 rounded-lg bg-slate-50 p-3 font-mono text-sm">Host: 192.168.10.37/24 · Ziel: {target === 'local' ? '192.168.10.80' : '192.168.20.80'}</p><div className="flex flex-wrap gap-2"><select value={target} onChange={e => { setTarget(e.target.value); setChoice('') }} className="rounded-lg border px-3 py-2 text-sm"><option value="local">192.168.10.80</option><option value="remote">192.168.20.80</option></select>{['local','remote'].map(v => <button key={v} onClick={() => setChoice(v)} className="rounded-lg bg-teal-600 px-3 py-2 text-sm font-medium text-white">{v === 'local' ? (lang === 'de' ? 'Direkt per Switch' : 'Direct via switch') : (lang === 'de' ? 'An Gateway' : 'To gateway')}</button>)}</div><Result lang={lang} ok={ok as boolean | null} hint={lang === 'de' ? 'Berechne beide Netzanteile mit /24.' : 'Calculate both network parts with /24.'} /></Shell>
+  return <Shell mode="route" lang={lang} done={ok === true}><p className="mb-3 rounded-lg bg-slate-50 p-3 font-mono text-sm">Host: 192.168.10.37/24 · Ziel: {target === 'local' ? '192.168.10.80' : '192.168.20.80'}</p><div className="flex flex-wrap gap-2"><select value={target} onChange={e => { setTarget(e.target.value); setChoice('') }} aria-label={labels[lang].targetSelect} className="rounded-lg border px-3 py-2 text-sm"><option value="local">192.168.10.80</option><option value="remote">192.168.20.80</option></select>{['local','remote'].map(v => <button key={v} onClick={() => setChoice(v)} className="rounded-lg bg-teal-600 px-3 py-2 text-sm font-medium text-white">{v === 'local' ? (lang === 'de' ? 'Direkt per Switch' : 'Direct via switch') : (lang === 'de' ? 'An Gateway' : 'To gateway')}</button>)}</div><Result lang={lang} ok={ok as boolean | null} hint={lang === 'de' ? 'Berechne beide Netzanteile mit /24.' : 'Calculate both network parts with /24.'} /></Shell>
 }
 
 function PolicyLab({ lang }: { lang: Lang }) {
@@ -176,7 +178,7 @@ function PacketLab({ lang }: { lang: Lang }) {
   </Shell>
 }
 
-function SubnetLab({ lang }: { lang: Lang }) { const [plan, setPlan] = useState(''); const ok = plan ? plan === 'good' : null; return <Shell mode="subnet" lang={lang} done={ok === true}><p className="rounded-lg bg-slate-50 p-3 text-sm text-slate-700">{lang === 'de' ? 'Anforderungen: Büro 50 Hosts · Gäste 20 · Drucker 10' : 'Requirements: office 50 hosts · guests 20 · printers 10'}</p><select value={plan} onChange={e => setPlan(e.target.value)} className="mt-3 w-full rounded-lg border px-3 py-2 text-sm"><option value="">{labels[lang].choose}</option><option value="good">/26, /27, /28</option><option value="bad">/24, /24, /24</option></select><Result lang={lang} ok={ok} hint={lang === 'de' ? 'Wähle die kleinsten Netze, die alle Hosts aufnehmen.' : 'Choose the smallest networks that fit all hosts.'} /></Shell> }
+function SubnetLab({ lang }: { lang: Lang }) { const [plan, setPlan] = useState(''); const ok = plan ? plan === 'good' : null; return <Shell mode="subnet" lang={lang} done={ok === true}><p className="rounded-lg bg-slate-50 p-3 text-sm text-slate-700">{lang === 'de' ? 'Anforderungen: Büro 50 Hosts · Gäste 20 · Drucker 10' : 'Requirements: office 50 hosts · guests 20 · printers 10'}</p><select value={plan} onChange={e => setPlan(e.target.value)} aria-label={labels[lang].planSelect} className="mt-3 w-full rounded-lg border px-3 py-2 text-sm"><option value="">{labels[lang].choose}</option><option value="good">/26, /27, /28</option><option value="bad">/24, /24, /24</option></select><Result lang={lang} ok={ok} hint={lang === 'de' ? 'Wähle die kleinsten Netze, die alle Hosts aufnehmen.' : 'Choose the smallest networks that fit all hosts.'} /></Shell> }
 
 function FilterLab({ lang }: { lang: Lang }) { const [value, setValue] = useState(''); const ok = value ? isValidAddressFilter(value) : null; return <Shell mode="filter" lang={lang} done={ok === true}><label className="block text-sm text-slate-700">{lang === 'de' ? 'Alle Pakete von oder zu 192.168.20.34 anzeigen:' : 'Show all packets from or to 192.168.20.34:'}<input value={value} onChange={e => setValue(e.target.value)} placeholder="ip.addr == …" className="mt-3 w-full rounded-lg border px-3 py-2 font-mono text-sm" /></label><Result lang={lang} ok={ok} hint={lang === 'de' ? 'Du kannst ip.addr oder eine Kombination aus ip.src und ip.dst verwenden.' : 'You can use ip.addr or combine ip.src and ip.dst.'} /></Shell> }
 

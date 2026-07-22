@@ -2,6 +2,7 @@ from concurrent.futures import ThreadPoolExecutor
 
 from fastapi.testclient import TestClient
 from app.main import app
+from app.services import ratelimit
 
 
 def _participant_token(c):
@@ -65,6 +66,18 @@ def test_concurrent_quiz_submit_never_500s():
         me = c.get("/api/me", headers=h).json()
         vlan = next(p for p in me["progress"] if p["module_key"] == "vlan")
         assert vlan["done"] is True and vlan["best"] == 100
+
+
+def test_submit_quiz_is_rate_limited(monkeypatch):
+    monkeypatch.setattr(ratelimit, "_ENABLED", True)
+    monkeypatch.setattr(ratelimit, "_HITS", ratelimit.defaultdict(ratelimit.deque))
+    with TestClient(app) as c:
+        tok = _participant_token(c)
+        h = {"Authorization": f"Bearer {tok}"}
+        for _ in range(60):  # Limit aus modules.py: 60 Abgaben / 60s
+            assert c.post("/api/modules/vlan/quiz", json={"answers": {}}, headers=h).status_code == 200
+        blocked = c.post("/api/modules/vlan/quiz", json={"answers": {}}, headers=h)
+        assert blocked.status_code == 429
 
 
 def test_get_module_resolves_participant_language():

@@ -1,6 +1,8 @@
 import { useState } from 'react'
+import type { Lang } from '@/lib/i18n'
 
-export function DeviceCli({ prompt, run }: { prompt: string; run: (cmd: string) => string }) {
+export function DeviceCli({ prompt, run, lang = 'de' }: { prompt: string; run: (cmd: string) => string; lang?: Lang }) {
+  const commandLabel = lang === 'de' ? 'Befehlseingabe' : 'Command input'
   const [lines, setLines] = useState<string[]>(['Tippe ? für die Befehlsliste.'])
   const [input, setInput] = useState('')
   const [hist, setHist] = useState<string[]>([])
@@ -34,7 +36,7 @@ export function DeviceCli({ prompt, run }: { prompt: string; run: (cmd: string) 
       <div className="mt-1 flex gap-2">
         <span className="text-green-400">{prompt}</span>
         <input value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={onKey}
-          spellCheck={false} autoComplete="off"
+          spellCheck={false} autoComplete="off" aria-label={commandLabel}
           className="flex-1 bg-transparent text-slate-100 outline-none" />
       </div>
     </div>

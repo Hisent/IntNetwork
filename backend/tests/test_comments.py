@@ -1,5 +1,6 @@
 from fastapi.testclient import TestClient
 from app.main import app
+from app.services import ratelimit
 
 
 def _trainer(c):
@@ -72,6 +73,21 @@ def test_comments_require_a_visible_module_and_existing_block():
                      json={"module_key": "switching", "active": False}, headers=h).status_code == 200
         assert c.post("/api/modules/switching/comments",
                       json={"block_index": 0, "body": "x"}, headers=p).status_code == 404
+
+
+def test_add_comment_is_rate_limited(monkeypatch):
+    monkeypatch.setattr(ratelimit, "_ENABLED", True)
+    monkeypatch.setattr(ratelimit, "_HITS", ratelimit.defaultdict(ratelimit.deque))
+    with TestClient(app) as c:
+        h = _trainer(c)
+        code = _course(c, h, "KursRate")
+        p = _join(c, code, "RateP")
+        for _ in range(30):  # Limit aus comments.py: 30 Kommentare / 60s
+            assert c.post("/api/modules/switching/comments",
+                          json={"block_index": 0, "body": "hi"}, headers=p).status_code == 200
+        blocked = c.post("/api/modules/switching/comments",
+                         json={"block_index": 0, "body": "hi"}, headers=p)
+        assert blocked.status_code == 429
 
 
 def test_comments_gated_by_feature():

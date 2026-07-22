@@ -1,0 +1,25 @@
+# Nur Linter-Konfiguration — das Backend wird weiterhin über requirements.txt
+# installiert, nicht als Paket gebaut. Kein [project]-Abschnitt, damit pip die
+# Datei nicht als Build-Anweisung missversteht.
+[tool.ruff]
+line-length = 120
+extend-exclude = ["migrations/versions"]
+
+[tool.ruff.lint]
+# Ruffs Standardauswahl (E4/E7/E9 + F) plus bugbear. Bewusst OHNE Import-
+# Sortierung (I) und ohne Zeilenlängen-Regel (E501): beides würde quer durch
+# den Bestand formatieren, ohne einen einzigen Fehler zu finden. Was hier
+# steht, findet echte Defekte — ungenutzte Importe, undefinierte Namen,
+# veränderliche Default-Argumente, verschluckte Schleifenvariablen.
+select = ["E4", "E7", "E9", "F", "B"]
+# B008 verbietet Funktionsaufrufe in Default-Argumenten. Genau das IST das
+# FastAPI-Idiom (`db: Session = Depends(get_db)`) und steht hier 92-mal —
+# durchweg korrekt. Die Regel bleibt aus, sonst ertraenkt sie die echten Funde.
+ignore = ["B008"]
+
+[tool.ruff.lint.per-file-ignores]
+# Die Modul-Importe in main.py und registry.py stehen bewusst da, obwohl sie
+# nicht direkt benutzt werden: sie registrieren SQLAlchemy-Modelle bzw. sammeln
+# die Kursinhalte ein. F401 waere hier ein Falschbefund.
+"app/main.py" = ["F401"]
+"app/content/registry.py" = ["F401"]

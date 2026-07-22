@@ -22,6 +22,7 @@ Parallelitätsgrenze, tmpfs und die Container-Limits.
 """
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import shutil
@@ -65,7 +66,15 @@ def _workspace(kennung: str) -> Path:
     Ohne diese Trennung erbte der zweite Mensch den Zustand des ersten und die
     Idempotenz-Übung wäre wertlos.
     """
-    sicher = "".join(z for z in kennung if z.isalnum() or z in "_-")[:64] or "gast"
+    sicher = "".join(z for z in kennung if z.isalnum() or z in "_-")[:64]
+    if not sicher:
+        # Rohwerte, die der Filter komplett auffrisst (nur Punkte, Pfadtrenner,
+        # Leerzeichen), liefen vorher alle auf denselben Ordner "gast" und haetten
+        # sich damit ein Arbeitsverzeichnis geteilt. Das Backend schickt zwar immer
+        # einen HMAC-Hexwert, der das nie ausloest — aber die Trennung der
+        # Teilnehmenden soll nicht davon abhaengen, dass die Eingabe wohlgeformt
+        # ist. Ein Hash des Rohwerts bleibt eindeutig UND ueber Laeufe stabil.
+        sicher = "x" + hashlib.sha256(kennung.encode("utf-8")).hexdigest()[:16]
     WORKSPACE_ROOT.mkdir(parents=True, exist_ok=True)
     jetzt = time.time()
     for eintrag in WORKSPACE_ROOT.iterdir():
@@ -122,6 +131,18 @@ def _ausfuehren(auftrag: dict) -> dict:
             # bleiben sichtbar, sie sind Lernstoff.
             "PYTHONWARNINGS": "ignore::SyntaxWarning",
         }
+        # Testbarkeit auf der Windows-Entwicklungsmaschine (runner/tests):
+        # Ohne SystemRoot kann ein Windows-Kindprozess seine kryptografische
+        # Zufallsquelle nicht initialisieren und stuerzt sofort ab (CPython
+        # _Py_HashRandomization_Init). Betroffen ist JEDER Unterprozess, nicht
+        # nur ansible-playbook - das hat die Zeitgrenzen-Tests zunaechst zum
+        # Absturz statt zum Timeout gebracht. In Produktion laeuft der Runner
+        # ausschliesslich im Linux-Container, wo SystemRoot nicht existiert;
+        # dieser Zweig hat dort keine Wirkung.
+        if sys.platform == "win32":
+            systemroot = os.getenv("SystemRoot")
+            if systemroot:
+                umgebung["SystemRoot"] = systemroot
 
         try:
             fertig = subprocess.run(argumente, cwd=laufverzeichnis, env=umgebung,

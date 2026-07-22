@@ -34,6 +34,7 @@ export function WorkshopPage() {
   const [name, setName] = useState('')
   const [resumeCode, setResumeCode] = useState('')
   const [error, setError] = useState('')
+  const [busy, setBusy] = useState(false)
   const [issuedCode, setIssuedCode] = useState<string | null>(null)
   const workshop = useQuery({ queryKey: ['workshop', key], queryFn: () => workshopApi.get(key).then((r) => r.data) })
 
@@ -49,7 +50,9 @@ export function WorkshopPage() {
 
   async function join(event: React.FormEvent) {
     event.preventDefault()
+    if (busy) return
     setError('')
+    setBusy(true)
     try {
       const result = await authApi.join(code, name, data.key, resumeCode)
       setAuth(result.data.access_token, 'participant', result.data.name)
@@ -59,6 +62,8 @@ export function WorkshopPage() {
       else nav('/lernen')
     } catch (reason) {
       setError(errMsg(reason, lang === 'de' ? 'Teilnahme nicht möglich.' : 'Unable to join.'))
+    } finally {
+      setBusy(false)
     }
   }
 
@@ -118,7 +123,7 @@ export function WorkshopPage() {
                 <label className="block text-sm font-medium text-slate-700">{lang === 'de' ? 'Dein Name' : 'Your name'}<input required value={name} onChange={(event) => setName(event.target.value)} autoComplete="name" className="mt-1.5 block w-full rounded-lg border border-slate-300 px-3 py-2 outline-none focus:border-[var(--workshop-accent)] focus:ring-2 focus:ring-[var(--workshop-accent-soft)]" /></label>
                 <label className="block text-sm font-medium text-slate-700">{lang === 'de' ? 'Wiederaufnahme-Code' : 'Resume code'} <span className="font-normal text-slate-400">({lang === 'de' ? 'nur beim erneuten Beitritt' : 'only when rejoining'})</span><input value={resumeCode} onChange={(event) => setResumeCode(event.target.value.toUpperCase())} autoComplete="off" className="mt-1.5 block w-full rounded-lg border border-slate-300 px-3 py-2 font-mono uppercase tracking-widest outline-none focus:border-[var(--workshop-accent)] focus:ring-2 focus:ring-[var(--workshop-accent-soft)]" /></label>
                 {error && <p role="alert" className="text-sm text-rose-600">{error}</p>}
-                <button className="inline-flex w-full items-center justify-center gap-1.5 rounded-lg bg-[var(--workshop-accent)] px-4 py-2.5 font-semibold text-white hover:bg-[var(--workshop-accent-hover)]">{lang === 'de' ? 'Workshop starten' : 'Start workshop'}<Icon name="arrowRight" className="h-4 w-4" /></button>
+                <button disabled={busy} className="inline-flex w-full items-center justify-center gap-1.5 rounded-lg bg-[var(--workshop-accent)] px-4 py-2.5 font-semibold text-white hover:bg-[var(--workshop-accent-hover)] disabled:opacity-50 disabled:cursor-not-allowed">{busy ? (lang === 'de' ? 'Wird gestartet…' : 'Starting…') : <>{lang === 'de' ? 'Workshop starten' : 'Start workshop'}<Icon name="arrowRight" className="h-4 w-4" /></>}</button>
               </form>
             </aside>
           </div>

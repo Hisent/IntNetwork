@@ -48,7 +48,7 @@ def test_presence_shows_recent_and_hides_stale_and_is_course_scoped():
         code_a, cid_a = _course_and_id(c, h, "KursPresA")
         code_b, cid_b = _course_and_id(c, h, "KursPresB")
         a1 = _join(c, code_a, "Anna")
-        a2 = _join(c, code_a, "Bert")
+        _join(c, code_a, "Bert")  # nur anlegen, Token wird hier nicht gebraucht
         b1 = _join(c, code_b, "Cara")
 
         assert c.post("/api/modules/switching/heartbeat", headers=a1).status_code == 200

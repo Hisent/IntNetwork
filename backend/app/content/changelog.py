@@ -1,5 +1,21 @@
 # Projekt-Changelog (nur für Trainer sichtbar). Neueste zuerst.
 CHANGELOG = [
+    {"date": "2026-07-22", "title": "v1.33.0 — Vertiefung im Netzwerk-Lehrgang & technischer Feinschliff",
+     "text": "Der Netzwerk-Lehrgang bekommt einen fünften Abschnitt „Vertiefung“ mit vier "
+             "Modulen, die bisher fehlten: dynamisches Routing (OSPF im Mittelpunkt, RIP und "
+             "BGP klar abgegrenzt), Redundanz (STP, Link-Aggregation, VRRP/HSRP), Angriffe im "
+             "lokalen Netz samt Gegenmaßnahmen, und Enterprise-WLAN mit 802.1X und RADIUS. "
+             "Zwei neue Übungen gehören dazu: eine OSPF-Topologie, in der man Leitungen "
+             "ausfallen lassen und dabei sehen kann, dass der günstigste Weg nicht der mit den "
+             "wenigsten Sprüngen sein muss, und eine Redundanz-Übung zur STP-Root-Wahl samt "
+             "der häufig missverstandenen Frage, warum ein Leitungsbündel eine einzelne "
+             "Übertragung nicht schneller macht. Bestehende Kurse bekommen die vier Module "
+             "automatisch dazu. Unter der Oberfläche: Der Trainer-Login verrät über die "
+             "Antwortzeit nicht mehr, ob eine E-Mail-Adresse existiert; Kommentare und "
+             "Quiz-Abgaben haben jetzt eine Obergrenze pro Minute (großzügig genug für einen "
+             "vollen Schulungsraum hinter einer gemeinsamen Internetleitung); die Kursliste "
+             "wird seitenweise geladen; das Protokoll im Trainerbereich lädt nach statt alles "
+             "auf einmal; und der Ansible-Lab-Runner hat erstmals eine eigene Testabdeckung."},
     {"date": "2026-07-22", "title": "v1.32.0 — Neuer Lehrgang: PKI & Verschlüsselung",
      "text": "Das Portal hat einen fünften Lehrgang mit 15 Modulen. Er führt von den "
              "kryptografischen Bausteinen (Schutzziele, Hashfunktionen, symmetrische und "
