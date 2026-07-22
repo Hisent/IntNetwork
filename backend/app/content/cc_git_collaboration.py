@@ -98,6 +98,36 @@ A good handoff answers four questions: What changed? Why? How was it checked? Wh
             "note": "Die Gruppe soll anschließend die vier Informationen einer Review-Übergabe formulieren.",
         },
         {
+            "type": "text",
+            "id": "text-git-lab",
+            "note": "Erste Begegnung mit dem git-Lab. Ansagen, dass Netzbefehle absichtlich "
+                    "scheitern — das ist kein Defekt, der Runner hat kein Netzwerk.",
+            "value": {
+                "de": "## Selbst ausprobieren\n\n"
+                      "Im Labor unten läuft echtes `git`. Dein Arbeitsverzeichnis bleibt zwischen "
+                      "den Läufen bestehen, du kannst also über mehrere Schritte an demselben "
+                      "Repository arbeiten: anlegen, committen, einen Zweig abspalten, "
+                      "zusammenführen — und einen Konflikt absichtlich herbeiführen, um die "
+                      "Konfliktmarkierungen einmal wirklich gesehen zu haben.\n\n"
+                      "**Was nicht geht:** `clone`, `fetch`, `push` und `pull` scheitern. Der "
+                      "Runner hat kein Netzwerk, und zwar bewusst — das ist seine Sicherheitsgrenze, "
+                      "kein Fehler. Alles Übrige an Git ist ohnehin lokal.",
+                "en": "## Try It Yourself\n\n"
+                      "The lab below runs real `git`. Your working directory persists between "
+                      "runs, so you can work on the same repository across several steps: create "
+                      "it, commit, branch off, merge — and deliberately provoke a conflict to see "
+                      "the conflict markers for real once.\n\n"
+                      "**What does not work:** `clone`, `fetch`, `push` and `pull` fail. The "
+                      "runner has no network, deliberately so — that is its security boundary, "
+                      "not a fault. Everything else in Git is local anyway.",
+            },
+        },
+        {
+            "type": "widget",
+            "id": "git-lab",
+            "note": "Laeuft im Runner. Ohne freigegebene Art \"git\" zeigt das Widget einen Hinweis.",
+        },
+        {
             "type": "reflect",
             "payload": {
                 "prompt_de": "Welche Änderung in eurem Team wäre klein genug für einen eigenen Branch und ein kurzes Review?",

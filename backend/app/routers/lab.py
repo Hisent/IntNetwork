@@ -18,8 +18,10 @@ import hashlib
 import hmac
 import json
 import os
+import re
 import uuid
 from pathlib import Path
+from typing import Literal
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
@@ -33,12 +35,27 @@ router = APIRouter(prefix="/lab", tags=["lab"])
 
 ABFRAGE_INTERVALL = 0.15
 
+# Grenzen fuer die Werkzeug-Arten (openssl/git). Gelten zusaetzlich im Runner,
+# der dem Backend nicht vertraut — hier pruefen wir frueh, damit die
+# Teilnehmerin eine verstaendliche 422-Meldung bekommt statt rc=2 vom Runner.
+MAX_BEFEHLE = 6
+MAX_BEFEHLSLAENGE = 512
+MAX_DATEIEN = 10
+MAX_DATEIGROESSE = 32_768
+DATEINAME_MUSTER = re.compile(r"^[A-Za-z0-9._-]{1,64}$")
+
 
 class LabRunRequest(BaseModel):
-    playbook: str = Field(max_length=16_000)
+    kind: Literal["ansible", "openssl", "git"] = "ansible"
+    # Ansible-Felder: bleiben unveraendert optional (playbook wird fuer
+    # kind="ansible" im Router auf Pflicht und Nicht-Leere geprueft).
+    playbook: str | None = Field(default=None, max_length=16_000)
     inventory: str | None = Field(default=None, max_length=4_000)
     extra_vars: str | None = Field(default=None, max_length=1_000)
     check: bool = False
+    # Werkzeug-Felder (openssl/git): siehe _validiere_werkzeug_auftrag.
+    files: dict[str, str] | None = None
+    commands: list[str] | None = None
 
 
 class LabRunResponse(BaseModel):
@@ -68,10 +85,66 @@ def _workspace_kennung(teilnehmer: Participant) -> str:
     return roh[:32]
 
 
+def _validiere_werkzeug_auftrag(data: LabRunRequest) -> None:
+    """Prueft commands/files fuer kind in (openssl, git). Wirft 422 mit
+    verstaendlicher deutscher Meldung, sobald eine Grenze verletzt ist."""
+    if not data.commands:
+        raise HTTPException(status_code=422, detail="Es muss mindestens ein Befehl angegeben werden.")
+    if len(data.commands) > MAX_BEFEHLE:
+        raise HTTPException(
+            status_code=422,
+            detail=f"Hoechstens {MAX_BEFEHLE} Befehle je Lauf sind erlaubt.")
+    for befehl in data.commands:
+        if len(befehl) > MAX_BEFEHLSLAENGE:
+            raise HTTPException(
+                status_code=422,
+                detail=f"Ein Befehl darf hoechstens {MAX_BEFEHLSLAENGE} Zeichen lang sein.")
+    if data.files:
+        if len(data.files) > MAX_DATEIEN:
+            raise HTTPException(
+                status_code=422,
+                detail=f"Hoechstens {MAX_DATEIEN} Dateien je Lauf sind erlaubt.")
+        for name, inhalt in data.files.items():
+            if not DATEINAME_MUSTER.match(name):
+                raise HTTPException(
+                    status_code=422,
+                    detail=f"Der Dateiname '{name}' ist nicht erlaubt "
+                           "(nur Buchstaben, Ziffern, Punkt, Unter- und Bindestrich).")
+            if len(inhalt.encode("utf-8")) > MAX_DATEIGROESSE:
+                raise HTTPException(
+                    status_code=422,
+                    detail=f"Die Datei '{name}' ist groesser als {MAX_DATEIGROESSE // 1024} KB.")
+
+
+def _auftragsfelder(data: LabRunRequest) -> dict:
+    """Prueft die Anfrage und gibt genau die Felder zurueck, die zur Art
+    gehoeren. Felder der jeweils anderen Art werden ignoriert statt abgelehnt —
+    aber auch nicht in den Auftrag uebernommen (kein `playbook: null` bei
+    einem openssl-Auftrag)."""
+    if data.kind == "ansible":
+        if not data.playbook or not data.playbook.strip():
+            raise HTTPException(status_code=422, detail="Das Playbook ist leer.")
+        return {
+            "playbook": data.playbook,
+            "inventory": data.inventory,
+            "extra_vars": data.extra_vars,
+            "check": data.check,
+        }
+    # kind in (openssl, git): gleiche Form, gleiche Grenzen.
+    _validiere_werkzeug_auftrag(data)
+    felder: dict = {"commands": data.commands}
+    if data.files:
+        felder["files"] = data.files
+    return felder
+
+
 @router.get("/status")
 def lab_status(_p: Participant = Depends(get_participant)) -> dict:
     warteschlange = _queue()
-    return {"enabled": bool(warteschlange and (warteschlange / "in").is_dir())}
+    aktiv = bool(warteschlange and (warteschlange / "in").is_dir())
+    # Das Backend kennt RUNNER_KINDS des Runners nicht — lab_kinds ist eine
+    # eigene, separat gepflegte Einstellung (siehe config.py).
+    return {"enabled": aktiv, "kinds": settings.lab_kinds_list if aktiv else []}
 
 
 @router.post("/run", response_model=LabRunResponse,
@@ -81,11 +154,10 @@ async def lab_run(data: LabRunRequest,
     warteschlange = _queue()
     if not warteschlange or not (warteschlange / "in").is_dir():
         raise HTTPException(status_code=503, detail="Das Lab ist auf diesem Server nicht aktiviert.")
-    if not data.playbook.strip():
-        raise HTTPException(status_code=422, detail="Das Playbook ist leer.")
 
+    felder = _auftragsfelder(data)
     auftrags_id = uuid.uuid4().hex
-    auftrag = {**data.model_dump(), "workspace": _workspace_kennung(teilnehmer)}
+    auftrag = {"kind": data.kind, **felder, "workspace": _workspace_kennung(teilnehmer)}
     eingang = warteschlange / "in" / f"{auftrags_id}.json"
     ausgang = warteschlange / "out" / f"{auftrags_id}.json"
 

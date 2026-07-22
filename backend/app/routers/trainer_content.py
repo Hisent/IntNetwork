@@ -36,6 +36,7 @@ VALID_WIDGET_IDS = {
     "crypto-hash", "crypto-aead", "crypto-keyexchange",
     "cert-inspector", "cert-chain", "tls-handshake-demo", "cert-errors",
     "ospf-demo", "redundancy-demo",
+    "openssl-lab", "git-lab",
 }
 
 KEY_RE = re.compile(r"^[a-z0-9-]+$")

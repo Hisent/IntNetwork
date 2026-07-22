@@ -67,4 +67,6 @@ export const WIDGETS: Record<string, ComponentType<{ lang: Lang }>> = {
   'cert-errors': lazy(() => import('@/widgets/pki/CertErrorsWidget').then((m) => ({ default: m.CertErrors }))),
   'ospf-demo': lazy(() => import('@/widgets/ospf/OspfWidget').then((m) => ({ default: m.Ospf }))),
   'redundancy-demo': lazy(() => import('@/widgets/redundancy/RedundancyWidget').then((m) => ({ default: m.Redundancy }))),
+  'openssl-lab': lazy(() => import('@/widgets/opensslab/OpensslLabWidget').then((m) => ({ default: m.OpensslLab }))),
+  'git-lab': lazy(() => import('@/widgets/gitlab/GitLabWidget').then((m) => ({ default: m.GitLab }))),
 }

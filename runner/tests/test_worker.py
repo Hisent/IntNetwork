@@ -108,15 +108,13 @@ def test_workspace_liefert_dieselbe_kennung_zweimal_dasselbe_verzeichnis(workspa
     "   ",
 ])
 def test_workspace_boesartige_kennung_bricht_nicht_aus_dem_basisverzeichnis_aus(workspace_root, kennung):
-    """Sicherheitsbefund (siehe Antwort an den Auftraggeber): _workspace
-    filtert Kennungen auf [A-Za-z0-9_-] (`"".join(z for z in kennung if
-    z.isalnum() or z in "_-")`). Punkte und Pfadtrenner werden dabei komplett
-    ENTFERNT statt ersetzt, nicht rejected. Ein Ausbruch aus WORKSPACE_ROOT
-    gelingt damit nicht (dieser Test dokumentiert das) - ABER: Kennungen, die
-    nach dem Filtern leer sind (nur aus '.', '/', '\\', Leerzeichen bestehen),
-    fallen alle auf denselben Ordner "gast" zurueck. Mehrere derart
-    unterschiedliche/boesartige Rohwerte wuerden sich also ein
-    Arbeitsverzeichnis teilen, statt getrennt zu werden."""
+    """_workspace filtert Kennungen auf [A-Za-z0-9_-]; Punkte und Pfadtrenner
+    werden dabei ENTFERNT statt ersetzt, die Kennung also nicht abgelehnt. Ein
+    Ausbruch aus WORKSPACE_ROOT gelingt damit trotzdem nicht — genau das haelt
+    dieser Test fest.
+
+    Der Fall "nach dem Filtern bleibt nichts uebrig" ist separat abgedeckt,
+    siehe den Test darunter."""
     verzeichnis = worker._workspace(kennung)
 
     # Kein Ausbruch: das Ergebnis liegt direkt unterhalb von WORKSPACE_ROOT.
@@ -332,3 +330,316 @@ def test_bearbeiten_end_zu_ende_schreibt_ergebnis_atomar(tmp_path, monkeypatch):
     assert ergebnis["rc"] == 0
     assert "PLAY RECAP" in ergebnis["output"]
     assert not auftrag_pfad.exists()
+
+
+# ---------------------------------------------------------------------------
+# 7. Auftragsarten (_ausfuehren, HANDLER, RUNNER_KINDS) -
+#    docs/ideen/2026-07-22-lab-erweiterung.md, Aenderung 1
+# ---------------------------------------------------------------------------
+
+def test_ausfuehren_fehlendes_kind_gilt_als_ansible(monkeypatch):
+    monkeypatch.setattr(worker, "RUNNER_KINDS", {"ansible"})
+    aufgerufen = {}
+
+    def fake_run_ansible(auftrag):
+        aufgerufen["auftrag"] = auftrag
+        return {"rc": 0, "output": "ok", "truncated": False, "duration_ms": 1,
+                "timed_out": False}
+
+    monkeypatch.setitem(worker.HANDLER, "ansible", fake_run_ansible)
+
+    ergebnis = worker._ausfuehren({"playbook": "- hosts: all"})  # kein "kind"
+
+    assert aufgerufen  # der Ansible-Pfad wurde tatsaechlich gewaehlt
+    assert ergebnis["rc"] == 0
+
+
+def test_ausfuehren_unbekannte_art_liefert_rc_2_ohne_absturz(monkeypatch):
+    monkeypatch.setattr(worker, "RUNNER_KINDS", {"ansible"})
+
+    ergebnis = worker._ausfuehren({"kind": "nmap", "workspace": "x"})
+
+    assert ergebnis["rc"] == 2
+    assert ergebnis["timed_out"] is False
+    assert "nmap" in ergebnis["output"]
+    assert set(ergebnis.keys()) == {"rc", "output", "truncated", "duration_ms", "timed_out"}
+
+
+def test_ausfuehren_nicht_freigegebene_art_liefert_rc_2_ohne_absturz(monkeypatch):
+    # "openssl" ist dem Runner bekannt (steht in HANDLER), aber auf diesem
+    # Runner nicht ueber RUNNER_KINDS freigeschaltet.
+    monkeypatch.setattr(worker, "RUNNER_KINDS", {"ansible"})
+
+    ergebnis = worker._ausfuehren({
+        "kind": "openssl", "workspace": "x", "files": {}, "commands": ["version"],
+    })
+
+    assert ergebnis["rc"] == 2
+    assert "openssl" in ergebnis["output"]
+    assert "freigegeben" in ergebnis["output"]
+
+
+def test_bearbeiten_mit_unbekannter_art_schreibt_regulaeres_ergebnis_und_stuerzt_nicht(tmp_path, monkeypatch):
+    queue = tmp_path / "queue"
+    (queue / "in").mkdir(parents=True)
+    (queue / "out").mkdir(parents=True)
+    monkeypatch.setattr(worker, "QUEUE", queue)
+    monkeypatch.setattr(worker, "RUNNER_KINDS", {"ansible"})
+
+    auftrag_pfad = queue / "in" / "auftrag-unbekannt.json"
+    auftrag_pfad.write_text(json.dumps({"kind": "nmap", "workspace": "y"}), encoding="utf-8")
+
+    worker._bearbeiten(auftrag_pfad)  # darf auf keinen Fall werfen
+
+    ausgabe = json.loads((queue / "out" / "auftrag-unbekannt.json").read_text(encoding="utf-8"))
+    assert ausgabe["rc"] == 2
+    assert not auftrag_pfad.exists()
+
+
+# ---------------------------------------------------------------------------
+# 8. Zerlegung ohne Shell (_argv_bauen) - Aenderung 2/3
+# ---------------------------------------------------------------------------
+
+def test_argv_bauen_bare_form_und_praefigierte_form_ergeben_dasselbe_argv():
+    ohne_praefix = worker._argv_bauen("status", "git", "GITBIN")
+    mit_praefix = worker._argv_bauen("git status", "git", "GITBIN")
+
+    assert ohne_praefix == mit_praefix == ["GITBIN", "status"]
+
+
+def test_argv_bauen_fremdes_erstes_token_startet_kein_fremdes_programm():
+    """"sh -c whoami" darf niemals dazu fuehren, dass "sh" als Programmname
+    behandelt wird - argv[0] ist immer das konfigurierte Werkzeug, "sh" landet
+    als ganz gewoehnliches Argument dahinter."""
+    argv = worker._argv_bauen("sh -c whoami", "git", "GITBIN")
+
+    assert argv == ["GITBIN", "sh", "-c", "whoami"]
+    assert argv[0] == "GITBIN"
+
+
+def test_argv_bauen_leere_zerlegung_liefert_none():
+    assert worker._argv_bauen("   ", "git", "GITBIN") is None
+    assert worker._argv_bauen("", "openssl", "OSSLBIN") is None
+
+
+# ---------------------------------------------------------------------------
+# 9. Grenzen fuer Dateien und Befehle (_dateien_pruefen, _befehle_pruefen,
+#    _run_werkzeug) - Aenderung 2/3
+# ---------------------------------------------------------------------------
+
+def test_run_werkzeug_lehnt_zu_viele_befehle_ab(workspace_root, monkeypatch):
+    monkeypatch.setattr(worker, "OPENSSL_BIN", sys.executable)
+    befehle = ["version"] * (worker.MAX_TOOL_COMMANDS + 1)
+
+    ergebnis = worker._run_openssl({"workspace": "grenz-befehle", "commands": befehle})
+
+    assert ergebnis["rc"] == 2
+    assert "Befehle" in ergebnis["output"]
+
+
+def test_run_werkzeug_lehnt_zu_langen_befehl_ab(workspace_root, monkeypatch):
+    monkeypatch.setattr(worker, "OPENSSL_BIN", sys.executable)
+    langer_befehl = "version " + ("x" * worker.MAX_TOOL_COMMAND_CHARS)
+
+    ergebnis = worker._run_openssl({"workspace": "grenz-laenge", "commands": [langer_befehl]})
+
+    assert ergebnis["rc"] == 2
+    assert "lang" in ergebnis["output"]
+
+
+def test_run_werkzeug_lehnt_zu_viele_dateien_ab(workspace_root, monkeypatch):
+    monkeypatch.setattr(worker, "OPENSSL_BIN", sys.executable)
+    dateien = {f"datei{i}.txt": "x" for i in range(worker.MAX_TOOL_FILES + 1)}
+
+    ergebnis = worker._run_openssl({
+        "workspace": "grenz-dateien", "files": dateien, "commands": ["version"],
+    })
+
+    assert ergebnis["rc"] == 2
+    assert "Dateien" in ergebnis["output"]
+
+
+def test_run_werkzeug_lehnt_zu_grosse_datei_ab(workspace_root, monkeypatch):
+    monkeypatch.setattr(worker, "OPENSSL_BIN", sys.executable)
+
+    ergebnis = worker._run_openssl({
+        "workspace": "grenz-groesse",
+        "files": {"gross.txt": "x" * (worker.MAX_TOOL_FILE_BYTES + 1)},
+        "commands": ["version"],
+    })
+
+    assert ergebnis["rc"] == 2
+    assert "gro" in ergebnis["output"]  # "zu groß" - ß robust gegen Encoding-Zweifel
+
+
+@pytest.mark.parametrize("dateiname", ["../x", "a/b", "..\\x", "a\\b", ".."])
+def test_run_werkzeug_lehnt_unerlaubten_dateinamen_ab(workspace_root, monkeypatch, dateiname):
+    monkeypatch.setattr(worker, "OPENSSL_BIN", sys.executable)
+
+    ergebnis = worker._run_openssl({
+        "workspace": "grenz-name",
+        "files": {dateiname: "inhalt"},
+        "commands": ["version"],
+    })
+
+    assert ergebnis["rc"] == 2
+    assert "Dateiname" in ergebnis["output"]
+
+
+# ---------------------------------------------------------------------------
+# 10. Ausfuehrung fuer openssl/git (_run_werkzeug, _run_openssl, _run_git) -
+#     Aenderung 2/3. Ein garantiert vorhandenes Binaerprogramm (der aktuelle
+#     Python-Interpreter) steht anstelle von echtem openssl/git, damit die
+#     Tests nicht voraussetzen, dass beide auf der Entwicklungsmaschine
+#     installiert sind - der Binaername ist ohnehin ueber OPENSSL_BIN/GIT_BIN
+#     parametrisiert.
+# ---------------------------------------------------------------------------
+
+def test_run_werkzeug_fremdes_erstes_token_fuehrt_nicht_zu_fremdprogramm(workspace_root, monkeypatch):
+    monkeypatch.setattr(worker, "OPENSSL_BIN", sys.executable)
+    monkeypatch.setattr(worker, "OPENSSL_TIMEOUT_SECONDS", 15.0)
+
+    ergebnis = worker._run_openssl({"workspace": "fremd-test", "commands": ["sh -c whoami"]})
+
+    # argv war [sys.executable, "sh", "-c", "whoami"]: Python versucht, eine
+    # Datei "sh" als Skript zu oeffnen, findet keine und scheitert reproduzierbar.
+    # "whoami" wurde nie ausgefuehrt - es gab weder Shell noch eigenstaendigen
+    # Programmstart dafuer.
+    assert ergebnis["rc"] != 0
+    assert ergebnis["timed_out"] is False
+
+
+def test_run_werkzeug_mehrere_befehle_nacheinander_mit_dollar_zeile(workspace_root, monkeypatch):
+    monkeypatch.setattr(worker, "OPENSSL_BIN", sys.executable)
+    monkeypatch.setattr(worker, "OPENSSL_TIMEOUT_SECONDS", 15.0)
+
+    ergebnis = worker._run_openssl({
+        "workspace": "reihenfolge-test",
+        "commands": ["-c \"print('eins')\"", "-c \"print('zwei')\""],
+    })
+
+    assert ergebnis["rc"] == 0
+    ausgabe = ergebnis["output"]
+    assert ausgabe.count("$ openssl") == 2
+    assert ausgabe.index("eins") < ausgabe.index("zwei")
+
+
+def test_run_werkzeug_bricht_nach_fehlschlag_ab_und_meldet_dessen_rc(workspace_root, monkeypatch):
+    monkeypatch.setattr(worker, "OPENSSL_BIN", sys.executable)
+    monkeypatch.setattr(worker, "OPENSSL_TIMEOUT_SECONDS", 15.0)
+
+    ergebnis = worker._run_openssl({
+        "workspace": "abbruch-test",
+        "commands": [
+            "-c \"import sys; print('eins'); sys.exit(3)\"",
+            "-c \"print('zwei')\"",
+        ],
+    })
+
+    assert ergebnis["rc"] == 3
+    assert "eins" in ergebnis["output"]
+    assert "zwei" not in ergebnis["output"]  # der zweite Befehl lief NICHT mehr
+
+
+def test_run_werkzeug_arbeitsverzeichnis_bleibt_zwischen_zwei_auftraegen_erhalten(workspace_root, monkeypatch):
+    monkeypatch.setattr(worker, "OPENSSL_BIN", sys.executable)
+    monkeypatch.setattr(worker, "OPENSSL_TIMEOUT_SECONDS", 15.0)
+
+    lauf1 = worker._run_openssl({
+        "workspace": "dauerhaft-test",
+        "commands": ["-c \"open('spur.txt', 'w').write('zustand-nach-lauf-1')\""],
+    })
+    assert lauf1["rc"] == 0
+
+    lauf2 = worker._run_openssl({
+        "workspace": "dauerhaft-test",
+        "commands": ["-c \"print(open('spur.txt').read())\""],
+    })
+
+    assert lauf2["rc"] == 0
+    assert "zustand-nach-lauf-1" in lauf2["output"]
+
+
+def test_run_werkzeug_zeitgrenze_greift_fuer_gesamten_lauf(workspace_root, monkeypatch):
+    monkeypatch.setattr(worker, "OPENSSL_BIN", sys.executable)
+    monkeypatch.setattr(worker, "OPENSSL_TIMEOUT_SECONDS", 0.5)
+
+    start = time.monotonic()
+    ergebnis = worker._run_openssl({
+        "workspace": "zeit-werkzeug-test",
+        "commands": ["-c \"import time; time.sleep(5)\""],
+    })
+    dauer = time.monotonic() - start
+
+    assert ergebnis["timed_out"] is True
+    assert ergebnis["rc"] == 124
+    assert "Zeitgrenze" in ergebnis["output"]
+    assert dauer < 10
+
+
+def test_run_werkzeug_zeitgrenze_gilt_ueber_mehrere_befehle_hinweg_nicht_je_befehl(workspace_root, monkeypatch):
+    monkeypatch.setattr(worker, "OPENSSL_BIN", sys.executable)
+    monkeypatch.setattr(worker, "OPENSSL_TIMEOUT_SECONDS", 1.0)
+
+    start = time.monotonic()
+    ergebnis = worker._run_openssl({
+        "workspace": "zeit-mehrfach-test",
+        "commands": [
+            "-c \"import time; time.sleep(0.7)\"",
+            "-c \"import time; time.sleep(0.7)\"",
+            "-c \"import time; time.sleep(0.7)\"",
+        ],
+    })
+    dauer = time.monotonic() - start
+
+    assert ergebnis["timed_out"] is True
+    # Bei einer Zeitgrenze JE Befehl haette dieser Lauf bis zu ~2.1s gebraucht
+    # (3 x 0.7s). Die Grenze gilt fuers Ganze, deshalb bricht er nahe 1s ab.
+    assert dauer < 2.5
+
+
+def test_run_git_setzt_autoren_und_committer_umgebung(workspace_root, monkeypatch):
+    monkeypatch.setattr(worker, "GIT_BIN", sys.executable)
+    monkeypatch.setattr(worker, "GIT_TIMEOUT_SECONDS", 15.0)
+
+    ergebnis = worker._run_git({
+        "workspace": "git-umgebung-test",
+        "commands": [
+            "-c \"import os; print(os.environ.get('GIT_AUTHOR_NAME'), "
+            "os.environ.get('GIT_AUTHOR_DATE'), os.environ.get('GIT_COMMITTER_EMAIL'))\"",
+        ],
+    })
+
+    assert ergebnis["rc"] == 0
+    assert "Lab-Teilnehmerin" in ergebnis["output"]
+    assert worker.GIT_FIXED_DATE in ergebnis["output"]
+
+
+def test_run_git_bare_form_und_praefigierte_form_liefern_dasselbe_ergebnis(workspace_root, monkeypatch):
+    monkeypatch.setattr(worker, "GIT_BIN", sys.executable)
+    monkeypatch.setattr(worker, "GIT_TIMEOUT_SECONDS", 15.0)
+
+    ohne_praefix = worker._run_git({
+        "workspace": "git-form-a", "commands": ["-c \"print('ok')\""],
+    })
+    mit_praefix = worker._run_git({
+        "workspace": "git-form-b", "commands": ["git -c \"print('ok')\""],
+    })
+
+    assert ohne_praefix["rc"] == mit_praefix["rc"] == 0
+    assert "ok" in ohne_praefix["output"]
+    assert "ok" in mit_praefix["output"]
+
+
+def test_ausfuehren_openssl_laeuft_durch_wenn_ueber_runner_kinds_freigegeben(workspace_root, monkeypatch):
+    monkeypatch.setattr(worker, "RUNNER_KINDS", {"ansible", "openssl"})
+    monkeypatch.setattr(worker, "OPENSSL_BIN", sys.executable)
+    monkeypatch.setattr(worker, "OPENSSL_TIMEOUT_SECONDS", 15.0)
+
+    ergebnis = worker._ausfuehren({
+        "kind": "openssl", "workspace": "dispatch-test",
+        "commands": ["-c \"print('dispatch-ok')\""],
+    })
+
+    assert ergebnis["rc"] == 0
+    assert "dispatch-ok" in ergebnis["output"]

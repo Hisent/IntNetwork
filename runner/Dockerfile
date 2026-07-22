@@ -1,8 +1,19 @@
 FROM python:3.12-slim
 
 # Ansible braucht einen POSIX-Control-Node. Das Image ist bewusst schlank und
-# enthaelt weder Compiler noch Netzwerkwerkzeuge.
+# enthaelt weder Compiler noch Netzwerkwerkzeuge (kein curl, kein wget) - die
+# Auftragsarten openssl und git sind lokale Kommandozeilenwerkzeuge und
+# widersprechen dem nicht.
 WORKDIR /srv
+
+# openssl und git ausdruecklich installieren, nicht auf ein transitives Paket
+# verlassen (ob die openssl-CLI ueber die Bibliothek mitkommt, ist auf
+# python:3.12-slim nicht garantiert). --no-install-recommends haelt das Image
+# schlank, die Paketlisten werden danach entfernt.
+RUN apt-get update \
+ && apt-get install --no-install-recommends -y openssl git \
+ && rm -rf /var/lib/apt/lists/*
+
 COPY requirements.txt .
 RUN pip install --no-cache-dir -U "pip" "setuptools>=78.1.1" \
  && pip install --no-cache-dir -r requirements.txt

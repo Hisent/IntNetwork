@@ -220,6 +220,31 @@ def _migrate_ansible_lab(db: Session) -> None:
     _migrate_content_blocks(db, ANSIBLE_LAB_MIGRATION, ANSIBLE_LAB_ANCHORS)
 
 
+TOOL_LABS_MIGRATION = "content-migration:tool-labs-v1"
+# Gleiche Lage wie beim Ansible-Lab (v1.31.1): Die beiden Module sind in
+# Bestands-Datenbanken laengst vorhanden, seed_missing_content erreicht sie also
+# nicht. Ohne diese Migration erscheinen openssl- und git-Lab dort nie.
+# Reihenfolge je Modul: erst der erklaerende Text, dann das Widget dahinter.
+TOOL_LAB_ANCHORS = [
+    ("tls-pruefen", "text-openssl-lab", "__ende__"),
+    ("tls-pruefen", "openssl-lab", "text-openssl-lab"),
+    ("git-collaboration", "text-git-lab", "__ende__"),
+    ("git-collaboration", "git-lab", "text-git-lab"),
+]
+
+
+def _migrate_tool_labs(db: Session) -> None:
+    """Haengt Erklaertext und Lab-Widget an das PKI-Modul "TLS pruefen" und an
+    das Git-Modul des Claude-Code-Workshops.
+
+    Anker "__ende__" existiert bewusst nicht: _find_anchor_index faellt dann auf
+    das Ende der Blockliste zurueck, also direkt vor das Quiz — die richtige
+    Stelle fuer eine Praxisuebung, unabhaengig davon, wie ein Trainer die
+    Bloecke davor umsortiert hat.
+    """
+    _migrate_content_blocks(db, TOOL_LABS_MIGRATION, TOOL_LAB_ANCHORS)
+
+
 def _migrate_content_texts(db: Session) -> None:
     """Fügt die fünf fachlichen Vertiefungsblöcke aus v1.8.0 (Quell-Ports,
     Masken-Schreibweisen, DHCP-Relay, Switch-Loop, Dual Stack) einmalig hinter
@@ -528,6 +553,7 @@ def seed_missing_content(db: Session) -> None:
     _migrate_hooks_diagnose_lab(db)
     _migrate_memory_context_wording(db)
     _migrate_agent_modes(db)
+    _migrate_tool_labs(db)
     # Neue Module können auch später nachgeseedet werden. Die Workshop-Familie
     # wird dabei gleich mitgeschrieben, damit sie nicht still in keinem Kurs
     # erscheint.

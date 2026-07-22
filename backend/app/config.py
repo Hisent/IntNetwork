@@ -1,7 +1,7 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 DEFAULT_SECRET_KEY = "change-me-intnetwork-default-secret"
-APP_VERSION = "1.33.1"
+APP_VERSION = "1.34.0"
 
 
 class Settings(BaseSettings):
@@ -22,10 +22,20 @@ class Settings(BaseSettings):
     # gar kein Netz; der Austausch laeuft ueber Dateien (siehe runner/worker.py).
     lab_queue_dir: str = ""
     lab_timeout_seconds: int = 30
+    # Welche Auftragsarten /api/lab/status als nutzbar meldet (Kommaseparation,
+    # z.B. "ansible,openssl"). ACHTUNG: Das Backend kennt die Freigabe des
+    # Runners (dessen RUNNER_KINDS) nicht automatisch — diese Einstellung ist
+    # keine Abfrage des Runner-Zustands, sondern eine eigene Angabe, die beim
+    # Ausrollen von Hand parallel zu RUNNER_KINDS gepflegt werden muss.
+    lab_kinds: str = "ansible"
 
     @property
     def origins(self) -> list[str]:
         return [o.strip() for o in self.allowed_origins.split(",") if o.strip()]
+
+    @property
+    def lab_kinds_list(self) -> list[str]:
+        return [k.strip() for k in self.lab_kinds.split(",") if k.strip()]
 
 
 settings = Settings()

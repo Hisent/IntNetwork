@@ -1,5 +1,23 @@
 # Projekt-Changelog (nur für Trainer sichtbar). Neueste zuerst.
 CHANGELOG = [
+    {"date": "2026-07-22", "title": "v1.34.0 — Echte Übungen für PKI und Git",
+     "text": "Das Lab konnte bisher nur Ansible. Jetzt kommen zwei Werkzeuge dazu, "
+             "jedes einzeln freischaltbar. Im PKI-Lehrgang lässt sich im Modul „TLS "
+             "prüfen“ openssl wirklich bedienen: Schlüssel und Zertifikatsanfrage "
+             "erzeugen, eine eigene CA aufsetzen, ein Zertifikat signieren und die "
+             "Kette prüfen — mit der Originalausgabe statt eines nachgebauten Textes. "
+             "Das Arbeitsverzeichnis bleibt zwischen den Läufen bestehen, man kann also "
+             "über mehrere Schritte eine kleine PKI aufbauen und absichtlich kaputte "
+             "Fälle herstellen. Im Claude-Code-Workshop gibt es dasselbe für Git: "
+             "Repository anlegen, Zweige, Zusammenführen, ein echter Konflikt mit "
+             "echten Konfliktmarkierungen. Befehle, die ins Netz wollen (clone, push), "
+             "scheitern dort absichtlich — der Lab-Dienst hat kein Netzwerk, das ist "
+             "seine Sicherheitsgrenze. Beide Labore sind wie das Ansible-Lab "
+             "standardmäßig aus; ohne sie bleiben die Aufgaben als Denkaufgaben "
+             "lesbar. Nebenbei ein Gewinn an Sicherheit: Wer nur den PKI-Lehrgang "
+             "fährt, kann openssl freigeben und Ansible weglassen — dann führt der "
+             "Dienst gar keinen frei geschriebenen Code mehr aus. Details in "
+             "docs/lab-sicherheit.md."},
     {"date": "2026-07-22", "title": "v1.33.1 — Versionsanzeige im Trainerbereich stimmt wieder",
      "text": "Das Abzeichen oben im Trainerbereich zeigte weiterhin 1.31.2, obwohl "
              "inzwischen zwei Versionen ausgeliefert waren: die Nummer stand an einer "

@@ -13,6 +13,32 @@ darf, führt im Runner-Container Code aus. Das ist der Zweck des Labs.
 
 Deshalb ist **der Container die Sicherheitsgrenze**, nicht eine Filterliste.
 
+## Auftragsarten
+
+Der Runner führt nicht mehr nur Ansible aus. Jede Art wird einzeln freigegeben
+(`RUNNER_KINDS` beim Runner, `LAB_KINDS` beim Backend, Standard jeweils nur
+`ansible`):
+
+- **`ansible`** — Playbook der Teilnehmerin. Das ist der Fall von oben:
+  beliebiger Code im Container, der Container ist die Grenze.
+- **`openssl`** — bis zu sechs `openssl`-Aufrufe auf mitgeschickten Dateien.
+  Kein Netz, keine Shell: Der Runner zerlegt die Zeile mit `shlex.split`, setzt
+  das Programm selbst davor und ruft es ohne `shell=True` auf. Keine Pipes,
+  keine Umleitungen, keine Verkettung.
+- **`git`** — dasselbe mit `git`. Netzbefehle (`clone`, `fetch`, `push`,
+  `pull`) scheitern mangels Netz; das ist beabsichtigt.
+
+**Wichtig für die Bewertung:** Die Arten sind nicht gleich mächtig. `ansible`
+erlaubt beliebige Codeausführung, `openssl` und `git` erlauben nur Datei-Ein-
+und -Ausgabe über genau ein Programm. Ein Durchlauf, der nur den PKI-Lehrgang
+fährt, kann deshalb `openssl` freigeben und `ansible` weglassen — dann ist der
+Container **kein** Sandkasten für fremden Code mehr. Das ist strikt weniger
+Angriffsfläche als der bisherige Zustand, nicht mehr.
+
+Umgekehrt gilt: Ist `ansible` freigegeben, ändern zusätzliche Werkzeuge im
+Image nichts an der Bewertung — wer ein Playbook schreiben darf, kann sie
+ohnehin alle aufrufen.
+
 ## Wie der Zuschnitt aussieht
 
 - **Das Backend führt nichts aus.** Es kennt `SECRET_KEY` und die Datenbank und
@@ -98,6 +124,17 @@ vollständig benutzbar; die Aufgaben lassen sich als Denkaufgaben lösen.
 ```
 LAB_QUEUE_DIR=/queue
 ```
+
+Dazu die gewünschten Arten, an **beiden** Stellen — sie werden nicht abgeglichen,
+weil zwischen Backend und Runner kein Netzweg existiert:
+
+```
+LAB_KINDS=ansible,openssl        # Backend: was die Oberflaeche anbietet
+RUNNER_KINDS=ansible,openssl     # Runner:  was tatsaechlich ausgefuehrt wird
+```
+
+Steht eine Art nur beim Backend, bietet das Widget sie an und der Lauf scheitert
+mit einer Meldung des Runners. Steht sie nur beim Runner, bleibt sie ungenutzt.
 
 Das Volume `lab_queue` ist in `docker-compose.yml` bereits bei Backend und
 Runner eingehängt. Ein Token gibt es bewusst nicht mehr: Ohne Netzwerk ist das

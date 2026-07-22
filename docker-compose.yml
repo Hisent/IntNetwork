@@ -31,6 +31,12 @@ services:
       # Ansible-Lab: Pfad zur gemeinsamen Warteschlange. Leer lassen schaltet
       # das Lab ab (API antwortet 503), siehe docs/lab-sicherheit.md.
       LAB_QUEUE_DIR: ${LAB_QUEUE_DIR}
+      # Welche Auftragsarten die Oberflaeche als nutzbar anbietet. MUSS von Hand
+      # zu RUNNER_KINDS beim Runner passen — das Backend kann die Freigabe des
+      # Runners nicht abfragen, es gibt keinen Netzweg dorthin. Steht hier eine
+      # Art, die der Runner nicht freigegeben hat, bietet das Widget sie an und
+      # der Lauf scheitert mit einer Runner-Meldung.
+      LAB_KINDS: ${LAB_KINDS:-ansible}
     depends_on:
       db:
         condition: service_healthy
@@ -91,6 +97,13 @@ services:
       RUNNER_TIMEOUT: ${RUNNER_TIMEOUT:-30}
       # Wie viele Laeufe gleichzeitig laufen duerfen.
       RUNNER_MAX_PARALLEL: ${RUNNER_MAX_PARALLEL:-2}
+      # Freigegebene Auftragsarten. Standard "ansible" — ohne Konfiguration
+      # aendert sich nichts. Jede Art einzeln freizugeben ist der Punkt: ein
+      # Durchlauf, der nur den PKI-Lehrgang faehrt, setzt hier "openssl" und
+      # laesst "ansible" weg. Dann fuehrt der Container keinen frei geschriebenen
+      # Code mehr aus, sondern nur ein Krypto-Werkzeug — strikt weniger als heute.
+      # Muss zu LAB_KINDS beim Backend passen (siehe dort).
+      RUNNER_KINDS: ${RUNNER_KINDS:-ansible}
     cap_drop:
       - ALL  # fuer "ansible-playbook -c local" wird keine Capability gebraucht
     security_opt:

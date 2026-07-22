@@ -5,8 +5,15 @@
 import { api, type ApiError } from '@/lib/api'
 import type { Lang } from '@/lib/i18n'
 
+// `kinds` sagt, welche Auftragsarten der Server aktuell freigegeben hat
+// (RUNNER_KINDS auf dem Runner) — z.B. ["ansible"] oder ["ansible","openssl","git"].
+// String[] statt eines geschlossenen Literal-Unions, damit ein Server mit einer
+// uns unbekannten Art (künftige Erweiterung) hier nicht zu einem TS-Fehler wird;
+// die Widgets prüfen ohnehin nur per `.includes(...)` auf die eine Art, die sie
+// brauchen.
 export interface LabStatus {
   enabled: boolean
+  kinds: string[]
 }
 
 export interface LabRunRequest {
@@ -14,6 +21,19 @@ export interface LabRunRequest {
   inventory?: string
   extra_vars?: string
   check?: boolean
+}
+
+// Nutzlast für die neuen Auftragsarten (Änderung 2/3 des Lab-Entwurfs):
+// Dateien landen vor den Befehlen im Arbeitsverzeichnis, `commands` läuft der
+// Reihe nach (je Eintrag *ohne* führendes Programmwort, der Runner setzt es
+// davor). Bewusst eine eigene Funktion statt `runLab` erweitert: `runLab`
+// bleibt für das bestehende Ansible-Widget unverändert (exakt dieselbe
+// Aufrufform, kein `kind`-Feld) — der Server behandelt ein fehlendes `kind`
+// ohnehin als `"ansible"`.
+export interface LabKindRunRequest {
+  kind: 'openssl' | 'git'
+  files: Record<string, string>
+  commands: string[]
 }
 
 export interface LabRunResult {
@@ -34,6 +54,11 @@ export async function runLab(req: LabRunRequest): Promise<LabRunResult> {
   return data
 }
 
+export async function runLabKind(req: LabKindRunRequest): Promise<LabRunResult> {
+  const { data } = await api.post<LabRunResult>('/lab/run', req)
+  return data
+}
+
 // Statuscode -> bilinguale Fallback-Meldung, für den Fall, dass das Backend
 // keinen brauchbaren (String-)Detail-Text liefert. 422 kommt bei zu großen
 // Feldern z.B. als Pydantic-Fehlerliste zurück, kein String — die zeigen wir
@@ -43,7 +68,7 @@ const BY_STATUS: Record<number, { de: string; en: string }> = {
   502: { de: 'Der Lab-Dienst ist gerade nicht erreichbar.', en: 'The lab service is currently unreachable.' },
   504: { de: 'Der Lauf hat zu lange gedauert (Zeitüberschreitung).', en: 'The run took too long (timed out).' },
   429: { de: 'Zu viele Läufe — bitte kurz warten (maximal 20 pro Minute).', en: 'Too many runs — please wait a moment (max 20 per minute).' },
-  422: { de: 'Das Playbook ist zu groß oder ungültig (Grenze 16.000 Zeichen).', en: 'The playbook is too large or invalid (limit 16,000 characters).' },
+  422: { de: 'Die Eingabe ist zu groß oder ungültig (z.B. Playbook-Länge oder Datei-/Befehlsgrenzen).', en: 'The input is too large or invalid (e.g. playbook length or file/command limits).' },
 }
 
 export function labErrorMessage(e: unknown, lang: Lang): string {

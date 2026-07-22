@@ -25,6 +25,8 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import re
+import shlex
 import shutil
 import subprocess
 import sys
@@ -47,6 +49,30 @@ WORKSPACE_MAX_AGE_SECONDS = float(os.getenv("RUNNER_WORKSPACE_MAX_AGE", str(12 *
 JOB_MAX_AGE_SECONDS = float(os.getenv("RUNNER_JOB_MAX_AGE", "300"))
 
 DEFAULT_INVENTORY = "[lab]\nlabhost ansible_connection=local\n"
+
+# Änderung 1 (docs/ideen/2026-07-22-lab-erweiterung.md): Auftragsarten jenseits
+# von Ansible. Ohne Konfiguration ändert sich nichts — Standard ist genau die
+# eine Art, die es bisher gab.
+RUNNER_KINDS = {
+    teil.strip() for teil in os.getenv("RUNNER_KINDS", "ansible").split(",") if teil.strip()
+}
+
+OPENSSL_BIN = os.getenv("OPENSSL_BIN", "openssl")
+GIT_BIN = os.getenv("GIT_BIN", "git")
+# Eigene, kurze Zeitgrenzen je Werkzeug: openssl/git sind schnell, eine knappe
+# Grenze schützt die Parallelitätsgrenze (siehe Änderung 2/3 im Entwurf).
+OPENSSL_TIMEOUT_SECONDS = float(os.getenv("RUNNER_OPENSSL_TIMEOUT", "10"))
+GIT_TIMEOUT_SECONDS = float(os.getenv("RUNNER_GIT_TIMEOUT", "15"))
+
+MAX_TOOL_FILES = 10
+MAX_TOOL_FILE_BYTES = 32_768
+MAX_TOOL_COMMANDS = 6
+MAX_TOOL_COMMAND_CHARS = 512
+DATEINAME_MUSTER = re.compile(r"^[A-Za-z0-9._-]{1,64}$")
+
+# Fest statt "jetzt": sonst ist der Commit-Hash bei jedem Lauf ein anderer und
+# Aufgabenstellungen können sich nicht auf einen bestimmten Hash beziehen.
+GIT_FIXED_DATE = "2024-01-01T00:00:00+00:00"
 
 
 def log(*teile: object) -> None:
@@ -88,7 +114,7 @@ def _workspace(kennung: str) -> Path:
     return verzeichnis
 
 
-def _ausfuehren(auftrag: dict) -> dict:
+def _run_ansible(auftrag: dict) -> dict:
     playbook = str(auftrag.get("playbook", ""))[:16_000]
     inventar = auftrag.get("inventory") or DEFAULT_INVENTORY
     extra_vars = auftrag.get("extra_vars")
@@ -163,6 +189,201 @@ def _ausfuehren(auftrag: dict) -> dict:
                 "timed_out": abgebrochen}
     finally:
         shutil.rmtree(laufverzeichnis, ignore_errors=True)
+
+
+# ---------------------------------------------------------------------------
+# Änderung 2/3: gemeinsame Ausführung für openssl und git.
+# ---------------------------------------------------------------------------
+
+def _dateiname_gueltig(name: object) -> bool:
+    if not isinstance(name, str):
+        return False
+    if not DATEINAME_MUSTER.match(name):
+        return False
+    # ".." besteht nur aus erlaubten Zeichen, ist als Pfadsegment aber ein
+    # Verzeichniswechsel nach oben - das Muster allein fängt das nicht ab.
+    return name not in (".", "..")
+
+
+def _dateien_pruefen(dateien: object) -> str | None:
+    if not isinstance(dateien, dict):
+        return "„files“ muss ein Objekt aus Dateiname -> Inhalt sein."
+    if len(dateien) > MAX_TOOL_FILES:
+        return f"Zu viele Dateien: {len(dateien)} (höchstens {MAX_TOOL_FILES})."
+    for name, inhalt in dateien.items():
+        if not _dateiname_gueltig(name):
+            return (f"Unzulässiger Dateiname: {name!r} (erlaubt sind Buchstaben, "
+                     f"Ziffern, '.', '_', '-', höchstens 64 Zeichen, kein Pfadtrenner).")
+        umfang = len(str(inhalt).encode("utf-8", "replace"))
+        if umfang > MAX_TOOL_FILE_BYTES:
+            return f"Datei {name!r} ist zu groß: {umfang} Bytes (höchstens {MAX_TOOL_FILE_BYTES})."
+    return None
+
+
+def _befehle_pruefen(befehle: object) -> str | None:
+    if not isinstance(befehle, list) or not befehle:
+        return "„commands“ muss eine nichtleere Liste von Befehlszeilen sein."
+    if len(befehle) > MAX_TOOL_COMMANDS:
+        return f"Zu viele Befehle: {len(befehle)} (höchstens {MAX_TOOL_COMMANDS})."
+    for befehl in befehle:
+        if not isinstance(befehl, str) or not befehl.strip():
+            return "Leerer Befehl abgelehnt."
+        if len(befehl) > MAX_TOOL_COMMAND_CHARS:
+            return f"Befehl zu lang: {len(befehl)} Zeichen (höchstens {MAX_TOOL_COMMAND_CHARS})."
+    return None
+
+
+def _argv_bauen(befehl: str, art: str, binaer: str) -> list[str] | None:
+    """Zerlegt eine Lernenden-Kommandozeile ohne Shell.
+
+    `shlex.split`, dann wird ein führendes Token gleich der Art (z.B. "git")
+    entfernt - Lernende tippen mal `git status`, mal nur `status`, beides soll
+    zum selben argv führen. `argv[0]` ist danach IMMER das konfigurierte
+    Binärprogramm; ein fremder erster Tokenname (z.B. `sh`) wird nicht als
+    Programmname behandelt, sondern landet als ganz normales Argument beim
+    konfigurierten Werkzeug - es gibt keinen Weg, darüber ein anderes Programm
+    zu starten (kein shell=True, keine Pipes, keine Umleitungen).
+    """
+    tokens = shlex.split(befehl)
+    if not tokens:
+        return None
+    if tokens[0] == art:
+        tokens = tokens[1:]
+    return [binaer] + tokens
+
+
+def _run_werkzeug(auftrag: dict, art: str, binaer: str, zeitgrenze: float,
+                   zusatz_umgebung: dict[str, str] | None = None) -> dict:
+    """Führt eine kurze Folge von Befehlen für ein Kommandozeilen-Werkzeug aus.
+
+    `cwd` ist bewusst das DAUERHAFTE Arbeitsverzeichnis der Teilnehmerin
+    (`_workspace`), nicht ein frisches Lauf-Verzeichnis wie bei Ansible: eine in
+    Aufgabe 1 erzeugte CA muss bis Aufgabe 3 überleben (Änderung 2 im Entwurf).
+    """
+    begonnen = time.monotonic()
+
+    def _ergebnis(rc: int, text: str, timed_out: bool = False) -> dict:
+        text_gekuerzt, gekappt = _clip(text)
+        return {"rc": rc, "output": text_gekuerzt, "truncated": gekappt,
+                "duration_ms": int((time.monotonic() - begonnen) * 1000),
+                "timed_out": timed_out}
+
+    dateien = auftrag.get("files") or {}
+    fehler = _dateien_pruefen(dateien)
+    if fehler:
+        return _ergebnis(2, fehler)
+
+    befehle = auftrag.get("commands") or []
+    fehler = _befehle_pruefen(befehle)
+    if fehler:
+        return _ergebnis(2, fehler)
+
+    arbeitsplatz = _workspace(str(auftrag.get("workspace", "gast")))
+    for name, inhalt in dateien.items():
+        (arbeitsplatz / name).write_text(str(inhalt), encoding="utf-8")
+
+    umgebung = {
+        "PATH": os.getenv("PATH", "/usr/local/bin:/usr/bin:/bin"),
+        "HOME": str(arbeitsplatz),
+        "LANG": "C.UTF-8",
+    }
+    if zusatz_umgebung:
+        umgebung.update(zusatz_umgebung)
+    # Siehe Kommentar im Ansible-Zweig weiter oben: nur für die Windows-
+    # Entwicklungsmaschine relevant, in Produktion (Linux-Container) wirkungslos.
+    if sys.platform == "win32":
+        systemroot = os.getenv("SystemRoot")
+        if systemroot:
+            umgebung["SystemRoot"] = systemroot
+
+    ausgabe_teile: list[str] = []
+    rc = 0
+    abgebrochen = False
+    # Die Zeitgrenze gilt für den GESAMTEN Lauf, nicht je Befehl - sonst könnte
+    # ein Auftrag mit 6 Befehlen bis zu 6-mal so lange laufen und würde damit
+    # die Parallelitätsgrenze unterlaufen.
+    frist = begonnen + zeitgrenze
+    for befehl in befehle:
+        argv = _argv_bauen(befehl, art, binaer)
+        if argv is None:
+            rc = 2
+            ausgabe_teile.append(f"$ {befehl}\nLeere Befehlszeile abgelehnt.")
+            break
+        anzeige = " ".join([art] + argv[1:])
+        ausgabe_teile.append(f"$ {anzeige}")
+
+        verbleibend = frist - time.monotonic()
+        if verbleibend <= 0:
+            abgebrochen = True
+            rc = 124
+            ausgabe_teile.append(f"Abgebrochen: Der Lauf hat die Zeitgrenze von "
+                                  f"{zeitgrenze:.0f} Sekunden überschritten.")
+            break
+        try:
+            fertig = subprocess.run(argv, cwd=arbeitsplatz, env=umgebung,
+                                    stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                                    timeout=verbleibend)
+            rc = fertig.returncode
+            ausgabe_teile.append(fertig.stdout.decode("utf-8", "replace"))
+        except subprocess.TimeoutExpired as zeit:
+            abgebrochen = True
+            rc = 124
+            teil = (zeit.stdout or b"").decode("utf-8", "replace")
+            ausgabe_teile.append(teil)
+            ausgabe_teile.append(f"Abgebrochen: Der Lauf hat die Zeitgrenze von "
+                                  f"{zeitgrenze:.0f} Sekunden überschritten.")
+            break
+        except OSError as fehler:
+            rc = 2
+            ausgabe_teile.append(f"Werkzeug nicht ausführbar: {fehler}")
+            break
+        if rc != 0:
+            break
+
+    return _ergebnis(rc, "\n".join(ausgabe_teile), timed_out=abgebrochen)
+
+
+def _run_openssl(auftrag: dict) -> dict:
+    return _run_werkzeug(auftrag, "openssl", OPENSSL_BIN, OPENSSL_TIMEOUT_SECONDS)
+
+
+def _run_git(auftrag: dict) -> dict:
+    zusatz_umgebung = {
+        "GIT_AUTHOR_NAME": "Lab-Teilnehmerin",
+        "GIT_AUTHOR_EMAIL": "lab@lab.invalid",
+        "GIT_COMMITTER_NAME": "Lab-Teilnehmerin",
+        "GIT_COMMITTER_EMAIL": "lab@lab.invalid",
+        "GIT_AUTHOR_DATE": GIT_FIXED_DATE,
+        "GIT_COMMITTER_DATE": GIT_FIXED_DATE,
+        # Keine Konfiguration von außerhalb des Containers soll hereinwirken.
+        "GIT_CONFIG_GLOBAL": os.devnull,
+        "GIT_CONFIG_SYSTEM": os.devnull,
+    }
+    return _run_werkzeug(auftrag, "git", GIT_BIN, GIT_TIMEOUT_SECONDS, zusatz_umgebung)
+
+
+HANDLER = {"ansible": _run_ansible, "openssl": _run_openssl, "git": _run_git}
+
+
+def _ausfuehren(auftrag: dict) -> dict:
+    """Wählt anhand von `kind` die Ausführung. Fehlt `kind`, gilt `"ansible"`
+    (Verträge, die schon in der Warteschlange liegen, laufen unverändert
+    weiter). Eine unbekannte oder nicht freigegebene Art stürzt den Arbeiter
+    nicht ab - sie liefert ein reguläres Ergebnis mit `rc=2`."""
+    art = auftrag.get("kind") or "ansible"
+    art = str(art)
+
+    handler = HANDLER.get(art)
+    if handler is None:
+        return {"rc": 2, "output": f"Unbekannte Auftragsart {art!r}.",
+                "truncated": False, "duration_ms": 0, "timed_out": False}
+    if art not in RUNNER_KINDS:
+        freigegeben = ", ".join(sorted(RUNNER_KINDS)) or "(keine)"
+        return {"rc": 2,
+                "output": (f"Auftragsart {art!r} ist auf diesem Runner nicht freigegeben "
+                           f"(RUNNER_KINDS={freigegeben})."),
+                "truncated": False, "duration_ms": 0, "timed_out": False}
+    return handler(auftrag)
 
 
 def _antwort_schreiben(auftrags_id: str, ergebnis: dict) -> None:
@@ -248,7 +469,8 @@ def main() -> None:
     while not _warteschlange_vorbereiten():
         time.sleep(5)
     log(f"Lab-Runner bereit. Warteschlange: {QUEUE}, parallel: {MAX_PARALLEL}, "
-        f"Zeitgrenze: {TIMEOUT_SECONDS:.0f}s, Netzwerk: keines")
+        f"Zeitgrenze: {TIMEOUT_SECONDS:.0f}s, Netzwerk: keines, "
+        f"Arten: {', '.join(sorted(RUNNER_KINDS)) or '(keine)'}")
 
     letzte_reinigung = 0.0
     with ThreadPoolExecutor(max_workers=MAX_PARALLEL) as pool:

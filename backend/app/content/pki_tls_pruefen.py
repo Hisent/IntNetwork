@@ -298,6 +298,36 @@ TLS_PRUEFEN_MODULE = {
                    '4. Is the certificate within its validity period?\n'
                    '5. Are protocol version and cipher suite as expected?',
          }},
+        {'type': 'text', 'id': 'text-openssl-lab',
+         'note': 'Erste Begegnung mit dem openssl-Lab. Kurz ansagen, dass es je nach '
+                 'Server-Konfiguration abgeschaltet sein kann — dann bleiben die Befehle '
+                 'Lesestoff und die Aufgaben Denkaufgaben.',
+         'value': {
+             'de': '## Selbst ausprobieren\n\n'
+                   'Bis hierhin hast du die Befehle gelesen. Im Labor unten tippst du sie '
+                   'wirklich und bekommst die Originalausgabe zurück — kein nachgebauter Text.\n\n'
+                   'Zwei Dinge, die den Unterschied machen:\n\n'
+                   '- **Dein Arbeitsverzeichnis bleibt zwischen den Läufen bestehen.** Eine CA, '
+                   'die du im ersten Schritt anlegst, kannst du im dritten benutzen. Damit lässt '
+                   'sich eine ganze kleine PKI nachbauen.\n'
+                   '- **Fehler sind hier der Lehrstoff.** Stell absichtlich ein abgelaufenes '
+                   'Zertifikat her oder eines mit falschem Namen und sieh dir an, was `verify` '
+                   'dazu sagt. Genau diese Meldungen begegnen dir später im Betrieb.\n\n'
+                   'Es gibt kein Netz im Labor — alles, was du prüfst, erzeugst du vorher selbst.',
+             'en': '## Try It Yourself\n\n'
+                   'So far you have read the commands. In the lab below you actually type them '
+                   'and get the original output back — not a reconstruction.\n\n'
+                   'Two things make the difference:\n\n'
+                   '- **Your working directory persists between runs.** A CA you create in the '
+                   'first step is still there in the third. That is enough to build a small PKI.\n'
+                   '- **Errors are the lesson here.** Deliberately produce an expired certificate '
+                   'or one with the wrong name and see what `verify` says about it. These are '
+                   'exactly the messages you will meet in operations later.\n\n'
+                   'There is no network in the lab — whatever you check, you create yourself first.',
+         }},
+        {'type': 'widget', 'id': 'openssl-lab',
+         'note': 'Laeuft im Runner, nicht im Browser. Ohne freigegebene Art "openssl" zeigt das '
+                 'Widget einen Hinweis statt eines Fehlers.'},
         {'type': 'reflect',
          'payload': {
              'prompt_de': 'Ein Kunde meldet eine Zertifikatswarnung, aber du kannst die Website in '
