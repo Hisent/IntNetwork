@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { authApi, errMsg } from '@/lib/api'
 import { t, type Lang } from '@/lib/i18n'
 import { trainerApi, type Course } from '@/lib/trainerApi'
+import { isPasskeySupported, isPasskeyCancelled, registerPasskey, loginWithPasskey } from '@/lib/passkey'
 import { TrainerFeedback } from '@/components/TrainerFeedback'
 import { useAuthStore } from '@/store/auth'
 import { VersionBadge } from '@/components/VersionBadge'
@@ -89,6 +90,15 @@ function TrainerLogin({ onLogin }: { onLogin: (t: string) => void }) {
   const [pw, setPw] = useState('')
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
+  const [passkeyBusy, setPasskeyBusy] = useState(false)
+  // isPasskeySupported() ist eine reine Browser-/Kontext-Prüfung (kein
+  // Request) — einmal pro Render reicht, kein State/Effekt nötig.
+  const passkeySupported = isPasskeySupported()
+  const passkeyStatus = useQuery({
+    queryKey: ['passkey-status'],
+    queryFn: () => trainerApi.passkeyStatus().then((r) => r.data),
+    enabled: passkeySupported,
+  })
   async function submit(e: React.FormEvent) {
     e.preventDefault()
     if (busy) return
@@ -97,6 +107,17 @@ function TrainerLogin({ onLogin }: { onLogin: (t: string) => void }) {
     catch { setErr('Login fehlgeschlagen.') }
     finally { setBusy(false) }
   }
+  // Abbruch des Systemdialogs (NotAllowedError) ist ein normaler Rückzug,
+  // kein Anwendungsfehler — dafür bleibt der Fehlerkasten still (siehe
+  // isPasskeyCancelled in lib/passkey.ts).
+  async function submitPasskey() {
+    if (passkeyBusy) return
+    setErr(''); setPasskeyBusy(true)
+    try { onLogin((await loginWithPasskey()).access_token) }
+    catch (e) { if (!isPasskeyCancelled(e)) setErr(errMsg(e, 'Passkey-Anmeldung fehlgeschlagen.')) }
+    finally { setPasskeyBusy(false) }
+  }
+  const showPasskeyButton = passkeySupported && passkeyStatus.data?.enabled === true
   return (
     <div className="workbench flex min-h-dvh items-center justify-center p-4">
       <form onSubmit={submit} className="wb-surface flex w-full max-w-sm flex-col gap-3 p-8 shadow">
@@ -104,8 +125,14 @@ function TrainerLogin({ onLogin }: { onLogin: (t: string) => void }) {
         <h1 className="text-xl font-bold text-[var(--wb-ink)]">Trainer-Login</h1>
         <Field label="E-Mail" type="email" autoComplete="username" placeholder="trainer@beispiel.de" value={email} onChange={(e) => setEmail(e.target.value)} />
         <Field label="Passwort" type="password" autoComplete="current-password" placeholder="••••••••" value={pw} onChange={(e) => setPw(e.target.value)} />
-        {err && <p className="text-sm text-rose-600">{err}</p>}
-        <button disabled={busy} className="wb-control mt-1 rounded-lg bg-[var(--wb-accent)] py-2 font-medium text-white hover:bg-[var(--wb-accent-hover)] disabled:opacity-50 disabled:cursor-not-allowed">{busy ? 'Meldet an…' : 'Anmelden'}</button>
+        {err && <p aria-live="polite" className="text-sm text-rose-600">{err}</p>}
+        <button disabled={busy || passkeyBusy} className="wb-control mt-1 rounded-lg bg-[var(--wb-accent)] py-2 font-medium text-white hover:bg-[var(--wb-accent-hover)] disabled:opacity-50 disabled:cursor-not-allowed">{busy ? 'Meldet an…' : 'Anmelden'}</button>
+        {showPasskeyButton && (
+          <button type="button" onClick={submitPasskey} disabled={busy || passkeyBusy}
+            className="wb-control rounded-lg border border-[var(--wb-border)] py-2 font-medium text-[var(--wb-ink)] hover:bg-[var(--wb-subtle)] disabled:opacity-50 disabled:cursor-not-allowed">
+            {passkeyBusy ? 'Meldet an…' : 'Mit Passkey anmelden'}
+          </button>
+        )}
       </form>
     </div>
   )
@@ -170,6 +197,10 @@ function TrainerDashboard({ onLogout }: { onLogout: () => void }) {
               <TrainerAccounts portalContainer={workbenchRootRef.current} />
               <SettingsBlock />
             </div>
+            {/* Eigener Login-Zugriff des Trainers, aber Einrichtung passiert
+                einmalig (nicht im Tagesgeschäft) — daher eigene Zeile statt
+                Verdrängung von TrainerAccounts/SettingsBlock aus der Reihe. */}
+            <PasskeyAdmin portalContainer={workbenchRootRef.current} />
             {/* Tertiär: reine Nachschlage-Protokolle, kein Werkzeug für den
                 Alltag — nachrangig platziert und per <details> geschlossen. */}
             <div className="grid gap-6 lg:grid-cols-2">
@@ -621,6 +652,103 @@ function TrainerAccounts({ portalContainer }: { portalContainer: HTMLElement | n
         open={deleteTarget !== null}
         title="Trainer-Zugang entfernen"
         description={<>Zugang von „{deleteTarget?.name}“ endgültig entfernen? Die Person kann sich danach nicht mehr anmelden.</>}
+        confirmLabel="Endgültig entfernen"
+        cancelLabel="Abbrechen"
+        triggerRef={deleteTriggerRef}
+        container={portalContainer}
+        onConfirm={() => { if (deleteTarget) remove.mutate(deleteTarget.id); setDeleteTarget(null) }}
+        onCancel={() => setDeleteTarget(null)}
+      />
+    </Section>
+  )
+}
+
+// --- Verwaltung: Passkeys ------------------------------------------------------
+
+function PasskeyAdmin({ portalContainer }: { portalContainer: HTMLElement | null }) {
+  const qc = useQueryClient()
+  const status = useQuery({ queryKey: ['passkey-status'], queryFn: () => trainerApi.passkeyStatus().then((r) => r.data) })
+  // Liste nur abfragen, wenn die Funktion serverseitig überhaupt aktiv ist —
+  // sonst antwortet /trainer/passkey mit 503 statt einer leeren Liste.
+  const passkeys = useQuery({
+    queryKey: ['passkeys'],
+    queryFn: () => trainerApi.listPasskeys().then((r) => r.data),
+    enabled: status.data?.enabled === true,
+  })
+  const [label, setLabel] = useState('')
+  const [error, setError] = useState('')
+  const [registering, setRegistering] = useState(false)
+  const remove = useMutation({
+    mutationFn: (id: string) => trainerApi.deletePasskey(id),
+    onSuccess: () => { setError(''); qc.invalidateQueries({ queryKey: ['passkeys'] }) },
+    onError: (e) => setError(errMsg(e)),
+  })
+  // Gleiches Muster wie beim Teilnehmer-/Trainer-Löschen weiter oben: ein
+  // Passkey ist ein eigenständiger Anmeldeweg, kein einfacher Datensatz —
+  // Entfernen fragt über denselben ConfirmDialog nach.
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string; label: string } | null>(null)
+  const deleteTriggerRef = useRef<HTMLButtonElement | null>(null)
+
+  async function addPasskey(event: React.FormEvent) {
+    event.preventDefault()
+    if (registering) return
+    setError(''); setRegistering(true)
+    try {
+      // Ohne Bezeichnung ablehnen wäre unnötige Reibung — "Passkey" ist ein
+      // sinnvoller Standard, den man später umbenennen könnte, gäbe es dafür
+      // einen Endpunkt (aktuell nicht Teil des Vertrags).
+      await registerPasskey(label.trim() || 'Passkey')
+      setLabel('')
+      qc.invalidateQueries({ queryKey: ['passkeys'] })
+    } catch (e) {
+      if (!isPasskeyCancelled(e)) setError(errMsg(e, 'Registrierung fehlgeschlagen.'))
+    } finally {
+      setRegistering(false)
+    }
+  }
+
+  return (
+    <Section title="Passkeys">
+      <p className="mb-3 text-xs text-[var(--wb-muted)]">
+        Passkeys sind an diese Adresse gebunden — zieht die Instanz auf eine andere Domain um, müssen sie neu angelegt werden.
+      </p>
+      {!status.isLoading && !status.data?.enabled ? (
+        <p className="text-sm text-[var(--wb-muted)]">Passkey-Anmeldung ist auf dieser Instanz nicht eingerichtet.</p>
+      ) : (
+        <>
+          <QueryState query={passkeys} empty={passkeys.data?.length === 0}>
+            <ul className="mb-3 flex flex-col gap-1.5">
+              {passkeys.data?.map((p) => (
+                <li key={p.id} className="flex items-center justify-between gap-2 text-sm">
+                  <span className="min-w-0 truncate text-[var(--wb-ink)]">
+                    {p.label}
+                    <span className="ml-2 text-xs text-[var(--wb-muted)]">
+                      angelegt {new Date(p.created_at).toLocaleDateString('de-DE')}
+                      {' · '}
+                      {p.last_used_at ? `zuletzt genutzt ${new Date(p.last_used_at).toLocaleDateString('de-DE')}` : 'noch nicht genutzt'}
+                    </span>
+                  </span>
+                  <button
+                    onClick={(e) => { deleteTriggerRef.current = e.currentTarget; setDeleteTarget({ id: p.id, label: p.label }) }}
+                    aria-label={`Passkey „${p.label}“ entfernen`} className="shrink-0 text-rose-600 hover:text-rose-700"><Icon name="trash" className="h-4 w-4" /></button>
+                </li>
+              ))}
+            </ul>
+          </QueryState>
+          <form onSubmit={addPasskey} className="flex flex-wrap items-end gap-2">
+            <Field label="Bezeichnung" placeholder="Notebook" value={label} onChange={(e) => setLabel(e.target.value)} disabled={registering} />
+            <button disabled={registering}
+              className="wb-control inline-flex items-center gap-1 rounded-lg bg-[var(--wb-accent)] px-3 text-sm font-medium text-white hover:bg-[var(--wb-accent-hover)] disabled:opacity-50">
+              <Icon name="plus" className="h-4 w-4" /> {registering ? 'Registriert…' : 'Passkey hinzufügen'}
+            </button>
+          </form>
+        </>
+      )}
+      {error && <p aria-live="polite" className="mt-2 text-sm text-rose-600">{error}</p>}
+      <ConfirmDialog
+        open={deleteTarget !== null}
+        title="Passkey entfernen"
+        description={<>Passkey „{deleteTarget?.label}“ endgültig entfernen? Danach bleiben nur noch das Passwort und die übrigen Passkeys zur Anmeldung.</>}
         confirmLabel="Endgültig entfernen"
         cancelLabel="Abbrechen"
         triggerRef={deleteTriggerRef}

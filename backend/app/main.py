@@ -21,6 +21,7 @@ from app.models import workshop as _workshop  # noqa: F401
 from app.models import trainer as _trainer  # noqa: F401
 from app.models import certificate as _certificate  # noqa: F401
 from app.models import audit_log as _audit_log  # noqa: F401
+from app.models import trainer_credential as _trainer_credential  # noqa: F401
 
 if not settings.debug and settings.secret_key == DEFAULT_SECRET_KEY:
     raise RuntimeError("SECRET_KEY ist nicht gesetzt (noch der Default).")
@@ -109,6 +110,7 @@ from app.routers import workshops as workshops_router  # noqa: E402
 from app.routers import certificate as certificate_router  # noqa: E402
 from app.routers import lab as lab_router  # noqa: E402
 from app.routers import trainer_audit as trainer_audit_router  # noqa: E402
+from app.routers import trainer_passkey as trainer_passkey_router  # noqa: E402
 _api.include_router(auth_router.router)
 _api.include_router(courses_router.router)
 _api.include_router(join_router.router)
@@ -126,5 +128,6 @@ _api.include_router(workshops_router.router)
 _api.include_router(certificate_router.router)
 _api.include_router(lab_router.router)
 _api.include_router(trainer_audit_router.router)
+_api.include_router(trainer_passkey_router.router)
 
 app.include_router(_api)

@@ -72,6 +72,36 @@ export interface AuditLogEntry {
   id: number; created_at: string; trainer_email: string
   action: string; target: string | null; detail: string | null
 }
+export interface PasskeySummary { id: string; label: string; created_at: string; last_used_at?: string | null }
+
+// Die beiden Options-Typen kommen 1:1 vom Backend (Base64url-Strings statt
+// ArrayBuffer) — lib/passkey.ts wandelt sie in echte WebAuthn-Optionen um.
+// Hier definiert (statt in passkey.ts), damit trainerApi.ts frei von einem
+// Rück-Import aus passkey.ts bleibt.
+export interface PasskeyCredentialDescriptorJSON {
+  id: string
+  type: 'public-key'
+  transports?: AuthenticatorTransport[]
+}
+export interface PasskeyCreationOptionsJSON {
+  rp: { id?: string; name: string }
+  user: { id: string; name: string; displayName: string }
+  challenge: string
+  pubKeyCredParams: PublicKeyCredentialParameters[]
+  timeout?: number
+  excludeCredentials?: PasskeyCredentialDescriptorJSON[]
+  authenticatorSelection?: AuthenticatorSelectionCriteria
+  attestation?: AttestationConveyancePreference
+  extensions?: AuthenticationExtensionsClientInputs
+}
+export interface PasskeyRequestOptionsJSON {
+  challenge: string
+  timeout?: number
+  rpId?: string
+  allowCredentials?: PasskeyCredentialDescriptorJSON[]
+  userVerification?: UserVerificationRequirement
+  extensions?: AuthenticationExtensionsClientInputs
+}
 
 export const trainerApi = {
   listCourses: () => api.get<Course[]>('/courses'),
@@ -113,4 +143,17 @@ export const trainerApi = {
     api.post<TrainerAccount>('/trainer/accounts', { email, name, password }),
   deleteTrainerAccount: (id: number) => api.delete(`/trainer/accounts/${id}`),
   auditLog: (limit: number, offset: number) => api.get<AuditLogEntry[]>(`/trainer/audit?limit=${limit}&offset=${offset}`),
+  // Passkey (WebAuthn): status ist auch ohne Login abrufbar (Anmeldeformular
+  // muss vor dem Login wissen, ob der Knopf erscheinen soll). Ist die Funktion
+  // serverseitig nicht konfiguriert, antworten alle Endpunkte außer status
+  // mit 503 — das behandeln die Aufrufer (TrainerPage) über errMsg wie jeden
+  // anderen Fehler.
+  passkeyStatus: () => api.get<{ enabled: boolean }>('/trainer/passkey/status'),
+  passkeyRegisterOptions: () => api.post<{ publicKey: PasskeyCreationOptionsJSON }>('/trainer/passkey/register/options'),
+  passkeyRegisterVerify: (credential: unknown, label: string) =>
+    api.post<PasskeySummary>('/trainer/passkey/register/verify', { credential, label }),
+  passkeyLoginOptions: () => api.post<{ publicKey: PasskeyRequestOptionsJSON }>('/trainer/passkey/login/options', {}),
+  passkeyLoginVerify: (credential: unknown) => api.post<{ access_token: string }>('/trainer/passkey/login/verify', { credential }),
+  listPasskeys: () => api.get<PasskeySummary[]>('/trainer/passkey'),
+  deletePasskey: (id: string) => api.delete(`/trainer/passkey/${id}`),
 }

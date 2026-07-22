@@ -1,7 +1,7 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 DEFAULT_SECRET_KEY = "change-me-intnetwork-default-secret"
-APP_VERSION = "1.34.0"
+APP_VERSION = "1.35.0"
 
 
 class Settings(BaseSettings):
@@ -28,6 +28,16 @@ class Settings(BaseSettings):
     # keine Abfrage des Runner-Zustands, sondern eine eigene Angabe, die beim
     # Ausrollen von Hand parallel zu RUNNER_KINDS gepflegt werden muss.
     lab_kinds: str = "ansible"
+    # Trainer-Passkey-Anmeldung (WebAuthn), Zusatz zum Passwort: nur aktiv, wenn
+    # RP-ID und Origin BEIDE gesetzt sind (siehe app/services/passkey.py).
+    # RP-ID und Origin müssen der von außen sichtbaren Adresse entsprechen
+    # (hinter Traefik NICHT der Containername!) -- der Browser bindet den
+    # Passkey an genau diese Domain. Ein späterer Domainwechsel macht alle
+    # registrierten Passkeys unbrauchbar; das ist Absicht des Verfahrens
+    # (Phishing-Schutz), kein Fehler, und lässt sich nicht per Migration heilen.
+    webauthn_rp_id: str = ""
+    webauthn_rp_name: str = "IntLab"
+    webauthn_origin: str = ""
 
     @property
     def origins(self) -> list[str]:

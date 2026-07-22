@@ -1,5 +1,19 @@
 # Projekt-Changelog (nur für Trainer sichtbar). Neueste zuerst.
 CHANGELOG = [
+    {"date": "2026-07-22", "title": "v1.35.0 — Anmeldung per Passkey",
+     "text": "Trainer können sich jetzt zusätzlich per Passkey anmelden — mit "
+             "Fingerabdruck, Gesichtserkennung oder Geräte-PIN, ohne Eingabefeld und "
+             "ohne Benutzernamen. Gedacht ist das für die Anmeldung vor der Gruppe: "
+             "Am Beamer musste bisher ein Passwort sichtbar abgetippt werden. Das "
+             "Passwort bleibt vollwertiger Anmeldeweg — ein verlorenes oder "
+             "vergessenes Gerät sperrt niemanden aus. Im Trainerbereich gibt es einen "
+             "neuen Abschnitt „Passkeys“, um Geräte zu benennen, hinzuzufügen und zu "
+             "entfernen; jede dieser Aktionen steht im Protokoll. Zwei Dinge, die man "
+             "wissen sollte: Ein Passkey ist an die Adresse gebunden, unter der das "
+             "Portal erreichbar ist — zieht es auf eine andere Domain um, müssen alle "
+             "Passkeys neu angelegt werden. Und die Funktion braucht eine "
+             "verschlüsselte Verbindung; ohne sie erscheint der Knopf gar nicht erst. "
+             "Die Anmeldung muss vom Betrieb freigeschaltet werden, siehe README."},
     {"date": "2026-07-22", "title": "v1.34.0 — Echte Übungen für PKI und Git",
      "text": "Das Lab konnte bisher nur Ansible. Jetzt kommen zwei Werkzeuge dazu, "
              "jedes einzeln freischaltbar. Im PKI-Lehrgang lässt sich im Modul „TLS "

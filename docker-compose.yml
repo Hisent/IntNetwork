@@ -37,6 +37,15 @@ services:
       # Art, die der Runner nicht freigegeben hat, bietet das Widget sie an und
       # der Lauf scheitert mit einer Runner-Meldung.
       LAB_KINDS: ${LAB_KINDS:-ansible}
+      # Passkey-Anmeldung fuer Trainer. Beide Werte muessen der von aussen
+      # sichtbaren Adresse entsprechen — hinter Traefik also der oeffentliche
+      # Hostname, NICHT der Containername. Leer lassen schaltet die Funktion ab
+      # (der Anmeldeknopf erscheint dann gar nicht erst).
+      # ACHTUNG: Passkeys sind an die RP-ID gebunden. Ein Domainwechsel macht
+      # alle registrierten Passkeys unbrauchbar, jeder Trainer muss dann neu
+      # registrieren. Das Passwort bleibt in jedem Fall nutzbar.
+      WEBAUTHN_RP_ID: ${WEBAUTHN_RP_ID}
+      WEBAUTHN_ORIGIN: ${WEBAUTHN_ORIGIN}
     depends_on:
       db:
         condition: service_healthy

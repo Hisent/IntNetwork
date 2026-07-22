@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, inspect
+from sqlalchemy import create_engine, event, inspect
 from sqlalchemy.orm import DeclarativeBase, sessionmaker
 
 from app.config import settings
@@ -6,6 +6,21 @@ from app.config import settings
 if settings.database_url.startswith("sqlite"):
     connect_args = {"check_same_thread": False}
     engine = create_engine(settings.database_url, connect_args=connect_args)
+
+    @event.listens_for(engine, "connect")
+    def _sqlite_fremdschluessel_einschalten(dbapi_connection, _connection_record) -> None:
+        """SQLite prueft Fremdschluessel nur, wenn man es ausdruecklich verlangt.
+
+        Ohne dieses PRAGMA sind ON DELETE CASCADE und jede FK-Bedingung in
+        Entwicklung und Tests wirkungslos, waehrend Postgres in Produktion sie
+        durchsetzt — die Umgebungen verhalten sich dann unterschiedlich, und
+        zwar genau bei Loeschvorgaengen. Aufgefallen beim Passkey-Feature: Nach
+        dem Loeschen eines Trainers blieben dessen Credential-Zeilen unter
+        SQLite als Waisen stehen, statt mitgeloescht zu werden.
+        """
+        cursor = dbapi_connection.cursor()
+        cursor.execute("PRAGMA foreign_keys=ON")
+        cursor.close()
 else:
     # idle_in_transaction_session_timeout: eine Session, die eine Transaktion offen
     # liegen lässt, hält Tabellensperren und blockiert damit jedes ALTER TABLE beim

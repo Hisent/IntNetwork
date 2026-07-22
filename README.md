@@ -127,6 +127,42 @@ wird in einem eigenen Container (`runner/`), der **kein Netzwerk** hat
 (`network_mode: none`) — Aufträge und Ergebnisse laufen über ein gemeinsames
 Volume. Eingeschaltet wird mit `LAB_QUEUE_DIR=/queue` beim Backend.
 
+Seit v1.34.0 kann das Lab neben `ansible` auch `openssl` (PKI-Lehrgang) und
+`git` (Claude-Code-Workshop) ausführen. Jede Art wird einzeln freigegeben —
+`LAB_KINDS` beim Backend und `RUNNER_KINDS` beim Runner, beide Standard
+`ansible`. Die beiden Werte werden **nicht** automatisch abgeglichen (es gibt
+keinen Netzweg zwischen den Diensten), müssen also zusammen gepflegt werden.
+Details und Sicherheitsbewertung: `docs/lab-sicherheit.md`.
+
+## Passkey-Anmeldung für Trainer
+
+Zusätzlich zum Passwort können sich Trainer per Passkey anmelden (WebAuthn) —
+gedacht für den Fall, dass die Anmeldung vor der Gruppe am Beamer passiert und
+niemand ein Passwort sichtbar abtippen soll. Das Passwort bleibt vollwertiger
+Anmeldeweg; ein verlorenes Gerät sperrt niemanden aus.
+
+Eingeschaltet über zwei Werte beim Backend:
+
+```
+WEBAUTHN_RP_ID=lab.example.de           # die Domain, ohne Schema
+WEBAUTHN_ORIGIN=https://lab.example.de  # vollständiger Ursprung
+```
+
+Beide müssen der **von außen sichtbaren** Adresse entsprechen — hinter Traefik
+also dem öffentlichen Hostnamen, nicht dem Containernamen. Fehlt einer der
+Werte, ist die Funktion aus und der Anmeldeknopf erscheint gar nicht erst.
+
+Zwei Punkte, die man vorher wissen sollte:
+
+- **Passkeys sind an die Domain gebunden.** Zieht die Instanz um, sind alle
+  registrierten Passkeys unbrauchbar und müssen neu angelegt werden. Das ist
+  die Funktionsweise des Verfahrens, kein Fehler.
+- **WebAuthn braucht HTTPS** (oder `localhost`). Auf einer nackten
+  HTTP-Instanz bietet die Oberfläche die Anmeldung nicht an.
+
+Verwaltet werden Passkeys im Trainerbereich unter „Passkeys": hinzufügen,
+benennen, entfernen. Jede dieser Aktionen landet im Protokoll.
+
 Standardmäßig ist das Lab **aus**; ohne Konfiguration bleibt der Kurs
 vollständig benutzbar. Vor dem Aktivieren unbedingt
 [`docs/lab-sicherheit.md`](docs/lab-sicherheit.md) lesen — dort stehen
