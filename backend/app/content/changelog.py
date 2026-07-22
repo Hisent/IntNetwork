@@ -1,5 +1,11 @@
 # Projekt-Changelog (nur für Trainer sichtbar). Neueste zuerst.
 CHANGELOG = [
+    {"date": "2026-07-22", "title": "v1.33.1 — Versionsanzeige im Trainerbereich stimmt wieder",
+     "text": "Das Abzeichen oben im Trainerbereich zeigte weiterhin 1.31.2, obwohl "
+             "inzwischen zwei Versionen ausgeliefert waren: die Nummer stand an einer "
+             "dritten Stelle fest im Code und wurde beim Release schlicht übersehen. Sie "
+             "wird jetzt beim Bauen aus der Projektdatei übernommen, kann also nicht mehr "
+             "zurückbleiben, und ein Test vergleicht die Angaben von Server und Oberfläche."},
     {"date": "2026-07-22", "title": "v1.33.0 — Vertiefung im Netzwerk-Lehrgang & technischer Feinschliff",
      "text": "Der Netzwerk-Lehrgang bekommt einen fünften Abschnitt „Vertiefung“ mit vier "
              "Modulen, die bisher fehlten: dynamisches Routing (OSPF im Mittelpunkt, RIP und "
