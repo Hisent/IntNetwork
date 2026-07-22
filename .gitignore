@@ -13,3 +13,8 @@ docs/*
 # Betriebs (Ansible-Runner fuehrt Fremdcode aus). Sie muss im Repo liegen,
 # sonst kennt sie auf dem Server niemand.
 !docs/lab-sicherheit.md
+# Ausnahme: Die PKI-Recherche ist der Herkunftsnachweis fuer die fachlichen
+# Aussagen von 15 Kursmodulen — deren Dateikoepfe verweisen namentlich darauf,
+# und sie haelt fest, welche Angaben sich NICHT gegen eine Primaerquelle
+# belegen liessen. Ohne sie im Repo zeigt jeder dieser Verweise ins Leere.
+!docs/research-pki.md
