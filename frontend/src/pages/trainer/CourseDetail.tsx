@@ -1,12 +1,46 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { trainerApi, type Course } from '@/lib/trainerApi'
 import { TrainerFeedback } from '@/components/TrainerFeedback'
 import { ConfirmDialog } from '@/components/ConfirmDialog'
 import { Icon } from '@/components/Icon'
 import { groupModulesBySection } from '@/lib/moduleGroups'
+import { t } from '@/lib/i18n'
 import type { ModuleMeta, Workshop } from '@/types'
-import { Section, QueryState } from './shared'
+import { Section, QueryState, CopyButton } from './shared'
+
+// QR-Groesse: mittig im gewuenschten 160-200px-Fenster.
+const INVITE_QR_PX = 176
+
+// Lokal erzeugter QR-Code fuer den Einladungslink (CSP verbietet externe
+// QR-Dienste wie api.qrserver.com — img-src ist nur 'self' data:, siehe
+// nginx.conf). qrcode-generator ist dependency-frei und wird dynamisch
+// importiert, damit die Encoding-Logik nicht im Haupt-Chunk landet (der
+// Trainer-Bereich ist ohnehin schon als eigene Route lazy geladen).
+function InviteQr({ link, alt }: { link: string; alt: string }) {
+  const [dataUrl, setDataUrl] = useState<string | null>(null)
+  useEffect(() => {
+    let cancelled = false
+    setDataUrl(null)
+    import('qrcode-generator').then(({ default: qrcodeGen }) => {
+      if (cancelled) return
+      const qr = qrcodeGen(0, 'M')
+      qr.addData(link)
+      qr.make()
+      // cellSize so waehlen, dass das fertige Bild ungefaehr INVITE_QR_PX
+      // trifft — die Modulanzahl haengt von der Linklaenge ab (Auto-Version).
+      const modules = qr.getModuleCount()
+      const margin = 4
+      const cellSize = Math.max(2, Math.round(INVITE_QR_PX / (modules + margin * 2)))
+      setDataUrl(qr.createDataURL(cellSize, margin))
+    })
+    return () => { cancelled = true }
+  }, [link])
+  if (!dataUrl) {
+    return <div className="shrink-0 animate-pulse rounded-lg bg-[var(--wb-subtle)]" style={{ width: INVITE_QR_PX, height: INVITE_QR_PX }} aria-hidden="true" />
+  }
+  return <img src={dataUrl} alt={alt} width={INVITE_QR_PX} height={INVITE_QR_PX} className="shrink-0 rounded-lg border border-[var(--wb-border)] bg-white p-2" />
+}
 
 // --- Kurs-Detail (Detail) -----------------------------------------------------
 
@@ -92,6 +126,28 @@ export function CourseDetail({ course, workshopTitle, workshops, portalContainer
         </div>
         {deleteCourse.isError && <p className="mt-2 text-right text-sm text-rose-600">Löschen fehlgeschlagen.</p>}
       </div>
+
+      {course.workshop_key && (
+        <Section title={t('de', 'inviteTitle')}>
+          {(() => {
+            const inviteLink = `${window.location.origin}/workshops/${course.workshop_key}?code=${course.join_code}`
+            return (
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm text-[var(--wb-muted)]">{t('de', 'inviteHint')}</p>
+                  <label className="mt-3 block text-xs font-semibold uppercase tracking-wide text-[var(--wb-muted)]">{t('de', 'inviteLinkLabel')}</label>
+                  <div className="mt-1 flex items-center gap-2 rounded-lg border border-[var(--wb-border)] bg-[var(--wb-subtle)] px-3 py-2">
+                    <code className="min-w-0 flex-1 truncate text-sm text-[var(--wb-ink)]">{inviteLink}</code>
+                    <CopyButton text={inviteLink} label={t('de', 'copyLink')} />
+                  </div>
+                  {requireApproval && <p className="mt-2 text-xs text-amber-700">{t('de', 'inviteApprovalNote')}</p>}
+                </div>
+                <InviteQr link={inviteLink} alt={t('de', 'inviteQrAlt')} />
+              </div>
+            )
+          })()}
+        </Section>
+      )}
 
       <Section title="Gerade aktiv">
         <QueryState query={presence} empty={presence.data?.length === 0}>

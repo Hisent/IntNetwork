@@ -37,6 +37,30 @@ export function QueryState({ query, empty, children }: { query: { isLoading: boo
   return <>{children}</>
 }
 
+// Generischer Kopier-Button fuer beliebigen Text (z.B. einen ganzen Link) —
+// CopyCode oben zeigt den Code SELBST als Button-Beschriftung, das passt fuer
+// kurze Codes, aber nicht fuer eine lange URL. Gleiches aria-live-Feedback-
+// Muster, nur mit eigener, kurzer Beschriftung statt dem kopierten Text.
+export function CopyButton({ text, lang = 'de' as Lang, label }: { text: string; lang?: Lang; label?: string }) {
+  const [copied, setCopied] = useState(false)
+  return (
+    <span className="relative inline-flex shrink-0">
+      <button
+        onClick={(e) => {
+          e.stopPropagation()
+          navigator.clipboard.writeText(text)
+          setCopied(true)
+          setTimeout(() => setCopied(false), 1500)
+        }}
+        className="wb-control inline-flex items-center gap-1 rounded-lg border border-[var(--wb-border)] px-2.5 py-1 text-xs font-semibold text-[var(--wb-accent)] hover:text-[var(--wb-accent-hover)]"
+      >
+        {copied ? `${t(lang, 'copiedCode')} ✓` : (label ?? t(lang, 'copyCode'))}
+      </button>
+      <span aria-live="polite" className="sr-only">{copied ? t(lang, 'copiedCode') : ''}</span>
+    </span>
+  )
+}
+
 export function CopyCode({ code, lang = 'de' as Lang }: { code: string; lang?: Lang }) {
   const [copied, setCopied] = useState(false)
   return (

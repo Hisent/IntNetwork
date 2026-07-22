@@ -1,10 +1,10 @@
-import { useState } from 'react'
-import { Link, useNavigate, useParams } from 'react-router-dom'
+import { useEffect, useRef, useState } from 'react'
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { authApi, errMsg } from '@/lib/api'
 import { workshopApi } from '@/lib/workshopApi'
 import { useAuthStore } from '@/store/auth'
-import { useDocumentLang, type Lang } from '@/lib/i18n'
+import { t, useDocumentLang, type Lang } from '@/lib/i18n'
 import { PageSkeleton } from '@/components/PageSkeleton'
 import { LoadError } from '@/components/LoadError'
 import { WorkshopTheme } from '@/components/WorkshopTheme'
@@ -31,13 +31,29 @@ export function WorkshopPage() {
   const setAuth = useAuthStore((state) => state.setAuth)
   const [lang, setLang] = useState<Lang>('de')
   useDocumentLang(lang)
-  const [code, setCode] = useState('')
+  const [searchParams] = useSearchParams()
+  // Nur der Query-Param BEIM ERSTEN Render zaehlt fuers Vorbefuellen — spaetere
+  // Aenderungen an searchParams sollen das bereits editierbare Code-Feld nicht
+  // ueberschreiben. useState(() => ...) liest ihn deshalb nur einmal.
+  const [prefilledFromLink] = useState(() => Boolean(searchParams.get('code')))
+  const [code, setCode] = useState(() => (searchParams.get('code') ?? '').toUpperCase())
   const [name, setName] = useState('')
   const [resumeCode, setResumeCode] = useState('')
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
   const [issuedCode, setIssuedCode] = useState<string | null>(null)
   const workshop = useQuery({ queryKey: ['workshop', key], queryFn: () => workshopApi.get(key).then((r) => r.data) })
+  const nameInputRef = useRef<HTMLInputElement>(null)
+  const focusedOnceRef = useRef(false)
+  // Fokus einmalig aufs Namensfeld legen, sobald das Formular tatsaechlich
+  // steht (workshop.data geladen) UND der Code aus dem Link kam — bei
+  // direktem Seitenaufruf (kein Query-Param) bleibt das Verhalten unveraendert.
+  useEffect(() => {
+    if (!focusedOnceRef.current && prefilledFromLink && workshop.data) {
+      nameInputRef.current?.focus()
+      focusedOnceRef.current = true
+    }
+  }, [prefilledFromLink, workshop.data])
 
   if (workshop.isLoading) return <PageSkeleton />
   if (workshop.isError) return <LoadError lang={lang} onRetry={() => workshop.refetch()} />
@@ -119,9 +135,12 @@ export function WorkshopPage() {
               <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--workshop-accent)]">{data.modules.length} {lang === 'de' ? 'Module' : 'modules'}</p>
               <h2 className="mt-3 text-2xl font-bold tracking-tight text-slate-950">{lang === 'de' ? 'Mit Kurs-Code teilnehmen' : 'Join with course code'}</h2>
               <p className="mt-2 text-sm leading-relaxed text-slate-500">{lang === 'de' ? 'Der Code ordnet dich dem richtigen Durchlauf zu.' : 'The code assigns you to the correct course run.'}</p>
+              {prefilledFromLink && (
+                <p className="mt-3 rounded-lg bg-[var(--workshop-accent-surface)] px-3 py-2 text-xs text-[var(--workshop-accent)]">{t(lang, 'codeFromLinkHint')}</p>
+              )}
               <form onSubmit={join} className="mt-6 space-y-4">
                 <label className="block text-sm font-medium text-slate-700">{lang === 'de' ? 'Kurs-Code' : 'Course code'}<input required value={code} onChange={(event) => setCode(event.target.value.toUpperCase())} autoComplete="one-time-code" className="mt-1.5 block w-full rounded-lg border border-slate-300 px-3 py-2 font-mono uppercase tracking-widest outline-none focus:border-[var(--workshop-accent)] focus:ring-2 focus:ring-[var(--workshop-accent-soft)]" /></label>
-                <label className="block text-sm font-medium text-slate-700">{lang === 'de' ? 'Dein Name' : 'Your name'}<input required value={name} onChange={(event) => setName(event.target.value)} autoComplete="name" className="mt-1.5 block w-full rounded-lg border border-slate-300 px-3 py-2 outline-none focus:border-[var(--workshop-accent)] focus:ring-2 focus:ring-[var(--workshop-accent-soft)]" /></label>
+                <label className="block text-sm font-medium text-slate-700">{lang === 'de' ? 'Dein Name' : 'Your name'}<input ref={nameInputRef} required value={name} onChange={(event) => setName(event.target.value)} autoComplete="name" className="mt-1.5 block w-full rounded-lg border border-slate-300 px-3 py-2 outline-none focus:border-[var(--workshop-accent)] focus:ring-2 focus:ring-[var(--workshop-accent-soft)]" /></label>
                 <label className="block text-sm font-medium text-slate-700">{lang === 'de' ? 'Wiederaufnahme-Code' : 'Resume code'} <span className="font-normal text-slate-400">({lang === 'de' ? 'nur beim erneuten Beitritt' : 'only when rejoining'})</span><input value={resumeCode} onChange={(event) => setResumeCode(event.target.value.toUpperCase())} autoComplete="off" className="mt-1.5 block w-full rounded-lg border border-slate-300 px-3 py-2 font-mono uppercase tracking-widest outline-none focus:border-[var(--workshop-accent)] focus:ring-2 focus:ring-[var(--workshop-accent-soft)]" /></label>
                 {error && <p role="alert" className="text-sm text-rose-600">{error}</p>}
                 <button disabled={busy} className="inline-flex w-full items-center justify-center gap-1.5 rounded-lg bg-[var(--workshop-accent)] px-4 py-2.5 font-semibold text-white hover:bg-[var(--workshop-accent-hover)] disabled:opacity-50 disabled:cursor-not-allowed">{busy ? (lang === 'de' ? 'Wird gestartet…' : 'Starting…') : <>{lang === 'de' ? 'Workshop starten' : 'Start workshop'}<Icon name="arrowRight" className="h-4 w-4" /></>}</button>

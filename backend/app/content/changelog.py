@@ -1,5 +1,16 @@
 # Projekt-Changelog (nur für Trainer sichtbar). Neueste zuerst.
 CHANGELOG = [
+    {"date": "2026-07-22", "title": "v1.41.0 — Einladungslink & QR statt Code-Diktat",
+     "text": "Teilnehmer müssen den Kurs-Code nicht mehr einzeln mitgeteilt bekommen. "
+             "Im Kursdetail gibt es jetzt eine Sektion „Teilnehmer einladen“ mit einem "
+             "Einladungslink und einem QR-Code: einmal an die Wand werfen oder in die "
+             "Kalendereinladung legen. Wer ihn öffnet oder scannt, hat den Kurs-Code schon "
+             "eingetragen und muss nur noch seinen Namen eingeben — der Name bleibt "
+             "bewusst, damit Fortschritt, Präsenz und Teilnahmebestätigung weiter einer "
+             "Person zugeordnet sind. Der Zugang bleibt geschützt (ohne Link kein Beitritt), "
+             "und wenn für den Kurs eine Freigabe verlangt wird, gilt sie weiterhin — der "
+             "Link umgeht sie nicht. Der QR-Code wird lokal im Browser erzeugt, es wird kein "
+             "externer Dienst aufgerufen."},
     {"date": "2026-07-22", "title": "v1.40.0 — Neuer Lehrgang: Network Access Control (NAC)",
      "text": "Das Portal hat einen sechsten Lehrgang mit 14 Modulen. Er führt von den "
              "Grundlagen (Wer darf ins Netz, in welchem Zustand) über 802.1X, RADIUS und "

@@ -94,6 +94,13 @@ export const STRINGS = {
     heroBody: 'Ein Kurs, der Netzwerke nicht erklärt, sondern zeigt. Frames bauen, '
       + 'Switches lernen lassen, Pakete routen.',
     internalNote: 'Interne Schulung. Zugang per Kurs-Code.',
+    codeFromLinkHint: 'Der Kurs-Code wurde aus deinem Einladungslink übernommen — trag einfach noch deinen Namen ein.',
+    inviteTitle: 'Teilnehmer einladen',
+    inviteHint: 'Teilnehmer öffnen den Link oder scannen den QR-Code und tragen dort nur noch ihren Namen ein.',
+    inviteLinkLabel: 'Einladungslink',
+    copyLink: 'Link kopieren',
+    inviteQrAlt: 'QR-Code zum Kursbeitritt',
+    inviteApprovalNote: 'Beitritte über diesen Link müssen weiterhin von dir freigegeben werden.',
   },
   en: {
     join: 'Join',
@@ -178,6 +185,13 @@ export const STRINGS = {
     heroBody: "A course that doesn't just explain networks, it shows them. Build frames, "
       + 'let switches learn, route packets.',
     internalNote: 'Internal training. Access via course code.',
+    codeFromLinkHint: 'The course code was filled in from your invitation link — just add your name.',
+    inviteTitle: 'Invite participants',
+    inviteHint: 'Participants open the link or scan the QR code and only need to enter their name there.',
+    inviteLinkLabel: 'Invitation link',
+    copyLink: 'Copy link',
+    inviteQrAlt: 'QR code to join the course',
+    inviteApprovalNote: 'Joins via this link still require your approval.',
   },
 } as const
 
