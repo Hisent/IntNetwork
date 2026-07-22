@@ -18,8 +18,27 @@ Trainer erstellen Kurse und aktivieren die passenden Module. Teilnehmer treten m
 
 ## Kurse
 
-- **Netzwerk-Grundlagen:** 17 aufeinander aufbauende Module von Paketaufbau und Switching bis Wireshark, jeweils mit Theorie, Simulator und serverseitig bewertetem Quiz.
-- **Claude-Code-Workshop:** 18 Module zu LLMs, CLI-Workflows, CLAUDE.md, MCP, Subagents, Hooks, CI/CD, sicherem Enterprise-Einsatz, effektiven Workflows, Git-Zusammenarbeit und einem Abschlussprojekt.
+Fünf Lehrgänge mit zusammen 85 Modulen. Jeder hat eine eigene Farbwelt, eigene
+Abschnitte und einen eigenen Kurs-Code; Teilnehmer sehen immer nur den Lehrgang,
+dem ihr Durchlauf zugeordnet ist.
+
+- **Netzwerk-Grundlagen (21 Module):** von Paketaufbau und Switching über
+  Subnetting, Routing, DNS und DHCP bis Firewall, IPv6, WLAN und Wireshark,
+  dazu ein Vertiefungsblock mit dynamischem Routing (OSPF), Redundanz
+  (STP/LACP/VRRP), Angriffen im lokalen Netz und Enterprise-WLAN mit 802.1X.
+- **Claude-Code-Workshop (18 Module):** LLM-Grundlagen, CLI-Workflows,
+  CLAUDE.md, MCP, Subagents, Hooks, CI/CD, sicherer Enterprise-Einsatz,
+  Git-Zusammenarbeit und ein Abschlussprojekt.
+- **Infoblox DDI (16 Module):** Grid-Architektur, Rollen, DNS-Zonen und -Views,
+  DNSSEC, RPZ, DHCP und Failover, IPAM, Reporting, Backup und WAPI.
+- **Ansible Automation (15 Module):** Inventare, Playbooks, Variablen, Fakten,
+  Schleifen, Templates, Idempotenz, Rollen, Vault und die Automation Platform.
+- **PKI & Verschlüsselung (15 Module):** Hashfunktionen, symmetrische und
+  asymmetrische Verfahren, Signaturen, X.509, Vertrauensketten, Widerruf,
+  TLS-Handshake und -Konfiguration, interne PKI und Post-Quanten-Kryptografie.
+
+Jedes Modul bringt Theorie, mindestens ein interaktives Element und ein
+serverseitig bewertetes Quiz mit.
 
 ## Funktionen
 

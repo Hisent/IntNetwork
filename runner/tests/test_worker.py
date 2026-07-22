@@ -19,6 +19,7 @@ import json
 import os
 import sys
 import time
+from concurrent.futures import Future, ThreadPoolExecutor
 
 import pytest
 
@@ -247,6 +248,68 @@ def test_ausfuehren_liefert_ergebnis_ohne_timeout_bei_schnellem_lauf(tmp_path, m
     assert ergebnis["timed_out"] is False
     assert ergebnis["rc"] == 0
     assert "PLAY RECAP" in ergebnis["output"]
+
+
+# Startet selbst einen Enkelprozess (einen eigenstaendigen Kindprozess des
+# ansible-playbook-Ersatzes), der unabhaengig von seinem Elternteil
+# weiterlaeuft und per Herzschlag-Datei "ich lebe noch" meldet - das
+# Playbook-Aequivalent von `shell: sleep 9999 &`. Der lab_dir-Wert (das
+# DAUERHAFTE Arbeitsverzeichnis, siehe _workspace) wird ueber die
+# --extra-vars-Kommandozeile mitgegeben und ist damit unabhaengig vom
+# fluechtigen Lauf-Verzeichnis nach dem Abbruch noch einsehbar.
+_ENKEL_SKRIPT = (
+    "import os, subprocess, sys, time\n"
+    "lab_dir = [a for a in sys.argv if a.startswith('lab_dir=')][0].split('=', 1)[1]\n"
+    "enkel_datei = os.path.join(lab_dir, 'enkel.py')\n"
+    "herzschlag_datei = os.path.join(lab_dir, 'herzschlag.txt').replace(chr(92), '/')\n"
+    "with open(enkel_datei, 'w') as f:\n"
+    "    f.write(\n"
+    "        'import time\\n'\n"
+    "        'while True:\\n'\n"
+    "        '    with open(' + repr(herzschlag_datei) + ', \"a\") as h:\\n'\n"
+    "        '        h.write(\"x\")\\n'\n"
+    "        '    time.sleep(0.1)\\n'\n"
+    "    )\n"
+    "subprocess.Popen([sys.executable, enkel_datei])\n"
+    "time.sleep(30)\n"
+)
+
+
+@pytest.mark.skipif(
+    sys.platform == "win32",
+    reason=("Prozessgruppen-Kill ist POSIX-only (os.killpg); Windows kennt kein "
+            "Aequivalent und faellt auf proc.kill() zurueck, das den Enkelprozess "
+            "bewusst NICHT mitbeendet - siehe Kommentar in worker._mit_zeitgrenze_ausfuehren. "
+            "Produktion laeuft ausschliesslich unter Linux."),
+)
+def test_ausfuehren_beendet_bei_zeitueberschreitung_auch_enkelprozess(tmp_path, monkeypatch):
+    monkeypatch.setattr(worker, "WORKSPACE_ROOT", tmp_path / "workspaces")
+    monkeypatch.setattr(worker, "ANSIBLE_BIN", sys.executable)
+    monkeypatch.setattr(worker, "TIMEOUT_SECONDS", 1.0)
+
+    auftrag = {
+        "playbook": "- hosts: all\n",
+        "inventory": _ENKEL_SKRIPT,
+        "workspace": "enkel-test",
+    }
+
+    ergebnis = worker._ausfuehren(auftrag)
+
+    assert ergebnis["timed_out"] is True
+    assert ergebnis["rc"] == 124
+
+    herzschlag = tmp_path / "workspaces" / "enkel-test" / "herzschlag.txt"
+    # Kurz abwarten, falls der Enkel im Moment des Abbruchs noch nicht einmal
+    # zum ersten Schreiben gekommen war.
+    for _ in range(30):
+        if herzschlag.exists() and herzschlag.stat().st_size > 0:
+            break
+        time.sleep(0.1)
+    assert herzschlag.exists() and herzschlag.stat().st_size > 0
+
+    groesse_nach_abbruch = herzschlag.stat().st_size
+    time.sleep(1.0)  # der Enkel haette in dieser Zeit weitergeschrieben, wenn er noch liefe
+    assert herzschlag.stat().st_size == groesse_nach_abbruch
 
 
 # ---------------------------------------------------------------------------
@@ -643,3 +706,138 @@ def test_ausfuehren_openssl_laeuft_durch_wenn_ueber_runner_kinds_freigegeben(wor
 
     assert ergebnis["rc"] == 0
     assert "dispatch-ok" in ergebnis["output"]
+
+
+# ---------------------------------------------------------------------------
+# 11. Beanspruchung je Runde begrenzt auf MAX_QUEUE_DEPTH (_runde) - behebt:
+#     die Schleife uebernahm bisher JEDEN Durchlauf ALLE wartenden
+#     Auftragsdateien und reichte sie an den Executor weiter, unabhaengig
+#     davon, wie viele bereits offen waren.
+# ---------------------------------------------------------------------------
+
+class _NichtEinreichenderPool:
+    """Test-Doppelgaenger fuer ThreadPoolExecutor: submit() fuehrt _bearbeiten
+    NICHT aus (kein echter Auftragslauf noetig, es geht nur um die
+    Beanspruchungs-Logik), merkt sich aber, wofuer submit() aufgerufen wurde,
+    und gibt ein Future zurueck, das die aufrufende Seite selbst auf "fertig"
+    setzen kann."""
+
+    def __init__(self) -> None:
+        self.eingereicht: list = []
+
+    def submit(self, fn, *args, **kwargs):
+        self.eingereicht.append((fn, args))
+        return Future()  # bleibt "nicht fertig", bis der Test es abschliesst
+
+
+def _auftragsdateien_anlegen(queue_in, anzahl: int) -> list:
+    dateien = []
+    for i in range(anzahl):
+        pfad = queue_in / f"auftrag-{i:03d}.json"
+        pfad.write_text(json.dumps({"playbook": "- hosts: all"}), encoding="utf-8")
+        dateien.append(pfad)
+    return dateien
+
+
+def test_runde_beansprucht_hoechstens_max_queue_depth_je_durchlauf(tmp_path, monkeypatch):
+    queue = tmp_path / "queue"
+    (queue / "in").mkdir(parents=True)
+    (queue / "out").mkdir(parents=True)
+    monkeypatch.setattr(worker, "QUEUE", queue)
+    monkeypatch.setattr(worker, "MAX_QUEUE_DEPTH", 3)
+
+    _auftragsdateien_anlegen(queue / "in", 10)
+    pool = _NichtEinreichenderPool()
+
+    offene, beansprucht = worker._runde(pool, [])
+
+    assert beansprucht == 3
+    assert len(pool.eingereicht) == 3
+    assert len(offene) == 3
+    # Die restlichen 7 Auftragsdateien bleiben unberuehrt in 'in/' liegen -
+    # das ist gewollt, nicht behebungsbeduerftig (siehe Docstring von _runde).
+    verbliebene = sorted((queue / "in").glob("*.json"))
+    assert len(verbliebene) == 7
+
+
+def test_runde_beansprucht_nichts_wenn_bereits_max_queue_depth_offen_ist(tmp_path, monkeypatch):
+    queue = tmp_path / "queue"
+    (queue / "in").mkdir(parents=True)
+    (queue / "out").mkdir(parents=True)
+    monkeypatch.setattr(worker, "QUEUE", queue)
+    monkeypatch.setattr(worker, "MAX_QUEUE_DEPTH", 2)
+
+    _auftragsdateien_anlegen(queue / "in", 5)
+    pool = _NichtEinreichenderPool()
+    bereits_offen = [Future(), Future()]  # simuliert zwei noch nicht fertige Laeufe
+
+    offene, beansprucht = worker._runde(pool, bereits_offen)
+
+    assert beansprucht == 0
+    assert pool.eingereicht == []
+    assert len(offene) == 2
+    assert len(list((queue / "in").glob("*.json"))) == 5
+
+
+def test_runde_beansprucht_wieder_sobald_futures_fertig_sind(tmp_path, monkeypatch):
+    """Kein dauerhaftes Verklemmen: Sind Futures fertig, macht die naechste
+    Runde wieder Platz frei."""
+    queue = tmp_path / "queue"
+    (queue / "in").mkdir(parents=True)
+    (queue / "out").mkdir(parents=True)
+    monkeypatch.setattr(worker, "QUEUE", queue)
+    monkeypatch.setattr(worker, "MAX_QUEUE_DEPTH", 2)
+
+    _auftragsdateien_anlegen(queue / "in", 5)
+    pool = _NichtEinreichenderPool()
+
+    fertiges_future: Future = Future()
+    fertiges_future.set_result(None)  # bereits abgeschlossen
+    unfertiges_future: Future = Future()
+
+    offene, beansprucht = worker._runde(pool, [fertiges_future, unfertiges_future])
+
+    # Das fertige Future wurde aussortiert, dadurch war 1 Platz frei.
+    assert beansprucht == 1
+    assert len(offene) == 2  # das unfertige plus den einen frisch beanspruchten
+    assert len(list((queue / "in").glob("*.json"))) == 4
+
+
+def test_runde_verwendet_echten_threadpoolexecutor_und_beansprucht_erneut_nach_abschluss(tmp_path, monkeypatch):
+    """Integrationsnaher Test mit einem echten ThreadPoolExecutor statt des
+    Doppelgaengers: _bearbeiten laeuft tatsaechlich durch (schneller
+    Ansible-Ersatzlauf), danach ist wieder Platz fuer neue Auftraege."""
+    queue = tmp_path / "queue"
+    (queue / "in").mkdir(parents=True)
+    (queue / "out").mkdir(parents=True)
+    monkeypatch.setattr(worker, "QUEUE", queue)
+    monkeypatch.setattr(worker, "MAX_QUEUE_DEPTH", 1)
+    monkeypatch.setattr(worker, "WORKSPACE_ROOT", tmp_path / "workspaces")
+    monkeypatch.setattr(worker, "ANSIBLE_BIN", sys.executable)
+    monkeypatch.setattr(worker, "TIMEOUT_SECONDS", 15.0)
+
+    for i in range(2):
+        (queue / "in" / f"auftrag-{i}.json").write_text(json.dumps({
+            "playbook": "- hosts: all\n",
+            "inventory": _SCHNELLES_SKRIPT,
+            "workspace": f"runde-test-{i}",
+        }), encoding="utf-8")
+
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        offene, beansprucht = worker._runde(pool, [])
+        assert beansprucht == 1
+        assert len(offene) == 1
+
+        # Auf den Abschluss des ersten Auftrags warten, statt eine feste Zeit
+        # zu schlafen - vermeidet Flakiness bei langsamer Test-Maschine.
+        frist = time.monotonic() + 10
+        while not offene[0].done() and time.monotonic() < frist:
+            time.sleep(0.05)
+        assert offene[0].done()
+
+        offene, beansprucht = worker._runde(pool, offene)
+        assert beansprucht == 1
+        assert len(offene) == 1
+
+    ausgaben = list((queue / "out").glob("*.json"))
+    assert len(ausgaben) == 2

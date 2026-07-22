@@ -154,6 +154,16 @@ async def lab_run(data: LabRunRequest,
     warteschlange = _queue()
     if not warteschlange or not (warteschlange / "in").is_dir():
         raise HTTPException(status_code=503, detail="Das Lab ist auf diesem Server nicht aktiviert.")
+    # LAB_KINDS ist nicht nur ein Hinweis fuer die Oberflaeche, sondern eine
+    # Freigabe: Ohne diese Pruefung liesse sich per API eine Art nutzen, die der
+    # Betrieb bewusst nicht anbieten wollte — es genuegte, dass der Runner sie
+    # freigegeben hat. Die beiden Listen werden getrennt gepflegt (kein Netzweg
+    # zwischen den Diensten, siehe config.py), also muss jede Seite ihre eigene
+    # durchsetzen.
+    if data.kind not in settings.lab_kinds_list:
+        raise HTTPException(
+            status_code=403,
+            detail=f"Die Lab-Art '{data.kind}' ist auf diesem Server nicht freigegeben.")
 
     felder = _auftragsfelder(data)
     auftrags_id = uuid.uuid4().hex

@@ -103,6 +103,15 @@ Plattform ihre Netze zusammensteckt.
   Arbeitsverzeichnisse anderer Teilnehmender im selben Container lesen. Dort
   liegen keine Geheimnisse und keine Nutzerdaten — aber es ist keine Trennung
   wie zwischen zwei Maschinen.
+- **Die gemeinsame Warteschlange.** Dasselbe gilt für `/queue`: Der Runner
+  braucht dort Schreibrechte, und ein Playbook läuft mit genau diesen Rechten.
+  Ein böswilliger Teilnehmer kann also fremde Aufträge und Ergebnisse lesen,
+  verändern oder löschen — und damit fremde Läufe stören oder deren Ausgabe
+  fälschen. Nach außen (Backend, Datenbank, Netz) führt von dort weiterhin kein
+  Weg; das Volume ist nur zwischen diesen beiden Diensten geteilt. Wer das im
+  Bedrohungsmodell nicht tragen will, gibt `ansible` nicht frei: Die Arten
+  `openssl` und `git` führen keinen frei geschriebenen Code aus (siehe
+  „Auftragsarten" oben).
 - **Missbrauch durch Berechtigte.** Wer sich anmelden darf, darf Code
   ausführen. Der Teilnehmerkreis ist die eigentliche Zugangskontrolle.
 

@@ -28,6 +28,7 @@ import os
 import re
 import shlex
 import shutil
+import signal
 import subprocess
 import sys
 import tempfile
@@ -39,6 +40,10 @@ QUEUE = Path(os.getenv("RUNNER_QUEUE_DIR", "/queue"))
 TIMEOUT_SECONDS = float(os.getenv("RUNNER_TIMEOUT", "30"))
 MAX_OUTPUT_BYTES = int(os.getenv("RUNNER_MAX_OUTPUT", "65536"))
 MAX_PARALLEL = int(os.getenv("RUNNER_MAX_PARALLEL", "2"))
+# Wie viele Auftraege der Runner hoechstens gleichzeitig BEANSPRUCHT hat
+# (laufend + im Executor wartend) - nicht zu verwechseln mit MAX_PARALLEL,
+# das nur begrenzt, wie viele davon GLEICHZEITIG laufen. Siehe _runde().
+MAX_QUEUE_DEPTH = int(os.getenv("RUNNER_MAX_QUEUE_DEPTH", str(MAX_PARALLEL * 2)))
 ANSIBLE_BIN = os.getenv("ANSIBLE_PLAYBOOK_BIN", "ansible-playbook")
 POLL_SECONDS = float(os.getenv("RUNNER_POLL_SECONDS", "0.2"))
 
@@ -114,6 +119,62 @@ def _workspace(kennung: str) -> Path:
     return verzeichnis
 
 
+def _mit_zeitgrenze_ausfuehren(argv: list[str], cwd: Path, env: dict[str, str],
+                                zeitgrenze: float) -> tuple[int, bytes, bool]:
+    """Wie `subprocess.run(argv, ..., timeout=zeitgrenze)`, beendet bei
+    Zeitueberschreitung aber die GESAMTE Prozessgruppe des gestarteten
+    Prozesses statt nur ihn selbst.
+
+    Hintergrund (docs/lab-sicherheit.md, "Harte Zeitgrenze je Lauf"): Ein
+    Playbook mit z.B. `shell: sleep 9999 &` startet einen eigenen
+    Kindprozess. `subprocess.run(...)` ruft beim Abbruch `kill()` nur auf
+    den direkt gestarteten Prozess (hier: ansible-playbook) - was DER
+    seinerseits gestartet hat, lief bisher unbeeindruckt weiter und
+    unterlief damit die Zusage einer harten Zeitgrenze je Lauf.
+
+    POSIX (Produktion - der Runner faehrt ausschliesslich im Linux-
+    Container): `start_new_session=True` macht den gestarteten Prozess zur
+    Sitzungs- UND Gruppenfuehrerin einer neuen Prozessgruppe. Alles, was er
+    selbst startet, erbt diese Gruppe (sofern es sie nicht explizit
+    verlaesst) - `os.killpg` trifft deshalb auch Kinder, die der Prozess
+    selbst hervorgebracht hat.
+
+    Windows (nur die Entwicklungsmaschine - dort laufen ausschliesslich die
+    Tests, niemals die Produktion): POSIX-Prozessgruppen gibt es dort nicht.
+    `proc.kill()` bleibt auf den direkten Kindprozess beschraenkt; ein von
+    ihm gestarteter Enkelprozess ueberlebt den Abbruch weiterhin. Das ist
+    ein bewusst hingenommener, dokumentierter Unterschied - keine
+    vorgetaeuschte Gleichwertigkeit zum POSIX-Verhalten.
+
+    Rueckgabe: (rc, stdout_bytes, timed_out). Bei Abbruch ist rc IMMER 124,
+    stdout_bytes enthaelt die bis zum Abbruch angefallene Teilausgabe.
+    """
+    posix = sys.platform != "win32"
+    proc = subprocess.Popen(argv, cwd=cwd, env=env, stdout=subprocess.PIPE,
+                            stderr=subprocess.STDOUT, start_new_session=posix)
+    try:
+        roh, _ = proc.communicate(timeout=zeitgrenze)
+        return proc.returncode, roh, False
+    except subprocess.TimeoutExpired:
+        if posix:
+            try:
+                os.killpg(os.getpgid(proc.pid), signal.SIGKILL)
+            except ProcessLookupError:
+                pass  # zwischen Timeout und Signal bereits beendet
+        else:
+            proc.kill()
+        # Nach dem Signal erneut abholen: liefert die bis zum Abbruch
+        # angefallene Teilausgabe und vermeidet einen Zombie-Prozess. Der
+        # kurze Nachlauf hier ist die Ausnahme - ein totes/gekilltes
+        # Prozessbaum-Ende raeumt sich in aller Regel sofort auf.
+        try:
+            roh, _ = proc.communicate(timeout=5)
+        except subprocess.TimeoutExpired:
+            proc.kill()
+            roh, _ = proc.communicate()
+        return 124, roh, True
+
+
 def _run_ansible(auftrag: dict) -> dict:
     playbook = str(auftrag.get("playbook", ""))[:16_000]
     inventar = auftrag.get("inventory") or DEFAULT_INVENTORY
@@ -170,18 +231,12 @@ def _run_ansible(auftrag: dict) -> dict:
             if systemroot:
                 umgebung["SystemRoot"] = systemroot
 
-        try:
-            fertig = subprocess.run(argumente, cwd=laufverzeichnis, env=umgebung,
-                                    stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
-                                    timeout=TIMEOUT_SECONDS)
-            rc = fertig.returncode
-            text = fertig.stdout.decode("utf-8", "replace")
-        except subprocess.TimeoutExpired as zeit:
-            abgebrochen = True
-            rc = 124
-            teil = (zeit.stdout or b"").decode("utf-8", "replace")
-            text = (teil + f"\n\nAbgebrochen: Der Lauf hat die Zeitgrenze von "
-                           f"{TIMEOUT_SECONDS:.0f} Sekunden überschritten.")
+        rc, roh, abgebrochen = _mit_zeitgrenze_ausfuehren(
+            argumente, laufverzeichnis, umgebung, TIMEOUT_SECONDS)
+        text = roh.decode("utf-8", "replace")
+        if abgebrochen:
+            text += (f"\n\nAbgebrochen: Der Lauf hat die Zeitgrenze von "
+                     f"{TIMEOUT_SECONDS:.0f} Sekunden überschritten.")
 
         text, gekappt = _clip(text)
         return {"rc": rc, "output": text, "truncated": gekappt,
@@ -320,22 +375,17 @@ def _run_werkzeug(auftrag: dict, art: str, binaer: str, zeitgrenze: float,
                                   f"{zeitgrenze:.0f} Sekunden überschritten.")
             break
         try:
-            fertig = subprocess.run(argv, cwd=arbeitsplatz, env=umgebung,
-                                    stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
-                                    timeout=verbleibend)
-            rc = fertig.returncode
-            ausgabe_teile.append(fertig.stdout.decode("utf-8", "replace"))
-        except subprocess.TimeoutExpired as zeit:
-            abgebrochen = True
-            rc = 124
-            teil = (zeit.stdout or b"").decode("utf-8", "replace")
-            ausgabe_teile.append(teil)
-            ausgabe_teile.append(f"Abgebrochen: Der Lauf hat die Zeitgrenze von "
-                                  f"{zeitgrenze:.0f} Sekunden überschritten.")
-            break
+            rc, roh, befehl_abgebrochen = _mit_zeitgrenze_ausfuehren(
+                argv, arbeitsplatz, umgebung, verbleibend)
         except OSError as fehler:
             rc = 2
             ausgabe_teile.append(f"Werkzeug nicht ausführbar: {fehler}")
+            break
+        ausgabe_teile.append(roh.decode("utf-8", "replace"))
+        if befehl_abgebrochen:
+            abgebrochen = True
+            ausgabe_teile.append(f"Abgebrochen: Der Lauf hat die Zeitgrenze von "
+                                  f"{zeitgrenze:.0f} Sekunden überschritten.")
             break
         if rc != 0:
             break
@@ -465,21 +515,59 @@ def _warteschlange_vorbereiten() -> bool:
     return True
 
 
+def _runde(pool: ThreadPoolExecutor, offene: list) -> tuple[list, int]:
+    """Eine Runde: fertige Futures aussortieren, dann so viele neue Auftraege
+    beanspruchen und an den Pool geben, wie zusammen mit den noch offenen
+    (laufenden + im Executor wartenden) Futures MAX_QUEUE_DEPTH nicht
+    ueberschreiten.
+
+    Ohne diese Grenze uebernahm die Schleife JEDEN Durchlauf ALLE wartenden
+    Auftragsdateien auf einmal (sie sind durch _uebernehmen ja schon aus
+    'in/' umbenannt, fuer den naechsten Durchlauf also unsichtbar) und reichte
+    sie an den Executor weiter. MAX_PARALLEL begrenzte dabei nur, wie viele
+    GLEICHZEITIG laufen - nicht, wie viele bereits beansprucht in der
+    Warteschlange des Executors auf ihre Ausfuehrung warten. Bei vielen
+    Auftraegen wuchs diese Warteschlange unbegrenzt; und weil ein beanspruchter
+    Auftrag fuer das Backend nicht mehr als "noch wartend" erkennbar ist, lief
+    das Backend nach TIMEOUT_SECONDS + 15s bereits in seinen eigenen 504 -
+    der Auftrag wurde trotzdem noch ausgefuehrt, nur schaute niemand mehr hin.
+
+    Nicht beanspruchte Auftragsdateien bleiben ABSICHTLICH in 'in/' liegen -
+    das ist kein Leck, das noch geschlossen werden muss: Das Backend raeumt
+    seinen eigenen (getimeouteten) Auftrag beim 504 selbst weg, und
+    _aufraeumen() entfernt liegengebliebene Dateien nach JOB_MAX_AGE_SECONDS.
+    Wer hier "vorsichtshalber sofort alles beanspruchen" nachruestet, stellt
+    genau den Fehler wieder her, den diese Funktion beheben soll.
+
+    Gibt (aktualisierte Liste offener Futures, Anzahl in dieser Runde frisch
+    beanspruchter Auftraege) zurueck.
+    """
+    offene = [future for future in offene if not future.done()]
+    frei = MAX_QUEUE_DEPTH - len(offene)
+    beansprucht = 0
+    if frei > 0:
+        for pfad in sorted((QUEUE / "in").glob("*.json"))[:frei]:
+            ziel = _uebernehmen(pfad)
+            if ziel is not None:
+                offene.append(pool.submit(_bearbeiten, ziel))
+                beansprucht += 1
+    return offene, beansprucht
+
+
 def main() -> None:
     while not _warteschlange_vorbereiten():
         time.sleep(5)
     log(f"Lab-Runner bereit. Warteschlange: {QUEUE}, parallel: {MAX_PARALLEL}, "
+        f"Warteschlangentiefe: {MAX_QUEUE_DEPTH}, "
         f"Zeitgrenze: {TIMEOUT_SECONDS:.0f}s, Netzwerk: keines, "
         f"Arten: {', '.join(sorted(RUNNER_KINDS)) or '(keine)'}")
 
     letzte_reinigung = 0.0
+    offene: list = []
     with ThreadPoolExecutor(max_workers=MAX_PARALLEL) as pool:
         while True:
-            auftraege = [b for b in (_uebernehmen(p) for p in sorted((QUEUE / "in").glob("*.json"))) if b]
-            if auftraege:
-                for pfad in auftraege:
-                    pool.submit(_bearbeiten, pfad)
-            else:
+            offene, beansprucht = _runde(pool, offene)
+            if beansprucht == 0:
                 time.sleep(POLL_SECONDS)
             if time.monotonic() - letzte_reinigung > 60:
                 _aufraeumen()

@@ -1,5 +1,22 @@
 # Projekt-Changelog (nur für Trainer sichtbar). Neueste zuerst.
 CHANGELOG = [
+    {"date": "2026-07-22", "title": "v1.36.0 — Härtung des Labs nach externem Audit",
+     "text": "Ein externer Sicherheits-Audit hat vier Punkte am Lab gefunden, alle "
+             "bestätigt und behoben. Die Zeitgrenze je Lauf beendete bisher nur den "
+             "direkt gestarteten Vorgang — was dieser selbst gestartet hatte, lief "
+             "weiter. Jetzt wird die gesamte Prozessgruppe beendet, die zugesagte harte "
+             "Grenze stimmt also wieder. Der Lab-Dienst nimmt außerdem nur noch so viele "
+             "Aufträge an, wie er zeitnah bearbeiten kann; vorher konnten sich Aufträge "
+             "unbegrenzt anstauen und wurden noch ausgeführt, nachdem niemand mehr auf "
+             "das Ergebnis wartete. Die Freigabe der Lab-Arten wird jetzt auch "
+             "serverseitig durchgesetzt: Bisher war sie nur ein Hinweis für die "
+             "Oberfläche, sodass sich eine nicht angebotene Art über die Schnittstelle "
+             "trotzdem nutzen ließ. Und die Sicherheitsdokumentation benennt nun "
+             "ausdrücklich, dass Teilnehmende innerhalb des Lab-Dienstes auch fremde "
+             "Aufträge sehen und stören können — nach außen führt von dort weiterhin "
+             "kein Weg. Für den Kursbetrieb ändert sich nichts. Nebenbei: Die "
+             "Projektbeschreibung nannte noch zwei Lehrgänge und 17 Netzwerkmodule, "
+             "inzwischen sind es fünf Lehrgänge mit 85 Modulen."},
     {"date": "2026-07-22", "title": "v1.35.1 — Neustartschleife nach dem Passkey-Update behoben",
      "text": "Nach dem Update auf v1.35.0 startete das Portal auf dem Server immer "
              "wieder neu und war nicht erreichbar. Ursache: Beim ersten Start wurde die "

@@ -39,6 +39,10 @@ def warteschlange(tmp_path, monkeypatch):
     (tmp_path / "in").mkdir()
     (tmp_path / "out").mkdir()
     monkeypatch.setattr(settings, "lab_queue_dir", str(tmp_path))
+    # Alle Arten freigeben: Die Tests unten pruefen Auftragsformat und Grenzen,
+    # nicht die Freigabe. Die steht in ihrem eigenen Test weiter unten — ohne
+    # diese Zeile liefen alle openssl/git-Tests in das 403 der Freigabepruefung.
+    monkeypatch.setattr(settings, "lab_kinds", "ansible,openssl,git")
     return tmp_path
 
 
@@ -102,7 +106,10 @@ def test_lab_ohne_warteschlange_meldet_deaktiviert(monkeypatch):
         assert "nicht aktiviert" in antwort.json()["detail"]
 
 
-def test_lab_meldet_aktiv_mit_warteschlange(warteschlange):
+def test_lab_meldet_aktiv_mit_warteschlange(warteschlange, monkeypatch):
+    # Eigene Freigabe statt der grosszuegigen aus der Fixture: hier geht es um
+    # die Standardlage, in der nur Ansible freigegeben ist.
+    monkeypatch.setattr(settings, "lab_kinds", "ansible")
     with TestClient(app) as client:
         kopf = _teilnehmer(client)
         assert client.get("/api/lab/status", headers=kopf).json() == {
@@ -274,3 +281,34 @@ def test_lab_werkzeug_unerlaubter_dateiname_liefert_422(warteschlange):
         }, headers=_teilnehmer(client))
         assert antwort.status_code == 422
         assert "Dateiname" in antwort.json()["detail"]
+
+
+def test_lab_nicht_freigegebene_art_liefert_403(warteschlange, monkeypatch):
+    """LAB_KINDS ist eine Freigabe, kein blosser Hinweis fuer die Oberflaeche.
+
+    Audit-Befund vom 22.07.2026: /run akzeptierte jede Art, die das Schema
+    kennt. Damit liess sich eine Art nutzen, die der Betrieb bewusst nicht
+    anbieten wollte — es genuegte, dass der Runner sie freigegeben hatte.
+    """
+    monkeypatch.setattr(settings, "lab_kinds", "ansible")
+    with TestClient(app) as client:
+        kopf = _teilnehmer(client)
+        gesperrt = client.post("/api/lab/run", json={
+            "kind": "openssl", "commands": ["version"],
+        }, headers=kopf)
+        assert gesperrt.status_code == 403
+        assert "openssl" in gesperrt.json()["detail"]
+        # Es darf auch kein Auftrag in der Warteschlange gelandet sein.
+        assert list((warteschlange / "in").glob("*.json")) == []
+
+
+def test_lab_freigegebene_art_kommt_durch(warteschlange, monkeypatch):
+    """Gegenprobe zum Test darueber: dieselbe Anfrage mit Freigabe laeuft."""
+    monkeypatch.setattr(settings, "lab_kinds", "ansible,openssl")
+    with TestClient(app) as client:
+        _fake_runner(warteschlange, {"rc": 0, "output": "ok", "truncated": False,
+                                     "duration_ms": 1, "timed_out": False})
+        antwort = client.post("/api/lab/run", json={
+            "kind": "openssl", "commands": ["version"],
+        }, headers=_teilnehmer(client))
+        assert antwort.status_code == 200
