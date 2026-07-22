@@ -1,8 +1,9 @@
+import logging
 import time
 
 from fastapi import APIRouter, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy import text
+from sqlalchemy import inspect, text
 from sqlalchemy.exc import OperationalError
 
 from app.config import APP_VERSION, DEFAULT_SECRET_KEY, settings
@@ -41,10 +42,27 @@ def _wait_for_db(retries: int = 30, delay: float = 2.0) -> None:
 
 
 _wait_for_db()
-# Schema wird jetzt von Alembic verwaltet (migrations/). create_all bleibt als
-# reiner Sicherheits-No-op danach: legt nur echte fehlende Tabellen an, ändert nie
-# bestehende — falls eine Migration mal nicht durchlief, startet die App trotzdem.
+# Schema wird von Alembic verwaltet (migrations/). create_all bleibt als
+# Sicherheitsnetz danach: legt nur fehlende Tabellen an, ändert nie bestehende.
+#
+# ACHTUNG, teuer gelernt (Vorfall 22.07.2026): Wenn create_all hier wirklich
+# etwas anlegt, ist das KEIN harmloser Normalfall, sondern bedeutet, dass
+# Modelle und Migrationen auseinanderlaufen. Alembic weiß von so einer Tabelle
+# nichts — die zugehörige Revision will sie beim nächsten Start erneut anlegen,
+# scheitert an "relation already exists", der Prozess stirbt und die Plattform
+# startet ihn endlos neu. Deshalb wird der Fall jetzt laut protokolliert statt
+# still zu passieren; die betroffene Migration gehört dann idempotent gemacht
+# (Muster: migrations/versions/7305d4053e50_add_trainer_credential.py).
 run_migrations()
+_fehlende_tabellen = sorted(
+    set(Base.metadata.tables) - set(inspect(engine).get_table_names())
+)
+if _fehlende_tabellen:
+    logging.getLogger(__name__).warning(
+        "create_all legt Tabellen an, die keine Migration erzeugt hat: %s — "
+        "Modelle und Migrationen laufen auseinander, siehe Kommentar in main.py.",
+        ", ".join(_fehlende_tabellen),
+    )
 Base.metadata.create_all(bind=engine)
 
 from app.content.seed import seed_missing_content  # noqa: E402

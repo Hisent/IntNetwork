@@ -18,6 +18,18 @@ depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade() -> None:
+    # Idempotent, und das aus einem konkreten Grund (Vorfall 22.07.2026):
+    # app/main.py ruft nach run_migrations() zusätzlich
+    # Base.metadata.create_all(). Das legt fehlende Tabellen an, OHNE dass
+    # Alembic davon erfährt. Steht alembic_version danach noch auf der
+    # Vorgänger-Revision, scheitert dieser Schritt beim nächsten Start an
+    # "relation already exists" -- der Prozess stirbt, die Plattform startet neu,
+    # und das wiederholt sich endlos. Ein Deploy heilt das dann nicht mehr,
+    # es braucht einen Eingriff in der Datenbank.
+    # Deshalb: existiert die Tabelle bereits, wird sie hier nur noch gestampt.
+    if sa.inspect(op.get_bind()).has_table('trainer_credential'):
+        return
+
     # Rein additive neue Tabelle. ondelete='CASCADE' auf trainer_id: löscht ein
     # Trainer sich, dürfen seine Passkeys nicht als verwaiste Zeilen liegen
     # bleiben (siehe app/models/trainer_credential.py für die zweite,

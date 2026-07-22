@@ -1,5 +1,17 @@
 # Projekt-Changelog (nur für Trainer sichtbar). Neueste zuerst.
 CHANGELOG = [
+    {"date": "2026-07-22", "title": "v1.35.1 — Neustartschleife nach dem Passkey-Update behoben",
+     "text": "Nach dem Update auf v1.35.0 startete das Portal auf dem Server immer "
+             "wieder neu und war nicht erreichbar. Ursache: Beim ersten Start wurde die "
+             "neue Tabelle für Passkeys auf einem zweiten Weg angelegt, von dem die "
+             "Schemaverwaltung nichts wusste — beim nächsten Start wollte sie dieselbe "
+             "Tabelle erneut anlegen, brach ab, und das wiederholte sich endlos. Der "
+             "Schritt erkennt eine bereits vorhandene Tabelle jetzt und überspringt sie; "
+             "ein erneutes Ausrollen genügt, ein Eingriff in die Datenbank ist nicht "
+             "nötig. Damit so etwas künftig auffällt, bevor es zum Ausfall wird, "
+             "protokolliert der Start jetzt deutlich, wenn Tabellen auf diesem zweiten "
+             "Weg entstehen. Daten gingen nicht verloren; angelegte Passkeys gab es zu "
+             "diesem Zeitpunkt noch keine."},
     {"date": "2026-07-22", "title": "v1.35.0 — Anmeldung per Passkey",
      "text": "Trainer können sich jetzt zusätzlich per Passkey anmelden — mit "
              "Fingerabdruck, Gesichtserkennung oder Geräte-PIN, ohne Eingabefeld und "
