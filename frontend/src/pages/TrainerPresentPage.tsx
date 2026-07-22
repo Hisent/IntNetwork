@@ -54,7 +54,7 @@ export function TrainerPresentPage() {
   const m = mod.data
 
   return (
-    <WorkshopTheme theme={workshopTheme(m.workshop_key)}><div className="min-h-[100dvh] bg-white flex flex-col">
+    <WorkshopTheme theme={workshopTheme(m.workshop_key)}><main id="main-content" tabIndex={-1} className="min-h-[100dvh] bg-white flex flex-col">
       <div className="flex-1 flex items-center justify-center p-8 sm:p-14">
         <div className="w-full max-w-3xl text-lg">
           {slide === 0 ? (
@@ -102,6 +102,6 @@ export function TrainerPresentPage() {
         </div>
         <span className="text-xs text-slate-300 hidden sm:block">Pfeiltasten / Leertaste</span>
       </div>
-    </div></WorkshopTheme>
+    </main></WorkshopTheme>
   )
 }

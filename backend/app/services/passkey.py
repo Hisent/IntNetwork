@@ -47,9 +47,23 @@ def enabled() -> bool:
     return bool(settings.webauthn_rp_id and settings.webauthn_origin)
 
 
+def _drop_expired_challenges(now: float) -> None:
+    """Raeumt abgelaufene, nie eingeloeste Challenges aus _challenges.
+    Ohne das waechst das Dict mit jedem Registrierungs-/Anmeldeversuch, der
+    abgebrochen wird (Nutzer schliesst den Browser-Dialog, Timeout, ...),
+    unbegrenzt weiter -- bis Prozessende ueber Monate ein echtes Leck.
+    Amortisiert bei jedem Aufruf statt per Hintergrund-Thread: billig (Dict
+    bleibt durch die 5-Minuten-TTL ohnehin klein)."""
+    expired = [key for key, expiry in _challenges.items() if expiry <= now]
+    for key in expired:
+        del _challenges[key]
+
+
 def _store_challenge(challenge: bytes) -> None:
+    now = time.monotonic()
+    _drop_expired_challenges(now)
     key = webauthn.helpers.bytes_to_base64url(challenge)
-    _challenges[key] = time.monotonic() + CHALLENGE_TTL_SECONDS
+    _challenges[key] = now + CHALLENGE_TTL_SECONDS
 
 
 def consume_challenge(challenge: bytes) -> bool:

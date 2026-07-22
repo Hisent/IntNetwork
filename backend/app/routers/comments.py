@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
@@ -24,13 +24,17 @@ class CommentReq(BaseModel):
     body: str = Field(max_length=2000)
 
 
+# Default grosszuegig (200), damit bestehende Aufrufer ohne limit/offset nichts
+# von dem verlieren, was heute (ohne jede Begrenzung) sichtbar ist -- ein
+# einzelnes Modul kommt in der Praxis nie in die Naehe von 200 Kommentaren.
 @router.get("/modules/{key}/comments")
-def list_comments(key: str, db: Session = Depends(get_db), p: Participant = Depends(get_participant)):
+def list_comments(key: str, limit: int = Query(200, ge=1, le=1000), offset: int = Query(0, ge=0),
+                  db: Session = Depends(get_db), p: Participant = Depends(get_participant)):
     _guard(db)
     require_visible_module(db, p.course_id, key)
     rows = db.query(Comment).filter(
         Comment.course_id == p.course_id, Comment.module_key == key
-    ).order_by(Comment.created_at).all()
+    ).order_by(Comment.created_at).offset(offset).limit(limit).all()
     return [_serialize(c, c.author_kind == "participant" and c.participant_id == p.id) for c in rows]
 
 

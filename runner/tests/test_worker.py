@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import json
 import os
+import shlex
 import sys
 import time
 from concurrent.futures import Future, ThreadPoolExecutor
@@ -558,17 +559,29 @@ def test_run_werkzeug_lehnt_unerlaubten_dateinamen_ab(workspace_root, monkeypatc
 #     parametrisiert.
 # ---------------------------------------------------------------------------
 
+# Seit der Allowlist-Pruefung (_werkzeug_argv_pruefen) muss das erste Token
+# eines Befehls ein ECHTES, freigegebenes Unterkommando der jeweiligen Art
+# sein - "sh -c ..." oder ein blosses "-c" (Pythons eigenes Flag, das bisher
+# als Fake-Binaerprogramm-Trick diente) werden jetzt schon VOR dem
+# Prozessstart abgelehnt. Die folgenden Tests, die python als Ersatz fuer
+# openssl/git einsetzen, legen ihr Test-Skript deshalb als Datei an, deren
+# Name selbst ein freigegebenes Unterkommando ist (z.B. "genrsa" fuer
+# openssl, "status" fuer git) - python fuehrt eine so benannte Datei im
+# Arbeitsverzeichnis genauso aus wie jedes andere Skript, unabhaengig von der
+# Dateiendung.
+
+
 def test_run_werkzeug_fremdes_erstes_token_fuehrt_nicht_zu_fremdprogramm(workspace_root, monkeypatch):
     monkeypatch.setattr(worker, "OPENSSL_BIN", sys.executable)
     monkeypatch.setattr(worker, "OPENSSL_TIMEOUT_SECONDS", 15.0)
 
     ergebnis = worker._run_openssl({"workspace": "fremd-test", "commands": ["sh -c whoami"]})
 
-    # argv war [sys.executable, "sh", "-c", "whoami"]: Python versucht, eine
-    # Datei "sh" als Skript zu oeffnen, findet keine und scheitert reproduzierbar.
-    # "whoami" wurde nie ausgefuehrt - es gab weder Shell noch eigenstaendigen
-    # Programmstart dafuer.
-    assert ergebnis["rc"] != 0
+    # "sh" ist kein freigegebenes openssl-Unterkommando (Allowlist in
+    # _werkzeug_argv_pruefen) - der Befehl wird abgelehnt, BEVOR ueberhaupt
+    # ein Prozess startet. "whoami" wurde nie ausgefuehrt.
+    assert ergebnis["rc"] == 2
+    assert "sh" in ergebnis["output"]
     assert ergebnis["timed_out"] is False
 
 
@@ -578,7 +591,8 @@ def test_run_werkzeug_mehrere_befehle_nacheinander_mit_dollar_zeile(workspace_ro
 
     ergebnis = worker._run_openssl({
         "workspace": "reihenfolge-test",
-        "commands": ["-c \"print('eins')\"", "-c \"print('zwei')\""],
+        "files": {"genrsa": "print('eins')\n", "req": "print('zwei')\n"},
+        "commands": ["genrsa", "req"],
     })
 
     assert ergebnis["rc"] == 0
@@ -593,10 +607,11 @@ def test_run_werkzeug_bricht_nach_fehlschlag_ab_und_meldet_dessen_rc(workspace_r
 
     ergebnis = worker._run_openssl({
         "workspace": "abbruch-test",
-        "commands": [
-            "-c \"import sys; print('eins'); sys.exit(3)\"",
-            "-c \"print('zwei')\"",
-        ],
+        "files": {
+            "genrsa": "import sys; print('eins'); sys.exit(3)\n",
+            "req": "print('zwei')\n",
+        },
+        "commands": ["genrsa", "req"],
     })
 
     assert ergebnis["rc"] == 3
@@ -610,13 +625,15 @@ def test_run_werkzeug_arbeitsverzeichnis_bleibt_zwischen_zwei_auftraegen_erhalte
 
     lauf1 = worker._run_openssl({
         "workspace": "dauerhaft-test",
-        "commands": ["-c \"open('spur.txt', 'w').write('zustand-nach-lauf-1')\""],
+        "files": {"genrsa": "open('spur.txt', 'w').write('zustand-nach-lauf-1')\n"},
+        "commands": ["genrsa"],
     })
     assert lauf1["rc"] == 0
 
     lauf2 = worker._run_openssl({
         "workspace": "dauerhaft-test",
-        "commands": ["-c \"print(open('spur.txt').read())\""],
+        "files": {"req": "print(open('spur.txt').read())\n"},
+        "commands": ["req"],
     })
 
     assert lauf2["rc"] == 0
@@ -630,7 +647,8 @@ def test_run_werkzeug_zeitgrenze_greift_fuer_gesamten_lauf(workspace_root, monke
     start = time.monotonic()
     ergebnis = worker._run_openssl({
         "workspace": "zeit-werkzeug-test",
-        "commands": ["-c \"import time; time.sleep(5)\""],
+        "files": {"genrsa": "import time; time.sleep(5)\n"},
+        "commands": ["genrsa"],
     })
     dauer = time.monotonic() - start
 
@@ -647,11 +665,8 @@ def test_run_werkzeug_zeitgrenze_gilt_ueber_mehrere_befehle_hinweg_nicht_je_befe
     start = time.monotonic()
     ergebnis = worker._run_openssl({
         "workspace": "zeit-mehrfach-test",
-        "commands": [
-            "-c \"import time; time.sleep(0.7)\"",
-            "-c \"import time; time.sleep(0.7)\"",
-            "-c \"import time; time.sleep(0.7)\"",
-        ],
+        "files": {"genrsa": "import time; time.sleep(0.7)\n"},
+        "commands": ["genrsa", "genrsa", "genrsa"],
     })
     dauer = time.monotonic() - start
 
@@ -667,10 +682,14 @@ def test_run_git_setzt_autoren_und_committer_umgebung(workspace_root, monkeypatc
 
     ergebnis = worker._run_git({
         "workspace": "git-umgebung-test",
-        "commands": [
-            "-c \"import os; print(os.environ.get('GIT_AUTHOR_NAME'), "
-            "os.environ.get('GIT_AUTHOR_DATE'), os.environ.get('GIT_COMMITTER_EMAIL'))\"",
-        ],
+        "files": {
+            "status": (
+                "import os\n"
+                "print(os.environ.get('GIT_AUTHOR_NAME'), "
+                "os.environ.get('GIT_AUTHOR_DATE'), os.environ.get('GIT_COMMITTER_EMAIL'))\n"
+            ),
+        },
+        "commands": ["status"],
     })
 
     assert ergebnis["rc"] == 0
@@ -683,10 +702,14 @@ def test_run_git_bare_form_und_praefigierte_form_liefern_dasselbe_ergebnis(works
     monkeypatch.setattr(worker, "GIT_TIMEOUT_SECONDS", 15.0)
 
     ohne_praefix = worker._run_git({
-        "workspace": "git-form-a", "commands": ["-c \"print('ok')\""],
+        "workspace": "git-form-a",
+        "files": {"status": "print('ok')\n"},
+        "commands": ["status"],
     })
     mit_praefix = worker._run_git({
-        "workspace": "git-form-b", "commands": ["git -c \"print('ok')\""],
+        "workspace": "git-form-b",
+        "files": {"status": "print('ok')\n"},
+        "commands": ["git status"],
     })
 
     assert ohne_praefix["rc"] == mit_praefix["rc"] == 0
@@ -701,7 +724,8 @@ def test_ausfuehren_openssl_laeuft_durch_wenn_ueber_runner_kinds_freigegeben(wor
 
     ergebnis = worker._ausfuehren({
         "kind": "openssl", "workspace": "dispatch-test",
-        "commands": ["-c \"print('dispatch-ok')\""],
+        "files": {"genrsa": "print('dispatch-ok')\n"},
+        "commands": ["genrsa"],
     })
 
     assert ergebnis["rc"] == 0
@@ -841,3 +865,158 @@ def test_runde_verwendet_echten_threadpoolexecutor_und_beansprucht_erneut_nach_a
 
     ausgaben = list((queue / "out").glob("*.json"))
     assert len(ausgaben) == 2
+
+
+# ---------------------------------------------------------------------------
+# 12. Allowlist-Pruefung fuer git/openssl (_werkzeug_argv_pruefen) - schliesst
+#     die P0-Luecke: ohne diese Pruefung liess sich ueber den git-eigenen
+#     "ext"-Transport beliebiger Shell-Code im Container ausfuehren, TROTZ
+#     network_mode: none - siehe Kommentar ueber _werkzeug_argv_pruefen in
+#     worker.py.
+# ---------------------------------------------------------------------------
+
+def test_werkzeug_argv_pruefen_lehnt_ext_transport_injektion_ab():
+    tokens = shlex_split_wie_argv_bauen(
+        "-c protocol.ext.allow=always clone ext::sh -c 'whoami' /tmp/x"
+    )
+    fehlermeldung = worker._werkzeug_argv_pruefen(tokens, "git")
+
+    assert fehlermeldung is not None
+    # Das erste abgelehnte Token ist bereits "-c" (Konfigurationsinjektion) -
+    # der ganze restliche Angriff (clone/ext::) wird nie erreicht.
+    assert "-c" in fehlermeldung
+
+
+def test_werkzeug_argv_pruefen_lehnt_ext_praefix_in_argument_ab():
+    fehlermeldung = worker._werkzeug_argv_pruefen(["clone", "ext::sh"], "git")
+    assert fehlermeldung is not None
+    assert "ext::" in fehlermeldung
+
+
+def test_werkzeug_argv_pruefen_lehnt_file_praefix_in_argument_ab():
+    fehlermeldung = worker._werkzeug_argv_pruefen(["clone", "file:///etc"], "git")
+    assert fehlermeldung is not None
+    assert "file://" in fehlermeldung
+
+
+def test_werkzeug_argv_pruefen_lehnt_upload_pack_flag_ab():
+    fehlermeldung = worker._werkzeug_argv_pruefen(
+        ["clone", "--upload-pack=/bin/sh", "."], "git",
+    )
+    assert fehlermeldung is not None
+    assert "--upload-pack" in fehlermeldung
+
+
+@pytest.mark.parametrize("subbefehl", ["clone", "push", "fetch", "pull", "remote"])
+def test_werkzeug_argv_pruefen_lehnt_netz_subbefehle_fuer_git_ab(subbefehl):
+    fehlermeldung = worker._werkzeug_argv_pruefen([subbefehl], "git")
+    assert fehlermeldung is not None
+    assert subbefehl in fehlermeldung
+
+
+@pytest.mark.parametrize("befehl", [
+    ["status"], ["init"], ["commit", "-m", "x"], ["mv", "-f", "a", "b"],
+])
+def test_werkzeug_argv_pruefen_laesst_freigegebene_git_unterbefehle_durch(befehl):
+    assert worker._werkzeug_argv_pruefen(befehl, "git") is None
+
+
+def test_werkzeug_argv_pruefen_lehnt_openssl_engine_flag_ab():
+    fehlermeldung = worker._werkzeug_argv_pruefen(["req", "-engine", "/tmp/x.so"], "openssl")
+    assert fehlermeldung is not None
+    assert "-engine" in fehlermeldung
+
+
+def test_werkzeug_argv_pruefen_lehnt_openssl_config_flag_ab():
+    fehlermeldung = worker._werkzeug_argv_pruefen(["req", "-config", "/tmp/x"], "openssl")
+    assert fehlermeldung is not None
+    assert "-config" in fehlermeldung
+
+
+def test_werkzeug_argv_pruefen_laesst_freigegebenen_openssl_unterbefehl_durch():
+    assert worker._werkzeug_argv_pruefen(
+        ["genrsa", "-out", "server.key", "2048"], "openssl",
+    ) is None
+
+
+def test_werkzeug_argv_pruefen_lehnt_openssl_netzbefehl_s_client_ab():
+    fehlermeldung = worker._werkzeug_argv_pruefen(["s_client", "-connect", "x:443"], "openssl")
+    assert fehlermeldung is not None
+    assert "s_client" in fehlermeldung
+
+
+def test_werkzeug_argv_pruefen_ignoriert_nicht_gelistete_art():
+    # "ansible" baut seine eigene, feste Kommandozeile und laeuft nie ueber
+    # _run_werkzeug - die Pruefung soll dafuer trotzdem nicht greifen (None).
+    assert worker._werkzeug_argv_pruefen(["irgendwas"], "ansible") is None
+
+
+def shlex_split_wie_argv_bauen(befehl: str) -> list[str]:
+    """Hilfsfunktion: zerlegt wie `_argv_bauen`, ohne dessen Praefix-Logik zu
+    brauchen - fuer Tests, die eine ganze Angriffszeile direkt gegen
+    `_werkzeug_argv_pruefen` pruefen wollen."""
+    return shlex.split(befehl)
+
+
+def test_run_werkzeug_ext_transport_wird_abgelehnt_und_kein_prozess_gestartet(
+    workspace_root, monkeypatch,
+):
+    monkeypatch.setattr(worker, "GIT_BIN", sys.executable)
+    monkeypatch.setattr(worker, "GIT_TIMEOUT_SECONDS", 15.0)
+
+    aufgerufen = {"popen": False}
+    echtes_popen = worker.subprocess.Popen
+
+    def wachsames_popen(*args, **kwargs):
+        aufgerufen["popen"] = True
+        return echtes_popen(*args, **kwargs)
+
+    monkeypatch.setattr(worker.subprocess, "Popen", wachsames_popen)
+
+    ergebnis = worker._run_git({
+        "workspace": "ext-angriff-test",
+        "commands": ["-c protocol.ext.allow=always clone ext::sh -c 'whoami' /tmp/x"],
+    })
+
+    assert ergebnis["rc"] == 2
+    assert aufgerufen["popen"] is False  # kein Prozess wurde je gestartet
+    assert "-c" in ergebnis["output"]
+
+
+def test_run_werkzeug_fremdes_subcommand_wird_abgelehnt_erlaubtes_kommt_durch(
+    workspace_root, monkeypatch,
+):
+    monkeypatch.setattr(worker, "GIT_BIN", sys.executable)
+    monkeypatch.setattr(worker, "GIT_TIMEOUT_SECONDS", 15.0)
+
+    abgelehnt = worker._run_git({"workspace": "subcommand-test-a", "commands": ["clone"]})
+    assert abgelehnt["rc"] == 2
+    assert "clone" in abgelehnt["output"]
+
+    erlaubt_init = worker._run_git({
+        "workspace": "subcommand-test-b",
+        "files": {"init": "print('ok')\n"},
+        "commands": ["init"],
+    })
+    assert erlaubt_init["rc"] == 0
+
+    erlaubt_commit = worker._run_git({
+        "workspace": "subcommand-test-b",
+        "files": {"commit": "print('ok')\n"},
+        "commands": ["commit -m x"],
+    })
+    assert erlaubt_commit["rc"] == 0
+
+
+def test_run_git_setzt_git_allow_protocol_auf_file(workspace_root, monkeypatch):
+    monkeypatch.setattr(worker, "GIT_BIN", sys.executable)
+    monkeypatch.setattr(worker, "GIT_TIMEOUT_SECONDS", 15.0)
+
+    ergebnis = worker._run_git({
+        "workspace": "allow-protocol-test",
+        "files": {"status": "import os; print(os.environ.get('GIT_ALLOW_PROTOCOL'))\n"},
+        "commands": ["status"],
+    })
+
+    assert ergebnis["rc"] == 0
+    assert "file" in ergebnis["output"]

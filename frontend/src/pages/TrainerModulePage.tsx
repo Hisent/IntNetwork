@@ -88,7 +88,7 @@ export function TrainerModulePage() {
   const m = mod.data
 
   return (
-    <WorkshopTheme theme={workshopTheme(m.workshop_key)}><div className="min-h-dvh bg-slate-50 p-6 sm:p-10">
+    <WorkshopTheme theme={workshopTheme(m.workshop_key)}><main id="main-content" tabIndex={-1} className="min-h-dvh bg-slate-50 p-6 sm:p-10">
       <div className="max-w-2xl mx-auto">
         <div className="flex items-center justify-between gap-4">
           <Link to="/trainer" className="text-sm text-slate-400 hover:text-slate-600">← Trainer</Link>
@@ -147,6 +147,6 @@ export function TrainerModulePage() {
         <TrainerBlocks blocks={m.blocks} />
         <TrainerQuiz questions={m.quiz.questions} />
       </div>
-    </div></WorkshopTheme>
+    </main></WorkshopTheme>
   )
 }

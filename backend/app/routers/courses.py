@@ -11,7 +11,6 @@ from app.models.quiz_result import QuizResult
 from app.models.course_module import CourseModule
 from app.models.workshop import Workshop
 from app.models.certificate import Certificate
-from app.models.comment import Comment
 from app.services.audit import log_action
 from app.services.codes import new_code
 from app.services.deps import get_trainer
@@ -63,6 +62,23 @@ def list_courses(limit: int = Query(100, ge=1, le=500), offset: int = Query(0, g
 
 class ApprovalToggle(BaseModel):
     require_approval: bool
+
+
+@router.delete("/{course_id}")
+def delete_course(course_id: int, db: Session = Depends(get_db), trainer: dict = Depends(get_trainer)):
+    """Löscht einen Kurs vollständig. Dank der ON DELETE CASCADE-Fremdschlüssel
+    (siehe Migration 75aeb8d5399c) verschwinden Teilnehmer, deren Progress,
+    Quiz-Ergebnisse, Kommentare und die CourseModule-Zeilen automatisch mit --
+    keine manuellen Einzel-Löschungen nötig (anders als Certificate weiter
+    unten in delete_participant, das bewusst KEINEN Fremdschlüssel hat)."""
+    course = db.query(Course).filter(Course.id == course_id).first()
+    if not course:
+        raise HTTPException(status_code=404, detail="Kurs nicht gefunden")
+    name = course.name
+    db.delete(course)
+    db.commit()
+    log_action(db, trainer, "course.delete", target=f"course:{course_id}", detail=name)
+    return {"ok": True}
 
 
 @router.patch("/{course_id}/approval")
@@ -117,15 +133,21 @@ def reset_resume_code(course_id: int, participant_id: int,
 def delete_participant(course_id: int, participant_id: int,
                        db: Session = Depends(get_db), trainer: dict = Depends(get_trainer)):
     """Entfernt einen Teilnehmer samt aller personenbezogenen Daten (Fortschritt,
-    Quiz-Ergebnisse, Kommentare, Bestätigung) — für Abmeldungen/DSGVO-Löschungen."""
+    Quiz-Ergebnisse, Kommentare, Bestätigung) — für Abmeldungen/DSGVO-Löschungen.
+
+    Progress, QuizResult und Comment brauchen hier keine manuelle Einzel-
+    Löschung mehr: ihre participant_id-Fremdschlüssel tragen jetzt ON DELETE
+    CASCADE (Migration 75aeb8d5399c), die DB räumt sie beim db.delete(p) unten
+    selbst auf -- SQLite hat PRAGMA foreign_keys=ON (siehe app/database.py),
+    Postgres kaskadiert nativ. Certificate bleibt bewusst eine manuelle
+    Löschung: es hat absichtlich KEINEN Fremdschlüssel (soll als unveränderlicher
+    Nachweis auch andere Löschungen überleben können, siehe app/models/certificate.py),
+    daher muss diese eine Zeile weiterhin explizit entfernt werden."""
     p = db.query(Participant).filter(
         Participant.id == participant_id, Participant.course_id == course_id).first()
     if not p:
         raise HTTPException(status_code=404, detail="Teilnehmer nicht gefunden")
     name = p.name
-    db.query(Progress).filter(Progress.participant_id == participant_id).delete()
-    db.query(QuizResult).filter(QuizResult.participant_id == participant_id).delete()
-    db.query(Comment).filter(Comment.participant_id == participant_id).delete()
     db.query(Certificate).filter(Certificate.participant_id == participant_id).delete()
     db.delete(p)
     db.commit()

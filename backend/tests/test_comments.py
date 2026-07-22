@@ -90,6 +90,27 @@ def test_add_comment_is_rate_limited(monkeypatch):
         assert blocked.status_code == 429
 
 
+def test_list_comments_supports_limit_and_offset():
+    with TestClient(app) as c:
+        h = _trainer(c)
+        code = _course(c, h, "KursPage")
+        p = _join(c, code, "PagerP")
+        for i in range(5):
+            assert c.post("/api/modules/switching/comments",
+                          json={"block_index": 0, "body": f"Kommentar {i}"}, headers=p).status_code == 200
+
+        default = c.get("/api/modules/switching/comments", headers=p).json()
+        assert len(default) == 5  # großzügiger Default schneidet nichts ab
+
+        page1 = c.get("/api/modules/switching/comments?limit=2&offset=0", headers=p).json()
+        page2 = c.get("/api/modules/switching/comments?limit=2&offset=2", headers=p).json()
+        assert [x["body"] for x in page1] == ["Kommentar 0", "Kommentar 1"]
+        assert [x["body"] for x in page2] == ["Kommentar 2", "Kommentar 3"]
+
+        assert c.get("/api/modules/switching/comments?limit=0", headers=p).status_code == 422
+        assert c.get("/api/modules/switching/comments?offset=-1", headers=p).status_code == 422
+
+
 def test_comments_gated_by_feature():
     with TestClient(app) as c:
         h = _trainer(c)

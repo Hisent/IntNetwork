@@ -1,5 +1,20 @@
 # Projekt-Changelog (nur für Trainer sichtbar). Neueste zuerst.
 CHANGELOG = [
+    {"date": "2026-07-22", "title": "v1.37.0 — Sicherheits- und Härtungsdurchgang",
+     "text": "Ein umfassender Review hat mehrere Punkte aufgedeckt, die jetzt behoben "
+             "sind. Wichtigster: Das git-Lab konnte über eine Git-Besonderheit beliebigen "
+             "Code ausführen, obwohl es kein Netzwerk hat — die Werkzeuge openssl und git "
+             "sind jetzt auf eine feste Liste harmloser lokaler Unterkommandos beschränkt. "
+             "Die Anmeldebremse zählte hinter dem Proxy alle Zugriffe in einen Topf, "
+             "wodurch sich der Login der ganzen Organisation lahmlegen ließ; sie "
+             "unterscheidet jetzt wieder die echten Absender. Trainer können ihr Passwort "
+             "im eigenen Bereich ändern — das macht alle alten Anmeldungen dieses Kontos "
+             "sofort ungültig, auch per Passkey. Kurse lassen sich jetzt löschen "
+             "(mit allem, was daran hängt). Das Bearbeiten eines Moduls verschiebt "
+             "Teilnehmer-Kommentare nicht mehr an den falschen Block. Im Trainerbereich "
+             "zeigen die Modulansichten jetzt die richtige Farbwelt aller fünf Lehrgänge. "
+             "Dazu viele kleinere Verbesserungen an Barrierefreiheit, Datenintegrität "
+             "und Betrieb. Für den Kursbetrieb ändert sich nichts."},
     {"date": "2026-07-22", "title": "v1.36.0 — Härtung des Labs nach externem Audit",
      "text": "Ein externer Sicherheits-Audit hat vier Punkte am Lab gefunden, alle "
              "bestätigt und behoben. Die Zeitgrenze je Lauf beendete bisher nur den "

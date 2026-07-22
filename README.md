@@ -124,6 +124,27 @@ cd backend
 Inhaltliche Änderungen an bereits ausgelieferten Modulen bleiben davon getrennt und
 laufen weiter als versionierte Content-Migrationen in `backend/app/content/seed.py`.
 
+**Merksatz für jede neue `create_table`-Migration:** Beim App-Start läuft nach
+`run_migrations()` zusätzlich `Base.metadata.create_all()` (siehe `app/main.py`).
+Das legt eine fehlende Tabelle bereits an, *bevor* Alembic sie stampft — läuft
+die Migration danach trotzdem, scheitert `CREATE TABLE` mit „relation already
+exists", der Prozess stirbt, die Plattform startet neu, und das wiederholt sich
+endlos (Crashloop v1.34.0). Deshalb braucht jede Migration, die eine neue
+Tabelle anlegt, einen Guard, der sie bei bereits vorhandener Tabelle nur noch
+stampft statt das `CREATE TABLE` erneut auszuführen:
+
+```python
+def upgrade() -> None:
+    if sa.inspect(op.get_bind()).has_table("neue_tabelle"):
+        return
+
+    op.create_table("neue_tabelle", ...)
+```
+
+Das gilt unabhängig davon, ob `create_all` in `app/main.py` irgendwann entfernt
+wird — der Guard kostet nichts und macht die Migration robust gegen genau
+dieses Fehlerbild.
+
 ## Backup
 
 `ops/backup.sh` zieht per `docker compose exec` einen `pg_dump` aus dem

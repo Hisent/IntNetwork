@@ -1,5 +1,10 @@
-export type WorkshopThemeName = 'network' | 'claude'
+export type WorkshopThemeName = 'network' | 'claude' | 'infoblox' | 'ansible' | 'pki'
 
+// workshop_key (persistiert, z.B. aus dem Formular) -> visuelles Theme.
+// Entspricht 1:1 dem `theme`-Feld in backend/app/content/workshops.py:
+// key == Theme-Name, einzige Ausnahme ist 'claude-code' -> 'claude'.
 export function workshopTheme(workshopKey?: string | null): WorkshopThemeName {
-  return workshopKey === 'claude-code' ? 'claude' : 'network'
+  if (workshopKey === 'claude-code') return 'claude'
+  if (workshopKey === 'infoblox' || workshopKey === 'ansible' || workshopKey === 'pki') return workshopKey
+  return 'network'
 }

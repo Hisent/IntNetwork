@@ -104,7 +104,7 @@ export function TrainerModuleEditPage() {
   }
 
   return (
-    <WorkshopTheme theme={workshopTheme(form.workshop_key)}><div className="min-h-dvh bg-slate-50 p-6 sm:p-10">
+    <WorkshopTheme theme={workshopTheme(form.workshop_key)}><main id="main-content" tabIndex={-1} className="min-h-dvh bg-slate-50 p-6 sm:p-10">
       <div className="max-w-2xl mx-auto">
         <div className="flex items-center justify-between gap-4">
           <Link to={`/trainer/modul/${key}`} className="text-sm text-slate-400 hover:text-slate-600">← Zur Trainer-Ansicht</Link>
@@ -477,6 +477,6 @@ export function TrainerModuleEditPage() {
           Zurück
         </button>
       </div>
-    </div></WorkshopTheme>
+    </main></WorkshopTheme>
   )
 }

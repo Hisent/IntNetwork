@@ -42,28 +42,34 @@ def _wait_for_db(retries: int = 30, delay: float = 2.0) -> None:
 
 
 _wait_for_db()
-# Schema wird von Alembic verwaltet (migrations/). create_all bleibt als
-# Sicherheitsnetz danach: legt nur fehlende Tabellen an, ändert nie bestehende.
-#
-# ACHTUNG, teuer gelernt (Vorfall 22.07.2026): Wenn create_all hier wirklich
-# etwas anlegt, ist das KEIN harmloser Normalfall, sondern bedeutet, dass
-# Modelle und Migrationen auseinanderlaufen. Alembic weiß von so einer Tabelle
-# nichts — die zugehörige Revision will sie beim nächsten Start erneut anlegen,
-# scheitert an "relation already exists", der Prozess stirbt und die Plattform
-# startet ihn endlos neu. Deshalb wird der Fall jetzt laut protokolliert statt
-# still zu passieren; die betroffene Migration gehört dann idempotent gemacht
-# (Muster: migrations/versions/7305d4053e50_add_trainer_credential.py).
+# Schema wird ausschließlich von Alembic verwaltet (migrations/). Bis
+# einschließlich v1.35 lief hier zusätzlich Base.metadata.create_all() als
+# vermeintliches "Sicherheitsnetz" -- das war Teil der Ursache des
+# Crashloop-Vorfalls vom 22.07.2026: create_all legt fehlende Tabellen an,
+# OHNE dass Alembic davon erfährt. Blieb alembic_version danach auf der
+# Vorgänger-Revision stehen, scheiterte die zugehörige Migration beim nächsten
+# Start an "relation already exists" -- run_migrations() wirft dann eine
+# Exception, der Prozess stirbt, bevor create_all je erreicht wird, und die
+# Plattform startet ihn endlos neu. create_all "schützte" in diesem Fall also
+# nichts, es sorgte erst für die Doppel-Anlage. Jetzt ist Alembic allein
+# autoritativ: eine Tabelle, die keine Migration anlegt, gibt es nicht --
+# entweder eine Migration fehlt (siehe Warnung unten) oder ein Zugriff auf
+# die Tabelle schlägt sofort und laut fehl, statt sich als Crashloop-Kandidat
+# zu tarnen.
 run_migrations()
+# Reine Diagnose, kein Auto-Fix mehr: fehlt eine Tabelle, die ein Modell
+# kennt, laufen Modelle und Migrationen auseinander -- eine neue Migration
+# gehört ergänzt (Muster: migrations/versions/7305d4053e50_add_trainer_credential.py
+# für idempotente Tabellen, sonst eine neue additive Revision).
 _fehlende_tabellen = sorted(
     set(Base.metadata.tables) - set(inspect(engine).get_table_names())
 )
 if _fehlende_tabellen:
     logging.getLogger(__name__).warning(
-        "create_all legt Tabellen an, die keine Migration erzeugt hat: %s — "
-        "Modelle und Migrationen laufen auseinander, siehe Kommentar in main.py.",
+        "Modelle kennen Tabellen, die keine Migration erzeugt: %s — Modelle "
+        "und Migrationen laufen auseinander, eine Migration fehlt vermutlich.",
         ", ".join(_fehlende_tabellen),
     )
-Base.metadata.create_all(bind=engine)
 
 from app.content.seed import seed_missing_content  # noqa: E402
 from app.content.workshops import seed_workshops  # noqa: E402

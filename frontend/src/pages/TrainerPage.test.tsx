@@ -8,6 +8,7 @@ import { cleanup, fireEvent, screen, waitFor } from '@testing-library/react'
 import { renderWithProviders } from '@/test/renderWithProviders'
 import { useAuthStore } from '@/store/auth'
 import { TrainerPage } from '@/pages/TrainerPage'
+import { TrainerModulePage } from '@/pages/TrainerModulePage'
 import type { AuditLogEntry } from '@/lib/trainerApi'
 
 vi.mock('@/lib/api', () => ({
@@ -126,6 +127,8 @@ describe('TrainerPage — Audit-Log', () => {
     renderWithProviders(<TrainerPage />)
 
     expect(await screen.findByText('Aktion 1')).toBeTruthy()
+    // Skiplink-Ziel (App.tsx springt zu #main-content) muss auf Trainer-Seiten existieren.
+    expect(document.getElementById('main-content')).toBeTruthy()
     expect(screen.getByText('50+ Aktionen anzeigen')).toBeTruthy()
     expect(screen.queryByText('Aktion 51')).toBeNull()
 
@@ -198,6 +201,25 @@ describe('TrainerPage — Passkey-Login', () => {
     await waitFor(() => expect((screen.getByRole('button', { name: 'Mit Passkey anmelden' }) as HTMLButtonElement).disabled).toBe(false))
     expect(screen.queryByText('Passkey-Anmeldung fehlgeschlagen.')).toBeNull()
     expect(useAuthStore.getState().token).toBeNull()
+  })
+})
+
+describe('TrainerModulePage — Skiplink-Ziel', () => {
+  it('rendert #main-content (Skiplink-Ziel), auch für Nicht-Netzwerk-Themes', async () => {
+    useAuthStore.setState({ token: 'demo', role: 'trainer', displayName: 'Trainer' })
+    mockGet({
+      '/trainer/modules/m1': {
+        key: 'm1', workshop_key: 'pki', title: 'Modul Eins', order: 1, prerequisites: [],
+        blocks: [], quiz: { questions: [] },
+      },
+      '/courses': [],
+      '/trainer/modules/m1/quiz-stats': { submissions: 0, questions: [] },
+    })
+
+    renderWithProviders(<TrainerModulePage />, { route: '/trainer/modul/m1', path: '/trainer/modul/:key' })
+
+    expect(await screen.findByText('Modul Eins', { exact: false })).toBeTruthy()
+    expect(document.getElementById('main-content')).toBeTruthy()
   })
 })
 

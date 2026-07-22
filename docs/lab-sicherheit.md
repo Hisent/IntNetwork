@@ -25,15 +25,63 @@ Der Runner führt nicht mehr nur Ansible aus. Jede Art wird einzeln freigegeben
   Kein Netz, keine Shell: Der Runner zerlegt die Zeile mit `shlex.split`, setzt
   das Programm selbst davor und ruft es ohne `shell=True` auf. Keine Pipes,
   keine Umleitungen, keine Verkettung.
-- **`git`** — dasselbe mit `git`. Netzbefehle (`clone`, `fetch`, `push`,
-  `pull`) scheitern mangels Netz; das ist beabsichtigt.
+- **`git`** — dasselbe mit `git`.
+
+**`git`/`openssl` sind zusätzlich auf eine Allowlist von Unterkommandos
+beschränkt (`runner/worker.py`, `_werkzeug_argv_pruefen`).** Das ist neu und
+korrigiert eine frühere, zu optimistische Aussage an dieser Stelle: „Kein
+Netz, keine Shell" allein reicht NICHT, weil manche Werkzeuge selbst
+netz- oder codeausführende Fähigkeiten mitbringen, ganz ohne Shell und ganz
+ohne offenes Netzwerk im Container. Konkret ließ sich vor dieser Sperre über
+den git-eigenen `ext`-Transport beliebiger Shell-Code ausführen — TROTZ
+`network_mode: none`:
+
+```
+-c protocol.ext.allow=always clone ext::sh -c 'beliebiger_befehl' /tmp/x
+```
+
+Die Sperre hat zwei Schichten:
+
+1. **Allowlist statt Blockliste.** Das erste Nicht-Options-Token einer
+   Kommandozeile muss eines von wenigen, bewusst lokalen Unterkommandos sein
+   (z. B. `init`, `status`, `add`, `commit`, `checkout`, `merge`, `worktree`,
+   `mv` für git; `genrsa`, `req`, `x509`, `verify`, … für openssl). Netz- oder
+   codeausführende Unterkommandos (`clone`, `fetch`, `push`, `pull`,
+   `remote`, `submodule` bei git; `s_client`/`s_server` bei openssl) stehen
+   **nicht** auf der Liste und werden mit `rc=2` und einer Meldung
+   zurückgewiesen, bevor überhaupt ein Prozess startet. `git config` steht
+   ebenfalls nicht auf der Liste: `git config alias.status '!sh -c ...'`
+   könnte sonst einen scheinbar harmlosen späteren Aufruf wie `status` in
+   Shell-Code umlenken.
+2. **Bestimmte Flags/Muster sind unabhängig von der Position immer
+   verboten**, weil sie einen Transport oder Codepfad außerhalb des
+   Unterkommandos öffnen: für git `-c` (Konfigurationsinjektion, siehe
+   Beispiel oben), `--exec`, `--upload-pack`, `--receive-pack`, `-u`,
+   `--git-dir`, `--work-tree`, sowie jedes Argument, das `ext::`, `fd::` oder
+   `file://` enthält; für openssl `-engine`, `-provider`, `-config`, `-exec`
+   (jeweils Wege, eine beliebige Bibliothek nachzuladen oder ein
+   Skript/Programm zu übernehmen).
+
+Zusätzlich setzt der Runner für `git` `GIT_ALLOW_PROTOCOL=file` in der
+Prozessumgebung — eine zweite, unabhängige Verteidigungsebene, die
+Netztransporte (`ext`, `ssh`, `http`, `git`, …) auf Umgebungsebene sperrt,
+falls die Allowlist-Prüfung einmal durch einen heute unbekannten Weg umgangen
+werden sollte. Sie ersetzt die Allowlist nicht, sie ergänzt sie.
+
+**Das bleibt ausdrücklich eine Allowlist, keine Blockliste, mit allen
+Konsequenzen:** Ein neues Unterkommando (auch ein scheinbar harmloses)
+funktioniert erst, wenn es bewusst in `runner/worker.py` freigeschaltet wird.
+Wer eine neue Lab-Vorlage schreibt, die ein weiteres, lokales Unterkommando
+braucht, muss diese Liste erweitern — sonst scheitert die Vorlage mit einer
+regulären `rc=2`-Meldung, keinem Absturz.
 
 **Wichtig für die Bewertung:** Die Arten sind nicht gleich mächtig. `ansible`
 erlaubt beliebige Codeausführung, `openssl` und `git` erlauben nur Datei-Ein-
-und -Ausgabe über genau ein Programm. Ein Durchlauf, der nur den PKI-Lehrgang
-fährt, kann deshalb `openssl` freigeben und `ansible` weglassen — dann ist der
-Container **kein** Sandkasten für fremden Code mehr. Das ist strikt weniger
-Angriffsfläche als der bisherige Zustand, nicht mehr.
+und -Ausgabe über eine kleine, geschlossene Liste lokaler Unterkommandos. Ein
+Durchlauf, der nur den PKI-Lehrgang fährt, kann deshalb `openssl` freigeben
+und `ansible` weglassen — dann ist der Container **kein** Sandkasten für
+fremden Code mehr. Das ist strikt weniger Angriffsfläche als der bisherige
+Zustand, nicht mehr.
 
 Umgekehrt gilt: Ist `ansible` freigegeben, ändern zusätzliche Werkzeuge im
 Image nichts an der Bewertung — wer ein Playbook schreiben darf, kann sie
@@ -110,8 +158,11 @@ Plattform ihre Netze zusammensteckt.
   fälschen. Nach außen (Backend, Datenbank, Netz) führt von dort weiterhin kein
   Weg; das Volume ist nur zwischen diesen beiden Diensten geteilt. Wer das im
   Bedrohungsmodell nicht tragen will, gibt `ansible` nicht frei: Die Arten
-  `openssl` und `git` führen keinen frei geschriebenen Code aus (siehe
-  „Auftragsarten" oben).
+  `openssl` und `git` sind auf eine Allowlist lokaler, nicht netzfähiger
+  Unterkommandos beschränkt (siehe „Auftragsarten" oben) — das ist enger als
+  „kein frei geschriebener Code", aber keine absolute Garantie: Es bleibt eine
+  Allowlist, die von Hand gepflegt wird, kein Beweis, dass jedes zugelassene
+  Unterkommando in jeder Argumentkombination harmlos ist.
 - **Missbrauch durch Berechtigte.** Wer sich anmelden darf, darf Code
   ausführen. Der Teilnehmerkreis ist die eigentliche Zugangskontrolle.
 

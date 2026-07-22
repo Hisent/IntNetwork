@@ -3,9 +3,13 @@ bzw. ein belegter Advisory-Lock darf den Start nicht still blockieren, sondern
 muss nach begrenzter Zeit mit verwertbarer Meldung scheitern."""
 
 import pytest
+from fastapi.testclient import TestClient
+from sqlalchemy import inspect
 from sqlalchemy.exc import OperationalError
 
 from app import db_migrate
+from app.database import Base, engine
+from app.main import app
 
 
 def _blocked() -> OperationalError:
@@ -60,3 +64,15 @@ def test_belegter_lock_haengt_nicht_endlos(monkeypatch):
         db_migrate._acquire_lock(conn)
 
     assert conn.aufrufe >= 1
+
+
+def test_migrationen_allein_erzeugen_das_vollstaendige_schema():
+    """F: Base.metadata.create_all() läuft in main.py nicht mehr -- Alembic ist
+    jetzt allein autoritativ. Auf einer frischen SQLite-DB (siehe conftest.py,
+    die Datei wird je Testlauf neu angelegt) müssen die Migrationen daher
+    bereits jede Tabelle anlegen, die die Modelle kennen. Fehlte hier eine,
+    gäbe es keinen create_all-Fallback mehr, der das kaschiert."""
+    with TestClient(app):
+        pass
+    fehlende = set(Base.metadata.tables) - set(inspect(engine).get_table_names())
+    assert fehlende == set()

@@ -1,4 +1,6 @@
+import json
 import re
+from collections import defaultdict, deque
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
@@ -7,6 +9,7 @@ from sqlalchemy.orm import Session
 
 from app.content.registry import MODULES
 from app.database import get_db
+from app.models.comment import Comment
 from app.models.content import ContentBlock, ContentModule, ContentModuleSnapshot, ContentQuizQuestion
 from app.models.workshop import Workshop
 from app.services.audit import log_action
@@ -199,7 +202,62 @@ def _validate(db: Session, key: str, data: ModuleIn) -> None:
             raise HTTPException(status_code=422, detail=f"Unbekannter Fragetyp: {q.qtype}")
 
 
-def _apply(db: Session, key: str, m: ContentModule, data: ModuleIn) -> None:
+def _block_signature(b) -> tuple:
+    """Inhaltsabdruck eines Blocks, positionsunabhaengig. `b` ist entweder ein
+    ContentBlock (alter Stand) oder ein BlockIn (neuer Stand aus dem Editor) --
+    beide tragen dieselben Felder type/value_de/value_en/widget_id/note/payload,
+    das reicht als Fingerabdruck um denselben inhaltlichen Block vor und nach
+    dem Speichern wiederzuerkennen (gleiche Idee wie in content/seed.py
+    _block_matches_source, nur mit Editor-Eingabe statt Seed-Dict verglichen)."""
+    payload = b.payload
+    return (b.type, b.value_de, b.value_en, b.widget_id, b.note,
+            json.dumps(payload, sort_keys=True) if payload is not None else None)
+
+
+def _remap_or_orphan_comments(db: Session, key: str, old_blocks: list[ContentBlock],
+                              new_blocks: list[BlockIn]) -> None:
+    """Rechnet Comment.block_index auf das Speichern eines Moduls um.
+
+    Kommentare haengen an (module_key, block_index) -- also an der POSITION
+    eines Blocks, nicht an einer Block-id (die es fuer Kommentare gar nicht
+    gibt). _apply loescht beim Speichern aber ALLE ContentBlock-Zeilen und legt
+    sie mit neuen ids und position 0..n-1 komplett neu an -- es gibt also keine
+    stabile Block-Identitaet ueber das Speichern hinweg. Ohne diese Funktion
+    wuerde jede Umsortierung/Einfuegung im Editor bestehende Kommentare stumm an
+    einen fremden, inhaltlich anderen Block haengen.
+
+    Zuordnung ueber die Inhaltssignatur aus _block_signature: pro Signatur eine
+    FIFO-Warteschlange der alten Positionen, beim Durchlauf der neuen Bloecke in
+    Reihenfolge konsumiert. Das bildet reines Umsortieren und Einfuegen korrekt
+    ab (Test: Block an Index 2 kommentiert, neuer Block bei 0 eingefuegt ->
+    Kommentar zeigt danach auf Index 3, denselben inhaltlichen Block).
+
+    Gewaehlte Semantik fuer den Rest-Fall (Block geloescht oder inhaltlich so
+    veraendert, dass keine Signatur mehr passt): der Kommentar wird geloescht,
+    statt ihn auf einen falschen Block zu clampen oder ihn stumm haengen zu
+    lassen. Eine "verwaist"-Markierung waere transparenter, verlangt aber ein
+    neues Feld auf Comment (block_index ist NOT NULL, kein Status-Feld) --
+    Modelltyp-Aenderungen sind fuer diesen Fix bewusst tabu, daher die simple,
+    aber korrekte Variante: nie zeigt ein Kommentar nach dem Speichern still auf
+    einen inhaltlich anderen Block."""
+    old_queue: dict[tuple, deque[int]] = defaultdict(deque)
+    for pos, b in enumerate(old_blocks):
+        old_queue[_block_signature(b)].append(pos)
+    position_map: dict[int, int] = {}
+    for new_pos, b in enumerate(new_blocks):
+        queue = old_queue.get(_block_signature(b))
+        if queue:
+            position_map[queue.popleft()] = new_pos
+    for comment in db.query(Comment).filter(Comment.module_key == key):
+        new_pos = position_map.get(comment.block_index)
+        if new_pos is not None:
+            comment.block_index = new_pos
+        else:
+            db.delete(comment)
+
+
+def _apply(db: Session, key: str, m: ContentModule, data: ModuleIn,
+          old_blocks: list[ContentBlock]) -> None:
     m.title_de = data.title_de
     m.title_en = data.title_en
     m.order = data.order
@@ -207,6 +265,7 @@ def _apply(db: Session, key: str, m: ContentModule, data: ModuleIn) -> None:
     m.goals = data.goals
     m.scenario_de = data.scenario_de
     m.scenario_en = data.scenario_en
+    _remap_or_orphan_comments(db, key, old_blocks, data.blocks)
     db.query(ContentBlock).filter(ContentBlock.module_key == key).delete()
     db.query(ContentQuizQuestion).filter(ContentQuizQuestion.module_key == key).delete()
     for i, b in enumerate(data.blocks):
@@ -278,7 +337,7 @@ def update_module(key: str, data: ModuleIn, db: Session = Depends(get_db), train
     _validate(db, key, data)
     blocks, questions = _load_blocks_and_quiz(db, key)
     _upsert_snapshot(db, key, _serialize_module(m, blocks, questions))
-    _apply(db, key, m, data)
+    _apply(db, key, m, data, blocks)
     db.commit()
     log_action(db, trainer, "content.save", target=f"module:{key}")
     return _meta(m)
@@ -319,7 +378,7 @@ def reseed_module(key: str, db: Session = Depends(get_db), trainer: dict = Depen
     _validate(db, key, data)  # fängt Fehler in der Seed-Datei früh ab
     blocks, questions = _load_blocks_and_quiz(db, key)
     _upsert_snapshot(db, key, _serialize_module(m, blocks, questions))
-    _apply(db, key, m, data)
+    _apply(db, key, m, data, blocks)
     db.commit()
     log_action(db, trainer, "content.reseed", target=f"module:{key}")
     return _meta(m)
@@ -336,7 +395,7 @@ def restore_module(key: str, db: Session = Depends(get_db), trainer: dict = Depe
     blocks, questions = _load_blocks_and_quiz(db, key)
     current_data = _serialize_module(m, blocks, questions)
     restored = ModuleIn(**snap.data)
-    _apply(db, key, m, restored)
+    _apply(db, key, m, restored, blocks)
     snap.data = current_data
     db.commit()
     log_action(db, trainer, "content.restore", target=f"module:{key}")

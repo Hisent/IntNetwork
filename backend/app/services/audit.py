@@ -1,6 +1,10 @@
+import logging
+
 from sqlalchemy.orm import Session
 
 from app.models.audit_log import AuditLog
+
+logger = logging.getLogger(__name__)
 
 
 def log_action(db: Session, trainer: dict, action: str,
@@ -12,6 +16,11 @@ def log_action(db: Session, trainer: dict, action: str,
     aufgerufen -> zu diesem Zeitpunkt hängt an der Session nichts anderes mehr
     Ungeschriebenes, daher trifft ein Rollback hier nur den Audit-Eintrag
     selbst und kann die eigentliche Aktion nicht mehr gefährden.
+
+    Audit ist best-effort: ein Fehlschlag hier darf die eigentliche Aktion
+    (die schon committed ist) nicht nachtraeglich scheitern lassen, deshalb
+    wird die Exception nicht weitergeworfen -- aber sie muss sichtbar bleiben
+    (Schema-Drift, DB-Problem), sonst faellt ein kaputter Audit-Trail nie auf.
     """
     try:
         db.add(AuditLog(
@@ -21,4 +30,5 @@ def log_action(db: Session, trainer: dict, action: str,
         ))
         db.commit()
     except Exception:
+        logger.exception("Audit-Eintrag fehlgeschlagen: action=%s target=%s", action, target)
         db.rollback()

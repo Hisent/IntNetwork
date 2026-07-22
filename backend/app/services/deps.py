@@ -20,8 +20,16 @@ def _payload(creds: HTTPAuthorizationCredentials = Depends(bearer)) -> dict:
 def get_trainer(payload: dict = Depends(_payload), db: Session = Depends(get_db)) -> dict:
     if payload.get("role") != "trainer":
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Nur Trainer")
-    if not db.query(Trainer).filter(Trainer.id == payload.get("trainer_id")).first():
+    t = db.query(Trainer).filter(Trainer.id == payload.get("trainer_id")).first()
+    if not t:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Trainer nicht gefunden")
+    # Fehlt token_version im Payload (Alt-Token von vor dieser Aenderung, oder
+    # ueber Passkey ausgestellt, siehe trainer_passkey.py), gilt es als 0 ->
+    # Bestands-Tokens werden nicht schlagartig ungueltig. Analog zu
+    # get_participant weiter unten.
+    if payload.get("token_version", 0) != t.token_version:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
+                            detail="Sitzung abgelaufen, bitte neu anmelden")
     return payload
 
 

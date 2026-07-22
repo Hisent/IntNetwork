@@ -371,6 +371,7 @@ p { text-wrap: pretty; }
 .workshop-theme:not(.workshop-theme--network) .bg-teal-600 { background-color: var(--workshop-accent); }
 .workshop-theme:not(.workshop-theme--network) .bg-teal-500 { background-color: var(--workshop-accent-strong); }
 .workshop-theme:not(.workshop-theme--network) .bg-teal-50 { background-color: var(--workshop-accent-soft); }
+.workshop-theme:not(.workshop-theme--network) .bg-teal-50\/60 { background-color: var(--workshop-accent-soft); }
 .workshop-theme:not(.workshop-theme--network) .from-teal-50 { --tw-gradient-from: var(--workshop-accent-soft); }
 .workshop-theme:not(.workshop-theme--network) .to-emerald-50 { --tw-gradient-to: var(--workshop-accent-soft); }
 .workshop-theme:not(.workshop-theme--network) .text-teal-600,
@@ -382,6 +383,7 @@ p { text-wrap: pretty; }
 .workshop-theme:not(.workshop-theme--network) .text-teal-300,
 .workshop-theme:not(.workshop-theme--network) .text-teal-400 { color: var(--workshop-accent-pale); }
 .workshop-theme:not(.workshop-theme--network) .border-teal-600,
+.workshop-theme:not(.workshop-theme--network) .border-teal-300,
 .workshop-theme:not(.workshop-theme--network) .border-teal-200,
 .workshop-theme:not(.workshop-theme--network) .border-teal-100 { border-color: var(--workshop-accent-line); }
 .workshop-theme:not(.workshop-theme--network) .ring-teal-500 { --tw-ring-color: var(--workshop-accent-strong); }

@@ -148,6 +148,52 @@ def test_login_returns_working_token(enable_passkeys, monkeypatch):
         assert c.get("/api/trainer/modules", headers=new_h).status_code == 200
 
 
+def test_passkey_login_token_survives_only_until_password_change(enable_passkeys, monkeypatch):
+    """Regression: Der Passkey-Login muss token_version ins Token schreiben.
+    Sonst gilt der Claim als 0, und ein Passwortwechsel (der token_version
+    hochzaehlt) wuerde den frisch per Passkey ausgestellten Token NICHT
+    entwerten — bzw. schlimmer, ein vor dem Wechsel ausgestellter Token bliebe
+    gueltig. Beide Enden werden hier geprueft."""
+    with TestClient(app) as c:
+        # Eigener Trainer statt des geteilten Default-Kontos: der Test aendert
+        # unten das Passwort, das darf andere Tests nicht verschmutzen.
+        admin = _trainer_headers(c)
+        _create_trainer(c, admin, "passkeypwchange@test.de", password="passkeypw1")
+        h = _trainer_headers(c, "passkeypwchange@test.de", "passkeypw1")
+        _register_credential(c, h, monkeypatch, b"credPW", sign_count=0)
+
+        zaehler = {"n": 0}
+
+        def _passkey_login() -> str:
+            # sign_count muss je Lauf STEIGEN, sonst schlaegt die Klon-Erkennung
+            # beim zweiten Login zu (verhindert Wiedereinspielen).
+            zaehler["n"] += 1
+            options = c.post("/api/trainer/passkey/login/options", json={}).json()["publicKey"]
+            monkeypatch.setattr(passkey_router.webauthn, "verify_authentication_response",
+                                lambda **kw: SimpleNamespace(new_sign_count=zaehler["n"]))
+            cred = _fake_credential(options["challenge"],
+                                    cred_id_b64url=bytes_to_base64url(b"credPW"),
+                                    ctype="webauthn.get")
+            r = c.post("/api/trainer/passkey/login/verify", json={"credential": cred})
+            assert r.status_code == 200
+            return r.json()["access_token"]
+
+        alter_token = _passkey_login()
+        alt_h = {"Authorization": f"Bearer {alter_token}"}
+        assert c.get("/api/trainer/modules", headers=alt_h).status_code == 200
+
+        # Passwort aendern -> token_version++ -> alter Passkey-Token ungueltig.
+        assert c.post("/api/trainer/password", headers=alt_h,
+                      json={"old_password": "passkeypw1", "new_password": "passkeypw2"}
+                      ).status_code == 200
+        assert c.get("/api/trainer/modules", headers=alt_h).status_code == 401
+
+        # Ein danach per Passkey ausgestellter Token traegt die neue Version.
+        neuer_token = _passkey_login()
+        neu_h = {"Authorization": f"Bearer {neuer_token}"}
+        assert c.get("/api/trainer/modules", headers=neu_h).status_code == 200
+
+
 def test_login_unknown_credential_401(enable_passkeys):
     with TestClient(app) as c:
         options = c.post("/api/trainer/passkey/login/options", json={}).json()["publicKey"]

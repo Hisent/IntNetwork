@@ -22,6 +22,17 @@ def upgrade() -> None:
     with op.batch_alter_table('participant', schema=None) as batch_op:
         batch_op.add_column(sa.Column('resume_code', sa.String(), nullable=True))
 
+    # Idempotent, aus demselben Grund wie 7305d4053e50 (Vorfall 22.07.2026):
+    # app/main.py rief frueher nach run_migrations() zusaetzlich
+    # Base.metadata.create_all() auf. Das legt fehlende Tabellen an, OHNE dass
+    # Alembic davon erfaehrt. Steht alembic_version danach noch auf der
+    # Vorgaenger-Revision, scheitert dieser Schritt beim naechsten Start an
+    # "relation already exists" -- der Prozess stirbt, die Plattform startet
+    # neu, endlos. Existiert die Tabelle bereits, wird sie hier nur noch
+    # implizit uebersprungen (create_all haette auch ihre Indizes angelegt).
+    if sa.inspect(op.get_bind()).has_table('certificate'):
+        return
+
     op.create_table(
         'certificate',
         sa.Column('id', sa.String(), nullable=False),

@@ -1,4 +1,7 @@
 from fastapi.testclient import TestClient
+from sqlalchemy import inspect
+
+from app.database import engine
 from app.main import app
 
 
@@ -79,3 +82,12 @@ def test_quiz_stats_filters_by_course():
         # ohne Filter: mindestens beide zusammen
         alle = c.get("/api/trainer/modules/vlan/quiz-stats", headers=h).json()
         assert alle["submissions"] >= 2
+
+
+def test_quiz_result_has_module_key_participant_id_index():
+    """D: quiz_stats scannt quiz_result über module_key (+ optional Join auf
+    participant_id) -- die Migration muss dafür einen Composite-Index anlegen,
+    keinen Full-Table-Scan mehr."""
+    with TestClient(app):
+        cols = {tuple(ix["column_names"]) for ix in inspect(engine).get_indexes("quiz_result")}
+        assert ("module_key", "participant_id") in cols

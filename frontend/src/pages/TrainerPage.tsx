@@ -153,7 +153,7 @@ function TrainerDashboard({ onLogout }: { onLogout: () => void }) {
   const workbenchRootRef = useRef<HTMLDivElement | null>(null)
 
   return (
-    <div className="workbench p-6 sm:p-10" ref={workbenchRootRef}>
+    <div id="main-content" tabIndex={-1} className="workbench p-6 sm:p-10" ref={workbenchRootRef}>
       <div className="mx-auto max-w-6xl">
         <header className="mb-8 flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
@@ -847,7 +847,7 @@ function AuditLogBlock() {
           <summary className="wb-control cursor-pointer select-none text-sm text-[var(--wb-muted)] hover:text-[var(--wb-ink)]">
             {entries.length}{hasMore ? '+' : ''} Aktionen anzeigen
           </summary>
-          <ul className="mt-3 flex max-h-96 flex-col divide-y divide-[var(--wb-border)] overflow-y-auto">
+          <ul className="mt-3 flex max-h-96 flex-col divide-y divide-[var(--wb-border)] overflow-y-auto" aria-live="polite">
             {entries.map((e) => (
               <li key={e.id} className="py-2 text-sm">
                 <div className="flex items-baseline justify-between gap-2">

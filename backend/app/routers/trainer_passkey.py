@@ -189,7 +189,11 @@ def login_verify(data: LoginVerifyBody, db: Session = Depends(get_db)) -> dict:
     cred.last_used_at = utc_now()
     db.commit()
     log_action(db, payload, "passkey.login", target=f"trainer_credential:{cred.id}")
-    return {"access_token": create_token(sub=t.email, role="trainer", extra={"trainer_id": t.id})}
+    # token_version MUSS mit — sonst gilt der Claim als 0, und nach einem
+    # Passwortwechsel (der token_version hochzaehlt) wuerde get_trainer diesen
+    # Passkey-Login-Token ablehnen. Gleiche Token-Form wie der Passwort-Login.
+    return {"access_token": create_token(
+        sub=t.email, role="trainer", extra={"trainer_id": t.id, "token_version": t.token_version})}
 
 
 @router.get("", dependencies=[Depends(_require_enabled)])

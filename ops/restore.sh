@@ -32,6 +32,6 @@ if [ "$CONFIRM" != "ja" ]; then
     exit 1
 fi
 
-gunzip -c "$DUMP_FILE" | docker compose exec -T db psql -U intnetwork intnetwork
+gunzip -c "$DUMP_FILE" | docker compose exec -T db psql -v ON_ERROR_STOP=1 -U intnetwork intnetwork
 
 echo "Restore abgeschlossen."

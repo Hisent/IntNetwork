@@ -249,6 +249,99 @@ def _run_ansible(auftrag: dict) -> dict:
 # ---------------------------------------------------------------------------
 # Änderung 2/3: gemeinsame Ausführung für openssl und git.
 # ---------------------------------------------------------------------------
+#
+# P0-Sicherheitslücke (2026-07-22): _argv_bauen zerlegt die Lernenden-
+# Kommandozeile zwar OHNE Shell, hängt die Tokens aber bis hierher ungefiltert
+# hinter das Programm. Über den git-eigenen Transport "ext::" ließ sich damit
+# TROTZ network_mode: none beliebiger Shell-Code im Container ausführen:
+#   -c protocol.ext.allow=always clone ext::sh -c 'beliebiger_befehl' /tmp/x
+# Die Zusage in docs/lab-sicherheit.md, dass git/openssl "keinen frei
+# geschriebenen Code ausführen", galt nur mit der folgenden Sperre.
+#
+# Zwei Schichten, ALLOWLIST statt Blockliste (eine Blockliste einzelner Flags
+# wäre eine Einladung, sie zu umgehen):
+#   1. Das erste Nicht-Options-Token muss eines der hier je Art freigegebenen
+#      Unterkommandos sein. Netz- oder codeausführende Unterkommandos wie
+#      "clone"/"fetch"/"push"/"pull"/"remote"/"submodule" (git) oder
+#      "s_client"/"s_server" (openssl) stehen bewusst NICHT auf der Liste.
+#   2. Unabhängig von der Position: bestimmte Flags/Muster sind IMMER
+#      verboten, weil sie einen Transport oder Codepfad außerhalb des
+#      Unterkommandos öffnen ("-c" für git-Konfigurationsinjektion, "ext::"
+#      für den shell-ausführenden git-Transport, "-engine" für das Nachladen
+#      einer beliebigen openssl-Engine-Bibliothek, ...).
+#
+# Bewusst eine Allowlist: Ein neues Unterkommando muss hier ausdrücklich
+# aufgenommen werden, damit es läuft - keine Blockliste, die ein cleverer
+# Teilnehmer umgehen könnte. Wer eine neue Lab-Vorlage mit einem weiteren,
+# lokalen und ungefährlichen Unterkommando braucht, erweitert diese Liste
+# bewusst.
+GIT_ERLAUBTE_SUBBEFEHLE = {
+    "init", "status", "add", "commit", "log", "diff", "branch", "checkout",
+    "switch", "merge", "rebase", "reset", "restore", "show", "tag", "stash",
+    "worktree", "mv",
+}
+# "config" bewusst NICHT dabei: `git config alias.status '!sh -c ...'` legt
+# einen Alias an, der bei einem SPÄTEREN, für sich harmlos aussehenden Aufruf
+# wie "status" anstelle des echten Unterkommandos beliebigen Shell-Code
+# ausführt - das Subcommand-Token bliebe dabei aus Sicht dieser Allowlist
+# unverändert "status", die Prüfung allein fängt das nicht ab. Keine der
+# Lab-Vorlagen (frontend/src/widgets/gitlab/templates.ts) braucht
+# `git config`.
+
+OPENSSL_ERLAUBTE_SUBBEFEHLE = {
+    "genrsa", "genpkey", "rsa", "pkey", "req", "x509", "ca", "verify",
+    "dgst", "enc", "rand",
+}
+# Kein "s_client"/"s_server": beide bauen eine Netzverbindung auf.
+
+ERLAUBTE_SUBBEFEHLE = {"git": GIT_ERLAUBTE_SUBBEFEHLE, "openssl": OPENSSL_ERLAUBTE_SUBBEFEHLE}
+
+GIT_VERBOTENE_FLAGS = {
+    "-c", "--exec", "--upload-pack", "--receive-pack", "-u", "--git-dir", "--work-tree",
+}
+# Argument-Substrings, die einen shell-ausführenden bzw. entfernten Transport
+# adressieren - unabhängig davon, in welchem Token sie stehen (shlex kann
+# "ext::sh -c evil" durch Anführungszeichen in EIN Token packen).
+GIT_VERBOTENE_MUSTER = ("ext::", "fd::", "file://")
+
+OPENSSL_VERBOTENE_FLAGS = {"-engine", "-provider", "-config", "-exec"}
+
+VERBOTENE_FLAGS = {"git": GIT_VERBOTENE_FLAGS, "openssl": OPENSSL_VERBOTENE_FLAGS}
+VERBOTENE_MUSTER = {"git": GIT_VERBOTENE_MUSTER, "openssl": ()}
+
+
+def _werkzeug_argv_pruefen(tokens: list[str], art: str) -> str | None:
+    """Allowlist-Prüfung für die Auftragsarten "git"/"openssl" (siehe
+    Kommentar oben). `tokens` ist argv OHNE das Programm selbst (also
+    argv[1:] aus _argv_bauen). Liefert bei einem Verstoß eine deutsche
+    Fehlermeldung, die das abgelehnte Token nennt - sonst None.
+
+    Für nicht gelistete Arten (aktuell nur "ansible", das seine eigene, feste
+    Kommandozeile baut und nie über diese Funktion läuft) greift die Prüfung
+    nicht - `VERBOTENE_FLAGS.get(art)` liefert dann None.
+    """
+    verbotene_flags = VERBOTENE_FLAGS.get(art)
+    if verbotene_flags is None:
+        return None
+
+    verbotene_muster = VERBOTENE_MUSTER.get(art, ())
+    for token in tokens:
+        for flag in verbotene_flags:
+            if token == flag or (flag.startswith("--") and token.startswith(flag + "=")):
+                return (f"Unzulässiges Flag {token!r} für {art} abgelehnt "
+                         f"(Allowlist statt Blockliste, siehe docs/lab-sicherheit.md).")
+        for muster in verbotene_muster:
+            if muster in token:
+                return (f"Unzulässiges Muster {muster!r} im Argument {token!r} "
+                         f"für {art} abgelehnt.")
+
+    erlaubt = ERLAUBTE_SUBBEFEHLE.get(art, set())
+    subbefehl = next((token for token in tokens if not token.startswith("-")), None)
+    if subbefehl is None or subbefehl not in erlaubt:
+        freigegeben = ", ".join(sorted(erlaubt)) or "(keine)"
+        return (f"Unterkommando {subbefehl!r} für {art} nicht freigegeben "
+                 f"(erlaubt: {freigegeben}).")
+    return None
 
 def _dateiname_gueltig(name: object) -> bool:
     if not isinstance(name, str):
@@ -298,6 +391,13 @@ def _argv_bauen(befehl: str, art: str, binaer: str) -> list[str] | None:
     Programmname behandelt, sondern landet als ganz normales Argument beim
     konfigurierten Werkzeug - es gibt keinen Weg, darüber ein anderes Programm
     zu starten (kein shell=True, keine Pipes, keine Umleitungen).
+
+    Das allein reicht NICHT: Ohne weitere Prüfung könnte ein Argument wie
+    `ext::sh -c evil` das Werkzeug selbst (git) dazu bringen, Code auszuführen
+    (git-eigener "ext"-Transport). Die zurückgegebenen Tokens durchlaufen
+    deshalb in `_run_werkzeug` zusätzlich `_werkzeug_argv_pruefen` (Allowlist
+    der Unterkommandos je Art, siehe dort) - diese Funktion zerlegt nur, sie
+    entscheidet nicht, ob das Ergebnis erlaubt ist.
     """
     tokens = shlex.split(befehl)
     if not tokens:
@@ -367,6 +467,12 @@ def _run_werkzeug(auftrag: dict, art: str, binaer: str, zeitgrenze: float,
         anzeige = " ".join([art] + argv[1:])
         ausgabe_teile.append(f"$ {anzeige}")
 
+        fehlermeldung = _werkzeug_argv_pruefen(argv[1:], art)
+        if fehlermeldung:
+            rc = 2
+            ausgabe_teile.append(fehlermeldung)
+            break
+
         verbleibend = frist - time.monotonic()
         if verbleibend <= 0:
             abgebrochen = True
@@ -408,6 +514,10 @@ def _run_git(auftrag: dict) -> dict:
         # Keine Konfiguration von außerhalb des Containers soll hereinwirken.
         "GIT_CONFIG_GLOBAL": os.devnull,
         "GIT_CONFIG_SYSTEM": os.devnull,
+        # Zweite Verteidigungsebene zu _werkzeug_argv_pruefen oben: blockt
+        # Netztransporte (ext/ssh/http/git/...) auf Umgebungsebene. Ergänzt
+        # die Allowlist-Prüfung, ersetzt sie nicht.
+        "GIT_ALLOW_PROTOCOL": "file",
     }
     return _run_werkzeug(auftrag, "git", GIT_BIN, GIT_TIMEOUT_SECONDS, zusatz_umgebung)
 
