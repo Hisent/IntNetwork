@@ -17,6 +17,7 @@ const THEME_BADGE: Record<string, string> = {
   infoblox: 'DDI',
   ansible: 'AUTO',
   pki: 'PKI',
+  nac: 'NAC',
 }
 
 const COPY = {

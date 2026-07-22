@@ -22,6 +22,7 @@ const THEME_KICKER: Record<string, string> = {
   infoblox: 'DDI workshop',
   ansible: 'Automation workshop',
   pki: 'Security workshop',
+  nac: 'Access-control workshop',
 }
 
 export function WorkshopPage() {

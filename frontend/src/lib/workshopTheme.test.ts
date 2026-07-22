@@ -8,6 +8,7 @@ describe('workshopTheme', () => {
     expect(workshopTheme('infoblox')).toBe('infoblox')
     expect(workshopTheme('ansible')).toBe('ansible')
     expect(workshopTheme('pki')).toBe('pki')
+    expect(workshopTheme('nac')).toBe('nac')
   })
 
   it('falls back to network for unknown or missing keys', () => {

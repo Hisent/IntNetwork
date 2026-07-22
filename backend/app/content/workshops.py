@@ -80,6 +80,20 @@ WORKSHOPS = {
         ],
         "context": None,
     },
+    "nac": {
+        "title_de": "Network Access Control",
+        "title_en": "Network Access Control",
+        "summary_de": "Wer darf ins Netz — und mit welchen Rechten? Von 802.1X und RADIUS über Posture-Prüfung bis zum stufenweisen Rollout.",
+        "summary_en": "Who gets on the network — and with what rights? From 802.1X and RADIUS through posture assessment to a staged rollout.",
+        "theme": "nac",
+        "sections": [
+            {"key": "nac1", "from": 501, "to": 504, "title_de": "Block 1 · Grundlagen & 802.1X", "title_en": "Block 1 · Fundamentals & 802.1X"},
+            {"key": "nac2", "from": 505, "to": 508, "title_de": "Block 2 · Authentifizierung & Autorisierung", "title_en": "Block 2 · Authentication & authorization"},
+            {"key": "nac3", "from": 509, "to": 511, "title_de": "Block 3 · Sichtbarkeit & Posture", "title_en": "Block 3 · Visibility & posture"},
+            {"key": "nac4", "from": 512, "to": 514, "title_de": "Block 4 · Betrieb & Fehlersuche", "title_en": "Block 4 · Operations & troubleshooting"},
+        ],
+        "context": None,
+    },
 }
 
 # Der order-Wert eines Moduls entscheidet, zu welchem Workshop es gehört — die
@@ -89,6 +103,7 @@ WORKSHOPS = {
 # stillschweigend in einen anderen Kurs). Absteigend geprüft, damit der
 # Standardfall (Netzwerk, 1-99) am Ende steht.
 _ORDER_RANGES = (
+    (500, "nac"),
     (400, "pki"),
     (300, "ansible"),
     (200, "infoblox"),

@@ -67,6 +67,10 @@ export const WIDGETS: Record<string, ComponentType<{ lang: Lang }>> = {
   'cert-errors': lazy(() => import('@/widgets/pki/CertErrorsWidget').then((m) => ({ default: m.CertErrors }))),
   'ospf-demo': lazy(() => import('@/widgets/ospf/OspfWidget').then((m) => ({ default: m.Ospf }))),
   'redundancy-demo': lazy(() => import('@/widgets/redundancy/RedundancyWidget').then((m) => ({ default: m.Redundancy }))),
+  'dot1x-flow': lazy(() => import('@/widgets/nac/Dot1xFlowWidget').then((m) => ({ default: m.Dot1xFlow }))),
+  'nac-policy': lazy(() => import('@/widgets/nac/PolicyWidget').then((m) => ({ default: m.NacPolicy }))),
+  'nac-posture': lazy(() => import('@/widgets/nac/PostureWidget').then((m) => ({ default: m.NacPosture }))),
+  'nac-deployment': lazy(() => import('@/widgets/nac/DeploymentWidget').then((m) => ({ default: m.NacDeployment }))),
   'openssl-lab': lazy(() => import('@/widgets/opensslab/OpensslLabWidget').then((m) => ({ default: m.OpensslLab }))),
   'git-lab': lazy(() => import('@/widgets/gitlab/GitLabWidget').then((m) => ({ default: m.GitLab }))),
 }

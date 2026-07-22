@@ -40,6 +40,7 @@ VALID_WIDGET_IDS = {
     "cert-inspector", "cert-chain", "tls-handshake-demo", "cert-errors",
     "ospf-demo", "redundancy-demo",
     "openssl-lab", "git-lab",
+    "dot1x-flow", "nac-policy", "nac-posture", "nac-deployment",
 }
 
 KEY_RE = re.compile(r"^[a-z0-9-]+$")

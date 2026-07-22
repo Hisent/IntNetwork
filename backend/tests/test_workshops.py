@@ -39,6 +39,7 @@ def test_workshop_for_order_ranges():
         (200, "infoblox"), (216, "infoblox"), (299, "infoblox"),
         (300, "ansible"), (315, "ansible"), (399, "ansible"),
         (400, "pki"), (415, "pki"), (499, "pki"),
+        (500, "nac"), (514, "nac"), (599, "nac"),
     ]:
         assert workshop_for_order(order) == expected, f"order {order} falsch zugeordnet"
 
@@ -82,6 +83,21 @@ def test_pki_workshop_is_served_with_all_its_modules():
                     if workshop_for_order(module["order"]) == "pki"}
         assert served == expected
         assert len(expected) == 15
+
+
+def test_nac_workshop_is_served_with_all_its_modules():
+    """Regression für den NAC-Lehrgang: eigener Hunderterblock (501-514), eigenes
+    Thema (indigo), und alle 14 Module erscheinen im Katalog."""
+    with TestClient(app) as client:
+        nac = client.get("/api/workshops/nac")
+        assert nac.status_code == 200
+        body = nac.json()
+        assert body["theme"] == "nac"
+        served = {module["key"] for module in body["modules"]}
+        expected = {key for key, module in MODULES.items()
+                    if workshop_for_order(module["order"]) == "nac"}
+        assert served == expected
+        assert len(expected) == 14
 
 
 def test_workshop_catalog_and_code_bound_join():

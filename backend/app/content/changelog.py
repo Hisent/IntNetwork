@@ -1,5 +1,23 @@
 # Projekt-Changelog (nur für Trainer sichtbar). Neueste zuerst.
 CHANGELOG = [
+    {"date": "2026-07-22", "title": "v1.40.0 — Neuer Lehrgang: Network Access Control (NAC)",
+     "text": "Das Portal hat einen sechsten Lehrgang mit 14 Modulen. Er führt von den "
+             "Grundlagen (Wer darf ins Netz, in welchem Zustand) über 802.1X, RADIUS und "
+             "die EAP-Methoden zur Authentifizierung, über MAC-Bypass, "
+             "zertifikatsbasierte Anmeldung, dynamische VLAN-Zuweisung und nachträgliche "
+             "Rechteänderung, weiter über Geräteerkennung, Endpunkt-Prüfung und Gastzugang "
+             "bis zum stufenweisen Rollout und der Fehlersuche. Die Farbwelt ist Indigo. "
+             "Vier interaktive Bausteine gehören dazu, alle im Browser: ein animierter "
+             "802.1X-Handshake, der die Nachrichten zwischen Client, Switch und "
+             "RADIUS-Server Schritt für Schritt durchspielt (mit Rücksicht auf die "
+             "Systemeinstellung für reduzierte Bewegung), ein Policy-Entscheider (welches "
+             "Ergebnis bekommt welches Gerät), ein Vergleich der drei Einführungsstufen und "
+             "eine Endpunkt-Compliance-Prüfung. Der Lehrgang verweist für die "
+             "Zertifikatsseite auf den PKI-Lehrgang, für 802.1X auf das WLAN-Modul und für "
+             "die VLAN-Zuweisung auf das Netzwerk-Modul. Grundlage ist eine dokumentierte "
+             "Quellenrecherche (docs/research-nac.md); unsichere Punkte — etwa "
+             "Produktangaben und Praxis-Faustregeln — sind bewusst vorsichtig formuliert "
+             "statt als Tatsache behauptet."},
     {"date": "2026-07-22", "title": "v1.39.0 — Didaktik-Feinschliff & Wartbarkeit",
      "text": "Drei bisher knappe Netzwerk-Grundlagenmodule (ARP, ICMP, WLAN) haben jetzt "
              "je eine Fehlersuch-Aufgabe und eine Transferfrage bekommen — damit liegen sie "
