@@ -21,6 +21,7 @@ const THEME_KICKER: Record<string, string> = {
   claude: 'AI workshop',
   infoblox: 'DDI workshop',
   ansible: 'Automation workshop',
+  pki: 'Security workshop',
 }
 
 export function WorkshopPage() {

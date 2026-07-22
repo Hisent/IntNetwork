@@ -38,6 +38,7 @@ def test_workshop_for_order_ranges():
         (100, "claude-code"), (118, "claude-code"), (199, "claude-code"),
         (200, "infoblox"), (216, "infoblox"), (299, "infoblox"),
         (300, "ansible"), (315, "ansible"), (399, "ansible"),
+        (400, "pki"), (415, "pki"), (499, "pki"),
     ]:
         assert workshop_for_order(order) == expected, f"order {order} falsch zugeordnet"
 
@@ -50,6 +51,37 @@ def test_every_workshop_has_modules():
         counts[workshop_for_order(module["order"])] += 1
     leer = [key for key, count in counts.items() if count == 0]
     assert not leer, f"Workshops ohne Module: {leer}"
+
+
+def test_prerequisites_reference_existing_modules_of_the_same_workshop():
+    """Eine Voraussetzung, die auf einen nicht existierenden Key zeigt, sperrt das
+    Modul dauerhaft — sichtbar wird das erst im Kurs. Zusätzlich muss die
+    Voraussetzung im selben Workshop liegen und davor kommen, sonst ist sie über
+    die Kursreihenfolge nie erfüllbar."""
+    for key, module in MODULES.items():
+        workshop_key = workshop_for_order(module["order"])
+        for prereq in module.get("prerequisites", []):
+            assert prereq in MODULES, f"Modul {key!r} verlangt unbekanntes Modul {prereq!r}"
+            other = MODULES[prereq]
+            assert workshop_for_order(other["order"]) == workshop_key, (
+                f"Modul {key!r} verlangt {prereq!r} aus einem anderen Workshop")
+            assert other["order"] < module["order"], (
+                f"Voraussetzung {prereq!r} steht hinter Modul {key!r}")
+
+
+def test_pki_workshop_is_served_with_all_its_modules():
+    """Regression für den PKI-Lehrgang (v1.32.0): eigener Hunderterblock, eigenes
+    Thema, und alle 15 Module erscheinen im Katalog."""
+    with TestClient(app) as client:
+        pki = client.get("/api/workshops/pki")
+        assert pki.status_code == 200
+        body = pki.json()
+        assert body["theme"] == "pki"
+        served = {module["key"] for module in body["modules"]}
+        expected = {key for key, module in MODULES.items()
+                    if workshop_for_order(module["order"]) == "pki"}
+        assert served == expected
+        assert len(expected) == 15
 
 
 def test_workshop_catalog_and_code_bound_join():

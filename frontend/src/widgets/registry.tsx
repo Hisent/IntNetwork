@@ -58,4 +58,11 @@ export const WIDGETS: Record<string, ComponentType<{ lang: Lang }>> = {
   'mcp-inspector': lazy(() => import('@/widgets/mcpinspector/McpInspectorWidget').then((m) => ({ default: m.McpInspector }))),
   'agent-orchestrator': lazy(() => import('@/widgets/orchestrator/OrchestratorWidget').then((m) => ({ default: m.Orchestrator }))),
   'ansible-lab': lazy(() => import('@/widgets/ansiblelab/AnsibleLabWidget').then((m) => ({ default: m.AnsibleLab }))),
+  'crypto-hash': lazy(() => import('@/widgets/pki/HashWidget').then((m) => ({ default: m.HashLab }))),
+  'crypto-aead': lazy(() => import('@/widgets/pki/AeadWidget').then((m) => ({ default: m.AeadLab }))),
+  'crypto-keyexchange': lazy(() => import('@/widgets/pki/KeyExchangeWidget').then((m) => ({ default: m.KeyExchange }))),
+  'cert-inspector': lazy(() => import('@/widgets/pki/CertInspectorWidget').then((m) => ({ default: m.CertInspector }))),
+  'cert-chain': lazy(() => import('@/widgets/pki/CertChainWidget').then((m) => ({ default: m.CertChain }))),
+  'tls-handshake-demo': lazy(() => import('@/widgets/pki/HandshakeWidget').then((m) => ({ default: m.TlsHandshake }))),
+  'cert-errors': lazy(() => import('@/widgets/pki/CertErrorsWidget').then((m) => ({ default: m.CertErrors }))),
 }

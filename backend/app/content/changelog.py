@@ -1,5 +1,22 @@
 # Projekt-Changelog (nur für Trainer sichtbar). Neueste zuerst.
 CHANGELOG = [
+    {"date": "2026-07-22", "title": "v1.32.0 — Neuer Lehrgang: PKI & Verschlüsselung",
+     "text": "Das Portal hat einen fünften Lehrgang mit 15 Modulen. Er führt von den "
+             "kryptografischen Bausteinen (Schutzziele, Hashfunktionen, symmetrische und "
+             "asymmetrische Verfahren, digitale Signaturen) über X.509-Zertifikate, "
+             "Vertrauensketten, Lebenszyklus und Widerruf bis zu TLS-Handshake, "
+             "Serverkonfiguration und Diagnose — und endet mit interner PKI und "
+             "Automatisierung, Fehlersuche und einem Ausblick auf Post-Quanten-Kryptografie. "
+             "Die Farbwelt ist Magenta. Sieben neue interaktive Bausteine gehören dazu: ein "
+             "Hash-Labor mit Lawineneffekt, ein Verschlüsselungs-Labor, das zeigt, wie eine "
+             "Manipulation erkannt wird, ein Schlüsseltausch zum Mitrechnen, ein "
+             "Zertifikats-Betrachter, ein Ketten-Baukasten, ein Handshake-Vergleich "
+             "TLS 1.2 gegen TLS 1.3 und eine Fehlerbild-Übung mit echten Meldungen aus "
+             "Browser und openssl. Die Labore rechnen im Browser und brauchen keine "
+             "Serverumgebung. Grundlage der Inhalte ist eine dokumentierte Quellenrecherche "
+             "(docs/research-pki.md); Punkte, die sich nicht gegen eine Primärquelle "
+             "belegen ließen — etwa einzelne Fristen und Verbreitungszahlen — sind im Kurs "
+             "bewusst vorsichtig formuliert statt als Tatsache behauptet."},
     {"date": "2026-07-21", "title": "v1.31.0 — Lab-Runner ohne Netzwerk",
      "text": "Beim Aktivieren auf dem Server kam heraus, dass die geplante "
              "Abschottung des Lab-Dienstes nicht hielt: Die Plattform verbindet "

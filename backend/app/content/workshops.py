@@ -65,6 +65,20 @@ WORKSHOPS = {
         ],
         "context": None,
     },
+    "pki": {
+        "title_de": "PKI & Verschlüsselung",
+        "title_en": "PKI & Encryption",
+        "summary_de": "Von den kryptografischen Bausteinen über X.509 und TLS bis zum Betrieb einer eigenen PKI.",
+        "summary_en": "From cryptographic building blocks through X.509 and TLS to running your own PKI.",
+        "theme": "pki",
+        "sections": [
+            {"key": "pki1", "from": 401, "to": 405, "title_de": "Block 1 · Kryptografische Grundlagen", "title_en": "Block 1 · Cryptographic fundamentals"},
+            {"key": "pki2", "from": 406, "to": 409, "title_de": "Block 2 · Zertifikate & Vertrauen", "title_en": "Block 2 · Certificates & trust"},
+            {"key": "pki3", "from": 410, "to": 412, "title_de": "Block 3 · TLS in der Praxis", "title_en": "Block 3 · TLS in practice"},
+            {"key": "pki4", "from": 413, "to": 415, "title_de": "Block 4 · Betrieb & Ausblick", "title_en": "Block 4 · Operations & outlook"},
+        ],
+        "context": None,
+    },
 }
 
 # Der order-Wert eines Moduls entscheidet, zu welchem Workshop es gehört — die
@@ -74,6 +88,7 @@ WORKSHOPS = {
 # stillschweigend in einen anderen Kurs). Absteigend geprüft, damit der
 # Standardfall (Netzwerk, 1-99) am Ende steht.
 _ORDER_RANGES = (
+    (400, "pki"),
     (300, "ansible"),
     (200, "infoblox"),
     (100, "claude-code"),

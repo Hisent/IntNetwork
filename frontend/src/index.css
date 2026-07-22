@@ -28,6 +28,7 @@ body {
 [data-theme="dark"] .workshop-theme--claude { --workshop-accent-surface: #17110b; }
 [data-theme="dark"] .workshop-theme--infoblox { --workshop-accent-surface: #0d1420; }
 [data-theme="dark"] .workshop-theme--ansible { --workshop-accent-surface: #150f22; }
+[data-theme="dark"] .workshop-theme--pki { --workshop-accent-surface: #180d1c; }
 
 /* ---------------------------------------------------------------------------
  * Dark-Mode-Palette (Paletten-Override statt Einzelklassen-Handliste).
@@ -309,6 +310,24 @@ p { text-wrap: pretty; }
   --workshop-logo-line: #a78bfa;
   --workshop-logo-node: #c4b5fd;
   --workshop-logo-center: #6d28d9;
+}
+/* PKI: Magenta. Der Farbraum war eng — Teal, Orange, Blau und Violett sind
+   vergeben, Rot ist die Fehlerfarbe und Grün die Erfolgsfarbe (richtige
+   Antworten, erledigte Aufgaben). Magenta ist die verbleibende Lücke, die
+   weder eine Bedeutung überschreibt noch mit einem anderen Lehrgang
+   verwechselbar ist. */
+.workshop-theme--pki {
+  --workshop-accent: #a21caf;
+  --workshop-accent-hover: #86198f;
+  --workshop-accent-strong: #c026d3;
+  --workshop-accent-soft: #fae8ff;
+  --workshop-accent-surface: #fdf4ff;
+  --workshop-accent-line: #f0abfc;
+  --workshop-accent-ink: #701a75;
+  --workshop-accent-pale: #fae8ff;
+  --workshop-logo-line: #e879f9;
+  --workshop-logo-node: #f0abfc;
+  --workshop-logo-center: #a21caf;
 }
 .workshop-theme:not(.workshop-theme--network) :focus-visible { outline-color: var(--workshop-accent); }
 
