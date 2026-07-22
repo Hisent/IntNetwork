@@ -66,6 +66,23 @@ def test_clip_grenzfall_exakt_auf_der_grenze_bleibt_unangetastet(monkeypatch):
     assert gekappt is False
 
 
+def test_prozessausgabe_wird_vor_dem_einlesen_begrenzt(tmp_path, monkeypatch):
+    """Ein geschaedigter Auftrag darf den Worker nicht durch PIPE-Pufferung
+    mit beliebig viel RAM-Ausgabe belegen. _mit_zeitgrenze_ausfuehren liest
+    deshalb nur die Kappungsgrenze plus ein Signal-Byte aus der temporaeren
+    Datei ein."""
+    monkeypatch.setattr(worker, "MAX_OUTPUT_BYTES", 128)
+
+    rc, roh, timed_out = worker._mit_zeitgrenze_ausfuehren(
+        [sys.executable, "-c", "import sys; sys.stdout.write('x' * 100000)"],
+        tmp_path, dict(os.environ), 10,
+    )
+
+    assert rc == 0
+    assert timed_out is False
+    assert len(roh) == 129
+
+
 # ---------------------------------------------------------------------------
 # 2. Arbeitsverzeichnis-Trennung (_workspace)
 # ---------------------------------------------------------------------------

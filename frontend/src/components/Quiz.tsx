@@ -94,7 +94,7 @@ export function Quiz({ moduleKey, questions, lang, onResult }: {
     const m: Record<string, number[]> = {}
     for (const q of questions) if (q.type !== 'number') m[q.id] = shuffledIndices(q.options.length)
     return m
-  }, [moduleKey, questions])
+  }, [questions])
 
   const locked = result !== null
   const answeredCount = questions.filter((q) => isAnswered(q, answers[q.id])).length

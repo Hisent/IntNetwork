@@ -124,8 +124,11 @@ Plattform ihre Netze zusammensteckt.
   dort keine eigene Binärdatei ablegen und ausführen. Dass Ansible auf einem
   `noexec`-Dateisystem trotzdem läuft, wurde geprüft (Module laufen über den
   Python-Interpreter, nicht als eigenständige Programme).
-- Harte Zeitgrenze je Lauf (`RUNNER_TIMEOUT`, Standard 30 s), Obergrenze für die
-  Ausgabemenge, begrenzte Parallelität (`RUNNER_MAX_PARALLEL`, Standard 2).
+- Zeitgrenze je Lauf (`RUNNER_TIMEOUT`, Standard 30 s), Obergrenze für die
+  Ergebnis-Ausgabe und begrenzte Parallelität (`RUNNER_MAX_PARALLEL`, Standard
+  2). Die Kindprozess-Ausgabe wird zuerst in einer temporären Datei im ohnehin
+  auf 64 MB begrenzten `tmpfs` gesammelt; der Worker liest daraus nur die
+  Antwortgrenze. Unbegrenzte Ausgabe kann daher nicht dessen RAM füllen.
 - CPU-, Speicher- und Prozessgrenzen am Container.
 - Jeder Lauf in einem frischen Verzeichnis, das danach gelöscht wird.
 - **Arbeitsverzeichnis je Teilnehmer**: Der Runner erhält vom Backend eine
@@ -147,6 +150,12 @@ Plattform ihre Netze zusammensteckt.
 - **Rechenzeit.** Angemeldete Teilnehmende können den Runner beschäftigen.
   Zeitgrenze, Parallelitätsgrenze und CPU-Limit bremsen das, verhindern es aber
   nicht vollständig.
+- **Böswillig abgekoppelte Prozesse.** Die Zeitgrenze beendet die normale
+  Prozessgruppe. Ein Programm kann diese Gruppe mit `setsid()` bewusst
+  verlassen; gegen so einen Prozess helfen keine POSIX-Prozessgruppen. Er kann
+  den Worker nicht mehr über eine offene Ausgabe-Pipe blockieren, wird aber bis
+  zum Container-Limit weiterlaufen. Eine harte Grenze auch dafür braucht einen
+  separaten Job-Container oder eine VM/cgroup je Lauf.
 - **Alles, was im Runner-Container liegt.** Ein Playbook kann das Image und die
   Arbeitsverzeichnisse anderer Teilnehmender im selben Container lesen. Dort
   liegen keine Geheimnisse und keine Nutzerdaten — aber es ist keine Trennung

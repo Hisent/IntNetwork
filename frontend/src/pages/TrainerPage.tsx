@@ -234,7 +234,7 @@ function CourseList({ courses, workshops, workshopTitle, selected, onSelect }: {
   return (
     <section className="wb-surface p-4 lg:sticky lg:top-6">
       <h3 className="mb-3 text-sm font-semibold text-[var(--wb-ink)]">Kurse</h3>
-      <form onSubmit={(e) => { e.preventDefault(); name.trim() && create.mutate() }} className="mb-4 flex flex-col gap-2">
+      <form onSubmit={(e) => { e.preventDefault(); if (name.trim()) create.mutate() }} className="mb-4 flex flex-col gap-2">
         <Field label="Neuer Kurs" placeholder="Kurs-Name" value={name} onChange={(e) => setName(e.target.value)} />
         <label className="flex flex-col gap-1 text-xs font-medium text-[var(--wb-muted)]">Workshop
           <select value={workshopKey} onChange={(e) => setWorkshopKey(e.target.value)} className="wb-control rounded-lg border border-[var(--wb-border)] bg-[var(--wb-surface)] px-3 py-2 text-sm font-normal text-[var(--wb-ink)]">
@@ -580,7 +580,7 @@ function ModuleAdmin({ workshops }: { workshops: { key: string; title: { de: str
               ))}
             </div>}
       </QueryState>
-      <form onSubmit={(e) => { e.preventDefault(); newKey.trim() && newTitle.trim() && createContent.mutate() }} className="mt-4 flex flex-wrap items-end gap-2">
+      <form onSubmit={(e) => { e.preventDefault(); if (newKey.trim() && newTitle.trim()) createContent.mutate() }} className="mt-4 flex flex-wrap items-end gap-2">
         <Field label="Key" placeholder="mein-modul" value={newKey} onChange={(e) => setNewKey(e.target.value)} />
         <Field label="Titel DE" placeholder="Mein Modul" value={newTitle} onChange={(e) => setNewTitle(e.target.value)} />
         <label className="flex flex-col gap-1 text-xs font-medium text-[var(--wb-muted)]">Workshop
@@ -638,7 +638,7 @@ function TrainerAccounts({ portalContainer }: { portalContainer: HTMLElement | n
           ))}
         </div>
       </QueryState>
-      <form onSubmit={(e) => { e.preventDefault(); email.trim() && name.trim() && password && create.mutate() }} className="flex flex-wrap items-end gap-2">
+      <form onSubmit={(e) => { e.preventDefault(); if (email.trim() && name.trim() && password) create.mutate() }} className="flex flex-wrap items-end gap-2">
         <Field label="E-Mail" type="email" autoComplete="off" placeholder="neu@beispiel.de" value={email} onChange={(e) => setEmail(e.target.value)} />
         <Field label="Name" placeholder="Vorname" value={name} onChange={(e) => setName(e.target.value)} />
         <Field label="Passwort" type="password" autoComplete="new-password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} />

@@ -23,6 +23,7 @@ export function GlossaryPanel({ moduleKey, lang }: { moduleKey: string; lang: La
   useEffect(() => {
     if (!open) return
     const dialogNode = dialogRef.current
+    const trigger = triggerButtonRef.current
 
     const handleKeydown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') { setOpen(false); return }
@@ -64,7 +65,7 @@ export function GlossaryPanel({ moduleKey, lang }: { moduleKey: string; lang: La
       document.body.classList.remove('overflow-hidden')
       clearInert(backgroundSiblings)
       // Fokus zurück auf das auslösende Element.
-      triggerButtonRef.current?.focus()
+      trigger?.focus()
     }
   }, [open])
   const copy = lang === 'de'

@@ -146,33 +146,46 @@ def _mit_zeitgrenze_ausfuehren(argv: list[str], cwd: Path, env: dict[str, str],
     ein bewusst hingenommener, dokumentierter Unterschied - keine
     vorgetaeuschte Gleichwertigkeit zum POSIX-Verhalten.
 
+    Die Ausgabe geht in eine temporaere Datei statt in eine PIPE. Das begrenzt
+    den Speicherverbrauch des Workers auch dann, wenn ein Auftrag sehr viel
+    schreibt. Wichtig fuer den Timeout-Fall: ein Kind kann seine Prozessgruppe
+    mit setsid() verlassen und dabei einen geerbten Pipe-Deskriptor offen
+    halten. communicate() wuerde dann trotz beendetem Elternprozess haengen.
+    Auf eine Datei zu warten ist nicht noetig; wir warten nur auf den direkt
+    gestarteten Prozess und lesen danach hoechstens die Ergebnisgrenze ein.
+
     Rueckgabe: (rc, stdout_bytes, timed_out). Bei Abbruch ist rc IMMER 124,
     stdout_bytes enthaelt die bis zum Abbruch angefallene Teilausgabe.
     """
     posix = sys.platform != "win32"
-    proc = subprocess.Popen(argv, cwd=cwd, env=env, stdout=subprocess.PIPE,
-                            stderr=subprocess.STDOUT, start_new_session=posix)
-    try:
-        roh, _ = proc.communicate(timeout=zeitgrenze)
-        return proc.returncode, roh, False
-    except subprocess.TimeoutExpired:
-        if posix:
-            try:
-                os.killpg(os.getpgid(proc.pid), signal.SIGKILL)
-            except ProcessLookupError:
-                pass  # zwischen Timeout und Signal bereits beendet
-        else:
-            proc.kill()
-        # Nach dem Signal erneut abholen: liefert die bis zum Abbruch
-        # angefallene Teilausgabe und vermeidet einen Zombie-Prozess. Der
-        # kurze Nachlauf hier ist die Ausnahme - ein totes/gekilltes
-        # Prozessbaum-Ende raeumt sich in aller Regel sofort auf.
+    with tempfile.TemporaryFile(mode="w+b", dir=cwd) as ausgabe:
+        proc = subprocess.Popen(argv, cwd=cwd, env=env, stdout=ausgabe,
+                                stderr=subprocess.STDOUT, start_new_session=posix)
         try:
-            roh, _ = proc.communicate(timeout=5)
+            proc.wait(timeout=zeitgrenze)
+            timed_out = False
         except subprocess.TimeoutExpired:
-            proc.kill()
-            roh, _ = proc.communicate()
-        return 124, roh, True
+            if posix:
+                try:
+                    os.killpg(os.getpgid(proc.pid), signal.SIGKILL)
+                except ProcessLookupError:
+                    pass  # zwischen Timeout und Signal bereits beendet
+            else:
+                proc.kill()
+            # Nie communicate(): ein entkommenes Kind kann eine geerbte PIPE
+            # offenhalten. Nach SIGKILL muss der direkte Elternprozess enden;
+            # falls nicht, geben wir trotzdem zeitnah an den Worker zurueck.
+            try:
+                proc.wait(timeout=5)
+            except subprocess.TimeoutExpired:
+                proc.kill()
+            timed_out = True
+
+        ausgabe.seek(0)
+        # Ein Byte mehr reicht als Signal fuer _clip; die spaetere Antwort
+        # bleibt damit auch bei mehreren Werkzeug-Kommandos klein.
+        roh = ausgabe.read(MAX_OUTPUT_BYTES + 1)
+        return (124 if timed_out else proc.returncode), roh, timed_out
 
 
 def _run_ansible(auftrag: dict) -> dict:

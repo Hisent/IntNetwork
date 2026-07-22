@@ -227,6 +227,22 @@ button, a, input, select, textarea, [role="button"] {
 }
 button:not(:disabled):active { transform: translateY(1px); }
 
+/* Touch braucht eine verlaessliche Trefferflaeche, auch bei kompakten
+   Sekundaeraktionen wie Glossar, Filtern oder Dialogschliessen. */
+@media (pointer: coarse) {
+  button, [role="button"], input, select, textarea { min-block-size: 2.75rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: .01ms !important;
+  }
+}
+
 /* Zahlen in Tabellen ausrichten */
 table { font-variant-numeric: tabular-nums; }
 

@@ -18,3 +18,10 @@ docs/*
 # und sie haelt fest, welche Angaben sich NICHT gegen eine Primaerquelle
 # belegen liessen. Ohne sie im Repo zeigt jeder dieser Verweise ins Leere.
 !docs/research-pki.md
+# Betriebs- und Quellenunterlagen sind Teil der fachlichen bzw. operativen
+# Nachvollziehbarkeit und duerfen nicht stillschweigend aus dem Repository
+# verschwinden.
+!docs/operations.md
+!docs/claude-code-curriculum-research.md
+!docs/claude-code-fact-check.md
+!docs/claude-code-workshop-dock.md

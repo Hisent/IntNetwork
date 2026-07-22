@@ -104,6 +104,10 @@ services:
       RUNNER_QUEUE_DIR: /queue
       # Harte Zeitgrenze je Playbook-Lauf in Sekunden.
       RUNNER_TIMEOUT: ${RUNNER_TIMEOUT:-30}
+      # Antwortgroesse und wartende Auftraege bleiben auch bei viel Ausgabe
+      # begrenzt; fuer die Produktionskapazitaet bei Bedarf bewusst justieren.
+      RUNNER_MAX_OUTPUT: ${RUNNER_MAX_OUTPUT:-65536}
+      RUNNER_MAX_QUEUE_DEPTH: ${RUNNER_MAX_QUEUE_DEPTH:-4}
       # Wie viele Laeufe gleichzeitig laufen duerfen.
       RUNNER_MAX_PARALLEL: ${RUNNER_MAX_PARALLEL:-2}
       # Freigegebene Auftragsarten. Standard "ansible" — ohne Konfiguration

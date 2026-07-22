@@ -40,6 +40,7 @@ export function ConfirmDialog({
   useEffect(() => {
     if (!open) return
     const dialogNode = dialogRef.current
+    const trigger = triggerRef.current
 
     const handleKeydown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') { onCancel(); return }
@@ -77,7 +78,7 @@ export function ConfirmDialog({
       document.removeEventListener('keydown', handleKeydown)
       document.body.classList.remove('overflow-hidden')
       clearInert(backgroundSiblings)
-      triggerRef.current?.focus()
+      trigger?.focus()
     }
   }, [open, onCancel, triggerRef, portalTarget])
 

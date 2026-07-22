@@ -2,10 +2,10 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-COPY requirements.txt .
+COPY requirements.lock .
 # pip + setuptools zuerst patchen (setuptools-CVEs im Base-Image), dann Deps.
 RUN pip install --no-cache-dir -U "pip" "setuptools>=78.1.1" \
- && pip install --no-cache-dir -r requirements.txt
+ && pip install --no-cache-dir -r requirements.lock
 
 # Unprivilegiert ausfuehren, analog zum Runner (runner/Dockerfile). --chown
 # beim COPY gibt dem User gleich den Besitz am Arbeitsverzeichnis -- noetig,

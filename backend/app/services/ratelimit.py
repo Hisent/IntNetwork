@@ -1,4 +1,5 @@
 import os
+import threading
 import time
 from collections import defaultdict, deque
 
@@ -10,6 +11,7 @@ from fastapi import HTTPException, Request, status
 # Hinweis: Ein NAT-Klassenraum teilt sich eine WAN-IP — Join-Limits daher
 # grosszügig, sie sollen nur automatisiertes Brute-Forcing bremsen.
 _HITS: dict[tuple[str, str], deque[float]] = defaultdict(deque)
+_LOCK = threading.Lock()
 
 # Zu jedem je gesehenen Route-Pfad das dort geltende window_seconds -- gebraucht,
 # um beim Aufraeumen (_drop_stale_keys) fuer FREMDE Keys (andere Route als die des
@@ -44,17 +46,21 @@ def rate_limit(max_calls: int, window_seconds: float):
             return
         client = request.client.host if request.client else "unknown"
         path = request.url.path
-        _WINDOW_BY_PATH[path] = window_seconds
-        key = (client, path)
-        now = time.monotonic()
-        _drop_stale_keys(now)
-        hits = _HITS[key]
-        while hits and hits[0] <= now - window_seconds:
-            hits.popleft()
-        if len(hits) >= max_calls:
-            raise HTTPException(
-                status_code=status.HTTP_429_TOO_MANY_REQUESTS,
-                detail="Zu viele Versuche. Bitte kurz warten.",
-            )
-        hits.append(now)
+        # FastAPI kann synchrone Dependencies parallel in Worker-Threads
+        # ausfuehren. Das Pruefen und Anhaengen muss deshalb atomar sein,
+        # sonst koennen gleichzeitige Requests dasselbe Restkontingent sehen.
+        with _LOCK:
+            _WINDOW_BY_PATH[path] = window_seconds
+            key = (client, path)
+            now = time.monotonic()
+            _drop_stale_keys(now)
+            hits = _HITS[key]
+            while hits and hits[0] <= now - window_seconds:
+                hits.popleft()
+            if len(hits) >= max_calls:
+                raise HTTPException(
+                    status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                    detail="Zu viele Versuche. Bitte kurz warten.",
+                )
+            hits.append(now)
     return dependency
