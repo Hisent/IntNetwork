@@ -1,5 +1,14 @@
 # Projekt-Changelog (nur für Trainer sichtbar). Neueste zuerst.
 CHANGELOG = [
+    {"date": "2026-07-23", "title": "v1.41.1 — Stabilerer Start nach Updates",
+     "text": "Ein Update konnte die Anwendung in eine Neustart-Schleife bringen, wenn die "
+             "Datenbank aus einer sehr frühen Version stammte und ein Schema-Schritt dort "
+             "nie sauber angewandt worden war — die Seite war dann nicht erreichbar. Das ist "
+             "behoben: der betroffene Schema-Schritt läuft jetzt auf jedem Altstand "
+             "wiederholbar durch, und beim Start prüft die Anwendung das Schema vorab und "
+             "meldet eine fehlende Spalte klar im Log, statt erst tief im Betrieb "
+             "unverständlich abzubrechen. Für Trainer und Teilnehmer ändert sich an der "
+             "Bedienung nichts."},
     {"date": "2026-07-22", "title": "v1.41.0 — Einladungslink & QR statt Code-Diktat",
      "text": "Teilnehmer müssen den Kurs-Code nicht mehr einzeln mitgeteilt bekommen. "
              "Im Kursdetail gibt es jetzt eine Sektion „Teilnehmer einladen“ mit einem "
