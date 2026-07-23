@@ -3,13 +3,18 @@ bzw. ein belegter Advisory-Lock darf den Start nicht still blockieren, sondern
 muss nach begrenzter Zeit mit verwertbarer Meldung scheitern."""
 
 import pytest
+from alembic import command
 from fastapi.testclient import TestClient
-from sqlalchemy import inspect
+from sqlalchemy import create_engine, inspect, text
 from sqlalchemy.exc import OperationalError
 
 from app import db_migrate
+from app.config import settings
 from app.database import Base, engine
 from app.main import app
+
+_HEAD = "75aeb8d5399c"        # trainer_token_version_and_core_fk_cascades
+_VORGAENGER = "7305d4053e50"  # add_trainer_credential
 
 
 def _blocked() -> OperationalError:
@@ -76,3 +81,43 @@ def test_migrationen_allein_erzeugen_das_vollstaendige_schema():
         pass
     fehlende = set(Base.metadata.tables) - set(inspect(engine).get_table_names())
     assert fehlende == set()
+
+
+def test_75aeb8d5399c_ist_idempotent_wenn_objekte_schon_existieren(tmp_path, monkeypatch):
+    """Regression zum Prod-Crashloop vom 2026-07-23.
+
+    Die Prod-DB war urspruenglich per create_all gebaut (vor v1.35, als das noch
+    in main.py lief) und ihr alembic_version stand hinter Head. Beim Redeploy
+    lief 75aeb8d5399c auf einer DB, in der Spalte/FKs/Index TEILS SCHON
+    existierten -- add_column/create_foreign_key/create_index scheiterten an
+    "already exists" -> Startup-Crashloop.
+
+    Genau diese Konstellation stellt der Test nach: Schema einmal auf Head
+    bringen (alle Objekte existieren), alembic_version auf den Vorgaenger
+    zuruecksetzen, dann erneut auf Head migrieren. Ohne die Idempotenz-Guards
+    (fix ffcfb73) wirft der zweite Lauf; mit ihnen laeuft er sauber durch.
+
+    Bewusst eigene tmp-DB statt der conftest-DB: der Test manipuliert
+    alembic_version und darf den geteilten Zustand nicht verschmutzen.
+    """
+    db_url = f"sqlite:///{tmp_path / 'legacy.db'}"
+    monkeypatch.setattr(settings, "database_url", db_url)
+    cfg = db_migrate._config()
+
+    # 1. Volles Schema: alle Objekte aus 75aeb8d5399c existieren jetzt.
+    command.upgrade(cfg, "head")
+
+    legacy_engine = create_engine(db_url)
+    # alembic_version auf den Vorgaenger zuruecksetzen -> Alembic "vergisst",
+    # dass 75aeb8d5399c schon lief, die Objekte bleiben aber in der DB.
+    with legacy_engine.begin() as conn:
+        conn.execute(text("UPDATE alembic_version SET version_num = :v"), {"v": _VORGAENGER})
+
+    # 2. Der eigentliche Test: erneuter upgrade auf Head darf NICHT an
+    #    "already exists"/"duplicate column" scheitern.
+    command.upgrade(cfg, "head")
+
+    with legacy_engine.connect() as conn:
+        version = conn.execute(text("SELECT version_num FROM alembic_version")).scalar()
+    legacy_engine.dispose()
+    assert version == _HEAD
