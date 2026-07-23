@@ -71,6 +71,31 @@ if _fehlende_tabellen:
         ", ".join(_fehlende_tabellen),
     )
 
+# Spalten-Drift (nicht nur ganze Tabellen): eine Tabelle kann existieren, ihr
+# aber eine Spalte fehlen, die das Modell kennt. Genau so entstand der
+# Crashloop vom 2026-07-23 -- trainer.token_version fehlte (alembic_version
+# stand vor Head), und der Fehler schlug erst tief im Seeding als kryptisches
+# psycopg2 UndefinedColumn zu. Hier vor dem Seeding laut und benannt scheitern:
+# gleicher Crashloop, aber die Logzeile sagt sofort, welche Migration fehlt.
+_insp = inspect(engine)
+_vorhandene = set(_insp.get_table_names())
+_fehlende_spalten = sorted(
+    f"{_tabelle}.{_spalte}"
+    for _tabelle, _model_table in Base.metadata.tables.items()
+    if _tabelle in _vorhandene
+    for _spalte in _model_table.columns.keys()
+    if _spalte not in {_c["name"] for _c in _insp.get_columns(_tabelle)}
+)
+if _fehlende_spalten:
+    raise RuntimeError(
+        "Schema-Drift: der DB fehlen Spalten, die die Modelle erwarten: "
+        + ", ".join(_fehlende_spalten)
+        + ". Eine Migration wurde nicht (vollstaendig) angewandt -- alembic_version "
+        "steht vermutlich vor Head. Die zustaendige Migration idempotent nachziehen "
+        "(Muster: 75aeb8d5399c) oder das Schema von Hand angleichen und "
+        "alembic_version auf Head setzen."
+    )
+
 from app.content.seed import seed_missing_content  # noqa: E402
 from app.content.workshops import seed_workshops  # noqa: E402
 from app.services.trainer_seed import seed_trainer_if_empty  # noqa: E402
