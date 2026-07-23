@@ -17,10 +17,30 @@ branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
 
+# Idempotenz-Guards. Diese Migration lief historisch auf create_all-Alt-DBs, deren
+# alembic_version hinter Head stand: dort existieren Spalte/FKs/Index teils schon
+# (durch create_all oder eine manuelle Reparatur), teils nicht. Ohne Guard scheitert
+# add_column/create_foreign_key an "already exists" -> Startup-Crashloop (Vorfall
+# 2026-07-23). Mit Guard laeuft die Migration auf jedem Zwischenstand sauber durch.
+def _has_column(insp, table: str, column: str) -> bool:
+    return any(c["name"] == column for c in insp.get_columns(table))
+
+
+def _has_fk(insp, table: str, name: str) -> bool:
+    return any(fk["name"] == name for fk in insp.get_foreign_keys(table))
+
+
+def _has_index(insp, table: str, name: str) -> bool:
+    return any(ix["name"] == name for ix in insp.get_indexes(table))
+
+
 def upgrade() -> None:
+    insp = sa.inspect(op.get_bind())
+
     # --- Trainer-Token widerrufbar, analog zu participant.token_version ---
-    with op.batch_alter_table('trainer', schema=None) as batch_op:
-        batch_op.add_column(sa.Column('token_version', sa.Integer(), nullable=False, server_default='0'))
+    if not _has_column(insp, 'trainer', 'token_version'):
+        with op.batch_alter_table('trainer', schema=None) as batch_op:
+            batch_op.add_column(sa.Column('token_version', sa.Integer(), nullable=False, server_default='0'))
 
     # --- Verwaiste Zeilen raeumen, BEVOR die FK-Constraints unten angelegt
     # werden. Auf einer Live-DB koennen bereits verwaiste Zeilen existieren
@@ -44,32 +64,41 @@ def upgrade() -> None:
         "AND participant_id NOT IN (SELECT id FROM participant)"
     ))
 
-    # --- Kern-Fremdschluessel mit ON DELETE CASCADE nachruesten ---
-    with op.batch_alter_table('participant', schema=None) as batch_op:
-        batch_op.create_foreign_key(
-            'fk_participant_course_id_course', 'course', ['course_id'], ['id'], ondelete='CASCADE')
-    with op.batch_alter_table('progress', schema=None) as batch_op:
-        batch_op.create_foreign_key(
-            'fk_progress_participant_id_participant', 'participant', ['participant_id'], ['id'],
-            ondelete='CASCADE')
-    with op.batch_alter_table('quiz_result', schema=None) as batch_op:
-        batch_op.create_foreign_key(
-            'fk_quiz_result_participant_id_participant', 'participant', ['participant_id'], ['id'],
-            ondelete='CASCADE')
-        # quiz_stats (trainer_modules.py) filtert immer auf module_key, teils
-        # zusaetzlich per Join auf participant_id -> deckt beide Muster ab.
-        batch_op.create_index(
-            batch_op.f('ix_quiz_result_module_key_participant_id'), ['module_key', 'participant_id'],
-            unique=False)
-    with op.batch_alter_table('comment', schema=None) as batch_op:
-        batch_op.create_foreign_key(
-            'fk_comment_course_id_course', 'course', ['course_id'], ['id'], ondelete='CASCADE')
-        batch_op.create_foreign_key(
-            'fk_comment_participant_id_participant', 'participant', ['participant_id'], ['id'],
-            ondelete='CASCADE')
-    with op.batch_alter_table('course_module', schema=None) as batch_op:
-        batch_op.create_foreign_key(
-            'fk_course_module_course_id_course', 'course', ['course_id'], ['id'], ondelete='CASCADE')
+    # --- Kern-Fremdschluessel mit ON DELETE CASCADE nachruesten (je einzeln geguardet) ---
+    if not _has_fk(insp, 'participant', 'fk_participant_course_id_course'):
+        with op.batch_alter_table('participant', schema=None) as batch_op:
+            batch_op.create_foreign_key(
+                'fk_participant_course_id_course', 'course', ['course_id'], ['id'], ondelete='CASCADE')
+    if not _has_fk(insp, 'progress', 'fk_progress_participant_id_participant'):
+        with op.batch_alter_table('progress', schema=None) as batch_op:
+            batch_op.create_foreign_key(
+                'fk_progress_participant_id_participant', 'participant', ['participant_id'], ['id'],
+                ondelete='CASCADE')
+    if not _has_fk(insp, 'quiz_result', 'fk_quiz_result_participant_id_participant'):
+        with op.batch_alter_table('quiz_result', schema=None) as batch_op:
+            batch_op.create_foreign_key(
+                'fk_quiz_result_participant_id_participant', 'participant', ['participant_id'], ['id'],
+                ondelete='CASCADE')
+    # quiz_stats (trainer_modules.py) filtert immer auf module_key, teils
+    # zusaetzlich per Join auf participant_id -> deckt beide Muster ab.
+    if not _has_index(insp, 'quiz_result', 'ix_quiz_result_module_key_participant_id'):
+        with op.batch_alter_table('quiz_result', schema=None) as batch_op:
+            batch_op.create_index(
+                batch_op.f('ix_quiz_result_module_key_participant_id'), ['module_key', 'participant_id'],
+                unique=False)
+    if not _has_fk(insp, 'comment', 'fk_comment_course_id_course'):
+        with op.batch_alter_table('comment', schema=None) as batch_op:
+            batch_op.create_foreign_key(
+                'fk_comment_course_id_course', 'course', ['course_id'], ['id'], ondelete='CASCADE')
+    if not _has_fk(insp, 'comment', 'fk_comment_participant_id_participant'):
+        with op.batch_alter_table('comment', schema=None) as batch_op:
+            batch_op.create_foreign_key(
+                'fk_comment_participant_id_participant', 'participant', ['participant_id'], ['id'],
+                ondelete='CASCADE')
+    if not _has_fk(insp, 'course_module', 'fk_course_module_course_id_course'):
+        with op.batch_alter_table('course_module', schema=None) as batch_op:
+            batch_op.create_foreign_key(
+                'fk_course_module_course_id_course', 'course', ['course_id'], ['id'], ondelete='CASCADE')
 
 
 def downgrade() -> None:
