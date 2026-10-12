@@ -58,7 +58,7 @@ Die Sperre hat zwei Schichten:
    Unterkommandos öffnen: für git `-c` (Konfigurationsinjektion, siehe
    Beispiel oben), `--exec`, `--upload-pack`, `--receive-pack`, `-u`,
    `--git-dir`, `--work-tree`, sowie jedes Argument, das `ext::`, `fd::` oder
-   `file://` enthält; für openssl `-engine`, `-provider`, `-config`, `-exec`
+   `file://` enthält; für openssl `-engine`, `-provider`, `-provider-path`, `-config`, `-exec`
    (jeweils Wege, eine beliebige Bibliothek nachzuladen oder ein
    Skript/Programm zu übernehmen).
 
@@ -87,21 +87,26 @@ kein `\`, kein `..`, nicht absolut):
 - **git:** `--output`/`-o` sowie — als Sonderfall, weil dort ein Pfad als
   Positionsargument statt als Flag-Wert steht — das erste
   Nicht-Options-Argument nach `worktree add`.
-- **openssl:** `-in`, `-out`, `-keyout`, `-CAfile`, `-CAkey`, `-extfile`,
-  `-signkey`, `-cert`, `-key`, `-CA`. Für `-passin`/`-passout` gilt eine
-  eigene Regel: Der Wert ist eine Passwort-*Quelle*, kein Dateiname direkt —
-  erlaubt ist nur ein inline `pass:...`, `file:...` und `env:...` (Datei-
-  bzw. Umgebungszugriff) werden abgelehnt. Keine Lab-Vorlage braucht diese
-  beiden Flags.
+- **openssl:** fail-closed über **alle** Tokens, nicht mehr über eine Liste
+  bekannter Pfad-Flags (die war lückenhaft: `-CAserial`, `-writerand`,
+  `-untrusted`, `-CApath`, `-kfile`, `-outdir`, Positionsargumente von
+  `dgst`/`verify` u. a.). Kein Token darf `/`, `\`, `..` oder Steuerzeichen
+  enthalten. Einzige Ausnahme sind die Werte von `-subj` (jedes `/`-Segment
+  muss `typ=wert` sein) und `-addext` (muss mit `name=` beginnen, kein `..`).
+  `-passin`/`-passout`/`-pass` nehmen nur ein inline `pass:...` an. Optionen
+  werden vor dem Vergleich normalisiert, weil openssl auch `--flag` und
+  `-flag=wert` akzeptiert (`--config=x.cnf` umging sonst Schicht 2).
 
-Beide Schreibweisen werden geprüft: `-flag wert` (zwei Tokens, so nimmt
-openssl Werte immer entgegen) und `--flag=wert` (ein Token, git-typisch).
-Bewusst **kein** pauschales „jedes Token mit `/` ablehnen“: Die
-Openssl-Vorlagen geben z. B. `-subj /CN=www.nordwind-logistik.de` mit, ein
-mit `/` beginnender Wert, der zu keinem Pfad-Flag gehört — eine pauschale
-Sperre über alle Token hätte diese Vorlage gebrochen. Die Prüfung bleibt
-darum flag-spezifisch: konservativ heißt hier „die bekannten Pfad-Flags
-lückenlos geprüft“, nicht „jedes Token geprüft“.
+- **git:** ebenfalls fail-closed über **alle** Tokens. Jedes Positionsargument
+  und jeder `--opt=wert`-Wert muss im Arbeitsverzeichnis bleiben (nicht absolut,
+  kein ausbrechendes `..`, kein `\`, keine Steuerzeichen). Anders als bei
+  openssl bleiben relative Unterpfade mit `/` erlaubt, weil Zweignamen
+  (`feature/x`) und `add src/app.py` sie brauchen. Zusätzlich sind die Optionen
+  `-c`/`--config-env` (Konfigurationsinjektion → `core.hooksPath`,
+  `core.sshCommand`, `alias.*`, `diff.external`, …), `--exec-path` und `-C`
+  (Verzeichniswechsel/Ausbruch) in Schicht 2 verboten. Grenze: lexikalisch,
+  also keine Symlink-Ausbrüche erkannt — git kann im Arbeitsverzeichnis
+  Symlinks anlegen.
 
 **Das bleibt ausdrücklich eine Allowlist, keine Blockliste, mit allen
 Konsequenzen:** Ein neues Unterkommando (auch ein scheinbar harmloses)

@@ -310,14 +310,22 @@ OPENSSL_ERLAUBTE_SUBBEFEHLE = {
 ERLAUBTE_SUBBEFEHLE = {"git": GIT_ERLAUBTE_SUBBEFEHLE, "openssl": OPENSSL_ERLAUBTE_SUBBEFEHLE}
 
 GIT_VERBOTENE_FLAGS = {
-    "-c", "--exec", "--upload-pack", "--receive-pack", "-u", "--git-dir", "--work-tree",
+    "-c", "--config-env", "--exec", "--exec-path", "-C", "--upload-pack",
+    "--receive-pack", "-u", "--git-dir", "--work-tree",
 }
+# "-c name=wert"/"--config-env name=ENV" injizieren Konfiguration, die bei einem
+# SPÄTEREN, harmlos aussehenden Unterkommando Code ausführt (core.hooksPath,
+# core.sshCommand, core.fsmonitor, core.editor/pager, diff.external, alias.*);
+# "--exec-path" setzt das git-Programmverzeichnis, "-C" wechselt vor dem Lauf
+# das Verzeichnis (Ausbruch). Keine Lab-Vorlage braucht eines davon.
 # Argument-Substrings, die einen shell-ausführenden bzw. entfernten Transport
 # adressieren - unabhängig davon, in welchem Token sie stehen (shlex kann
 # "ext::sh -c evil" durch Anführungszeichen in EIN Token packen).
 GIT_VERBOTENE_MUSTER = ("ext::", "fd::", "file://")
 
-OPENSSL_VERBOTENE_FLAGS = {"-engine", "-provider", "-config", "-exec"}
+OPENSSL_VERBOTENE_FLAGS = {"-engine", "-provider", "-provider-path", "-config", "-exec"}
+# Fuer openssl prueft _openssl_pfadargumente_pruefen diese Liste zusaetzlich in
+# normalisierter Form: openssl nimmt auch "--config x" und "-config=x" an.
 
 VERBOTENE_FLAGS = {"git": GIT_VERBOTENE_FLAGS, "openssl": OPENSSL_VERBOTENE_FLAGS}
 VERBOTENE_MUSTER = {"git": GIT_VERBOTENE_MUSTER, "openssl": ()}
@@ -342,9 +350,8 @@ def _werkzeug_argv_pruefen(tokens: list[str], art: str) -> str | None:
     schreiben, auch in das mit dem Backend GETEILTE, nicht-readonly
     `/queue`-Volume (`git diff --output=/queue/x`, `openssl req -out
     /queue/x`). Siehe `_git_pfadargumente_pruefen`/`_openssl_pfadargumente_pruefen`
-    weiter unten: die WERTE bekannter pfadwertiger Flags müssen reine
-    Dateinamen im Arbeitsverzeichnis sein (dieselbe Regel wie für
-    mitgeschickte Dateien, `_dateiname_gueltig`).
+    weiter unten: git prüft die WERTE bekannter pfadwertiger Flags (reiner
+    Dateiname, `_dateiname_gueltig`), openssl prüft fail-closed JEDES Token.
     """
     verbotene_flags = VERBOTENE_FLAGS.get(art)
     if verbotene_flags is None:
@@ -380,49 +387,38 @@ def _werkzeug_argv_pruefen(tokens: list[str], art: str) -> str | None:
 # Dritte Schicht: Werte pfadwertiger Flags auf das Arbeitsverzeichnis
 # beschränken (siehe Docstring von _werkzeug_argv_pruefen oben).
 #
-# Bewusst NICHT "jedes Token, das '/' enthält, ablehnen": Legitime Vorlagen
-# (frontend/src/widgets/opensslab/templates.ts) geben z.B.
-# `-subj /CN=www.nordwind-logistik.de` mit - ein Wert, der mit "/" beginnt,
-# aber zu keinem Pfad-Flag gehört. Eine pauschale "/"-Sperre über alle Token
-# würde diese Vorlage brechen. Stattdessen: nur die WERTE der hier gelisteten,
-# bekannten pfadwertigen Flags werden geprüft - konservativ heißt hier
-# "geprüft, nicht ignoriert", nicht "jedes Token geprüft".
+# git UND openssl: fail-closed über ALLE Tokens statt einer (lückenhaften)
+# Liste bekannter Pfad-Flags. git erlaubt dabei relative Unterpfade mit "/"
+# (Zweignamen "feature/x", "add src/app.py"), openssl verbietet "/" ganz
+# (siehe OPENSSL_FREITEXT_MUSTER unten). Code-/Transport-öffnende Optionen
+# fängt in beiden Fällen GIT_/OPENSSL_VERBOTENE_FLAGS in Schicht 2 ab.
 # ---------------------------------------------------------------------------
 
-GIT_PFAD_FLAGS = {"--output", "-o"}
-# `git worktree add [-b <zweig>] <pfad> [<commit-ish>]`: der Pfad ist das
-# erste Nicht-Options-Token nach "add", kann aber HINTER einer wertnehmenden
-# Option wie "-b <zweig>" stehen - deren Wert darf nicht versehentlich als
-# der zu prüfende Pfad durchgehen (siehe _git_pfadargumente_pruefen).
-GIT_WORKTREE_ADD_OPTIONEN_MIT_WERT = {"-b", "-B", "--reason", "--orphan"}
-
-# openssl nimmt Flag und Wert immer als ZWEI Tokens ("-in datei"), nicht als
-# "-in=datei" - die "="-Form wird hier trotzdem zusätzlich geprüft, das kostet
-# nichts und schließt eine denkbare zukünftige Schreibweise gleich mit ein.
-OPENSSL_DATEINAME_FLAGS = {
-    "-in", "-out", "-keyout", "-CAfile", "-CAkey", "-extfile",
-    "-signkey", "-cert", "-key", "-CA",
+# openssl: FAIL-CLOSED statt einer Liste "bekannter Pfad-Flags" (2026-10-12).
+# Die frühere Liste (-in, -out, -CA, ...) war unvollständig: -CAserial,
+# -writerand, -untrusted, -CApath, -kfile, -sign, -keyfile, -outdir, die
+# Positionsargumente von dgst/verify u.v.m. kamen ungeprüft durch. Außerdem
+# nimmt openssl (apps/lib/opt.c) JEDE Option auch als "--flag" und als
+# "-flag=wert" an - "--out /queue/x" und "--config=x.cnf" umgingen damit Pfad-
+# UND Flag-Sperre. Jetzt gilt für JEDES Token: kein Pfadtrenner, kein "..",
+# kein Steuerzeichen - egal zu welcher Option es gehört. Was dann noch ein
+# Dateiname ist, liegt zwangsläufig im Arbeitsverzeichnis.
+#
+# Einzige Ausnahme sind die Werte der folgenden Freitext-Optionen, die "/"
+# brauchen (-subj /CN=..., -addext ...=URI:http://...). Ihre FORM ist so
+# eingeschränkt, dass der Wert auch dann kein Ausbruchspfad ist, wenn openssl
+# ihn anders liest als wir (z.B. "dgst -out -subj /queue/x": dort ist "-subj"
+# der Wert von -out und "/queue/x" eine Eingabedatei): bei -subj muss jedes
+# "/"-Segment "typ=wert" sein, -addext muss mit "name=" beginnen (also relativ)
+# und darf kein ".." enthalten.
+OPENSSL_FREITEXT_MUSTER = {
+    "-subj": re.compile(r"(/[A-Za-z0-9.]+=[^/]*)+"),
+    "-addext": re.compile(r"[A-Za-z0-9.]+ ?=(?!.*\.\.).*"),
 }
-# -passin/-passout: Wert ist eine Passwort-QUELLE, kein Dateiname direkt -
-# "pass:wert" (inline, erlaubt), "file:pfad"/"env:name" (Datei- bzw.
-# Umgebungszugriff, verboten). Keine der Lab-Vorlagen braucht diese Flags.
-OPENSSL_PASSWORT_FLAGS = {"-passin", "-passout"}
-
-
-def _dateiname_wert_pruefen(wert: str | None, flag: str) -> str | None:
-    """Prüft den WERT eines pfadwertigen Flags mit derselben Regel wie
-    mitgeschickte Dateien (`_dateiname_gueltig`): reiner Dateiname im
-    Arbeitsverzeichnis, kein Pfadtrenner, kein "..", kein absoluter Pfad.
-
-    `wert` ist None, wenn das Flag ohne folgendes Token am Zeilenende steht -
-    dafür gibt es keinen Pfad zu prüfen, das überlässt die Fehlermeldung dem
-    Werkzeug selbst.
-    """
-    if wert is None or _dateiname_gueltig(wert):
-        return None
-    return (f"Unzulässiger Pfad {wert!r} für {flag!r} abgelehnt (erlaubt ist nur "
-            f"ein Dateiname im Arbeitsverzeichnis, kein Pfadtrenner, kein '..', "
-            f"kein absoluter Pfad).")
+# Wert ist eine Passwort-QUELLE: "pass:wert" (inline, erlaubt), "file:pfad"/
+# "env:name"/"fd:n" (Datei- bzw. Umgebungszugriff, verboten). Keine der
+# Lab-Vorlagen braucht diese Flags.
+OPENSSL_PASSWORT_FLAGS = {"-passin", "-passout", "-pass"}
 
 
 def _openssl_passwort_wert_pruefen(wert: str | None, flag: str) -> str | None:
@@ -432,59 +428,82 @@ def _openssl_passwort_wert_pruefen(wert: str | None, flag: str) -> str | None:
             f"(nur 'pass:...' erlaubt, keine Datei- oder Umgebungsquelle).")
 
 
-def _git_pfadargumente_pruefen(tokens: list[str]) -> str | None:
-    i = 0
-    while i < len(tokens):
-        token = tokens[i]
-        if token in GIT_PFAD_FLAGS:
-            wert = tokens[i + 1] if i + 1 < len(tokens) else None
-            fehlermeldung = _dateiname_wert_pruefen(wert, token)
-            if fehlermeldung:
-                return fehlermeldung
-        elif token.startswith("--output="):
-            fehlermeldung = _dateiname_wert_pruefen(token.split("=", 1)[1], "--output")
-            if fehlermeldung:
-                return fehlermeldung
-        i += 1
+def _bricht_aus_arbeitsverzeichnis_aus(wert: str) -> bool:
+    """Lexikalisch (ohne Dateisystem): verlässt `wert` als POSIX-Pfad das
+    Arbeitsverzeichnis? Absolut, ein ausbrechendes ".."-Segment, "\\" oder ein
+    Steuerzeichen => True. Reine Unterpfade wie "src/app.py" oder "feature/x"
+    bleiben drin => False. Symlink-Ausbrüche sind lexikalisch nicht erkennbar
+    (dokumentierte Grenze; git kann im Arbeitsverzeichnis Symlinks anlegen)."""
+    if any(ord(zeichen) < 32 for zeichen in wert):
+        return True
+    if "\\" in wert:
+        return True
+    if wert.startswith("/") or (len(wert) >= 2 and wert[1] == ":"):
+        return True  # absolut (POSIX "/..." bzw. Windows "C:\...")
+    tiefe = 0
+    for segment in wert.split("/"):
+        if segment == "..":
+            tiefe -= 1
+            if tiefe < 0:
+                return True
+        elif segment and segment != ".":
+            tiefe += 1
+    return False
 
-    if tokens[:1] == ["worktree"] and "add" in tokens:
-        rest = tokens[tokens.index("add") + 1:]
-        i = 0
-        while i < len(rest):
-            token = rest[i]
-            if token in GIT_WORKTREE_ADD_OPTIONEN_MIT_WERT:
-                i += 2  # Flag UND dessen Wert überspringen - sonst würde der
-                continue  # Zweigname faelschlich als der zu pruefende Pfad gelesen.
-            if token.startswith("-"):
-                i += 1
+
+def _git_pfadargumente_pruefen(tokens: list[str]) -> str | None:
+    """Fail-closed: JEDES Token (Positionsargument ODER der Wert einer
+    "--opt=wert"-Option) muss im Arbeitsverzeichnis bleiben. Werte in der Form
+    "--opt wert" werden als eigenes Token in der nächsten Runde geprüft -
+    deshalb braucht es hier keine Paarung von Option und Wert. Reine Optionen
+    ohne Wert ("-b", "--allow-empty") prüft Schicht 2 (verbotene Flags)."""
+    for token in tokens:
+        if token.startswith("-"):
+            if "=" not in token:
                 continue
-            return _dateiname_wert_pruefen(token, "worktree add")
+            wert = token.split("=", 1)[1]
+        else:
+            wert = token
+        if _bricht_aus_arbeitsverzeichnis_aus(wert):
+            return (f"Unzulässiger Pfad {wert!r} für git abgelehnt (erlaubt sind nur "
+                    f"Pfade im Arbeitsverzeichnis: kein absoluter Pfad, kein '..', "
+                    f"kein '\\', keine Steuerzeichen).")
     return None
 
 
 def _openssl_pfadargumente_pruefen(tokens: list[str]) -> str | None:
+    """Fail-closed, siehe Kommentar über OPENSSL_FREITEXT_MUSTER."""
     i = 0
     while i < len(tokens):
         token = tokens[i]
-        flag: str | None = None
-        wert: str | None = None
-        if token in OPENSSL_DATEINAME_FLAGS or token in OPENSSL_PASSWORT_FLAGS:
-            flag = token
-            wert = tokens[i + 1] if i + 1 < len(tokens) else None
-        elif "=" in token:
-            praefix, rest = token.split("=", 1)
-            if praefix in OPENSSL_DATEINAME_FLAGS or praefix in OPENSSL_PASSWORT_FLAGS:
-                flag, wert = praefix, rest
-
+        i += 1
+        if any(ord(zeichen) < 32 for zeichen in token):
+            return f"Steuerzeichen im Argument {token!r} abgelehnt."
+        flag, wert = None, token
+        if token.startswith("-"):
+            name, gleich, inline = token.partition("=")
+            flag = "-" + name.lstrip("-")  # "--out" ist für openssl dasselbe wie "-out"
+            if flag in OPENSSL_VERBOTENE_FLAGS:
+                return (f"Unzulässiges Flag {token!r} für openssl abgelehnt "
+                        f"(Allowlist statt Blockliste, siehe docs/lab-sicherheit.md).")
+            if flag in OPENSSL_FREITEXT_MUSTER or flag in OPENSSL_PASSWORT_FLAGS:
+                if gleich:
+                    wert = inline
+                else:
+                    wert = tokens[i] if i < len(tokens) else ""
+                    i += 1
         if flag in OPENSSL_PASSWORT_FLAGS:
             fehlermeldung = _openssl_passwort_wert_pruefen(wert, flag)
-        elif flag is not None:
-            fehlermeldung = _dateiname_wert_pruefen(wert, flag)
-        else:
-            fehlermeldung = None
-        if fehlermeldung:
-            return fehlermeldung
-        i += 1
+            if fehlermeldung:
+                return fehlermeldung
+        elif flag in OPENSSL_FREITEXT_MUSTER:
+            if not OPENSSL_FREITEXT_MUSTER[flag].fullmatch(wert):
+                return f"Unzulässiger Wert {wert!r} für {flag!r} abgelehnt."
+        elif "/" in token or "\\" in token or ".." in token:
+            vorher = tokens[i - 2] if i >= 2 else "openssl"
+            return (f"Unzulässiger Pfad {token!r} nach {vorher!r} abgelehnt (erlaubt sind "
+                    f"nur Dateinamen im Arbeitsverzeichnis: kein Pfadtrenner, kein '..', "
+                    f"kein absoluter Pfad).")
     return None
 
 

@@ -1101,7 +1101,6 @@ def test_werkzeug_argv_pruefen_lehnt_git_worktree_add_mit_absolutem_pfad_ab():
     fehlermeldung = worker._werkzeug_argv_pruefen(["worktree", "add", "/tmp/x"], "git")
     assert fehlermeldung is not None
     assert "/tmp/x" in fehlermeldung
-    assert "worktree add" in fehlermeldung
 
 
 def test_werkzeug_argv_pruefen_lehnt_git_worktree_add_mit_ausbruch_ab():
@@ -1136,6 +1135,103 @@ def test_werkzeug_argv_pruefen_laesst_legitime_openssl_vorlagen_durch(befehl):
     assert worker._werkzeug_argv_pruefen(befehl, "openssl") is None
 
 
+# Fail-closed (2026-10-12): Die fruehere Liste "bekannter Pfad-Flags" war
+# unvollstaendig, und openssl nimmt jede Option auch als "--flag" bzw.
+# "-flag=wert" an. Die Zeilen der ersten vier Bloecke kamen VOR dem Umbau
+# ungeprueft durch (Ausnahme "-passout=file:x"); der letzte Block sichert
+# die neuen Freitext-Ausnahmen ab.
+@pytest.mark.parametrize("befehl", [
+    # nicht gelistete datei-/verzeichnisnehmende Optionen
+    "rand -writerand /queue/in/x 16",
+    "rand -rand /etc/passwd 8",
+    "x509 -req -in a.csr -CA ca.pem -CAkey ca.key -CAserial /queue/in/x.json",
+    "x509 -in a.pem -force_pubkey /etc/x",
+    "verify -untrusted /etc/passwd -CAfile ca.pem server.pem",
+    "verify -trusted /etc/x server.pem",
+    "verify -CRLfile /etc/x server.pem",
+    "verify -CApath /queue/in server.pem",
+    "verify -CAstore file:/etc server.pem",
+    "enc -aes-256-cbc -kfile /etc/passwd -in a -out b",
+    "dgst -sha256 -sign /etc/ssl/private/k a",
+    "dgst -sha256 -verify /etc/x -signature sig a",
+    "dgst -sha256 -signature /etc/y a",
+    "ca -keyfile /etc/x -in a.csr",
+    "ca -outdir /queue/in -in a.csr",
+    "ca -outdir .. -in a.csr",
+    "ca -ss_cert /etc/x",
+    "ca -spkac /etc/x",
+    "ca -revoke /etc/x",
+    "req -newkey ec:/etc/passwd -keyout k",
+    # Positionsargumente
+    "dgst -sha256 /etc/passwd",
+    "dgst -sha256 -out x /queue/in/a.json",
+    "verify -CAfile ca.pem /etc/ssl/certs/x.pem",
+    "ca -infiles /etc/passwd",
+    # Passwort-Quellen ausserhalb von -passin/-passout
+    "enc -aes-256-cbc -pass file:/etc/passwd -in a -out b",
+    "enc -aes-256-cbc -pass env:HOME -in a",
+    "enc -aes-256-cbc -pass fd:0 -in a",
+    "req --passin env:X",
+    "req -passout=file:x",
+    # "--flag" und "-flag=wert": umgingen Pfad- UND Flag-Sperre
+    "enc -base64 --in /etc/passwd",
+    "req --out /queue/x",
+    "req --out=/queue/x",
+    "req -out=/queue/x",
+    "req --config evil.cnf -new",
+    "req -config=evil.cnf -new",
+    "req --config=evil.cnf -new",
+    "req --engine evil.so",
+    "req -engine=evil.so",
+    "req --provider evil",
+    "req -provider-path . -new",
+    # Freitext-Ausnahmen duerfen kein Schlupfloch sein
+    "dgst -out -subj /queue/in/x.json",
+    "req -new -key k -subj /etc/passwd",
+    "req -new -key k -subj /CN=x/../../queue",
+    "req -new -key k -addext /etc/passwd",
+    "req -new -key k -addext x=/../../etc/passwd",
+    "req -new -key k -subj /CN=x -addext 'subjectAltName=DNS:a\n.include /etc/passwd'",
+    "req -new -key k -subj",
+])
+def test_werkzeug_argv_pruefen_openssl_ist_fail_closed(befehl):
+    assert worker._werkzeug_argv_pruefen(shlex.split(befehl), "openssl") is not None
+
+
+# Vorlagen aus frontend/src/widgets/opensslab/templates.ts in ihrer aktuellen
+# Form (inkl. -addext/-copy_extensions) sowie die in
+# backend/app/content/pki_*.py gelehrten lokalen Befehle.
+@pytest.mark.parametrize("befehl", [
+    "genrsa -out server.key 2048",
+    "req -new -key server.key -out server.csr -subj /CN=www.nordwind-logistik.de"
+    " -addext subjectAltName=DNS:www.nordwind-logistik.de",
+    "req -in server.csr -noout -text",
+    "genrsa -out ca.key 4096",
+    "req -new -x509 -key ca.key -out ca.pem -days 3650 -subj /CN=Kurs-CA",
+    "x509 -req -in server.csr -CA ca.pem -CAkey ca.key -CAcreateserial"
+    " -copy_extensions copy -out server.pem -days 365",
+    "x509 -in server.pem -noout -text",
+    "x509 -in server.pem -noout -dates",
+    "verify -CAfile ca.pem server.pem",
+    # Kursinhalt
+    "openssl x509 -in cert.pem -noout -fingerprint -sha256",
+    "openssl x509 -in cert.pem -noout -pubkey",
+    "openssl pkey -in server.key -pubout",
+    "openssl verify -CAfile ca-bundle.pem cert.pem",
+    # naheliegende Varianten, die Lernende tippen
+    "req -new -key k.pem -out a.csr -subj '/C=DE/O=Nordwind Logistik GmbH/CN=www.nordwind-logistik.de'",
+    "req -new -key k.pem -out a.csr -subj /CN=x -addext 'crlDistributionPoints=URI:http://crl.example/ca.crl'",
+    "req -new -newkey rsa:2048 -nodes -keyout k.pem -out a.csr -subj=/CN=x",
+    "genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:2048 -out k.pem",
+    "enc -aes-256-cbc -pbkdf2 -pass pass:geheim -in a.txt -out a.enc",
+    "dgst -sha256 a.txt",
+    "rand -hex 16",
+])
+def test_werkzeug_argv_pruefen_laesst_aktuelle_openssl_vorlagen_durch(befehl):
+    tokens = worker._argv_bauen(befehl, "openssl", "OSSLBIN")[1:]
+    assert worker._werkzeug_argv_pruefen(tokens, "openssl") is None
+
+
 @pytest.mark.parametrize("befehl", [
     ["init"],
     ["commit", "--allow-empty", "-m", "base"],
@@ -1148,6 +1244,68 @@ def test_werkzeug_argv_pruefen_laesst_legitime_openssl_vorlagen_durch(befehl):
 ])
 def test_werkzeug_argv_pruefen_laesst_legitime_git_vorlagen_durch(befehl):
     assert worker._werkzeug_argv_pruefen(befehl, "git") is None
+
+
+# Fail-closed git (2026-10-12, Folgefix): die fruehere Liste bekannter
+# Pfad-Flags (--output/-o, worktree-Pfad) war unvollstaendig. Jede Zeile hier
+# las/schrieb VOR dem Umbau ungeprueft ausserhalb des Arbeitsverzeichnisses
+# bzw. oeffnete einen Code-/Verzeichniswechsel-Pfad.
+@pytest.mark.parametrize("befehl", [
+    # datei-lesende Optionen mit absolutem Pfad als Folge-Token
+    "diff --no-index /etc/passwd /dev/null",
+    "commit -F /etc/passwd",
+    "tag -F /etc/passwd v1",
+    "merge -F /etc/passwd x",
+    "log --output /queue/x",
+    "log -o /queue/x",
+    "mv a.txt /etc/x",
+    "checkout -- /etc/passwd",
+    "restore --source=/etc x",
+    # Positionsargument als absoluter Pfad
+    "init /queue/in/x",
+    # "--opt=wert" mit absolutem bzw. ausbrechendem Wert
+    "init --template=/queue/x",
+    "init --separate-git-dir=/queue/x",
+    "add --pathspec-from-file=/etc/passwd",
+    "commit --template=/etc/passwd",
+    "commit --file=/etc/passwd",
+    "diff --output=/queue/x",
+    # ".."-Ausbruch trotz relativem Pfad
+    "add ../x",
+    "add a/../../etc/passwd",
+    "add sub/../../escape",
+    "worktree add ../x",
+    "worktree add -b feat /queue/x",
+    # Code-/Konfigurations-/Verzeichniswechsel-Optionen (Schicht 2)
+    "commit -m x -c core.hooksPath=/tmp",
+    "commit -m x --config-env core.sshCommand=X",
+    "status --exec-path=/tmp",
+    "status -C /etc",
+    "status -C ..",
+    "show --upload-pack=x",
+])
+def test_werkzeug_argv_pruefen_git_ist_fail_closed(befehl):
+    assert worker._werkzeug_argv_pruefen(shlex.split(befehl), "git") is not None
+
+
+# Positiv: Vorlagen aus frontend/src/widgets/gitlab/templates.ts in ihrer
+# aktuellen Form (alle vier Vorlagen, beide Laeufe des Merge-Konflikts) sowie
+# naheliegende relative Unterpfade mit "/", die weiter funktionieren muessen.
+@pytest.mark.parametrize("befehl", [
+    "init", "add .", "commit -m start",
+    "commit --allow-empty -m base", "checkout -b feature",
+    "commit --allow-empty -m feature-work", "checkout -", "merge feature",
+    "add shared.txt feature-version.txt main-version.txt", "commit -m base",
+    "mv -f feature-version.txt shared.txt", "commit -am feature-edit",
+    "commit -am main-edit", "status", "diff",
+    "worktree add wt-feature -b feature-wt", "worktree list",
+    # relative Unterpfade / Zweignamen mit "/" bleiben erlaubt
+    "add src/app.py", "add sub/dir/file.txt", "checkout -b feature/neu",
+    "restore --staged shared.txt",
+])
+def test_werkzeug_argv_pruefen_laesst_aktuelle_git_vorlagen_durch(befehl):
+    tokens = worker._argv_bauen(befehl, "git", "GITBIN")[1:]
+    assert worker._werkzeug_argv_pruefen(tokens, "git") is None
 
 
 def test_run_openssl_lehnt_absoluten_lesepfad_ab_kein_prozessstart(workspace_root, monkeypatch):
