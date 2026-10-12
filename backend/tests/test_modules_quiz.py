@@ -92,3 +92,10 @@ def test_get_module_resolves_participant_language():
 
         de_list = c.get("/api/modules", headers=h).json()
         assert all("title_en" in m for m in de_list)
+
+
+def test_oversized_quiz_submission_is_rejected():
+    with TestClient(app) as c:
+        ph = {"Authorization": f"Bearer {_participant_token(c)}"}
+        r = c.post("/api/modules/paket/quiz", json={"answers": {"x": "A" * 30_000}}, headers=ph)
+        assert r.status_code == 422

@@ -40,3 +40,30 @@ def test_per_course_activation():
 
         assert c.put(f"/api/courses/{id_a}/modules", headers=ha,
                      json={"module_key": "vlan", "active": False}).status_code == 403
+
+
+def test_deactivation_survives_restart_seed():
+    """seed_workshops() läuft bei jedem Start und reiht fehlende Seed-Module
+    nach -- eine bewusste Abwahl darf dabei nicht wieder aktiv werden."""
+    from app.content.workshops import seed_workshops
+    from app.database import SessionLocal
+
+    def restart():
+        db = SessionLocal()
+        try:
+            seed_workshops(db)
+        finally:
+            db.close()
+
+    with TestClient(app) as c:
+        h = _trainer(c)
+        cid = c.post("/api/courses", json={"name": "Restart"}, headers=h).json()["id"]
+        active = lambda: {m["key"]: m["active"] for m in  # noqa: E731
+                          c.get(f"/api/courses/{cid}/modules", headers=h).json()}
+        c.put(f"/api/courses/{cid}/modules", headers=h, json={"module_key": "vlan", "active": False})
+        restart()
+        assert active()["vlan"] is False
+        c.put(f"/api/courses/{cid}/modules", headers=h, json={"module_key": "vlan", "active": True})
+        restart()
+        assert active()["vlan"] is True
+        assert c.delete(f"/api/courses/{cid}", headers=h).status_code == 200

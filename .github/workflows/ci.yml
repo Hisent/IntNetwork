@@ -5,6 +5,10 @@ on:
     branches: [master, main]
   pull_request:
 
+# Kein Job schreibt ins Repo -- das Token bekommt nur Leserechte.
+permissions:
+  contents: read
+
 jobs:
   backend:
     runs-on: ubuntu-latest
@@ -30,6 +34,9 @@ jobs:
       # Ein neuer Advisory stoppt den Merge: die Lock-Datei macht den Befund
       # reproduzierbar und verhindert, dass ein Deploy ihn stillschweigend uebernimmt.
       - run: pip install pip-audit && pip-audit -r requirements.lock
+      # Der Runner fuehrt Teilnehmer-Code aus -- seine Abhaengigkeiten gehoeren
+      # genauso geprueft (bisher lief der Audit nur ueber das Backend).
+      - run: pip-audit -r ../runner/requirements.txt
 
   frontend:
     runs-on: ubuntu-latest
@@ -100,3 +107,12 @@ jobs:
         # als YAML-Mapping fehlinterpretieren (mapping values are not allowed here).
         run: |
           python -c "from app.db_migrate import run_migrations; run_migrations(); print('Migrationen liefen gegen Postgres durch')"
+      # Regression (v1.24.1 bis v1.41.1): env.py liess die Migrationen in einer nie
+      # committeten Transaktion laufen -- der Schritt oben war gruen, die DB danach
+      # leer. Deshalb in einem NEUEN Prozess pruefen, dass das Schema wirklich da ist.
+      - name: Migrationen sind persistiert (alembic_version + Kerntabelle)
+        env:
+          DATABASE_URL: postgresql://intnetwork:testpass@localhost:5432/intnetwork
+          SECRET_KEY: ci-postgres-secret-not-the-default-0123456789
+        run: |
+          python -c "from sqlalchemy import text; from app.database import engine; c = engine.connect(); print('alembic_version =', c.execute(text('SELECT version_num FROM alembic_version')).scalar_one()); c.execute(text('SELECT count(*) FROM participant'))"

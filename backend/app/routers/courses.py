@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
@@ -9,6 +9,7 @@ from app.models.participant import Participant
 from app.models.progress import Progress
 from app.models.quiz_result import QuizResult
 from app.models.course_module import CourseModule
+from app.models.module_disabled import ModuleDisabled
 from app.models.workshop import Workshop
 from app.models.certificate import Certificate
 from app.services.audit import log_action
@@ -23,7 +24,7 @@ router = APIRouter(prefix="/courses", tags=["courses"])
 
 
 class CourseCreate(BaseModel):
-    name: str
+    name: str = Field(max_length=200)
     workshop_key: str = "network"
 
 
@@ -75,6 +76,8 @@ def delete_course(course_id: int, db: Session = Depends(get_db), trainer: dict =
     if not course:
         raise HTTPException(status_code=404, detail="Kurs nicht gefunden")
     name = course.name
+    # module_disabled hat keinen Fremdschluessel -> von Hand mitraeumen.
+    db.query(ModuleDisabled).filter(ModuleDisabled.course_id == course_id).delete()
     db.delete(course)
     db.commit()
     log_action(db, trainer, "course.delete", target=f"course:{course_id}", detail=name)
@@ -217,12 +220,23 @@ def set_course_module(course_id: int, data: ModuleToggle,
     row = db.query(CourseModule).filter(
         CourseModule.course_id == course_id,
         CourseModule.module_key == data.module_key).first()
+    # ModuleDisabled haelt die bewusste Abwahl fest: seed_workshops() reiht bei
+    # jedem Start alle ausgelieferten Module nach, die weder aktiv noch dort
+    # vermerkt sind -- ohne den Vermerk war jede Deaktivierung nach dem
+    # naechsten Neustart/Deploy wieder aufgehoben.
+    disabled = db.query(ModuleDisabled).filter(
+        ModuleDisabled.course_id == course_id,
+        ModuleDisabled.module_key == data.module_key).first()
     if data.active:
         if not row:
             db.add(CourseModule(course_id=course_id, module_key=data.module_key))
+        if disabled:
+            db.delete(disabled)
     else:
         if row:
             db.delete(row)
+        if not disabled:
+            db.add(ModuleDisabled(course_id=course_id, module_key=data.module_key))
     db.commit()
     log_action(db, trainer, "course.module_toggle", target=f"course:{course_id}:{data.module_key}",
                detail=f"active={data.active}")

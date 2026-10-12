@@ -24,8 +24,19 @@ from app.models import certificate as _certificate  # noqa: F401
 from app.models import audit_log as _audit_log  # noqa: F401
 from app.models import trainer_credential as _trainer_credential  # noqa: F401
 
-if not settings.debug and settings.secret_key == DEFAULT_SECRET_KEY:
-    raise RuntimeError("SECRET_KEY ist nicht gesetzt (noch der Default).")
+# Leer (Compose reicht eine ungesetzte Variable als "" durch) oder noch ein
+# "change-me"-Platzhalter (Code-Default bzw. .env.example): beides ist ein
+# oeffentlich bekannter Schluessel, mit dem sich Trainer-Tokens faelschen lassen.
+if not settings.debug and (
+        not settings.secret_key.strip()
+        or settings.secret_key == DEFAULT_SECRET_KEY
+        or settings.secret_key.startswith("change-me")):
+    raise RuntimeError(
+        "SECRET_KEY ist nicht gesetzt (leer oder noch ein change-me-Platzhalter). "
+        "Mit `openssl rand -hex 32` erzeugen.")
+if len(settings.secret_key) < 32:
+    logging.getLogger(__name__).warning(
+        "SECRET_KEY ist kuerzer als 32 Zeichen -- fuer HS256 zu schwach, bitte ersetzen.")
 
 
 def _wait_for_db(retries: int = 30, delay: float = 2.0) -> None:

@@ -18,7 +18,7 @@ Trainer erstellen Kurse und aktivieren die passenden Module. Teilnehmer treten m
 
 ## Kurse
 
-Fünf Lehrgänge mit zusammen 85 Modulen. Jeder hat eine eigene Farbwelt, eigene
+Sechs Lehrgänge mit zusammen 99 Modulen. Jeder hat eine eigene Farbwelt, eigene
 Abschnitte und einen eigenen Kurs-Code; Teilnehmer sehen immer nur den Lehrgang,
 dem ihr Durchlauf zugeordnet ist.
 
@@ -36,6 +36,9 @@ dem ihr Durchlauf zugeordnet ist.
 - **PKI & Verschlüsselung (15 Module):** Hashfunktionen, symmetrische und
   asymmetrische Verfahren, Signaturen, X.509, Vertrauensketten, Widerruf,
   TLS-Handshake und -Konfiguration, interne PKI und Post-Quanten-Kryptografie.
+- **Network Access Control (14 Module):** 802.1X, RADIUS, EAP und EAP-TLS, MAB,
+  Autorisierung und CoA, Profiling, Posture, Gastzugang, stufenweiser Rollout,
+  Resilienz und Fehlersuche.
 
 Jedes Modul bringt Theorie, mindestens ein interaktives Element und ein
 serverseitig bewertetes Quiz mit.
@@ -54,9 +57,12 @@ serverseitig bewertetes Quiz mit.
 Mit Docker Compose:
 
 ```bash
-cp .env.example .env
+cp .env.example .env   # danach SECRET_KEY, POSTGRES_PASSWORD, ADMIN_PASSWORD ersetzen
 docker compose up --build
 ```
+
+Mit den `change-me`-Platzhaltern aus `.env.example` startet das Backend bewusst
+nicht (bekannter JWT-Schlüssel bzw. bekanntes Trainer-Passwort).
 
 Oder getrennt:
 
@@ -102,7 +108,7 @@ konfigurierten SQLite-Datenbank und seedet anschließend alle Workshops und Inha
 
 ## Inhalte und Widgets erweitern
 
-Kursinhalte werden aus `backend/app/content/*.py` beim ersten Start in die Datenbank übernommen. Bereits ausgelieferte Inhalte bleiben erhalten; Trainer können sie im Editor anpassen oder den Auslieferungszustand laden. Für lokale Inhaltsänderungen die nichtproduktive Datenbank mit `python reset_dev_db.py --yes` neu seeden; produktive Textänderungen bekommen eine versionierte Migration in `backend/app/content/seed.py`.
+Kursinhalte werden aus `backend/app/content/*.py` beim ersten Start in die Datenbank übernommen. Trainer können sie im Editor anpassen oder den Auslieferungszustand laden. Geänderte Inhalte im Code erreichen eine bestehende Datenbank beim nächsten Start **automatisch**, solange das Modul nicht von einem Trainer verändert wurde (Content-Sync, siehe `docs/operations.md`); Frage-ids, Quiz-Abgaben, Fortschritt und Kommentare bleiben dabei erhalten. Vom Trainer geänderte Module werden nie überschrieben, sondern im Log und im Audit-Log gemeldet — dort hilft je Modul „Auslieferungszustand laden“ im Editor. Deaktiviert ein Trainer ein Modul in einem Kurs, bleibt das auch über Neustarts so (Tabelle `module_disabled`); nur wirklich neue Module rücken automatisch in bestehende Kurse nach. Lokale Inhaltsänderungen kommen genauso beim nächsten Start an; `python reset_dev_db.py --yes` setzt die nichtproduktive Datenbank bei Bedarf komplett zurück. Eine eigene Migration in `backend/app/content/seed.py` ist für Inhaltsänderungen nicht mehr nötig.
 
 Neue Widgets benötigen eine React-Komponente unter `frontend/src/widgets/`, einen Eintrag in `frontend/src/widgets/registry.tsx` und dieselbe ID in `backend/app/routers/trainer_content.py`.
 
@@ -124,14 +130,13 @@ cd backend
 Inhaltliche Änderungen an bereits ausgelieferten Modulen bleiben davon getrennt und
 laufen weiter als versionierte Content-Migrationen in `backend/app/content/seed.py`.
 
-**Merksatz für jede neue `create_table`-Migration:** Beim App-Start läuft nach
-`run_migrations()` zusätzlich `Base.metadata.create_all()` (siehe `app/main.py`).
-Das legt eine fehlende Tabelle bereits an, *bevor* Alembic sie stampft — läuft
-die Migration danach trotzdem, scheitert `CREATE TABLE` mit „relation already
-exists", der Prozess stirbt, die Plattform startet neu, und das wiederholt sich
-endlos (Crashloop v1.34.0). Deshalb braucht jede Migration, die eine neue
-Tabelle anlegt, einen Guard, der sie bei bereits vorhandener Tabelle nur noch
-stampft statt das `CREATE TABLE` erneut auszuführen:
+**Merksatz für jede neue `create_table`-Migration:** Alembic ist allein für das
+Schema zuständig (`Base.metadata.create_all()` läuft seit v1.36 nicht mehr beim
+Start). Bestandsdatenbanken aus der Zeit davor können eine Tabelle aber bereits
+enthalten, ohne dass `alembic_version` das weiß — dann scheitert `CREATE TABLE`
+mit „relation already exists", der Prozess stirbt, die Plattform startet neu,
+und das wiederholt sich endlos (Crashloop v1.34.0). Deshalb braucht jede
+Migration, die eine neue Tabelle anlegt, einen Guard:
 
 ```python
 def upgrade() -> None:
@@ -141,9 +146,9 @@ def upgrade() -> None:
     op.create_table("neue_tabelle", ...)
 ```
 
-Das gilt unabhängig davon, ob `create_all` in `app/main.py` irgendwann entfernt
-wird — der Guard kostet nichts und macht die Migration robust gegen genau
-dieses Fehlerbild.
+Dasselbe gilt für `add_column`/Constraints (Muster: `75aeb8d5399c`). Fehlt der
+DB trotzdem eine Spalte, die ein Modell erwartet, bricht der Start vor dem
+Seeding mit einer benannten „Schema-Drift"-Meldung ab.
 
 ## Backup
 
@@ -157,7 +162,9 @@ automatisch gelöscht. Für einen täglichen Cron-Lauf:
 ```
 
 Zurückspielen mit `ops/restore.sh pfad/zum/dump.sql.gz` (fragt vor dem
-Überschreiben der laufenden DB explizit nach Bestätigung).
+Überschreiben explizit nach Bestätigung). Das Skript ersetzt das Schema `public`
+in EINER Transaktion durch den Dump — schlägt das Einspielen fehl, bleibt der
+alte Stand erhalten. Vorher `docker compose stop backend`, danach wieder starten.
 
 ## Ansible-Lab
 
