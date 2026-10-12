@@ -61,7 +61,7 @@ NAC_GUEST_MODULE = {
                    'erst dann Zugang, wenn jemand aus dem Unternehmen dafür einsteht.\n\n'
                    'Eine dritte, noch einfachere Variante ist das reine **Hotspot-Portal**: Zugang '
                    'ganz ohne Zugangsdaten, meist gegen die Pflicht, eine Nutzungsrichtlinie (AUP, '
-                   'Acceptance of User Policy) zu akzeptieren — typisch für sehr kurze, anonyme '
+                   'Acceptable Use Policy) zu akzeptieren — typisch für sehr kurze, anonyme '
                    'Nutzung ohne Nachverfolgung einzelner Gastkonten.',
              'en': '## Self-Registration and Sponsor Approval\n\n'
                    '- **Self-registration** — the guest registers themselves through a portal, '
@@ -74,7 +74,7 @@ NAC_GUEST_MODULE = {
                    'someone from the company vouches for it.\n\n'
                    'A third, even simpler variant is the pure **hotspot portal**: access without '
                    'any credentials at all, usually in exchange for accepting a usage policy (AUP, '
-                   'Acceptance of User Policy) — typical for very short, anonymous use without '
+                   'Acceptable Use Policy) — typical for very short, anonymous use without '
                    'tracking individual guest accounts.',
          }},
         {'type': 'text',

@@ -164,8 +164,8 @@ RPZ_MODULE = {
              'lines_de': [
                  'Widersprüchliche Regeln zur selben Domain erfordern eine klare, dokumentierte '
                  'Priorisierung (z. B. lokale Ausnahme vor Feed)',
-                 'Ohne definierte Priorisierung ist unklar vorhersehbar, welche Regel tatsächlich '
-                 'wirkt',
+                 'Welche Regel wirkt, entscheidet die Reihenfolge der RPZs: weiter oben '
+                 'einsortierte Zonen überstimmen die darunter',
                  'Ein Feed-Eintrag hat automatisch immer Vorrang vor jeder lokalen Regel',
                  'Fehlalarme aus Feeds sind ein Grund, warum lokale Ausnahmeregeln überhaupt '
                  'existieren',
@@ -173,39 +173,40 @@ RPZ_MODULE = {
              'lines_en': [
                  'Conflicting rules for the same domain require a clear, documented prioritization '
                  '(e.g. local exception before feed)',
-                 'Without a defined prioritization, it is unpredictable which rule actually applies',
+                 'Which rule applies is decided by the order of the RPZs: zones sorted higher '
+                 'override those below',
                  'A feed entry automatically always takes precedence over any local rule',
                  'False positives from feeds are a reason why local exception rules exist at all',
              ],
-             'wrong': [3],
+             'wrong': [2],
              'explanation_de': 'Es gibt keinen automatischen, universellen Vorrang eines Feeds vor '
                                'lokalen Regeln. Genau umgekehrt: begründete lokale Ausnahmen '
                                'existieren gerade dafür, einen zu breiten oder falschen '
                                'Feed-Treffer für eine konkrete, geprüfte Domain gezielt zu '
-                               'überstimmen. Ohne klare, dokumentierte Priorisierungsregel ist das '
-                               'Verhalten bei widersprüchlichen Einträgen nicht vorhersehbar.',
+                               'überstimmen. Technisch entscheidet die Reihenfolge der RPZs: Die '
+                               'lokale Ausnahme-RPZ muss oberhalb der Feed-RPZ einsortiert sein.',
              'explanation_en': 'There is no automatic, universal precedence of a feed over local '
                                'rules. Quite the opposite: justified local exceptions exist '
                                'precisely to deliberately override an overly broad or incorrect '
-                               'feed hit for a specific, verified domain. Without a clear, '
-                               'documented prioritization rule, behavior for conflicting entries is '
-                               'unpredictable.',
+                               'feed hit for a specific, verified domain. Technically, the order '
+                               'of the RPZs decides: the local exception RPZ must be sorted above '
+                               'the feed RPZ.',
          }},
         {'type': 'reveal',
          'payload': {
              'teaser_de': 'Log-Auswertung: Ein Client fragt in kurzer Zeit auffällig viele, '
-                         'zufällig aussehende Subdomains einer ansonsten bekannten, legitimen '
-                         'Domain an (z. B. `xj3ka9.beispiel-cloud.de`, `q0pz71.beispiel-cloud.de`, '
+                         'zufällig aussehende Domainnamen an, von denen die meisten gar nicht '
+                         'existieren (z. B. `xj3ka9qplw.net`, `q0pz71mvdt.com`, '
                          '…). Was deutet dieses Muster an, und welcher Schutzmechanismus würde '
                          'hier idealerweise greifen? Erst selbst überlegen.',
              'teaser_en': 'Log analysis: within a short time, a client requests a conspicuously '
-                         'large number of random-looking subdomains of an otherwise known, '
-                         'legitimate domain (e.g. `xj3ka9.example-cloud.com`, '
-                         '`q0pz71.example-cloud.com`, …). What does this pattern suggest, and which '
+                         'large number of random-looking domain names, most of which do not '
+                         'exist at all (e.g. `xj3ka9qplw.net`, '
+                         '`q0pz71mvdt.com`, …). What does this pattern suggest, and which '
                          'protection mechanism would ideally catch it? Try it yourself first.',
          },
          'value': {
-             'de': 'Das Muster zufällig aussehender, wechselnder Subdomains ist typisch für eine '
+             'de': 'Das Muster zufällig aussehender, wechselnder Domainnamen ist typisch für eine '
                    '**Domain-Generation-Algorithm (DGA)**-Malware, die programmatisch immer neue '
                    'Domainnamen erzeugt, um Kontakt zu ihrer Kommandostruktur aufzunehmen. Eine '
                    'starre, manuell gepflegte lokale Blockliste käme hier meist zu spät, weil die '
@@ -213,7 +214,7 @@ RPZ_MODULE = {
                    'Defense** an: Es ergänzt klassisches RPZ um automatisierte, verhaltensbasierte '
                    'Erkennung solcher DGA- und Zero-Day-Domains, statt nur bereits bekannte, '
                    'einzeln gelistete Domains zu blockieren.',
-             'en': 'The pattern of random-looking, constantly changing subdomains is typical of '
+             'en': 'The pattern of random-looking, constantly changing domain names is typical of '
                    '**Domain Generation Algorithm (DGA)** malware, which programmatically generates '
                    'ever-new domain names to reach its command-and-control infrastructure. A rigid, '
                    'manually maintained local blocklist usually arrives too late here, because the '
@@ -331,9 +332,9 @@ RPZ_MODULE = {
          }},
         {'id': 'dt4', 'type': 'single',
          'prompt': {'de': 'Was deutet ein Muster aus vielen, kurzlebigen, zufällig aussehenden '
-                         'Subdomains einer bekannten Domain typischerweise an?',
-                    'en': 'What does a pattern of many short-lived, random-looking subdomains of a '
-                         'known domain typically indicate?'},
+                         'Domainnamen (meist nicht existent) typischerweise an?',
+                    'en': 'What does a pattern of many short-lived, random-looking domain names '
+                         '(mostly non-existent) typically indicate?'},
          'answer': 3,
          'options': {
              'de': [

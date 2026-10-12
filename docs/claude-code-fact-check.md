@@ -1,6 +1,6 @@
 # Claude-Code-Workshop: Faktencheck
 
-Stand: 20. Juli 2026. Ausschließlich gegen offizielle Anthropic-Dokumentation geprüft.
+Stand: 20. Juli 2026 (alle Tabellenpunkte sind inzwischen in die Module eingearbeitet; Nachprüfung am 2026-10-12: Auto-Modus als Startmodus, `Manual`-Benennung, Agent-Tool statt Task, Action-`permissions` nachgezogen). Ausschließlich gegen offizielle Anthropic-Dokumentation geprüft.
 
 ## Ergebnis
 

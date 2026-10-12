@@ -32,7 +32,9 @@ IDEMPOTENZ_MODULE = {
                              'sollte die Play-Zusammenfassung `changed=0` zeigen, wenn sich am '
                              'Zielsystem in der Zwischenzeit nichts geändert hat. Zeigt der '
                              'zweite Lauf erneut `changed`, obwohl nichts geändert wurde, ist '
-                             'der Task **nicht idempotent**.',
+                             'der Task **nicht idempotent** — oder er meldet seinen Status '
+                             'falsch (typisch für `command`/`shell`, die ohne weitere Angaben '
+                             'immer `changed` melden). Beides gehört behoben.',
                        'en': '## What is idempotency?\n'
                              '\n'
                              '**Idempotency** means: a task produces the same end result when '
@@ -40,7 +42,9 @@ IDEMPOTENZ_MODULE = {
                              'playbook twice in a row — the second run should show `changed=0` '
                              'in the play summary if nothing changed on the target system in '
                              'between. If the second run reports `changed` again even though '
-                             'nothing changed, the task is **not idempotent**.'}},
+                             'nothing changed, the task is **not idempotent** — or it reports '
+                             'its status wrongly (typical for `command`/`shell`, which always '
+                             'report `changed` unless told otherwise). Both are worth fixing.'}},
             {'type': 'text',
              'note': 'Idempotenz ist der Kern des ganzen Kurses. Wenn nur ein Modul haengen bleiben soll, dann dieses — der Rest baut darauf auf.',
              'value': {'de': '## Deklarativ vs. command/shell\n'
@@ -135,8 +139,8 @@ IDEMPOTENZ_MODULE = {
                              '- `unreachable` — der Host war nicht erreichbar (z. B. SSH-Fehler)\n'
                              '\n'
                              'Kommt `block`/`rescue` zum Einsatz (siehe unten), taucht in der '
-                             'abschließenden Play-Zusammenfassung zusätzlich `rescued` auf — die '
-                             'Anzahl der Hosts, bei denen ein `rescue`-Abschnitt einen '
+                             'abschließenden Play-Zusammenfassung zusätzlich `rescued` auf — wie '
+                             'oft auf dem jeweiligen Host ein `rescue`-Abschnitt einen '
                              'fehlgeschlagenen `block` aufgefangen hat.\n'
                              '\n'
                              'Bei einem erneuten Lauf würden alle Tasks, die zuvor `changed` '
@@ -155,7 +159,7 @@ IDEMPOTENZ_MODULE = {
                              '- `unreachable` — the host could not be reached (e.g. SSH error)\n'
                              '\n'
                              'When `block`/`rescue` is used (see below), the final play recap '
-                             'also shows `rescued` — the number of hosts where a `rescue` '
+                             'also shows `rescued` — how often, on that host, a `rescue` '
                              'section caught a failing `block`.\n'
                              '\n'
                              'On a repeat run, every task that previously reported `changed` '
@@ -180,7 +184,8 @@ IDEMPOTENZ_MODULE = {
                                       '    - name: Alte Konfiguration wiederherstellen',
                                       '      ansible.builtin.copy:',
                                       '        src: /etc/app/config.conf.bak',
-                                      '        dest: /etc/app/config.conf'],
+                                      '        dest: /etc/app/config.conf',
+                                      '        remote_src: true'],
                          'lines_en': ['- name: Risky operation with fallback',
                                       '  block:',
                                       '    - name: Replace configuration file',
@@ -191,18 +196,21 @@ IDEMPOTENZ_MODULE = {
                                       '    - name: Restore old configuration',
                                       '      ansible.builtin.copy:',
                                       '        src: /etc/app/config.conf.bak',
-                                      '        dest: /etc/app/config.conf'],
-                         'wrong': [7],
+                                      '        dest: /etc/app/config.conf',
+                                      '        remote_src: true'],
+                         'wrong': [6],
                          'explanation_de': 'Das Keyword in Zeile 7 lautet korrekt `rescue:`, '
                                            'nicht `rescue_bei_fehler:`. Ansible kennt nur die '
-                                           'festen Keywords `block`, `rescue` und `always` — ein '
-                                           'falsch benannter Schlüssel wird nicht als '
-                                           'Fehlerbehandlung erkannt, der Abschnitt läuft nie.',
+                                           'festen Keywords `block`, `rescue` und `always` — einen '
+                                           'falsch benannten Schlüssel lehnt Ansible schon beim '
+                                           'Einlesen ab („is not a valid attribute for a Block“), '
+                                           'das Playbook startet gar nicht erst.',
                          'explanation_en': 'The keyword in line 7 should correctly read '
                                            '`rescue:`, not `rescue_bei_fehler:`. Ansible only '
                                            'recognizes the fixed keywords `block`, `rescue`, and '
-                                           '`always` — a misnamed key is not recognized as error '
-                                           'handling, so the section never runs.'}},
+                                           '`always` — Ansible rejects a misnamed key while loading '
+                                           'the playbook ("is not a valid attribute for a Block"), '
+                                           'so the playbook does not even start.'}},
             {'type': 'order',
              'payload': {'prompt_de': 'Ein block schlägt fehl und besitzt sowohl rescue als auch '
                                       'always. Bring den tatsächlichen Ablauf in die richtige '

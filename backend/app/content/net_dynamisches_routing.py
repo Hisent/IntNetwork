@@ -49,7 +49,7 @@ DYNAMISCHES_ROUTING_MODULE = {
                    "unterschiedlichen Prinzipien:\n\n"
                    "- **Distanzvektor**: Ein Router kennt nur, was ihm seine direkten Nachbarn "
                    "sagen („Ich erreiche Netz X in 3 Hops“) — er hat kein Bild vom Gesamtnetz, "
-                   "sondern vertraut den Angaben weiter.\n"
+                   "sondern vertraut den Angaben und gibt sie weiter.\n"
                    "- **Link-State**: Jeder Router sammelt Informationen über alle Verbindungen "
                    "im Bereich und baut sich eine **vollständige Karte** der Topologie. Aus "
                    "dieser Karte berechnet er selbst den besten Weg.",
@@ -88,13 +88,17 @@ DYNAMISCHES_ROUTING_MODULE = {
                    "Kosten**, nicht zwingend die wenigsten Hops. Die Kosten einer Strecke leitet "
                    "OSPF üblicherweise aus ihrer **Bandbreite** ab — eine schnelle Leitung "
                    "bekommt geringere Kosten als eine langsame, sodass der Router bevorzugt den "
-                   "leistungsfähigeren Pfad wählt.",
+                   "leistungsfähigeren Pfad wählt. Die klassische Formel: Kosten = "
+                   "**Referenzbandbreite ÷ Bandbreite** der Strecke (mindestens 1), mit "
+                   "100 Mbit/s als verbreitetem Standardwert für die Referenzbandbreite.",
              "en": "## SPF/Dijkstra and Cost\n\nFrom the LSDB, every router independently "
                    "computes the shortest path to each destination network using the **SPF "
                    "algorithm (Dijkstra)**. “Shortest path” here means the path with the "
                    "**lowest cost**, not necessarily the fewest hops. OSPF typically derives a "
                    "link's cost from its **bandwidth** — a fast link gets a lower cost than a "
-                   "slow one, so the router prefers the more capable path.",
+                   "slow one, so the router prefers the more capable path. The classic "
+                   "formula: cost = **reference bandwidth ÷ link bandwidth** (at least 1), "
+                   "with 100 Mbit/s as the common default reference bandwidth.",
          }},
         {"type": "text",
          "value": {
@@ -114,9 +118,10 @@ DYNAMISCHES_ROUTING_MODULE = {
                    "between the remaining areas passes.",
          }},
         {"type": "widget", "id": "ospf-demo",
-         "note": "Nachbarschaftsaufbau zeigen (Hello-Austausch), dann einen Link kappen und "
-                 "die Neuberechnung ueber SPF/Dijkstra sichtbar machen. Am Ende show ip route / "
-                 "show ip ospf neighbor in der CLI gegenlesen."},
+         "note": "Zentrale -> Rechenzentrum: direkter 10-Mbit-Link (1 Hop) gegen den "
+                 "Kostenpfad ueber das Lager vergleichen. Dann einen Link auf dem besten Pfad "
+                 "kappen und die Neuberechnung zeigen; zuletzt die Referenzbandbreite "
+                 "aendern. Hello/Nachbarschaft simuliert das Widget nicht."},
         {"type": "debug", "payload": {
             "prompt_de": "Zwei Router sollen über ihre gemeinsame Leitung eine "
                          "OSPF-Nachbarschaft aufbauen, es klappt aber nicht. Finde den Fehler:",

@@ -70,7 +70,9 @@ CI_CD_MODULE = {'key': 'ci-cd',
                              'Manuell sind es drei Schritte: App installieren '
                              '(github.com/apps/claude), **`ANTHROPIC_API_KEY`** als '
                              'Repository-Secret hinterlegen, Workflow-Datei nach '
-                             '`.github/workflows/` kopieren.',
+                             '`.github/workflows/` kopieren. Alternative zum API-Key: ein '
+                             'Abo-Token aus `claude setup-token` als Secret '
+                             '`CLAUDE_CODE_OAUTH_TOKEN` (Input `claude_code_oauth_token`).',
                        'en': '## Setup\n'
                              '\n'
                              'The fastest way — interactively from the CLI:\n'
@@ -87,7 +89,9 @@ CI_CD_MODULE = {'key': 'ci-cd',
                              "Manually, it's three steps: install the app "
                              '(github.com/apps/claude), store **`ANTHROPIC_API_KEY`** as a '
                              'repository secret, copy the workflow file into '
-                             '`.github/workflows/`.'}},
+                             '`.github/workflows/`. Alternative to the API key: a subscription '
+                             'token from `claude setup-token` stored as the secret '
+                             '`CLAUDE_CODE_OAUTH_TOKEN` (input `claude_code_oauth_token`).'}},
             {'type': 'text',
              'value': {'de': '## Ein einfacher Workflow\n'
                              '\n'
@@ -100,8 +104,15 @@ CI_CD_MODULE = {'key': 'ci-cd',
                              '    types: [created]\n'
                              'jobs:\n'
                              '  claude:\n'
+                             "    if: contains(github.event.comment.body, '@claude')\n"
                              '    runs-on: ubuntu-latest\n'
+                             '    permissions:\n'
+                             '      contents: write\n'
+                             '      pull-requests: write\n'
+                             '      issues: write\n'
+                             '      id-token: write\n'
                              '    steps:\n'
+                             '      - uses: actions/checkout@v6\n'
                              '      - uses: anthropics/claude-code-action@v1\n'
                              '        with:\n'
                              '          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}\n'
@@ -110,7 +121,9 @@ CI_CD_MODULE = {'key': 'ci-cd',
                              '\n'
                              'Die Action (v1) erkennt automatisch, ob sie **interaktiv** (auf '
                              '`@claude`-Mentions reagieren) oder **automatisiert** (sofort mit '
-                             'einem `prompt` laufen) arbeiten soll.',
+                             'einem `prompt` laufen) arbeiten soll. `id-token: write` braucht die '
+                             'Action für ihre Standard-Anmeldung als GitHub App; `actions/checkout` '
+                             'gibt Claude eine Arbeitskopie des Repos.',
                        'en': '## A simple workflow\n'
                              '\n'
                              '```yaml\n'
@@ -122,8 +135,15 @@ CI_CD_MODULE = {'key': 'ci-cd',
                              '    types: [created]\n'
                              'jobs:\n'
                              '  claude:\n'
+                             "    if: contains(github.event.comment.body, '@claude')\n"
                              '    runs-on: ubuntu-latest\n'
+                             '    permissions:\n'
+                             '      contents: write\n'
+                             '      pull-requests: write\n'
+                             '      issues: write\n'
+                             '      id-token: write\n'
                              '    steps:\n'
+                             '      - uses: actions/checkout@v6\n'
                              '      - uses: anthropics/claude-code-action@v1\n'
                              '        with:\n'
                              '          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}\n'
@@ -132,7 +152,9 @@ CI_CD_MODULE = {'key': 'ci-cd',
                              '\n'
                              'The Action (v1) automatically detects whether it should work '
                              '**interactively** (react to `@claude` mentions) or **automated** '
-                             '(run immediately with a `prompt`).'}},
+                             '(run immediately with a `prompt`). The Action needs `id-token: write` '
+                             'for its default GitHub App authentication; `actions/checkout` gives '
+                             'Claude a working copy of the repo.'}},
             {'type': 'check',
              'payload': {'kind': 'choice',
                          'prompt_de': 'Wie löst du Claude in einem Issue oder PR aus?',
@@ -158,7 +180,12 @@ CI_CD_MODULE = {'key': 'ci-cd',
                              'jobs:\n'
                              '  review:\n'
                              '    runs-on: ubuntu-latest\n'
+                             '    permissions:\n'
+                             '      contents: read\n'
+                             '      pull-requests: read\n'
+                             '      id-token: write\n'
                              '    steps:\n'
+                             '      - uses: actions/checkout@v6\n'
                              '      - uses: anthropics/claude-code-action@v1\n'
                              '        with:\n'
                              '          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}\n'
@@ -167,7 +194,10 @@ CI_CD_MODULE = {'key': 'ci-cd',
                              '```\n'
                              '\n'
                              'Über `claude_args` reichst du beliebige CLI-Argumente durch (z.B. '
-                             '`--model`, `--max-turns`, `--mcp-config`).',
+                             '`--model`, `--max-turns`, `--mcp-config`). Im automatisierten Modus '
+                             'landet das Ergebnis standardmäßig im Workflow-Log; damit Claude im PR '
+                             'kommentiert, braucht es passende Tools/Schreibrechte — die offizielle '
+                             'Doku zeigt dafür den `code-review`-Skill mit `--comment`.',
                        'en': '## Automated PR review\n'
                              '\n'
                              'Instead of waiting for a trigger, Claude can review **every** PR. To '
@@ -181,7 +211,12 @@ CI_CD_MODULE = {'key': 'ci-cd',
                              'jobs:\n'
                              '  review:\n'
                              '    runs-on: ubuntu-latest\n'
+                             '    permissions:\n'
+                             '      contents: read\n'
+                             '      pull-requests: read\n'
+                             '      id-token: write\n'
                              '    steps:\n'
+                             '      - uses: actions/checkout@v6\n'
                              '      - uses: anthropics/claude-code-action@v1\n'
                              '        with:\n'
                              '          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}\n'
@@ -190,7 +225,10 @@ CI_CD_MODULE = {'key': 'ci-cd',
                              '```\n'
                              '\n'
                              'Via `claude_args` you pass through any CLI arguments (e.g. '
-                             '`--model`, `--max-turns`, `--mcp-config`).'}},
+                             '`--model`, `--max-turns`, `--mcp-config`). In automation mode the '
+                             'result goes to the workflow run log by default; for Claude to comment '
+                             'on the PR it needs suitable tools/write permissions — the official '
+                             'docs show the `code-review` skill with `--comment` for this.'}},
             {'type': 'text',
              'value': {'de': '## Geplante Jobs & Kostenbewusstsein\n'
                              '\n'

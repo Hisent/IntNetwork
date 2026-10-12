@@ -38,12 +38,16 @@ PORTS_MODULE = {
                    "- **22** SSH, **3389** RDP (Fernwartung)\n"
                    "- **25** SMTP, **110** POP3, **143** IMAP (Mail)\n"
                    "- **53** DNS (über **UDP und TCP**)\n\n"
+                   "Streng genommen heißen nur die Ports **0–1023** „well-known“ (System Ports); "
+                   "**3389** liegt im Bereich der **registrierten** Ports (1024–49151).\n\n"
                    "So laufen viele Dienste über **eine** IP nebeneinander — der Port trennt sie.",
              "en": "## Well-Known Ports\n\nServices listen on fixed ports:\n\n"
                    "- **80** HTTP, **443** HTTPS (web)\n"
                    "- **22** SSH, **3389** RDP (remote administration)\n"
                    "- **25** SMTP, **110** POP3, **143** IMAP (mail)\n"
                    "- **53** DNS (over **UDP and TCP**)\n\n"
+                   "Strictly speaking, only ports **0–1023** are “well-known” (system ports); "
+                   "**3389** sits in the **registered** port range (1024–49151).\n\n"
                    "This way many services run over **one** IP side by side — the port tells them apart.",
          }},
         {"type": "text",
@@ -53,14 +57,14 @@ PORTS_MODULE = {
                    "verlorene Pakete werden erneut gesendet, Reihenfolge stimmt. Typisch für Web "
                    "über HTTP/1.1 oder HTTP/2, Mail und SSH.\n"
                    "- **UDP** ist **verbindungslos**: kein Handshake, keine Garantie, dafür schnell "
-                   "und schlank. Für DNS, Video-Streaming, VoIP, Online-Spiele — da zählt Tempo mehr "
+                   "und schlank. Für DNS, Live-Video, VoIP, Online-Spiele — da zählt Tempo mehr "
                    "als jede einzelne Bestätigung.",
              "en": "## TCP vs. UDP\n\n- **TCP** is **connection-oriented** "
                    "and **reliable**: set up via a **3-way handshake** (SYN → SYN-ACK → ACK), "
                    "lost packets get resent, order is preserved. Typical for web over HTTP/1.1 or HTTP/2, "
                    "mail and SSH.\n"
                    "- **UDP** is **connectionless**: no handshake, no guarantees, but fast "
-                   "and lightweight. For DNS, video streaming, VoIP, online gaming — where speed matters "
+                   "and lightweight. For DNS, live video, VoIP, online gaming — where speed matters "
                    "more than every single confirmation.",
          }},
         {"type": "widget", "id": "ports-demo",

@@ -7,7 +7,7 @@ NAC_RADIUS_MODULE = {
     'order': 503,
     'prerequisites': ['nac-8021x'],
     'goals': [
-        'Die vier RADIUS-Antworttypen (Access-Request/Accept/Reject/Challenge) unterscheiden '
+        'Die vier RADIUS-Pakettypen (Access-Request/Accept/Reject/Challenge) unterscheiden '
         'können',
         'Erklären können, wie RADIUS-Attribute eine dynamische VLAN-Zuweisung ermöglichen',
         'RADIUS Accounting einordnen können',
@@ -31,11 +31,12 @@ NAC_RADIUS_MODULE = {
          'note': 'Die vier Antworttypen sind die Grundlage fuer den spaeteren Debug-Block. Hier '
                  'ruhig mit konkreten Beispielen pro Typ arbeiten, nicht nur die Namen nennen.',
          'value': {
-             'de': '## RADIUS: die vier Antworttypen\n\n'
+             'de': '## RADIUS: die vier Pakettypen\n\n'
                    '**RADIUS** (Remote Authentication Dial In User Service) transportiert '
                    'Authentifizierungs-, Autorisierungs- und Konfigurationsinformationen zwischen '
                    'Network Access Server (bei Nordwind: der Switch als Authenticator) und dem '
-                   'Authentication Server, per UDP:\n\n'
+                   'Authentication Server, per UDP (RFC 2865, Port 1812 für die '
+                   'Authentifizierung):\n\n'
                    '- **Access-Request** — enthält Attribute wie Benutzername, Passwort-'
                    'Informationen, Client-ID und Port-ID; wird vom Authenticator gesendet.\n'
                    '- **Access-Accept** — gewährt Zugriff auf die angefragte Netzressource.\n'
@@ -44,11 +45,11 @@ NAC_RADIUS_MODULE = {
                    '- **Access-Challenge** — fordert zusätzliche Informationen an, etwa ein '
                    'zweites Passwort, eine PIN oder einen Token; wird für mehrstufige EAP-'
                    'Austausche genutzt (siehe Modul nac-8021x, Schritt 5 des Ablaufs).',
-             'en': '## RADIUS: The Four Response Types\n\n'
+             'en': '## RADIUS: The Four Packet Types\n\n'
                    '**RADIUS** (Remote Authentication Dial In User Service) carries '
                    'authentication, authorization, and configuration information between the '
                    'network access server (at Nordwind: the switch as authenticator) and the '
-                   'authentication server, over UDP:\n\n'
+                   'authentication server, over UDP (RFC 2865, port 1812 for authentication):\n\n'
                    '- **Access-Request** — contains attributes such as username, password '
                    'information, client ID, and port ID; sent by the authenticator.\n'
                    '- **Access-Accept** — grants access to the requested network resource.\n'
@@ -206,14 +207,14 @@ NAC_RADIUS_MODULE = {
              'options_de': [
                  'Es ersetzt UDP durch ICMP als Transportprotokoll',
                  'Es kapselt das gesamte RADIUS-Paket in TLS statt nur das Passwort zu schützen',
-                 'Es macht Shared Secrets vollständig überflüssig',
+                 'Es beschleunigt RADIUS, indem es auf jede Verschlüsselung verzichtet',
                  'Es ersetzt Access-Challenge durch ein neues Paketformat',
              ],
              'options_en': [
                  'It replaces UDP with ICMP as the transport protocol',
                  'It encapsulates the entire RADIUS packet in TLS instead of only protecting '
                  'the password',
-                 'It makes shared secrets completely unnecessary',
+                 'It speeds up RADIUS by dropping encryption entirely',
                  'It replaces Access-Challenge with a new packet format',
              ],
          }},
@@ -309,14 +310,14 @@ NAC_RADIUS_MODULE = {
              'de': [
                  'Das gesamte RADIUS-Paket wird in TLS gekapselt, nicht nur das Passwort '
                  'geschützt',
-                 'RadSec benötigt keinerlei gemeinsames Geheimnis mehr',
+                 'RadSec verzichtet zugunsten der Geschwindigkeit auf jede Verschlüsselung',
                  'RadSec läuft ausschließlich innerhalb von TACACS+',
                  'RadSec ersetzt die VLAN-Zuweisung durch statische IP-Vergabe',
              ],
              'en': [
                  'The entire RADIUS packet is encapsulated in TLS, not just the password '
                  'protected',
-                 'RadSec no longer needs any shared secret at all',
+                 'RadSec drops all encryption in favor of speed',
                  'RadSec runs exclusively inside TACACS+',
                  'RadSec replaces VLAN assignment with static IP allocation',
              ],

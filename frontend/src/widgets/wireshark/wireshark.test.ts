@@ -39,6 +39,14 @@ describe('applyFilter', () => {
   it('invalid filter returns null (red field)', () => {
     expect(applyFilter(CAPTURE, 'kaputt ==')).toBeNull()
     expect(parseFilter('ip.addr = 1.2.3.4')).toBeNull()
+    expect(parseFilter('kaputt')).toBeNull() // unbekanntes Protokoll
+    expect(applyFilter(CAPTURE, 'arp')).toHaveLength(0) // bekannt, aber nicht im Mitschnitt
+  })
+
+  it('udp.port and ip.src/ip.dst work like in Wireshark', () => {
+    expect(applyFilter(CAPTURE, 'udp.port == 53')).toHaveLength(2)
+    expect(applyFilter(CAPTURE, 'ip.src == 192.168.10.53')).toHaveLength(1)
+    expect(applyFilter(CAPTURE, 'ip.dst == 192.168.10.53')).toHaveLength(1)
   })
 })
 

@@ -1,11 +1,11 @@
 // Die Uebungen schreiben ausschliesslich nach {{ lab_dir }} — das ist das
-// teilnehmereigene Verzeichnis im Runner (siehe runner/app.py). Feste Pfade wie
+// teilnehmereigene Verzeichnis im Runner (siehe runner/worker.py). Feste Pfade wie
 // /tmp/uebung waeren fuer alle Teilnehmenden dasselbe Verzeichnis: Der zweite
 // Mensch saehe dann beim ERSTEN Lauf schon "nichts geaendert" und die
 // Idempotenz-Uebung ginge ins Leere.
 // Vier Übungsvorlagen für das Ansible-Lab. Jede ist ein lauffähiges (bzw. im
 // Fall "Fehler lesen" absichtlich kaputtes, aber reparierbares) Playbook, das
-// nur unter /tmp im Container schreibt — kein Netzwerk, kein Zugriff auf den
+// nur unter {{ lab_dir }} im Container schreibt — kein Netzwerk, kein Zugriff auf den
 // Host. Aufgabentexte bilingual, analog zu den STR-Konstanten der Widgets.
 export interface LabExercise {
   id: string
@@ -28,17 +28,17 @@ export const EXERCISES: LabExercise[] = [
 - hosts: all
   tasks:
     - name: Verzeichnis anlegen
-      file:
+      ansible.builtin.file:
         path: "{{ lab_dir }}/idempotenz"
         state: directory
 
     - name: Datei mit Inhalt anlegen
-      copy:
+      ansible.builtin.copy:
         content: "Hallo vom Ansible-Lab\\n"
         dest: "{{ lab_dir }}/idempotenz/hello.txt"
 
     - name: Zeitstempel protokollieren
-      command: echo "Lauf ausgeführt"
+      ansible.builtin.command: echo "Lauf ausgeführt"
       changed_when: true
 `,
   },
@@ -47,15 +47,15 @@ export const EXERCISES: LabExercise[] = [
     title: { de: 'Fehler lesen', en: 'Reading errors' },
     task: {
       de: 'Dieses Playbook enthält einen falschen Modulnamen. Lass es laufen, lies die Fehlermeldung, '
-        + 'repariere den Modulnamen im Editor (file statt filee) und lass es erneut laufen.',
+        + 'repariere den Modulnamen im Editor (ansible.builtin.file statt ansible.builtin.filee) und lass es erneut laufen.',
       en: 'This playbook has a wrong module name. Run it, read the error message, fix the module '
-        + 'name in the editor (file instead of filee), and run it again.',
+        + 'name in the editor (ansible.builtin.file instead of ansible.builtin.filee), and run it again.',
     },
     playbook: `---
 - hosts: all
   tasks:
     - name: Ordner für Notizen anlegen
-      filee:
+      ansible.builtin.filee:
         path: "{{ lab_dir }}/notizen"
         state: directory
 `,
@@ -78,12 +78,12 @@ export const EXERCISES: LabExercise[] = [
       - gamma
   tasks:
     - name: Arbeitsverzeichnis anlegen
-      file:
+      ansible.builtin.file:
         path: "{{ lab_dir }}/kontrollfluss"
         state: directory
 
     - name: Datei je Paket anlegen, außer für beta
-      copy:
+      ansible.builtin.copy:
         content: "Paket {{ item }}\\n"
         dest: "{{ lab_dir }}/kontrollfluss/{{ item }}.txt"
       loop: "{{ pakete }}"
@@ -92,7 +92,7 @@ export const EXERCISES: LabExercise[] = [
 
   handlers:
     - name: Übersicht aktualisieren
-      command: echo "Übersicht aktualisiert"
+      ansible.builtin.command: echo "Übersicht aktualisiert"
       changed_when: true
 `,
   },
@@ -111,7 +111,7 @@ export const EXERCISES: LabExercise[] = [
     umgebung: staging
   tasks:
     - name: Umgebung ausgeben
-      debug:
+      ansible.builtin.debug:
         msg: "Aktive Umgebung: {{ umgebung }}"
 `,
   },

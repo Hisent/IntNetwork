@@ -110,7 +110,7 @@ LLM_GRUNDLAGEN_MODULE = {'key': 'llm-grundlagen',
                              'Rules of thumb (English/code):\n'
                              '\n'
                              '- ~4 characters ≈ 1 token, ~100 tokens ≈ 75 words.\n'
-                             '- Common words = 1 token; rare words, IDs, or special characters get '
+                             '- Common words = 1 token; rare words, IDs, or umlauts get '
                              'split into multiple tokens.\n'
                              '- Code symbols (`{`, `}`, `::`) are their own tokens.\n'
                              '\n'

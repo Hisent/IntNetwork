@@ -21,7 +21,7 @@ const PRESETS: { de: string; en: string; pkt: Packet }[] = [
 
 const RULE_DESC: Record<number, { de: string; en: string }> = {
   0: { de: 'HTTPS zum Webserver', en: 'HTTPS to the web server' },
-  1: { de: 'SSH nur für Admins', en: 'SSH for admins only' },
+  1: { de: 'SSH für die Fernwartung', en: 'SSH for remote administration' },
   2: { de: 'Telnet verboten (unverschlüsselt)', en: 'Telnet forbidden (unencrypted)' },
   3: { de: 'DNS-Anfragen', en: 'DNS queries' },
 }

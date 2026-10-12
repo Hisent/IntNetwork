@@ -166,7 +166,7 @@ DNSSEC_MODULE = {
                  'The problem is caused by missing permissions for the zone\'s admin group',
                  'The zone is effectively unreachable for all clients that resolve with validation',
              ],
-             'wrong': [3],
+             'wrong': [2],
              'explanation_de': 'Berechtigungen/Admin-Gruppen (Rollen & Berechtigungen, ein anderes '
                                'Modul) haben mit diesem Fehlerbild nichts zu tun. Das klassische '
                                'Muster „SERVFAIL nur bei validierenden Resolvern, normale Auflösung '

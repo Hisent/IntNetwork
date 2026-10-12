@@ -57,8 +57,8 @@ MCP_MODULE = {'key': 'mcp',
             {'type': 'text',
              'value': {'de': '## Transporte\n'
                              '\n'
-                             'MCP-Server sprechen über einen von drei **Transporten** mit Claude '
-                             'Code:\n'
+                             'MCP-Server sprechen über einen **Transport** mit Claude Code. Die '
+                             'wichtigsten:\n'
                              '\n'
                              '- **stdio** — ein lokaler Prozess, mit dem Claude Code über '
                              'Standard-Ein-/Ausgabe redet. Typisch für lokal installierte Server.\n'
@@ -71,7 +71,8 @@ MCP_MODULE = {'key': 'mcp',
                              'wenn keine HTTP-Alternative verfügbar ist.',
                        'en': '## Transports\n'
                              '\n'
-                             'MCP servers talk to Claude Code over one of three **transports**:\n'
+                             'MCP servers talk to Claude Code over a **transport**. The most '
+                             'important ones:\n'
                              '\n'
                              '- **stdio** — a local process that Claude Code talks to over '
                              'standard input/output. Typical for locally installed servers.\n'

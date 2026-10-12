@@ -80,6 +80,8 @@ IPV6_MODULE = {
                    "(`2000::/3`): weltweit routbar, wie eine öffentliche IPv4.\n"
                    "- **Link-Local** (`fe80::/10`): gilt nur im lokalen Segment, jedes Interface "
                    "hat automatisch eine.\n"
+                   "- **Unique Local** (`fc00::/7`, in der Praxis `fd00::/8`): interne Adressen, "
+                   "im Internet nicht geroutet — das Gegenstück zu den privaten IPv4-Bereichen.\n"
                    "- **Loopback** `::1`: der eigene Rechner (wie `127.0.0.1`).\n"
                    "- **Multicast** (`ff00::/8`): an eine Gruppe. **Broadcasts gibt es in IPv6 "
                    "nicht mehr** — ihre Aufgaben übernimmt Multicast.",
@@ -87,6 +89,8 @@ IPV6_MODULE = {
                    "(`2000::/3`): globally routable, like a public IPv4.\n"
                    "- **Link-local** (`fe80::/10`): only valid on the local segment, every interface "
                    "gets one automatically.\n"
+                   "- **Unique local** (`fc00::/7`, in practice `fd00::/8`): internal addresses, "
+                   "not routed on the Internet — the counterpart to the private IPv4 ranges.\n"
                    "- **Loopback** `::1`: the local machine itself (like `127.0.0.1`).\n"
                    "- **Multicast** (`ff00::/8`): to a group. **Broadcasts no longer exist in "
                    "IPv6** — multicast takes over their job.",

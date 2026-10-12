@@ -174,42 +174,38 @@ LEBENSZYKLUS_MODULE = {
              ],
          }},
         {'type': 'text',
-         'note': 'Zwischenstufen (200/100 Tage) im Vortrag ausdruecklich als "gut belegt, '
-                 'aber nicht wortwoertlich aus dem Ballot-Text selbst" kennzeichnen - '
-                 'Endstufe 47 Tage ist die sicherste Zahl.',
+         'note': 'Stufen 200/100/47 Tage stehen so in den Baseline Requirements des '
+                 'CA/Browser Forums (Abschnitt 1.2.2 "Relevant Dates"); die erste Stufe '
+                 '(200 Tage) gilt seit dem 15. Maerz 2026.',
          'value': {
              'de': '## Der Stufenplan zur Laufzeitverkürzung (Ballot SC-081v3)\n\n'
                    'Das CA/Browser Forum hat mit **Ballot SC-081v3** (verabschiedet am 11. '
                    'April 2025) einen mehrstufigen Plan zur Verkürzung der maximalen '
-                   'TLS-Zertifikatslaufzeit beschlossen - ausgehend von aktuell 398 Tagen:\n\n'
-                   '- ab **15. März 2026**: 200 Tage\n'
+                   'TLS-Zertifikatslaufzeit beschlossen - ausgehend von zuvor 398 Tagen:\n\n'
+                   '- seit **15. März 2026**: 200 Tage\n'
                    '- ab **15. März 2027**: 100 Tage\n'
                    '- ab **15. März 2029**: 47 Tage\n\n'
-                   'Die Randdaten (Start 2026, Zielwert 47 Tage ab 2029) sind gut belegt; '
-                   'die genannten Zwischenstufen (200/100 Tage) stammen aus mehreren '
-                   'übereinstimmenden Sekundärquellen, ließen sich aber nicht wortwörtlich '
-                   'im Ballot-Volltext selbst nachvollziehen - für eine verbindliche Aussage '
-                   'lohnt der Blick in die aktuelle CA/Browser-Forum-Baseline.\n\n'
+                   'Die erste Stufe ist also bereits in Kraft. Die Stufen sind in den '
+                   'Baseline Requirements des CA/Browser Forums festgeschrieben (Abschnitt '
+                   '„Relevant Dates").\n\n'
                    'Parallel dazu sinkt auch die Wiederverwendbarkeit von '
-                   'Domain-Validierungsdaten deutlich (SAN-Daten: von 398 Tagen auf 10 Tage '
-                   'bis 2029).\n\n'
+                   'Domain-Validierungsdaten im selben Takt: von 398 auf 200 Tage (seit 2026), '
+                   '100 Tage (ab 2027) und schließlich 10 Tage (ab 2029).\n\n'
                    '**Konsequenz für den Betrieb:** Bei Laufzeiten von wenigen Wochen ist '
                    'manuelle Erneuerung schlicht nicht mehr durchhaltbar. Automatisierung '
                    '(z. B. via ACME) wird vom Komfort-Feature zur Betriebsnotwendigkeit.',
              'en': '## The Roadmap for Shortening Validity Periods (Ballot SC-081v3)\n\n'
                    'The CA/Browser Forum adopted **Ballot SC-081v3** (passed on April 11, '
                    '2025), a multi-stage plan to shorten the maximum TLS certificate '
-                   'validity period - starting from the current 398 days:\n\n'
-                   '- from **March 15, 2026**: 200 days\n'
+                   'validity period - starting from the previous 398 days:\n\n'
+                   '- since **March 15, 2026**: 200 days\n'
                    '- from **March 15, 2027**: 100 days\n'
                    '- from **March 15, 2029**: 47 days\n\n'
-                   'The boundary dates (start in 2026, target of 47 days from 2029) are '
-                   'well documented; the intermediate stages named here (200/100 days) come '
-                   'from several consistent secondary sources but could not be confirmed '
-                   'word-for-word in the ballot\'s full text itself - for a binding '
-                   'statement, it is worth checking the current CA/Browser Forum baseline.\n\n'
-                   'In parallel, the reusability of domain validation data also drops '
-                   'significantly (SAN data: from 398 days down to 10 days by 2029).\n\n'
+                   'So the first stage is already in force. The stages are laid down in the '
+                   'CA/Browser Forum Baseline Requirements ("Relevant Dates" section).\n\n'
+                   'In parallel, the reusability of domain validation data drops in the same '
+                   'rhythm: from 398 to 200 days (since 2026), 100 days (from 2027), and '
+                   'finally 10 days (from 2029).\n\n'
                    '**Consequence for operations:** with validity periods of just a few '
                    'weeks, manual renewal is simply no longer sustainable. Automation (e.g. '
                    'via ACME) turns from a convenience feature into an operational '
@@ -272,10 +268,10 @@ LEBENSZYKLUS_MODULE = {
          }},
         {'type': 'reflect',
          'payload': {
-             'prompt_de': 'In drei Jahren beträgt die maximale Zertifikatslaufzeit nur noch '
+             'prompt_de': 'Ab März 2029 beträgt die maximale Zertifikatslaufzeit nur noch '
                           '47 Tage. Was müsste bei Nordwind Logistik bis dahin aufgebaut '
                           'sein, damit Erneuerung kein manueller Vorgang mehr ist?',
-             'prompt_en': 'In three years, the maximum certificate validity period will be '
+             'prompt_en': 'From March 2029, the maximum certificate validity period will be '
                           'only 47 days. What would Nordwind Logistik need to have built by '
                           'then so renewal is no longer a manual process?',
          }},

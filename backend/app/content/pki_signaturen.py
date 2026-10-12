@@ -135,7 +135,7 @@ SIGNATUREN_MODULE = {
                    'steht und fällt mit einer einzigen Voraussetzung: **Der private Schlüssel muss '
                    'wirklich ausschließlich bei einer Partei liegen.**\n\n'
                    'Kann eine zweite Person denselben privaten Schlüssel verwenden (z. B. weil er '
-                   'auf einem Server ohne Zugriffskontrolle liegt, weggeben oder gestohlen wurde), '
+                   'auf einem Server ohne Zugriffskontrolle liegt, weitergegeben oder gestohlen wurde), '
                    'kann sich der ursprüngliche Unterzeichner darauf berufen, dass die Signatur '
                    'auch von der zweiten Person stammen könnte — die Nichtabstreitbarkeit ist damit '
                    'faktisch entwertet. Deshalb hängt in der Praxis so viel am sicheren Schutz von '
@@ -197,8 +197,9 @@ SIGNATUREN_MODULE = {
                    'Lehrgangs bauen direkt auf diesem Prinzip auf: Root-CA, Chain of Trust und '
                    'Zertifikatslebenszyklus sind letztlich alles Organisationsformen rund um genau '
                    'diese eine Signatur.\n\n'
-                   'Gängige Signaturverfahren, die dir in Zertifikaten begegnen, sind **RSA-PSS**, '
-                   '**ECDSA** und **Ed25519** — jeweils eine Signaturvariante der asymmetrischen '
+                   'Gängige Signaturverfahren, die dir in Zertifikaten begegnen, sind **RSA** '
+                   '(meist das ältere PKCS#1 v1.5, seltener RSA-PSS) und **ECDSA**, in privaten '
+                   'PKIs auch **Ed25519** — jeweils eine Signaturvariante der asymmetrischen '
                    'Verfahren aus Modul 4 dieses Blocks.',
              'en': '## The Bridge to the Certificate\n\n'
                    'Everything in this module leads directly to the actual topic of this course: '
@@ -215,9 +216,10 @@ SIGNATUREN_MODULE = {
                    'states as its validity date. The following blocks of this course build '
                    'directly on this principle: root CA, chain of trust, and certificate lifecycle '
                    'are ultimately all organizational forms built around this one signature.\n\n'
-                   'Common signature schemes you will encounter in certificates are **RSA-PSS**, '
-                   '**ECDSA**, and **Ed25519** — each a signature variant of the asymmetric '
-                   'schemes from module 4 of this block.',
+                   'Common signature schemes you will encounter in certificates are **RSA** '
+                   '(mostly the older PKCS#1 v1.5, less often RSA-PSS) and **ECDSA**, in private '
+                   'PKIs also **Ed25519** — each a signature variant of the asymmetric schemes '
+                   'from module 4 of this block.',
          }},
         {'type': 'debug',
          'payload': {

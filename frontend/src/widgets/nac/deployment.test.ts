@@ -19,7 +19,7 @@ describe('outcome', () => {
     expect(r.access).toBe('full')
   })
 
-  it('Low-Impact Mode gibt bei Fehlschlag nur begrenzten Zugriff (dACL)', () => {
+  it('Low-Impact Mode gibt bei Fehlschlag nur begrenzten Zugriff (Pre-Auth-ACL)', () => {
     const r = outcome('low-impact', false)
     expect(r.access).toBe('limited')
     expect(r.log).toBe(true)

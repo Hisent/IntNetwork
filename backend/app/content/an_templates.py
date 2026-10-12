@@ -161,21 +161,26 @@ TEMPLATES_MODULE = {
              'value': {'de': '`listen 8080;` — weil `port` undefiniert ist, greift '
                              '`default(8080)`. Wäre `port: 9090` gesetzt, stünde stattdessen '
                              '`listen 9090;` da; der `default`-Filter kommt nur zum Zug, wenn '
-                             'die Variable fehlt oder leer ist.',
+                             'die Variable undefiniert ist. Soll er auch bei leeren Werten '
+                             'greifen, braucht es `default(8080, true)`.',
                        'en': '`listen 8080;` — since `port` is undefined, `default(8080)` '
                              'kicks in. If `port: 9090` were set, the line would read '
                              '`listen 9090;` instead; the `default` filter only applies when '
-                             'the variable is missing or empty.'}},
+                             'the variable is undefined. To make it apply to empty values as '
+                             'well, use `default(8080, true)`.'}},
             {'type': 'text',
              'value': {'de': '## Whitespace-Kontrolle\n'
                              '\n'
-                             'Jinja2-Steueranweisungen (`{% %}`) hinterlassen standardmäßig '
-                             'eigene Zeilen bzw. Leerzeichen im gerenderten Ergebnis — bei '
+                             'Jinja2-Steueranweisungen (`{% %}`) können Leerzeilen bzw. '
+                             'Leerzeichen im gerenderten Ergebnis hinterlassen — bei '
                              'Konfigurationsdateien oft unerwünscht. Zwei Stellschrauben:\n'
                              '\n'
-                             '- `trim_blocks` / `lstrip_blocks` (Jinja2-Umgebungsoptionen) '
-                             'entfernen automatisch den Zeilenumbruch nach einem Block-Tag bzw. '
-                             'führende Leerzeichen davor.\n'
+                             '- `trim_blocks` / `lstrip_blocks` (Parameter des '
+                             '`template`-Moduls): `trim_blocks` entfernt den Zeilenumbruch nach '
+                             'einem Block-Tag und ist in Ansible standardmäßig **an**; '
+                             '`lstrip_blocks` entfernt führende Leerzeichen vor einem Block-Tag '
+                             'und ist standardmäßig **aus** — eingerückte `{% %}`-Tags '
+                             'hinterlassen deshalb ihre Einrückung.\n'
                              '- Direkt im Template: ein Minus an der Tag-Grenze wie `{%- for … %}` '
                              'oder `{% endfor -%}` entfernt gezielt angrenzende Leerzeichen bzw. '
                              'Zeilenumbrüche an genau dieser Stelle.\n'
@@ -185,13 +190,16 @@ TEMPLATES_MODULE = {
                              'Whitespace-Verhalten, nicht die Logik.',
                        'en': '## Whitespace control\n'
                              '\n'
-                             'By default, Jinja2 control statements (`{% %}`) leave their own '
-                             'lines or spaces in the rendered result — often unwanted in '
+                             'Jinja2 control statements (`{% %}`) can leave blank lines or '
+                             'spaces in the rendered result — often unwanted in '
                              'configuration files. Two levers:\n'
                              '\n'
-                             '- `trim_blocks` / `lstrip_blocks` (Jinja2 environment options) '
-                             'automatically strip the newline after a block tag, or leading '
-                             'whitespace before it.\n'
+                             '- `trim_blocks` / `lstrip_blocks` (parameters of the `template` '
+                             'module): `trim_blocks` strips the newline after a block tag and '
+                             'is **on** by default in Ansible; `lstrip_blocks` strips leading '
+                             'whitespace before a block tag and is **off** by default — '
+                             'indented `{% %}` tags therefore leave their indentation '
+                             'behind.\n'
                              '- Directly in the template: a minus sign at the tag boundary like '
                              '`{%- for … %}` or `{% endfor -%}` strips adjacent whitespace or '
                              'newlines at exactly that spot.\n'
@@ -216,7 +224,7 @@ TEMPLATES_MODULE = {
                                       '{% for domain in server_names %}',
                                       '    server_name {{ domain }};',
                                       '}'],
-                         'wrong': [5],
+                         'wrong': [4],
                          'explanation_de': 'Der `{% for %}`-Block aus Zeile 3 wird nie '
                                            'geschlossen — es fehlt ein `{% endfor %}` vor der '
                                            'abschließenden `}` in Zeile 5. Jinja2 bricht das '
@@ -298,10 +306,12 @@ TEMPLATES_MODULE = {
                                           '{{ port | default(8080) }} apply?'},
                          'answer': 1,
                          'options': {'de': ['Immer, unabhängig vom Wert von port',
-                                            'Nur wenn port undefiniert oder leer ist',
+                                            'Nur wenn port undefiniert ist (leere Werte erst mit '
+                                            'default(8080, true))',
                                             'Nur im Check-Modus',
                                             'Nur bei Netzwerkmodulen'],
                                      'en': ['Always, regardless of the value of port',
-                                            'Only if port is undefined or empty',
+                                            'Only if port is undefined (empty values need '
+                                            'default(8080, true))',
                                             'Only in check mode',
                                             'Only for network modules']}}]}}

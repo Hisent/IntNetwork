@@ -40,7 +40,7 @@ WAPI_MODULE = {
                    "XML**. Die üblichen HTTP-Methoden bilden CRUD auf NIOS-Objekten ab:\n\n"
                    "- **GET** — Objekte lesen/suchen\n"
                    "- **POST** — neues Objekt anlegen\n"
-                   "- **PUT** — bestehendes Objekt vollständig aktualisieren\n"
+                   "- **PUT** — bestehendes Objekt aktualisieren (geändert werden nur die mitgesendeten Felder)\n"
                    "- **DELETE** — Objekt löschen\n\n"
                    "Objekte werden nicht nur über ihren Namen angesprochen, sondern über eine "
                    "eindeutige **Objekt-Referenz** (`_ref`), die WAPI beim Lesen mitliefert und "
@@ -52,7 +52,7 @@ WAPI_MODULE = {
                    "usual HTTP methods map onto CRUD operations on NIOS objects:\n\n"
                    "- **GET** — read/search objects\n"
                    "- **POST** — create a new object\n"
-                   "- **PUT** — fully update an existing object\n"
+                   "- **PUT** — update an existing object (only the fields sent are changed)\n"
                    "- **DELETE** — delete an object\n\n"
                    "Objects are not addressed only by name, but through a unique **object "
                    "reference** (`_ref`), which WAPI returns when reading an object and which "
@@ -72,7 +72,7 @@ WAPI_MODULE = {
                    "```json\n"
                    "[\n"
                    "  {\n"
-                   "    \"_ref\": \"record:host/ZG5zLmhvc3QkLl9kZWZhdWx0.server01.example.com/default\",\n"
+                   "    \"_ref\": \"record:host/ZG5zLmhvc3QkLl9kZWZhdWx0:server01.example.com/default\",\n"
                    "    \"name\": \"server01.example.com\",\n"
                    "    \"ipv4addrs\": [\n"
                    "      { \"ipv4addr\": \"192.0.2.10\" }\n"
@@ -95,7 +95,7 @@ WAPI_MODULE = {
                    "```json\n"
                    "[\n"
                    "  {\n"
-                   "    \"_ref\": \"record:host/ZG5zLmhvc3QkLl9kZWZhdWx0.server01.example.com/default\",\n"
+                   "    \"_ref\": \"record:host/ZG5zLmhvc3QkLl9kZWZhdWx0:server01.example.com/default\",\n"
                    "    \"name\": \"server01.example.com\",\n"
                    "    \"ipv4addrs\": [\n"
                    "      { \"ipv4addr\": \"192.0.2.10\" }\n"
@@ -149,7 +149,7 @@ WAPI_MODULE = {
                    "der Oberfläche.\n"
                    "- **Synchronisierung mit einer Quelle der Wahrheit** — ein CMDB- oder "
                    "ITSM-System gilt als maßgeblich; ein Skript gleicht NIOS regelmäßig "
-                   "dagegen ab und legt Abweichungen an, statt manuell zu pflegen.\n"
+                   "dagegen ab und korrigiert Abweichungen, statt manuell zu pflegen.\n"
                    "- **Self-Service** — Fachabteilungen fordern über ein Formular oder Ticket "
                    "eine neue Adresse/Zone an, ein automatisierter Workflow ruft WAPI im "
                    "Hintergrund auf, optional mit Genehmigungsschritt davor.\n\n"
@@ -162,7 +162,7 @@ WAPI_MODULE = {
                    "the UI.\n"
                    "- **Synchronization with a source of truth** — a CMDB or ITSM system is "
                    "treated as authoritative; a script regularly reconciles NIOS against it and "
-                   "creates discrepancies instead of maintaining things manually.\n"
+                   "corrects discrepancies instead of maintaining things manually.\n"
                    "- **Self-service** — business units request a new address or zone via a "
                    "form or ticket, and an automated workflow calls WAPI in the background, "
                    "optionally with an approval step first.\n\n"
@@ -176,31 +176,33 @@ WAPI_MODULE = {
             "prompt_en": "A colleague describes his new provisioning script in four steps. One "
                          "step is the root cause of a problem that only shows up on the second "
                          "run — find it:",
-            "lines_de": ["Das Skript liest 500 Netzwerke aus dem CMDB-Export.",
-                         "Für jedes Netzwerk wird direkt ein POST an record:network gesendet, "
-                         "ohne vorherige Prüfung, ob es bereits existiert.",
+            "lines_de": ["Das Skript liest 500 Filialen aus dem CMDB-Export.",
+                         "Für jede Filiale wird direkt per POST an das Objekt network das nächste "
+                         "freie Netz angefordert (func:nextavailablenetwork), ohne vorherige "
+                         "Prüfung, ob für die Filiale bereits eines existiert.",
                          "HTTP 201 wird als Erfolg geloggt, alles andere als Fehler.",
                          "Nach einem Absturz auf halbem Weg wird das Skript unverändert erneut "
-                         "gestartet — es legt alle 500 Netzwerke ein zweites Mal an."],
-            "lines_en": ["The script reads 500 networks from the CMDB export.",
-                         "For each network, it sends a POST to record:network directly, "
-                         "without first checking whether it already exists.",
+                         "gestartet — bereits versorgte Filialen erhalten ein zweites Netzwerk."],
+            "lines_en": ["The script reads 500 branches from the CMDB export.",
+                         "For each branch, it directly requests the next free network via POST to "
+                         "the network object (func:nextavailablenetwork), without first checking "
+                         "whether one already exists for that branch.",
                          "HTTP 201 is logged as success, anything else as an error.",
                          "After a crash halfway through, the script is restarted unchanged — it "
-                         "creates all 500 networks a second time."],
-            "wrong": [2],
+                         "gives branches that were already done a second network."],
+            "wrong": [1],
             "explanation_de": "Der Fehler liegt im fehlenden Existenz-Check vor dem POST. Ein "
                               "Automatisierungsskript sollte **idempotent** sein: mehrfaches "
                               "Ausführen mit denselben Eingaben muss zum selben Endzustand "
                               "führen, ohne Duplikate zu erzeugen. Richtig wäre, vor dem Anlegen "
-                              "per GET zu prüfen, ob das Netzwerk bereits existiert (oder ein "
+                              "per GET zu prüfen, ob für die Filiale bereits ein Netzwerk existiert (oder ein "
                               "Update-statt-Anlegen-Muster zu verwenden) — dann würde ein "
                               "erneuter Lauf nach einem Absturz keine Duplikate erzeugen.",
             "explanation_en": "The bug is the missing existence check before the POST. An "
                               "automation script should be **idempotent**: running it multiple "
                               "times with the same input must lead to the same end state, "
                               "without creating duplicates. The fix would be to check via GET "
-                              "whether the network already exists before creating it (or to use "
+                              "whether a network already exists for the branch before creating it (or to use "
                               "an update-instead-of-create pattern) — then a rerun after a crash "
                               "would not create duplicates.",
         }},
@@ -282,8 +284,8 @@ WAPI_MODULE = {
          }},
         {"id": "wa2", "type": "single",
          "prompt": {"de": "Welche HTTP-Methode wird verwendet, um ein bestehendes Objekt "
-                          "vollständig zu aktualisieren?",
-                    "en": "Which HTTP method is used to fully update an existing object?"},
+                          "zu aktualisieren?",
+                    "en": "Which HTTP method is used to update an existing object?"},
          "answer": 2,
          "options": {
              "de": ["GET", "POST", "PUT", "DELETE"],

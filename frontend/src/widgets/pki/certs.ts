@@ -142,7 +142,7 @@ export const ROOT_VALID: Cert = {
   extKeyUsage: [],
   isCa: true,
   aia: [],
-  fingerprint: 'AA:11:22:33:44:55:66:77:88:99:AA:BB:CC:DD:EE:FF:00:11:22:33',
+  fingerprint: 'AA:11:22:33:44:55:66:77:88:99:AA:BB:CC:DD:EE:FF:00:11:22:33:AA:11:22:33:44:55:66:77:88:99:AA:BB',
   selfSigned: true,
 }
 
@@ -162,7 +162,7 @@ export const INTERMEDIATE_VALID: Cert = {
   extKeyUsage: [],
   isCa: true,
   aia: ['CA Issuers - URI:http://pki.nordwind-logistik.de/root-ca.crt'],
-  fingerprint: 'BB:22:33:44:55:66:77:88:99:AA:BB:CC:DD:EE:FF:00:11:22:33:44',
+  fingerprint: 'BB:22:33:44:55:66:77:88:99:AA:BB:CC:DD:EE:FF:00:11:22:33:44:BB:22:33:44:55:66:77:88:99:AA:BB:CC',
   selfSigned: false,
 }
 
@@ -185,7 +185,7 @@ export const LEAF_VALID: Cert = {
     'CA Issuers - URI:http://pki.nordwind-logistik.de/issuing-ca.crt',
     'OCSP - URI:http://ocsp.nordwind-logistik.de',
   ],
-  fingerprint: 'CC:33:44:55:66:77:88:99:AA:BB:CC:DD:EE:FF:00:11:22:33:44:55',
+  fingerprint: 'CC:33:44:55:66:77:88:99:AA:BB:CC:DD:EE:FF:00:11:22:33:44:55:CC:33:44:55:66:77:88:99:AA:BB:CC:DD',
   selfSigned: false,
 }
 
@@ -208,7 +208,7 @@ export const LEAF_EXPIRED: Cert = {
     'CA Issuers - URI:http://pki.nordwind-logistik.de/issuing-ca.crt',
     'OCSP - URI:http://ocsp.nordwind-logistik.de',
   ],
-  fingerprint: 'DD:44:55:66:77:88:99:AA:BB:CC:DD:EE:FF:00:11:22:33:44:55:66',
+  fingerprint: 'DD:44:55:66:77:88:99:AA:BB:CC:DD:EE:FF:00:11:22:33:44:55:66:DD:44:55:66:77:88:99:AA:BB:CC:DD:EE',
   selfSigned: false,
 }
 
@@ -231,7 +231,7 @@ export const LEAF_WRONG_NAME: Cert = {
     'CA Issuers - URI:http://pki.nordwind-logistik.de/issuing-ca.crt',
     'OCSP - URI:http://ocsp.nordwind-logistik.de',
   ],
-  fingerprint: 'EE:55:66:77:88:99:AA:BB:CC:DD:EE:FF:00:11:22:33:44:55:66:77',
+  fingerprint: 'EE:55:66:77:88:99:AA:BB:CC:DD:EE:FF:00:11:22:33:44:55:66:77:EE:55:66:77:88:99:AA:BB:CC:DD:EE:FF',
   selfSigned: false,
 }
 
@@ -251,7 +251,7 @@ export const LEAF_SELF_SIGNED: Cert = {
   extKeyUsage: ['serverAuth'],
   isCa: false,
   aia: [],
-  fingerprint: 'FF:66:77:88:99:AA:BB:CC:DD:EE:FF:00:11:22:33:44:55:66:77:88',
+  fingerprint: 'FF:66:77:88:99:AA:BB:CC:DD:EE:FF:00:11:22:33:44:55:66:77:88:FF:66:77:88:99:AA:BB:CC:DD:EE:FF:00',
   selfSigned: true,
 }
 
@@ -272,7 +272,7 @@ export const FOREIGN_INTERMEDIATE: Cert = {
   extKeyUsage: [],
   isCa: true,
   aia: ['CA Issuers - URI:http://crt.globaltrust.example/root.crt'],
-  fingerprint: '11:AA:22:BB:33:CC:44:DD:55:EE:66:FF:77:00:88:11:99:22:AA:33',
+  fingerprint: '11:AA:22:BB:33:CC:44:DD:55:EE:66:FF:77:00:88:11:99:22:AA:33:11:AA:22:BB:33:CC:44:DD:55:EE:66:FF',
   selfSigned: false,
 }
 
@@ -297,7 +297,7 @@ export const ROOT_UNTRUSTED_EXPIRED: Cert = {
   extKeyUsage: [],
   isCa: true,
   aia: [],
-  fingerprint: '99:00:11:22:33:44:55:66:77:88:99:00:11:22:33:44:55:66:77:88',
+  fingerprint: '99:00:11:22:33:44:55:66:77:88:99:00:11:22:33:44:55:66:77:88:99:00:11:22:33:44:55:66:77:88:99:00',
   selfSigned: true,
 }
 

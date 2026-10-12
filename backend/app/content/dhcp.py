@@ -77,15 +77,15 @@ DHCP_MODULE = {
         {"type": "text",
          "value": {
              "de": "## Lease & Pool\n\nEine Adresse wird nur **auf Zeit** "
-                   "(Lease-Time) vergeben und danach erneuert oder freigegeben — so gehen "
-                   "Adressen nicht dauerhaft verloren. Der Bereich, aus dem der Server vergibt, "
+                   "(Lease-Time) vergeben und muss vor Ablauf erneuert werden, sonst wird sie "
+                   "wieder frei — so gehen Adressen nicht dauerhaft verloren. Der Bereich, aus dem der Server vergibt, "
                    "heißt **Pool** (z.B. `192.168.10.100–199`). Wichtige Geräte wie Drucker oder "
                    "Server bekommen oft eine **Reservierung**: DHCP weist ihnen anhand ihrer "
                    "Client-ID/MAC immer dieselbe Adresse zu. Alternativ kann eine Adresse statisch "
                    "am Gerät konfiguriert sein.",
              "en": "## Lease & Pool\n\nAn address is only assigned **for a "
-                   "period of time** (lease time) and then renewed or released — so "
-                   "addresses aren't permanently lost. The range the server assigns from is "
+                   "period of time** (lease time) and must be renewed before it expires, "
+                   "otherwise it becomes free again — so addresses aren't permanently lost. The range the server assigns from is "
                    "called the **pool** (e.g. `192.168.10.100–199`). Important devices like printers or "
                    "servers often get a **reservation**: DHCP assigns them the same address based on "
                    "their client ID/MAC. Alternatively, an address can be configured statically on the device.",

@@ -27,13 +27,14 @@ const STR = {
 export function Arp({ lang }: { lang: Lang }) {
   const [table, setTable] = useState<Record<string, string>>({})
   const [target, setTarget] = useState(HOSTS[1].ip)
-  const [last, setLast] = useState<ArpResult | null>(null)
+  // target mitspeichern: die Meldung gehört zur gesendeten Anfrage, nicht zum aktuellen Dropdown-Wert
+  const [last, setLast] = useState<(ArpResult & { target: string }) | null>(null)
   const s = STR[lang]
 
   function send() {
     const r = arpResolve(table, target)
     setTable(r.table)
-    setLast(r)
+    setLast({ ...r, target })
   }
 
   const msg = !last
@@ -41,8 +42,8 @@ export function Arp({ lang }: { lang: Lang }) {
     : !last.broadcast
       ? s.hit(last.repliedBy!)
       : last.repliedBy
-        ? s.replied(target, last.repliedBy)
-        : s.unanswered(target)
+        ? s.replied(last.target, last.repliedBy)
+        : s.unanswered(last.target)
 
   return (
     <div className="rounded-2xl border bg-white p-5">
@@ -53,7 +54,7 @@ export function Arp({ lang }: { lang: Lang }) {
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-4">
         {HOSTS.map((h) => {
-          const isTarget = last?.broadcast && h.ip === target
+          const isTarget = last?.broadcast && h.ip === last.target
           const replied = last?.repliedBy === h.mac
           return (
             <div

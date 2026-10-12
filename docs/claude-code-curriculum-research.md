@@ -1,6 +1,6 @@
 # Claude-Code-Workshop: Curriculum-Research
 
-Stand: 20. Juli 2026. Fakten stammen aus offiziellen Anthropic-Dokumenten. Öffentliche Lehrgänge wurden nur als Abgleich der Themenabdeckung verwendet.
+Stand: 20. Juli 2026 (Prioritäten 1–2 sind als `effective-workflows` und `git-collaboration` umgesetzt; 3–4 weiterhin offen). Fakten stammen aus offiziellen Anthropic-Dokumenten. Öffentliche Lehrgänge wurden nur als Abgleich der Themenabdeckung verwendet.
 
 ## Bestehende Abdeckung
 

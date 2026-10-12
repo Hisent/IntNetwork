@@ -123,7 +123,15 @@ NAC_COA_MODULE = {
                    'selbst zu beenden.\n\n'
                    'Beide werden vom Policy-Server initiiert und vom NAS beantwortet — der '
                    'Unterschied liegt darin, ob die Session danach weiterläuft (CoA) oder '
-                   'komplett neu aufgebaut werden muss (Disconnect).',
+                   'komplett neu aufgebaut werden muss (Disconnect).\n\n'
+                   'Für die Praxis wichtig: Die übliche RADIUS-Richtung kehrt sich hier um — '
+                   'der Policy-Server schickt die Anfrage an den NAS (laut RFC 5176 an '
+                   'UDP-Port 3799, Cisco-Geräte nutzen standardmäßig 1700), und der NAS muss '
+                   'ihn dafür ausdrücklich als CoA-Absender zulassen. Viele NAC-Produkte lösen '
+                   'per CoA außerdem eine gezielte Re-Authentifizierung der Session aus, statt '
+                   'Attribute direkt zu überschreiben. Und: Bei einem VLAN-Wechsel braucht das '
+                   'Endgerät eine neue IP-Adresse — ein dACL-Wechsel ist deshalb oft der '
+                   'sanftere Weg.',
              'en': '## Two Message Types: Disconnect and Change of Authorization\n\n'
                    'RFC 5176 distinguishes two message types:\n\n'
                    '- **Disconnect messages (DM)** — Disconnect-Request followed by '
@@ -134,7 +142,14 @@ NAC_COA_MODULE = {
                    'session itself.\n\n'
                    'Both are initiated by the policy server and answered by the NAS — the '
                    'difference lies in whether the session keeps running afterward (CoA) or '
-                   'has to be rebuilt completely (disconnect).',
+                   'has to be rebuilt completely (disconnect).\n\n'
+                   'Important in practice: the usual RADIUS direction is reversed here — the '
+                   'policy server sends the request to the NAS (per RFC 5176 to UDP port 3799, '
+                   'Cisco devices default to 1700), and the NAS must explicitly allow it as a '
+                   'CoA sender. Many NAC products also use CoA to trigger a targeted '
+                   're-authentication of the session instead of overwriting attributes '
+                   'directly. And: on a VLAN change the endpoint needs a new IP address — '
+                   'switching the dACL is therefore often the gentler path.',
          }},
         {'type': 'check',
          'payload': {

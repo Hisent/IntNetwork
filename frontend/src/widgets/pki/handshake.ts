@@ -38,10 +38,12 @@ export const TLS12_STEPS: HandshakeStep[] = [
     from: 'client',
     name: 'ClientKeyExchange, ChangeCipherSpec, Finished',
     detail: {
-      de: 'ClientKeyExchange liefert das Schlüsselmaterial noch im Klartext. ChangeCipherSpec '
+      de: 'ClientKeyExchange liefert den öffentlichen Schlüsseltausch-Wert des Clients noch '
+        + 'unverschlüsselt (unkritisch, er ist öffentlich). ChangeCipherSpec '
         + 'markiert den Wechsel — die anschließende Finished-Nachricht ist bereits mit dem '
         + 'neuen Sitzungsschlüssel verschlüsselt.',
-      en: 'ClientKeyExchange still carries the key material in cleartext. ChangeCipherSpec '
+      en: 'ClientKeyExchange still carries the client\'s public key-exchange value '
+        + 'unencrypted (harmless, it is public). ChangeCipherSpec '
         + 'marks the switch — the following Finished message is already encrypted with the '
         + 'new session key.',
     },

@@ -1,9 +1,8 @@
 # Ansible-Lehrgang, Modul 5/5: Variablen & ihr Vorrang.
 # Quelle der Fakten: research-ansible.md (Abschnitt 1, Modul 5; Abschnitt 2.3 Variablenvorrang;
-# Abschnitt 3, Unsicherheit 1 — die feingranulare 22-Stufen-Liste wird bewusst NICHT verwendet,
-# da sie in der Recherche nicht gegen die offizielle Doku verifiziert werden konnte. Nur die
-# offiziell belegten fünf groben Kategorien sowie die beiden Extrempunkte (Extra-Vars/Rollen-
-# Defaults) werden dargestellt.
+# Abschnitt 3). Die 22-Stufen-Liste steht in der offiziellen Doku (playbook_guide/
+# playbooks_variables.html, "Understanding variable precedence"); das Modul nennt die Eckpunkte
+# und die wichtigsten Zwischenstufen, nicht alle 22.
 
 VARIABLEN_MODULE = {
     'key': 'variablen-vorrang',
@@ -20,16 +19,14 @@ VARIABLEN_MODULE = {
                        'Inventar, im Playbook, in einer Rolle, sogar direkt beim Aufruf auf der '
                        'Kommandozeile. Wenn mehrere dieser Quellen sich widersprechen, gewinnt '
                        'eine davon — und genau das sorgt regelmäßig für die Frage „warum wirkt '
-                       'meine Änderung nicht?”. Dieses Modul zeigt die groben, sicher belegten '
-                       'Regeln dazu, ohne eine übertrieben feingranulare Liste vorzutäuschen, die '
-                       'sich nicht sauber belegen lässt.',
+                       'meine Änderung nicht?”. Dieses Modul zeigt die Regeln, die man dafür '
+                       'wirklich im Kopf haben sollte, und wo die vollständige Liste steht.',
                  'en': 'A variable can be set in Ansible in a great many places — in the '
                        'inventory, in the playbook, in a role, even directly on the command line '
                        'at invocation time. When several of these sources disagree, one of them '
                        'wins — and that is exactly what regularly causes the question "why isn’t '
-                       'my change taking effect?" This module covers the broad, well-established '
-                       'rules, without pretending to a razor-fine list that cannot be cleanly '
-                       'substantiated.'},
+                       'my change taking effect?" This module covers the rules worth keeping '
+                       'in your head, and where the complete list lives.'},
     'blocks': [
         {'type': 'text',
          'value': {'de': '## Variablenquellen im Überblick\n'
@@ -73,8 +70,7 @@ VARIABLEN_MODULE = {
                          '**Configuration settings**, **Command-line options**, **Playbook '
                          'keywords**, **Variables**, **Direct Assignment**.\n'
                          '\n'
-                         'Innerhalb der Kategorie „Variables” gilt zusätzlich eine klare, sicher '
-                         'belegte Faustregel:\n'
+                         'Innerhalb der Kategorie „Variables” gelten zwei feste Eckpunkte:\n'
                          '\n'
                          '- **Extra-Vars** (`-e`/`--extra-vars`) haben die **höchste** Priorität '
                          'aller Variablenquellen — sie überschreiben praktisch alles andere.\n'
@@ -82,13 +78,15 @@ VARIABLEN_MODULE = {
                          'Priorität — sie sind bewusst als leicht überschreibbarer Startwert '
                          'gedacht.\n'
                          '\n'
-                         'Eine sehr feingranulare, oft kursierende Liste mit rund 20 '
-                         'Zwischenstufen zwischen diesen beiden Extremen lässt sich nicht '
-                         'zuverlässig gegen die aktuelle offizielle Dokumentation bestätigen — '
-                         'je nach Ansible-Version und Quelle unterscheiden sich solche Listen im '
-                         'Detail. Für die Praxis reicht meist: „Extra-Vars gewinnt immer, '
-                         'Rollen-Defaults verliert immer, alles dazwischen im Zweifel in der '
-                         'aktuellen Doku nachschlagen.”',
+                         'Dazwischen führt die offizielle Dokumentation („Understanding variable '
+                         'precedence”) insgesamt 22 Stufen auf. Die wichtigsten, von schwach '
+                         'nach stark: Inventar-`group_vars` → Inventar-`host_vars` → Host-Facts '
+                         '→ Play-`vars` → `vars_files` → Rollen-`vars` → Block-/Task-`vars` → '
+                         '`include_vars` → `set_fact`/`register` → Rollen-Parameter. Auswendig '
+                         'können muss das niemand. Für die Praxis reicht meist: Extra-Vars '
+                         'gewinnen immer, Rollen-Defaults verlieren immer, Host schlägt Gruppe, '
+                         'Playbook schlägt Inventar — und den Rest schlägt man in der Doku '
+                         'nach.',
                    'en': '## The broad precedence rule\n'
                          '\n'
                          'The official Ansible documentation names five broad categories, in '
@@ -96,8 +94,7 @@ VARIABLEN_MODULE = {
                          'settings**, **Command-line options**, **Playbook keywords**, '
                          '**Variables**, **Direct Assignment**.\n'
                          '\n'
-                         'Within the "Variables" category, one clear and well-established rule '
-                         'of thumb additionally applies:\n'
+                         'Within the "Variables" category, two fixed end points apply:\n'
                          '\n'
                          '- **Extra-vars** (`-e`/`--extra-vars`) have the **highest** priority of '
                          'all variable sources — they override virtually everything else.\n'
@@ -105,16 +102,18 @@ VARIABLEN_MODULE = {
                          'priority — they are deliberately meant as an easily overridable '
                          'starting value.\n'
                          '\n'
-                         'A very fine-grained list with roughly twenty intermediate steps '
-                         'between these two extremes circulates widely but cannot be reliably '
-                         'confirmed against the current official documentation — such lists '
-                         'differ in detail depending on the Ansible version and source. For '
-                         'practical purposes it is usually enough to remember: "extra-vars '
-                         'always wins, role defaults always lose, and everything in between is '
-                         'worth checking in the current docs when in doubt."'},
-         'note': 'Vor Kursfreigabe/bei Bedarf die feingranulare Stufenliste live an '
-                 'reference_appendices/general_precedence.html gegenlesen, falls Teilnehmende '
-                 'nach mehr Detail fragen — hier bewusst nur die belegten Eckpunkte.'},
+                         'In between, the official documentation ("Understanding variable '
+                         'precedence") lists 22 levels in total. The most important ones, from '
+                         'weak to strong: inventory `group_vars` → inventory `host_vars` → host '
+                         'facts → play `vars` → `vars_files` → role `vars` → block/task `vars` → '
+                         '`include_vars` → `set_fact`/`register` → role params. Nobody needs to '
+                         'know that by heart. For practical purposes it is usually enough to '
+                         'remember: extra-vars always win, role defaults always lose, host '
+                         'beats group, playbook beats inventory — and the rest is worth looking '
+                         'up in the docs.'},
+         'note': 'Vollständige 22-Stufen-Liste: playbook_guide/playbooks_variables.html '
+                 '(„Understanding variable precedence”); die fünf Kategorien stehen in '
+                 'reference_appendices/general_precedence.html. Bei Detailfragen live zeigen.'},
         {'type': 'check',
          'payload': {'kind': 'choice',
                      'prompt_de': 'Für einen Host ist `paket_name: nginx` als Rollen-Default '
@@ -132,17 +131,19 @@ VARIABLEN_MODULE = {
         {'type': 'text', 'id': 'text-lab-variablen',
          'value': {'de': '## Praxis: Vorrang selbst auslösen\n'
                          '\n'
-                         'Wähle im Lab die Vorlage **Variablen-Vorrang**. Sie setzt dieselbe '
-                         'Variable einmal in `vars` und übergibt beim Aufruf zusätzlich einen '
-                         'abweichenden Wert per `extra_vars`. Lass das Playbook laufen und prüfe, '
+                         'Wähle im Lab die Vorlage **Variablen-Vorrang**. Sie setzt eine '
+                         'Variable (`umgebung`) in den Play-`vars`. Lass das Playbook erst so '
+                         'laufen, trage dann im Feld „Extra-Vars” einen abweichenden Wert ein '
+                         '(`umgebung=produktion`), starte erneut und prüfe, '
                          'welcher Wert sich tatsächlich durchsetzt — passt das Ergebnis zur Regel '
                          'oben? Ist das Lab bei euch nicht aktiv, beantworte die Frage anhand des '
                          '`paket_name`-Beispiels oben, statt sie praktisch nachzuvollziehen.',
                    'en': '## Hands-on: triggering precedence yourself\n'
                          '\n'
                          'Choose the **Variable precedence** template in the lab. It sets the '
-                         'same variable once in `vars` and additionally passes a different value '
-                         'at invocation via `extra_vars`. Run the playbook and check which value '
+                         'variable (`umgebung`) in the play `vars`. Run the playbook as is first, '
+                         'then enter a different value in the "Extra vars" field '
+                         '(`umgebung=produktion`), run it again and check which value '
                          'actually wins — does the result match the rule above? If the lab is '
                          'not enabled for you, answer the question using the `paket_name` '
                          'example above instead of trying it hands-on.'}},
@@ -244,7 +245,7 @@ VARIABLEN_MODULE = {
                      'lines_en': ['- name: "{{ paket_name } installieren"',
                                   '  ansible.builtin.package:', '    name: "{{ paket_name }}"',
                                   '    state: present'],
-                     'wrong': [1],
+                     'wrong': [0],
                      'explanation_de': 'Zeile 1 schließt die Jinja2-Referenz mit nur einer '
                                        'schließenden geschweiften Klammer (`}` statt `}}`). '
                                        'Jinja2-Ausdrücke benötigen immer paarige doppelte '
@@ -312,9 +313,8 @@ VARIABLEN_MODULE = {
     'quiz': {'questions': [
         {'id': 'va1',
          'type': 'single',
-         'prompt': {'de': 'Welche Variablenquelle hat laut Recherche die höchste Priorität?',
-                    'en': 'Which variable source has the highest priority according to the '
-                          'documented facts?'},
+         'prompt': {'de': 'Welche Variablenquelle hat die höchste Priorität?',
+                    'en': 'Which variable source has the highest priority?'},
          'answer': 1,
          'options': {'de': ['Rollen-Defaults', 'Extra-Vars (-e/--extra-vars)', 'group_vars',
                             'host_vars'],

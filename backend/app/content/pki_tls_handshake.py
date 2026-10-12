@@ -106,7 +106,7 @@ TLS_HANDSHAKE_MODULE = {
                    'SNI-Hostnamen im ersten `ClientHello`, nicht mehr das Zertifikat.\n\n'
                    'TLS 1.3 entfernt außerdem einige der größten Altlasten von TLS 1.2:\n\n'
                    '- **Statische RSA-Schlüsselübertragung** — dadurch ist Forward Secrecy in TLS 1.3 '
-                   'nicht mehr optional, sondern für **jede** Sitzung garantiert.\n'
+                   'nicht mehr optional, sondern bei **jedem** vollen Handshake garantiert.\n'
                    '- **Kompression** auf TLS-Ebene (Angriffsfläche für Kompressions-Seitenkanäle).\n'
                    '- **Renegotiation** während einer laufenden Sitzung.\n'
                    '- Die schwachen Cipher Suites (RC4, 3DES, CBC-Modi ohne AEAD) — TLS 1.3 kennt nur '
@@ -121,7 +121,7 @@ TLS_HANDSHAKE_MODULE = {
                    '`ClientHello`, not the certificate anymore.\n\n'
                    'TLS 1.3 also removes some of the biggest legacy baggage of TLS 1.2:\n\n'
                    '- **Static RSA key transport** — as a result, Forward Secrecy is no longer '
-                   'optional in TLS 1.3, but guaranteed for **every** session.\n'
+                   'optional in TLS 1.3, but guaranteed for **every** full handshake.\n'
                    '- **Compression** at the TLS layer (attack surface for compression side channels).\n'
                    '- **Renegotiation** during an ongoing session.\n'
                    '- The weak cipher suites (RC4, 3DES, CBC modes without AEAD) — TLS 1.3 only knows '
@@ -180,11 +180,10 @@ TLS_HANDSHAKE_MODULE = {
                    'verschlüsselt ist.\n\n'
                    '**Encrypted Client Hello (ECH)** verschlüsselt den ClientHello inklusive SNI mit '
                    'einem öffentlichen Schlüssel, der über DNS bezogen wird. Der zugrunde liegende '
-                   'Standard wurde als eigener RFC verabschiedet; Firefox unterstützt ECH bereits '
-                   'standardmäßig, setzt dafür aber einen konfigurierten DoH-Server voraus. Bei Chrome '
-                   'befindet sich die Unterstützung im schrittweisen Rollout — der genaue '
-                   'Ausrollungsstand lässt sich derzeit nicht zuverlässig beziffern, und wirksam wird '
-                   'ECH ohnehin nur, wenn der angefragte Server es ebenfalls unterstützt.',
+                   'Standard wurde im März 2026 als **RFC 9849** veröffentlicht. Firefox (seit '
+                   'Version 119) und Chrome (seit Version 117) unterstützen ECH standardmäßig; '
+                   'Firefox setzt dafür einen konfigurierten DoH-Server voraus. Wirksam wird ECH '
+                   'ohnehin nur, wenn der angefragte Server es ebenfalls unterstützt.',
              'en': '## SNI: The Hostname in Plain Text\n\n'
                    'For a server that hosts several HTTPS domains on the same IP address (virtual '
                    'hosting) to know which certificate to present at all, the client sends the '
@@ -194,11 +193,10 @@ TLS_HANDSHAKE_MODULE = {
                    'still see which hostname a client is requesting — even if the rest of the traffic '
                    'is fully encrypted by TLS 1.3.\n\n'
                    '**Encrypted Client Hello (ECH)** encrypts the ClientHello, including SNI, with a '
-                   'public key obtained via DNS. The underlying standard has been finalized as its own '
-                   'RFC; Firefox already supports ECH by default, but requires a configured DoH server '
-                   'for it to work. In Chrome, support is in a gradual rollout — the exact rollout '
-                   'state cannot currently be pinned down reliably, and ECH only takes effect anyway '
-                   'if the requested server also supports it.',
+                   'public key obtained via DNS. The underlying standard was published in March 2026 '
+                   'as **RFC 9849**. Firefox (since version 119) and Chrome (since version 117) '
+                   'support ECH by default; Firefox requires a configured DoH server for it to work. '
+                   'ECH only takes effect anyway if the requested server also supports it.',
          }},
         {'type': 'text',
          'value': {
@@ -232,7 +230,8 @@ TLS_HANDSHAKE_MODULE = {
                    'aufzeichnen und erneut an den Server schicken, der sie unter Umständen ein zweites '
                    'Mal verarbeitet. Deshalb dürfen über 0-RTT ausschließlich **nicht-zustandsändernde** '
                    'Anfragen laufen (klassisches Beispiel: ein HTTP-GET, kein POST, das etwa eine '
-                   'Zahlung auslöst).',
+                   'Zahlung auslöst). Außerdem sind 0-RTT-Daten nur mit einem aus dem Ticket '
+                   'abgeleiteten Schlüssel geschützt und haben deshalb **keine Forward Secrecy**.',
              'en': '## Session Resumption and 0-RTT\n\n'
                    'Running a full handshake for every new connection to the same domain would be '
                    'expensive. That is why mechanisms exist to resume a session:\n\n'
@@ -247,7 +246,8 @@ TLS_HANDSHAKE_MODULE = {
                    'risk: an attacker can record the 0-RTT message and resend it to the server, which '
                    'may process it a second time. That is why only **non-state-changing** requests may '
                    'run over 0-RTT (the classic example: an HTTP GET, not a POST that, say, triggers a '
-                   'payment).',
+                   'payment). In addition, 0-RTT data is protected only by a key derived from the '
+                   'ticket and therefore has **no forward secrecy**.',
          }},
         {'type': 'check',
          'payload': {

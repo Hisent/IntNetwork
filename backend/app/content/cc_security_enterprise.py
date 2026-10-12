@@ -21,8 +21,8 @@ SECURITY_ENTERPRISE_MODULE = {'key': 'security-enterprise',
  'blocks': [{'type': 'text',
              'value': {'de': '## Das Permission-Modell\n'
                              '\n'
-                             'Claude Code fragt standardmäßig um Erlaubnis, bevor es heikle Dinge '
-                             'tut (Dateien schreiben, Kommandos ausführen). Über '
+                             'Im manuellen Modus (`default`) fragt Claude Code um Erlaubnis, bevor '
+                             'es heikle Dinge tut (Dateien schreiben, Kommandos ausführen). Über '
                              '**Permission-Regeln** in `settings.json` steuerst du das '
                              'feingranular in drei Klassen:\n'
                              '\n'
@@ -46,8 +46,8 @@ SECURITY_ENTERPRISE_MODULE = {'key': 'security-enterprise',
                              'entscheidet.',
                        'en': '## The Permission Model\n'
                              '\n'
-                             'By default, Claude Code asks for permission before doing sensitive '
-                             'things (writing files, executing commands). Using **permission '
+                             'In manual mode (`default`), Claude Code asks for permission before '
+                             'doing sensitive things (writing files, executing commands). Using **permission '
                              'rules** in `settings.json`, you control this in fine-grained detail '
                              'across three classes:\n'
                              '\n'
@@ -75,19 +75,27 @@ SECURITY_ENTERPRISE_MODULE = {'key': 'security-enterprise',
              'value': {'de': '## Permission-Modi\n'
                              '\n'
                              'Zusätzlich zu den Regeln gibt es Betriebs-Modi (Modul 4): der '
-                             'Standard-Modus (`default`) fragt nach, der Plan-Modus ändert gar nichts, '
-                             'Accept Edits (`acceptEdits`) übernimmt Edits. Für unbeaufsichtigte Läufe gibt es '
-                             'einen besonders autonomen Modus — der gehört aber **nur** in eine '
+                             'manuelle Modus (`default`) fragt nach, der Plan-Modus ändert gar nichts, '
+                             'Accept Edits (`acceptEdits`) übernimmt Edits, im Auto-Modus (`auto`) '
+                             'prüft ein Klassifikator statt dir — je nach Version, Plan und '
+                             'Organisationsvorgabe ist das bereits der Startmodus. Für '
+                             'unbeaufsichtigte Läufe gibt es zudem '
+                             'einen besonders autonomen Modus (`bypassPermissions`) — der gehört aber **nur** in eine '
                              'isolierte, vertrauenswürdige Umgebung (siehe Sandboxing). '
+                             '`deny`-Regeln gelten in jedem Modus. '
                              'Faustregel: **so viel Autonomie wie nötig, so wenig wie möglich** — '
                              'und je mehr Autonomie, desto stärker die Isolation.',
                        'en': '## Permission Modes\n'
                              '\n'
                              'In addition to the rules, there are operating modes (Module 4): '
-                             'default mode asks for confirmation, plan mode changes nothing at all, '
-                             'acceptEdits takes over edits. For unattended runs there is a '
-                             'particularly autonomous mode — but that belongs **only** in an '
-                             'isolated, trusted environment (see Sandboxing). Rule of thumb: **as '
+                             'manual mode (`default`) asks for confirmation, plan mode changes nothing at all, '
+                             'Accept Edits (`acceptEdits`) applies edits without asking, and in auto mode '
+                             '(`auto`) a classifier reviews actions instead of you — depending on '
+                             'version, plan, and organization policy this is already the starting '
+                             'mode. For unattended runs there is also a '
+                             'particularly autonomous mode (`bypassPermissions`) — but that belongs **only** in an '
+                             'isolated, trusted environment (see Sandboxing). `deny` rules apply '
+                             'in every mode. Rule of thumb: **as '
                              'much autonomy as necessary, as little as possible** — and the more '
                              'autonomy, the stronger the isolation.'}},
             {'type': 'check',
@@ -102,8 +110,10 @@ SECURITY_ENTERPRISE_MODULE = {'key': 'security-enterprise',
                              '\n'
                              '**Sandboxing** kapselt aus, was Claude Code tun kann — '
                              'typischerweise durch Isolation von Dateisystem und Netzwerk, sodass '
-                             'Kommandos nur in einem begrenzten Bereich wirken. Aktiviert wird es '
-                             'über Einstellungen. Für eine Sicherheitsvorgabe muss es **fail-closed** '
+                             'Kommandos nur in einem begrenzten Bereich wirken. Die Sandbox gilt '
+                             'für Shell-Kommandos; Datei-Tools, MCP-Server und Hooks laufen '
+                             'außerhalb. Sie ist standardmäßig aus und wird über `/sandbox` oder '
+                             'die Einstellungen aktiviert. Für eine Sicherheitsvorgabe muss es **fail-closed** '
                              'sein:\n'
                              '\n'
                              '```json\n'
@@ -129,7 +139,10 @@ SECURITY_ENTERPRISE_MODULE = {'key': 'security-enterprise',
                              '\n'
                              '**Sandboxing** encapsulates what Claude Code can do — typically by '
                              'isolating the file system and network so that commands only take '
-                             "effect within a limited scope. For a security policy, configure it "
+                             "effect within a limited scope. The sandbox covers shell commands; "
+                             "file tools, MCP servers, and hooks run outside it. It is off by "
+                             "default and is enabled via `/sandbox` or settings. For a security "
+                             "policy, configure it "
                              "to **fail closed**:\n"
                              '\n'
                              '```json\n'

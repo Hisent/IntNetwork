@@ -77,12 +77,16 @@ DNS_MODULE = {
                    "- **AAAA** — Name → IPv6.\n"
                    "- **CNAME** — Alias auf einen anderen Namen.\n"
                    "- **MX** — Mailserver der Domain.\n\n"
-                   "Findet der autoritative Server keinen Eintrag, kommt **NXDOMAIN** zurück.",
+                   "Existiert der angefragte Name gar nicht, antwortet der autoritative Server mit "
+                   "**NXDOMAIN**. Gibt es den Namen zwar, aber keinen Eintrag des gefragten Typs, "
+                   "kommt eine leere Antwort ohne Fehler zurück (NODATA).",
              "en": "## Important Record Types\n\n- **A** — name → IPv4.\n"
                    "- **AAAA** — name → IPv6.\n"
                    "- **CNAME** — alias to another name.\n"
                    "- **MX** — the domain's mail server.\n\n"
-                   "If the authoritative server finds no entry, it returns **NXDOMAIN**.",
+                   "If the queried name does not exist at all, the authoritative server answers "
+                   "**NXDOMAIN**. If the name exists but has no record of the requested type, "
+                   "an empty answer without an error comes back (NODATA).",
          }},
         {"type": "text",
          "value": {

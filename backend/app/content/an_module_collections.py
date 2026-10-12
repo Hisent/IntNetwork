@@ -214,7 +214,7 @@ MODULE_COLLECTIONS_MODULE = {
                                   'Collections can be installed via ansible-galaxy.',
                                   'ansible-doc only works online through the Ansible website.',
                                   'Automation Hub provides curated, certified collections.'],
-                     'wrong': [3],
+                     'wrong': [2],
                      'explanation_de': '`ansible-doc` liest die Dokumentation aus den lokal '
                                        'installierten Collections und zeigt sie direkt in der '
                                        'Kommandozeile — kein Internetzugriff nötig, sofern die '

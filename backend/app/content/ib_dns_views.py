@@ -95,7 +95,7 @@ DNS_VIEWS_MODULE = {
                  'Both views contain the zone nordwind-intern.de',
                  'The internal view returns 10.20.30.5 for app.nordwind-intern.de',
              ],
-             'wrong': [1],
+             'wrong': [0],
              'explanation_de': 'View 1 (`external`, match: any) steht vor View 2 und passt auf '
                                '**jede** Anfrage, auch auf die des internen Clients. NIOS wählt die '
                                'erste passende View — der interne Client bekommt also die '

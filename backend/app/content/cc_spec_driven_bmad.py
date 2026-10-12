@@ -34,9 +34,9 @@ SPEC_DRIVEN_BMAD_MODULE = {'key': 'spec-driven-bmad',
                              '- entsteht ein Artefakt, das Menschen reviewen und wiederverwenden '
                              'können.\n'
                              '\n'
-                             '> Genau so ist übrigens dieses Kurs-Repo entstanden — als '
-                             'Design-Spec und Roadmap (`docs/curriculum/`), bevor die Module '
-                             'geschrieben wurden.',
+                             '> So entstehen übrigens auch Kursinhalte wie diese — zuerst als '
+                             'Design-Spec und Roadmap, bevor die einzelnen Module '
+                             'geschrieben werden.',
                        'en': '## Why spec-driven?\n'
                              '\n'
                              'An LLM is only as good as its context (Module 1). Throw a vague task '
@@ -50,9 +50,9 @@ SPEC_DRIVEN_BMAD_MODULE = {'key': 'spec-driven-bmad',
                              '- the agent gets a precise, verifiable assignment;\n'
                              '- you end up with an artifact that people can review and reuse.\n'
                              '\n'
-                             '> This is in fact how this course repo itself came about — as a '
-                             'design spec and roadmap (`docs/curriculum/`), before the modules '
-                             'were written.'},
+                             '> This is how course content like this comes about, too — first as a '
+                             'design spec and roadmap, before the individual modules '
+                             'are written.'},
              'note': 'Eine 6-Zeilen-Spec gemeinsam schreiben und direkt in den Plan-Modus geben.'},
             {'type': 'text',
              'value': {'de': '## Der Ablauf: Spec → Plan → Umsetzung → Review\n'

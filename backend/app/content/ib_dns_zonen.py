@@ -168,12 +168,14 @@ DNS_ZONEN_MODULE = {
                    'Server (z. B. beim ISP) läuft als zusätzlicher Sekundärserver für Redundanz.\n'
                    '- **Mit externen Primären** — die Zone wird extern primär gehalten (z. B. bei '
                    'einem Provider), ein oder mehrere Grid-Member laufen als Sekundär.\n\n'
-                   'Sekundärserver erhalten ihre Zonendaten über einen **Zonentransfer**: entweder '
+                   'Sekundärserver außerhalb des Grids (und Grid-Member, die von einem externen Primär '
+                   'laden) erhalten ihre Zonendaten über einen **Zonentransfer**: entweder '
                    'als vollständige Kopie (**AXFR**) oder — wenn beide Seiten das unterstützen — nur '
                    'die Änderungen seit dem letzten bekannten Stand (**IXFR**). Wer eine Zone per '
                    'Zonentransfer laden darf, muss ausdrücklich erlaubt werden — üblich ist eine '
                    'Freigabe für genau die IP-Adresse des jeweiligen Sekundärservers, nicht für '
-                   'beliebige Clients.',
+                   'beliebige Clients. Zwischen Grid-Membern geschieht der Abgleich dagegen standardmäßig '
+                   'über die Grid-Replikation statt über Zonentransfers.',
              'en': '## Name Server Groups\n\n'
                    'A **Name Server Group** is a reusable template that defines which servers are '
                    'responsible for a zone — useful when many zones share the same pattern of '
@@ -184,11 +186,14 @@ DNS_ZONEN_MODULE = {
                    'server (e.g. at the ISP) runs as an additional secondary for redundancy.\n'
                    '- **With external primaries** — the zone is held primary externally (e.g. at a '
                    'provider), one or more Grid members run as secondary.\n\n'
-                   'Secondary servers receive their zone data through a **zone transfer**: either as '
+                   'Secondary servers outside the Grid (and Grid members that load from an external '
+                   'primary) receive their zone data through a **zone transfer**: either as '
                    'a full copy (**AXFR**) or — if both sides support it — only the changes since the '
                    'last known state (**IXFR**). Who is allowed to load a zone via zone transfer '
                    'must be explicitly permitted — the usual approach is to allow exactly the IP '
-                   'address of that particular secondary server, not arbitrary clients.',
+                   'address of that particular secondary server, not arbitrary clients. Between Grid '
+                   'members, by contrast, zone data is synchronized by default through Grid '
+                   'replication rather than zone transfers.',
          }},
         {'type': 'debug',
          'payload': {
@@ -210,7 +215,7 @@ DNS_ZONEN_MODULE = {
                  '9.30.20.10.in-addr.arpa. IN PTR web.nordwind-intern.de.',
                  'nordwind-intern.de.      IN MX 10 mail.nordwind-intern.de.',
              ],
-             'wrong': [4],
+             'wrong': [3],
              'explanation_de': 'Der PTR-Eintrag für `10.20.30.9` zeigt auf `web.nordwind-intern.de`, '
                                'obwohl der zugehörige A-Record `mail.nordwind-intern.de` heißt. '
                                'Forward- und Reverse-Eintrag passen nicht zusammen. Ein Host-Objekt '

@@ -93,9 +93,10 @@ ARP_MODULE = {
                               "cache keeps switching.",
         }},
         {"type": "widget", "id": "visual-arp-resolution",
-         "note": "DE: Lokales und entferntes Ziel vergleichen: ARP ermittelt die Ziel-MAC "
-                 "oder die Gateway-MAC. EN: Compare local and remote targets: ARP resolves "
-                 "the destination MAC or the gateway MAC."},
+         "note": "DE: Die Auflösung der Gateway-MAC (192.168.10.1) Schritt für Schritt "
+                 "durchgehen: Broadcast-Request, Unicast-Reply, Cache-Eintrag. EN: Step through "
+                 "resolving the gateway MAC (192.168.10.1): broadcast request, unicast reply, "
+                 "cache entry."},
         {"type": "text",
          "value": {
              "de": "## ARP nur im eigenen Netz\n\nARP funktioniert **nur "

@@ -145,33 +145,35 @@ DNS_HA_MODULE = {
                           'wrong with this statement?',
              'lines_de': [
                  'Anycast verteilt DNS-Anfragen über mehrere gleichwertige Grid-Member per Routing',
-                 'Grid-HA betrifft die Grid-Master-Rolle (Konfigurationsebene), nicht den '
-                 'DNS-Dienst auf Membern',
+                 'Ein Grid-HA-Paar ist Active/Passive: nur der aktive Knoten bedient die '
+                 'gemeinsame virtuelle IP',
                  'Anycast beruht auf einem Active/Passive-Partner wie beim Grid-HA-Paar',
                  'Fällt ein Anycast-Member aus, übernehmen die verbleibenden Member über '
                  'Routing-Konvergenz',
              ],
              'lines_en': [
                  'Anycast distributes DNS requests across several equal Grid members via routing',
-                 'Grid HA concerns the Grid Master role (configuration plane), not the DNS service '
-                 'on members',
+                 'A Grid HA pair is active/passive: only the active node serves the shared '
+                 'virtual IP',
                  'Anycast relies on an active/passive partner like the Grid HA pair',
                  'If an Anycast member fails, the remaining members take over via routing '
                  'convergence',
              ],
-             'wrong': [3],
+             'wrong': [2],
              'explanation_de': 'Anycast ist kein Active/Passive-Paar. Alle teilnehmenden '
                                'Grid-Member sind gleichzeitig aktiv und beantworten Anfragen; '
                                'welcher Member eine konkrete Anfrage bekommt, entscheidet das '
                                'Routing, nicht ein Failover-Mechanismus wie beim Grid-HA-Paar. '
-                               'Grid-HA (Modul „Grid-Architektur“) betrifft ausschließlich die '
-                               'Rolle des Grid Masters, nicht die Verteilung des DNS-Dienstes selbst.',
+                               'Ein Grid-HA-Paar (Modul „Grid-Architektur“) sichert dagegen genau '
+                               'einen Knoten ab — den Grid Master oder ein einzelnes Member — und '
+                               'verteilt keine Anfragen über Standorte.',
              'explanation_en': 'Anycast is not an active/passive pair. All participating Grid '
                                'members are simultaneously active and answer requests; which member '
                                'gets a specific request is decided by routing, not by a failover '
-                               'mechanism like the Grid HA pair. Grid HA (the "Grid Architecture" '
-                               'module) concerns only the role of the Grid Master, not the '
-                               'distribution of the DNS service itself.',
+                               'mechanism like the Grid HA pair. A Grid HA pair (the "Grid '
+                               'Architecture" module), by contrast, protects exactly one node — the '
+                               'Grid Master or a single member — and does not distribute requests '
+                               'across sites.',
          }},
         {'type': 'reveal',
          'payload': {
@@ -281,15 +283,15 @@ DNS_HA_MODULE = {
          'options': {
              'de': [
                  'Nichts, beide Konzepte sind identisch',
-                 'Grid-HA betrifft die Grid-Master-Rolle (Active/Passive), Anycast verteilt '
-                 'Anfragen über mehrere gleichzeitig aktive Member per Routing',
+                 'Ein Grid-HA-Paar ist Active/Passive und sichert einen einzelnen Knoten ab, '
+                 'Anycast verteilt Anfragen über mehrere gleichzeitig aktive Member per Routing',
                  'Anycast gibt es nur für DHCP, nicht für DNS',
                  'Grid-HA existiert nur in Kombination mit Anycast',
              ],
              'en': [
                  'Nothing, both concepts are identical',
-                 'Grid HA concerns the Grid Master role (active/passive), Anycast distributes '
-                 'requests across several simultaneously active members via routing',
+                 'A Grid HA pair is active/passive and protects a single node, Anycast '
+                 'distributes requests across several simultaneously active members via routing',
                  'Anycast only exists for DHCP, not for DNS',
                  'Grid HA only exists in combination with Anycast',
              ],

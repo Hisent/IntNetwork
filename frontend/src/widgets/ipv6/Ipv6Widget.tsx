@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { expand, compress, classify } from '@/widgets/ipv6/ipv6'
+import { expand, compress, classify, isValid } from '@/widgets/ipv6/ipv6'
 import { ChallengeBox } from '@/components/ChallengeBox'
 import type { Lang } from '@/lib/i18n'
 
@@ -24,7 +24,7 @@ export function Ipv6({ lang }: { lang: Lang }) {
   try {
     full = expand(addr)
     short = compress(addr)
-    ok = /^[0-9a-f:]+$/.test(addr.trim().toLowerCase()) && full.split(':').length === 8
+    ok = isValid(addr)
   } catch {
     ok = false
   }

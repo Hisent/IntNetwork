@@ -105,7 +105,8 @@ SUBNETTING_MODULE = {
                    "Paket geht zuerst an das **Standard-Gateway** (den Router), der es weiterleitet.\n\n"
                    "Beispiel: `192.168.10.37/24` erreicht `192.168.10.80` direkt. Für "
                    "`192.168.20.80` sendet es den Frame zunächst an `192.168.10.1`, das Gateway. "
-                   "Diese Weiterleitung zwischen Netzen ist das Thema des nächsten Moduls: **Routing**.",
+                   "Wie der Host dafür die passende MAC-Adresse findet, zeigt das nächste Modul "
+                   "(**ARP**); die Weiterleitung zwischen Netzen ist danach Thema von **Routing**.",
              "en": "## Is the Destination on the Same Network?\n\nBefore sending a packet, "
                    "a device checks whether the destination IP belongs to its own subnet. It does "
                    "this by calculating the network part for **its own IP** and the **destination IP** "
@@ -116,7 +117,8 @@ SUBNETTING_MODULE = {
                    "goes to the **default gateway** (the router), which forwards it.\n\n"
                    "Example: `192.168.10.37/24` reaches `192.168.10.80` directly. For "
                    "`192.168.20.80`, it first sends the frame to `192.168.10.1`, the gateway. "
-                   "Forwarding between networks is the next module's topic: **routing**.",
+                   "How the host finds the matching MAC address is covered in the next module "
+                   "(**ARP**); forwarding between networks is then the topic of **routing**.",
          }},
     ],
     "quiz": {"questions": [

@@ -30,8 +30,8 @@ function runPortsCommand(lang: Lang, cmd: string): string {
     if (OPEN_PORTS[port]) return `Trying 192.168.10.20:${port}…\nConnected to intranet.\n${OPEN_PORTS[port]}`
     if (port === 53) {
       return lang === 'de'
-        ? 'Trying 192.168.10.20:53…\nConnection refused.\n(DNS läuft über UDP — telnet spricht nur TCP.)'
-        : 'Trying 192.168.10.20:53…\nConnection refused.\n(DNS runs over UDP — telnet only speaks TCP.)'
+        ? 'Trying 192.168.10.20:53…\nConnection refused.\n(Auf diesem Host läuft kein DNS-Server. Merke: DNS nutzt meist UDP 53, telnet testet nur TCP.)'
+        : 'Trying 192.168.10.20:53…\nConnection refused.\n(No DNS server runs on this host. Note: DNS mostly uses UDP 53, telnet only tests TCP.)'
     }
     return `Trying 192.168.10.20:${port}…\nConnection refused.`
   }

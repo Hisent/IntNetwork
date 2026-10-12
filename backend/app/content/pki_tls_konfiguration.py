@@ -33,8 +33,9 @@ TLS_KONFIGURATION_MODULE = {
                    'Bausteine in einem Namen:\n\n'
                    '- **ECDHE** — der Schlüsseltausch (elliptic-curve Diffie-Hellman, ephemer, also mit '
                    'Forward Secrecy).\n'
-                   '- **RSA** — die Authentifizierung: Mit diesem Verfahren ist der Serverschlüssel im '
-                   'Zertifikat signiert.\n'
+                   '- **RSA** — die Authentifizierung: Der Server weist sich mit einem RSA-Schlüssel '
+                   'aus — sein Zertifikat enthält einen RSA-Schlüssel, mit dem er den Schlüsseltausch '
+                   'signiert.\n'
                    '- **AES_128_GCM** — die Verschlüsselung und ihr Modus: AES mit 128 Bit Schlüssellänge '
                    'im GCM-Modus (AEAD, siehe Modul zur symmetrischen Verschlüsselung).\n'
                    '- **SHA256** — der Hash-Algorithmus, der für das Handshake-MAC/PRF verwendet wird.\n\n'
@@ -46,8 +47,8 @@ TLS_KONFIGURATION_MODULE = {
                    'building blocks in one string:\n\n'
                    '- **ECDHE** — the key exchange (elliptic-curve Diffie-Hellman, ephemeral, i.e. with '
                    'forward secrecy).\n'
-                   '- **RSA** — the authentication: this is the algorithm the server key is signed with '
-                   'in the certificate.\n'
+                   '- **RSA** — the authentication: the server proves its identity with an RSA key — '
+                   'its certificate contains an RSA key, which it uses to sign the key exchange.\n'
                    '- **AES_128_GCM** — the encryption and its mode: AES with a 128-bit key length in '
                    'GCM mode (AEAD, see the symmetric encryption module).\n'
                    '- **SHA256** — the hash algorithm used for the handshake MAC/PRF.\n\n'
@@ -62,8 +63,8 @@ TLS_KONFIGURATION_MODULE = {
                    'SHA256`: Sie benennt nur noch **Verschlüsselung** und **Hash**. Schlüsseltausch und '
                    'Authentifizierung sind hier nicht mehr Teil der Suite, weil sie in TLS 1.3 getrennt '
                    'verhandelt werden — der Schlüsseltausch läuft über die `key_share`-Erweiterung '
-                   '(immer ephemer, siehe Handshake-Modul), die Authentifizierung über die im '
-                   'Zertifikat verankerten Signaturalgorithmen. Wer eine TLS-1.3-Suite liest, muss also '
+                   '(immer ephemer, siehe Handshake-Modul), die Authentifizierung über das '
+                   'Zertifikat und die Erweiterung `signature_algorithms`. Wer eine TLS-1.3-Suite liest, muss also '
                    'wissen: Die alten Namensbestandteile ECDHE/RSA/ECDSA stehen hier schlicht nicht mehr '
                    'in der Suite selbst, obwohl sie im Handshake weiterhin eine Rolle spielen.',
              'en': '## TLS 1.3: The Suite Gets Leaner\n\n'
@@ -71,8 +72,8 @@ TLS_KONFIGURATION_MODULE = {
                    'it only names **encryption** and **hash**. Key exchange and authentication are no '
                    'longer part of the suite here, because in TLS 1.3 they are negotiated separately — '
                    'the key exchange runs via the `key_share` extension (always ephemeral, see the '
-                   'handshake module), authentication via the signature algorithms anchored in the '
-                   'certificate. So reading a TLS 1.3 suite means knowing: the old name components '
+                   'handshake module), authentication via the certificate and the '
+                   '`signature_algorithms` extension. So reading a TLS 1.3 suite means knowing: the old name components '
                    'ECDHE/RSA/ECDSA simply no longer appear in the suite itself, even though they still '
                    'play a role in the handshake.',
          }},
@@ -105,8 +106,9 @@ TLS_KONFIGURATION_MODULE = {
                    '- **intermediate** — TLS 1.2 und TLS 1.3, aber bei TLS 1.2 ausschließlich '
                    'ECDHE-Suiten mit AES-GCM oder ChaCha20-Poly1305. Der praxisübliche Standardwert für '
                    'die meisten öffentlichen Dienste.\n'
-                   '- **old** — Legacy-Kompatibilität für sehr alte Clients, hier ausdrücklich nicht '
-                   'empfohlen.\n\n'
+                   '- **old** — Legacy-Kompatibilität für sehr alte Clients (lässt noch TLS 1.0/1.1 '
+                   'zu), hier ausdrücklich nicht empfohlen; in der aktuellen Fassung der Leitlinie '
+                   '(Version 6.0) wurde dieses Profil gestrichen.\n\n'
                    'Das Auswahlkriterium ist immer dasselbe: **welchen Kreis von Clients muss der '
                    'Dienst noch bedienen?** Nur wenn belegbar ist, dass ausschließlich moderne Clients '
                    'zugreifen, ist "modern" die richtige Wahl — im Zweifel ist "intermediate" der '
@@ -118,8 +120,9 @@ TLS_KONFIGURATION_MODULE = {
                    'Fits when only modern clients need to be served.\n'
                    '- **intermediate** — TLS 1.2 and TLS 1.3, but for TLS 1.2 exclusively ECDHE suites '
                    'with AES-GCM or ChaCha20-Poly1305. The common default for most public services.\n'
-                   '- **old** — legacy compatibility for very old clients, explicitly not recommended '
-                   'here.\n\n'
+                   '- **old** — legacy compatibility for very old clients (still allows TLS 1.0/1.1), '
+                   'explicitly not recommended here; the current version of the guideline (version '
+                   '6.0) has removed this profile.\n\n'
                    'The selection criterion is always the same: **which range of clients does the '
                    'service still have to serve?** Only if it can be shown that exclusively modern '
                    'clients connect is "modern" the right choice — when in doubt, "intermediate" is the '
@@ -158,7 +161,8 @@ TLS_KONFIGURATION_MODULE = {
          'value': {
              'de': '## Die Preload-Falle\n\n'
                    'Für die Aufnahme in die Preload-Liste gilt: `max-age` muss mindestens ein Jahr '
-                   '(`31536000`) betragen und `includeSubDomains` muss gesetzt sein. Die Preload-Liste '
+                   '(`31536000`) betragen, `includeSubDomains` und die Direktive `preload` müssen '
+                   'gesetzt sein. Die Preload-Liste '
                    'wird direkt in den Browser einkompiliert — der Browser erzwingt HTTPS für diese '
                    'Domain also schon **vor der allerersten Anfrage**, ganz ohne vorherigen Header-'
                    'Empfang.\n\n'
@@ -169,7 +173,8 @@ TLS_KONFIGURATION_MODULE = {
                    'Subdomains dauerhaft HTTPS-fähig sind, bevor der Header gesetzt wird.',
              'en': '## The Preload Trap\n\n'
                    'To be included in the preload list, `max-age` must be at least one year '
-                   '(`31536000`) and `includeSubDomains` must be set. The preload list is compiled '
+                   '(`31536000`), and `includeSubDomains` as well as the `preload` directive must be '
+                   'set. The preload list is compiled '
                    'directly into the browser — so the browser enforces HTTPS for that domain **before '
                    'the very first request**, with no prior header ever having been received.\n\n'
                    'That is exactly the trap: once a domain has landed in a browser\'s preload list, '
@@ -221,7 +226,8 @@ TLS_KONFIGURATION_MODULE = {
                    'Eine moderne TLS-Serverkonfiguration schließt aus:\n\n'
                    '- **TLS 1.0 und TLS 1.1** — formal deprecatet seit RFC 8996 (siehe Handshake-Modul).\n'
                    '- **RC4** — als Cipher in TLS verboten.\n'
-                   '- **3DES** — nur noch als unteres Sicherheits-Minimum eingestuft, gilt als auslaufend.\n'
+                   '- **3DES** — 64-Bit-Blockgröße (Sweet32-Angriff), von NIST seit Ende 2023 für '
+                   'neue Verschlüsselung nicht mehr zugelassen.\n'
                    '- **Statisches RSA** als Schlüsseltausch — kein Forward Secrecy.\n'
                    '- **Kompression** auf TLS-Ebene — Angriffsfläche für Seitenkanäle.\n\n'
                    'Wer eine bestehende Konfiguration prüft, sollte gezielt nach genau diesen Punkten '
@@ -231,8 +237,8 @@ TLS_KONFIGURATION_MODULE = {
                    '- **TLS 1.0 and TLS 1.1** — formally deprecated since RFC 8996 (see the handshake '
                    'module).\n'
                    '- **RC4** — banned as a cipher in TLS.\n'
-                   '- **3DES** — now classified only as the lower security minimum, considered on its '
-                   'way out.\n'
+                   '- **3DES** — 64-bit block size (Sweet32 attack), disallowed by NIST for new '
+                   'encryption since the end of 2023.\n'
                    '- **Static RSA** as key exchange — no forward secrecy.\n'
                    '- **Compression** at the TLS layer — attack surface for side channels.\n\n'
                    'Anyone reviewing an existing configuration should specifically look for exactly '
@@ -261,27 +267,27 @@ TLS_KONFIGURATION_MODULE = {
              'lines_de': [
                  'Die Zeile ssl_protocols aktiviert weiterhin TLS 1.0 und TLS 1.1, die formal deprecatet sind',
                  'Die konfigurierten Cipher Suites nutzen ausschließlich ECDHE und AES-GCM, das ist unproblematisch',
-                 'Der HSTS-Header ist bereits preload-tauglich konfiguriert, weil max-age und includeSubDomains gesetzt sind',
+                 'Der HSTS-Header erfüllt mit einem Jahr max-age und includeSubDomains zwei Preload-Voraussetzungen, die preload-Direktive fehlt aber noch',
                  'Diese Konfiguration ist insgesamt bereits vollständig konform zu einem modernen Mozilla-Profil',
              ],
              'lines_en': [
                  'The ssl_protocols line still enables TLS 1.0 and TLS 1.1, which are formally deprecated',
                  'The configured cipher suites use exclusively ECDHE and AES-GCM, which is unproblematic',
-                 'The HSTS header is already preload-ready, because max-age and includeSubDomains are set',
+                 'With a one-year max-age and includeSubDomains, the HSTS header meets two preload requirements, but the preload directive is still missing',
                  'This configuration is already fully compliant with a modern Mozilla profile overall',
              ],
              'wrong': [3],
-             'explanation_de': 'Aussage 3 ist falsch (und damit die gesuchte Antwort): Zwar sind Cipher '
+             'explanation_de': 'Aussage 4 ist falsch (und damit die gesuchte Antwort): Zwar sind Cipher '
                                'Suites und HSTS-Grundwerte in Ordnung, aber `ssl_protocols` aktiviert '
                                'noch TLS 1.0 und TLS 1.1 — das widerspricht sowohl RFC 8996 als auch '
-                               'jedem der drei Mozilla-Profile. Vor "vollständig konform" müsste diese '
+                               'den Mozilla-Profilen modern und intermediate. Vor "vollständig konform" müsste diese '
                                'Zeile zuerst auf `TLSv1.2 TLSv1.3` (intermediate) oder `TLSv1.3` (modern) '
                                'korrigiert werden. Der `preload`-Zusatz im Header fehlt außerdem noch, '
                                'falls die Domain tatsächlich in die Preload-Liste soll.',
-             'explanation_en': 'Statement 3 is false (and thus the answer sought): the cipher suites and '
+             'explanation_en': 'Statement 4 is false (and thus the answer sought): the cipher suites and '
                                'the basic HSTS values are fine, but `ssl_protocols` still enables TLS '
-                               '1.0 and TLS 1.1 — that contradicts both RFC 8996 and every one of the '
-                               'three Mozilla profiles. Before calling this "fully compliant", that line '
+                               '1.0 and TLS 1.1 — that contradicts both RFC 8996 and the Mozilla '
+                               'profiles modern and intermediate. Before calling this "fully compliant", that line '
                                'would first need to be fixed to `TLSv1.2 TLSv1.3` (intermediate) or '
                                '`TLSv1.3` (modern). The `preload` directive is also still missing from '
                                'the header if the domain is actually meant to join the preload list.',
@@ -289,18 +295,22 @@ TLS_KONFIGURATION_MODULE = {
         {'type': 'text',
          'value': {
              'de': '## Kurz auch: OCSP-Stapling und vollständige Kette\n\n'
-                   'Zwei weitere Punkte, die in keiner Serverkonfiguration fehlen sollten:\n\n'
-                   '- **OCSP-Stapling einschalten** — der Server liefert die Widerrufsauskunft direkt '
-                   'mit dem Handshake mit, statt dass jeder Client sie einzeln beim OCSP-Responder '
-                   'abfragen muss.\n'
+                   'Zwei weitere Punkte, die bei jeder Serverkonfiguration geprüft werden sollten:\n\n'
+                   '- **OCSP-Stapling einschalten, sofern die CA noch OCSP anbietet** — der Server '
+                   'liefert die Widerrufsauskunft direkt mit dem Handshake mit, statt dass jeder '
+                   'Client sie einzeln beim OCSP-Responder abfragen muss. Bei Zertifikaten ohne '
+                   'OCSP-URL (z. B. von Let\'s Encrypt seit 2025, siehe Modul zu Widerruf) gibt es '
+                   'nichts mehr zu stapeln.\n'
                    '- **Zertifikatskette vollständig ausliefern** — der Server muss neben dem '
                    'Leaf-Zertifikat auch die Intermediate-Zertifikate mitschicken, sonst scheitert die '
                    'Prüfung bei Clients, die das Intermediate nicht bereits im lokalen Cache haben.',
              'en': '## Briefly Also: OCSP Stapling and the Complete Chain\n\n'
-                   'Two more points that should not be missing from any server configuration:\n\n'
-                   '- **Enable OCSP stapling** — the server delivers the revocation information '
-                   'directly along with the handshake, instead of every client having to query the '
-                   'OCSP responder individually.\n'
+                   'Two more points that should be checked in every server configuration:\n\n'
+                   '- **Enable OCSP stapling, provided the CA still offers OCSP** — the server '
+                   'delivers the revocation information directly along with the handshake, instead of '
+                   'every client having to query the OCSP responder individually. For certificates '
+                   'without an OCSP URL (e.g. from Let\'s Encrypt since 2025, see the revocation '
+                   'module) there is nothing left to staple.\n'
                    '- **Deliver the complete certificate chain** — besides the leaf certificate, the '
                    'server must also send the intermediate certificates, otherwise verification fails '
                    'for clients that do not already have the intermediate cached locally.',

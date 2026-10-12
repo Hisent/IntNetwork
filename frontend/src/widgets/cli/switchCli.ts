@@ -56,21 +56,21 @@ function showMacTable(ports: Port[]): string {
   return lines.join('\n')
 }
 
-const HELP = [
-  'Verfügbare Befehle:',
+const help = (lang: 'de' | 'en') => [
+  lang === 'de' ? 'Verfügbare Befehle:' : 'Available commands:',
   '  show vlan',
   '  show running-config',
   '  show interfaces status',
   '  show mac address-table',
 ].join('\n')
 
-export function runSwitchCommand(ports: Port[], raw: string): string {
+export function runSwitchCommand(ports: Port[], raw: string, lang: 'de' | 'en' = 'de'): string {
   const cmd = raw.trim().toLowerCase().replace(/\s+/g, ' ')
   if (!cmd) return ''
-  if (cmd === '?' || cmd === 'help') return HELP
+  if (cmd === '?' || cmd === 'help') return help(lang)
   if (cmd === 'show vlan' || cmd === 'show vlan brief') return showVlan(ports)
   if (cmd === 'show running-config' || cmd === 'show run') return showRunningConfig(ports)
   if (cmd === 'show interfaces status' || cmd === 'show int status') return showInterfacesStatus(ports)
   if (cmd === 'show mac address-table') return showMacTable(ports)
-  return '% Invalid input detected\nTippe ? für die Befehlsliste.'
+  return `% Invalid input detected\n${lang === 'de' ? 'Tippe ? für die Befehlsliste.' : 'Type ? for the command list.'}`
 }

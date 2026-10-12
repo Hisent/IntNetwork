@@ -60,7 +60,8 @@ DHCP_FAILOVER_MODULE = {
                     'Diese beiden Begriffe werden in der Praxis häufig durcheinander '
                     'gebracht — dabei stecken unterschiedliche Mechanismen dahinter:\n'
                     '\n'
-                    '- **Grid-HA-Paar** — sichert den **Grid Master** selbst ab. Zwei '
+                    '- **Grid-HA-Paar** — sichert **einen einzelnen Grid-Knoten** ab '
+                    '(den Grid Master oder ein Member). Zwei '
                     'Geräte, Active/Passive: Der passive Partner übernimmt nur bei '
                     'Ausfall des aktiven, er beantwortet im Normalbetrieb keine eigenen '
                     'Anfragen.\n'
@@ -77,7 +78,8 @@ DHCP_FAILOVER_MODULE = {
                     'These two terms are frequently mixed up in practice — yet they are '
                     'different mechanisms:\n'
                     '\n'
-                    '- **Grid-HA pair** — protects the **Grid Master** itself. Two '
+                    '- **Grid-HA pair** — protects **a single Grid node** (the Grid '
+                    'Master or a member). Two '
                     'devices, active/passive: the passive partner only takes over if the '
                     'active one fails; it does not answer any requests of its own during '
                     'normal operation.\n'
@@ -146,12 +148,15 @@ DHCP_FAILOVER_MODULE = {
                     'markiert; der verbleibende Server darf den gesamten Adresspool '
                     'übernehmen.\n'
                     '\n'
-                    'Die **MCLT (Maximum Client Lead Time)** bestimmt dabei, wie lange '
-                    'der verbleibende Server nach dem Wechsel in „Partner Down” Leases '
-                    'eigenständig verlängern darf, bevor er sie vollständig als eigene '
-                    'betrachtet. Ein kürzeres MCLT beschleunigt die Erholung des '
-                    'Adressraums nach einem echten Ausfall, ein längeres MCLT bedeutet '
-                    'mehr Vorsicht, aber eine langsamere volle Übernahme.'),
+                    'Die **MCLT (Maximum Client Lead Time)** ist die Zeitspanne, um die '
+                    'ein Peer eine Lease höchstens vergeben oder verlängern darf, ohne '
+                    'dass der Partner davon weiß. Nach dem Wechsel in „Partner Down” '
+                    'wartet der verbleibende Server deshalb erst die MCLT ab, bevor er '
+                    'die Adressen des Partners als eigene betrachtet. Ein kürzeres MCLT '
+                    'beschleunigt die Erholung des Adressraums nach einem echten '
+                    'Ausfall, erzeugt aber mehr Erneuerungs-Last, solange die Peers '
+                    'nicht kommunizieren; ein längeres MCLT bedeutet eine langsamere '
+                    'volle Übernahme.'),
              'en': ('## States of a Failover Pair and MCLT\n'
                     '\n'
                     'A failover pair moves through several states during operation, '
@@ -168,12 +173,14 @@ DHCP_FAILOVER_MODULE = {
                     'failed; the remaining server is allowed to take over the entire '
                     'address pool.\n'
                     '\n'
-                    'The **MCLT (Maximum Client Lead Time)** determines how long the '
-                    'remaining server may extend leases on its own after switching to '
-                    '“Partner Down”, before treating them as fully its own. A shorter '
-                    'MCLT speeds up recovery of the address space after a genuine '
-                    'failure; a longer MCLT means more caution, but a slower full '
-                    'takeover.'),
+                    'The **MCLT (Maximum Client Lead Time)** is the maximum time by '
+                    'which a peer may grant or extend a lease without its partner '
+                    'knowing about it. After switching to “Partner Down”, the '
+                    'remaining server therefore waits out the MCLT before treating '
+                    'the partner\'s addresses as its own. A shorter MCLT speeds up '
+                    'recovery of the address space after a genuine failure, but '
+                    'causes more renewal load while the peers cannot communicate; a '
+                    'longer MCLT means a slower full takeover.'),
          }},
         {'type': 'check',
          'payload': {
@@ -266,22 +273,22 @@ DHCP_FAILOVER_MODULE = {
                     'en': 'What fundamentally distinguishes a DHCP failover pair from a Grid-HA pair?'},
          'answer': 1,
          'options': {'de': ['Es gibt keinen Unterschied, beide meinen dasselbe',
-                            'Ein Failover-Paar ist Active/Active und bedient gemeinsam einen Adresspool, ein Grid-HA-Paar ist Active/Passiv und sichert den Grid Master ab',
+                            'Ein Failover-Paar ist Active/Active und bedient gemeinsam einen Adresspool, ein Grid-HA-Paar ist Active/Passive und sichert einen einzelnen Grid-Knoten (z. B. den Grid Master) ab',
                             'Ein Failover-Paar sichert nur DNS ab, kein DHCP',
                             'Ein Grid-HA-Paar existiert nur bei virtuellen Appliances'],
                      'en': ['There is no difference, both mean the same thing',
-                            'A failover pair is active/active and jointly serves an address pool; a Grid-HA pair is active/passive and protects the Grid Master',
+                            'A failover pair is active/active and jointly serves an address pool; a Grid-HA pair is active/passive and protects a single Grid node (e.g. the Grid Master)',
                             'A failover pair only protects DNS, not DHCP',
                             'A Grid-HA pair only exists for virtual appliances']}},
         {'id': 'df2', 'type': 'single',
          'prompt': {'de': 'Wofür steht MCLT und welchen Zweck erfüllt es?',
                     'en': 'What does MCLT stand for and what purpose does it serve?'},
          'answer': 0,
-         'options': {'de': ['Maximum Client Lead Time — Zeitspanne, in der der verbleibende Server Leases nach Ausfall des Partners eigenständig verlängern darf',
+         'options': {'de': ['Maximum Client Lead Time — Zeitspanne, um die ein Peer eine Lease höchstens vergeben oder verlängern darf, ohne dass der Partner davon weiß',
                             'Minimum Connection Lease Time — Mindestdauer jeder Lease',
                             'Multi-Client Load Table — Tabelle der Lastverteilung',
                             'Master Configuration Lock Timer — sperrt Änderungen am Grid Master'],
-                     'en': ['Maximum Client Lead Time — the period during which the remaining server may extend leases on its own after the partner fails',
+                     'en': ['Maximum Client Lead Time — the maximum time by which a peer may grant or extend a lease without its partner knowing about it',
                             'Minimum Connection Lease Time — the minimum duration of every lease',
                             'Multi-Client Load Table — a table of the load distribution',
                             'Master Configuration Lock Timer — locks changes to the Grid Master']}},

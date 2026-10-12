@@ -19,7 +19,7 @@ type Tab = 'stp' | 'aggregation'
 
 const STR = {
   de: {
-    title: 'Redundanz — drei Mechanismen, drei Zwecke',
+    title: 'Redundanz — STP-Root-Wahl und Link-Aggregation',
     tabStp: 'STP-Root-Wahl', tabAgg: 'Link-Aggregation',
     stpIntro: 'Jeder Switch hat eine Priorität (in 4096er-Schritten) und eine feste MAC-Adresse. '
       + 'Die niedrigste Priorität gewinnt die Root-Wahl; bei Gleichstand die niedrigste MAC-Adresse.',
@@ -44,7 +44,7 @@ const STR = {
     challenge: 'Kippe die Root-Wahl durch eine Prioritätsänderung UND beobachte den Einzelfluss-Effekt bei der Link-Aggregation.',
   },
   en: {
-    title: 'Redundancy — Three Mechanisms, Three Purposes',
+    title: 'Redundancy — STP Root Election and Link Aggregation',
     tabStp: 'STP Root Election', tabAgg: 'Link Aggregation',
     stpIntro: 'Every switch has a priority (in steps of 4096) and a fixed MAC address. '
       + 'The lowest priority wins the root election; on a tie, the lowest MAC address decides.',

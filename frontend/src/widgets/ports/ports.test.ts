@@ -9,6 +9,9 @@ describe('serviceFor', () => {
 
   it('unbekannter Port -> Hinweis', () => {
     expect(serviceFor(49152)).toContain('dynamischer Port')
+    expect(serviceFor(8080)).toContain('registrierter Port')
+    expect(serviceFor(123)).toContain('System-Port')
+    expect(serviceFor(70000)).toContain('ungültig')
   })
 })
 

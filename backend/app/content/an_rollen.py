@@ -99,7 +99,6 @@ ROLLEN_MODULE = {
                              '- `defaults/main.yml` — the **lowest** priority of all variable '
                              'sources. Meant for default values that role users are expected to '
                              'deliberately override (e.g. `http_port: 80`).\n'
-                             '\n'
                              '- `vars/main.yml` — noticeably **higher** priority, meant for '
                              'role-internal values that should not be accidentally overridden '
                              'from the outside.\n'
@@ -218,7 +217,7 @@ ROLLEN_MODULE = {
                                       '├── templates/agent.conf.j2',
                                       '├── files/agent.deb',
                                       '└── tasks/meta.yml'],
-                         'wrong': [8],
+                         'wrong': [7],
                          'explanation_de': 'Die Metadaten einer Rolle gehören nach '
                                            '`meta/main.yml`, nicht nach `tasks/meta.yml`. Ansible '
                                            'sucht Abhängigkeiten und andere Metadaten ausschließ'

@@ -264,7 +264,7 @@ DHCP_INFOBLOX_MODULE = {
                  'An option set at the network level applies unchanged even if a range explicitly overrides it.',
                  'Options not set at a given level are inherited from the level above.',
              ],
-             'wrong': [3],
+             'wrong': [2],
              'explanation_de': ('Eine explizite Einstellung auf der spezifischeren Ebene '
                                 '(Bereich) hat Vorrang vor einer geerbten Einstellung — nicht '
                                 'umgekehrt. Der Bereich überschreibt das Netzwerk, nicht das '

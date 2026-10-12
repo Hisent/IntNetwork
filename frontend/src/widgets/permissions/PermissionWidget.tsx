@@ -15,7 +15,7 @@ const CALLS: ToolCall[] = [
   { tool: 'Read', arg: 'src/app.ts' },
   { tool: 'Bash', arg: 'git push origin main' },
   { tool: 'Read', arg: './.env' },
-  { tool: 'Bash', arg: 'ls -la' },
+  { tool: 'Bash', arg: 'npm install' },
 ]
 
 const STR = {

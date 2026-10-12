@@ -194,7 +194,7 @@ INVENTARE_MODULE = {
                                   '      web01:', '        ansible_host: 10.0.0.11'],
                      'lines_en': ['all:', '  children:', '    webservers:', '    hosts:',
                                   '      web01:', '        ansible_host: 10.0.0.11'],
-                     'wrong': [4],
+                     'wrong': [3],
                      'explanation_de': '`hosts:` steht auf derselben Einrückungsebene wie '
                                        '`webservers:` und wird dadurch zu einem Geschwister-Key '
                                        'von `webservers` statt zu dessen Kind. `hosts:` muss '

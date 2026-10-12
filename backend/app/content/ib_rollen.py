@@ -263,7 +263,7 @@ ROLLEN_BERECHTIGUNGEN_MODULE = {
                     'Roles bundle permission sets that can be assigned to '
                     'multiple admin groups.',
                 ],
-                'wrong': [3],
+                'wrong': [2],
                 'explanation_de': 'Berechtigungen lassen sich bis auf einzelne '
                                   'Objekte herunterbrechen — ein bestimmter Grid '
                                   'Member, eine bestimmte Zone, ein bestimmtes '

@@ -77,7 +77,7 @@ CONTROLLER_MODULE = {'key': 'automation-controller-betrieb',
                              'bekommen nur das Recht, es *verwenden* zu dürfen, nicht es '
                              '*einzusehen*.\n'
                              '\n'
-                             'Das greift direkt an, was im Vault-Modul offenblieb: Statt einer '
+                             'Das greift direkt auf, was im Vault-Modul offenblieb: Statt einer '
                              'lokalen Vault-Passwortdatei übernimmt ein Credential-Objekt im '
                              'Controller dieselbe Rolle, nur zentral verwaltet und mit '
                              'feingranularen Zugriffsrechten.',
@@ -166,7 +166,7 @@ CONTROLLER_MODULE = {'key': 'automation-controller-betrieb',
                                       'number).',
                                       'Statement 4: Since the survey validates input, the job '
                                       'template no longer needs an assigned credential.'],
-                         'wrong': [4],
+                         'wrong': [3],
                          'explanation_de': 'Ein Survey validiert nur die *Eingabewerte* '
                                            '(`extra_vars`) — er hat nichts mit der Frage zu tun, '
                                            'mit welchen Zugangsdaten sich der Job auf dem '
@@ -247,11 +247,12 @@ CONTROLLER_MODULE = {'key': 'automation-controller-betrieb',
                              'Verkettung.\n'
                              '\n'
                              '**Zeitpläne (Schedules)** starten Job- oder Workflow-Templates '
-                             'wiederkehrend, z. B. nächtlich. Wichtige Einschränkung: Sollen '
-                             'dabei unterschiedliche `extra_vars` je Lauf mitgegeben werden, '
-                             'braucht das Template dafür einen Survey oder die Option „Prompt on '
-                             'Launch” — ein reiner Zeitplan allein liefert keine variablen '
-                             'Eingaben.\n'
+                             'wiederkehrend, z. B. nächtlich. Wichtige Einschränkung: Soll ein '
+                             'Zeitplan eigene `extra_vars` mitgeben (z. B. Zeitplan A rollt '
+                             'Version X aus, Zeitplan B Version Y), braucht das Template dafür '
+                             'einen Survey oder die Option „Prompt on Launch” für Variablen — '
+                             'sonst läuft jeder geplante Start mit den festen Werten des '
+                             'Templates. Die Werte gelten je Zeitplan, nicht je Lauf.\n'
                              '\n'
                              '**Ausgabe und Logging**: Jeder Job-Lauf liefert dieselben '
                              'Task-Ergebnis-Status wie auf der Kommandozeile (`ok`, `changed`, '
@@ -269,10 +270,12 @@ CONTROLLER_MODULE = {'key': 'automation-controller-betrieb',
                              'afterwards”, with a graphical editor for the chaining.\n'
                              '\n'
                              '**Schedules** launch job or workflow templates on a recurring '
-                             'basis, e.g. nightly. Important limitation: if different '
-                             '`extra_vars` need to be supplied per run, the template needs a '
-                             'survey or the “prompt on launch” option for that — a plain '
-                             'schedule alone provides no variable input.\n'
+                             'basis, e.g. nightly. Important limitation: if a schedule should '
+                             'pass its own `extra_vars` (e.g. schedule A rolls out version X, '
+                             'schedule B version Y), the template needs a survey or the “prompt '
+                             'on launch” option for variables — otherwise every scheduled '
+                             'launch runs with the template’s fixed values. The values apply '
+                             'per schedule, not per run.\n'
                              '\n'
                              '**Output and logging**: every job run delivers the same task '
                              'result statuses as on the command line (`ok`, `changed`, `failed`, '
@@ -291,9 +294,9 @@ CONTROLLER_MODULE = {'key': 'automation-controller-betrieb',
  'quiz': {'questions': [{'id': 'ct1',
                          'type': 'single',
                          'prompt': {'de': 'Welche Elemente kombiniert ein Job-Template '
-                                          'mindestens?',
-                                    'en': 'Which elements does a job template combine at '
-                                          'minimum?'},
+                                          'typischerweise?',
+                                    'en': 'Which elements does a job template typically '
+                                          'combine?'},
                          'answer': 1,
                          'options': {'de': ['Nur Playbook und Zeitplan',
                                             'Project, Inventory, Credential und Playbook',
@@ -319,7 +322,7 @@ CONTROLLER_MODULE = {'key': 'automation-controller-betrieb',
                                             'to view it']}},
                         {'id': 'ct3',
                          'type': 'single',
-                         'prompt': {'de': 'Wofür wird eine Survey-Antwort im Playbook-Lauf?',
+                         'prompt': {'de': 'Wozu wird eine Survey-Antwort im Playbook-Lauf?',
                                     'en': 'What does a survey answer become in the playbook '
                                           'run?'},
                          'answer': 0,
@@ -341,20 +344,20 @@ CONTROLLER_MODULE = {'key': 'automation-controller-betrieb',
                                             'Organization → team → user']}},
                         {'id': 'ct5',
                          'type': 'single',
-                         'prompt': {'de': 'Ein Zeitplan soll einen Job jede Nacht mit einer '
-                                          'jeweils anderen Versionsnummer starten. Was ist dafür '
-                                          'zusätzlich nötig?',
-                                    'en': 'A schedule should launch a job every night with a '
-                                          'different version number each time. What is '
-                                          'additionally required for that?'},
+                         'prompt': {'de': 'Ein Zeitplan soll einen Job jede Nacht mit '
+                                          'eigenen, vom Template abweichenden `extra_vars` '
+                                          'starten. Was muss das Job-Template dafür bieten?',
+                                    'en': 'A schedule should launch a job every night with its '
+                                          'own `extra_vars`, different from the template’s. What '
+                                          'must the job template provide for that?'},
                          'answer': 0,
                          'options': {'de': ['Ein Survey bzw. „Prompt on Launch” für die '
                                             'variable Eingabe',
                                             'Ein zweites Job-Template pro Nacht',
-                                            'Nichts — Zeitpläne variieren `extra_vars` '
-                                            'automatisch'],
+                                            'Nichts — Zeitpläne dürfen `extra_vars` immer '
+                                            'frei setzen'],
                                      'en': ['A survey or “prompt on launch” for the variable '
                                             'input',
                                             'A second job template per night',
-                                            "Nothing — schedules vary `extra_vars` "
-                                            'automatically']}}]}}
+                                            "Nothing — schedules may always set `extra_vars` "
+                                            'freely']}}]}}
