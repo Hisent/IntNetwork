@@ -77,3 +77,38 @@ def test_delete_unknown_course_404():
     with TestClient(app) as c:
         h = _trainer(c)
         assert c.delete("/api/courses/999999", headers=h).status_code == 404
+
+
+def _kurs_mit_zertifikat(c, h, name, pid):
+    from app.models.certificate import Certificate
+    created = c.post("/api/courses", json={"name": name}, headers=h).json()
+    db = SessionLocal()
+    db.add(Certificate(id=f"cert-{name}", participant_id=pid, course_id=created["id"],
+                       participant_name="Kim", course_name=name, workshop_title="W", module_count=1))
+    db.commit()
+    db.close()
+    return created["id"], f"cert-{name}"
+
+
+def test_delete_course_keeps_certificates_by_default_and_reports_count():
+    with TestClient(app) as c:
+        h = _trainer(c)
+        cid, cert = _kurs_mit_zertifikat(c, h, "ZertBehalten", 900_001)
+        assert c.get(f"/api/courses/{cid}/dashboard", headers=h).json()["course"]["certificate_count"] == 1
+
+        r = c.delete(f"/api/courses/{cid}", headers=h)
+        assert r.json() == {"ok": True, "certificates_deleted": 0, "certificates_kept": 1}
+        assert c.get(f"/api/verify/{cert}").status_code == 200
+
+
+def test_delete_course_can_delete_certificates_explicitly():
+    with TestClient(app) as c:
+        h = _trainer(c)
+        cid, cert = _kurs_mit_zertifikat(c, h, "ZertWeg", 900_002)
+
+        r = c.delete(f"/api/courses/{cid}?delete_certificates=true", headers=h)
+        # >= 1: SQLite vergibt die Kurs-ID des Tests davor erneut (kein
+        # AUTOINCREMENT), dessen behaltenes Zertifikat zaehlt hier dann mit.
+        # Postgres-Sequenzen vergeben IDs nicht doppelt.
+        assert r.json()["certificates_deleted"] >= 1 and r.json()["certificates_kept"] == 0
+        assert c.get(f"/api/verify/{cert}").status_code == 404

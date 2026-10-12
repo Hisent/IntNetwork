@@ -25,7 +25,7 @@ DNS_ZONEN_MODULE = {
               'organizes zones and records, and what works differently from a classic zone file.',
     },
     'blocks': [
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-1',
          'note': 'Das Host-Objekt ist der Punkt, an dem Umsteiger aus der BIND-Welt stolpern: Es buendelt A-, PTR- und optional DHCP-Daten in einem Objekt. Am besten einmal am Whiteboard gegenueberstellen.',
          'value': {
              'de': '## Forward- und Reverse-Zonen\n\n'
@@ -54,7 +54,7 @@ DNS_ZONEN_MODULE = {
                    'change that. What changes: you create the zone once as an object and assign it '
                    'a Name Server Group, instead of manually copying zone files to several servers.',
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-2',
          'value': {
              'de': '## Resource Records im Überblick\n\n'
                    'Die wichtigsten Record-Typen, die dir in NIOS-Zonen begegnen:\n\n'
@@ -106,7 +106,7 @@ DNS_ZONEN_MODULE = {
                    'record in the corresponding reverse zone — otherwise reverse lookups fail even '
                    'though forward lookups work.',
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-3',
          'value': {
              'de': '## Host-Objekte — die Infoblox-Besonderheit\n\n'
                    'Im klassischen Zonefile pflegst du A- und PTR-Records getrennt und musst sie '
@@ -134,7 +134,7 @@ DNS_ZONEN_MODULE = {
                    'names). But for "real" hosts, the host object is the way to structurally '
                    'prevent the A and PTR entries from drifting apart.',
          }},
-        {'type': 'check',
+        {'type': 'check', 'id': 'check-1',
          'payload': {
              'kind': 'choice',
              'prompt_de': 'Warum verhindert ein Host-Objekt in NIOS typischerweise eine fehlende '
@@ -157,7 +157,7 @@ DNS_ZONEN_MODULE = {
                  'Because host objects only apply to IPv6 addresses',
              ],
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-4',
          'value': {
              'de': '## Name Server Groups\n\n'
                    'Eine **Name Server Group** ist eine wiederverwendbare Vorlage dafür, welche '
@@ -195,7 +195,7 @@ DNS_ZONEN_MODULE = {
                    'members, by contrast, zone data is synchronized by default through Grid '
                    'replication rather than zone transfers.',
          }},
-        {'type': 'debug',
+        {'type': 'debug', 'id': 'debug-1',
          'payload': {
              'prompt_de': 'Ein Kollege hat folgenden Auszug aus der Zonenkonfiguration von '
                           '`nordwind-intern.de` geprüft. Welche Zeile ist inhaltlich inkonsistent?',
@@ -227,7 +227,7 @@ DNS_ZONEN_MODULE = {
                                'have structurally prevented this inconsistency through automatic '
                                'maintenance.',
          }},
-        {'type': 'order',
+        {'type': 'order', 'id': 'order-1',
          'payload': {
              'prompt_de': 'Bringe die Schritte eines Zonentransfers zwischen Primary und Secondary '
                           'in die richtige Reihenfolge.',
@@ -250,7 +250,7 @@ DNS_ZONEN_MODULE = {
                  'Secondary applies the data and updates its own serial',
              ],
          }},
-        {'type': 'reveal',
+        {'type': 'reveal', 'id': 'reveal-1',
          'payload': {
              'teaser_de': 'Lab: Nordwind betreibt die Zone `nordwind-intern.de` bisher nur im '
                          'eigenen Grid, will aber redundante Auflösung über einen '
@@ -275,7 +275,7 @@ DNS_ZONEN_MODULE = {
                    'permission for exactly that secondary server\'s IP address, not for arbitrary '
                    'clients.',
          }},
-        {'type': 'reflect',
+        {'type': 'reflect', 'id': 'reflect-1',
          'payload': {
              'prompt_de': 'Nenne ein Beispiel aus deinem eigenen Netz (oder ein plausibles '
                          'Beispiel), bei dem ein Host-Objekt die Konsistenz zwischen A- und '

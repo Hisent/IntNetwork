@@ -66,22 +66,34 @@ class ApprovalToggle(BaseModel):
 
 
 @router.delete("/{course_id}")
-def delete_course(course_id: int, db: Session = Depends(get_db), trainer: dict = Depends(get_trainer)):
+def delete_course(course_id: int, delete_certificates: bool = False,
+                  db: Session = Depends(get_db), trainer: dict = Depends(get_trainer)):
     """Löscht einen Kurs vollständig. Dank der ON DELETE CASCADE-Fremdschlüssel
     (siehe Migration 75aeb8d5399c) verschwinden Teilnehmer, deren Progress,
-    Quiz-Ergebnisse, Kommentare und die CourseModule-Zeilen automatisch mit --
-    keine manuellen Einzel-Löschungen nötig (anders als Certificate weiter
-    unten in delete_participant, das bewusst KEINEN Fremdschlüssel hat)."""
+    Quiz-Ergebnisse, Kommentare und die CourseModule-Zeilen automatisch mit.
+
+    Zertifikate haben bewusst KEINEN Fremdschlüssel (unveränderlicher Nachweis,
+    siehe app/models/certificate.py) und bleiben deshalb standardmäßig stehen —
+    samt Namen, öffentlich unter /verify. Das ist eine fachliche Entscheidung
+    des Trainers: `delete_certificates=true` löscht sie mit; die Antwort nennt
+    in beiden Fällen die Zahl (das Dashboard zeigt sie vorab als
+    `certificate_count`)."""
     course = db.query(Course).filter(Course.id == course_id).first()
     if not course:
         raise HTTPException(status_code=404, detail="Kurs nicht gefunden")
     name = course.name
+    certificates = db.query(Certificate).filter(Certificate.course_id == course_id)
+    kept = certificates.count()
+    deleted = 0
+    if delete_certificates:
+        deleted, kept = certificates.delete(), 0
     # module_disabled hat keinen Fremdschluessel -> von Hand mitraeumen.
     db.query(ModuleDisabled).filter(ModuleDisabled.course_id == course_id).delete()
     db.delete(course)
     db.commit()
-    log_action(db, trainer, "course.delete", target=f"course:{course_id}", detail=name)
-    return {"ok": True}
+    log_action(db, trainer, "course.delete", target=f"course:{course_id}",
+               detail=f"{name} (Zertifikate: {deleted} gelöscht, {kept} behalten)")
+    return {"ok": True, "certificates_deleted": deleted, "certificates_kept": kept}
 
 
 @router.patch("/{course_id}/approval")
@@ -103,13 +115,15 @@ class ParticipantApproval(BaseModel):
 
 @router.post("/{course_id}/participants/{participant_id}/approve")
 def approve_participant(course_id: int, participant_id: int, data: ParticipantApproval,
-                        db: Session = Depends(get_db), _=Depends(get_trainer)):
+                        db: Session = Depends(get_db), trainer: dict = Depends(get_trainer)):
     p = db.query(Participant).filter(
         Participant.id == participant_id, Participant.course_id == course_id).first()
     if not p:
         raise HTTPException(status_code=404, detail="Teilnehmer nicht gefunden")
     p.approved = data.approved
     db.commit()
+    log_action(db, trainer, "participant.approve", target=f"participant:{participant_id}",
+               detail=f"course:{course_id} approved={data.approved}")
     return {"id": p.id, "approved": p.approved}
 
 
@@ -184,7 +198,10 @@ def dashboard(course_id: int, db: Session = Depends(get_db), _=Depends(get_train
                                "best": round(pct * 100) if pct is not None else None}
         rows.append({"id": p.id, "name": p.name, "approved": p.approved, "cells": cells})
     return {"course": {"id": course.id, "name": course.name, "join_code": course.join_code,
-                       "workshop_key": course.workshop_key, "require_approval": course.require_approval},
+                       "workshop_key": course.workshop_key, "require_approval": course.require_approval,
+                       # Für den Lösch-Dialog: so viele Zertifikate blieben stehen.
+                       "certificate_count": db.query(Certificate).filter(
+                           Certificate.course_id == course_id).count()},
             "modules": metas, "participants": rows}
 
 

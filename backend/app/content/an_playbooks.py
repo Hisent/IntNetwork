@@ -22,7 +22,7 @@ PLAYBOOKS_MODULE = {
                        'module covers the structure, the common YAML pitfalls, and how to read '
                        'the output of a run.'},
     'blocks': [
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-1',
          'value': {'de': '## YAML-Grundregeln\n'
                          '\n'
                          'Playbooks sind YAML-Dateien. Drei Regeln verhindern die meisten '
@@ -56,7 +56,7 @@ PLAYBOOKS_MODULE = {
                          'space is enough to keep a playbook from starting at all.'},
          'note': 'Falls verfügbar, an einem Editor mit YAML-Syntaxhervorhebung vorführen — '
                  'Tab-vs-Leerzeichen-Fehler werden dort meist sofort sichtbar.'},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-2',
          'value': {'de': '## Aufbau: Play, Task, Modul\n'
                          '\n'
                          '```yaml\n'
@@ -121,7 +121,7 @@ PLAYBOOKS_MODULE = {
                          '- **Module** — the actual unit of execution (here '
                          '`ansible.builtin.package`, `ansible.builtin.service`), with its own '
                          'parameters (`name`, `state`, …).'}},
-        {'type': 'check',
+        {'type': 'check', 'id': 'check-1',
          'payload': {'kind': 'choice',
                      'prompt_de': 'Welches der folgenden Keywords steht auf Play-Ebene, nicht auf '
                                   'Task-Ebene?',
@@ -131,7 +131,7 @@ PLAYBOOKS_MODULE = {
                      'options_de': ['state', 'name (des Tasks)', 'hosts', 'ansible.builtin.package'],
                      'options_en': ['state', 'name (of the task)', 'hosts',
                                     'ansible.builtin.package']}},
-        {'type': 'debug',
+        {'type': 'debug', 'id': 'debug-1',
          'payload': {'prompt_de': 'Dieses Playbook soll ein Paket installieren, startet aber '
                                   'nicht. Welche Zeilen enthalten YAML-Syntaxfehler?\n'
                                   '\n'
@@ -183,7 +183,49 @@ PLAYBOOKS_MODULE = {
                                        'intentionally starts at the same indentation level as '
                                        '`tasks:` itself here — that is also a valid YAML '
                                        'style).'}},
-        {'type': 'text',
+        {'type': 'cloze', 'id': 'cloze-play-aufbau',
+         'note': 'Lücke 3 akzeptiert neben package auch dnf, apt und yum — gute Gelegenheit, '
+                 'über generische und distributionsspezifische Module zu sprechen.',
+         'payload': {
+             'prompt_de': 'Vervollständige das Play: Es soll auf allen Datenbank-Servern mit '
+                          'Root-Rechten das Paket chrony installieren.',
+             'prompt_en': 'Complete the play: it should install the chrony package with root '
+                          'privileges on all database servers.',
+             'mono': True,
+             'text_de': '---\n'
+                        '- name: Zeitdienst einrichten\n'
+                        '  [[ziel]]: dbservers\n'
+                        '  become: [[become]]\n'
+                        '  tasks:\n'
+                        '    - name: chrony installieren\n'
+                        '      ansible.builtin.[[modul]]:\n'
+                        '        name: chrony\n'
+                        '        state: [[state]]',
+             'text_en': '---\n'
+                        '- name: Set up time service\n'
+                        '  [[ziel]]: dbservers\n'
+                        '  become: [[become]]\n'
+                        '  tasks:\n'
+                        '    - name: Install chrony\n'
+                        '      ansible.builtin.[[modul]]:\n'
+                        '        name: chrony\n'
+                        '        state: [[state]]',
+             'gaps': [
+                 {'id': 'ziel', 'accept': ['hosts']},
+                 {'id': 'become', 'options': ['true', 'sudo', 'root'], 'answer': 0},
+                 {'id': 'modul', 'accept': ['package', 'dnf', 'apt', 'yum']},
+                 {'id': 'state', 'options': ['present', 'started', 'running'], 'answer': 0},
+             ],
+             'explanation_de': 'hosts legt fest, wen das Play betrifft; become: true schaltet die '
+                               'Rechteerhöhung ein. Das Modul package installiert über den Paketmanager '
+                               'des Zielsystems, und state: present heißt: installiert, aber nicht bei '
+                               'jedem Lauf aktualisiert. started gehört zum Modul service.',
+             'explanation_en': 'hosts defines who the play targets; become: true turns on privilege '
+                               'escalation. The package module installs through the target system\'s '
+                               'package manager, and state: present means installed, but not upgraded on '
+                               'every run. started belongs to the service module.',
+         }},
+        {'type': 'text', 'id': 'text-3',
          'value': {'de': '## Ausführen und kontrollieren\n'
                          '\n'
                          '```text\n'
@@ -225,7 +267,7 @@ PLAYBOOKS_MODULE = {
                          'Order within a run: tasks run **sequentially** per host, top to '
                          'bottom. Multiple hosts, however, are processed **in parallel** by '
                          'default (limited by the `forks` setting) — not one host after another.'}},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-4',
          'value': {'de': '## Die Ausgabe lesen\n'
                          '\n'
                          'Jeder Task meldet pro Host ein Ergebnis:\n'
@@ -284,7 +326,7 @@ PLAYBOOKS_MODULE = {
                          '\n'
                          'The `PLAY RECAP` at the end summarizes these counters per host — the '
                          'quickest way to see whether, and where, something failed.'}},
-        {'type': 'order',
+        {'type': 'order', 'id': 'order-1',
          'payload': {'prompt_de': 'Bring die Schritte eines `ansible-playbook`-Laufs in die '
                                   'richtige Reihenfolge:',
                      'prompt_en': 'Put the steps of an `ansible-playbook` run in the correct '
@@ -299,7 +341,7 @@ PLAYBOOKS_MODULE = {
                                   'Work through the tasks per host, sequentially top to bottom',
                                   'Report each task’s result as ok/changed/failed/skipped',
                                   'Print the PLAY RECAP with the counters per host']}},
-        {'type': 'reveal',
+        {'type': 'reveal', 'id': 'reveal-1',
          'payload': {'teaser_de': 'Gegeben die Ausgabe oben (web01: ok=1 changed=1 failed=1 '
                                   'skipped=0; web02: ok=2 changed=0 failed=0 skipped=0) — wie '
                                   'viele Tasks liefen insgesamt fehlerfrei durch, und auf welchem '

@@ -18,7 +18,7 @@ DNS_MODULE = {
               "Who translates the name into the address?",
     },
     "blocks": [
-        {"type": "text",
+        {"type": "text", "id": "text-1",
          "value": {
              "de": "## Wozu DNS?\n\n**DNS** (Domain Name System) ist das "
                    "„Telefonbuch“ des Internets: es übersetzt **Namen** (`www.nordwind-logistik.de`) "
@@ -29,7 +29,7 @@ DNS_MODULE = {
                    "into **IP addresses** (`203.0.113.11`). Humans remember names, the network "
                    "needs IPs.",
          }},
-        {"type": "text",
+        {"type": "text", "id": "text-2",
          "value": {
              "de": "## Die Hierarchie\n\nDNS ist ein verteilter Baum:\n\n"
                    "- **Root-Server** (`.`): kennen die Server der Top-Level-Domains.\n"
@@ -52,7 +52,7 @@ DNS_MODULE = {
         {"type": "widget", "id": "visual-dns-tree",
          "note": "Vollständige Hierarchie und Cache-Treffer als zwei Pfade vergleichen."},
         {"type": "widget", "id": "learning-dns", "note": "DNS-Auflösung mit leerem und gefülltem Cache vergleichen."},
-        {"type": "order", "payload": {
+        {"type": "order", "id": "order-1", "payload": {
             "prompt_de": "Bring die Schritte einer DNS-Auflösung (ohne Cache) in die richtige Reihenfolge.",
             "prompt_en": "Put the steps of a DNS resolution (without cache) in the correct order.",
             "items_de": ["Client fragt den Resolver", "Resolver fragt einen Root-Server",
@@ -62,7 +62,7 @@ DNS_MODULE = {
                          "Resolver asks the TLD server (.de)", "Resolver asks the authoritative server",
                          "Client receives the IP address"],
         }},
-        {"type": "text",
+        {"type": "text", "id": "text-3",
          "value": {
              "de": "## Caching\n\nDamit nicht jede Anfrage den ganzen Baum "
                    "durchläuft, **cachen** Resolver Antworten für die Dauer der **TTL** "
@@ -71,7 +71,7 @@ DNS_MODULE = {
                    "tree, resolvers **cache** answers for the duration of the **TTL** "
                    "(Time To Live). The second request for the same name is then instant.",
          }},
-        {"type": "text",
+        {"type": "text", "id": "text-4",
          "value": {
              "de": "## Wichtige Record-Typen\n\n- **A** — Name → IPv4.\n"
                    "- **AAAA** — Name → IPv6.\n"
@@ -88,7 +88,7 @@ DNS_MODULE = {
                    "**NXDOMAIN**. If the name exists but has no record of the requested type, "
                    "an empty answer without an error comes back (NODATA).",
          }},
-        {"type": "text",
+        {"type": "text", "id": "text-5",
          "value": {
              "de": "## Rückwärts: PTR (Reverse DNS)\n\nManchmal hast du nur eine "
                    "**IP** und willst den **Namen** dazu — z.B. wenn in einem Log nur "
@@ -113,7 +113,7 @@ DNS_MODULE = {
          },
          "note": "Live zeigen: nslookup auf eine bekannte IP (z.B. 8.8.8.8 → dns.google). "
                  "Merkhilfe: A = Name→IP, PTR = IP→Name."},
-        {"type": "check", "payload": {
+        {"type": "check", "id": "check-1", "payload": {
             "prompt_de": "Im Firewall-Log steht nur die IP 192.168.10.60. Mit welchem Record-Typ findest du den zugehörigen Namen?",
             "prompt_en": "The firewall log only shows the IP 192.168.10.60. Which record type lets you find the matching name?",
             "options_de": ["A", "PTR", "CNAME", "MX"],

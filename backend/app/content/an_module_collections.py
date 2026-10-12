@@ -23,7 +23,7 @@ MODULE_COLLECTIONS_MODULE = {
                        'module and a collection, how to install additional collections, and '
                        'where to look when searching for the right module for a task.'},
     'blocks': [
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-1',
          'note': 'Hier lohnt es, einmal gemeinsam eine Moduldoku aufzuschlagen und die Beispiele unten zu lesen — die meisten Fragen im Kurs beantwortet die Doku schneller als eine Erklaerung.',
          'value': {'de': '## Modul vs. Collection\n'
                          '\n'
@@ -50,7 +50,7 @@ MODULE_COLLECTIONS_MODULE = {
                          '\n'
                          'So a collection is the package it comes in, and a module is a single '
                          'tool inside it.'}},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-2',
          'value': {'de': '## FQCN — Fully Qualified Collection Name\n'
                          '\n'
                          'Ein FQCN besteht aus drei Teilen: `namespace.collection.modulname`, '
@@ -89,7 +89,7 @@ MODULE_COLLECTIONS_MODULE = {
                          'FQCN unambiguously pins down which module from which collection is '
                          'meant — that makes playbooks more robust against naming conflicts and '
                          'easier for others to read.'}},
-        {'type': 'check',
+        {'type': 'check', 'id': 'check-1',
          'payload': {'kind': 'choice',
                      'prompt_de': 'Ein Modul `mount` liegt in der Collection `posix` unter dem '
                                   'Namespace `ansible`. Wie lautet der korrekte FQCN?',
@@ -100,7 +100,7 @@ MODULE_COLLECTIONS_MODULE = {
                                     'mount.ansible.posix', 'ansible-posix-mount'],
                      'options_en': ['posix.ansible.mount', 'ansible.posix.mount',
                                     'mount.ansible.posix', 'ansible-posix-mount']}},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-3',
          'value': {'de': '## Collections installieren\n'
                          '\n'
                          'Zusätzliche Collections werden über `ansible-galaxy` nachinstalliert:\n'
@@ -154,7 +154,7 @@ MODULE_COLLECTIONS_MODULE = {
                          'public community repository) and **Automation Hub** (curated, '
                          'certified collections, part of the Ansible Automation Platform — also '
                          'available as a "Private Automation Hub" for offline/on-prem use).'}},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-4',
          'value': {'de': '## Modul-Doku lesen, Modul vs. Plugin\n'
                          '\n'
                          'Statt online zu suchen, liefert `ansible-doc <modul>` die Dokumentation '
@@ -190,7 +190,7 @@ MODULE_COLLECTIONS_MODULE = {
                          'Jinja2 (`{{ value | filtername }}`). Rule of thumb: a module runs as a '
                          'task and typically changes something on the target system; a plugin '
                          'extends Ansible’s own behavior behind the scenes.'}},
-        {'type': 'check',
+        {'type': 'check', 'id': 'check-2',
          'payload': {'kind': 'choice',
                      'prompt_de': 'Welches Modul passt am besten zur Aufgabe „stelle sicher, dass '
                                   'ein bestimmter Systemdienst läuft und beim Booten automatisch '
@@ -202,7 +202,7 @@ MODULE_COLLECTIONS_MODULE = {
                                     'ansible.builtin.service', 'ansible.builtin.template'],
                      'options_en': ['ansible.builtin.copy', 'ansible.builtin.package',
                                     'ansible.builtin.service', 'ansible.builtin.template']}},
-        {'type': 'debug',
+        {'type': 'debug', 'id': 'debug-1',
          'payload': {'prompt_de': 'Aussagen zu Modulen und Collections — welche ist falsch?',
                      'prompt_en': 'Statements about modules and collections — which one is '
                                   'false?',
@@ -223,7 +223,7 @@ MODULE_COLLECTIONS_MODULE = {
                                        'installed collections and displays it directly on the '
                                        'command line — no internet access needed, as long as the '
                                        'relevant collection is already installed.'}},
-        {'type': 'reveal',
+        {'type': 'reveal', 'id': 'reveal-1',
          'payload': {'teaser_de': 'Übung: Ein Team installiert die Collection `community.mysql` '
                                   '(Namespace `community`) und will das darin enthaltene Modul '
                                   '`mysql_db` verwenden. Wie lautet der FQCN, den sie im Playbook '
@@ -237,7 +237,7 @@ MODULE_COLLECTIONS_MODULE = {
                    'en': '`community.mysql.mysql_db` — assembled from the namespace '
                          '(`community`), the collection (`mysql`), and the module name '
                          '(`mysql_db`), each separated by a dot.'}},
-        {'type': 'reflect',
+        {'type': 'reflect', 'id': 'reflect-1',
          'payload': {'prompt_de': 'In einem Playbook, das du kennst oder dir vorstellst: Welche '
                                   'Aufgabe würde am ehesten eine zusätzliche Collection statt '
                                   '`ansible.builtin` erfordern, und warum?',

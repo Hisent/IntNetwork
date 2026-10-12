@@ -32,7 +32,7 @@ NAC_AUTORISIERUNG_MODULE = {
               'what you are about to look at more closely.',
     },
     'blocks': [
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-1',
          'note': 'Authentifizierung und Autorisierung werden oft synonym verwendet - hier '
                  'explizit trennen: Authentifizierung = wer bist du, Autorisierung = was '
                  'darfst du jetzt.',
@@ -63,7 +63,7 @@ NAC_AUTORISIERUNG_MODULE = {
                    'despite both authenticating successfully — that is exactly what '
                    'authorization controls.',
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-2',
          'value': {
              'de': '## Dynamische VLAN-Zuweisung\n\n'
                    'Das häufigste Autorisierungsergebnis ist eine **dynamische '
@@ -89,7 +89,7 @@ NAC_AUTORISIERUNG_MODULE = {
                    'determines which of those VLANs a device is assigned to after logging in, '
                    'with no manual port configuration at all.',
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-3',
          'value': {
              'de': '## Downloadable/named ACLs (dACL)\n\n'
                    'Eine VLAN-Zuweisung allein ist oft zu grob: Alle Geräte im selben VLAN '
@@ -119,7 +119,7 @@ NAC_AUTORISIERUNG_MODULE = {
                    'dACLs can also be used for quarantine: a non-compliant device then only '
                    'gets access to update and remediation servers.',
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-4',
          'value': {
              'de': '## Quarantäne- und Gäste-VLAN\n\n'
                    'Für Geräte, die die Authentifizierung nicht bestehen, nicht '
@@ -145,7 +145,7 @@ NAC_AUTORISIERUNG_MODULE = {
                    'no other authorization rule does not end up openly in the production '
                    'network, but in a clearly bounded segment.',
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-5',
          'value': {
              'de': '## Security Group Tags (SGT) — eine herstellerspezifische Alternative\n\n'
                    'Einige Hersteller bieten statt oder zusätzlich zu VLAN und dACL ein '
@@ -175,7 +175,7 @@ NAC_AUTORISIERUNG_MODULE = {
                  'durchspielen lassen und beobachten, wie 802.1X-Faehigkeit, Zertifikat und '
                  'Compliance-Status zusammen das Ergebnis (VLAN, Quarantaene, Gast, MAB/IoT, '
                  'Deny) bestimmen - bevor die Zuordnungsaufgabe kommt.'},
-        {'type': 'check',
+        {'type': 'check', 'id': 'check-1',
          'payload': {
              'kind': 'choice',
              'prompt_de': 'Ein privates Smartphone eines Besuchers verbindet sich über das '
@@ -202,7 +202,7 @@ NAC_AUTORISIERUNG_MODULE = {
                  'Assignment to the same VLAN as the label printers in the warehouse',
              ],
          }},
-        {'type': 'debug',
+        {'type': 'debug', 'id': 'debug-1',
          'payload': {
              'prompt_de': 'Ein Kollege bei Nordwind Logistik sagt: „Wenn wir dynamische '
                           'VLAN-Zuweisung nutzen, brauchen wir keine dACLs mehr — VLAN reicht '
@@ -245,7 +245,7 @@ NAC_AUTORISIERUNG_MODULE = {
                                'mechanisms complement each other rather than replacing one '
                                'another.',
          }},
-        {'type': 'reflect',
+        {'type': 'reflect', 'id': 'reflect-1',
          'payload': {
              'prompt_de': 'Nordwind Logistik überlegt, für alle IoT-Geräte pauschal dasselbe '
                          'VLAN ohne zusätzliche dACL zu verwenden, um die Konfiguration einfach '

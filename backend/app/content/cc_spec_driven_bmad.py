@@ -20,7 +20,7 @@ SPEC_DRIVEN_BMAD_MODULE = {'key': 'spec-driven-bmad',
                     'verifiable specification and a plan, then the implementation. The **BMAD '
                     'methodology** takes this to the extreme with specialized roles. Both fit '
                     "perfectly with Claude Code's plan mode and subagents."},
- 'blocks': [{'type': 'text',
+ 'blocks': [{'type': 'text', 'id': 'text-1',
              'value': {'de': '## Warum spec-driven?\n'
                              '\n'
                              'Ein LLM ist nur so gut wie sein Kontext (Modul 1). Wirfst du eine '
@@ -54,7 +54,7 @@ SPEC_DRIVEN_BMAD_MODULE = {'key': 'spec-driven-bmad',
                              'design spec and roadmap, before the individual modules '
                              'are written.'},
              'note': 'Eine 6-Zeilen-Spec gemeinsam schreiben und direkt in den Plan-Modus geben.'},
-            {'type': 'text',
+            {'type': 'text', 'id': 'text-2',
              'value': {'de': '## Der Ablauf: Spec → Plan → Umsetzung → Review\n'
                              '\n'
                              'Ein bewährter Zyklus mit Claude Code:\n'
@@ -87,7 +87,7 @@ SPEC_DRIVEN_BMAD_MODULE = {'key': 'spec-driven-bmad',
                              '\n'
                              'The spec stays in the repo — it documents the decision and speeds up '
                              'later changes.'}},
-            {'type': 'check',
+            {'type': 'check', 'id': 'check-1',
              'payload': {'kind': 'choice',
                          'prompt_de': 'Wann steckt beim spec-driven Arbeiten die meiste '
                                       'Denkarbeit?',
@@ -99,7 +99,7 @@ SPEC_DRIVEN_BMAD_MODULE = {'key': 'spec-driven-bmad',
                          'options_en': ['After implementation, during rework',
                                         'Before implementation, in the spec and plan',
                                         'Not at all, the agent does everything by itself']}},
-            {'type': 'text',
+            {'type': 'text', 'id': 'text-3',
              'value': {'de': '## BMAD in Kürze\n'
                              '\n'
                              '**BMAD** (Breakthrough Method of Agile AI-Driven Development) ist '
@@ -139,7 +139,7 @@ SPEC_DRIVEN_BMAD_MODULE = {'key': 'spec-driven-bmad',
                              'The idea is **context-rich handoff**: each role receives exactly the '
                              "previous role's artifact as input — the spec-driven idea, applied "
                              'consistently across the entire lifecycle.'}},
-            {'type': 'text',
+            {'type': 'text', 'id': 'text-4',
              'value': {'de': '## BMAD-Rollen in Claude Code abbilden\n'
                              '\n'
                              'Du brauchst kein zusätzliches Framework, um die Grundidee zu nutzen '
@@ -172,7 +172,7 @@ SPEC_DRIVEN_BMAD_MODULE = {'key': 'spec-driven-bmad',
                              'installs the same process.\n'
                              '\n'
                              "This way you get BMAD's structure without switching tools."}},
-            {'type': 'order',
+            {'type': 'order', 'id': 'order-1',
              'payload': {'prompt_de': 'BMAD-nahe Kette in der richtigen Reihenfolge:',
                          'prompt_en': 'Put the BMAD-style chain in the correct order:',
                          'items_de': ['Analyst: Anforderungen klären',
@@ -187,7 +187,7 @@ SPEC_DRIVEN_BMAD_MODULE = {'key': 'spec-driven-bmad',
                                       'Scrum Master: slice into stories',
                                       'Developer: implement stories',
                                       'QA: verify against acceptance criteria']}},
-            {'type': 'debug',
+            {'type': 'debug', 'id': 'debug-1',
              'payload': {'prompt_de': 'Aussagen zu spec-driven / BMAD — welche ist falsch?',
                          'prompt_en': 'Statements about spec-driven / BMAD — which one is wrong?',
                          'lines_de': ['Eine Spec enthält Ziel, Umfang, Nicht-Ziele und '
@@ -213,7 +213,7 @@ SPEC_DRIVEN_BMAD_MODULE = {'key': 'spec-driven-bmad',
                                            'coding: first the spec and plan take shape (the '
                                            'verifiable thinking work), then implementation '
                                            'follows. This reduces expensive rework.'}},
-            {'type': 'reveal',
+            {'type': 'reveal', 'id': 'reveal-1',
              'payload': {'teaser_de': 'Lab: Skizziere eine 6-Zeilen-Spec für ein kleines Feature '
                                       'deiner Wahl (Ziel, Umfang, 1 Nicht-Ziel, 2 '
                                       'Akzeptanzkriterien). Zuerst selbst, dann ein Beispiel '
@@ -244,7 +244,7 @@ SPEC_DRIVEN_BMAD_MODULE = {'key': 'spec-driven-bmad',
                              '\n'
                              "Short, verifiable, with clear non-goals — that's exactly the kind of "
                              'spec you then feed into plan mode.'}},
-            {'type': 'reflect',
+            {'type': 'reflect', 'id': 'reflect-1',
              'payload': {'prompt_de': 'Bei welcher letzten Aufgabe hätte eine 6-Zeilen-Spec vorab '
                                       'dir (oder dem Agenten) teure Nacharbeit erspart?',
                          'prompt_en': 'On which recent task would a 6-line spec upfront have saved '

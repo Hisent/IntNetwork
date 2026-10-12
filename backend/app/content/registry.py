@@ -107,6 +107,7 @@ from app.content.nac_resilienz import NAC_RESILIENZ_MODULE
 from app.content.nac_troubleshooting import NAC_TROUBLESHOOTING_MODULE
 
 from app.models.content import ContentBlock, ContentModule, ContentQuizQuestion
+from app.services.block_validation import DECLARATIVE_TYPES, localize
 
 # Nur noch Seed-Quelle für seed_missing_content() (app/content/seed.py) — die
 # Trainer-/Teilnehmer-Auslieferung unten liest ausschließlich aus der DB.
@@ -181,6 +182,10 @@ def _module_dict(m: ContentModule, blocks: list[ContentBlock], questions: list[C
             bd = {"type": "reveal",
                   "teaser": _pick(pl.get("teaser_de", ""), pl.get("teaser_en", ""), lang),
                   "value": _pick(b.value_de, b.value_en, lang)}
+        elif b.type in DECLARATIVE_TYPES:
+            # diagram/terminal/match/cloze/scenario: Payload flach, X_de/X_en -> X.
+            # Lösungen bleiben drin -- ungewertete Übungen wie check/order/debug.
+            bd = {**localize(b.payload or {}, lang), "type": b.type}
         else:
             bd = {"type": "widget", "id": b.widget_id}
         if b.note:
@@ -190,6 +195,8 @@ def _module_dict(m: ContentModule, blocks: list[ContentBlock], questions: list[C
         qd = {"id": str(q.id), "type": q.qtype, "prompt": _pick(q.prompt_de, q.prompt_en, lang), "answer": q.answer}
         if q.qtype != "number":
             qd["options"] = _pick(q.options_de, q.options_en, lang)
+        if q.explanation_de:
+            qd["explanation"] = _pick(q.explanation_de, q.explanation_en, lang) or q.explanation_de
         out["quiz"]["questions"].append(qd)
     return out
 
@@ -211,13 +218,15 @@ def public_module(db: Session, key: str, lang: str = "de") -> dict | None:
     for b in out["blocks"]:
         b.pop("note", None)
     for q in out["quiz"]["questions"]:
+        # Lösung und Erklärung erst mit dem bewerteten Ergebnis (routers/modules.py)
         q.pop("answer", None)
+        q.pop("explanation", None)
     return out
 
 
-def trainer_module(db: Session, key: str) -> dict | None:
+def trainer_module(db: Session, key: str, lang: str = "de") -> dict | None:
     loaded = _load(db, key)
     if not loaded:
         return None
     m, blocks, questions = loaded
-    return _module_dict(m, blocks, questions, "de")
+    return _module_dict(m, blocks, questions, lang)

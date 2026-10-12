@@ -18,7 +18,7 @@ ORCHESTRATION_MODULE = {'key': 'orchestration',
                     "window, or when many parts can be worked on independently in parallel. That's "
                     'when you orchestrate multiple agents. Claude Code offers three tiers for this '
                     '— from lightweight to fully structured.'},
- 'blocks': [{'type': 'text',
+ 'blocks': [{'type': 'text', 'id': 'text-1',
              'value': {'de': '## Drei Stufen der Parallelität\n'
                              '\n'
                              '- **Subagents** (Modul 9) — mehrere Helfer *innerhalb einer '
@@ -56,7 +56,7 @@ ORCHESTRATION_MODULE = {'key': 'orchestration',
                              'many conversations that coordinate with each other.'},
              'note': 'Fan-out mehrerer Subagents an einer echten Aufgabe zeigen; über '
                      'Kosten/Nutzen der Parallelität sprechen.'},
-            {'type': 'check',
+            {'type': 'check', 'id': 'check-1',
              'payload': {'kind': 'choice',
                          'prompt_de': 'Du willst drei große, voneinander unabhängige Aufgaben '
                                       'gleichzeitig laufen lassen und beobachten. Was passt?',
@@ -69,7 +69,7 @@ ORCHESTRATION_MODULE = {'key': 'orchestration',
                          'options_en': ['A single subagent',
                                         'Background agents (multiple full sessions in parallel)',
                                         "Nothing, that's not possible"]}},
-            {'type': 'text',
+            {'type': 'text', 'id': 'text-2',
              'value': {'de': '## Wann überhaupt orchestrieren?\n'
                              '\n'
                              'Mehr Agenten sind nicht automatisch besser — sie kosten mehr Tokens '
@@ -99,7 +99,7 @@ ORCHESTRATION_MODULE = {'key': 'orchestration',
                              '\n'
                              'For a small, clearly scoped change, **one** agent is the right '
                              'choice. Scale the number of agents to the actual size of the task.'}},
-            {'type': 'text',
+            {'type': 'text', 'id': 'text-3',
              'value': {'de': '## Muster: Fan-out und Pipeline\n'
                              '\n'
                              'Zwei Grundmuster der Orchestrierung:\n'
@@ -130,7 +130,7 @@ ORCHESTRATION_MODULE = {'key': 'orchestration',
                              'finding (e.g. a suspected bug) is challenged by multiple independent '
                              "reviewers trying to disprove it — if it still stands, it's more "
                              'trustworthy.'}},
-            {'type': 'text',
+            {'type': 'text', 'id': 'text-4',
              'value': {'de': '## Dynamische Workflows\n'
                              '\n'
                              'Für **deterministische** Orchestrierung — Schleifen, Bedingungen, '
@@ -158,7 +158,7 @@ ORCHESTRATION_MODULE = {'key': 'orchestration',
                              'makes large runs reproducible — for example, a review across many '
                              'dimensions that both finds issues in each dimension *and* verifies '
                              'them adversarially.'}},
-            {'type': 'order',
+            {'type': 'order', 'id': 'order-1',
              'payload': {'prompt_de': 'Ein Review-Fan-out mit Verifikation — sinnvolle '
                                       'Reihenfolge:',
                          'prompt_en': 'A review fan-out with verification — sensible order:',
@@ -172,7 +172,7 @@ ORCHESTRATION_MODULE = {'key': 'orchestration',
                                       'Start one finder subagent per dimension in parallel',
                                       'Have each finding verified by independent reviewers',
                                       'Merge and summarize the confirmed findings']}},
-            {'type': 'debug',
+            {'type': 'debug', 'id': 'debug-1',
              'payload': {'prompt_de': 'Aussagen zur Orchestrierung — welche ist falsch?',
                          'prompt_en': 'Statements about orchestration — which one is wrong?',
                          'lines_de': ['Subagents laufen innerhalb einer Session in eigenem '
@@ -196,7 +196,7 @@ ORCHESTRATION_MODULE = {'key': 'orchestration',
                                            'You scale the number to the actual size of the task — '
                                            'for small, clearly scoped changes, a single agent is '
                                            'the right choice.'}},
-            {'type': 'reflect',
+            {'type': 'reflect', 'id': 'reflect-1',
              'payload': {'prompt_de': 'Nenne eine Aufgabe aus deinem Projekt, die zu groß für ein '
                                       'Kontextfenster ist. Wie würdest du sie in parallele '
                                       'Teilaufgaben zerlegen?',

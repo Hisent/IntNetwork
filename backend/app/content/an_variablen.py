@@ -28,7 +28,7 @@ VARIABLEN_MODULE = {
                        'my change taking effect?" This module covers the rules worth keeping '
                        'in your head, and where the complete list lives.'},
     'blocks': [
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-1',
          'value': {'de': '## Variablenquellen im Überblick\n'
                          '\n'
                          'Variablen können unter anderem aus folgenden Quellen kommen:\n'
@@ -62,7 +62,7 @@ VARIABLEN_MODULE = {
                          '\n'
                          'All of these sources can set the same variable name — which one '
                          '"wins" in the end is governed by the precedence order.'}},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-2',
          'value': {'de': '## Die grobe Vorrangregel\n'
                          '\n'
                          'Die offizielle Ansible-Dokumentation nennt fünf große Kategorien, in '
@@ -114,7 +114,7 @@ VARIABLEN_MODULE = {
          'note': 'Vollständige 22-Stufen-Liste: playbook_guide/playbooks_variables.html '
                  '(„Understanding variable precedence”); die fünf Kategorien stehen in '
                  'reference_appendices/general_precedence.html. Bei Detailfragen live zeigen.'},
-        {'type': 'check',
+        {'type': 'check', 'id': 'check-1',
          'payload': {'kind': 'choice',
                      'prompt_de': 'Für einen Host ist `paket_name: nginx` als Rollen-Default '
                                   'gesetzt, `paket_name: apache2` in group_vars, und das Playbook '
@@ -150,7 +150,7 @@ VARIABLEN_MODULE = {
         {'type': 'widget', 'id': 'ansible-lab',
          'note': 'Direkte praktische Fortsetzung des paket_name-Beispiels oben — diesmal mit '
                  'echtem -e-Aufruf statt nur auf dem Papier.'},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-4',
          'value': {'de': '## Laufzeit-Variablen: `set_fact` und `register`\n'
                          '\n'
                          'Nicht alle Variablen stehen schon vor dem Lauf fest — manche entstehen '
@@ -178,7 +178,7 @@ VARIABLEN_MODULE = {
                          'Both are runtime mechanisms and only become available once the '
                          'corresponding task has run — unlike the classic sources that are fixed '
                          'before the run starts (inventory, group_vars, role defaults).'}},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-5',
          'value': {'de': '## Jinja2-Grundsyntax\n'
                          '\n'
                          'Variablen werden mit doppelten geschweiften Klammern referenziert:\n'
@@ -220,7 +220,7 @@ VARIABLEN_MODULE = {
                          '\n'
                          '`| upper` converts the value to uppercase. Filters are appended to a '
                          'variable with a pipe character and can also be chained.'}},
-        {'type': 'debug',
+        {'type': 'debug', 'id': 'debug-1',
          'payload': {'prompt_de': 'Dieser Task soll eine Variable in den Task-Namen einsetzen, '
                                   'schlägt aber fehl. Welche Zeile enthält den Jinja2-Fehler?\n'
                                   '\n'
@@ -256,7 +256,7 @@ VARIABLEN_MODULE = {
                                        'always need matching double braces `{{ ... }}` — a '
                                        'missing brace causes a template error instead of the '
                                        'expected value.'}},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-6',
          'value': {'de': '## Variablen in Templates\n'
                          '\n'
                          'Dieselben Variablen lassen sich auch in `.j2`-Template-Dateien '
@@ -291,7 +291,7 @@ VARIABLEN_MODULE = {
                          'anywhere. Where `http_port` ultimately comes from — inventory, '
                          'group_vars, a role default, or extra-vars — is decided by exactly the '
                          'same precedence rule as in a regular task; templates are no exception.'}},
-        {'type': 'order',
+        {'type': 'order', 'id': 'order-1',
          'payload': {'prompt_de': 'Die fünf großen, offiziell belegten Kategorien — von '
                                   'niedrigster zu höchster Priorität:',
                      'prompt_en': 'The five broad, officially documented categories — from '
@@ -300,7 +300,7 @@ VARIABLEN_MODULE = {
                                   'Playbook keywords', 'Variables', 'Direct Assignment'],
                      'items_en': ['Configuration settings', 'Command-line options',
                                   'Playbook keywords', 'Variables', 'Direct Assignment']}},
-        {'type': 'reflect',
+        {'type': 'reflect', 'id': 'reflect-1',
          'payload': {'prompt_de': 'Erinnere dich an eine Situation (aus diesem oder einem anderen '
                                   'Automatisierungswerkzeug), in der eine Änderung „nicht '
                                   'wirkte”, weil eine andere Quelle Vorrang hatte. Was hättest du '

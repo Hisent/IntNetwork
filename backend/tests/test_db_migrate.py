@@ -13,8 +13,8 @@ from app.config import settings
 from app.database import Base, engine
 from app.main import app
 
-_HEAD = "75aeb8d5399c"        # trainer_token_version_and_core_fk_cascades
-_VORGAENGER = "7305d4053e50"  # add_trainer_credential
+_HEAD = "a6b7c8d9e0f1"        # add_content_uid_and_quiz_explanation
+_VORGAENGER = "7305d4053e50"  # add_trainer_credential (danach laufen 75aeb8d5399c und a6b7c8d9e0f1 erneut)
 
 
 def _blocked() -> OperationalError:
@@ -121,3 +121,16 @@ def test_75aeb8d5399c_ist_idempotent_wenn_objekte_schon_existieren(tmp_path, mon
         version = conn.execute(text("SELECT version_num FROM alembic_version")).scalar()
     legacy_engine.dispose()
     assert version == _HEAD
+
+
+def test_migration_schaltet_bestehende_logger_nicht_stumm():
+    """fileConfig() in migrations/env.py deaktivierte mit dem Standard
+    disable_existing_loggers=True alle schon angelegten Logger — die Warnung
+    "Migration blockiert (Versuch x/3)" und jedes spaetere App-Log (z.B.
+    fehlgeschlagene Audit-Eintraege) verschwanden danach lautlos."""
+    import logging
+
+    db_migrate._do_migrate()  # DB ist schon auf head: laedt nur env.py
+
+    assert logging.getLogger("app.db_migrate").disabled is False
+    assert logging.getLogger("app.services.audit").disabled is False

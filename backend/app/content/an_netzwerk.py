@@ -22,7 +22,7 @@ NETZWERK_MODULE = {'key': 'netzwerk-automatisierung',
                     'Now a Cisco switch joins the mix — and it has no Python, no SSH login with '
                     '`sudo`, but a CLI with an “enable” mode. Does Ansible still work? Yes — but '
                     'with a few fundamentally different mechanisms, which this module covers.'},
- 'blocks': [{'type': 'text',
+ 'blocks': [{'type': 'text', 'id': 'text-1',
              'value': {'de': '## Der zentrale Unterschied: wo läuft das Modul?\n'
                              '\n'
                              'Bei `ansible.builtin`-Modulen (z. B. `package`, `service`) wird '
@@ -58,7 +58,7 @@ NETZWERK_MODULE = {'key': 'netzwerk-automatisierung',
                              'up on the control node, not on the device.'},
              'note': '„Modul läuft auf dem Control Node” als Kernsatz — alles Weitere im Modul '
                      'leitet sich daraus ab.'},
-            {'type': 'text',
+            {'type': 'text', 'id': 'text-2',
              'value': {'de': '## Verbindungsarten: network_cli, netconf, httpapi\n'
                              '\n'
                              'Statt des generischen `ssh`/`local`-Connection-Typs aus der '
@@ -99,7 +99,7 @@ NETZWERK_MODULE = {'key': 'netzwerk-automatisierung',
                              'associated credentials are defined once, instead of renegotiating '
                              'them for every single task — this saves time compared to many '
                              'individual SSH connections per task.'}},
-            {'type': 'check',
+            {'type': 'check', 'id': 'check-1',
              'payload': {'kind': 'choice',
                          'prompt_de': 'Warum laufen Netzwerkmodule (z. B. `cisco.ios.ios_facts`) '
                                       'auf dem Control Node statt auf dem Zielgerät?',
@@ -115,7 +115,7 @@ NETZWERK_MODULE = {'key': 'netzwerk-automatisierung',
                                         'Because network devices are inherently slower than '
                                         'servers',
                                         "Because it's a legal requirement"]}},
-            {'type': 'text',
+            {'type': 'text', 'id': 'text-3',
              'value': {'de': '## Herstellerspezifische Collections und Privilegien-Eskalation\n'
                              '\n'
                              'Anders als bei Linux/Windows, wo generische Module wie `package` '
@@ -172,7 +172,7 @@ NETZWERK_MODULE = {'key': 'netzwerk-automatisierung',
                              'This is the network equivalent of `become_method: sudo` — needed '
                              'whenever a task requires privileged access (e.g. to change the '
                              'running configuration).'}},
-            {'type': 'debug',
+            {'type': 'debug', 'id': 'debug-1',
              'payload': {'prompt_de': 'Ein Inventar-Ausschnitt für einen Cisco-Switch wird '
                                       'vorgelegt. Eine der vier Zeilen ist fachlich falsch — '
                                       'welche?',
@@ -197,7 +197,7 @@ NETZWERK_MODULE = {'key': 'netzwerk-automatisierung',
                                            '`ansible_become_method: enable`. `sudo` is a '
                                            'Linux/Unix mechanism and does not exist on a Cisco '
                                            'IOS CLI.'}},
-            {'type': 'text',
+            {'type': 'text', 'id': 'text-4',
              'value': {'de': '## Facts sammeln und Konfiguration sichern\n'
                              '\n'
                              'Statt des generischen `ansible.builtin.setup`-Moduls nutzen '
@@ -276,7 +276,7 @@ NETZWERK_MODULE = {'key': 'netzwerk-automatisierung',
                              'form and send only the difference.'},
              'note': 'Beispiel bewusst als Cisco-IOS-Muster gewählt (Recherche verifiziert), '
                      'Prinzip gilt analog für andere Herstellercollections.'},
-            {'type': 'order',
+            {'type': 'order', 'id': 'order-1',
              'payload': {'prompt_de': 'Ein Playbook soll die Konfiguration eines Switches '
                                       'sichern, bevor eine Änderung vorgenommen wird. Bring den '
                                       'Ablauf in eine sinnvolle Reihenfolge:',
@@ -297,7 +297,7 @@ NETZWERK_MODULE = {'key': 'netzwerk-automatisierung',
                                       'ends up on the control node',
                                       'Apply the configuration change, e.g. with '
                                       '`cisco.ios.ios_config`']}},
-            {'type': 'reflect',
+            {'type': 'reflect', 'id': 'reflect-1',
              'payload': {'prompt_de': 'Ein Kollege sagt: „Ein Netzwerk-Task, der zweimal '
                                       'hintereinander läuft und beim zweiten Mal `changed` '
                                       'meldet, ist genauso ein Idempotenz-Problem wie bei einem '

@@ -1,3 +1,5 @@
+import hmac
+
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
 from sqlalchemy import func
@@ -40,9 +42,9 @@ def join(data: JoinReq, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Kurs-Code passt nicht zu diesem Workshop")
     p = db.query(Participant).filter(
         Participant.course_id == course.id, Participant.name == name).first()
-    # resume_code_out wird genau dann zurückgegeben, wenn der Teilnehmer ihn sich
-    # neu merken muss (Erstbeitritt oder Bestands-Teilnehmer ohne Code). Bei normaler
-    # Wiederaufnahme mit korrektem Code bleibt er null (kennt ihn schon).
+    # resume_code_out wird nur beim Erstbeitritt zurückgegeben — dann muss der
+    # Teilnehmer ihn sich merken. Jeder spätere Beitritt unter demselben Namen
+    # braucht den Code.
     resume_code_out: str | None = None
     if not p:
         code = generate_resume_code()
@@ -51,27 +53,31 @@ def join(data: JoinReq, db: Session = Depends(get_db)):
         try:
             db.commit()
         except IntegrityError:
-            # Zwei gleichzeitige Joins mit demselben Namen (z.B. Doppelklick) ->
-            # der andere Request hat die Zeile zwischen SELECT und COMMIT angelegt.
+            # Zwei gleichzeitige Joins mit demselben Namen: der andere Request hat
+            # die Zeile zwischen SELECT und COMMIT angelegt. Der Verlierer ist ab
+            # hier ein gewöhnlicher Wiedereintritt und läuft unten in dieselbe
+            # Code-Prüfung — vorher bekam er den Code des Gewinners ausgehändigt.
             db.rollback()
             p = db.query(Participant).filter(
                 Participant.course_id == course.id, Participant.name == name).first()
-            resume_code_out = p.resume_code
+            if not p:  # Gewinner inzwischen wieder gelöscht
+                raise HTTPException(status_code=409, detail="Bitte erneut versuchen.") from None
         else:
             db.refresh(p)
             resume_code_out = code
-    elif p.resume_code is None:
-        # Bestands-Teilnehmer von vor Einführung des Codes: nachträglich vergeben
-        # und einmal anzeigen, statt ihn auszusperren.
-        p.resume_code = generate_resume_code()
-        db.commit()
-        resume_code_out = p.resume_code
-    else:
+    if resume_code_out is None:
         supplied = (data.resume_code or "").strip().upper()
-        if supplied != p.resume_code:
+        # p.resume_code ist None bei Bestands-Teilnehmern von vor Einführung des
+        # Codes. Die bekamen früher beim ersten Wiedereintritt einfach einen Code
+        # ausgehändigt — damit ließ sich ihr Konto allein über den Namen
+        # übernehmen. Jetzt gilt: ohne Code kein Zutritt; der Trainer vergibt
+        # einen über "Code zurücksetzen" (courses.py::reset_resume_code).
+        if not p.resume_code or not hmac.compare_digest(supplied.encode(), p.resume_code.encode()):
             raise HTTPException(
                 status_code=403,
-                detail="Dieser Name ist bereits vergeben. Bitte gib deinen persönlichen Wiederaufnahme-Code ein.")
+                detail="Dieser Name ist bereits vergeben. Bitte gib deinen persönlichen "
+                       "Wiederaufnahme-Code ein. Falls du keinen (mehr) hast, kann dein "
+                       "Trainer dir einen neuen geben.")
     token = create_token(sub=name, role="participant",
                          extra={"participant_id": p.id, "course_id": course.id,
                                 "token_version": p.token_version})

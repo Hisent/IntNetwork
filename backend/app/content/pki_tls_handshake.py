@@ -27,7 +27,7 @@ TLS_HANDSHAKE_MODULE = {
               'the foundation for everything that follows in hardening.',
     },
     'blocks': [
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-1',
          'note': 'Haeufigste Verwechslung: TLS wird mit "Verschluesselung" gleichgesetzt. Klarstellen, dass der Handshake zuerst Authentifizierung und Schluesseleinigung leistet - die symmetrische Verschluesselung der Nutzdaten kommt erst danach.',
          'value': {
              'de': '## Was ein TLS-Handshake eigentlich erledigt\n\n'
@@ -55,7 +55,7 @@ TLS_HANDSHAKE_MODULE = {
                    'Everything that follows in this module is the question: exactly how does this '
                    'play out on the wire — and what changed between TLS 1.2 and TLS 1.3?',
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-2',
          'value': {
              'de': '## TLS 1.2: zwei Roundtrips\n\n'
                    'Ein vollständiger TLS-1.2-Handshake braucht typischerweise zwei Roundtrips:\n\n'
@@ -94,7 +94,7 @@ TLS_HANDSHAKE_MODULE = {
                    'wire in `Certificate` **in plain text** — a passive eavesdropper sees it before a '
                    'session key even exists.',
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-3',
          'value': {
              'de': '## TLS 1.3 (RFC 8446): ein Roundtrip, verschlüsselt ab ServerHello\n\n'
                    'TLS 1.3 reduziert den vollen Handshake auf **einen Roundtrip**: Der Client schickt '
@@ -127,9 +127,37 @@ TLS_HANDSHAKE_MODULE = {
                    '- The weak cipher suites (RC4, 3DES, CBC modes without AEAD) — TLS 1.3 only knows '
                    'AEAD ciphers.',
          }},
+        {'type': 'diagram', 'id': 'diagram-tls12-vs-13',
+         'note': 'Als Zusammenfassung der beiden Textbloecke davor nutzen: Zeile fuer Zeile fragen, '
+                 'welche Spalte die bessere Eigenschaft hat und warum.',
+         'payload': {
+             'kind': 'compare',
+             'title_de': 'TLS 1.2 und TLS 1.3 im direkten Vergleich',
+             'title_en': 'TLS 1.2 and TLS 1.3 side by side',
+             'columns': [{'title': 'TLS 1.2'}, {'title': 'TLS 1.3'}],
+             'rows': [
+                 {'label_de': 'Roundtrips (voller Handshake)', 'label_en': 'Round trips (full handshake)',
+                  'values': ['2', '1']},
+                 {'label_de': 'Schlüsselaustausch', 'label_en': 'Key exchange',
+                  'values_de': ['statisches RSA oder (EC)DHE', 'nur (EC)DHE, optional mit PSK'],
+                  'values_en': ['static RSA or (EC)DHE', '(EC)DHE only, optionally with PSK']},
+                 {'label': 'Forward Secrecy',
+                  'values_de': ['nur mit (EC)DHE-Cipher-Suites', 'bei jedem vollen Handshake'],
+                  'values_en': ['only with (EC)DHE cipher suites', 'in every full handshake']},
+                 {'label_de': 'Server-Zertifikat auf der Leitung', 'label_en': 'Server certificate on the wire',
+                  'values_de': ['im Klartext', 'verschlüsselt (ab ServerHello)'],
+                  'values_en': ['in cleartext', 'encrypted (from ServerHello on)']},
+                 {'label_de': 'Verschlüsselungsverfahren', 'label_en': 'Ciphers',
+                  'values_de': ['auch CBC-Modi, RC4 und 3DES aushandelbar', 'nur AEAD (AES-GCM, ChaCha20-Poly1305)'],
+                  'values_en': ['CBC modes, RC4 and 3DES still negotiable', 'AEAD only (AES-GCM, ChaCha20-Poly1305)']},
+                 {'label_de': 'Wiederaufnahme', 'label_en': 'Resumption',
+                  'values_de': ['Session-ID oder Session-Ticket', 'PSK-Ticket, optional 0-RTT'],
+                  'values_en': ['session ID or session ticket', 'PSK ticket, optionally 0-RTT']},
+             ],
+         }},
         {'type': 'widget', 'id': 'tls-handshake-demo',
          'note': 'Beide Handshakes Schritt fuer Schritt durchklicken lassen und den Unterschied bei den Roundtrips sowie den Zeitpunkt der Verschluesselung (ab wann ist das Zertifikat nicht mehr im Klartext sichtbar) explizit benennen lassen.'},
-        {'type': 'order',
+        {'type': 'order', 'id': 'order-1',
          'payload': {
              'prompt_de': 'Bringe die Schritte eines vollständigen TLS-1.3-Handshakes in die richtige Reihenfolge.',
              'prompt_en': 'Put the steps of a complete TLS 1.3 handshake in the correct order.',
@@ -148,7 +176,7 @@ TLS_HANDSHAKE_MODULE = {
                  'Client and server exchange application data over the derived session key',
              ],
          }},
-        {'type': 'check',
+        {'type': 'check', 'id': 'check-1',
          'payload': {
              'kind': 'choice',
              'prompt_de': 'Wie viele Roundtrips benötigt ein vollständiger TLS-1.3-Handshake typischerweise, bevor Anwendungsdaten fließen?',
@@ -167,7 +195,7 @@ TLS_HANDSHAKE_MODULE = {
                  '3 roundtrips — TLS 1.3 needs extra confirmations because of ECDHE',
              ],
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-4',
          'value': {
              'de': '## SNI: der Hostname im Klartext\n\n'
                    'Damit ein Server, der mehrere HTTPS-Domains auf derselben IP-Adresse bedient '
@@ -198,7 +226,7 @@ TLS_HANDSHAKE_MODULE = {
                    'support ECH by default; Firefox requires a configured DoH server for it to work. '
                    'ECH only takes effect anyway if the requested server also supports it.',
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-5',
          'value': {
              'de': '## ALPN: welches Protokoll läuft oben drauf\n\n'
                    '**ALPN (Application-Layer Protocol Negotiation)** wird im Handshake genutzt, damit '
@@ -213,7 +241,7 @@ TLS_HANDSHAKE_MODULE = {
                    'Without ALPN, this agreement would have to happen after the handshake, which would '
                    'cost an extra roundtrip.',
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-6',
          'value': {
              'de': '## Session Resumption und 0-RTT\n\n'
                    'Einen vollen Handshake für jede neue Verbindung zu derselben Domain durchzuführen, '
@@ -249,7 +277,7 @@ TLS_HANDSHAKE_MODULE = {
                    'payment). In addition, 0-RTT data is protected only by a key derived from the '
                    'ticket and therefore has **no forward secrecy**.',
          }},
-        {'type': 'check',
+        {'type': 'check', 'id': 'check-2',
          'payload': {
              'kind': 'choice',
              'prompt_de': 'Warum dürfen über 0-RTT nur bestimmte Anfragen laufen?',
@@ -268,7 +296,7 @@ TLS_HANDSHAKE_MODULE = {
                  '0-RTT is only permitted for the very first connection to a server at all',
              ],
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-7',
          'value': {
              'de': '## TLS 1.0/1.1: formal Geschichte\n\n'
                    'RFC 8996 hat TLS 1.0, TLS 1.1 und DTLS 1.0 formal deprecatet und in den '
@@ -283,7 +311,7 @@ TLS_HANDSHAKE_MODULE = {
                    'servers that still offer these old versions are not just cryptographically weak, '
                    'they are simply no longer compliant with the current standard.',
          }},
-        {'type': 'reflect',
+        {'type': 'reflect', 'id': 'reflect-1',
          'payload': {
              'prompt_de': 'Ein Kollege schlägt vor, 0-RTT für alle Anfragen an einen internen API-'
                           'Endpunkt zu aktivieren, "weil das schneller ist". Welche Rückfrage stellst '

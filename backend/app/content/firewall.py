@@ -20,7 +20,7 @@ FIREWALL_MODULE = {
               "in and out?",
     },
     "blocks": [
-        {"type": "text",
+        {"type": "text", "id": "text-1",
          "value": {
              "de": "## Was eine Firewall tut\n\nEine **Firewall** sitzt an "
                    "der Grenze zwischen Netzen (typisch internes Netz ↔ Internet) und prüft jedes "
@@ -33,7 +33,7 @@ FIREWALL_MODULE = {
                    "Decisions are usually based on **IP**, **protocol** (TCP/UDP) and **port** — "
                    "exactly the building blocks from the transport module.",
          }},
-        {"type": "text",
+        {"type": "text", "id": "text-2",
          "value": {
              "de": "## Regeln: Reihenfolge zählt\n\nViele klassische Firewalls — auch "
                    "unser Simulator — prüfen Regeln **von oben nach unten**: Die **erste passende** "
@@ -46,7 +46,7 @@ FIREWALL_MODULE = {
                    "know the concrete rule engine; an overly broad early allow rule can make a later "
                    "deny rule pointless.",
          }},
-        {"type": "text",
+        {"type": "text", "id": "text-3",
          "value": {
              "de": "## Default Deny\n\nGute Firewalls arbeiten nach dem "
                    "Prinzip **Default Deny**: Was **nicht ausdrücklich erlaubt** ist, wird "
@@ -69,7 +69,7 @@ FIREWALL_MODULE = {
                  "the reply passes without its own rule; external SYN without state falls "
                  "under default deny."},
         {"type": "widget", "id": "learning-policy", "note": "Eine minimale Policy für Gäste und Büro bauen."},
-        {"type": "text",
+        {"type": "text", "id": "text-4",
          "value": {
              "de": "## Stateful & mehr\n\nModerne Firewalls sind "
                    "**zustandsbehaftet** (stateful): erlauben sie eine ausgehende Verbindung, "

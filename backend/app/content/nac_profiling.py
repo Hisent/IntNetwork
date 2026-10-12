@@ -27,7 +27,7 @@ NAC_PROFILING_MODULE = {
               'connected to the port — not just what it claims to be.',
     },
     'blocks': [
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-1',
          'note': 'Zentrale Botschaft frueh setzen: Sichtbarkeit ist keine Zusatzfunktion, sondern '
                  'die Grundvoraussetzung. Ohne sie bleibt jede Policy blind geraten.',
          'value': {
@@ -56,7 +56,7 @@ NAC_PROFILING_MODULE = {
                    'if you can reliably recognize what is a printer and what is a camera in the '
                    'first place.',
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-2',
          'value': {
              'de': '## Erste Datenquellen: DHCP-Fingerprinting und MAC-OUI\n\n'
                    '- **DHCP-Fingerprinting** — die Reihenfolge und Auswahl der DHCP-Options in '
@@ -82,7 +82,7 @@ NAC_PROFILING_MODULE = {
                    'recognizes "generic Android," the OUI can supply the specific manufacturer of '
                    'the handheld scanner or camera.',
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-3',
          'value': {
              'de': '## Weitere Quellen: CDP/LLDP, SNMP, HTTP-User-Agent\n\n'
                    '- **CDP/LLDP** — Discovery-Protokolle (CDP von Cisco, LLDP herstellerneutral), '
@@ -109,7 +109,7 @@ NAC_PROFILING_MODULE = {
                    'indexed by MAC address. The more sources agree, the more confident the '
                    'classification.',
          }},
-        {'type': 'check',
+        {'type': 'check', 'id': 'check-1',
          'payload': {
              'kind': 'choice',
              'prompt_de': 'Ein Gerät liefert per DHCP-Fingerprint nur „generisches Android“. '
@@ -132,7 +132,7 @@ NAC_PROFILING_MODULE = {
                  'The contents of the resolver\'s DNS cache',
              ],
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-4',
          'value': {
              'de': '## Profiling als Absicherung von MAB\n\n'
                    'MAB (MAC Authentication Bypass) prüft nur eine MAC-Adresse gegen eine Liste — '
@@ -157,7 +157,7 @@ NAC_PROFILING_MODULE = {
                    'address on the list," but "does the device actually behave the way it '
                    'should."',
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-5',
          'value': {
              'de': '## Grenze: Profiling ist Heuristik, kein Beweis\n\n'
                    'Profiling verbessert die Aussagekraft von MAB deutlich — es schließt die '
@@ -185,7 +185,7 @@ NAC_PROFILING_MODULE = {
                    'remains the stronger choice; profiling is the best available safeguard '
                    'precisely where that is not possible.',
          }},
-        {'type': 'debug',
+        {'type': 'debug', 'id': 'debug-1',
          'payload': {
              'prompt_de': 'Ein Alarm meldet: „Gerät mit MAC-Adresse eines registrierten '
                          'Etikettendruckers zeigt seit einer Stunde einen DHCP-Fingerprint und ein '
@@ -222,7 +222,7 @@ NAC_PROFILING_MODULE = {
                                'without an inventory update. The other three statements describe '
                                'the pattern correctly.',
          }},
-        {'type': 'order',
+        {'type': 'order', 'id': 'order-1',
          'payload': {
              'prompt_de': 'Bringe die Schritte, mit denen ein NAC-System ein Geräteprofil '
                          'aufbaut, in eine sinnvolle Reihenfolge.',
@@ -246,7 +246,7 @@ NAC_PROFILING_MODULE = {
                  'deviations',
              ],
          }},
-        {'type': 'reflect',
+        {'type': 'reflect', 'id': 'reflect-1',
          'payload': {
              'prompt_de': 'Nordwind Logistik will Profiling einführen, hat aber kein Budget für '
                          'eine dedizierte NAC-Profiling-Lösung. Welche der genannten Datenquellen '

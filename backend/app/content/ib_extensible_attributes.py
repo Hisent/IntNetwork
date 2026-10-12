@@ -36,7 +36,7 @@ EXTENSIBLE_ATTRIBUTES_MODULE = {
     },
     'blocks': [
         {
-            'type': 'text',
+            'type': 'text', 'id': 'text-1',
             'value': {
                 'de': '## Was sind Extensible Attributes?\n'
                       '\n'
@@ -71,7 +71,7 @@ EXTENSIBLE_ATTRIBUTES_MODULE = {
                     'Übungsaufgaben später einen greifbaren Bezug haben.',
         },
         {
-            'type': 'text',
+            'type': 'text', 'id': 'text-2',
             'value': {
                 'de': '## Datentypen und Konsistenz\n'
                       '\n'
@@ -107,7 +107,7 @@ EXTENSIBLE_ATTRIBUTES_MODULE = {
             },
         },
         {
-            'type': 'check',
+            'type': 'check', 'id': 'check-1',
             'payload': {
                 'kind': 'choice',
                 'prompt_de': 'Warum ist der List-Typ für ein Feld wie „Standort” '
@@ -135,7 +135,7 @@ EXTENSIBLE_ATTRIBUTES_MODULE = {
             },
         },
         {
-            'type': 'text',
+            'type': 'text', 'id': 'text-3',
             'value': {
                 'de': '## Vererbung von Extensible-Attribute-Werten\n'
                       '\n'
@@ -168,7 +168,7 @@ EXTENSIBLE_ATTRIBUTES_MODULE = {
             },
         },
         {
-            'type': 'debug',
+            'type': 'debug', 'id': 'debug-1',
             'payload': {
                 'prompt_de': 'Vier Aussagen zur Vererbung von Extensible '
                              'Attributes — welche ist falsch?',
@@ -209,7 +209,7 @@ EXTENSIBLE_ATTRIBUTES_MODULE = {
             },
         },
         {
-            'type': 'reveal',
+            'type': 'reveal', 'id': 'reveal-1',
             'payload': {
                 'teaser_de': 'Lab: Entwirf ein EA-Schema für die zehn Netzwerke '
                              'aus dem Szenario, die bisher keine einheitliche '
@@ -248,7 +248,7 @@ EXTENSIBLE_ATTRIBUTES_MODULE = {
             },
         },
         {
-            'type': 'order',
+            'type': 'order', 'id': 'order-1',
             'payload': {
                 'prompt_de': 'Bring die Schritte in die richtige Reihenfolge, '
                              'wie aus einem sauberen EA-Schema nutzbare Reports '
@@ -279,7 +279,7 @@ EXTENSIBLE_ATTRIBUTES_MODULE = {
             },
         },
         {
-            'type': 'text',
+            'type': 'text', 'id': 'text-4',
             'value': {
                 'de': '## Typische Fehler beim EA-Datenmodell\n'
                       '\n'
@@ -318,7 +318,7 @@ EXTENSIBLE_ATTRIBUTES_MODULE = {
             },
         },
         {
-            'type': 'reflect',
+            'type': 'reflect', 'id': 'reflect-1',
             'payload': {
                 'prompt_de': 'Überlege für dein eigenes Netzwerk oder '
                              'Übungsszenario: Welche drei Metadaten würdest du '

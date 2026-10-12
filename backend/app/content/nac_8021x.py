@@ -28,7 +28,7 @@ NAC_8021X_MODULE = {
               'device is allowed to send data.',
     },
     'blocks': [
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-1',
          'note': 'Rollen zuerst an den Nordwind-Geraeten festmachen (Laptop/Switch/RADIUS-'
                  'Server), erst danach die Fachbegriffe Supplicant/Authenticator/Authentication '
                  'Server einfuehren. Sonst bleiben es abstrakte Labels.',
@@ -60,7 +60,7 @@ NAC_8021X_MODULE = {
                    'Rule of thumb: supplicant = client, authenticator = switch/AP, '
                    'authentication server = RADIUS.',
          }},
-        {'type': 'check',
+        {'type': 'check', 'id': 'check-1',
          'payload': {
              'kind': 'choice',
              'prompt_de': 'Welche 802.1X-Rolle übernimmt bei Nordwind der Access-Switch?',
@@ -79,7 +79,7 @@ NAC_8021X_MODULE = {
                  'None — switches are not involved in 802.1X',
              ],
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-2',
          'value': {
              'de': '## EAPOL und RADIUS: zwei getrennte Strecken\n\n'
                    'Zwischen Supplicant und Authenticator läuft **EAPOL** (EAP over LAN) — ein '
@@ -102,7 +102,7 @@ NAC_8021X_MODULE = {
                    'switch, a RADIUS problem between switch and authentication server — two '
                    'completely different areas to check.',
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-3',
          'value': {
              'de': '## Der Ablauf: von EAPOL-Start bis EAP-Success\n\n'
                    'Ein typischer 802.1X-Ablauf läuft in dieser Reihenfolge:\n\n'
@@ -142,7 +142,7 @@ NAC_8021X_MODULE = {
         {'type': 'widget', 'id': 'dot1x-flow',
          'note': 'Kernvisualisierung des Moduls — der Text davor liefert die Begriffe, das '
                  'Widget macht die Sequenz zwischen den drei Rollen fuer die Lernenden greifbar.'},
-        {'type': 'order',
+        {'type': 'order', 'id': 'order-1',
          'payload': {
              'prompt_de': 'Bringe die folgenden Schritte des 802.1X-Handshakes in die richtige '
                           'Reihenfolge.',
@@ -162,7 +162,7 @@ NAC_8021X_MODULE = {
                  'RADIUS Access-Accept with EAP-Success to the supplicant',
              ],
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-4',
          'value': {
              'de': '## Controlled und uncontrolled Port\n\n'
                    'Sobald ein Gerät physisch oder drahtlos verbunden ist, versetzt der '
@@ -187,7 +187,7 @@ NAC_8021X_MODULE = {
                    'authenticated, nothing gets through the port except the EAPOL negotiation '
                    'itself — no DHCP, no ping, no application data.',
          }},
-        {'type': 'check',
+        {'type': 'check', 'id': 'check-2',
          'payload': {
              'kind': 'choice',
              'prompt_de': 'Was ist über den uncontrolled port erlaubt, solange ein Gerät noch '
@@ -208,7 +208,7 @@ NAC_8021X_MODULE = {
                  'Only ICMP ping for reachability checks',
              ],
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-5',
          'value': {
              'de': '## Verweis: enterprise-wlan\n\n'
                    '802.1X wird bereits im Modul **enterprise-wlan** des Netzwerk-Lehrgangs '
@@ -224,7 +224,7 @@ NAC_8021X_MODULE = {
                    'authorization outcomes covered in detail in the following modules of this '
                    'block.',
          }},
-        {'type': 'reflect',
+        {'type': 'reflect', 'id': 'reflect-1',
          'payload': {
              'prompt_de': 'Ein Kollege bei Nordwind fragt: „Reicht 802.1X nicht allein aus, '
                           'warum brauchen wir überhaupt noch RADIUS?" Wie erklärst du ihm die '

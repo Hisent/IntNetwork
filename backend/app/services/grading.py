@@ -30,11 +30,14 @@ def question_results(quiz: dict, answers: dict) -> dict[str, bool]:
 
 
 def question_stats(quiz: dict, submissions: list[dict]) -> list[dict]:
-    """Pro Frage über alle Abgaben: wie oft richtig? Nicht beantwortete Fragen
-    zählen als falsch (wie beim Grading) -> Trainer sieht, wo es hakt."""
+    """Pro Frage: wie oft richtig, bei wie vielen Abgaben? Als Versuch zählt eine
+    Abgabe nur, wenn sie die Frage enthält — eine später hinzugekommene Frage
+    (Content-Sync, Editor) stünde sonst mit allen alten Abgaben als "falsch" da.
+    Der Client gibt erst ab, wenn jede Frage beantwortet ist; eine Abgabe ohne
+    die Frage stammt also aus der Zeit vor ihr."""
     return [{"id": q["id"],
              "correct": sum(1 for a in submissions if _correct(q, (a or {}).get(q["id"]))),
-             "attempts": len(submissions)}
+             "attempts": sum(1 for a in submissions if q["id"] in (a or {}))}
             for q in quiz["questions"]]
 
 

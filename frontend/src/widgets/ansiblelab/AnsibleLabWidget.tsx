@@ -39,7 +39,7 @@ function isRawSnapshot(parsed: unknown): parsed is RawSnapshot {
 // Live-CLI (ClaudeCliWidget.loadSnapshot): storageKey kommt aus dem
 // Teilnehmer-/Kurs-Scope, ein beschädigter Eintrag fällt auf die Vorlage
 // zurück statt die Seite zu zerlegen.
-export function loadSnapshot(storageKey: string | null): Snapshot {
+function loadSnapshot(storageKey: string | null): Snapshot {
   const raw = readSnapshot(storageKey, isRawSnapshot, () => ({
     exerciseId: DEFAULT_EXERCISE.id, playbook: DEFAULT_EXERCISE.playbook, extraVars: '',
   }))

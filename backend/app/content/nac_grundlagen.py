@@ -27,7 +27,7 @@ NAC_GRUNDLAGEN_MODULE = {
               'product.',
     },
     'blocks': [
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-1',
          'note': 'Einstieg bewusst am konkreten Nordwind-Problem, nicht an der Definition. Erst '
                  'das Problem, dann der Begriff — sonst wirkt NAC wie Buzzword-Bingo.',
          'value': {
@@ -57,7 +57,7 @@ NAC_GRUNDLAGEN_MODULE = {
                    'policy-compliant devices get access — and provides the visibility and '
                    'enforceable policy needed for that.',
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-2',
          'value': {
              'de': '## Zero-Trust-Bezug\n\n'
                    'Ein Grundprinzip von Zero Trust ist es, implizites Vertrauen auf Basis von '
@@ -81,7 +81,7 @@ NAC_GRUNDLAGEN_MODULE = {
                    'frame into the network, NAC decides whether that happens, and with what '
                    'rights.',
          }},
-        {'type': 'check',
+        {'type': 'check', 'id': 'check-1',
          'payload': {
              'kind': 'choice',
              'prompt_de': 'Was ist die zentrale Aufgabe von NAC?',
@@ -102,7 +102,7 @@ NAC_GRUNDLAGEN_MODULE = {
                  'Managing firewall rules between subnets',
              ],
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-3',
          'value': {
              'de': '## Pre-Admission vs. Post-Admission Control\n\n'
                    'NAC lässt sich danach unterscheiden, **wann** geprüft wird:\n\n'
@@ -130,7 +130,7 @@ NAC_GRUNDLAGEN_MODULE = {
                    'meeting room gets in at all — post-admission would notice if an already '
                    'admitted device suddenly starts behaving suspiciously.',
          }},
-        {'type': 'order',
+        {'type': 'order', 'id': 'order-1',
          'payload': {
              'prompt_de': 'Bringe die folgenden Schritte in die Reihenfolge, in der ein '
                           'Pre-Admission-NAC-Modell ein Gerät prüft.',
@@ -149,7 +149,7 @@ NAC_GRUNDLAGEN_MODULE = {
                  'Access decision: grant, deny, or restrict access',
              ],
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-4',
          'value': {
              'de': '## Agent-based vs. agentless\n\n'
                    'Eine zweite Unterscheidung betrifft, **wie** NAC den Gerätezustand erfasst:\n\n'
@@ -172,7 +172,7 @@ NAC_GRUNDLAGEN_MODULE = {
                    'warehouse cannot accept an agent — for IoT, OT, BYOD, and guest devices, '
                    'agentless NAC is often the only practical option.',
          }},
-        {'type': 'check',
+        {'type': 'check', 'id': 'check-2',
          'payload': {
              'kind': 'choice',
              'prompt_de': 'Der Etikettendrucker im Lager unterstützt keinen Software-Agenten. '
@@ -193,7 +193,7 @@ NAC_GRUNDLAGEN_MODULE = {
                  'No NAC at all, since printers are generally trustworthy',
              ],
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-5',
          'note': 'Diese drei Fragen sind das Skelett fuer den ganzen Block 1. Ruhig woertlich '
                  'wiederholen lassen, bevor es in Modul 2 (802.1X) an die Rollen geht.',
          'value': {
@@ -222,7 +222,7 @@ NAC_GRUNDLAGEN_MODULE = {
                    'provide the technical foundation for questions 1 and 2, posture assessment '
                    'goes deeper into question 3 in a later block.',
          }},
-        {'type': 'reveal',
+        {'type': 'reveal', 'id': 'reveal-1',
          'payload': {
              'teaser_de': 'Ein Gast steckt sein privates Notebook in einen freien Port im '
                           'Besprechungsraum bei Nordwind. Welche der drei NAC-Grundfragen greift '
@@ -245,7 +245,7 @@ NAC_GRUNDLAGEN_MODULE = {
                    'start of the chain — with 802.1X, this is why the port stays fully blocked '
                    'until an identity is established.',
          }},
-        {'type': 'reflect',
+        {'type': 'reflect', 'id': 'reflect-1',
          'payload': {
              'prompt_de': 'Nordwind erwägt, für den Anfang nur agentless NAC einzuführen und auf '
                           'Agenten ganz zu verzichten. Welche der drei Grundfragen (Authentifizierung, '

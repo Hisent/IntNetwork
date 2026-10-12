@@ -26,7 +26,7 @@ REPORTING_MODULE = {
                'are set up sensibly.'),
     },
     'blocks': [
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-1',
          'note': 'Reports sind nur so gut wie die Metadaten darunter. Guter Moment, um auf das Modul zu den Extensible Attributes zurueckzuverweisen.',
          'value': {
              'de': ('## Bausteine von Reporting and Analytics\n'
@@ -66,7 +66,7 @@ REPORTING_MODULE = {
                     'Over 100 preconfigured reports cover common questions right '
                     'away and can be fully customized as needed.'),
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-2',
          'value': {
              'de': ('## Typische Auswertungen im Betrieb\n'
                     '\n'
@@ -101,7 +101,7 @@ REPORTING_MODULE = {
                     'These three evaluations are often the first thing operations '
                     'checks, before digging deeper into individual cases.'),
          }},
-        {'type': 'check',
+        {'type': 'check', 'id': 'check-1',
          'payload': {
              'kind': 'choice',
              'prompt_de': ('Ein Team fragt regelmäßig genau dieselbe '
@@ -123,7 +123,7 @@ REPORTING_MODULE = {
                             'Track the evaluation manually in a separate spreadsheet',
                             'Do without the metric, since customization is not supported'],
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-3',
          'value': {
              'de': ('## Alerts: Schwellenwerte statt Dauerbeobachtung\n'
                     '\n'
@@ -158,7 +158,7 @@ REPORTING_MODULE = {
                     'A good threshold fires early enough to still allow a '
                     'response, but rarely enough to be taken seriously.'),
          }},
-        {'type': 'check',
+        {'type': 'check', 'id': 'check-2',
          'payload': {
              'kind': 'number',
              'prompt_de': ('Ein /24-Netzwerk liegt aktuell bei 70 % Auslastung und '
@@ -169,7 +169,7 @@ REPORTING_MODULE = {
                            'many weeks will the 90% threshold be reached?'),
              'answer': 4,
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-4',
          'value': {
              'de': ('## Rollenbasierte Dashboards und der Wert guter EAs\n'
                     '\n'
@@ -198,7 +198,7 @@ REPORTING_MODULE = {
                     'environment. Without that upkeep, even the best preconfigured '
                     'report stays a rough total number without context.'),
          }},
-        {'type': 'debug',
+        {'type': 'debug', 'id': 'debug-1',
          'payload': {
              'prompt_de': ('Ein Kollege hat folgende Kennzahlen einem '
                            'Security-Dashboard zugeordnet. Eine davon passt '
@@ -230,7 +230,7 @@ REPORTING_MODULE = {
                                 'network operations or capacity planning dashboard '
                                 'instead.'),
          }},
-        {'type': 'reflect',
+        {'type': 'reflect', 'id': 'reflect-1',
          'payload': {
              'prompt_de': ('Nenne zwei bis drei Auswertungen, auf die du im '
                            'Alltag zuerst schauen würdest, um frühzeitig zu '

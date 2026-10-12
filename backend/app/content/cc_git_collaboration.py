@@ -15,7 +15,7 @@ GIT_COLLABORATION_MODULE = {
     },
     "blocks": [
         {
-            "type": "text",
+            "type": "text", "id": "text-1",
             "value": {
                 "de": """## Eine Aufgabe, ein Branch, ein Review
 
@@ -39,7 +39,7 @@ An agent may prepare a branch or commit. Merge, push, and deployment remain team
             "note": "Ein absichtlich kleiner Branch mit einem Test und einem Review-Diff genügt für die Übung.",
         },
         {
-            "type": "text",
+            "type": "text", "id": "text-2",
             "value": {
                 "de": """## Parallele Sessions mit Worktrees
 
@@ -66,7 +66,7 @@ This prevents overwriting edits and makes it clear which agent produced which ch
             },
         },
         {
-            "type": "text",
+            "type": "text", "id": "text-3",
             "value": {
                 "de": """## Review-Übergabe
 
@@ -77,7 +77,7 @@ A good handoff answers four questions: What changed? Why? How was it checked? Wh
             },
         },
         {
-            "type": "debug",
+            "type": "debug", "id": "debug-1",
             "payload": {
                 "prompt_de": "Zwei Sessions arbeiten parallel. Welche Arbeitsweise ist riskant?",
                 "prompt_en": "Two sessions are working in parallel. Which workflow is risky?",
@@ -128,7 +128,7 @@ A good handoff answers four questions: What changed? Why? How was it checked? Wh
             "note": "Laeuft im Runner. Ohne freigegebene Art \"git\" zeigt das Widget einen Hinweis.",
         },
         {
-            "type": "reflect",
+            "type": "reflect", "id": "reflect-1",
             "payload": {
                 "prompt_de": "Welche Änderung in eurem Team wäre klein genug für einen eigenen Branch und ein kurzes Review?",
                 "prompt_en": "Which change in your team would be small enough for its own branch and a short review?",

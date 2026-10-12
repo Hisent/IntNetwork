@@ -23,7 +23,7 @@ IDEMPOTENZ_MODULE = {
                     'That requires two things: tasks that produce the same result when run '
                     'repeatedly (**idempotency**), and a structure that handles errors in a '
                     'controlled way instead of letting the whole play crash.'},
- 'blocks': [{'type': 'text',
+ 'blocks': [{'type': 'text', 'id': 'text-1',
              'value': {'de': '## Was ist Idempotenz?\n'
                              '\n'
                              '**Idempotenz** heißt: Ein Task liefert bei mehrfacher Ausführung '
@@ -45,7 +45,7 @@ IDEMPOTENZ_MODULE = {
                              'nothing changed, the task is **not idempotent** — or it reports '
                              'its status wrongly (typical for `command`/`shell`, which always '
                              'report `changed` unless told otherwise). Both are worth fixing.'}},
-            {'type': 'text',
+            {'type': 'text', 'id': 'text-2',
              'note': 'Idempotenz ist der Kern des ganzen Kurses. Wenn nur ein Modul haengen bleiben soll, dann dieses — der Rest baut darauf auf.',
              'value': {'de': '## Deklarativ vs. command/shell\n'
                              '\n'
@@ -105,7 +105,7 @@ IDEMPOTENZ_MODULE = {
                              '`removes: <path>` help: the task only runs if the given path does '
                              '**not yet** exist (`creates`) or **still** exists (`removes`) — a '
                              'simple idempotency crutch for imperative commands.'}},
-            {'type': 'check',
+            {'type': 'check', 'id': 'check-1',
              'payload': {'kind': 'choice',
                          'prompt_de': 'Ein Task lautet: ansible.builtin.command: rm -f '
                                       '/tmp/lock.file. Ist dieser Task idempotent?',
@@ -126,7 +126,7 @@ IDEMPOTENZ_MODULE = {
                                         'No, because rm -f throws an error when the file is '
                                         'missing',
                                         'This cannot be judged without --check']}},
-            {'type': 'text',
+            {'type': 'text', 'id': 'text-3',
              'value': {'de': '## Task-Status lesen\n'
                              '\n'
                              'In der Ausgabe eines Playbook-Laufs steht vor jedem Task einer '
@@ -166,7 +166,7 @@ IDEMPOTENZ_MODULE = {
                              'gets checked again — for declarative modules with an unchanged '
                              'target state this usually means `ok`, while non-idempotent '
                              '`command`/`shell` tasks may report `changed` again.'}},
-            {'type': 'debug',
+            {'type': 'debug', 'id': 'debug-1',
              'payload': {'prompt_de': 'Diese Fehlerbehandlung soll bei einem fehlschlagenden '
                                       'Konfigurations-Update die alte Konfiguration '
                                       'wiederherstellen. Beim Testen läuft die Wiederherstellung '
@@ -211,7 +211,7 @@ IDEMPOTENZ_MODULE = {
                                            '`always` — Ansible rejects a misnamed key while loading '
                                            'the playbook ("is not a valid attribute for a Block"), '
                                            'so the playbook does not even start.'}},
-            {'type': 'order',
+            {'type': 'order', 'id': 'order-1',
              'payload': {'prompt_de': 'Ein block schlägt fehl und besitzt sowohl rescue als auch '
                                       'always. Bring den tatsächlichen Ablauf in die richtige '
                                       'Reihenfolge.',
@@ -231,7 +231,7 @@ IDEMPOTENZ_MODULE = {
                                       'whether block or rescue succeeded',
                                       'The host counts as rescued, provided rescue itself did '
                                       'not fail']}},
-            {'type': 'text',
+            {'type': 'text', 'id': 'text-4',
              'value': {'de': '## ignore_errors, failed_when, changed_when — mit Bedacht\n'
                              '\n'
                              '- `ignore_errors: true` lässt das Play trotz Fehlschlag '
@@ -267,7 +267,7 @@ IDEMPOTENZ_MODULE = {
                              'liberally they are used, the less meaningful the play summary '
                              'becomes. Rule of thumb: as targeted as possible, never applied '
                              'blanket-style across a whole playbook.'}},
-            {'type': 'text',
+            {'type': 'text', 'id': 'text-5',
              'value': {'de': '## Grenzen des Check-Modus\n'
                              '\n'
                              '`ansible-playbook --check` simuliert einen Lauf, ohne tatsächlich '

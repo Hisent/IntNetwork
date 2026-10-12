@@ -25,7 +25,7 @@ DNSSEC_MODULE = {
               'what it explicitly does not.',
     },
     'blocks': [
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-1',
          'note': 'Haeufigste Rueckfrage: Verschluesselt DNSSEC meine Abfragen? Nein — es beweist die Echtheit der Antwort. Diese Abgrenzung fruehzeitig setzen, sonst zieht sie sich durch das ganze Modul.',
          'value': {
              'de': '## Was DNSSEC leistet — und was nicht\n\n'
@@ -48,7 +48,7 @@ DNSSEC_MODULE = {
                    'DNSSEC secures **authenticity and integrity**, not secrecy. This is a common '
                    'misunderstanding that leads to wrong expectations in operations.',
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-2',
          'value': {
              'de': '## Signieren und Validieren — zwei getrennte Rollen\n\n'
                    'DNSSEC hat zwei Seiten, die beide DNSSEC-fähig konfiguriert sein müssen:\n\n'
@@ -70,7 +70,7 @@ DNSSEC_MODULE = {
                    'a validating counterpart delivers no additional protection for that particular '
                    'client.',
          }},
-        {'type': 'check',
+        {'type': 'check', 'id': 'check-1',
          'payload': {
              'kind': 'choice',
              'prompt_de': 'Wo findet die DNSSEC-Validierung statt?',
@@ -89,7 +89,7 @@ DNSSEC_MODULE = {
                  'On the client that makes the DNS request',
              ],
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-3',
          'value': {
              'de': '## KSK, ZSK und Rollover\n\n'
                    'DNSSEC arbeitet typischerweise mit zwei Schlüsseltypen:\n\n'
@@ -118,7 +118,7 @@ DNSSEC_MODULE = {
                    'everything as invalid. Timed incorrectly, a rollover leads to exactly this '
                    'validation failure.',
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-4',
          'value': {
              'de': '## Abgrenzung: DNSSEC vs. TSIG/GSS-TSIG\n\n'
                    'Leicht zu verwechseln, aber unterschiedliche Schutzziele:\n\n'
@@ -140,7 +140,7 @@ DNSSEC_MODULE = {
                    'Both can be used independently of each other. A zone can be DNSSEC-signed '
                    'without its zone transfers being secured via TSIG — and vice versa.',
          }},
-        {'type': 'debug',
+        {'type': 'debug', 'id': 'debug-1',
          'payload': {
              'prompt_de': 'Ein Monitoring-Alarm meldet: „Externe validierende Resolver antworten '
                           'mit SERVFAIL für nordwind-intern.de. Interne Clients ohne Validierung '
@@ -180,7 +180,7 @@ DNSSEC_MODULE = {
                                'rollover — validating resolvers treat the zone as "bogus" and '
                                'discard it.',
          }},
-        {'type': 'order',
+        {'type': 'order', 'id': 'order-1',
          'payload': {
              'prompt_de': 'Bringe die Schritte eines DNSSEC-Rollouts für eine Zone in die richtige '
                           'Reihenfolge.',
@@ -200,7 +200,7 @@ DNSSEC_MODULE = {
                  'Continuously monitor signature expiration and key rollover',
              ],
          }},
-        {'type': 'reflect',
+        {'type': 'reflect', 'id': 'reflect-1',
          'payload': {
              'prompt_de': 'Warum ist „DNSSEC einmal aktivieren und dann vergessen“ ein Betriebs-'
                          'risiko? Was müsste im laufenden Betrieb regelmäßig geschehen, damit '

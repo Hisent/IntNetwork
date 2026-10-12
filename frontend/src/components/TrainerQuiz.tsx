@@ -30,6 +30,9 @@ export function TrainerQuiz({ questions }: { questions: Question[] }) {
                 })}
               </div>
             )}
+            {q.explanation && (
+              <p className="mt-2 text-sm text-slate-600"><span className="font-semibold">Erklärung: </span>{q.explanation}</p>
+            )}
           </div>
         ))}
       </div>

@@ -1,18 +1,19 @@
+import hashlib
 import json
 import re
-from collections import defaultdict, deque
 
 from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, field_validator
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.content.registry import MODULES
+from app.content.sync import apply_state, serialize_module as _serialize_module, source_state
 from app.database import get_db
-from app.models.comment import Comment
 from app.models.content import ContentBlock, ContentModule, ContentModuleSnapshot, ContentQuizQuestion
 from app.models.workshop import Workshop
 from app.services.audit import log_action
+from app.services.block_validation import DECLARATIVE_TYPES, validate_block
 from app.services.deps import get_trainer
 
 router = APIRouter(prefix="/trainer/content/modules", tags=["trainer-content"])
@@ -47,6 +48,9 @@ KEY_RE = re.compile(r"^[a-z0-9-]+$")
 
 
 class BlockIn(BaseModel):
+    # Stabile Kennung (app/content/sync.py). Der Editor schickt sie unverändert
+    # zurück; ohne uid gilt der Block als neu bzw. wird über Inhalt/Position wiedererkannt.
+    uid: str | None = Field(None, max_length=64)
     type: str
     value_de: str | None = None
     value_en: str | None = None
@@ -56,12 +60,21 @@ class BlockIn(BaseModel):
 
 
 class QuestionIn(BaseModel):
+    uid: str | None = Field(None, max_length=64)  # wie BlockIn.uid
     qtype: str
     prompt_de: str
     prompt_en: str
     options_de: list[str] | None = None
     options_en: list[str] | None = None
     answer: int | list[int]
+    # Erklärung zur Lösung, optional — Teilnehmer sehen sie erst nach der Abgabe.
+    explanation_de: str | None = None
+    explanation_en: str | None = None
+
+    @field_validator("explanation_de", "explanation_en")
+    @classmethod
+    def _leer_ist_keine(cls, v: str | None) -> str | None:
+        return v.strip() or None if v else None
 
 
 class ModuleIn(BaseModel):
@@ -92,22 +105,6 @@ def _load_blocks_and_quiz(db: Session, key: str) -> tuple[list[ContentBlock], li
     questions = db.query(ContentQuizQuestion).filter(
         ContentQuizQuestion.module_key == key).order_by(ContentQuizQuestion.position).all()
     return blocks, questions
-
-
-def _serialize_module(m: ContentModule, blocks: list[ContentBlock], questions: list[ContentQuizQuestion]) -> dict:
-    """Form entspricht exakt ModuleIn-Feldern — so lässt sich das Ergebnis direkt
-    wieder als ModuleIn(**data) einlesen (genutzt fürs Snapshot-Restore)."""
-    return {
-        "title_de": m.title_de, "title_en": m.title_en,
-        "order": m.order,
-        "prerequisites": m.prerequisites, "goals": m.goals,
-        "scenario_de": m.scenario_de, "scenario_en": m.scenario_en,
-        "blocks": [{"type": b.type, "value_de": b.value_de, "value_en": b.value_en,
-                    "widget_id": b.widget_id, "note": b.note, "payload": b.payload} for b in blocks],
-        "quiz": [{"qtype": q.qtype, "prompt_de": q.prompt_de, "prompt_en": q.prompt_en,
-                  "options_de": q.options_de, "options_en": q.options_en, "answer": q.answer}
-                 for q in questions],
-    }
 
 
 def _validate(db: Session, key: str, data: ModuleIn) -> None:
@@ -174,9 +171,18 @@ def _validate(db: Session, key: str, data: ModuleIn) -> None:
                 raise HTTPException(status_code=422, detail="Reveal-Block braucht teaser_de und teaser_en")
             if not b.value_de or not b.value_en:
                 raise HTTPException(status_code=422, detail="Reveal-Block braucht value_de und value_en (versteckter Inhalt)")
+        elif b.type in DECLARATIVE_TYPES:
+            # Deklarativer Baukasten (docs/content-authoring.md): Meldung nennt Block-id und Feldpfad.
+            try:
+                validate_block(b.type, b.payload)
+            except ValueError as err:
+                label = b.uid or b.widget_id or f"#{data.blocks.index(b) + 1}"
+                raise HTTPException(status_code=422, detail=f"{b.type}-Block '{label}': {err}") from None
         else:
             raise HTTPException(status_code=422, detail=f"Unbekannter Block-Typ: {b.type}")
     for q in data.quiz:
+        if bool(q.explanation_de) != bool(q.explanation_en):
+            raise HTTPException(status_code=422, detail="Frage: Erklärung braucht explanation_de und explanation_en")
         if q.qtype in ("single", "multi"):
             if not q.options_de or not q.options_en:
                 raise HTTPException(status_code=422, detail="Frage braucht options_de und options_en")
@@ -203,102 +209,13 @@ def _validate(db: Session, key: str, data: ModuleIn) -> None:
             raise HTTPException(status_code=422, detail=f"Unbekannter Fragetyp: {q.qtype}")
 
 
-def _block_signature(b) -> tuple:
-    """Inhaltsabdruck eines Blocks, positionsunabhaengig. `b` ist entweder ein
-    ContentBlock (alter Stand) oder ein BlockIn (neuer Stand aus dem Editor) --
-    beide tragen dieselben Felder type/value_de/value_en/widget_id/note/payload,
-    das reicht als Fingerabdruck um denselben inhaltlichen Block vor und nach
-    dem Speichern wiederzuerkennen (gleiche Idee wie in content/seed.py
-    _block_matches_source, nur mit Editor-Eingabe statt Seed-Dict verglichen)."""
-    payload = b.payload
-    return (b.type, b.value_de, b.value_en, b.widget_id, b.note,
-            json.dumps(payload, sort_keys=True) if payload is not None else None)
-
-
-def _remap_or_orphan_comments(db: Session, key: str, old_blocks: list[ContentBlock],
-                              new_blocks: list[BlockIn]) -> None:
-    """Rechnet Comment.block_index auf das Speichern eines Moduls um.
-
-    Kommentare haengen an (module_key, block_index) -- also an der POSITION
-    eines Blocks, nicht an einer Block-id (die es fuer Kommentare gar nicht
-    gibt). _apply loescht beim Speichern aber ALLE ContentBlock-Zeilen und legt
-    sie mit neuen ids und position 0..n-1 komplett neu an -- es gibt also keine
-    stabile Block-Identitaet ueber das Speichern hinweg. Ohne diese Funktion
-    wuerde jede Umsortierung/Einfuegung im Editor bestehende Kommentare stumm an
-    einen fremden, inhaltlich anderen Block haengen.
-
-    Zweistufige Zuordnung:
-
-    Stufe 1 -- Inhaltssignatur (_block_signature): pro Signatur eine FIFO-
-    Warteschlange der alten Positionen, beim Durchlauf der neuen Bloecke in
-    Reihenfolge konsumiert. Das bildet reines Umsortieren und Einfuegen korrekt
-    ab (Test: Block an Index 2 kommentiert, neuer Block bei 0 eingefuegt ->
-    Kommentar zeigt danach auf Index 3, denselben inhaltlichen Block).
-
-    Stufe 2 -- Positions-Fallback fuer alles, was Stufe 1 nicht zuordnen konnte:
-    steht an der ALTEN Position von comment.block_index im neuen Blocklayout
-    noch ein Block MIT GLEICHEM TYP, bleibt der Kommentar dort haengen. Das ist
-    der normale Trainer-Workflow "Tippfehler in Block 2 korrigieren" -- der
-    Block bleibt an seinem Platz und behaelt seinen Typ, nur value_de/value_en/
-    payload aendern sich, wodurch sich zwangslaeufig auch die Signatur aendert.
-    Ohne Fallback wuerde jede reine Textaenderung eines kommentierten Blocks den
-    Kommentar loeschen (Datenverlust bei ganz normaler Nutzung).
-
-    Geloescht wird ein Kommentar nur noch, wenn an seiner alten Position gar
-    kein Block mehr existiert (Block entfernt) ODER sich dort der Block-TYP
-    geaendert hat (z.B. text -> widget) -- dann ist der inhaltliche Bezug
-    tatsaechlich weg und ein Clamp auf einen artfremden Block waere falsch.
-    Eine "verwaist"-Markierung waere transparenter, verlangt aber ein neues Feld
-    auf Comment (block_index ist NOT NULL, kein Status-Feld) -- Modelltyp-
-    Aenderungen sind fuer diesen Fix bewusst tabu."""
-    old_queue: dict[tuple, deque[int]] = defaultdict(deque)
-    for pos, b in enumerate(old_blocks):
-        old_queue[_block_signature(b)].append(pos)
-    position_map: dict[int, int] = {}
-    matched_new_positions: set[int] = set()
-    for new_pos, b in enumerate(new_blocks):
-        queue = old_queue.get(_block_signature(b))
-        if queue:
-            position_map[queue.popleft()] = new_pos
-            matched_new_positions.add(new_pos)
-    for comment in db.query(Comment).filter(Comment.module_key == key):
-        new_pos = position_map.get(comment.block_index)
-        if new_pos is not None:
-            comment.block_index = new_pos
-            continue
-        # Stufe 2: gleiche Position, gleicher Typ, und diese Position wurde
-        # nicht schon per Signatur von einem ANDEREN alten Block belegt (sonst
-        # sitzt dort durch Umsortieren fremder Inhalt). Kein "Verbrauchen" der
-        # Position hier noetig: mehrere Kommentare auf demselben alten Block
-        # sollen alle gemeinsam an dessen (unveraenderter) Position bleiben.
-        old_pos = comment.block_index
-        if (0 <= old_pos < len(new_blocks) and old_pos not in matched_new_positions
-                and old_pos < len(old_blocks)
-                and old_blocks[old_pos].type == new_blocks[old_pos].type):
-            continue
-        db.delete(comment)
-
-
 def _apply(db: Session, key: str, m: ContentModule, data: ModuleIn,
-          old_blocks: list[ContentBlock]) -> None:
-    m.title_de = data.title_de
-    m.title_en = data.title_en
-    m.order = data.order
-    m.prerequisites = data.prerequisites
-    m.goals = data.goals
-    m.scenario_de = data.scenario_de
-    m.scenario_en = data.scenario_en
-    _remap_or_orphan_comments(db, key, old_blocks, data.blocks)
-    db.query(ContentBlock).filter(ContentBlock.module_key == key).delete()
-    db.query(ContentQuizQuestion).filter(ContentQuizQuestion.module_key == key).delete()
-    for i, b in enumerate(data.blocks):
-        db.add(ContentBlock(module_key=key, position=i, type=b.type,
-                            value_de=b.value_de, value_en=b.value_en,
-                            widget_id=b.widget_id, note=b.note, payload=b.payload))
-    for i, q in enumerate(data.quiz):
-        db.add(ContentQuizQuestion(module_key=key, position=i, qtype=q.qtype,
-                                   prompt_de=q.prompt_de, prompt_en=q.prompt_en,
-                                   options_de=q.options_de, options_en=q.options_en, answer=q.answer))
+           blocks: list[ContentBlock], questions: list[ContentQuizQuestion]) -> None:
+    """Schreibt data in-place über die Kennungen (apply_state): unveränderte
+    Blöcke und Fragen behalten ihre Zeile — Quiz-Abgaben und -Statistik hängen an
+    der Frage-id, Kommentare wandern mit ihrem Block; der Kommentar an einem
+    entfernten Block wird gelöscht."""
+    apply_state(db, key, m, blocks, questions, data.model_dump())
 
 
 def _upsert_snapshot(db: Session, key: str, data: dict) -> None:
@@ -315,6 +232,17 @@ def list_modules(db: Session = Depends(get_db), _t: dict = Depends(get_trainer))
     return [_meta(m) for m in mods]
 
 
+def _version(state: dict) -> str:
+    """Fingerabdruck des gespeicherten Modulstands für die optimistische Sperre
+    des Editors (GET liefert ihn als `version`, PUT prüft `base_version`).
+    Bewusst ein Hash über den Inhalt statt einer updated_at-Spalte: braucht
+    keine Migration und erkennt auch Reseed, Restore und Content-Sync.
+    ponytail: Prüfen und Speichern sind nicht atomar — zwei PUTs im selben
+    Augenblick kommen beide durch. Für echte Gleichzeitigkeit: Versionsspalte
+    plus `UPDATE ... WHERE version = :alt`."""
+    return hashlib.sha256(json.dumps(state, sort_keys=True, default=str).encode()).hexdigest()[:16]
+
+
 @router.get("/{key}")
 def get_module(key: str, db: Session = Depends(get_db), _t: dict = Depends(get_trainer)):
     m = db.query(ContentModule).filter(ContentModule.key == key).first()
@@ -322,9 +250,10 @@ def get_module(key: str, db: Session = Depends(get_db), _t: dict = Depends(get_t
         raise HTTPException(status_code=404, detail="Modul nicht gefunden")
     blocks, questions = _load_blocks_and_quiz(db, key)
     has_snapshot = db.query(ContentModuleSnapshot).filter(ContentModuleSnapshot.module_key == key).first() is not None
+    state = _serialize_module(m, blocks, questions)
     return {"key": m.key, "workshop_key": m.workshop_key,
             "has_snapshot": has_snapshot, "has_seed": key in MODULES,
-            **_serialize_module(m, blocks, questions)}
+            "version": _version(state), **state}
 
 
 @router.post("")
@@ -353,38 +282,35 @@ def create_module(data: ModuleCreateIn, db: Session = Depends(get_db), trainer: 
 
 
 @router.put("/{key}")
-def update_module(key: str, data: ModuleIn, db: Session = Depends(get_db), trainer: dict = Depends(get_trainer)):
+def update_module(key: str, data: ModuleIn, base_version: str | None = None,
+                  db: Session = Depends(get_db), trainer: dict = Depends(get_trainer)):
     m = db.query(ContentModule).filter(ContentModule.key == key).first()
     if not m:
         raise HTTPException(status_code=404, detail="Modul nicht gefunden")
     _validate(db, key, data)
     blocks, questions = _load_blocks_and_quiz(db, key)
-    _upsert_snapshot(db, key, _serialize_module(m, blocks, questions))
-    _apply(db, key, m, data, blocks)
+    current = _serialize_module(m, blocks, questions)
+    # Optimistische Sperre: Der Editor schickt die Version mit, auf der seine
+    # Änderungen beruhen. Hat inzwischen jemand anderes gespeichert, würde
+    # dieses PUT dessen Stand komplett überschreiben. Ohne base_version (ältere
+    # Clients, Skripte) bleibt es beim bisherigen Verhalten.
+    if base_version is not None and base_version != _version(current):
+        raise HTTPException(
+            status_code=409,
+            detail="Dieses Modul wurde inzwischen an anderer Stelle geändert (anderer Trainer, "
+                   "zweiter Tab oder Content-Update). Nichts wurde gespeichert. Bitte eigene "
+                   "Änderungen sichern, die Seite neu laden und erneut einpflegen.")
+    _upsert_snapshot(db, key, current)
+    _apply(db, key, m, data, blocks, questions)
     db.commit()
     log_action(db, trainer, "content.save", target=f"module:{key}")
-    return _meta(m)
+    return {**_meta(m), "version": _version(_serialize_module(m, *_load_blocks_and_quiz(db, key)))}
 
 
 def _seed_to_module_in(seed: dict) -> ModuleIn:
-    """Übersetzt ein Seed-Dict aus app/content/*.py in die ModuleIn-Form
-    (Sprach-Dicts {"de","en"} -> flache _de/_en-Felder)."""
-    blocks = []
-    for b in seed["blocks"]:
-        value = b.get("value") or {}
-        blocks.append(BlockIn(type=b["type"], value_de=value.get("de"), value_en=value.get("en"),
-                              widget_id=b.get("id"), note=b.get("note"), payload=b.get("payload")))
-    quiz = []
-    for q in seed["quiz"]["questions"]:
-        opts = q.get("options")
-        quiz.append(QuestionIn(qtype=q["type"], prompt_de=q["prompt"]["de"], prompt_en=q["prompt"]["en"],
-                               options_de=opts["de"] if opts else None,
-                               options_en=opts["en"] if opts else None, answer=q["answer"]))
-    return ModuleIn(title_de=seed["title"], title_en=seed.get("title_en", seed["title"]),
-                    order=seed["order"], prerequisites=seed.get("prerequisites", []),
-                    goals=seed.get("goals", []),
-                    scenario_de=seed["scenario"]["de"], scenario_en=seed["scenario"]["en"],
-                    blocks=blocks, quiz=quiz)
+    """Seed-Dict aus app/content/*.py in der ModuleIn-Form — dieselbe kanonische
+    Form (samt Kennungen), die der Content-Sync einspielt."""
+    return ModuleIn(**source_state(seed))
 
 
 @router.post("/{key}/reseed")
@@ -401,7 +327,7 @@ def reseed_module(key: str, db: Session = Depends(get_db), trainer: dict = Depen
     _validate(db, key, data)  # fängt Fehler in der Seed-Datei früh ab
     blocks, questions = _load_blocks_and_quiz(db, key)
     _upsert_snapshot(db, key, _serialize_module(m, blocks, questions))
-    _apply(db, key, m, data, blocks)
+    _apply(db, key, m, data, blocks, questions)
     db.commit()
     log_action(db, trainer, "content.reseed", target=f"module:{key}")
     return _meta(m)
@@ -418,7 +344,7 @@ def restore_module(key: str, db: Session = Depends(get_db), trainer: dict = Depe
     blocks, questions = _load_blocks_and_quiz(db, key)
     current_data = _serialize_module(m, blocks, questions)
     restored = ModuleIn(**snap.data)
-    _apply(db, key, m, restored, blocks)
+    _apply(db, key, m, restored, blocks, questions)
     snap.data = current_data
     db.commit()
     log_action(db, trainer, "content.restore", target=f"module:{key}")

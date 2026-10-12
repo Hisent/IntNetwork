@@ -253,6 +253,31 @@ describe('TrainerPage — Kurs löschen', () => {
     // onDeleted hebt die Auswahl auf — die Detail-Ansicht fällt auf den Platzhalter zurück.
     expect(await screen.findByText('Kurs links auswählen, um Module, Präsenz, Feedback und Fortschritt zu sehen.')).toBeTruthy()
   })
+
+  it('nennt verbleibende Zertifikate und löscht sie nur auf ausdrücklichen Wunsch mit', async () => {
+    useAuthStore.setState({ token: 'demo', role: 'trainer', displayName: 'Trainer' })
+    vi.mocked(api.delete).mockResolvedValue({ data: undefined })
+    mockGet({
+      '/courses': [{ id: 1, name: 'Testkurs', join_code: 'ABC123', workshop_key: 'network', participant_count: 2 }],
+      '/workshops': [], '/trainer/modules': [], '/trainer/accounts': [],
+      '/features': { comments: false }, '/changelog': [], '/courses/1/modules': [],
+      '/courses/1/dashboard': { course: { id: 1, name: 'Testkurs', join_code: 'ABC123', workshop_key: 'network', certificate_count: 2 }, modules: [], participants: [] },
+      '/trainer/courses/1/presence': [],
+    })
+
+    renderWithProviders(<TrainerPage />)
+
+    fireEvent.click(await screen.findByText('Testkurs'))
+    fireEvent.click(await screen.findByRole('button', { name: 'Kurs löschen' }))
+    const dialog = await screen.findByRole('alertdialog', { name: 'Kurs löschen' })
+    const checkbox = await screen.findByRole('checkbox', { name: 'Teilnahmebestätigungen mitlöschen' }) as HTMLInputElement
+    expect(dialog.textContent).toContain('2 ausgestellte Teilnahmebestätigungen bleiben')
+    expect(checkbox.checked).toBe(false) // Standard: behalten
+    fireEvent.click(checkbox)
+    fireEvent.click(screen.getByRole('button', { name: 'Endgültig löschen' }))
+
+    await waitFor(() => expect(api.delete).toHaveBeenCalledWith('/courses/1?delete_certificates=true'))
+  })
 })
 
 describe('TrainerPage — Passkeys (Verwaltung)', () => {

@@ -28,7 +28,7 @@ REDUNDANZ_MODULE = {
               "suspected. How do you make sure redundancy doesn't become the problem itself?",
     },
     "blocks": [
-        {"type": "text",
+        {"type": "text", "id": "text-1",
          "note": "Zwei Ebenen unterscheiden: Schicht 2 (STP, LACP) sichert das Switch-Netz, "
                  "Schicht 3 (VRRP/HSRP) sichert das Gateway. Diese Trennung als roten Faden "
                  "fuers ganze Modul nutzen.",
@@ -46,7 +46,7 @@ REDUNDANZ_MODULE = {
                    "clients out. Both levels need their own mechanisms, otherwise the "
                    "redundancy itself creates new problems.",
          }},
-        {"type": "text",
+        {"type": "text", "id": "text-2",
          "value": {
              "de": "## Ohne Schutz: die Schleife\n\nVerbindet man zwei Switches über **zwei** "
                    "Kabel gleichzeitig, entsteht eine physische **Schleife**. Ein Broadcast "
@@ -61,7 +61,7 @@ REDUNDANZ_MODULE = {
                    "eventually: frames keep multiplying until the **broadcast storm** brings "
                    "down the entire network.",
          }},
-        {"type": "text",
+        {"type": "text", "id": "text-3",
          "value": {
              "de": "## STP: Root-Bridge-Wahl und blockierte Ports\n\nDas **Spanning Tree "
                    "Protocol (STP)** verhindert genau das: Alle beteiligten Switches wählen "
@@ -79,7 +79,7 @@ REDUNDANZ_MODULE = {
                    "ordinary data but remain as a backup: if the active link fails, STP "
                    "unblocks one of the blocked ports.",
          }},
-        {"type": "text",
+        {"type": "text", "id": "text-4",
          "value": {
              "de": "## RSTP: schneller, plus zwei Begriffe\n\nKlassisches STP kann nach einer "
                    "Änderung recht lange brauchen, bis das Netz wieder stabil ist. **RSTP** "
@@ -108,7 +108,7 @@ REDUNDANZ_MODULE = {
                  "lassen und auf 'eine einzelne grosse Uebertragung' umschalten. Der "
                  "Broadcast-Sturm selbst ist in Modul 2 visualisiert; VRRP/HSRP wird nicht "
                  "simuliert."},
-        {"type": "text",
+        {"type": "text", "id": "text-5",
          "value": {
              "de": "## Link-Aggregation (LACP/EtherChannel)\n\nMehrere physische Leitungen "
                    "zwischen denselben zwei Geräten lassen sich zu **einer logischen "
@@ -127,7 +127,7 @@ REDUNDANZ_MODULE = {
                    "bundled 1 Gbit links together provide 4 Gbit/s for many simultaneous "
                    "connections).",
          }},
-        {"type": "reveal", "payload": {
+        {"type": "reveal", "id": "reveal-1", "payload": {
             "teaser_de": "Vier 1-Gbit-Leitungen sind per LACP zu einem Bündel "
                          "zusammengefasst. Läuft ein einzelner großer Filetransfer zwischen "
                          "zwei Servern jetzt viermal so schnell?",
@@ -149,7 +149,7 @@ REDUNDANZ_MODULE = {
                    "This is the single most commonly misunderstood point about link "
                    "aggregation.",
          }},
-        {"type": "debug", "payload": {
+        {"type": "debug", "id": "debug-1", "payload": {
             "prompt_de": "Zwei Kernswitches sollen zwei 10-GBit-Leitungen per LACP zu einem "
                          "Kanal bündeln, aber der Kanal kommt nicht stabil hoch. Finde den "
                          "Fehler:",
@@ -184,7 +184,7 @@ REDUNDANZ_MODULE = {
                               "disrupts the bundle. Te1/2 on switch B must run at "
                               "10 Gbit/s like every other member port.",
         }},
-        {"type": "text",
+        {"type": "text", "id": "text-6",
          "value": {
              "de": "## Layer 3: VRRP/HSRP — das virtuelle Standard-Gateway\n\nSTP und LACP "
                    "sichern die Verbindungen **zwischen** Switches ab — aber was, wenn der "
@@ -207,7 +207,7 @@ REDUNDANZ_MODULE = {
                    "over the virtual address — without anything needing to change on the "
                    "clients.",
          }},
-        {"type": "check", "payload": {
+        {"type": "check", "id": "check-1", "payload": {
             "kind": "choice",
             "prompt_de": "Der Router, der bisher als Standard-Gateway geantwortet hat, "
                          "fällt komplett aus, dennoch bleibt das "
@@ -220,7 +220,7 @@ REDUNDANZ_MODULE = {
             "options_de": ["STP", "LACP", "VRRP/HSRP", "Keines — das ist immer ein Ausfall"],
             "options_en": ["STP", "LACP", "VRRP/HSRP", "None — that's always an outage"],
         }},
-        {"type": "reflect", "payload": {
+        {"type": "reflect", "id": "reflect-1", "payload": {
             "prompt_de": "Nordwind hat jetzt STP, LACP und VRRP im Einsatz. Wenn ein einzelnes "
                          "Netzwerkkabel zwischen den Kernswitches gezogen wird — welches der "
                          "drei Verfahren merkt das zuerst, und was passiert dann Schritt für "

@@ -21,7 +21,7 @@ CLAUDE_MD_MODULE = {'key': 'claude-md',
                     'there are two memory mechanisms: **CLAUDE.md** (what *you* write down) and '
                     '**Auto-Memory** (what *Claude* notes for itself). Both are loaded at the '
                     'start of every session. This module makes your project knowledge persistent.'},
- 'blocks': [{'type': 'text',
+ 'blocks': [{'type': 'text', 'id': 'text-1',
              'value': {'de': '## Was ist CLAUDE.md?\n'
                              '\n'
                              '`CLAUDE.md` ist eine Markdown-Datei mit **persistenten '
@@ -49,7 +49,7 @@ CLAUDE_MD_MODULE = {'key': 'claude-md',
                              '**hook** (Module 11), not in CLAUDE.md.'},
              'note': 'An einem echten Repo /init laufen lassen und die erzeugte CLAUDE.md '
                      'gemeinsam schärfen (konkrete, verifizierbare Regeln).'},
-            {'type': 'text',
+            {'type': 'text', 'id': 'text-2',
              'value': {'de': '## Wo CLAUDE.md liegt — die Scopes\n'
                              '\n'
                              'CLAUDE.md kann an mehreren Orten liegen, jeder mit anderem '
@@ -89,7 +89,7 @@ CLAUDE_MD_MODULE = {'key': 'claude-md',
                              'Files in the directory tree **above** the working directory are '
                              'loaded in full at startup; files in subdirectories load **on '
                              'demand**, as soon as Claude works there.'}},
-            {'type': 'check',
+            {'type': 'check', 'id': 'check-1',
              'payload': {'kind': 'choice',
                          'prompt_de': 'Wo gehört eine team-geteilte Regel hin, die über '
                                       'Versionskontrolle für alle gilt?',
@@ -102,7 +102,7 @@ CLAUDE_MD_MODULE = {'key': 'claude-md',
                          'options_en': ['~/.claude/CLAUDE.md (User)',
                                         './CLAUDE.md or ./.claude/CLAUDE.md (Project)',
                                         './CLAUDE.local.md (Local, gitignored)']}},
-            {'type': 'text',
+            {'type': 'text', 'id': 'text-3',
              'value': {'de': '## Wirksame Instruktionen schreiben\n'
                              '\n'
                              'CLAUDE.md landet bei jedem Start im Kontextfenster und kostet '
@@ -148,7 +148,7 @@ CLAUDE_MD_MODULE = {'key': 'claude-md',
                              '\n'
                              'And: **avoid contradictions** — if two rules say opposing things, '
                              'Claude may pick one arbitrarily.'}},
-            {'type': 'text',
+            {'type': 'text', 'id': 'text-4',
              'value': {'de': '## Wann etwas in CLAUDE.md kommt\n'
                              '\n'
                              'Eine gute Heuristik — trag es ein, wenn …\n'
@@ -176,7 +176,7 @@ CLAUDE_MD_MODULE = {'key': 'claude-md',
                              'If an entry is more of a **multi-step procedure**, or only applies '
                              'to part of the codebase, it belongs in a **skill** (Module 6) or a '
                              '**path-specific rule** — not in the general CLAUDE.md.'}},
-            {'type': 'text',
+            {'type': 'text', 'id': 'text-5',
              'value': {'de': '## Regeln modularisieren: .claude/rules/\n'
                              '\n'
                              'Für größere Projekte lassen sich Instruktionen in einzelne Dateien '
@@ -219,7 +219,7 @@ CLAUDE_MD_MODULE = {'key': 'claude-md',
                              'Rules **without** `paths` always load (like `.claude/CLAUDE.md`); '
                              'rules **with** `paths` only load when matching files are accessed, '
                              'saving context.'}},
-            {'type': 'text',
+            {'type': 'text', 'id': 'text-6',
              'value': {'de': '## Imports mit @pfad\n'
                              '\n'
                              'CLAUDE.md kann weitere Dateien einbinden — sie werden beim Start '
@@ -251,7 +251,7 @@ CLAUDE_MD_MODULE = {'key': 'claude-md',
                              'Imports do **not** save context (the file is loaded regardless), but '
                              'they do help with organization. A path in backticks like `` '
                              '`@README` `` is *not* imported — it stays literal.'}},
-            {'type': 'text',
+            {'type': 'text', 'id': 'text-7',
              'value': {'de': '## CLAUDE.md vs. Auto-Memory\n'
                              '\n'
                              'Neben CLAUDE.md gibt es **Auto-Memory**: Notizen, die Claude sich '
@@ -290,7 +290,7 @@ CLAUDE_MD_MODULE = {'key': 'claude-md',
                              'CLAUDE.md and memory files; use `/context` to see context-window usage '
                              '— how many tokens the system prompt, files, tools and history currently '
                              'take up.'}},
-            {'type': 'reveal',
+            {'type': 'reveal', 'id': 'reveal-1',
              'payload': {'teaser_de': 'Lab: Schreibe eine pfad-spezifische Rule, die nur für '
                                       'Test-Dateien (`**/*.test.ts`) gilt und vorschreibt, dass '
                                       'jeder Test einen Arrange-Act-Assert-Aufbau hat. Zuerst '
@@ -328,7 +328,7 @@ CLAUDE_MD_MODULE = {'key': 'claude-md',
                              '\n'
                              'The rule only loads when Claude reads or writes a `*.test.ts` file — '
                              'otherwise it uses no context.'}},
-            {'type': 'reflect',
+            {'type': 'reflect', 'id': 'reflect-1',
              'payload': {'prompt_de': 'Nenne drei Dinge aus deinem aktuellen Projekt, die in eine '
                                       'CLAUDE.md gehören, weil du sie sonst jeder neuen Person '
                                       '(oder jeder neuen Session) neu erklären müsstest.',

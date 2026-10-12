@@ -28,7 +28,7 @@ NAC_MAB_MODULE = {
               'spoof a MAC address.',
     },
     'blocks': [
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-1',
          'note': 'MAB ist kein Ersatz fuer 802.1X, sondern nur ein Fallback fuer Geraete, die '
                  '802.1X nicht koennen. Diese Abgrenzung frueh setzen, sonst wirkt MAB im Kurs '
                  'wie eine gleichwertige Alternative statt wie ein schwaecheres Verfahren.',
@@ -53,7 +53,7 @@ NAC_MAB_MODULE = {
                    '802.1X can still be authenticated — just with a much weaker proof than a '
                    'client with a real supplicant.',
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-2',
          'value': {
              'de': '## Warum MAB ein schwacher Nachweis ist\n\n'
                    'Eine MAC-Adresse ist kein Geheimnis und kein kryptografischer Nachweis — sie '
@@ -77,7 +77,7 @@ NAC_MAB_MODULE = {
                    'against a list. MAB therefore does not really authenticate a device, it '
                    'merely recognizes a known address again.',
          }},
-        {'type': 'check',
+        {'type': 'check', 'id': 'check-1',
          'payload': {
              'kind': 'choice',
              'prompt_de': 'Warum gilt MAB als schwächere Authentifizierung im Vergleich zu '
@@ -100,7 +100,7 @@ NAC_MAB_MODULE = {
                  'Because MAB only works with TACACS+, not with RADIUS',
              ],
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-3',
          'value': {
              'de': '## Wann MAB trotzdem nötig ist\n\n'
                    'Trotz der Schwäche ist MAB in der Praxis unverzichtbar, weil sich nicht '
@@ -122,7 +122,7 @@ NAC_MAB_MODULE = {
                    'at least the address is checked, and the device stays within the same '
                    'centrally managed policy structure as authenticated endpoints.',
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-4',
          'value': {
              'de': '## MAB nur in Kombination mit Profiling\n\n'
                    'Weil die reine MAC-Prüfung so schwach ist, wird MAB in der Praxis mit '
@@ -148,7 +148,7 @@ NAC_MAB_MODULE = {
                    'security measure; only profiling turns a weak address check into a '
                    'monitored admission backed by anomaly detection.',
          }},
-        {'type': 'order',
+        {'type': 'order', 'id': 'order-1',
          'payload': {
              'prompt_de': 'Bringe den typischen Ablauf des Fallbacks von 802.1X zu MAB an einem '
                           'Switch-Port in die richtige Reihenfolge.',
@@ -176,7 +176,7 @@ NAC_MAB_MODULE = {
                  'responds with Access-Accept or Access-Reject',
              ],
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-5',
          'value': {
              'de': '## Die Gefahr: MAB greift zu früh\n\n'
                    'Die Fallback-Reihenfolge ist nur sicher, wenn die Wartezeit für 802.1X lang '
@@ -198,7 +198,7 @@ NAC_MAB_MODULE = {
                    'without anyone noticing during normal operation, because the device does '
                    'get access — just via the wrong, weaker path.',
          }},
-        {'type': 'debug',
+        {'type': 'debug', 'id': 'debug-1',
          'payload': {
              'prompt_de': 'Ein Kollege bei Nordwind Logistik meldet: „Seit dem letzten Firmware-'
                           'Update starten die Notebooks in der Lagerhalle langsamer. Das '
@@ -242,7 +242,7 @@ NAC_MAB_MODULE = {
                                'that is set too tight: the port falls back before the '
                                'supplicant could even respond.',
          }},
-        {'type': 'reflect',
+        {'type': 'reflect', 'id': 'reflect-1',
          'payload': {
              'prompt_de': 'Nordwind Logistik überlegt, MAB für alle Drucker und Kameras '
                          'einzuführen, aber ohne Profiling — nur reine MAC-Listen-Prüfung, um '

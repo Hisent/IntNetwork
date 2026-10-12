@@ -22,7 +22,7 @@ SCHLEIFEN_HANDLER_MODULE = {
                     'And no matter how many config files change, the nginx service should '
                     'restart exactly **once** at the end, not once per individual change. '
                     'That is what **handlers** are for.'},
- 'blocks': [{'type': 'text',
+ 'blocks': [{'type': 'text', 'id': 'text-1',
              'value': {'de': '## Schleifen mit loop\n'
                              '\n'
                              '`loop:` wiederholt einen Task für jedes Element einer Liste. '
@@ -60,7 +60,7 @@ SCHLEIFEN_HANDLER_MODULE = {
                              '\n'
                              'In the output this task shows up three times — once per list '
                              'element — each with the matching `item` in the log.'}},
-            {'type': 'text',
+            {'type': 'text', 'id': 'text-2',
              'note': 'Das Handler-Timing ist die haeufigste Fehlerquelle: Handler laufen am Ende des Plays, nicht direkt nach dem Task. Am besten an einem Neustart-Beispiel vorrechnen.',
              'value': {'de': '## with_items — die ältere Syntax\n'
                              '\n'
@@ -91,7 +91,7 @@ SCHLEIFEN_HANDLER_MODULE = {
                              'often — when reading someone else\'s code, it helps to recognize '
                              '`loop` and `with_items` as functionally equivalent for simple '
                              'lists.'}},
-            {'type': 'check',
+            {'type': 'check', 'id': 'check-1',
              'payload': {'kind': 'number',
                          'prompt_de': 'Ein Task nutzt loop: [nginx, git, curl, htop]. Wie oft '
                                       'läuft der Task auf einem Host (Anzahl der Durchläufe)?',
@@ -99,7 +99,7 @@ SCHLEIFEN_HANDLER_MODULE = {
                                       'times does the task run on one host (number of '
                                       'iterations)?',
                          'answer': 4}},
-            {'type': 'text',
+            {'type': 'text', 'id': 'text-3',
              'value': {'de': '## Schleifen über Listen von Dicts\n'
                              '\n'
                              'Elemente müssen keine einfachen Strings sein — auch eine Liste '
@@ -140,7 +140,7 @@ SCHLEIFEN_HANDLER_MODULE = {
                              '`| dict2items` filter turns it into a list of '
                              '`{key: ..., value: ...}` objects, so dicts can be looped with '
                              '`loop` as well.'}},
-            {'type': 'text',
+            {'type': 'text', 'id': 'text-4',
              'value': {'de': '## until und retries\n'
                              '\n'
                              'Für Polling-Szenarien — warten, bis eine Bedingung eintritt — gibt '
@@ -180,7 +180,7 @@ SCHLEIFEN_HANDLER_MODULE = {
                              '\n'
                              'Ansible keeps retrying the task until `until` is true or `retries` '
                              'is exhausted — after that the task counts as failed.'}},
-            {'type': 'text',
+            {'type': 'text', 'id': 'text-5',
              'value': {'de': '## Handler und notify\n'
                              '\n'
                              '**Handler** sind Tasks in einem eigenen `handlers:`-Abschnitt '
@@ -217,7 +217,7 @@ SCHLEIFEN_HANDLER_MODULE = {
                              'A typical pattern: several config tasks notify the same "restart '
                              'service" handler, so the service ends up restarting exactly once, '
                              'no matter how many config files changed.'}},
-            {'type': 'debug',
+            {'type': 'debug', 'id': 'debug-1',
              'payload': {'prompt_de': 'Der Nginx-Dienst soll nach jeder '
                                       'Konfigurationsänderung neu gestartet werden. In der '
                                       'Praxis bleibt der Neustart aber aus. Welche Zeile enthält '
@@ -269,7 +269,7 @@ SCHLEIFEN_HANDLER_MODULE = {
                                            'instead (default `error_on_missing_handler = True`); '
                                            'if the task reports `ok`, the mistake goes '
                                            'unnoticed.'}},
-            {'type': 'order',
+            {'type': 'order', 'id': 'order-1',
              'payload': {'prompt_de': 'Drei Tasks notifizieren denselben Handler „Nginx neu '
                                       'starten". Bring den tatsächlichen Ablauf in die richtige '
                                       'Reihenfolge.',
@@ -288,7 +288,7 @@ SCHLEIFEN_HANDLER_MODULE = {
                                       'Task 3 runs, reports ok (no change), and does not notify',
                                       'All regular tasks of the play have finished',
                                       'The "Restart nginx" handler runs exactly once']}},
-            {'type': 'text',
+            {'type': 'text', 'id': 'text-6',
              'value': {'de': '## force_handlers (Ausblick)\n'
                              '\n'
                              'Standardmäßig gilt: Schlägt ein späterer Task im Play fehl, bevor '

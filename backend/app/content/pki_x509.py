@@ -37,7 +37,7 @@ X509_MODULE = {
               'message.',
     },
     'blocks': [
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-1',
          'note': 'Klassischer Irrtum: Ein Zertifikat ist kein Geheimnis, sondern eine '
                  'signierte, oeffentlich einsehbare Aussage. Das Geheimnis ist '
                  'ausschliesslich der zugehoerige private Schluessel, der nie im Zertifikat '
@@ -67,7 +67,7 @@ X509_MODULE = {
                    'remains exclusively the private key, which stays with the server (or '
                    'client).',
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-2',
          'value': {
              'de': '## Die Pflichtfelder nach RFC 5280\n\n'
                    'Ein Zertifikat besteht aus einem festen Satz an Feldern:\n\n'
@@ -114,7 +114,7 @@ X509_MODULE = {
          'note': 'Kursteilnehmer hier ein echtes Zertifikat inspizieren lassen (z. B. das '
                  'eigene Browser-Zertifikat oder ein Beispiel per openssl x509 -text) und '
                  'die eben genannten Felder darin suchen lassen.'},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-3',
          'note': 'Zentrale Aussage dieses Blocks, unbedingt hervorheben: Chrome und andere '
                  'aktuelle Browser pruefen NUR die SAN-Liste, das CN-Feld ist fuer die '
                  'Hostnamen-Pruefung irrelevant.',
@@ -152,7 +152,7 @@ X509_MODULE = {
                    'clear: **a certificate without a matching SAN entry is practically '
                    'useless**, no matter what the CN says.',
          }},
-        {'type': 'check',
+        {'type': 'check', 'id': 'check-1',
          'payload': {
              'kind': 'choice',
              'prompt_de': 'Ein Serverzertifikat hat im CN-Feld "shop.nordwind-logistik.de" '
@@ -181,7 +181,7 @@ X509_MODULE = {
                  'The connection fails because wildcard certificates are generally forbidden',
              ],
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-4',
          'value': {
              'de': '## Key Usage und Extended Key Usage\n\n'
                    'Zwei Erweiterungen legen fest, **wofür** der Schlüssel verwendet werden '
@@ -209,7 +209,7 @@ X509_MODULE = {
                    'issuer and subject would otherwise match. These extensions are a hard '
                    'boundary, not a recommendation.',
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-5',
          'value': {
              'de': '## Basic Constraints und Authority Information Access\n\n'
                    '**Basic Constraints** legt fest, ob ein Zertifikat selbst eine CA ist. '
@@ -235,7 +235,7 @@ X509_MODULE = {
                    'certificate can be fetched (useful when a server delivers an incomplete '
                    'chain), and possibly the URL of the OCSP responder.',
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-6',
          'value': {
              'de': '## Wildcard-Zertifikate und ihre Grenze\n\n'
                    'Ein Wildcard-Zertifikat wie `*.nordwind-logistik.de` deckt beliebige '
@@ -255,7 +255,7 @@ X509_MODULE = {
                    'Additional levels would require a separate wildcard certificate '
                    '(`*.mail.nordwind-logistik.de`) or an extra SAN entry.',
          }},
-        {'type': 'reveal',
+        {'type': 'reveal', 'id': 'reveal-1',
          'payload': {
              'teaser_de': 'Nordwind betreibt "shop.nordwind-logistik.de" mit dem '
                           'Wildcard-Zertifikat "*.nordwind-logistik.de". Ein Kollege will '
@@ -276,7 +276,7 @@ X509_MODULE = {
                    'Without its own SAN entry or an additional certificate, hostname '
                    'verification fails.',
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-7',
          'note': 'Praxisregel betonen: .p12/.pfx-Dateien wie ein Passwort behandeln, nicht '
                  'wie eine gewoehnliche Zertifikatsdatei.',
          'value': {
@@ -313,7 +313,7 @@ X509_MODULE = {
                    'contains a private key and must be handled accordingly (not simply '
                    'emailed or uploaded to a ticket system).',
          }},
-        {'type': 'reflect',
+        {'type': 'reflect', 'id': 'reflect-1',
          'payload': {
              'prompt_de': 'Ein Kollege will das Server-Zertifikat der Nordwind-Website „zur '
                           'Sicherheit" per E-Mail an das Backup-Team schicken - als '

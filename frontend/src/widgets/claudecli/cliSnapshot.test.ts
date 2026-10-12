@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { loadSnapshot } from '@/widgets/claudecli/ClaudeCliWidget'
+import { loadSnapshot } from '@/widgets/claudecli/cliSnapshot'
 
 describe('loadSnapshot (pro-User-CLI-Persistenz)', () => {
   beforeEach(() => {

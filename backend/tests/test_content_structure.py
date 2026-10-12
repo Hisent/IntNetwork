@@ -9,6 +9,7 @@ Die Blockstruktur selbst prüft bewusst derselbe Code wie der Modul-Editor
 (`_validate`) -- ein Seed-Modul, das dort durchfällt, ließe sich im Editor weder
 speichern noch per "Auslieferungszustand laden" zurückholen.
 """
+import copy
 import re
 from collections import Counter
 from pathlib import Path
@@ -22,7 +23,11 @@ from app.database import SessionLocal
 from app.main import app
 from app.routers.trainer_content import KEY_RE, _seed_to_module_in, _validate
 
-INTERAKTIV = {"widget", "check", "order", "debug", "reveal", "reflect"}
+INTERAKTIV = {"widget", "check", "order", "debug", "reveal", "reflect",
+              "diagram", "terminal", "match", "cloze", "scenario"}
+
+
+ID_RE = re.compile(r"^[a-z0-9][a-z0-9-]{0,63}$")
 
 
 def _leer(value) -> bool:
@@ -31,6 +36,19 @@ def _leer(value) -> bool:
 
 def _zweisprachig(value) -> bool:
     return isinstance(value, dict) and not _leer(value.get("de")) and not _leer(value.get("en"))
+
+
+def _kennung_fehler(was: str, eintraege: list[dict]) -> list[str]:
+    """Jeder Block und jede Frage braucht eine je Modul eindeutige id: über sie
+    ordnet der Content-Sync DB-Zeilen zu (docs/content-authoring.md). Ein Widget
+    kann deshalb je Modul nur einmal vorkommen (seine id ist die Widget-id)."""
+    out = []
+    for i, e in enumerate(eintraege):
+        if not isinstance(e.get("id"), str) or not ID_RE.match(e["id"]):
+            out.append(f"{was} {i} ({e.get('type')}): id fehlt oder ist ungültig (a-z, 0-9, -; max. 64): {e.get('id')!r}")
+    out += [f"{was}-id '{eid}' {n}-fach" for eid, n in Counter(e.get("id") for e in eintraege).items()
+            if n > 1 and eid is not None]
+    return out
 
 
 def _modul_fehler(key: str, m: dict) -> list[str]:
@@ -62,16 +80,12 @@ def _modul_fehler(key: str, m: dict) -> list[str]:
     for i, b in enumerate(blocks):
         if b.get("type") in ("text", "reveal") and not _zweisprachig(b.get("value")):
             out.append(f"Block {i} ({b.get('type')}): value de/en fehlt")
-    for bid, n in Counter(b["id"] for b in blocks if b.get("type") != "widget" and "id" in b).items():
-        if n > 1:
-            out.append(f"Block-id '{bid}' {n}-fach (Anker für Content-Migrationen)")
+    out += _kennung_fehler("Block", blocks)
 
     questions = (m.get("quiz") or {}).get("questions") or []
     if not questions:
         out.append("Quiz ohne Fragen")
-    for qid, n in Counter(q.get("id") for q in questions).items():
-        if n > 1 or _leer(qid):
-            out.append(f"Frage-id '{qid}' fehlt oder ist {n}-fach")
+    out += _kennung_fehler("Frage", questions)
     for q in questions:
         wo = f"Frage '{q.get('id')}'"
         if not _zweisprachig(q.get("prompt")):
@@ -106,6 +120,17 @@ def test_all_modules_are_structurally_consistent():
         if n > 1:
             errors.append(f"order {order} {n}-fach vergeben")
     assert not errors, f"{len(errors)} Content-Fehler:\n" + "\n".join(errors)
+
+
+def test_structure_check_demands_unique_ids_on_blocks_and_questions():
+    m = copy.deepcopy(MODULES["arp"])
+    del m["blocks"][0]["id"]
+    m["blocks"][2]["id"] = m["blocks"][1]["id"]
+    m["quiz"]["questions"][1]["id"] = m["quiz"]["questions"][0]["id"]
+    m["quiz"]["questions"][2]["id"] = "Nicht Gültig"
+    errors = "\n".join(_modul_fehler("arp", m))
+    assert "Block 0 (text): id fehlt" in errors and f"Block-id '{m['blocks'][1]['id']}' 2-fach" in errors
+    assert f"Frage-id '{m['quiz']['questions'][0]['id']}' 2-fach" in errors and "Frage 2" in errors
 
 
 def test_readme_module_counts_match_code():

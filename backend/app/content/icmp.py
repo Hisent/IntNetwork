@@ -18,7 +18,7 @@ ICMP_MODULE = {
               "whether and where the path breaks — no special software needed.",
     },
     "blocks": [
-        {"type": "text",
+        {"type": "text", "id": "text-1",
          "value": {
              "de": "## Was ist ICMP?\n\n**ICMP** (Internet Control Message "
                    "Protocol) ist die „Meldungssprache“ von IP: Statusmeldungen und Fehler wie "
@@ -33,7 +33,7 @@ ICMP_MODULE = {
                    "echo data block. Two tools use ICMP: **ping** directly and **traceroute** "
                    "for router responses.",
          }},
-        {"type": "text",
+        {"type": "text", "id": "text-2",
          "value": {
              "de": "## ping — ist das Ziel da?\n\n`ping` schickt ein "
                    "**Echo Request**; ist das Ziel erreichbar, kommt ein **Echo Reply** zurück. "
@@ -44,7 +44,7 @@ ICMP_MODULE = {
                    "The **response time (RTT)** shows how fast the path is. No reply means: "
                    "destination down, path broken — or a firewall is blocking ICMP.",
          }},
-        {"type": "text",
+        {"type": "text", "id": "text-3",
          "value": {
              "de": "## traceroute — welcher Weg?\n\nTrick über die **TTL** "
                    "(Time To Live) im IP-Header: jeder Router zählt sie um 1 herunter. Erreicht sie "
@@ -108,7 +108,7 @@ ICMP_MODULE = {
                               "“ping fails” does not automatically mean “host down”, as the "
                               "working browser access here shows.",
         }},
-        {"type": "text",
+        {"type": "text", "id": "text-4",
          "value": {
              "de": "## Grenzen\n\nManche Router und Firewalls **beantworten "
                    "ICMP nicht** (aus Sicherheitsgründen). Dann erscheint ein Hop als `* * *` — "

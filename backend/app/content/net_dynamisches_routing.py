@@ -25,7 +25,7 @@ DYNAMISCHES_ROUTING_MODULE = {
               "routing table to update itself?",
     },
     "blocks": [
-        {"type": "text",
+        {"type": "text", "id": "text-1",
          "note": "Anschluss an Modul 6 (Routing): dieselbe Routing-Tabelle, nur die Herkunft "
                  "der Eintraege aendert sich. Das explizit sagen, bevor OSPF eingefuehrt wird.",
          "value": {
@@ -42,7 +42,7 @@ DYNAMISCHES_ROUTING_MODULE = {
                    "know the path is dead and keeps sending packets there until someone "
                    "intervenes manually.",
          }},
-        {"type": "text",
+        {"type": "text", "id": "text-2",
          "value": {
              "de": "## Zwei Grundprinzipien: Distanzvektor und Link-State\n\nDynamische "
                    "Routingprotokolle tauschen Informationen automatisch aus, aber nach "
@@ -63,7 +63,7 @@ DYNAMISCHES_ROUTING_MODULE = {
                    "area and builds a **complete map** of the topology. From that map it "
                    "computes the best path itself.",
          }},
-        {"type": "text",
+        {"type": "text", "id": "text-3",
          "value": {
              "de": "## OSPF: Nachbarschaften und Link-State-Datenbank\n\n**OSPF** (Open "
                    "Shortest Path First) ist das verbreitetste Link-State-Protokoll in internen "
@@ -80,7 +80,7 @@ DYNAMISCHES_ROUTING_MODULE = {
                    "same area collects these LSAs into an identical **link-state database "
                    "(LSDB)** — the shared map of the network.",
          }},
-        {"type": "text",
+        {"type": "text", "id": "text-4",
          "value": {
              "de": "## SPF/Dijkstra und Kosten\n\nAus der LSDB berechnet jeder Router "
                    "selbstständig mit dem **SPF-Algorithmus (Dijkstra)** den kürzesten Weg zu "
@@ -100,7 +100,7 @@ DYNAMISCHES_ROUTING_MODULE = {
                    "formula: cost = **reference bandwidth ÷ link bandwidth** (at least 1), "
                    "with 100 Mbit/s as the common default reference bandwidth.",
          }},
-        {"type": "text",
+        {"type": "text", "id": "text-5",
          "value": {
              "de": "## Areas und Area 0\n\nIn großen Netzen würde eine einzige riesige LSDB "
                    "unübersichtlich und die Flut von LSAs bei jeder Änderung teuer. OSPF "
@@ -122,7 +122,7 @@ DYNAMISCHES_ROUTING_MODULE = {
                  "Kostenpfad ueber das Lager vergleichen. Dann einen Link auf dem besten Pfad "
                  "kappen und die Neuberechnung zeigen; zuletzt die Referenzbandbreite "
                  "aendern. Hello/Nachbarschaft simuliert das Widget nicht."},
-        {"type": "debug", "payload": {
+        {"type": "debug", "id": "debug-1", "payload": {
             "prompt_de": "Zwei Router sollen über ihre gemeinsame Leitung eine "
                          "OSPF-Nachbarschaft aufbauen, es klappt aber nicht. Finde den Fehler:",
             "prompt_en": "Two routers are supposed to form an OSPF neighbor relationship over "
@@ -150,7 +150,7 @@ DYNAMISCHES_ROUTING_MODULE = {
                               "same transfer network — that's why the neighbor relationship "
                               "never forms. Router B would need to use area 0 as well.",
         }},
-        {"type": "text",
+        {"type": "text", "id": "text-6",
          "value": {
              "de": "## RIP: der überholte Vorläufer\n\n**RIP** (Routing Information Protocol) "
                    "ist ein klassisches Distanzvektor-Protokoll: Die Metrik ist schlicht die "
@@ -168,7 +168,7 @@ DYNAMISCHES_ROUTING_MODULE = {
                    "replaced it in most environments. RIP still remains instructive, though, "
                    "because it shows the distance-vector principle in its purest form.",
          }},
-        {"type": "text",
+        {"type": "text", "id": "text-7",
          "value": {
              "de": "## BGP: zwischen Netzen, nicht im Netz\n\n**BGP** (Border Gateway Protocol) "
                    "wird häufig mit einem internen Routingprotokoll verwechselt — zu Unrecht. "
@@ -197,7 +197,7 @@ DYNAMISCHES_ROUTING_MODULE = {
                    "**small branch office with exactly one link**, doesn't need an elaborate "
                    "protocol — here, static is simpler, more predictable, and good enough.",
          }},
-        {"type": "order", "payload": {
+        {"type": "order", "id": "order-1", "payload": {
             "prompt_de": "Bringe die Schritte in die richtige Reihenfolge, wie OSPF nach dem "
                          "Ausfall einer Leitung neu konvergiert.",
             "prompt_en": "Put the steps in the correct order for how OSPF reconverges after a "
@@ -217,7 +217,7 @@ DYNAMISCHES_ROUTING_MODULE = {
                 "The routing table is updated with the new path",
             ],
         }},
-        {"type": "reflect", "payload": {
+        {"type": "reflect", "id": "reflect-1", "payload": {
             "prompt_de": "Die Routing-Tabelle bei Nordwind sieht nach der OSPF-Einführung "
                          "äußerlich fast genauso aus wie vorher mit statischen Routen (Modul "
                          "6). Was genau hat sich geändert — und was nicht?",

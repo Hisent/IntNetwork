@@ -20,7 +20,7 @@ TEMPLATES_MODULE = {
                     'different port, a different list of domain names. Instead of maintaining a '
                     'separate, static configuration file for every host, you generate it from '
                     '**one** template plus variables: a **Jinja2 template**.'},
- 'blocks': [{'type': 'text',
+ 'blocks': [{'type': 'text', 'id': 'text-1',
              'value': {'de': '## Das template-Modul vs. copy\n'
                              '\n'
                              '`ansible.builtin.copy` überträgt eine Datei **1:1** auf den '
@@ -56,7 +56,7 @@ TEMPLATES_MODULE = {
                              '    src: nginx.conf.j2\n'
                              '    dest: /etc/nginx/nginx.conf\n'
                              '```'}},
-            {'type': 'text',
+            {'type': 'text', 'id': 'text-2',
              'note': 'Wer Jinja zum ersten Mal sieht, verwechselt {{ }} und {% %}. Einmal explizit gegenueberstellen: Ausgabe gegen Steuerung.',
              'value': {'de': '## Jinja2-Grundsyntax\n'
                              '\n'
@@ -98,7 +98,7 @@ TEMPLATES_MODULE = {
                              '(no output at that spot). Both forms must be closed correctly '
                              '(`{% if %}` needs `{% endif %}`, `{% for %}` needs `{% endfor %}`) '
                              '— otherwise rendering fails.'}},
-            {'type': 'check',
+            {'type': 'check', 'id': 'check-1',
              'payload': {'kind': 'choice',
                          'prompt_de': 'Was unterscheidet ansible.builtin.template von '
                                       'ansible.builtin.copy?',
@@ -115,7 +115,7 @@ TEMPLATES_MODULE = {
                                         'control node before copying it',
                                         'template and copy are completely identical',
                                         'template runs directly on the managed node']}},
-            {'type': 'text',
+            {'type': 'text', 'id': 'text-3',
              'value': {'de': '## Filter: default, join, to_yaml\n'
                              '\n'
                              'Filter verändern einen Wert mit der Schreibweise '
@@ -149,7 +149,7 @@ TEMPLATES_MODULE = {
                              'Example: `domains: [a.example.com, b.example.com]` with '
                              '`{{ domains | join(", ") }}` produces the output '
                              '`a.example.com, b.example.com`.'}},
-            {'type': 'reveal',
+            {'type': 'reveal', 'id': 'reveal-1',
              'payload': {'teaser_de': 'Gegeben: `{{ port | default(8080) }}` und die Variable '
                                       '`port` ist **nicht** gesetzt. Zeile im Template: '
                                       '`listen {{ port | default(8080) }};`. Wie sieht die '
@@ -168,7 +168,7 @@ TEMPLATES_MODULE = {
                              '`listen 9090;` instead; the `default` filter only applies when '
                              'the variable is undefined. To make it apply to empty values as '
                              'well, use `default(8080, true)`.'}},
-            {'type': 'text',
+            {'type': 'text', 'id': 'text-4',
              'value': {'de': '## Whitespace-Kontrolle\n'
                              '\n'
                              'Jinja2-Steueranweisungen (`{% %}`) können Leerzeilen bzw. '
@@ -207,7 +207,7 @@ TEMPLATES_MODULE = {
                              'For most Ansible templates it is enough to remember: `{%` and '
                              '`{%-` are not the same — the minus sign changes whitespace '
                              'behavior, not the logic.'}},
-            {'type': 'debug',
+            {'type': 'debug', 'id': 'debug-1',
              'payload': {'prompt_de': 'Dieses Template soll für jede Domain eine server_name-'
                                       'Zeile ausgeben, bricht beim Rendern aber mit einem Fehler '
                                       'ab. Welche Zeile enthält den Fehler?',
@@ -234,7 +234,7 @@ TEMPLATES_MODULE = {
                                            'closed — a `{% endfor %}` is missing before the '
                                            'closing `}` in line 5. Jinja2 aborts rendering with '
                                            'a syntax error instead of outputting the domains.'}},
-            {'type': 'reflect',
+            {'type': 'reflect', 'id': 'reflect-1',
              'payload': {'prompt_de': 'Welche Konfigurationsdatei aus deinem Umfeld (nginx, '
                                       'interfaces, eine Anwendungs-Config …) enthält Werte, die '
                                       'sich von Host zu Host unterscheiden? Skizziere in Worten, '

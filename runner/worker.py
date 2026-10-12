@@ -742,21 +742,39 @@ def _uebernehmen(pfad: Path) -> Path | None:
         return None
 
 
-def _bearbeiten(pfad: Path) -> None:
+def _auftrag_lesen(pfad: Path) -> tuple[str, dict] | None:
+    """Liest einen beanspruchten Auftrag und löscht die Datei SOFORT.
+
+    Passiert direkt beim Beanspruchen (in _runde), nicht erst wenn ein Thread
+    frei wird: Der Auftrag trägt ein Ergebnis-Token des Backends, und solange
+    die Datei im Volume liegt, kann ein gerade laufendes Teilnehmer-Playbook
+    (gleiche uid) sie lesen. Danach existiert das Token nur noch im Speicher
+    dieses Prozesses. Was das nicht abdeckt: docs/lab-sicherheit.md.
+    """
     auftrags_id = pfad.name.removesuffix(".claimed").removesuffix(".json")
     try:
         auftrag = json.loads(pfad.read_text(encoding="utf-8"))
+        if not isinstance(auftrag, dict):
+            raise ValueError("kein JSON-Objekt")
     except (OSError, ValueError) as fehler:
         log("Auftrag unlesbar:", pfad.name, fehler)
         pfad.unlink(missing_ok=True)
-        return
+        return None
     pfad.unlink(missing_ok=True)  # nur einmal ausführen, auch wenn danach etwas schiefgeht
+    return auftrags_id, auftrag
+
+
+def _bearbeiten(auftrags_id: str, auftrag: dict) -> None:
+    # Token nicht an die Handler weiterreichen — es gehört nur ins Ergebnis.
+    token = auftrag.pop("token", None)
     try:
         ergebnis = _ausfuehren(auftrag)
     except Exception as fehler:  # noqa: BLE001 - der Arbeiter darf nie sterben
         log("Lauf fehlgeschlagen:", fehler)
         ergebnis = {"rc": 1, "output": f"Interner Fehler im Lab-Runner: {fehler}",
                     "truncated": False, "duration_ms": 0, "timed_out": False}
+    if token is not None:
+        ergebnis = {**ergebnis, "token": token}
     _antwort_schreiben(auftrags_id, ergebnis)
 
 
@@ -829,7 +847,9 @@ def _runde(pool: ThreadPoolExecutor, offene: list) -> tuple[list, int]:
         for pfad in sorted((QUEUE / "in").glob("*.json"))[:frei]:
             ziel = _uebernehmen(pfad)
             if ziel is not None:
-                offene.append(pool.submit(_bearbeiten, ziel))
+                gelesen = _auftrag_lesen(ziel)
+                if gelesen is not None:
+                    offene.append(pool.submit(_bearbeiten, *gelesen))
                 beansprucht += 1
     return offene, beansprucht
 

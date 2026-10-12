@@ -36,7 +36,7 @@ POST_QUANTUM_MODULE = {
               'the next big shift.',
     },
     'blocks': [
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-1',
          'note': 'Bewusst nuechtern einsteigen, keine Alarmrhetorik. Die Unsicherheit ueber den '
                  'Zeitpunkt eines relevanten Quantencomputers ehrlich benennen, statt sie zu '
                  'verstecken oder zu dramatisieren.',
@@ -70,7 +70,7 @@ POST_QUANTUM_MODULE = {
                    '**does not yet exist**. Exactly when one might become available is an open '
                    'question — more on that shortly.',
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-2',
          'value': {
              'de': '## "Harvest now, decrypt later"\n\n'
                    'Die eigentliche Dringlichkeit ergibt sich nicht aus der Frage, wann ein '
@@ -103,7 +103,7 @@ POST_QUANTUM_MODULE = {
                    'Anyone who today still encrypts long-lived confidential data mostly with '
                    'classical algorithms should be aware of this distinction.',
          }},
-        {'type': 'check',
+        {'type': 'check', 'id': 'check-1',
          'payload': {
              'kind': 'choice',
              'prompt_de': 'Warum ist bei "Harvest now, decrypt later" der Zeitdruck für '
@@ -126,7 +126,7 @@ POST_QUANTUM_MODULE = {
                  'Because signature schemes are not based on RSA/ECC at all',
              ],
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-3',
          'value': {
              'de': '## Die neuen NIST-Standards: FIPS 203, 204, 205\n\n'
                    'Nach einem rund achtjährigen Auswahlprozess hat das NIST drei Post-Quanten-'
@@ -165,7 +165,7 @@ POST_QUANTUM_MODULE = {
                    'is meant to step in should a weakness turn up in the lattice schemes. The '
                    'finished standard is expected in 2027; ML-KEM remains the first choice.',
          }},
-        {'type': 'check',
+        {'type': 'check', 'id': 'check-2',
          'payload': {
              'kind': 'choice',
              'prompt_de': 'Welches Paar aus NIST-Standard und Vorläuferverfahren ist korrekt?',
@@ -184,7 +184,7 @@ POST_QUANTUM_MODULE = {
                  'FIPS 205 (SLH-DSA) is based on Kyber',
              ],
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-4',
          'value': {
              'de': '## Hybrider Schlüsselaustausch in TLS: X25519MLKEM768\n\n'
                    'In TLS setzt sich für den Schlüsselaustausch aktuell ein **hybrides** Verfahren '
@@ -221,7 +221,7 @@ POST_QUANTUM_MODULE = {
                    'looked up directly at the source for anything load-bearing. The trend alone is '
                    'clear: the share is growing noticeably.',
          }},
-        {'type': 'reveal',
+        {'type': 'reveal', 'id': 'reveal-1',
          'payload': {
              'teaser_de': 'Ist eine TLS-Verbindung über X25519MLKEM768 damit schon vollständig '
                           'quantensicher?',
@@ -244,7 +244,7 @@ POST_QUANTUM_MODULE = {
                    'authenticity/signature side is not yet. Making both sides post-quantum secure are '
                    'two separate pieces of work.',
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-5',
          'value': {
              'de': '## Migrationsfristen: BSI und NIST\n\n'
                    'Zwei Behörden haben Fristen genannt — mit unterschiedlichem Grad an '
@@ -295,7 +295,7 @@ POST_QUANTUM_MODULE = {
                    'predictable** — the deadlines above are precautionary timelines set by '
                    'authorities, not forecasts of an actual technical breakthrough date.',
          }},
-        {'type': 'check',
+        {'type': 'check', 'id': 'check-3',
          'payload': {
              'kind': 'choice',
              'prompt_de': 'Was gilt laut BSI-Ankündigung für höchstsensitive Anwendungen im '
@@ -316,7 +316,7 @@ POST_QUANTUM_MODULE = {
                  'Only the NIST deadline applies to them, not the BSI deadline',
              ],
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-6',
          'value': {
              'de': '## Krypto-Agilität: die eigentliche Lehre\n\n'
                    'Der wichtigste praktische Schluss aus diesem Modul ist nicht "wechselt jetzt '
@@ -349,7 +349,7 @@ POST_QUANTUM_MODULE = {
                    'this block manageable in the first place: systems that can swap algorithms and '
                    'certificates without anyone having to intervene by hand.',
          }},
-        {'type': 'reflect',
+        {'type': 'reflect', 'id': 'reflect-1',
          'payload': {
              'prompt_de': 'Dieser Lehrgang endet hier. Was würdest du in eurer Umgebung als Erstes '
                           'prüfen — das Zertifikats-Inventar, den Automatisierungsgrad, die '

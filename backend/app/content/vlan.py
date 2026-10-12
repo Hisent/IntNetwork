@@ -20,7 +20,7 @@ VLAN_MODULE = {
               "**802.1Q tag** from the Packet Structure module makes it possible.",
     },
     "blocks": [
-        {"type": "text",
+        {"type": "text", "id": "text-1",
          "value": {
              "de": "## Was ist ein VLAN?\n\nEin VLAN (Virtual LAN) "
                    "teilt einen physischen Switch in mehrere getrennte Broadcast-Domänen. "
@@ -31,7 +31,7 @@ VLAN_MODULE = {
                    "Devices in different VLANs cannot talk to each other without a router — "
                    "even though they hang off the same switch.",
          }},
-        {"type": "text",
+        {"type": "text", "id": "text-2",
          "value": {
              "de": "## Warum VLANs?\n\n- **Trennung**: Buchhaltung (VLAN 10) "
                    "und Gäste-WLAN (VLAN 30) am selben Switch, aber logisch getrennt.\n"
@@ -48,7 +48,7 @@ VLAN_MODULE = {
                    "- **Less broadcast load**: broadcasts stay within the VLAN, don't flood the whole network.\n"
                    "- **Flexibility**: VLAN membership by port configuration, not by cabling.",
          }},
-        {"type": "text",
+        {"type": "text", "id": "text-3",
          "value": {
              "de": "## Access- vs. Trunk-Port\n\n- **Access-Port**: "
                    "gehört zu genau einem VLAN, sendet/empfängt **ungetaggte** Frames (Endgeräte "
@@ -63,7 +63,7 @@ VLAN_MODULE = {
                    "with an **802.1Q tag** (4 bytes, holds the VLAN ID). The **native VLAN** can "
                    "be untagged. Typical between two switches or switch↔router.",
          }},
-        {"type": "text",
+        {"type": "text", "id": "text-4",
          "value": {
              "de": "### Im Simulator ausprobieren\n\n1. Klick bei einem "
                    "**Access-Port** auf „Frame senden“ → nur Ports im **gleichen VLAN** leuchten.\n"
@@ -86,7 +86,7 @@ VLAN_MODULE = {
          "note": "DE: Frame vom Access-Port über den Trunk verfolgen und erkennen, wo der "
                  "802.1Q-Tag ergänzt oder entfernt wird. EN: Trace a frame from an access port "
                  "across the trunk and observe where its 802.1Q tag is added or removed."},
-        {"type": "text",
+        {"type": "text", "id": "text-5",
          "value": {
              "de": "## Broadcast-Domänen\n\nJedes VLAN ist eine eigene "
                    "Broadcast-Domäne. Ein Broadcast (z.B. ARP) aus VLAN 10 erreicht nur Ports in "
@@ -95,7 +95,7 @@ VLAN_MODULE = {
                    "broadcast domain. A broadcast (e.g. ARP) from VLAN 10 only reaches ports in "
                    "VLAN 10 — ports in VLAN 20/30 never see it.",
          }},
-        {"type": "text",
+        {"type": "text", "id": "text-6",
          "value": {
              "de": "## VLAN-übergreifend reden? → Router\n\nDamit VLAN 10 und "
                    "VLAN 20 kommunizieren, braucht es ein **Layer-3-Gerät** (Router oder Layer-3-Switch). "

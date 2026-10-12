@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { ChallengeBox } from '@/components/ChallengeBox'
 import type { Lang } from '@/lib/i18n'
+import { decidingRule, rules, subnetSlices } from './networkVisualsLogic'
 
 export type VisualMode = 'topology' | 'encapsulation' | 'subnet-map' | 'firewall-flow' | 'dns-tree'
 
@@ -56,9 +57,11 @@ function Topology({ lang }: { lang: Lang }) {
     <div className="flex flex-wrap gap-2" role="group" aria-label={lang === 'de' ? 'Dienst wählen' : 'Choose service'}>
       {(['web','dns','erp'] as const).map(key => <button key={key} aria-pressed={service === key} onClick={() => { setService(key); setSeen(current => current.includes(key) ? current : [...current, key]) }} className={`rounded-lg px-3 py-1.5 text-sm font-medium ${service === key ? 'bg-teal-600 text-white' : 'border border-teal-200 text-teal-700'}`}>{key.toUpperCase()}</button>)}
     </div>
+    {/* Farben als Tailwind-Klassen statt fester Hex-Werte: nur so greifen die
+        Dark-Mode-Palette und der Kursfarben-Override aus index.css. */}
     <svg viewBox="0 0 620 235" role="img" aria-label={`${service.toUpperCase()}: ${active.join(' → ')}`} className="mt-3 w-full">
-      {edges.map(([a,b]) => <line key={`${a}-${b}`} x1={pos[a].x} y1={pos[a].y} x2={pos[b].x} y2={pos[b].y} stroke={edgeActive(a,b) ? '#0d9488' : '#cbd5e1'} strokeWidth={edgeActive(a,b) ? 5 : 2} />)}
-      {nodes.map(([id,x,y,label]) => <g key={id}><circle cx={x} cy={y} r="28" fill={active.includes(id) ? '#ccfbf1' : '#f8fafc'} stroke={active.includes(id) ? '#0d9488' : '#94a3b8'} strokeWidth="2"/><text x={x} y={y + 4} textAnchor="middle" fontSize="12" fill="#334155">{label}</text></g>)}
+      {edges.map(([a,b]) => <line key={`${a}-${b}`} x1={pos[a].x} y1={pos[a].y} x2={pos[b].x} y2={pos[b].y} className={edgeActive(a,b) ? 'stroke-teal-600' : 'stroke-slate-300'} strokeWidth={edgeActive(a,b) ? 5 : 2} />)}
+      {nodes.map(([id,x,y,label]) => <g key={id}><circle cx={x} cy={y} r="28" className={active.includes(id) ? 'fill-teal-100 stroke-teal-600' : 'fill-slate-50 stroke-slate-400'} strokeWidth="2"/><text x={x} y={y + 4} textAnchor="middle" fontSize="12" className="fill-slate-700">{label}</text></g>)}
     </svg>
   </Frame>
 }
@@ -77,12 +80,6 @@ function Encapsulation({ lang }: { lang: Lang }) {
   </Frame>
 }
 
-export function subnetSlices(prefix: number): { network: string; hosts: number }[] {
-  const count = 2 ** (prefix - 24)
-  const size = 256 / count
-  return Array.from({ length: count }, (_, index) => ({ network: `192.168.10.${index * size}/${prefix}`, hosts: size - 2 }))
-}
-
 function SubnetMap({ lang }: { lang: Lang }) {
   const [prefix, setPrefix] = useState(24)
   const slices = useMemo(() => subnetSlices(prefix), [prefix])
@@ -91,16 +88,6 @@ function SubnetMap({ lang }: { lang: Lang }) {
     <div className="mt-4 grid gap-1" style={{ gridTemplateColumns: `repeat(${Math.min(slices.length, 4)}, minmax(0, 1fr))` }}>{slices.map(slice => <div key={slice.network} className="min-w-0 rounded border border-teal-200 bg-teal-50 p-2 text-center"><code className="block break-all text-xs text-teal-900">{slice.network}</code><span className="text-xs text-slate-500">{slice.hosts} {lang === 'de' ? 'Hosts' : 'hosts'}</span></div>)}</div>
   </Frame>
 }
-
-type Packet = { source: string; target: string; port: number }
-const rules = [
-  { label: 'Guest → ERP', matches: (packet: Packet) => packet.source === 'guest' && packet.target === 'erp', action: 'DENY' },
-  { label: 'Office → ERP HTTPS', matches: (packet: Packet) => packet.source === 'office' && packet.target === 'erp' && packet.port === 443, action: 'ALLOW' },
-  { label: 'Guest → Internet HTTPS', matches: (packet: Packet) => packet.source === 'guest' && packet.target === 'internet' && packet.port === 443, action: 'ALLOW' },
-  { label: 'Default deny', matches: () => true, action: 'DENY' },
-] as const
-
-export function decidingRule(packet: Packet): number { return rules.findIndex(rule => rule.matches(packet)) }
 
 function FirewallFlow({ lang }: { lang: Lang }) {
   const [source, setSource] = useState<'guest'|'office'>('guest')

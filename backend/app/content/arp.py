@@ -18,7 +18,7 @@ ARP_MODULE = {
               "not an IP. Where does PC-A get PC-B's MAC from?",
     },
     "blocks": [
-        {"type": "text",
+        {"type": "text", "id": "text-1",
          "value": {
              "de": "## Die Lücke zwischen Schicht 3 und 2\n\nAnwendungen "
                    "arbeiten mit **IP-Adressen** (Schicht 3), der Switch nur mit **MAC-Adressen** "
@@ -29,7 +29,7 @@ ARP_MODULE = {
                    "(Layer 2). Before a frame goes out, the destination **IP** needs a matching "
                    "destination **MAC**. That's what **ARP** (Address Resolution Protocol) solves.",
          }},
-        {"type": "text",
+        {"type": "text", "id": "text-2",
          "value": {
              "de": "## So funktioniert ARP\n\n1. PC-A schaut in seinen "
                    "**ARP-Cache** — steht die MAC schon drin? Dann fertig.\n"
@@ -97,7 +97,7 @@ ARP_MODULE = {
                  "durchgehen: Broadcast-Request, Unicast-Reply, Cache-Eintrag. EN: Step through "
                  "resolving the gateway MAC (192.168.10.1): broadcast request, unicast reply, "
                  "cache entry."},
-        {"type": "text",
+        {"type": "text", "id": "text-3",
          "value": {
              "de": "## ARP nur im eigenen Netz\n\nARP funktioniert **nur "
                    "innerhalb desselben Subnetzes** (es ist ein Broadcast, und der endet am "

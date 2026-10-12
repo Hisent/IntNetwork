@@ -33,7 +33,7 @@ GRID_ARCHITEKTUR_MODULE = {
     },
     'blocks': [
         {
-            'type': 'text',
+            'type': 'text', 'id': 'text-1',
             'value': {
                 'de': '## Das Grid-Konzept\n'
                       '\n'
@@ -70,7 +70,7 @@ GRID_ARCHITEKTUR_MODULE = {
                     'eingeführt werden.',
         },
         {
-            'type': 'text',
+            'type': 'text', 'id': 'text-2',
             'value': {
                 'de': '## Grid Master und Grid Master Candidate\n'
                       '\n'
@@ -104,7 +104,7 @@ GRID_ARCHITEKTUR_MODULE = {
             },
         },
         {
-            'type': 'text',
+            'type': 'text', 'id': 'text-3',
             'value': {
                 'de': '## HA-Paar: zwei Knoten, eine logische Einheit\n'
                       '\n'
@@ -151,7 +151,7 @@ GRID_ARCHITEKTUR_MODULE = {
             },
         },
         {
-            'type': 'text',
+            'type': 'text', 'id': 'text-4',
             'value': {
                 'de': '## Verteilung von Diensten: zentral verwaltet, lokal '
                       'ausgeführt\n'
@@ -189,7 +189,71 @@ GRID_ARCHITEKTUR_MODULE = {
             },
         },
         {
-            'type': 'check',
+            'type': 'diagram', 'id': 'diagram-grid-aufbau',
+            'note': 'Mit den vier Schritten die Kernaussage wiederholen: zentral verwalten, lokal '
+                    'ausführen. Danach einzelne Knoten anklicken lassen.',
+            'payload': {
+                'kind': 'flow',
+                'title_de': 'Ein Grid: zentral verwalten, lokal ausführen',
+                'title_en': 'One grid: manage centrally, serve locally',
+                'nodes': [
+                    {'id': 'admin', 'shape': 'user', 'row': 0, 'col': 1,
+                     'label_de': 'Admin im Grid Manager', 'label_en': 'Admin in Grid Manager'},
+                    {'id': 'gm', 'shape': 'server', 'row': 1, 'col': 1,
+                     'label_de': 'Grid Master (Hauptsitz)', 'label_en': 'Grid Master (headquarters)',
+                     'detail_de': 'Hält die maßgebliche Grid-Konfiguration. Kann als HA-Paar betrieben '
+                                  'werden: zwei Knoten, eine logische Einheit.',
+                     'detail_en': 'Holds the authoritative grid configuration. Can run as an HA pair: '
+                                  'two nodes, one logical unit.'},
+                    {'id': 'a', 'shape': 'server', 'row': 2, 'col': 0,
+                     'label_de': 'Member Zweigstelle A', 'label_en': 'Member branch A',
+                     'detail_de': 'Beantwortet DNS-Anfragen und vergibt DHCP-Leases lokal am Standort.',
+                     'detail_en': 'Answers DNS queries and hands out DHCP leases locally at the site.'},
+                    {'id': 'b', 'shape': 'server', 'row': 2, 'col': 1,
+                     'label_de': 'Member Zweigstelle B (GM Candidate)',
+                     'label_en': 'Member branch B (GM Candidate)',
+                     'detail_de': 'Erbringt Dienste wie jedes Member und hält zusätzlich die '
+                                  'vollständige Grid-Konfiguration bereit, um die Master-Rolle '
+                                  'übernehmen zu können.',
+                     'detail_en': 'Serves like any member and additionally keeps the full grid '
+                                  'configuration ready so it can take over the master role.'},
+                    {'id': 'c', 'shape': 'server', 'row': 2, 'col': 2,
+                     'label_de': 'Member Zweigstelle C', 'label_en': 'Member branch C',
+                     'detail_de': 'Arbeitet bei einer kurzen Unterbrechung zum Grid Master mit der '
+                                  'zuletzt bekannten Konfiguration weiter.',
+                     'detail_en': 'Keeps working with the last known configuration during a short '
+                                  'loss of contact with the Grid Master.'},
+                ],
+                'edges': [
+                    {'id': 'aendern', 'from': 'admin', 'to': 'gm',
+                     'label_de': 'Änderung', 'label_en': 'change'},
+                    {'id': 'zu-a', 'from': 'gm', 'to': 'a'},
+                    {'id': 'zu-b', 'from': 'gm', 'to': 'b',
+                     'label_de': 'Konfiguration', 'label_en': 'configuration'},
+                    {'id': 'zu-c', 'from': 'gm', 'to': 'c'},
+                ],
+                'steps': [
+                    {'highlight': ['admin', 'aendern', 'gm'],
+                     'text_de': 'Jede Änderung an Zonen, Netzwerken oder Berechtigungen wird am Grid Master vorgenommen.',
+                     'text_en': 'Every change to zones, networks or permissions is made on the Grid Master.'},
+                    {'highlight': ['gm', 'zu-a', 'zu-b', 'zu-c'],
+                     'text_de': 'Der Grid Master verteilt die Konfiguration an alle Grid Member.',
+                     'text_en': 'The Grid Master distributes the configuration to all grid members.'},
+                    {'highlight': ['a', 'b', 'c'],
+                     'text_de': 'Die Dienste laufen lokal: Jedes Member beantwortet DNS und vergibt DHCP-Leases '
+                                'an seinem Standort — auch wenn der Grid Master kurz nicht erreichbar ist.',
+                     'text_en': 'Services run locally: each member answers DNS and hands out DHCP leases at '
+                                'its site — even while the Grid Master is briefly unreachable.'},
+                    {'highlight': ['b'],
+                     'text_de': 'Fällt der Grid Master aus oder soll er abgelöst werden, kann der Grid Master '
+                                'Candidate seine Rolle übernehmen.',
+                     'text_en': 'If the Grid Master fails or is to be replaced, the Grid Master Candidate can '
+                                'take over its role.'},
+                ],
+            },
+        },
+        {
+            'type': 'check', 'id': 'check-1',
             'payload': {
                 'kind': 'choice',
                 'prompt_de': 'Ein Grid Member verliert für einige Minuten die '
@@ -220,7 +284,7 @@ GRID_ARCHITEKTUR_MODULE = {
             },
         },
         {
-            'type': 'order',
+            'type': 'order', 'id': 'order-1',
             'payload': {
                 'prompt_de': 'Bring die Schritte eines geordneten '
                              'Grid-Master-Wechsels (z. B. bei geplanter Ablösung) '
@@ -250,7 +314,7 @@ GRID_ARCHITEKTUR_MODULE = {
             },
         },
         {
-            'type': 'debug',
+            'type': 'debug', 'id': 'debug-1',
             'payload': {
                 'prompt_de': 'Vier Aussagen zur Grid-Architektur — welche ist '
                              'falsch?',
@@ -296,7 +360,7 @@ GRID_ARCHITEKTUR_MODULE = {
             },
         },
         {
-            'type': 'reflect',
+            'type': 'reflect', 'id': 'reflect-1',
             'payload': {
                 'prompt_de': 'Überlege für das Szenario mit Hauptsitz und drei '
                              'Zweigstellen: An welchem Standort würdest du einen '
@@ -309,7 +373,7 @@ GRID_ARCHITEKTUR_MODULE = {
             },
         },
         {
-            'type': 'text',
+            'type': 'text', 'id': 'text-5',
             'value': {
                 'de': '## Zeitsynchronisation im Grid\n'
                       '\n'

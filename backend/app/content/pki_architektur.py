@@ -36,7 +36,7 @@ PKI_ARCHITEKTUR_MODULE = {
               'system\'s Java application reports a trust error.',
     },
     'blocks': [
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-1',
          'note': 'Diese Rollenteilung ist die Basis fuer den Rest des Moduls - ohne sie '
                  'ergibt der naechste Block (Root offline) keinen Sinn.',
          'value': {
@@ -67,7 +67,7 @@ PKI_ARCHITEKTUR_MODULE = {
                    'the root signs the intermediate, the intermediate signs the end-entity '
                    'certificate.',
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-2',
          'value': {
              'de': '## Warum die Root offline bleibt\n\n'
                    'Der private Schlüssel der Root-CA signiert in der Praxis fast '
@@ -94,10 +94,45 @@ PKI_ARCHITEKTUR_MODULE = {
                    'and a revocation would have to reach every single system. That is why '
                    'the root stays offline and does as little as possible.',
          }},
+        {'type': 'diagram', 'id': 'diagram-vertrauenskette',
+         'note': 'Jede Stufe anklicken lassen und fragen: Wer signiert dieses Zertifikat, und wo '
+                 'liegt der zugehoerige private Schluessel?',
+         'payload': {
+             'kind': 'layers',
+             'title_de': 'Vertrauenskette: drei Stufen, von oben nach unten signiert',
+             'title_en': 'Chain of trust: three tiers, signed from the top down',
+             'layers': [
+                 {'name_de': 'Root-CA', 'name_en': 'Root CA',
+                  'content_de': 'selbstsigniert, liegt in den Trust Stores',
+                  'content_en': 'self-signed, lives in the trust stores',
+                  'pdu_de': 'Vertrauensanker', 'pdu_en': 'trust anchor',
+                  'detail_de': 'Signiert in der Praxis fast nur Intermediate-CAs. Ihr privater Schlüssel '
+                               'bleibt offline — wird er kompromittiert, ist die gesamte Hierarchie wertlos.',
+                  'detail_en': 'In practice it signs almost nothing but intermediate CAs. Its private key '
+                               'stays offline — if it is compromised, the whole hierarchy is worthless.'},
+                 {'name_de': 'Intermediate- / Issuing-CA', 'name_en': 'Intermediate / issuing CA',
+                  'content_de': 'von der Root signiert, stellt operativ aus',
+                  'content_en': 'signed by the root, issues day to day',
+                  'pdu': 'online',
+                  'detail_de': 'Übernimmt die tägliche Ausstellung von Endzertifikaten. Lässt sich bei '
+                               'einem Vorfall widerrufen und ersetzen, ohne die Root in den Trust Stores '
+                               'auszutauschen.',
+                  'detail_en': 'Handles the day-to-day issuance of end-entity certificates. Can be revoked '
+                               'and replaced after an incident without swapping the root in the trust stores.'},
+                 {'name_de': 'Endzertifikat (Leaf)', 'name_en': 'End-entity certificate (leaf)',
+                  'content_de': 'liegt am Server oder Client, z. B. shop.nordwind-logistik.de',
+                  'content_en': 'installed on the server or client, e.g. shop.nordwind-logistik.de',
+                  'pdu': 'Leaf',
+                  'detail_de': 'Von der Intermediate-CA signiert. Darf selbst keine weiteren Zertifikate '
+                               'ausstellen und hat die kürzeste Laufzeit der Kette.',
+                  'detail_en': 'Signed by the intermediate CA. It must not issue further certificates '
+                               'itself and has the shortest lifetime in the chain.'},
+             ],
+         }},
         {'type': 'widget', 'id': 'cert-chain',
          'note': 'Am Widget die drei Stufen konkret durchklicken lassen, bevor die '
                  'Kettenpruefung im naechsten Block abstrakt wird.'},
-        {'type': 'order',
+        {'type': 'order', 'id': 'order-1',
          'payload': {
              'prompt_de': 'Bringe die Schritte einer Zertifikatskettenprüfung (Chain '
                           'Validation) durch einen Client in die richtige Reihenfolge.',
@@ -127,7 +162,7 @@ PKI_ARCHITEKTUR_MODULE = {
                  'SAN list',
              ],
          }},
-        {'type': 'check',
+        {'type': 'check', 'id': 'check-1',
          'payload': {
              'kind': 'choice',
              'prompt_de': 'Im Browser zeigt eine interne Testseite ein grünes Schloss, die '
@@ -154,7 +189,7 @@ PKI_ARCHITEKTUR_MODULE = {
                  'The intermediate CA was revoked',
              ],
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-3',
          'value': {
              'de': '## Trust Stores: Betriebssystem, Browser, Java/Python\n\n'
                    'Betriebssystem, Browser und Laufzeitumgebungen bringen teils **eigene** '
@@ -207,7 +242,7 @@ PKI_ARCHITEKTUR_MODULE = {
                    'to **all** relevant trust stores - an OS-level rollout alone is not '
                    'enough.',
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-4',
          'value': {
              'de': '## Cross-Signing: Übergang auf eine neue Root\n\n'
                    'Für ein Zertifikat kann mehr als eine gültige Kette existieren - etwa '
@@ -236,7 +271,7 @@ PKI_ARCHITEKTUR_MODULE = {
                    'cross-signing, old devices would first need an update before trusting '
                    'the new certificates.',
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-5',
          'value': {
              'de': '## Öffentliche CA vs. interne Unternehmens-CA\n\n'
                    '- **Öffentliche CA** (z. B. Let\'s Encrypt, DigiCert, Sectigo) - ihre '
@@ -267,7 +302,7 @@ PKI_ARCHITEKTUR_MODULE = {
                    'its own internal CA for internal machine certificates in the warehouse '
                    '- both worlds coexist without mixing.',
          }},
-        {'type': 'check',
+        {'type': 'check', 'id': 'check-2',
          'payload': {
              'kind': 'choice',
              'prompt_de': 'Wozu dient Cross-Signing beim Wechsel auf eine neue Root-CA?',
@@ -289,7 +324,7 @@ PKI_ARCHITEKTUR_MODULE = {
                  'To save on OCSP requests',
              ],
          }},
-        {'type': 'reflect',
+        {'type': 'reflect', 'id': 'reflect-1',
          'payload': {
              'prompt_de': 'Nordwind baut eine interne CA für Lager-IoT-Geräte auf. Welche '
                           'Systeme/Trust Stores müsst ihr aktiv mit der neuen Root '

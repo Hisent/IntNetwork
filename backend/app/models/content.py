@@ -28,6 +28,9 @@ class ContentBlock(Base):
     note: Mapped[str | None] = mapped_column(Text, nullable=True)
     # typ-spezifische Zusatzdaten: check -> prompt/options/answer, reveal -> teaser
     payload: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    # Stabile Kennung innerhalb des Moduls (Quelle: "id" des Blocks). Über sie
+    # ordnen Content-Sync und Editor Zeilen zu, nicht über Position oder Typ.
+    uid: Mapped[str | None] = mapped_column(String, nullable=True)
 
 
 class ContentQuizQuestion(Base):
@@ -41,6 +44,10 @@ class ContentQuizQuestion(Base):
     options_de: Mapped[list | None] = mapped_column(JSON, nullable=True)
     options_en: Mapped[list | None] = mapped_column(JSON, nullable=True)
     answer: Mapped[object] = mapped_column(JSON)  # int (single/number) oder list[int] (multi)
+    # Erklärung zur Lösung — geht erst mit dem bewerteten Ergebnis an Teilnehmer.
+    explanation_de: Mapped[str | None] = mapped_column(Text, nullable=True)
+    explanation_en: Mapped[str | None] = mapped_column(Text, nullable=True)
+    uid: Mapped[str | None] = mapped_column(String, nullable=True)  # wie ContentBlock.uid; Quelle: "id" der Frage
 
 
 class ContentModuleSnapshot(Base):

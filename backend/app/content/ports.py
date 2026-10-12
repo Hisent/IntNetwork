@@ -20,7 +20,7 @@ PORTS_MODULE = {
               "barely notice when individual packets get lost?",
     },
     "blocks": [
-        {"type": "text",
+        {"type": "text", "id": "text-1",
          "value": {
              "de": "## Die Transportschicht (Schicht 4)\n\nIP bringt Pakete "
                    "zum richtigen **Host**. Die **Transportschicht** bringt sie zum richtigen "
@@ -31,7 +31,7 @@ PORTS_MODULE = {
                    "**service** on that host — via **port numbers**. IP = street address, "
                    "port = apartment number.",
          }},
-        {"type": "text",
+        {"type": "text", "id": "text-2",
          "value": {
              "de": "## Well-known Ports\n\nDienste lauschen auf festen Ports:\n\n"
                    "- **80** HTTP, **443** HTTPS (Web)\n"
@@ -50,7 +50,7 @@ PORTS_MODULE = {
                    "**3389** sits in the **registered** port range (1024–49151).\n\n"
                    "This way many services run over **one** IP side by side — the port tells them apart.",
          }},
-        {"type": "text",
+        {"type": "text", "id": "text-3",
          "value": {
              "de": "## TCP vs. UDP\n\n- **TCP** ist **verbindungsorientiert** "
                    "und **zuverlässig**: Aufbau per **3-Wege-Handshake** (SYN → SYN-ACK → ACK), "
@@ -113,7 +113,7 @@ PORTS_MODULE = {
                  "Antwortpakete der richtigen Verbindung zuordnen. EN: Open three "
                  "connections with fixed source ports and match incoming response "
                  "packets to the right connection."},
-        {"type": "text",
+        {"type": "text", "id": "text-5",
          "value": {
              "de": "## Wann was?\n\nBraucht die Anwendung **Vollständigkeit** "
                    "(eine Datei, eine Webseite, eine Überweisung) → **TCP**. Zählt **Aktualität** "

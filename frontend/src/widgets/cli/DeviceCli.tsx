@@ -1,9 +1,20 @@
 import { useEffect, useRef, useState } from 'react'
 import type { Lang } from '@/lib/i18n'
 
-export function DeviceCli({ prompt, run, lang = 'de' }: { prompt: string; run: (cmd: string) => string; lang?: Lang }) {
+// `intro`, `chips` und `textClass` sind optional und kommen vom deklarativen
+// terminal-Block (components/blocks/TerminalBlock.tsx); die Geräte-Widgets
+// nutzen die Komponente unverändert ohne sie.
+export function DeviceCli({ prompt, run, lang = 'de', intro, chips, textClass = 'text-xs' }: {
+  prompt: string
+  run: (cmd: string) => string
+  lang?: Lang
+  intro?: string
+  /** Befehle zum Anklicken (Beamer/Tablet) */
+  chips?: string[]
+  textClass?: string
+}) {
   const commandLabel = lang === 'de' ? 'Befehlseingabe' : 'Command input'
-  const [lines, setLines] = useState<string[]>([lang === 'de' ? 'Tippe ? für die Befehlsliste.' : 'Type ? for the command list.'])
+  const [lines, setLines] = useState<string[]>([intro ?? (lang === 'de' ? 'Tippe ? für die Befehlsliste.' : 'Type ? for the command list.')])
   const [input, setInput] = useState('')
   const [hist, setHist] = useState<string[]>([])
   const [hi, setHi] = useState(-1)
@@ -15,10 +26,10 @@ export function DeviceCli({ prompt, run, lang = 'de' }: { prompt: string; run: (
     if (el) el.scrollTop = el.scrollHeight
   }, [lines])
 
-  function submit() {
-    const out = run(input)
-    setLines((l) => [...l, `${prompt} ${input}`, ...(out ? out.split('\n') : [])])
-    if (input.trim()) setHist((h) => [input, ...h])
+  function submit(cmd = input) {
+    const out = run(cmd)
+    setLines((l) => [...l, `${prompt} ${cmd}`, ...(out ? out.split('\n') : [])])
+    if (cmd.trim()) setHist((h) => [cmd, ...h])
     setHi(-1)
     setInput('')
   }
@@ -38,14 +49,24 @@ export function DeviceCli({ prompt, run, lang = 'de' }: { prompt: string; run: (
   }
 
   return (
-    <div className="mt-4 rounded-lg bg-slate-900 p-3 font-mono text-xs text-slate-100">
-      <div ref={outputRef} role="log" aria-label={lang === 'de' ? 'Ausgabe' : 'Output'} className="max-h-64 overflow-y-auto whitespace-pre-wrap">{lines.join('\n')}</div>
+    <div className={`mt-4 rounded-lg bg-slate-900 p-3 font-mono ${textClass} text-slate-100`}>
+      <div ref={outputRef} role="log" aria-label={lang === 'de' ? 'Ausgabe' : 'Output'} className="max-h-64 overflow-y-auto whitespace-pre-wrap break-words">{lines.join('\n')}</div>
       <div className="mt-1 flex gap-2">
         <span className="text-green-400">{prompt}</span>
         <input value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={onKey}
-          spellCheck={false} autoComplete="off" aria-label={commandLabel}
-          className="flex-1 bg-transparent text-slate-100 outline-none" />
+          spellCheck={false} autoComplete="off" autoCapitalize="off" aria-label={commandLabel}
+          className="min-w-0 flex-1 bg-transparent text-slate-100 outline-none" />
       </div>
+      {chips && chips.length > 0 && (
+        <div className="mt-3 flex flex-wrap gap-1.5 border-t border-slate-800 pt-3" role="group" aria-label={lang === 'de' ? 'Befehle zum Anklicken' : 'Commands to click'}>
+          {chips.map((c) => (
+            <button key={c} type="button" onClick={() => submit(c)}
+              className="rounded-md border border-slate-600 px-2 py-1 text-left text-slate-100 hover:bg-slate-800">
+              {c}
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   )
 }

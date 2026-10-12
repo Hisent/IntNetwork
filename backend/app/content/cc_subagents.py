@@ -20,7 +20,7 @@ SUBAGENTS_MODULE = {'key': 'subagents',
                     'again. A **subagent** handles exactly that in *its own* context window and '
                     'returns only the summary. This keeps the main context clean and, on top of '
                     'that, enables **parallelization**.'},
- 'blocks': [{'type': 'text',
+ 'blocks': [{'type': 'text', 'id': 'text-1',
              'value': {'de': '## Wozu Subagents?\n'
                              '\n'
                              'Ein Subagent ist ein spezialisierter Helfer mit **eigenem '
@@ -59,7 +59,7 @@ SUBAGENTS_MODULE = {'key': 'subagents',
                              'helper with the same instructions.'},
              'note': 'Einen read-only Review-Subagent anlegen und delegieren lassen; Tool-Rechte '
                      'bewusst minimal halten.'},
-            {'type': 'text',
+            {'type': 'text', 'id': 'text-2',
              'value': {'de': '## Einen Subagent definieren\n'
                              '\n'
                              'Subagents sind Markdown-Dateien mit YAML-Frontmatter unter '
@@ -114,7 +114,7 @@ SUBAGENTS_MODULE = {'key': 'subagents',
                              '**`description`** (how Claude recognizes when to delegate), '
                              '**`tools`** (allowed tools — here read-only), **`model`** (e.g., '
                              '`sonnet`, `haiku`).'}},
-            {'type': 'check',
+            {'type': 'check', 'id': 'check-1',
              'payload': {'kind': 'choice',
                          'prompt_de': 'Welches Frontmatter-Feld macht einen Subagent read-only?',
                          'prompt_en': 'Which frontmatter field makes a subagent read-only?',
@@ -125,7 +125,7 @@ SUBAGENTS_MODULE = {'key': 'subagents',
                          'options_en': ['model (set to haiku)',
                                         'tools (only allow Read/Grep/Glob)',
                                         "name (start with 'readonly')"]}},
-            {'type': 'text',
+            {'type': 'text', 'id': 'text-3',
              'value': {'de': '## Wie ein Subagent aufgerufen wird\n'
                              '\n'
                              'Zwei Wege:\n'
@@ -153,7 +153,7 @@ SUBAGENTS_MODULE = {'key': 'subagents',
                              'The subagent works independently in its own context and, at the end, '
                              'returns a summary to the main conversation. Its working context (the '
                              "many files it read) stays out — that's exactly the payoff."}},
-            {'type': 'text',
+            {'type': 'text', 'id': 'text-4',
              'value': {'de': '## Parallele Ausführung\n'
                              '\n'
                              'Weil jeder Subagent isoliert läuft, lassen sich **mehrere '
@@ -184,7 +184,7 @@ SUBAGENTS_MODULE = {'key': 'subagents',
                              'subtasks run side by side, and the main conversation only gets the '
                              'three summaries. (For many *complete* sessions running side by side, '
                              'there are background agents and agent teams — Module 13.)'}},
-            {'type': 'order',
+            {'type': 'order', 'id': 'order-1',
              'payload': {'prompt_de': 'Einen wiederverwendbaren Subagent einführen — Reihenfolge:',
                          'prompt_en': 'Introducing a reusable subagent — order:',
                          'items_de': ['Bedarf erkennen: immer derselbe Helfer mit denselben '
@@ -201,7 +201,7 @@ SUBAGENTS_MODULE = {'key': 'subagents',
                                       'Write the system prompt (the role) below the frontmatter',
                                       'Let it be delegated to or invoke it explicitly, and check '
                                       'the result']}},
-            {'type': 'debug',
+            {'type': 'debug', 'id': 'debug-1',
              'payload': {'prompt_de': 'Dieses Subagent-Frontmatter hat einen inhaltlichen Fehler '
                                       'für einen reinen Review-Agent. Welche Zeile?',
                          'prompt_en': 'This subagent frontmatter has a substantive error for a '
@@ -257,7 +257,7 @@ SUBAGENTS_MODULE = {'key': 'subagents',
                              '- **Git worktree**: not an agent feature but an isolated working '
                              'copy of the repo. Useful when parallel agents edit files at the '
                              'same time without clobbering each other.'}},
-            {'type': 'reflect',
+            {'type': 'reflect', 'id': 'reflect-1',
              'payload': {'prompt_de': 'Welche Nebenaufgabe bläht in deinen Sessions am ehesten das '
                                       'Hauptgespräch auf und wäre ein guter Kandidat für einen '
                                       'Subagent?',

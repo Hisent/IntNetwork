@@ -20,7 +20,7 @@ SKILLS_COMMANDS_MODULE = {'key': 'skills-commands',
                     'repeatable workflows into a file that Claude loads when needed — or that you '
                     "invoke directly with `/name`. They're the first step toward adapting Claude "
                     'Code to your team.'},
- 'blocks': [{'type': 'text',
+ 'blocks': [{'type': 'text', 'id': 'text-1',
              'value': {'de': '## Skills — und was aus Custom-Commands wurde\n'
                              '\n'
                              'Ein **Skill** erweitert, was Claude kann: eine `SKILL.md` mit '
@@ -56,7 +56,7 @@ SKILLS_COMMANDS_MODULE = {'key': 'skills-commands',
                              "so long reference material costs almost nothing until it's needed."},
              'note': 'Einen Skill live anlegen und mit /name aufrufen; dynamischen Kontext (!`git '
                      'diff`) demonstrieren.'},
-            {'type': 'text',
+            {'type': 'text', 'id': 'text-2',
              'value': {'de': '## Aufbau einer SKILL.md\n'
                              '\n'
                              'Jeder Skill ist ein Verzeichnis mit einer `SKILL.md` als Einstieg. '
@@ -115,7 +115,7 @@ SKILLS_COMMANDS_MODULE = {'key': 'skills-commands',
                              '\n'
                              "The `description` is crucial: it's what Claude uses to decide "
                              'whether to load the skill automatically.'}},
-            {'type': 'text',
+            {'type': 'text', 'id': 'text-3',
              'value': {'de': '## Dynamischer Kontext: !`cmd` und $ARGUMENTS\n'
                              '\n'
                              'Zwei Bausteine machen Skills mächtig:\n'
@@ -156,7 +156,7 @@ SKILLS_COMMANDS_MODULE = {'key': 'skills-commands',
                              '\n'
                              'Invocation: `/review src/auth.ts` → `$ARGUMENTS` becomes '
                              '`src/auth.ts`.'}},
-            {'type': 'check',
+            {'type': 'check', 'id': 'check-1',
              'payload': {'kind': 'choice',
                          'prompt_de': 'Wozu dient die `description` im SKILL.md-Frontmatter?',
                          'prompt_en': 'What is the `description` in the SKILL.md frontmatter for?',
@@ -169,7 +169,7 @@ SKILLS_COMMANDS_MODULE = {'key': 'skills-commands',
                                         "It's what Claude uses to decide when the skill loads "
                                         'automatically',
                                         "It's just a comment with no effect"]}},
-            {'type': 'text',
+            {'type': 'text', 'id': 'text-4',
              'value': {'de': '## Wo Skills liegen\n'
                              '\n'
                              'Der Ort bestimmt die Reichweite:\n'
@@ -206,7 +206,7 @@ SKILLS_COMMANDS_MODULE = {'key': 'skills-commands',
                              'a custom skill with the same name even overrides a **bundled** one. '
                              'Plugin skills are namespaced with `plugin-name:skill-name`, so they '
                              'never collide.'}},
-            {'type': 'text',
+            {'type': 'text', 'id': 'text-5',
              'value': {'de': '## Wer löst den Skill aus?\n'
                              '\n'
                              'Standardmäßig kann Claude einen Skill **selbst** laden (wenn die '
@@ -230,7 +230,7 @@ SKILLS_COMMANDS_MODULE = {'key': 'skills-commands',
                              'Also useful: **bundled skills**, available with no setup, including '
                              "`/code-review`, `/debug`, `/loop`. They're prompt-based and invoked "
                              'just like your own skills.'}},
-            {'type': 'order',
+            {'type': 'order', 'id': 'order-1',
              'payload': {'prompt_de': 'Einen eigenen Skill anlegen — richtige Reihenfolge:',
                          'prompt_en': 'Creating your own skill — the correct order:',
                          'items_de': ['Verzeichnis anlegen: ~/.claude/skills/<name>/',
@@ -246,7 +246,7 @@ SKILLS_COMMANDS_MODULE = {'key': 'skills-commands',
                                       'Optionally add dynamic context (!`cmd`) and $ARGUMENTS',
                                       'Invoke with /<name> or ask a matching question, and test '
                                       'it']}},
-            {'type': 'debug',
+            {'type': 'debug', 'id': 'debug-1',
              'payload': {'prompt_de': 'In diesem SKILL.md-Frontmatter steckt ein Fehler. Welche '
                                       'Zeile?',
                          'prompt_en': "There's an error in this SKILL.md frontmatter. Which line?",
@@ -269,7 +269,7 @@ SKILLS_COMMANDS_MODULE = {'key': 'skills-commands',
                                            '(English), not `beschreibung`. Without a valid '
                                            "`description`, Claude can't meaningfully auto-match "
                                            'the skill.'}},
-            {'type': 'reveal',
+            {'type': 'reveal', 'id': 'reveal-1',
              'payload': {'teaser_de': 'Lab: Schreibe eine komplette SKILL.md für `/new-test`, die '
                                       'aus dem aktuellen Diff einen passenden Unit-Test vorschlägt '
                                       'und dabei den Diff dynamisch einzieht. Zuerst selbst.',
@@ -314,7 +314,7 @@ SKILLS_COMMANDS_MODULE = {'key': 'skills-commands',
                              'framework already in use in the project. If the diff is empty, point '
                              'that out.\n'
                              '```'}},
-            {'type': 'reflect',
+            {'type': 'reflect', 'id': 'reflect-1',
              'payload': {'prompt_de': 'Welche Anweisung tippst du in deinem Team am häufigsten in '
                                       'den Chat? Genau die ist ein guter erster Skill.',
                          'prompt_en': 'What instruction do you type into the chat most often on '

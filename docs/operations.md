@@ -19,17 +19,49 @@ Kursinhalte liegen im Code (`backend/app/content/*.py`), ausgeliefert wird aus
 der Datenbank. Beim Start gleicht `seed_missing_content()` beides ab
 (`backend/app/content/sync.py`): Jedes mitgelieferte Modul, das kein Trainer
 verändert hat, wird auf den Stand der Quelle gebracht — Texte, Blöcke,
-Quizfragen, Titel, Reihenfolge und Voraussetzungen. Fragen und Blöcke werden
-dabei in ihren vorhandenen Zeilen überschrieben; Frage-ids, Quiz-Abgaben,
-Fortschritt, Kurs-Aktivierungen und Kommentare bleiben erhalten. Ein zweiter
-Start ändert nichts mehr.
+Quizfragen (samt Erklärungen), Titel, Reihenfolge und Voraussetzungen. Ein
+zweiter Start ändert nichts mehr.
+
+Zugeordnet wird über Kennungen: jeder Block und jede Frage trägt eine je Modul
+eindeutige `id` in der Quelle (Spalte `uid` in `content_block` und
+`content_quiz_question`, seit v1.43.0; Regeln für Autoren in
+`docs/content-authoring.md`). Daraus folgt, auch wenn Teilnehmerdaten am Modul
+hängen:
+
+- **bekannte Kennung** — die Zeile wird überschrieben und behält ihre
+  Datenbank-id. Quiz-Abgaben, Fragenstatistik und Kommentare bleiben dran.
+- **neue Kennung** — Block/Frage wird an der Stelle der Quelle eingefügt.
+- **Kennung entfällt** — die Zeile wird gelöscht. Kommentare an einem
+  entfallenen Block werden nicht gelöscht, sondern hängen danach am nächsten
+  verbliebenen Block davor (Logzeile `… Kommentar(e) an entfallenen Blöcken`).
+- **Reihenfolge** — wie in der Quelle; Kommentare wandern mit ihrem Block.
+
+Was mit Quiz-Ergebnissen passiert: nichts rückwirkend. `quiz_result` speichert
+Punktzahl und Gesamtzahl zum Zeitpunkt der Abgabe; „bestanden“, Fortschritt,
+Bestwert und Zertifikate ändern sich nicht, wenn Fragen hinzukommen oder
+entfallen. Neue Fragen zählen ab der nächsten Abgabe; in der Fragenstatistik
+der Trainer-Ansicht zählt je Frage nur als Versuch, wer sie in seiner Abgabe
+hatte. Wer das Quiz vor dem Deploy geladen hat und danach abgibt, bekommt die
+neuen Fragen als nicht beantwortet gewertet (Abhilfe: Seite neu laden,
+wiederholen). Ändern sich Optionen oder Lösung einer bestehenden Frage, werden
+alte Abgaben in der Statistik gegen die NEUE Lösung gezählt (gespeichert ist
+nur der gewählte Index) — deshalb vergeben Autoren bei inhaltlich anderer
+Frage eine neue Kennung.
+
+Datenbanken bis v1.42.0 haben noch keine Kennungen. Beim ersten Start mit
+v1.43.0 legt die Migration `a6b7c8d9e0f1` die Spalten an, und der Sync trägt
+die Kennungen einmalig ein — für jedes Modul, auch für vom Trainer geänderte:
+anhand des Stands v1.42.0 (`"structure"` in `sync_baseline.json`), Widgets über
+ihre Widget-id, andere Blöcke als n-ter Block ihres Typs, Fragen über ihre
+Position. Was dazu nicht passt (eigene Blöcke/Fragen, eigene Module), bekommt
+eine zufällige Kennung (`x…`).
 
 Als unverändert gilt ein Modul, wenn sein Stand noch dem beim letzten Sync
 gespeicherten Hash entspricht (Tabelle `setting`, Schlüssel
 `content-sync:<modul>`). Datenbanken aus der Zeit vor dem Sync haben diesen
 Hash nicht; dort zählt ein Modul als unverändert, wenn es nie im Editor
 gespeichert wurde (kein Eintrag in `content_module_snapshot`) oder sein Stand
-ein bekannter Auslieferungsstand bis v1.41.1 ist
+ein bekannter Auslieferungsstand bis v1.42.0 ist
 (`backend/app/content/sync_baseline.json`, erzeugt von
 `backend/build_content_baseline.py`).
 
@@ -46,23 +78,19 @@ Im Log (Logger `app.content.sync`, Stufe WARNING) steht nach einem Deploy:
   Traceback — nur dieses Modul bleibt auf dem alten Stand, der Start läuft
   weiter. Bitte melden.
 
-Gründe für ein ausgelassenes Modul und was zu tun ist:
+Ausgelassene Module und was zu tun ist:
 
-- **vom Trainer geändert** — der Trainer-Stand hat Vorrang. Wer die neuen
-  Inhalte will: im Modul-Editor „Auslieferungszustand laden“ und die eigenen
-  Änderungen danach wieder einpflegen (die vorherige Fassung liegt eine Stufe
-  tief unter „Vorherige Version wiederherstellen“). Achtung: Dieser Weg legt die Quizfragen neu
-  an, frühere Abgaben erscheinen danach nicht mehr in der Fragenstatistik.
-  Ist das Modul wieder auf Auslieferungsstand, nimmt es ab dem nächsten Start
-  wieder am Sync teil. Wer seinen Stand behalten will, muss nichts tun.
-- **Blöcke sind hinzugekommen oder entfallen und es gibt Kommentare** —
-  Kommentare hängen an der Blockposition; statt sie an einen fremden Block zu
-  hängen, bleibt das Modul stehen. Reines Umsortieren ist kein Problem, die
-  Kommentare wandern mit. Abhilfe: Kommentare des Moduls klären/löschen oder
-  das Modul wie oben von Hand laden.
-- **Quizstruktur weicht ab und es gibt Quiz-Abgaben** — Anzahl oder Typ der
-  Fragen passen nicht mehr zu den Fragen, an denen Abgaben hängen. Abhilfe wie
-  oben; im laufenden Kurs besser bis zum Kursende warten.
+- **vom Trainer geändert** — der Trainer-Stand hat Vorrang; das ist der einzige
+  Grund, aus dem ein Modul ausgelassen wird. Wer die neuen Inhalte will: im
+  Modul-Editor „Auslieferungszustand laden“ und die eigenen Änderungen danach
+  wieder einpflegen (die vorherige Fassung liegt eine Stufe tief unter
+  „Vorherige Version wiederherstellen“). Seit v1.43.0 arbeiten Speichern,
+  „Auslieferungszustand laden“ und Wiederherstellen ebenfalls über die
+  Kennungen: Fragen und Blöcke, die es vorher schon gab, behalten ihre Zeile —
+  laufende Abgaben und die Fragenstatistik bleiben gültig. Nur an einem dabei
+  entfernten Block gehen die Kommentare verloren. Ist das Modul wieder auf
+  Auslieferungsstand, nimmt es ab dem nächsten Start wieder am Sync teil. Wer
+  seinen Stand behalten will, muss nichts tun.
 
 Inhaltsänderungen brauchen damit keine handgeschriebene Text-Migration in
 `seed.py` mehr. Die vorhandenen Migrationen bleiben für alte Datenbanken
@@ -134,3 +162,40 @@ Ein Backup ohne erfolgreichen Restore-Test gilt nicht als verifiziert.
   Nutzern deren Limit unterschieben. Die nginx-Konfiguration selbst liegt
   außerhalb dieses Dokuments; hier steht nur die Betriebsannahme, die dabei
   nicht verletzt werden darf.
+  **Bewertung der `set_real_ip_from`-Zeilen (Stand v1.43, nicht geändert):**
+  `frontend/nginx.conf` vertraut allen privaten Netzen (10/8, 172.16/12,
+  192.168/16), nicht nur der Adresse von Traefik. Das ist bewusst so gelassen,
+  weil das Docker-Subnetz des Ingress je Coolify-Installation anders ist und
+  sich ändern kann — ein fest eingetragenes Subnetz, das nicht mehr stimmt,
+  wirft alle Nutzer in EINEN Rate-Limit-Eimer (schlimmer als der Ist-Zustand).
+  Daraus folgen zwei Grenzen, die man kennen muss:
+  1. Jeder Container im selben Docker-Netz wie das Frontend kann nginx direkt
+     ansprechen und `X-Forwarded-For` frei setzen. Betroffen ist nur das
+     Rate-Limit (und die IP im Log), keine Anmeldung. Der Lab-Runner hat kein
+     Netz und scheidet aus.
+  2. Kommen die **Nutzer selbst aus einem privaten Netz** (Intranet, VPN, also
+     Client-IP 10.x/172.16–31.x/192.168.x), überspringt `real_ip_recursive`
+     auch deren echte Adresse und nimmt den Wert links davon — den der Client
+     frei wählen kann. In so einem Betrieb ist das IP-Rate-Limit umgehbar.
+     Abhilfe dann: die drei Zeilen durch das konkrete Subnetz bzw. die Adresse
+     des Ingress ersetzen (`docker network inspect <netz>`), danach mit zwei
+     Clients prüfen, dass das Backend unterschiedliche IPs sieht.
+- **Frontend-Cache nach Deploy.** `index.html` wird mit `Cache-Control:
+  no-cache` ausgeliefert (Browser fragt jedes Mal nach, 304 wenn unverändert),
+  die Dateien mit Hash im Namen ein Jahr `immutable`. Die Sicherheits-Header
+  liegen in `frontend/nginx-security-headers.conf` und werden in jedem
+  `location`-Block mit eigenem `add_header` erneut eingebunden — nginx vererbt
+  `add_header` sonst nicht (vor v1.43 fehlten CSP/HSTS auf allen JS/CSS-Dateien).
+  Nach einem Deploy prüfen: `curl -sI https://<host>/ | grep -i -E
+  "cache-control|content-security"` und dasselbe für eine `/assets/*.js`.
+- **Kurs löschen und Zertifikate.** Zertifikate überleben das Löschen eines
+  Kurses standardmäßig und bleiben mit Namen unter `/verify/<id>` öffentlich.
+  Der Lösch-Dialog nennt die Zahl und bietet „Zertifikate mitlöschen" an
+  (`DELETE /api/courses/{id}?delete_certificates=true`); das Audit-Log hält
+  fest, wie viele gelöscht bzw. behalten wurden.
+- **Teilnehmer ohne Wiederaufnahme-Code (Beitritt vor v1.19).** Sie kommen
+  seit v1.43 nicht mehr allein über ihren Namen hinein (das ließ eine Übernahme
+  durch jeden zu, der Kurs-Code und Namen kannte). Der Trainer vergibt im
+  Kurs-Detail über „Code zurücksetzen" einen Code und gibt ihn persönlich
+  weiter. Wie viele betroffen sind:
+  `SELECT count(*) FROM participant WHERE resume_code IS NULL;`

@@ -24,7 +24,7 @@ FAKTEN_BEDINGUNGEN_MODULE = {
                     'automatically collects system information — **facts** — on every run, and '
                     'you use **when** conditions to control which task actually runs on which '
                     'host.'},
- 'blocks': [{'type': 'text',
+ 'blocks': [{'type': 'text', 'id': 'text-1',
              'value': {'de': '## Was sind Facts?\n'
                              '\n'
                              '**Facts** sind Systeminformationen, die Ansible automatisch von '
@@ -70,7 +70,7 @@ FAKTEN_BEDINGUNGEN_MODULE = {
              'note': 'Falls eine Live-Umgebung verfügbar ist: ansible <host> -m setup laufen '
                      'lassen und gemeinsam durch die Ausgabe scrollen — zeigt eindrücklich, wie '
                      'viele Facts tatsächlich gesammelt werden.'},
-            {'type': 'text',
+            {'type': 'text', 'id': 'text-2',
              'value': {'de': '## Nützliche Fact-Variablen\n'
                              '\n'
                              'Eine kleine Auswahl, die im Alltag am häufigsten gebraucht wird:\n'
@@ -103,7 +103,7 @@ FAKTEN_BEDINGUNGEN_MODULE = {
                              'Debian both count as `Debian`, RHEL and CentOS both as `RedHat`) — '
                              'for "does this run on a Debian-like system?" it is usually the '
                              'better fit than `ansible_facts.distribution`.'}},
-            {'type': 'check',
+            {'type': 'check', 'id': 'check-1',
              'payload': {'kind': 'choice',
                          'prompt_de': 'Welches Modul führt Ansible standardmäßig aus, um Facts '
                                       'zu sammeln?',
@@ -118,7 +118,7 @@ FAKTEN_BEDINGUNGEN_MODULE = {
                                         'ansible.builtin.stat',
                                         'ansible.builtin.facts',
                                         'ansible.builtin.info']}},
-            {'type': 'text',
+            {'type': 'text', 'id': 'text-3',
              'value': {'de': '## Bedingungen mit when\n'
                              '\n'
                              '`when:` ist ein Task-Keyword. Ansible wertet die Bedingung vor der '
@@ -177,7 +177,7 @@ FAKTEN_BEDINGUNGEN_MODULE = {
                              'previous task in the same run may have caused. If you change state '
                              'within the same play and want to react to that afterwards, you '
                              'need `register` (see below) or an explicit re-fact task.'}},
-            {'type': 'debug',
+            {'type': 'debug', 'id': 'debug-1',
              'payload': {'prompt_de': 'Dieser Task soll nur auf Debian-basierten Hosts laufen. '
                                       'Auf einem Ubuntu-Server läuft er aber nie — auch nicht, '
                                       'wenn er dort laufen sollte. Welche Zeile enthält den '
@@ -215,7 +215,7 @@ FAKTEN_BEDINGUNGEN_MODULE = {
                                            'ansible_facts.os_family == "Debian"`. That makes this typo '
                                            'kinder than it looks: it surfaces immediately instead '
                                            'of skipping the task in silence.'}},
-            {'type': 'text',
+            {'type': 'text', 'id': 'text-4',
              'value': {'de': '## register auswerten\n'
                              '\n'
                              '`register: name` speichert das komplette Ergebnis-Objekt eines '
@@ -265,7 +265,7 @@ FAKTEN_BEDINGUNGEN_MODULE = {
                              'plain status check is not wrongly reported as "changed" or '
                              '"failed" — more on that in the "Error Handling & Idempotency" '
                              'module.'}},
-            {'type': 'text',
+            {'type': 'text', 'id': 'text-5',
              'value': {'de': '## Ausblick: failed_when und changed_when\n'
                              '\n'
                              'Zwei Keywords, die eng mit `register` zusammenspielen und in '
@@ -292,7 +292,7 @@ FAKTEN_BEDINGUNGEN_MODULE = {
                              '\n'
                              'Both matter especially for `command`/`shell` tasks, since those do '
                              'not report meaningful idempotency information on their own.'}},
-            {'type': 'reveal',
+            {'type': 'reveal', 'id': 'reveal-1',
              'payload': {'teaser_de': 'Vier Hosts, eine Bedingung: '
                                       '`when: ansible_facts.os_family == "Debian"`. web01 (Ubuntu), '
                                       'web02 (Ubuntu), db01 (CentOS), db02 (Debian). Auf welchen '
@@ -307,7 +307,7 @@ FAKTEN_BEDINGUNGEN_MODULE = {
                        'en': 'On **web01, web02, and db02**. Ubuntu and Debian both belong to '
                              'the fact family `Debian` (`ansible_facts.os_family`). Only **db01** '
                              '(CentOS, family `RedHat`) is skipped.'}},
-            {'type': 'reflect',
+            {'type': 'reflect', 'id': 'reflect-1',
              'payload': {'prompt_de': 'Denk an ein Playbook, das du kennst oder dir vorstellen '
                                       'kannst: Welche `when`-Bedingung würde verhindern, dass ein '
                                       'riskanter Task auf dem falschen Hosttyp läuft? Formuliere '

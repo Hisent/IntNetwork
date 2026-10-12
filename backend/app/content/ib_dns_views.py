@@ -25,7 +25,7 @@ DNS_VIEWS_MODULE = {
               'on who is asking. This is exactly what DNS Views in NIOS are for.',
     },
     'blocks': [
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-1',
          'note': 'Split-DNS live an der eigenen Umgebung zeigen, falls moeglich: dieselbe Abfrage aus dem internen Netz und von aussen. Der Aha-Effekt kommt fast immer ueber den direkten Vergleich.',
          'value': {
              'de': '## Wozu DNS Views?\n\n'
@@ -46,7 +46,7 @@ DNS_VIEWS_MODULE = {
                    'internet with public IP addresses — both for the same domain, but with a '
                    'completely separate set of records.',
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-2',
          'value': {
              'de': '## Die View-Reihenfolge entscheidet\n\n'
                    'NIOS prüft die konfigurierten Views **der Reihe nach** und nimmt die erste, '
@@ -76,7 +76,7 @@ DNS_VIEWS_MODULE = {
                    'practice "one member, one view"), assignment through interface or network is '
                    'enough — the match lists stay simple.',
          }},
-        {'type': 'debug',
+        {'type': 'debug', 'id': 'debug-1',
          'payload': {
              'prompt_de': 'Ein Grid-Member bedient zwei Views in dieser Reihenfolge. Welche Zeile '
                           'ist das Problem, wenn ein interner Client (`10.0.0.0/8`) eine Anfrage '
@@ -109,7 +109,7 @@ DNS_VIEWS_MODULE = {
                                'specific `internal` view (10.0.0.0/8) must come before the broad '
                                '`external` view (any).',
          }},
-        {'type': 'check',
+        {'type': 'check', 'id': 'check-1',
          'payload': {
              'kind': 'choice',
              'prompt_de': 'Zwei Views sind konfiguriert: `intern` (match: 10.0.0.0/8) und `extern` '
@@ -132,7 +132,7 @@ DNS_VIEWS_MODULE = {
                  'Both views must have the same name',
              ],
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-3',
          'value': {
              'de': '## Forwarding und Rekursion\n\n'
                    'Forwarder lassen sich auf drei Ebenen konfigurieren: **Grid-weit**, **pro '
@@ -159,7 +159,7 @@ DNS_VIEWS_MODULE = {
                    'therefore be planned carefully, or unexpected resolution gaps appear for '
                    'clients that should actually be allowed to resolve recursively.',
          }},
-        {'type': 'reflect',
+        {'type': 'reflect', 'id': 'reflect-1',
          'payload': {
              'prompt_de': 'Ein reales Sonderproblem: Remote-Access-VPN-Clients bekommen über den '
                          'VPN-Tunnel eine interne IP zugewiesen, ihre ursprüngliche Verbindung kommt '
@@ -176,7 +176,7 @@ DNS_VIEWS_MODULE = {
                          'would match-clients need to be extended so it also gets the internal '
                          'answer?',
          }},
-        {'type': 'order',
+        {'type': 'order', 'id': 'order-1',
          'payload': {
              'prompt_de': 'Bringe die Prüfschritte in die Reihenfolge, in der du eine gemeldete '
                           '„falsche DNS-Antwort“ bei Split-DNS eingrenzen würdest.',

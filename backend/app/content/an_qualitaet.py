@@ -22,7 +22,7 @@ QUALITAET_MODULE = {'key': 'qualitaet-testen',
                     "isn't enough: what's needed is a chain of quality gates that catches syntax "
                     'errors, style violations, and risky changes before they run in production. '
                     'This module builds that chain step by step.'},
- 'blocks': [{'type': 'text',
+ 'blocks': [{'type': 'text', 'id': 'text-1',
              'value': {'de': '## Vier Prüfstufen, ein Ziel\n'
                              '\n'
                              'Bevor ein Playbook produktiv läuft, lassen sich mehrere, '
@@ -64,7 +64,7 @@ QUALITAET_MODULE = {'key': 'qualitaet-testen',
                              'idempotency.'},
              'note': 'Diese Vierteilung als roten Faden fürs Modul nutzen — jeder folgende '
                      'Block vertieft eine Stufe.'},
-            {'type': 'text',
+            {'type': 'text', 'id': 'text-2',
              'value': {'de': '## Stufe 1+2: Syntax-Check und Lint\n'
                              '\n'
                              'Der schnellste Check läuft ganz ohne Zielsystem:\n'
@@ -121,7 +121,7 @@ QUALITAET_MODULE = {'key': 'qualitaet-testen',
                              '```bash\n'
                              'ansible-lint site.yml\n'
                              '```'}},
-            {'type': 'check',
+            {'type': 'check', 'id': 'check-1',
              'payload': {'kind': 'choice',
                          'prompt_de': 'Ein Playbook besteht `--syntax-check` und '
                                       '`ansible-lint` ohne Findings. Was ist damit belegt?',
@@ -138,7 +138,7 @@ QUALITAET_MODULE = {'key': 'qualitaet-testen',
                                         'checked best practices — nothing more',
                                         'The playbook has already run successfully against a '
                                         'target system']}},
-            {'type': 'text',
+            {'type': 'text', 'id': 'text-3',
              'value': {'de': '## Stufe 3: `--check` und `--diff`\n'
                              '\n'
                              '```bash\n'
@@ -186,7 +186,7 @@ QUALITAET_MODULE = {'key': 'qualitaet-testen',
                              '`changed=0`.'},
              'note': 'Häufige Verwechslung: Teilnehmende halten `--check` für einen '
                      'vollwertigen Idempotenz-Nachweis. Explizit widerlegen.'},
-            {'type': 'order',
+            {'type': 'order', 'id': 'order-1',
              'payload': {'prompt_de': 'Ein Playbook wird per Pull Request eingereicht — in '
                                       'welcher Reihenfolge laufen die Qualitätsprüfungen '
                                       'sinnvollerweise ab?',
@@ -204,7 +204,7 @@ QUALITAET_MODULE = {'key': 'qualitaet-testen',
                                       'environment (are the expected changes plausible?)',
                                       'Role test with Molecule including an idempotency check '
                                       '(second real run with no changes?)']}},
-            {'type': 'text',
+            {'type': 'text', 'id': 'text-4',
              'value': {'de': '## Stufe 4: Rollen testen mit Molecule\n'
                              '\n'
                              'Für Rollen (Modul „Rollen: Struktur & Wiederverwendung”) reicht '
@@ -257,7 +257,7 @@ QUALITAET_MODULE = {'key': 'qualitaet-testen',
                              'step.'},
              'note': 'Schrittfolge gegen die Molecule-Doku (Configuration, test_sequence) '
                      'geprüft; Lint ist dort kein Schritt.'},
-            {'type': 'debug',
+            {'type': 'debug', 'id': 'debug-1',
              'payload': {'prompt_de': 'Ein Team beschreibt seine geplante CI-Pipeline für '
                                       'Ansible-Rollen in vier Schritten. Einer davon ist '
                                       'fachlich falsch — welcher?',
@@ -293,7 +293,7 @@ QUALITAET_MODULE = {'key': 'qualitaet-testen',
                                            'idempotency) and complement, but do not replace, each '
                                            'other. A separate lint step in the pipeline remains '
                                            'necessary.'}},
-            {'type': 'text',
+            {'type': 'text', 'id': 'text-5',
              'value': {'de': '## Typische Anfängerfehler\n'
                              '\n'
                              '\n'
@@ -335,7 +335,7 @@ QUALITAET_MODULE = {'key': 'qualitaet-testen',
                              '`when` conditions and precedence conflicts, however, often only '
                              'show up in a check run or role test against realistic test '
                              'data.'}},
-            {'type': 'reflect',
+            {'type': 'reflect', 'id': 'reflect-1',
              'payload': {'prompt_de': 'Welche der vier Prüfstufen (Syntax-Check, Lint, '
                                       'Check/Diff, Rollentest) fehlt in deinem aktuellen '
                                       'Automatisierungs- oder Infrastruktur-Workflow noch ganz — '

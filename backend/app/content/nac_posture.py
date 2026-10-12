@@ -26,7 +26,7 @@ NAC_POSTURE_MODULE = {
               'actually gets access here — and to what?',
     },
     'blocks': [
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-1',
          'note': 'Kernunterscheidung fuer das ganze Modul: Authentifizierung beantwortet WER, '
                  'Posture beantwortet in WELCHEM ZUSTAND. Beides zusammen ergibt erst die '
                  'vollstaendige Zugriffsentscheidung.',
@@ -52,7 +52,7 @@ NAC_POSTURE_MODULE = {
                    'identity verification does not catch. Only the combination of "who" and "in '
                    'what state" produces a complete access decision.',
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-2',
          'value': {
              'de': '## Was geprüft wird\n\n'
                    'Typische Kriterien einer Posture-Prüfung:\n\n'
@@ -80,7 +80,7 @@ NAC_POSTURE_MODULE = {
         {'type': 'widget', 'id': 'nac-posture',
          'note': 'Uebung direkt nach dem Kriterien-Text platziert, damit die vier Pruefkriterien '
                  'noch frisch sind, wenn im Widget konkrete Geraetezustaende bewertet werden.'},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-3',
          'value': {
              'de': '## Compliant vs. non-compliant\n\n'
                    'Auf Basis der Prüfung wird jedes Gerät als **compliant** (konform) oder '
@@ -108,7 +108,7 @@ NAC_POSTURE_MODULE = {
                    'not land directly in the production network, but first in this restricted '
                    'area.',
          }},
-        {'type': 'check',
+        {'type': 'check', 'id': 'check-1',
          'payload': {
              'kind': 'choice',
              'prompt_de': 'Ein Laptop authentifiziert sich erfolgreich per 802.1X, hat aber keine '
@@ -133,7 +133,7 @@ NAC_POSTURE_MODULE = {
                  'Full access, but only for 24 hours',
              ],
          }},
-        {'type': 'debug',
+        {'type': 'debug', 'id': 'debug-1',
          'payload': {
              'prompt_de': 'Ein Kollege sagt: „Das Gerät hat sich doch erfolgreich per 802.1X '
                          'authentifiziert, dann kann es auch ins produktive Netz.“ Welche der '
@@ -166,7 +166,7 @@ NAC_POSTURE_MODULE = {
                                'identity verification and still be considered non-compliant, for '
                                'example if patches are missing or the EDR agent is inactive.',
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-4',
          'value': {
              'de': '## Agent-based vs. agentless\n\n'
                    'Posture-Daten lassen sich auf zwei Wegen erheben:\n\n'
@@ -194,7 +194,7 @@ NAC_POSTURE_MODULE = {
                    'the compliance record already captured there. This reduces software bloat on '
                    'the endpoint and works well when a robust MDM is already in place.',
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-5',
          'value': {
              'de': '## Zusammenspiel mit CoA\n\n'
                    'Posture Assessment findet in der Regel zum Zeitpunkt der Authentifizierung '
@@ -221,7 +221,7 @@ NAC_POSTURE_MODULE = {
                    'what matters here above all is that posture assessment without a way to '
                    'enforce it during an active session is only half the job.',
          }},
-        {'type': 'reflect',
+        {'type': 'reflect', 'id': 'reflect-1',
          'payload': {
              'prompt_de': 'Nordwind Logistik hat viele Außendienst-Laptops ohne durchgängige MDM-'
                          'Anbindung, aber ein wachsendes BYOD-Aufkommen bei Besuchern. Für welche '

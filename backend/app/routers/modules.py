@@ -56,7 +56,7 @@ def submit_quiz(key: str, data: QuizSubmit, db: Session = Depends(get_db),
                 p: Participant = Depends(get_participant)):
     if key not in active_module_keys(db, p.course_id):
         raise HTTPException(status_code=404, detail="Modul nicht gefunden")
-    module = trainer_module(db, key)
+    module = trainer_module(db, key, p.language)
     if not module:
         raise HTTPException(status_code=404, detail="Modul nicht gefunden")
     score, total = grading.grade(module["quiz"], data.answers)
@@ -93,7 +93,10 @@ def submit_quiz(key: str, data: QuizSubmit, db: Session = Depends(get_db),
         QuizResult.participant_id == p.id, QuizResult.module_key == key).all()
     best_pct = max((r.score / r.total for r in results if r.total), default=0)
     return {"score": score, "total": total, "passed": is_passed, "best": round(best_pct * 100),
-            "details": grading.question_results(module["quiz"], data.answers)}
+            "details": grading.question_results(module["quiz"], data.answers),
+            # Erst hier, nach der Bewertung: public_module liefert sie nicht aus.
+            "explanations": {q["id"]: q["explanation"] for q in module["quiz"]["questions"]
+                             if q.get("explanation")}}
 
 
 @router.post("/{key}/heartbeat")

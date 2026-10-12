@@ -30,7 +30,7 @@ KRYPTO_GRUNDLAGEN_MODULE = {
               'why a PKI needs more than just "encryption".',
     },
     'blocks': [
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-1',
          'note': 'Haeufigste Verwechslung im Modul: "verschluesselt" wird mit "sicher" gleichgesetzt. Diese Abgrenzung ganz an den Anfang stellen, sie traegt den Rest des Lehrgangs.',
          'value': {
              'de': '## Vier Schutzziele, nicht eins\n\n'
@@ -66,7 +66,7 @@ KRYPTO_GRUNDLAGEN_MODULE = {
                    'MACs, digital signatures — which the following modules of this block cover in '
                    'detail.',
          }},
-        {'type': 'check',
+        {'type': 'check', 'id': 'check-1',
          'payload': {
              'kind': 'choice',
              'prompt_de': 'Ein Angreifer fängt eine verschlüsselte Nachricht ab und verändert '
@@ -89,7 +89,7 @@ KRYPTO_GRUNDLAGEN_MODULE = {
                  'This depends exclusively on the key length',
              ],
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-2',
          'value': {
              'de': '## Symmetrisch vs. asymmetrisch\n\n'
                    '**Symmetrische Verschlüsselung** (z. B. AES) nutzt denselben Schlüssel zum Ver- '
@@ -122,7 +122,7 @@ KRYPTO_GRUNDLAGEN_MODULE = {
                    'symmetrically, because that is orders of magnitude faster. This exact pattern '
                    'is behind TLS and will accompany you throughout this course.',
          }},
-        {'type': 'order',
+        {'type': 'order', 'id': 'order-1',
          'payload': {
              'prompt_de': 'Bringe die Schritte eines Hybridverfahrens (wie in TLS eingesetzt) in '
                           'die richtige Reihenfolge.',
@@ -142,7 +142,7 @@ KRYPTO_GRUNDLAGEN_MODULE = {
                  'After the connection ends, the session key is discarded',
              ],
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-3',
          'value': {
              'de': '## Kerckhoffs\' Prinzip\n\n'
                    'Ein Grundsatz der modernen Kryptografie: **Die Sicherheit eines Verfahrens darf '
@@ -169,7 +169,7 @@ KRYPTO_GRUNDLAGEN_MODULE = {
                    'have undergone that scrutiny and are therefore considered more trustworthy, not '
                    'despite their openness but precisely because of it.',
          }},
-        {'type': 'reveal',
+        {'type': 'reveal', 'id': 'reveal-1',
          'payload': {
              'teaser_de': 'Ein Entwickler bei Nordwind Logistik schlägt vor, ein eigenes, '
                           '"firmeninternes" Verschlüsselungsverfahren zu entwerfen, damit '
@@ -193,7 +193,7 @@ KRYPTO_GRUNDLAGEN_MODULE = {
                    'AES-256 or RSA with a sufficient key length are the right choice — "security '
                    'through obscurity" is not a viable security strategy.',
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-4',
          'note': 'Bei den konkreten Zahlen bewusst vorsichtig bleiben, da Teile der Quelle als unsicher markiert sind — im Vortrag nicht als scharfe Grenzwerte verkaufen.',
          'value': {
              'de': '## Was heute als veraltet gilt\n\n'
@@ -239,7 +239,7 @@ KRYPTO_GRUNDLAGEN_MODULE = {
                    'RC4, or short RSA keys, that is a clear migration signal — not only once an '
                    'attack becomes public.',
          }},
-        {'type': 'debug',
+        {'type': 'debug', 'id': 'debug-1',
          'payload': {
              'prompt_de': 'Ein Kollege bei Nordwind Logistik fasst die Schutzziele der '
                           'Kryptografie in einem internen Wiki-Eintrag zusammen. Welche der '
@@ -273,7 +273,7 @@ KRYPTO_GRUNDLAGEN_MODULE = {
                                'be tampered with unnoticed unless an additional integrity check '
                                'takes place.',
          }},
-        {'type': 'reflect',
+        {'type': 'reflect', 'id': 'reflect-1',
          'payload': {
              'prompt_de': 'Ein Kollege sagt: "Wir nutzen TLS, also ist bei uns alles '
                          'verschlüsselt und damit sicher." Welche Schutzziele deckt diese Aussage '

@@ -20,7 +20,7 @@ NAT_MODULE = {
               "just one address?",
     },
     "blocks": [
-        {"type": "text",
+        {"type": "text", "id": "text-1",
          "value": {
              "de": "## Private vs. öffentliche IP\n\nFür interne Netze gibt es drei "
                    "private IPv4-Bereiche (RFC 1918):\n\n"
@@ -44,7 +44,7 @@ NAT_MODULE = {
                    "way out. Do not confuse them with `169.254.0.0/16` (link-local self-configuration) "
                    "or `100.64.0.0/10` (carrier-grade NAT, not an RFC 1918 private range).",
          }},
-        {"type": "text",
+        {"type": "text", "id": "text-2",
          "value": {
              "de": "## NAT: Adressen übersetzen\n\n**NAT** (Network Address "
                    "Translation) tauscht im Router die **private Quell-IP** gegen die "
@@ -55,7 +55,7 @@ NAT_MODULE = {
                    "in the router when a packet heads to the Internet — and swaps it back "
                    "on the reply. This way the Internet only ever sees the one public address.",
          }},
-        {"type": "text",
+        {"type": "text", "id": "text-3",
          "value": {
              "de": "## PAT / „Overload“\n\nDamit sich **viele** Hosts eine "
                    "IP teilen, unterscheidet der Router die Verbindungen zusätzlich am "
@@ -76,7 +76,7 @@ NAT_MODULE = {
          "note": "DE: Adressen und Ports vor und nach PAT vergleichen und der "
                  "Übersetzungstabelle zuordnen. EN: Compare addresses and ports before and "
                  "after PAT, then map them to the translation table."},
-        {"type": "text",
+        {"type": "text", "id": "text-4",
          "value": {
              "de": "## Folgen von NAT\n\n- Nach außen erscheinen alle Geräte "
                    "unter **einer** IP.\n"

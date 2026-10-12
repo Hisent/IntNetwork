@@ -1,4 +1,5 @@
 import type { WorkshopThemeName } from '@/lib/workshopTheme'
+import type { ClozeData, DiagramData, MatchData, ScenarioData, TerminalData } from '@/components/blocks/types'
 
 export type Block =
   | { type: 'text'; value: string; note?: string }
@@ -8,11 +9,19 @@ export type Block =
   | { type: 'order'; prompt: string; items: string[]; note?: string }
   | { type: 'debug'; prompt: string; lines: string[]; wrong: number[]; explanation: string; note?: string }
   | { type: 'reflect'; prompt: string; note?: string }
+  // deklarativer Baukasten (docs/content-authoring.md) — Payload flach im Block
+  | ({ type: 'diagram'; note?: string } & DiagramData)
+  | ({ type: 'terminal'; note?: string } & TerminalData)
+  | ({ type: 'match'; note?: string } & MatchData)
+  | ({ type: 'cloze'; note?: string } & ClozeData)
+  | ({ type: 'scenario'; note?: string } & ScenarioData)
 
-export type Question =
-  | { id: string; type: 'single'; prompt: string; options: string[]; answer?: number }
-  | { id: string; type: 'multi'; prompt: string; options: string[]; answer?: number[] }
-  | { id: string; type: 'number'; prompt: string; answer?: number }
+// answer und explanation kennt nur die Trainer-Ansicht; Teilnehmer bekommen die
+// Erklärungen erst mit dem bewerteten Ergebnis (learnApi.submitQuiz).
+export type Question = { id: string; prompt: string; explanation?: string } & (
+  | { type: 'single'; options: string[]; answer?: number }
+  | { type: 'multi'; options: string[]; answer?: number[] }
+  | { type: 'number'; answer?: number })
 
 export interface ModuleDetail {
   key: string

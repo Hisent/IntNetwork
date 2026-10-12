@@ -19,12 +19,13 @@ import hmac
 import json
 import os
 import re
+import secrets
 import uuid
 from pathlib import Path
 from typing import Literal
 
 from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ValidationError
 
 from app.config import settings
 from app.models.participant import Participant
@@ -138,6 +139,24 @@ def _auftragsfelder(data: LabRunRequest) -> dict:
     return felder
 
 
+def _ergebnis_pruefen(ergebnis: object, token: str) -> LabRunResponse:
+    """Nimmt ein Ergebnis nur an, wenn es das Token des Auftrags trägt und
+    vollständig ist — sonst 502 statt eines ungeprüft durchgereichten (oder mit
+    500 abstürzenden) Fremdinhalts."""
+    if not isinstance(ergebnis, dict) or not hmac.compare_digest(
+            str(ergebnis.get("token", "")).encode(), token.encode()):
+        raise HTTPException(
+            status_code=502,
+            detail="Das Lab-Ergebnis wurde verworfen, weil es nicht zu diesem Auftrag passt. "
+                   "Bitte den Lauf wiederholen.")
+    try:
+        return LabRunResponse(**{k: v for k, v in ergebnis.items() if k != "token"})
+    except (ValidationError, TypeError) as err:
+        raise HTTPException(
+            status_code=502,
+            detail="Der Lab-Dienst hat ein unvollständiges Ergebnis geliefert.") from err
+
+
 @router.get("/status")
 def lab_status(_p: Participant = Depends(get_participant)) -> dict:
     warteschlange = _queue()
@@ -167,7 +186,13 @@ async def lab_run(data: LabRunRequest,
 
     felder = _auftragsfelder(data)
     auftrags_id = uuid.uuid4().hex
-    auftrag = {"kind": data.kind, **felder, "workspace": _workspace_kennung(teilnehmer)}
+    # Zufalls-Token je Auftrag: Der Runner hält es nur im Speicher und legt es
+    # dem Ergebnis bei. Ein Teilnehmer-Lauf im Runner (gleiche uid, gleiches
+    # Volume) kann damit nicht mehr einfach out/<fremde-id>.json schreiben.
+    # Grenzen dieser Zwischenstufe: docs/lab-sicherheit.md, "Ergebnis-Token".
+    token = secrets.token_urlsafe(32)
+    auftrag = {"kind": data.kind, **felder, "workspace": _workspace_kennung(teilnehmer),
+               "token": token}
     eingang = warteschlange / "in" / f"{auftrags_id}.json"
     ausgang = warteschlange / "out" / f"{auftrags_id}.json"
 
@@ -193,7 +218,7 @@ async def lab_run(data: LabRunRequest,
                 await asyncio.sleep(ABFRAGE_INTERVALL)
                 continue
             ausgang.unlink(missing_ok=True)
-            return LabRunResponse(**ergebnis)
+            return _ergebnis_pruefen(ergebnis, token)
         await asyncio.sleep(ABFRAGE_INTERVALL)
 
     # Nichts gekommen: eigenen Auftrag zurückziehen, damit er nicht später noch

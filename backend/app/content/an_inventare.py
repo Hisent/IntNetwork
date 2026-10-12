@@ -23,7 +23,7 @@ INVENTARE_MODULE = {
                        'from a cloud API on every run. This module covers both approaches, plus '
                        'how to target specific subsets of hosts.'},
     'blocks': [
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-1',
          'note': 'Der Sprung von statischen zu dynamischen Inventaren ueberfordert am Anfang. Erst sicherstellen, dass Gruppen und Variablen sitzen, dynamisch nur kurz anreissen.',
          'value': {'de': '## Statisches Inventar: INI-Format\n'
                          '\n'
@@ -71,7 +71,7 @@ INVENTARE_MODULE = {
                          '`datacenter1` contains every host from both `webservers` and '
                          '`dbservers`. Two groups always exist implicitly: `all` (every host) and '
                          '`ungrouped` (hosts with no group of their own).'}},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-2',
          'value': {'de': '## Statisches Inventar: YAML-Format\n'
                          '\n'
                          'Dasselbe Inventar lässt sich auch als YAML schreiben — üblich, sobald '
@@ -119,7 +119,7 @@ INVENTARE_MODULE = {
                          '`ansible_host`), and `vars` sets variables for the whole group. INI and '
                          'YAML describe the same model — YAML tends to get chosen when many '
                          'variables should live directly in the inventory.'}},
-        {'type': 'check',
+        {'type': 'check', 'id': 'check-1',
          'payload': {'kind': 'choice',
                      'prompt_de': 'Im INI-Beispiel oben: Welche Hosts gehören zur Gruppe '
                                   '`datacenter1`?',
@@ -134,7 +134,7 @@ INVENTARE_MODULE = {
                                     'Only db01',
                                     'web01, web02, and db01 (via :children)',
                                     'None — datacenter1 is just a comment']}},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-3',
          'value': {'de': '## group_vars und host_vars\n'
                          '\n'
                          'Statt Variablen im Inventar selbst zu schreiben, lagert man sie häufig '
@@ -165,7 +165,7 @@ INVENTARE_MODULE = {
                          'specific file (host) can override a more general one (group). The '
                          'exact precedence rule between variable sources is covered in a '
                          'dedicated module.'}},
-        {'type': 'debug',
+        {'type': 'debug', 'id': 'debug-1',
          'payload': {'prompt_de': 'Dieses YAML-Inventar soll `web01` in die Gruppe `webservers` '
                                   'stecken, funktioniert aber nicht wie gedacht. Welche Zeile ist '
                                   'falsch eingerückt?\n'
@@ -205,7 +205,7 @@ INVENTARE_MODULE = {
                                        '`webservers` instead of its child. `hosts:` needs to be '
                                        'indented further than `webservers:` so it counts as part '
                                        'of the `webservers` group.'}},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-4',
          'value': {'de': '## Dynamische Inventare\n'
                          '\n'
                          'Statt Hosts von Hand zu pflegen, kann ein **Inventory-Plugin** die '
@@ -235,7 +235,7 @@ INVENTARE_MODULE = {
                          '(auto-scaling, container platforms). An inventory plugin configuration '
                          'usually lives in its own file with a matching suffix (e.g., '
                          '`aws_ec2.yml`) and is wired in via `ansible.cfg` or the CLI.'}},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-5',
          'value': {'de': '## Host-Patterns\n'
                          '\n'
                          'Sowohl Ad-hoc-Kommandos als auch Playbooks können statt eines einzelnen '
@@ -269,7 +269,7 @@ INVENTARE_MODULE = {
                          'displays groups and hosts as a tree, without running a playbook. Handy '
                          'for confirming, before the real run, that a pattern actually matches '
                          'the expected hosts.'}},
-        {'type': 'reveal',
+        {'type': 'reveal', 'id': 'reveal-1',
          'payload': {'teaser_de': 'Gegeben ist ein Inventar mit den Gruppen `web` (web01, web02, '
                                   'web03) und `prod` (web01, web02, db01). Welche Hosts erreicht '
                                   '`ansible \'web:&prod\' -m ping`? Überlege, bevor du auflöst.',
@@ -285,7 +285,7 @@ INVENTARE_MODULE = {
                          '**both** groups. `web01` and `web02` are listed in both `web` and '
                          '`prod`, `web03` is missing from `prod`, and `db01` is missing from '
                          '`web`. So the command reaches `web01` and `web02`.'}},
-        {'type': 'reflect',
+        {'type': 'reflect', 'id': 'reflect-1',
          'payload': {'prompt_de': 'In welchem realen oder geplanten Projekt hättest du eher ein '
                                   'statisches oder eher ein dynamisches Inventar eingesetzt — und '
                                   'warum?',

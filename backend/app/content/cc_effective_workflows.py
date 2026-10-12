@@ -15,7 +15,7 @@ EFFECTIVE_WORKFLOWS_MODULE = {
     },
     "blocks": [
         {
-            "type": "text",
+            "type": "text", "id": "text-1",
             "value": {
                 "de": """## Ein Auftrag, den man prüfen kann
 
@@ -41,7 +41,7 @@ Example: “Admins should export users as CSV. Use the existing list endpoint; d
             "note": "Eine echte Team-Aufgabe auf vier Zeilen kürzen und gemeinsam prüfen, ob der Nachweis objektiv ist.",
         },
         {
-            "type": "text",
+            "type": "text", "id": "text-2",
             "value": {
                 "de": """## Erst erkunden, dann ändern
 
@@ -60,7 +60,7 @@ This is not bureaucracy: a wrong plan usually costs more than a short planning r
             },
         },
         {
-            "type": "text",
+            "type": "text", "id": "text-3",
             "value": {
                 "de": """## Bugs: Belege vor dem Fix
 
@@ -79,7 +79,7 @@ Better: “After session expiry, /profile returns 500 instead of 401. Reproducti
             },
         },
         {
-            "type": "order",
+            "type": "order", "id": "order-1",
             "payload": {
                 "prompt_de": "Ein sicherer Ablauf für eine größere Änderung:",
                 "prompt_en": "A safe workflow for a larger change:",
@@ -88,7 +88,7 @@ Better: “After session expiry, /profile returns 500 instead of 401. Reproducti
             },
         },
         {
-            "type": "reflect",
+            "type": "reflect", "id": "reflect-1",
             "payload": {
                 "prompt_de": "Welche aktuelle Team-Aufgabe würdest du mit Ziel, Kontext, Grenzen und Nachweis neu formulieren?",
                 "prompt_en": "Which current team task would you reformulate with goal, context, constraints, and evidence?",

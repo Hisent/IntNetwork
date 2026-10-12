@@ -33,11 +33,14 @@ export function ModulePage() {
     // Modulwechsel ohne Ladezustand (Modul im Cache) behielte sonst die
     // Scrollposition vom Seitenende des vorherigen Moduls.
     window.scrollTo(0, 0)
-    learnApi.heartbeat(key).catch(() => {})
-    const id = setInterval(() => {
-      learnApi.heartbeat(key).catch(() => {})
-    }, 20_000)
-    return () => clearInterval(id)
+    // Nur melden, solange der Tab sichtbar ist: sonst zeigt die Präsenz im
+    // Trainer-Bereich jeden als aktiv, der das Modul irgendwo im Hintergrund
+    // offen hat. Beim Zurückkehren sofort melden, nicht erst nach 20 s.
+    const beat = () => { if (!document.hidden) learnApi.heartbeat(key).catch(() => {}) }
+    beat()
+    const id = setInterval(beat, 20_000)
+    document.addEventListener('visibilitychange', beat)
+    return () => { clearInterval(id); document.removeEventListener('visibilitychange', beat) }
   }, [key, isParticipant])
 
   const [read, setRead] = useState<number[]>([])

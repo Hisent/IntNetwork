@@ -26,7 +26,7 @@ IPAM_MODULE = {
                'truth.'),
     },
     'blocks': [
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-1',
          'note': 'Fast jede Gruppe hat noch eine Tabellenkalkulation im Einsatz. Kurz sammeln, woran die zuletzt gescheitert ist — das traegt das ganze Modul.',
          'value': {
              'de': ('## IPAM als führende Quelle der Wahrheit\n'
@@ -56,7 +56,7 @@ IPAM_MODULE = {
                     'exactly what sets IPAM apart from separate documentation that is '
                     'always maintained after the fact.'),
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-2',
          'value': {
              'de': ('## Warum Tabellenkalkulationen als IPAM scheitern\n'
                     '\n'
@@ -94,7 +94,7 @@ IPAM_MODULE = {
                     'IPAM avoids this because it is not a copy — it sits directly on '
                     'top of the actual DHCP/DNS objects.'),
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-3',
          'value': {
              'de': ('## Netzwerk-Container, Netzwerke und Bereiche in der IPAM-Ansicht\n'
                     '\n'
@@ -125,7 +125,7 @@ IPAM_MODULE = {
                     'tool: it shows early which network will need to be expanded '
                     'soon, before address scarcity actually hits.'),
          }},
-        {'type': 'check',
+        {'type': 'check', 'id': 'check-1',
          'payload': {
              'kind': 'number',
              'prompt_de': ('Ein Netzwerk stellt 250 Adressen für die Vergabe bereit, '
@@ -138,7 +138,7 @@ IPAM_MODULE = {
                            'this network (rounded)?'),
              'answer': 80,
          }},
-        {'type': 'order',
+        {'type': 'order', 'id': 'order-1',
          'payload': {
              'prompt_de': ('Bringe den Datenfluss in die richtige Reihenfolge, vom '
                            'Client bis zur IPAM-Auslastungsanzeige:'),
@@ -157,7 +157,7 @@ IPAM_MODULE = {
                  "The network's utilization display updates",
              ],
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-4',
          'value': {
              'de': ('## Discovery: Konflikte und Rogue Hosts\n'
                     '\n'
@@ -193,7 +193,7 @@ IPAM_MODULE = {
                     'kind: a conflict involves a known address with contradictory '
                     'use, a rogue host is a completely unknown device.'),
          }},
-        {'type': 'reveal',
+        {'type': 'reveal', 'id': 'reveal-1',
          'payload': {
              'teaser_de': ('Discovery meldet ein aktives Gerät auf einer Adresse, die '
                           'laut IPAM als „frei” gilt. Was könnte dahinterstecken? '
@@ -222,7 +222,7 @@ IPAM_MODULE = {
                     'identify the device before it turns into an actual address '
                     'conflict.'),
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-5',
          'value': {
              'de': ('## Zusammenspiel mit Extensible Attributes\n'
                     '\n'
@@ -252,7 +252,7 @@ IPAM_MODULE = {
                     'consistent EA upkeep, even IPAM ends up as one big, unsorted '
                     'list.'),
          }},
-        {'type': 'check',
+        {'type': 'check', 'id': 'check-2',
          'payload': {
              'kind': 'choice',
              'prompt_de': ('Discovery findet ein Gerät, das in IPAM nicht als '

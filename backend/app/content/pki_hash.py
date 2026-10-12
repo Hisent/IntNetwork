@@ -28,7 +28,7 @@ HASHFUNKTIONEN_MODULE = {
               'it comes to passwords.',
     },
     'blocks': [
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-1',
          'note': 'Alle vier Eigenschaften an der Tafel/im Chat sammeln lassen, bevor die Begriffe genannt werden — meist kennen Teilnehmende die Konzepte schon aus dem Alltag (Pruefsummen), nur nicht die Fachbegriffe.',
          'value': {
              'de': '## Eigenschaften einer kryptografischen Hashfunktion\n\n'
@@ -67,7 +67,7 @@ HASHFUNKTIONEN_MODULE = {
          'note': 'Direkt nach dem Lawineneffekt-Text einsetzen: Teilnehmende einen Text minimal '
                  'aendern lassen (ein Zeichen) und den komplett anderen Hash-Wert selbst sehen. '
                  'Das macht den Lawineneffekt greifbarer als jede Erklaerung.'},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-2',
          'value': {
              'de': '## Wofür Hashes in der PKI gebraucht werden\n\n'
                    'Digitale Signaturen (Modul 5 dieses Blocks) werden nicht direkt über ein '
@@ -93,7 +93,7 @@ HASHFUNKTIONEN_MODULE = {
                    'collision resistance is not an academic nicety but the foundation of what a '
                    'signature actually proves.',
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-3',
          'value': {
              'de': '## Kollisionsangriffe auf MD5 und SHA-1 — warum das Zertifikate betraf\n\n'
                    'MD5 und SHA-1 gelten als kryptografisch gebrochen: Für beide wurden praktisch '
@@ -134,7 +134,7 @@ HASHFUNKTIONEN_MODULE = {
                    'which has a completely different internal design and stands ready as an '
                    'alternative but is rarely seen in certificates and TLS.',
          }},
-        {'type': 'check',
+        {'type': 'check', 'id': 'check-1',
          'payload': {
              'kind': 'choice',
              'prompt_de': 'Warum sind Kollisionsangriffe auf eine Hashfunktion für digitale '
@@ -157,7 +157,7 @@ HASHFUNKTIONEN_MODULE = {
                  'They exclusively affect password databases, not certificates',
              ],
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-4',
          'value': {
              'de': '## HMAC — Integrität mit Schlüssel\n\n'
                    'Ein blanker Hash-Wert (z. B. SHA-256 über eine Nachricht) beweist nur dann, '
@@ -187,7 +187,7 @@ HASHFUNKTIONEN_MODULE = {
                    'delivers not just integrity (like a plain hash) but also authenticity: the '
                    'receiver knows the message comes from someone who knows the secret key.',
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-5',
          'note': 'Dieser Abschnitt ist erfahrungsgemaess der Aha-Moment des Moduls: Teilnehmende kennen SHA-256 aus dem vorigen Abschnitt und erwarten, dass es auch fuer Passwoerter die richtige Wahl ist.',
          'value': {
              'de': '## Passwort-Hashing: ein eigenes Problem\n\n'
@@ -249,7 +249,7 @@ HASHFUNKTIONEN_MODULE = {
                    'SHA-256 or MD5 as a plain hash have no place in any of these recommendations — '
                    'they are simply too fast for passwords.',
          }},
-        {'type': 'check',
+        {'type': 'check', 'id': 'check-2',
          'payload': {
              'kind': 'choice',
              'prompt_de': 'Warum ist SHA-256 als blanker Hash für Passwort-Speicherung ungeeignet?',
@@ -270,7 +270,7 @@ HASHFUNKTIONEN_MODULE = {
                  'Because SHA-256 has been considered collision-prone since 2016, like MD5',
              ],
          }},
-        {'type': 'reflect',
+        {'type': 'reflect', 'id': 'reflect-1',
          'payload': {
              'prompt_de': 'Ein Entwickler bei Nordwind Logistik schlägt vor, Passwörter künftig '
                          'mit "SHA-256 plus Salt" statt mit Argon2id zu speichern, weil das '

@@ -115,9 +115,10 @@ def test_trainer_resets_code_and_deletes_participant():
         assert again.status_code == 200 and again.json()["resume_code"]
 
 
-def test_legacy_participant_without_resume_code_can_rejoin_and_gets_one():
-    """Teilnehmer von vor der Code-Einführung (resume_code IS NULL) dürfen weiter
-    per Name fort — bekommen dabei nachträglich einen Code."""
+def test_legacy_participant_without_resume_code_needs_trainer_issued_code():
+    """Teilnehmer von vor der Code-Einführung (resume_code IS NULL) lassen sich
+    nicht mehr allein über den Namen übernehmen: erst nach einem Code-Reset
+    durch den Trainer kommen sie wieder hinein."""
     with TestClient(app) as c:
         h = _trainer(c)
         course = c.post("/api/courses", json={"name": "LegacyKurs"}, headers=h).json()
@@ -126,8 +127,13 @@ def test_legacy_participant_without_resume_code_can_rejoin_and_gets_one():
         legacy = Participant(course_id=cid, name="Alt", resume_code=None)
         db.add(legacy)
         db.commit()
+        pid = legacy.id
         db.close()
 
-        again = c.post("/api/join", json={"code": course["join_code"], "name": "Alt"})
-        assert again.status_code == 200
-        assert again.json()["resume_code"]  # nachträglich vergeben und angezeigt
+        for supplied in (None, ""):
+            again = c.post("/api/join", json={"code": course["join_code"], "name": "Alt",
+                                              "resume_code": supplied})
+            assert again.status_code == 403
+        new = c.post(f"/api/courses/{cid}/participants/{pid}/reset-code", headers=h).json()["resume_code"]
+        ok = c.post("/api/join", json={"code": course["join_code"], "name": "Alt", "resume_code": new})
+        assert ok.status_code == 200 and ok.json()["resume_code"] is None

@@ -20,7 +20,7 @@ VPN_MODULE = {
               "a secure connection?",
     },
     "blocks": [
-        {"type": "text",
+        {"type": "text", "id": "text-1",
          "value": {
              "de": "## Die Idee: ein Tunnel\n\nEin **VPN** (Virtual Private "
                    "Network) baut einen **verschlüsselten Tunnel** durch ein unsicheres Netz "
@@ -37,7 +37,7 @@ VPN_MODULE = {
                    "certificate-based methods instead of pre-shared keys (for example with "
                    "IPsec/IKEv2) — see the PKI & Encryption course.",
          }},
-        {"type": "text",
+        {"type": "text", "id": "text-2",
          "value": {
              "de": "## Kapselung (Encapsulation)\n\nDas **komplette interne "
                    "Paket** (private Absender-/Ziel-IP + Daten) wird **verschlüsselt** und in ein "
@@ -56,13 +56,13 @@ VPN_MODULE = {
         {"type": "widget", "id": "vpn-demo",
          "note": "Erst das interne Paket zeigen, dann den verschlüsselten Tunnel (nur "
                  "Gateway-IPs + Block). Am Ziel entschlüsseln → inneres Paket kommt zurück."},
-        {"type": "reflect", "payload": {
+        {"type": "reflect", "id": "reflect-1", "payload": {
             "prompt_de": "Erkläre in eigenen Worten: Was sieht ein Angreifer im offenen WLAN "
                          "noch, wenn du ein VPN nutzt — und was nicht mehr?",
             "prompt_en": "Explain in your own words: what can an attacker on open Wi-Fi "
                          "still see when you use a VPN — and what not anymore?",
         }},
-        {"type": "text",
+        {"type": "text", "id": "text-3",
          "value": {
              "de": "## Zwei Bauformen\n\n- **Site-to-Site**: zwei Standorte "
                    "(Filiale ↔ Zentrale) werden über ihre Router/Gateways dauerhaft gekoppelt — "
@@ -75,7 +75,7 @@ VPN_MODULE = {
                    "- **Remote access**: a single device (home-office laptop) builds a tunnel "
                    "to the company via a VPN client.",
          }},
-        {"type": "text",
+        {"type": "text", "id": "text-4",
          "value": {
              "de": "## Wogegen VPN schützt — und wogegen nicht\n\nVPN sorgt "
                    "für **Vertraulichkeit** (Verschlüsselung) und **Integrität** (unverändert) auf "

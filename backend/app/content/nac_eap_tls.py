@@ -31,7 +31,7 @@ NAC_EAP_TLS_MODULE = {
               'needs to be in place for it.',
     },
     'blocks': [
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-1',
          'note': 'EAP-TLS wird oft nur als serverseitige Zertifikatspruefung missverstanden '
                  '(wie bei PEAP). Klarstellen: bei EAP-TLS braucht auch der Client ein eigenes '
                  'Zertifikat - das ist der entscheidende Unterschied.',
@@ -56,7 +56,7 @@ NAC_EAP_TLS_MODULE = {
                    'and the RADIUS server, in turn, proves its identity with a server '
                    'certificate that the notebook verifies.',
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-2',
          'value': {
              'de': '## Warum EAP-TLS als stärkster EAP-Weg gilt\n\n'
                    'Ohne Passwort gibt es nichts, was ein Angreifer per Phishing abgreifen '
@@ -81,7 +81,7 @@ NAC_EAP_TLS_MODULE = {
                    'practice: no password involved, but mutual, certificate-based trust '
                    'verification.',
          }},
-        {'type': 'check',
+        {'type': 'check', 'id': 'check-1',
          'payload': {
              'kind': 'choice',
              'prompt_de': 'Warum gilt EAP-TLS als phishing-resistent?',
@@ -101,7 +101,7 @@ NAC_EAP_TLS_MODULE = {
                  'Because EAP-TLS is only available for wired clients',
              ],
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-3',
          'value': {
              'de': '## Die Voraussetzung: eine funktionierende PKI\n\n'
                    'EAP-TLS funktioniert nur, wenn eine **Public-Key-Infrastruktur (PKI)** '
@@ -123,7 +123,7 @@ NAC_EAP_TLS_MODULE = {
                    'a properly operated PKI, EAP-TLS is not an option, it is an operational '
                    'risk.',
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-4',
          'value': {
              'de': '## Zertifikatsverteilung: Autoenrollment statt manueller Verteilung\n\n'
                    'Bei Hunderten von Notebooks ist die manuelle Ausstellung und Installation '
@@ -144,7 +144,7 @@ NAC_EAP_TLS_MODULE = {
                    'across the entire notebook fleet without IT having to distribute every '
                    'certificate one by one.',
          }},
-        {'type': 'order',
+        {'type': 'order', 'id': 'order-1',
          'payload': {
              'prompt_de': 'Bringe die Schritte eines EAP-TLS-Authentifizierungsablaufs in die '
                           'richtige Reihenfolge.',
@@ -171,7 +171,7 @@ NAC_EAP_TLS_MODULE = {
                  'RADIUS sends Access-Accept, the port switches to the authorized state',
              ],
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-5',
          'value': {
              'de': '## Häufigste Fehlerquelle im Betrieb: Zertifikatsprobleme\n\n'
                    'In der Praxis scheitern die meisten EAP-TLS-Authentifizierungen nicht an '
@@ -191,7 +191,7 @@ NAC_EAP_TLS_MODULE = {
                    'no longer log into the Wi-Fi, the first thing to check is almost always the '
                    'certificate status — not the RADIUS configuration.',
          }},
-        {'type': 'check',
+        {'type': 'check', 'id': 'check-2',
          'payload': {
              'kind': 'choice',
              'prompt_de': 'Ein Notebook bei Nordwind Logistik kann sich plötzlich nicht mehr '
@@ -216,7 +216,7 @@ NAC_EAP_TLS_MODULE = {
                  'Whether the VLAN assignment in the Access-Accept is formatted correctly',
              ],
          }},
-        {'type': 'reflect',
+        {'type': 'reflect', 'id': 'reflect-1',
          'payload': {
              'prompt_de': 'Nordwind Logistik überlegt, Autoenrollment für Client-Zertifikate '
                          'einzuführen, hat aber noch keine klare Regelung für die '

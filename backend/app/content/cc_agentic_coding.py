@@ -20,7 +20,7 @@ AGENTIC_CODING_MODULE = {'key': 'agentic-coding',
                     "itself. That's exactly what Claude Code is — an agentic coding tool that runs "
                     'in the terminal, in the IDE, on the desktop, and in the browser. In this '
                     "module we'll build the mental model for this before we install it."},
- 'blocks': [{'type': 'text',
+ 'blocks': [{'type': 'text', 'id': 'text-1',
              'value': {'de': '## Autocomplete vs. Agent\n'
                              '\n'
                              'Klassische KI-Assistenz im Editor **vervollständigt** — sie schlägt '
@@ -50,7 +50,7 @@ AGENTIC_CODING_MODULE = {'key': 'agentic-coding',
                              '— an agent answers "Get this task done."'},
              'note': 'Den Unterschied Autocomplete↔Agent an einem echten Beispiel vorführen: Ziel '
                      'beschreiben statt Zeile vervollständigen.'},
-            {'type': 'text',
+            {'type': 'text', 'id': 'text-2',
              'value': {'de': '## Die Agenten-Schleife\n'
                              '\n'
                              'Ein Coding-Agent arbeitet in einer Schleife, bis das Ziel erreicht '
@@ -79,7 +79,7 @@ AGENTIC_CODING_MODULE = {'key': 'agentic-coding',
                              'This **observing and adjusting** is the core of it: if a test fails, '
                              'the agent sees the output and attempts a fix — without you dictating '
                              'every intermediate step.'}},
-            {'type': 'text',
+            {'type': 'text', 'id': 'text-3',
              'value': {'de': '## Was ist Claude Code?\n'
                              '\n'
                              '**Claude Code** ist Anthropics agentic coding tool. Es versteht dein '
@@ -117,7 +117,7 @@ AGENTIC_CODING_MODULE = {'key': 'agentic-coding',
                              '\n'
                              "In this workshop we'll work mostly with the **CLI**, because that's "
                              'where all the concepts are most clearly visible.'}},
-            {'type': 'check',
+            {'type': 'check', 'id': 'check-1',
              'payload': {'kind': 'choice',
                          'prompt_de': 'Was beschreibt einen Agenten am besten?',
                          'prompt_en': 'What best describes an agent?',
@@ -129,7 +129,7 @@ AGENTIC_CODING_MODULE = {'key': 'agentic-coding',
                          'options_en': ['Completes the next line of code',
                                         'Pursues a goal independently across multiple tool steps',
                                         'Is just a chatbot without tool access']}},
-            {'type': 'text',
+            {'type': 'text', 'id': 'text-4',
              'value': {'de': '## Typische Einsatzfälle\n'
                              '\n'
                              'Wofür sich agentic coding besonders lohnt:\n'
@@ -163,7 +163,7 @@ AGENTIC_CODING_MODULE = {'key': 'agentic-coding',
                              'And where you should be cautious: with security-critical changes, '
                              "unclear requirements, and anywhere you can't verify the result. "
                              '**Verification remains your responsibility.**'}},
-            {'type': 'reflect',
+            {'type': 'reflect', 'id': 'reflect-1',
              'payload': {'prompt_de': 'Welche wiederkehrende, lästige Aufgabe aus deinem '
                                       'Arbeitsalltag würdest du als Erstes an einen Coding-Agenten '
                                       'delegieren — und woran würdest du erkennen, dass er sie '
@@ -171,7 +171,7 @@ AGENTIC_CODING_MODULE = {'key': 'agentic-coding',
                          'prompt_en': 'Which recurring, tedious task from your daily work would '
                                       'you delegate to a coding agent first — and how would you '
                                       'know that it completed it correctly?'}},
-            {'type': 'debug',
+            {'type': 'debug', 'id': 'debug-1',
              'payload': {'prompt_de': 'Hier ist eine Beschreibung der Agenten-Schleife. Welche '
                                       'Zeile ist falsch?',
                          'prompt_en': 'Here is a description of the agent loop. Which line is '

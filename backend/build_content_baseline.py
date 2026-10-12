@@ -7,8 +7,16 @@ Auslieferungsstand tragen, spielt dieses Skript die Geschichte nach: für jeden
 Commit, der die Inhalte verändert hat, wird eine leere DB mit dem Code dieses
 Commits geseedet und dann Commit für Commit bis BIS hochgezogen (jeweils mit
 dem damaligen seed.py samt Migrationen). Jeder Zwischen- und Endstand je Modul
-landet als Hash in der Baseline, dazu der reine Quellstand jedes Commits (so
-sieht ein Modul nach "Auslieferungszustand laden" aus).
+landet als Hash in der Baseline ("hashes"), dazu der reine Quellstand jedes
+Commits (so sieht ein Modul nach "Auslieferungszustand laden" aus).
+
+Zweiter Teil ("structure"): Typ und Kennung jedes Blocks und jeder Frage im
+Quellstand BIS. Bis dahin trugen DB-Zeilen keine Kennung; der Sync vergibt sie
+beim ersten Start danach anhand dieser Liste (sync._assign_missing_uids). Die
+Kennungen der Blöcke leitet source_state für den alten Stand ab ("<typ>-<n>") —
+genau so wurden sie danach einmalig in die Quelldateien geschrieben.
+BIS darf deshalb NICHT auf einen Stand nach Einführung der Kennungen (v1.43.0)
+vorgezogen werden: jüngere Datenbanken haben Kennungen und gespeicherte Hashes.
 
 Grenze: nachgespielt wird "jeder Inhalts-Commit wurde deployt". Eine DB, die
 Releases übersprungen hat, kann Mischstände tragen, die hier fehlen — solche
@@ -28,7 +36,7 @@ from pathlib import Path
 from sqlalchemy import create_engine, inspect, text
 from sqlalchemy.orm import Session
 
-VON, BIS = "7f5c2d7", "93f88fe"  # erster Commit mit Content-Tabellen .. v1.41.1
+VON, BIS = "7f5c2d7", "d390453"  # erster Commit mit Content-Tabellen .. v1.42.0
 REPO = Path(__file__).resolve().parent.parent
 ZIEL = Path(__file__).resolve().parent / "app" / "content" / "sync_baseline.json"
 
@@ -72,6 +80,7 @@ def main() -> None:
                   ":!backend/app/content/changelog.py", ":!backend/app/content/links.py",
                   ":!backend/app/content/company.py").split()
     hashes: dict[str, set[str]] = defaultdict(set)
+    structure: dict[str, dict] = {}
     fehler: list[str] = []
 
     with tempfile.TemporaryDirectory() as tmp:
@@ -95,9 +104,13 @@ def main() -> None:
                     continue
                 for key, seed in json.loads(run.stdout).items():
                     try:
-                        hashes[key].add(content_hash(source_state(seed)))
+                        state = source_state(seed)
                     except KeyError:
-                        pass  # ganz frühe Seed-Dicts ohne die heutigen Pflichtfelder
+                        continue  # ganz frühe Seed-Dicts ohne die heutigen Pflichtfelder
+                    hashes[key].add(content_hash(state))
+                    if c == commits[-1]:
+                        structure[key] = {"blocks": [[b["type"], b["uid"]] for b in state["blocks"]],
+                                          "quiz": [[q["qtype"], q["uid"]] for q in state["quiz"]]}
                 with engine.begin() as conn:  # Spalten des heutigen Modells, damit load_all lesen kann
                     for table in ("content_module", "content_block", "content_quiz_question"):
                         have = {col["name"] for col in inspect(conn).get_columns(table)}
@@ -113,8 +126,11 @@ def main() -> None:
         with ThreadPoolExecutor(max_workers=8) as pool:
             list(pool.map(kette, range(len(commits))))
 
-    ZIEL.write_text(json.dumps({k: sorted(v) for k, v in sorted(hashes.items())}, indent=1) + "\n",
-                    encoding="utf-8", newline="\n")
+    def zeilen(d: dict) -> str:  # ein Modul je Zeile: kompakt und im Diff lesbar
+        return ",\n".join(f" {json.dumps(k)}: {json.dumps(v, ensure_ascii=False)}" for k, v in sorted(d.items()))
+
+    ZIEL.write_text('{"hashes": {\n' + zeilen({k: sorted(v) for k, v in hashes.items()})
+                    + '\n},\n"structure": {\n' + zeilen(structure) + "\n}}\n", encoding="utf-8", newline="\n")
     print(f"{len(commits)} Commits, {len(hashes)} Module, {sum(map(len, hashes.values()))} Hashes -> {ZIEL}")
     print(f"{len(fehler)} fehlgeschlagene Schritte" + (":\n  " + "\n  ".join(fehler) if fehler else ""))
 

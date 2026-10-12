@@ -27,7 +27,7 @@ SYMMETRISCH_MODULE = {
               'much.',
     },
     'blocks': [
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-1',
          'value': {
              'de': '## AES als Blockchiffre\n\n'
                    '**AES (Advanced Encryption Standard)** ist eine **Blockchiffre**: Sie '
@@ -57,7 +57,7 @@ SYMMETRISCH_MODULE = {
                    'a longer message are linked together. And this mode of operation often '
                    'determines the actual security more than the key length itself.',
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-2',
          'note': 'Das Pinguin-Beispiel nur beschreiben (bekanntes Bild: ECB-verschluesseltes Logo, bei dem die Konturen sichtbar bleiben), nicht selbst als Bild zeigen/nachbauen.',
          'value': {
              'de': '## Warum die Betriebsart entscheidet: ECB zeigt Muster\n\n'
@@ -99,7 +99,7 @@ SYMMETRISCH_MODULE = {
                    'protection CBC provides, because attackers can then recognize certain patterns '
                    'or relationships between messages.',
          }},
-        {'type': 'check',
+        {'type': 'check', 'id': 'check-1',
          'payload': {
              'kind': 'choice',
              'prompt_de': 'Warum bleiben bei AES im ECB-Modus Muster aus dem Klartext im '
@@ -123,7 +123,7 @@ SYMMETRISCH_MODULE = {
                  'Because ECB is only unsuitable for image files but remains secure for text',
              ],
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-3',
          'note': 'AEAD ist der Kernbegriff des Moduls — hier bewusst Zeit lassen, das ist der Unterschied zwischen "nur verschluesselt" und "verschluesselt und geprueft".',
          'value': {
              'de': '## AEAD — Verschlüsselung und Authentifizierung in einem Schritt\n\n'
@@ -167,7 +167,7 @@ SYMMETRISCH_MODULE = {
          'note': 'Direkt nach dem AEAD-Text einsetzen: ein manipuliertes Chiffretext-Byte '
                  'durchspielen lassen und zeigen, dass die Entschluesselung mit Fehler abbricht '
                  'statt einen falschen Klartext auszuliefern.'},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-4',
          'note': 'Praxisbezug klar machen: das ist keine akademische Randnotiz, sondern der Fehler, der in echten CVEs (z. B. wiederverwendete IVs in Konfigurationsdateien) immer wieder auftaucht.',
          'value': {
              'de': '## Nonce-/IV-Wiederverwendung — der klassische Totalschaden bei GCM\n\n'
@@ -216,7 +216,7 @@ SYMMETRISCH_MODULE = {
                    'key — and never reuse a nonce across different connections or sessions with the '
                    'same key.',
          }},
-        {'type': 'order',
+        {'type': 'order', 'id': 'order-1',
          'payload': {
              'prompt_de': 'Bringe die folgenden Betriebsart-Eigenschaften in eine Reihenfolge '
                           'wachsender Sicherheit — von der am wenigsten geeigneten bis zur heute '
@@ -241,7 +241,7 @@ SYMMETRISCH_MODULE = {
                  'authentication in one step',
              ],
          }},
-        {'type': 'check',
+        {'type': 'check', 'id': 'check-2',
          'payload': {
              'kind': 'choice',
              'prompt_de': 'Was passiert, wenn bei AES-GCM derselbe Nonce zweimal mit demselben '
@@ -262,7 +262,7 @@ SYMMETRISCH_MODULE = {
                  'Both confidentiality and authenticity can be broken',
              ],
          }},
-        {'type': 'reflect',
+        {'type': 'reflect', 'id': 'reflect-1',
          'payload': {
              'prompt_de': 'Ein Kollege möchte in einem internen Dienst aus Einfachheit einen '
                          'festen IV für AES-GCM in die Konfigurationsdatei schreiben, "weil sich '

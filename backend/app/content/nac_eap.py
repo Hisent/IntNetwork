@@ -26,7 +26,7 @@ NAC_EAP_MODULE = {
               'the terms. You are asked to prepare a well-reasoned recommendation.',
     },
     'blocks': [
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-1',
          'note': 'EAP-TLS zuerst als Referenzpunkt setzen (Goldstandard), danach die anderen '
                  'Methoden relativ dazu einordnen. So bleibt die Vergleichslogik nachvollziehbar.',
          'value': {
@@ -54,7 +54,7 @@ NAC_EAP_MODULE = {
                    'securely distribute certificates to all endpoints. Certificate and PKI '
                    'operation details are covered in depth in the **PKI course**.',
          }},
-        {'type': 'check',
+        {'type': 'check', 'id': 'check-1',
          'payload': {
              'kind': 'choice',
              'prompt_de': 'Warum gilt EAP-TLS als besonders widerstandsfähig gegen Credential-'
@@ -78,7 +78,7 @@ NAC_EAP_MODULE = {
                  'Because it needs no PKI',
              ],
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-2',
          'value': {
              'de': '## PEAP: TLS-Tunnel mit Passwort-Authentifizierung innen\n\n'
                    '**PEAP** (Protected EAP) baut einen TLS-Tunnel auf, abgesichert durch ein '
@@ -101,7 +101,7 @@ NAC_EAP_MODULE = {
                    'the client-side verification of the server certificate is not strictly '
                    'configured and a client accepts a forged server certificate.',
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-3',
          'value': {
              'de': '## EAP-TTLS und EAP-FAST\n\n'
                    '- **EAP-TTLS** unterstützt, ähnlich wie PEAP, einen TLS-Tunnel mit '
@@ -135,7 +135,7 @@ NAC_EAP_MODULE = {
                    'Both methods build a protected tunnel like PEAP, but differ in what runs '
                    'inside the tunnel, or how the tunnel itself is secured.',
          }},
-        {'type': 'check',
+        {'type': 'check', 'id': 'check-2',
          'payload': {
              'kind': 'choice',
              'prompt_de': 'Worin unterscheidet sich EAP-FAST grundlegend von EAP-TTLS?',
@@ -154,7 +154,7 @@ NAC_EAP_MODULE = {
                  'EAP-FAST only runs over RadSec',
              ],
          }},
-        {'type': 'debug',
+        {'type': 'debug', 'id': 'debug-1',
          'payload': {
              'prompt_de': 'Nordwind hat PEAP-MSCHAPv2 im Einsatz. Ein Sicherheitsaudit '
                           'bemängelt die Konfiguration. Welche der folgenden Aussagen zur '
@@ -196,7 +196,7 @@ NAC_EAP_MODULE = {
                                'therefore considered significantly more resilient — at the cost '
                                'of the required PKI effort.',
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-4',
          'value': {
              'de': '## Einstufung stark/schwach und PKI-Bedarf\n\n'
                    'Zusammengefasst lässt sich grob folgende Einstufung treffen:\n\n'
@@ -227,7 +227,35 @@ NAC_EAP_MODULE = {
                    'for legacy systems, as long as only server-side certificates are present — '
                    'with a correspondingly lower security gain.',
          }},
-        {'type': 'check',
+        {'type': 'match', 'id': 'match-eap-methoden',
+         'note': 'Vor dem Aufdecken kurz diskutieren lassen: Woran erkennt man die Methode — am Tunnel, '
+                 'am Zertifikatsbedarf oder an der inneren Authentifizierung?',
+         'payload': {
+             'prompt_de': 'Ordne jeder EAP-Methode ihr Erkennungsmerkmal zu.',
+             'prompt_en': 'Match each EAP method to its distinguishing feature.',
+             'pairs': [
+                 {'left': 'EAP-TLS',
+                  'right_de': 'Zertifikate auf beiden Seiten, kein Passwort im Spiel',
+                  'right_en': 'Certificates on both sides, no password involved'},
+                 {'left': 'PEAP',
+                  'right_de': 'TLS-Tunnel mit Server-Zertifikat, innen meist MSCHAPv2',
+                  'right_en': 'TLS tunnel with a server certificate, usually MSCHAPv2 inside'},
+                 {'left': 'EAP-TTLS',
+                  'right_de': 'TLS-Tunnel mit Server-Zertifikat, innen viele Verfahren möglich (PAP, CHAP …)',
+                  'right_en': 'TLS tunnel with a server certificate, many inner methods possible (PAP, CHAP …)'},
+                 {'left': 'EAP-FAST',
+                  'right_de': 'Tunnel über zuvor verteilte PACs, Server-Zertifikat optional',
+                  'right_en': 'Tunnel built from previously distributed PACs, server certificate optional'},
+                 {'left': 'TEAP',
+                  'right_de': 'Maschinen- und Benutzer-Authentifizierung nacheinander in einem Tunnel',
+                  'right_en': 'Machine and user authentication one after the other in a single tunnel'},
+             ],
+             'explanation_de': 'Alle außer EAP-TLS schützen eine innere Authentifizierung durch einen Tunnel. '
+                               'Sie unterscheiden sich darin, wie der Tunnel abgesichert wird und was darin läuft.',
+             'explanation_en': 'All except EAP-TLS protect an inner authentication with a tunnel. They '
+                               'differ in how the tunnel is secured and what runs inside it.',
+         }},
+        {'type': 'check', 'id': 'check-3',
          'payload': {
              'kind': 'choice',
              'prompt_de': 'Welche EAP-Methode gilt allgemein als am schwächsten, wenn sie ohne '
@@ -248,7 +276,7 @@ NAC_EAP_MODULE = {
                  'PEAP with strict server certificate verification',
              ],
          }},
-        {'type': 'reflect',
+        {'type': 'reflect', 'id': 'reflect-1',
          'payload': {
              'prompt_de': 'Nordwind hat aktuell keine PKI im Einsatz, will aber mittelfristig '
                           'auf EAP-TLS umstellen. Welche EAP-Methode würdest du als '
