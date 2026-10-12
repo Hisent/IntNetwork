@@ -20,7 +20,7 @@ ROUTING_MODULE = {
               "decide where a packet goes?",
     },
     "blocks": [
-        {"type": "text",
+        {"type": "text", "id": "text-1",
          "value": {
              "de": "## Wozu ein Router?\n\nEin **Switch** verbindet "
                    "Geräte im **selben** Netz (Schicht 2). Sobald ein Paket in ein **anderes** "
@@ -31,7 +31,7 @@ ROUTING_MODULE = {
                    "**another** network, the **router** (Layer 3) takes over. It knows multiple "
                    "networks via its interfaces and forwards packets between them.",
          }},
-        {"type": "text",
+        {"type": "text", "id": "text-2",
          "value": {
              "de": "## Die Routing-Tabelle\n\nJeder Router führt eine "
                    "**Routing-Tabelle**: „welches Zielnetz erreiche ich wie?“\n\n"
@@ -46,7 +46,7 @@ ROUTING_MODULE = {
                    "- **Default route** `0.0.0.0/0`: the “default gateway” for everything unknown "
                    "(typically toward the Internet).",
          }},
-        {"type": "text",
+        {"type": "text", "id": "text-3",
          "value": {
              "de": "## Longest-Prefix-Match\n\nPasst ein Ziel auf **mehrere** "
                    "Einträge, gewinnt der mit dem **längsten Präfix** (spezifischsten). "
@@ -68,7 +68,7 @@ ROUTING_MODULE = {
                  "gewählte Route bestimmen. EN: Compare matching routes and use longest-prefix "
                  "matching to identify the selected route."},
         {"type": "widget", "id": "learning-route", "note": "Lokale oder entfernte Zustellung per Switch/Gateway entscheiden."},
-        {"type": "debug", "payload": {
+        {"type": "debug", "id": "debug-1", "payload": {
             "prompt_de": "Ein PC im Lager-Netz (192.168.10.0/24) erreicht das Internet nicht. Finde den Fehler in der Konfiguration:",
             "prompt_en": "A PC in the warehouse network (192.168.10.0/24) cannot reach the internet. Find the error in the configuration:",
             "lines_de": ["IP-Adresse:    192.168.10.50", "Subnetzmaske:  255.255.255.0",
@@ -83,7 +83,7 @@ ROUTING_MODULE = {
                               "even reach it without a router. It must be an address from its own "
                               "network, here 192.168.10.1.",
         }},
-        {"type": "text",
+        {"type": "text", "id": "text-4",
          "value": {
              "de": "## Statisches Routing einrichten\n\nProbier in der CLI "
                    "`show ip route`, `show ip interface brief` und `show running-config`. Die "

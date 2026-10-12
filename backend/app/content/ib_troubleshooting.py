@@ -34,7 +34,7 @@ IB_TROUBLESHOOTING_MODULE = {
               "everything covered in this course.",
     },
     "blocks": [
-        {"type": "text",
+        {"type": "text", "id": "text-1",
          'note': 'Abschlussmodul: Wenn moeglich einen echten Stoerfall aus dem eigenen Betrieb mitbringen und die Gruppe die Systematik daran durchlaufen lassen.',
          "value": {
              "de": "## Methodik: Symptom → Hypothese → Prüfung\n\n"
@@ -66,7 +66,7 @@ IB_TROUBLESHOOTING_MODULE = {
                    "troubleshooting — only here the components come specifically from the "
                    "DDI world.",
          }},
-        {"type": "text",
+        {"type": "text", "id": "text-2",
          "value": {
              "de": "## Vier häufige Störungsbilder\n\n"
                    "- **Client bekommt keine Adresse** — Adressraum im Scope erschöpft, oder "
@@ -101,7 +101,7 @@ IB_TROUBLESHOOTING_MODULE = {
                    "to one of the known components — that alone usually narrows the search "
                    "space significantly.",
          }},
-        {"type": "check", "payload": {
+        {"type": "check", "id": "check-1", "payload": {
             "kind": "choice",
             "prompt_de": "Meldung: „Externe Nutzer bekommen dieselben internen DNS-Antworten "
                          "wie unsere Mitarbeiter im Büro.“ Welche Komponente prüfst du zuerst?",
@@ -115,7 +115,7 @@ IB_TROUBLESHOOTING_MODULE = {
                            "DHCP failover configuration",
                            "License and capacity checks before an upgrade"],
         }},
-        {"type": "order", "payload": {
+        {"type": "order", "id": "order-1", "payload": {
             "prompt_de": "Bringe die Schritte einer systematischen Fehlersuche in die "
                          "richtige Reihenfolge:",
             "prompt_en": "Put the steps of a systematic troubleshooting process into the "
@@ -135,7 +135,7 @@ IB_TROUBLESHOOTING_MODULE = {
                          "Confirm the cause or discard the hypothesis and form a new one",
                          "Fix it and document the change"],
         }},
-        {"type": "debug", "payload": {
+        {"type": "debug", "id": "debug-1", "payload": {
             "prompt_de": "Vier Zeilen aus einem Störungsbericht zu einem geplanten "
                          "Wartungsfenster für einen DHCP-Failover-Partner. Eine Zeile erklärt, "
                          "warum der Wechsel nicht wie erwartet lief — finde sie:",
@@ -172,7 +172,7 @@ IB_TROUBLESHOOTING_MODULE = {
                               "the partner can tell the difference between “briefly "
                               "unreachable” and “deliberately offline”.",
         }},
-        {"type": "text",
+        {"type": "text", "id": "text-3",
          "value": {
              "de": "## Werkzeuge und Protokollquellen im Grid\n\n"
                    "Je nach Störungsbild führen unterschiedliche Quellen am schnellsten zur "
@@ -208,7 +208,53 @@ IB_TROUBLESHOOTING_MODULE = {
                    "The common thread: form the hypothesis first, then open exactly the "
                    "matching source — not randomly search every log at once.",
          }},
-        {"type": "reveal",
+        {"type": "terminal", "id": "terminal-nios-status",
+         "note": "Ausgaben sind vereinfachte Beispiele im Stil der NIOS-CLI (Zugang per SSH/Konsole). "
+                 "Am echten System weichen Formatierung und Werte je Version ab.",
+         "payload": {
+             "title_de": "Erste Lage am Grid Master: NIOS-CLI",
+             "title_en": "First look at the Grid Master: NIOS CLI",
+             "prompt": "Infoblox >",
+             "unknown_de": "Unbekannter Befehl: {cmd} (help zeigt die Befehlsliste)",
+             "unknown_en": "Unknown command: {cmd} (help lists the commands)",
+             "commands": [
+                 {"cmd": "show status",
+                  "desc_de": "Grid- und HA-Status dieses Knotens", "desc_en": "grid and HA status of this node",
+                  "output": "Grid Status: ID Grid Master\nHA Status:   Not Configured"},
+                 {"cmd": "show network",
+                  "desc_de": "IP-Einstellungen der LAN1-Schnittstelle", "desc_en": "IP settings of the LAN1 interface",
+                  "output": "Current LAN1 Network Settings:\n"
+                            "    IPv4 Address:     10.10.0.11\n"
+                            "    Network Mask:     255.255.255.0\n"
+                            "    Gateway Address:  10.10.0.1\n"
+                            "    HA enabled:       false\n"
+                            "    Grid Status:      Master of Infoblox Grid"},
+                 {"cmd": "show version",
+                  "desc_de": "NIOS-Version und Seriennummer", "desc_en": "NIOS version and serial number",
+                  "output": "Version : 9.0.5-52001\nSN      : 564D2A9B41C07F3E\nHotfix  : N/A"},
+                 {"cmd": "show ntp",
+                  "desc_de": "Zeitquellen und Abweichung", "desc_en": "time sources and offset",
+                  "output": "     remote          refid       st  when  poll  reach  offset\n"
+                            "==============================================================\n"
+                            "*10.10.0.1       192.53.103.108   2    41    64    377   0.118"},
+                 {"cmd": "show upgrade_history",
+                  "desc_de": "Bisherige Upgrades", "desc_en": "previous upgrades",
+                  "output": "REVERT version is: 9.0.3-50212\n"
+                            "[2026/03/14 21:04:11] Upgraded to: 9.0.5-52001"},
+             ],
+             "tasks": [
+                 {"text_de": "Prüfe, ob dieser Knoten Grid Master ist.",
+                  "text_en": "Check whether this node is the Grid Master.",
+                  "command": "show status"},
+                 {"text_de": "Prüfe, ob die Zeit mit einer NTP-Quelle synchron läuft.",
+                  "text_en": "Check whether time is in sync with an NTP source.",
+                  "command": "show ntp"},
+                 {"text_de": "Auf welche Version würde ein Revert zurückfallen?",
+                  "text_en": "Which version would a revert fall back to?",
+                  "answers": ["9.0.3", "9.0.3-50212"]},
+             ],
+         }},
+        {"type": "reveal", "id": "reveal-1",
          "payload": {"teaser_de": "Meldung: „Nach einem Restore fehlen plötzlich alle "
                                   "geplanten Wartungsfenster.“ Welches Modul liefert die "
                                   "Erklärung?",
@@ -230,7 +276,7 @@ IB_TROUBLESHOOTING_MODULE = {
                    "“DHCP”, even though at first it looks like a general configuration "
                    "fault.",
          }},
-        {"type": "check", "payload": {
+        {"type": "check", "id": "check-2", "payload": {
             "kind": "choice",
             "prompt_de": "Ein WAPI-Skript zur Massenanlage von Netzwerken erzeugt nach einem "
                          "erneuten Lauf doppelte Netzwerke. Welches im Kurs behandelte Konzept "
@@ -244,7 +290,7 @@ IB_TROUBLESHOOTING_MODULE = {
             "options_en": ["DNS view order", "MCLT (Maximum Client Lead Time)",
                            "Idempotency"],
         }},
-        {"type": "text",
+        {"type": "text", "id": "text-4",
          "value": {
              "de": "## Der rote Faden: vier Blöcke, ein Betrieb\n\n"
                    "Dieser Lehrgang hat vier Themenblöcke behandelt, die im echten Betrieb "
@@ -285,7 +331,7 @@ IB_TROUBLESHOOTING_MODULE = {
                    "troubleshooting therefore also means being able to move between blocks "
                    "instead of getting stuck in one.",
          }},
-        {"type": "reflect", "payload": {
+        {"type": "reflect", "id": "reflect-1", "payload": {
             "prompt_de": "Nenne die drei Stolperfallen aus diesem Lehrgang, die du im "
                          "eigenen Betrieb für am gefährlichsten hältst — und begründe kurz, "
                          "warum gerade diese drei und nicht andere.",

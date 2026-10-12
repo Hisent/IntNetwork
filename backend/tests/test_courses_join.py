@@ -151,3 +151,30 @@ def test_participant_language_default_and_patch():
         assert en_blurb != de_blurb
 
         assert c.patch("/api/me/language", json={"language": "fr"}, headers=p).status_code == 422
+
+
+def test_join_verlierer_des_rennens_bekommt_keinen_fremden_code(monkeypatch):
+    """Verliert ein Join das Rennen um denselben Namen (IntegrityError beim
+    INSERT), darf er weder den Wiederaufnahme-Code noch ein Token des Gewinners
+    bekommen — er ist ab da ein Wiedereintritt ohne Code (403)."""
+    from app.database import SessionLocal
+    from app.models.course import Course
+    from app.models.participant import Participant
+    from app.routers import join as join_router
+
+    with TestClient(app) as c:
+        code = c.post("/api/courses", json={"name": "RennKurs"}, headers=_trainer(c)).json()["join_code"]
+
+        def gewinner_kommt_dazwischen():
+            # Läuft genau zwischen SELECT und INSERT des Verlierers.
+            db = SessionLocal()
+            cid = db.query(Course).filter(Course.join_code == code).first().id
+            db.add(Participant(course_id=cid, name="Zwilling", resume_code="GEWINNER"))
+            db.commit()
+            db.close()
+            return "VERLIERER"
+
+        monkeypatch.setattr(join_router, "generate_resume_code", gewinner_kommt_dazwischen)
+        r = c.post("/api/join", json={"code": code, "name": "Zwilling"})
+        assert r.status_code == 403
+        assert "GEWINNER" not in r.text and "access_token" not in r.text

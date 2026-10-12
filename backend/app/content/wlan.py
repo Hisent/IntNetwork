@@ -18,7 +18,7 @@ WLAN_MODULE = {
               "right on the ceiling. What's causing that, and how do you keep the Wi-Fi secure?",
     },
     "blocks": [
-        {"type": "text",
+        {"type": "text", "id": "text-1",
          "value": {
              "de": "## WLAN ist Schicht 1+2 per Funk\n\nEin **Access Point "
                    "(AP)** ist im Grunde ein Switch-Port über Funk: Geräte **assoziieren** sich mit "
@@ -29,7 +29,7 @@ WLAN_MODULE = {
                    "an **SSID** (the network name) and then hang on the same LAN as the "
                    "wired devices. On top of that, IP, DHCP, DNS and the rest run completely normally.",
          }},
-        {"type": "text",
+        {"type": "text", "id": "text-2",
          "value": {
              "de": "## Frequenzbänder & Kanäle\n\nWLAN funkt v.a. auf "
                    "**2,4 GHz** (große Reichweite, aber langsamer und überfüllt) und **5 GHz** "
@@ -101,7 +101,7 @@ WLAN_MODULE = {
                               "like 1/6/11, are non-overlapping.",
         }},
         {"type": "widget", "id": "learning-attack", "note": "Bedrohung und passende Gegenmaßnahme zuordnen."},
-        {"type": "text",
+        {"type": "text", "id": "text-3",
          "value": {
              "de": "## Sicherheit\n\nFunk hört jeder in Reichweite mit — "
                    "**Verschlüsselung ist Pflicht**:\n\n"
@@ -118,7 +118,7 @@ WLAN_MODULE = {
                    "Guests belong on their **own Wi-Fi/VLAN** — separated from the company network "
                    "(keyword [[vlan]]).",
          }},
-        {"type": "text",
+        {"type": "text", "id": "text-4",
          "value": {
              "de": "## Warum mal langsam?\n\nFunk ist ein **geteiltes "
                    "Medium**: alle im selben Kanal teilen sich die Luft und senden nacheinander. "

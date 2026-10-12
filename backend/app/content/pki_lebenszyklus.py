@@ -32,7 +32,7 @@ LEBENSZYKLUS_MODULE = {
               'longer do by hand.',
     },
     'blocks': [
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-1',
          'note': 'Diesen Block als Landkarte fuer das gesamte Modul nutzen - jeder folgende '
                  'Block vertieft einen der hier genannten Schritte.',
          'value': {
@@ -67,7 +67,7 @@ LEBENSZYKLUS_MODULE = {
                    'expiration.\n\n'
                    'The following blocks go through each station in detail.',
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-2',
          'value': {
              'de': '## Der CSR: Was drinsteht - und was nicht\n\n'
                    'Der **Certificate Signing Request (CSR)** wird auf dem Zielsystem '
@@ -99,7 +99,7 @@ LEBENSZYKLUS_MODULE = {
                    'sent by email or ticket to a CA or another team is no longer a CSR '
                    'workflow - it is an operational error (see further below).',
          }},
-        {'type': 'order',
+        {'type': 'order', 'id': 'order-1',
          'payload': {
              'prompt_de': 'Bringe die Schritte des Zertifikats-Lebenszyklus in die richtige '
                           'Reihenfolge.',
@@ -121,7 +121,7 @@ LEBENSZYKLUS_MODULE = {
                  'Monitor the validity period and renew in good time',
              ],
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-3',
          'value': {
              'de': '## DV, OV, EV: Was tatsächlich geprüft wird\n\n'
                    '- **DV (Domain Validation)** - die CA prüft ausschließlich, ob der '
@@ -154,7 +154,7 @@ LEBENSZYKLUS_MODULE = {
                    'the extra effort for EV is justified more by compliance or industry '
                    'reasons than by a security or visibility gain in the browser.',
          }},
-        {'type': 'check',
+        {'type': 'check', 'id': 'check-1',
          'payload': {
              'kind': 'choice',
              'prompt_de': 'Was prüft eine CA bei einer reinen Domain Validation (DV)?',
@@ -173,7 +173,7 @@ LEBENSZYKLUS_MODULE = {
                  'The requester\'s IT security policies',
              ],
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-4',
          'note': 'Stufen 200/100/47 Tage stehen so in den Baseline Requirements des '
                  'CA/Browser Forums (Abschnitt 1.2.2 "Relevant Dates"); die erste Stufe '
                  '(200 Tage) gilt seit dem 15. Maerz 2026.',
@@ -211,7 +211,7 @@ LEBENSZYKLUS_MODULE = {
                    'via ACME) turns from a convenience feature into an operational '
                    'necessity.',
          }},
-        {'type': 'check',
+        {'type': 'check', 'id': 'check-2',
          'payload': {
              'kind': 'choice',
              'prompt_de': 'Welche Konsequenz ergibt sich unmittelbar aus Laufzeiten von 47 '
@@ -234,7 +234,7 @@ LEBENSZYKLUS_MODULE = {
                  'Root CAs will need to be kept online in the future',
              ],
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-5',
          'value': {
              'de': '## Häufigste Betriebsfehler\n\n'
                    'Drei Fehler tauchen in der Praxis immer wieder auf:\n\n'
@@ -266,7 +266,7 @@ LEBENSZYKLUS_MODULE = {
                    'hands of the target system - a break of the basic principle that the '
                    'private key never leaves the machine.',
          }},
-        {'type': 'reflect',
+        {'type': 'reflect', 'id': 'reflect-1',
          'payload': {
              'prompt_de': 'Ab März 2029 beträgt die maximale Zertifikatslaufzeit nur noch '
                           '47 Tage. Was müsste bei Nordwind Logistik bis dahin aufgebaut '

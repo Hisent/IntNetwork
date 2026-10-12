@@ -23,7 +23,7 @@ CONTROLLER_MODULE = {'key': 'automation-controller-betrieb',
                     'make sure they can only change the values that are truly meant to vary, '
                     'and only on the inventories they have rights to? This module builds the '
                     "controller's operating model."},
- 'blocks': [{'type': 'text',
+ 'blocks': [{'type': 'text', 'id': 'text-1',
              'value': {'de': '## Das Job-Template als Grundbaustein\n'
                              '\n'
                              'Ein **Job-Template** ist die wiederverwendbare Definition eines '
@@ -61,7 +61,7 @@ CONTROLLER_MODULE = {'key': 'automation-controller-betrieb',
                              'system, the connection fails or the launch is refused.'},
              'note': 'Job-Template = die zentrale Analogie fürs ganze Modul; alle folgenden '
                      'Blöcke bauen darauf auf.'},
-            {'type': 'text',
+            {'type': 'text', 'id': 'text-2',
              'value': {'de': '## Projects und Credentials\n'
                              '\n'
                              '**Projects** verbinden den Controller mit einer Quelle für '
@@ -98,7 +98,7 @@ CONTROLLER_MODULE = {'key': 'automation-controller-betrieb',
                              'instead of a local vault password file, a credential object in the '
                              'controller takes on the same role, just centrally managed and with '
                              'fine-grained access rights.'}},
-            {'type': 'check',
+            {'type': 'check', 'id': 'check-1',
              'payload': {'kind': 'choice',
                          'prompt_de': 'Ein Job-Template hat kein Credential zugeordnet. Was ist '
                                       'die wahrscheinlichste Folge beim Start?',
@@ -115,7 +115,7 @@ CONTROLLER_MODULE = {'key': 'automation-controller-betrieb',
                                         'The job runs anyway, just more slowly',
                                         "Ansible automatically uses the controller's root "
                                         'password']}},
-            {'type': 'text',
+            {'type': 'text', 'id': 'text-3',
              'value': {'de': '## Surveys: Self-Service mit Leitplanken\n'
                              '\n'
                              'Ein **Survey** ist ein Fragen-Formular, das vor dem Start eines '
@@ -141,7 +141,7 @@ CONTROLLER_MODULE = {'key': 'automation-controller-betrieb',
                              '“which version gets rolled out?”), without seeing YAML or typing '
                              'an `-e` command line — and without being able to accidentally pass '
                              'an invalid value.'}},
-            {'type': 'debug',
+            {'type': 'debug', 'id': 'debug-1',
              'payload': {'prompt_de': 'Eine Kollegin beschreibt ihr geplantes Job-Template in '
                                       'vier Aussagen. Eine davon widerspricht dem, was ein '
                                       'Survey tatsächlich leistet — welche?',
@@ -179,7 +179,7 @@ CONTROLLER_MODULE = {'key': 'automation-controller-betrieb',
                                            'target system. A credential is still required for '
                                            'the connection to the target system, regardless of '
                                            "whether or how a survey is configured."}},
-            {'type': 'text',
+            {'type': 'text', 'id': 'text-4',
              'value': {'de': '## RBAC: Organisationen, Teams, Nutzer\n'
                              '\n'
                              'Die Rechteverwaltung (**RBAC**, Role-Based Access Control) im '
@@ -214,7 +214,7 @@ CONTROLLER_MODULE = {'key': 'automation-controller-betrieb',
                              'support team can, for instance, get the right to *execute* a '
                              'specific job template without being able to *edit* it or *view* '
                              'the underlying credential.'}},
-            {'type': 'order',
+            {'type': 'order', 'id': 'order-1',
              'payload': {'prompt_de': 'Ein Workflow-Template ist definiert als: Job A → bei '
                                       'Erfolg Job B, bei Fehler Job C → danach immer Job D '
                                       '(Benachrichtigung). Job A schlägt fehl. In welcher '
@@ -235,7 +235,7 @@ CONTROLLER_MODULE = {'key': 'automation-controller-betrieb',
                                       'succeeds',
                                       'Job D launches, since it always runs regardless of the '
                                       'outcome']}},
-            {'type': 'text',
+            {'type': 'text', 'id': 'text-5',
              'value': {'de': '## Workflow-Templates, Zeitpläne, Ausgabe lesen\n'
                              '\n'
                              '**Workflow-Templates** verketten mehrere Jobs oder Workflows mit '
@@ -282,7 +282,7 @@ CONTROLLER_MODULE = {'key': 'automation-controller-betrieb',
                              '`skipped`, `unreachable`), but additionally with a searchable '
                              'history in the controller — who started which job when with what '
                              'result, traceable for later audits too.'}},
-            {'type': 'reflect',
+            {'type': 'reflect', 'id': 'reflect-1',
              'payload': {'prompt_de': 'Denk an einen wiederkehrenden manuellen Vorgang in deinem '
                                       'Umfeld (z. B. „Freitagabend eine Konfiguration ausrollen”). '
                                       'Skizziere in Stichworten, wie Job-Template, Survey, '

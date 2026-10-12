@@ -20,7 +20,7 @@ MCP_MODULE = {'key': 'mcp',
                     'Protocol (MCP)** is the open standard that connects Claude Code to exactly '
                     'these external tools and data sources. Instead of copying data into the chat, '
                     'Claude reads and acts directly.'},
- 'blocks': [{'type': 'text',
+ 'blocks': [{'type': 'text', 'id': 'text-1',
              'value': {'de': '## Was ist MCP?\n'
                              '\n'
                              '**MCP** ist ein offener Standard, um KI-Werkzeuge mit externen '
@@ -54,7 +54,7 @@ MCP_MODULE = {'key': 'mcp',
                              '- "Update the email template based on the new Figma designs."'},
              'note': 'Einen einfachen MCP-Server verbinden und die bereitgestellten '
                      'Tools/Resources zeigen; die Scope-Unterschiede erklären.'},
-            {'type': 'text',
+            {'type': 'text', 'id': 'text-2',
              'value': {'de': '## Transporte\n'
                              '\n'
                              'MCP-Server sprechen über einen **Transport** mit Claude Code. Die '
@@ -83,7 +83,7 @@ MCP_MODULE = {'key': 'mcp',
                              "For local tools you'll usually use stdio; for hosted services, "
                              'HTTP, often with OAuth sign-in. Use SSE only for existing servers '
                              'when no HTTP alternative is available.'}},
-            {'type': 'text',
+            {'type': 'text', 'id': 'text-3',
              'value': {'de': '## Server hinzufügen & Scopes\n'
                              '\n'
                              'Server fügst du mit `claude mcp add` hinzu. Der **Scope** bestimmt, '
@@ -130,7 +130,7 @@ MCP_MODULE = {'key': 'mcp',
                              '\n'
                              'Use `claude mcp list` and `/mcp` in the session to see the status '
                              'and sign in via OAuth if needed.'}},
-            {'type': 'check',
+            {'type': 'check', 'id': 'check-1',
              'payload': {'kind': 'choice',
                          'prompt_de': 'Welchen Scope wählst du, damit dein ganzes Team denselben '
                                       'MCP-Server über das Repo bekommt?',
@@ -139,7 +139,7 @@ MCP_MODULE = {'key': 'mcp',
                          'answer': 1,
                          'options_de': ['local', 'project (.mcp.json einchecken)', 'user'],
                          'options_en': ['local', 'project (check in .mcp.json)', 'user']}},
-            {'type': 'text',
+            {'type': 'text', 'id': 'text-4',
              'value': {'de': '## .mcp.json\n'
                              '\n'
                              'Der `project`-Scope legt eine `.mcp.json` im Repo an — so wird die '
@@ -180,7 +180,7 @@ MCP_MODULE = {'key': 'mcp',
                              'The first time you use it, Claude Code asks — for safety — whether '
                              "you trust the server defined in the repo. **Secrets** don't belong "
                              'in the checked-in file; they go in environment variables.'}},
-            {'type': 'text',
+            {'type': 'text', 'id': 'text-5',
              'value': {'de': '## Tools & Resources nutzen — das Namensschema\n'
                              '\n'
                              'Ist ein Server verbunden, erscheinen seine Tools unter dem Schema '
@@ -203,7 +203,7 @@ MCP_MODULE = {'key': 'mcp',
                              'ticket in Jira for this bug" — Claude picks the matching tool from '
                              'the connected server. You reference **Resources** (data) with many '
                              'servers via an `@`-mention.'}},
-            {'type': 'order',
+            {'type': 'order', 'id': 'order-1',
              'payload': {'prompt_de': 'Einen team-geteilten MCP-Server einrichten — Reihenfolge:',
                          'prompt_en': 'Setting up a team-shared MCP server — order of steps:',
                          'items_de': ['claude mcp add --scope project … ausführen',
@@ -217,7 +217,7 @@ MCP_MODULE = {'key': 'mcp',
                                       'in)',
                                       'Commit .mcp.json to the repo',
                                       'Team: trust the server on first use and sign in via /mcp']}},
-            {'type': 'debug',
+            {'type': 'debug', 'id': 'debug-1',
              'payload': {'prompt_de': 'Aussagen zu MCP — welche ist falsch?',
                          'prompt_en': 'Statements about MCP — which one is false?',
                          'lines_de': ['MCP verbindet Claude Code mit externen Tools und '
@@ -247,7 +247,7 @@ MCP_MODULE = {'key': 'mcp',
              'id': 'mcp-inspector',
              'note': 'Einen Beispiel-Server verbinden und die bereitgestellten Tools/Resources '
                      'sichtbar machen; das mcp__server__tool-Schema zeigen.'},
-            {'type': 'reflect',
+            {'type': 'reflect', 'id': 'reflect-1',
              'payload': {'prompt_de': 'Aus welchem Tool kopierst du aktuell am häufigsten Daten in '
                                       'einen Chat oder ein Ticket? Genau dafür lohnt sich ein '
                                       'MCP-Server.',

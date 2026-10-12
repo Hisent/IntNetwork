@@ -18,7 +18,7 @@ INSTALLATION_SETUP_MODULE = {'key': 'installation-setup',
                     'real task. By the end of this module, everyone has `claude` running in their '
                     "terminal, there's a first `CLAUDE.md`, and the difference between the "
                     'interactive session and the scriptable `-p` mode is clear.'},
- 'blocks': [{'type': 'text',
+ 'blocks': [{'type': 'text', 'id': 'text-1',
              'value': {'de': '## Installation\n'
                              '\n'
                              'Der empfohlene Weg ist der native Installer.\n'
@@ -70,7 +70,7 @@ INSTALLATION_SETUP_MODULE = {'key': 'installation-setup',
                              'the Bash tool.'},
              'note': 'Installation gemeinsam mitmachen lassen; sicherstellen, dass alle `claude` '
                      'starten und /init ausführen können.'},
-            {'type': 'text',
+            {'type': 'text', 'id': 'text-2',
              'value': {'de': '## Erste Session & Login\n'
                              '\n'
                              'In ein Projektverzeichnis wechseln und starten:\n'
@@ -109,7 +109,7 @@ INSTALLATION_SETUP_MODULE = {'key': 'installation-setup',
                              'Check version and status: `claude --version`, or `/status` within '
                              'the session. For installation problems, `/doctor` helps as a setup '
                              'checkup.'}},
-            {'type': 'text',
+            {'type': 'text', 'id': 'text-3',
              'value': {'de': '## Lab 1 — Deine erste Aufgabe\n'
                              '\n'
                              'Öffne ein kleines, unkritisches Repo (oder lege eins an) und '
@@ -146,7 +146,7 @@ INSTALLATION_SETUP_MODULE = {'key': 'installation-setup',
                              'Observe: Claude first reads files (perceiving), plans, proposes a '
                              'change, and asks for permission if needed before writing. Exactly '
                              'the agent loop from Module 2.'}},
-            {'type': 'text',
+            {'type': 'text', 'id': 'text-4',
              'value': {'de': '## /init — die erste CLAUDE.md\n'
                              '\n'
                              '`/init` lässt Claude dein Repo analysieren und daraus eine erste '
@@ -175,7 +175,7 @@ INSTALLATION_SETUP_MODULE = {'key': 'installation-setup',
                              '\n'
                              'If a `CLAUDE.md` already exists, `/init` suggests improvements '
                              'instead of overwriting it.'}},
-            {'type': 'check',
+            {'type': 'check', 'id': 'check-1',
              'payload': {'kind': 'choice',
                          'prompt_de': 'Was macht /init?',
                          'prompt_en': 'What does /init do?',
@@ -186,7 +186,7 @@ INSTALLATION_SETUP_MODULE = {'key': 'installation-setup',
                          'options_en': ['Reinstalls Claude Code',
                                         'Analyzes the repo and generates/improves a CLAUDE.md',
                                         'Deletes the conversation history']}},
-            {'type': 'text',
+            {'type': 'text', 'id': 'text-5',
              'value': {'de': '## Interaktiv vs. Print-Modus\n'
                              '\n'
                              'Zwei Betriebsarten, die du beide brauchst:\n'
@@ -225,13 +225,13 @@ INSTALLATION_SETUP_MODULE = {'key': 'installation-setup',
                              '```\n'
                              '\n'
                              'Remember: interactive = workshop, `-p` = assembly line.'}},
-            {'type': 'reflect',
+            {'type': 'reflect', 'id': 'reflect-1',
              'payload': {'prompt_de': 'Für welche wiederkehrende Aufgabe in deinem Team wäre der '
                                       '`-p`-Modus (Claude in einer Pipe/im Skript) unmittelbar '
                                       'nützlich?',
                          'prompt_en': 'For which recurring task in your team would `-p` mode '
                                       '(Claude in a pipe/script) be immediately useful?'}},
-            {'type': 'reveal',
+            {'type': 'reveal', 'id': 'reveal-1',
              'payload': {'teaser_de': 'Übung: Schreibe eine Kommandozeile, die die letzten 50 '
                                       'Zeilen einer Datei `build.log` an Claude gibt und um eine '
                                       'Ein-Satz-Zusammenfassung der Fehler bittet. Zuerst selbst, '

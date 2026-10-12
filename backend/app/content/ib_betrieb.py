@@ -28,7 +28,7 @@ BETRIEB_MODULE = {
               "restore really brings back — and what it does not.",
     },
     "blocks": [
-        {"type": "text",
+        {"type": "text", "id": "text-1",
          "value": {
              "de": "## Backup-Strategie: regelmäßig, automatisiert, zur richtigen Zeit\n\n"
                    "Ein Grid-Backup sollte kein manueller Einzelfall sein, sondern eine "
@@ -50,7 +50,7 @@ BETRIEB_MODULE = {
          },
          "note": "Gut geeignet für ein kurzes Blitzlicht: Wer im Raum hat schon einmal ein "
                  "echtes Restore geübt (nicht nur ein Backup angelegt)?"},
-        {"type": "check", "payload": {
+        {"type": "check", "id": "check-1", "payload": {
             "kind": "choice",
             "prompt_de": "Wann sollte ein geplantes Grid-Backup bevorzugt laufen?",
             "prompt_en": "When should a scheduled grid backup preferably run?",
@@ -62,7 +62,7 @@ BETRIEB_MODULE = {
                            "Only once, right after the initial setup",
                            "Only manually, whenever there happens to be time"],
         }},
-        {"type": "text",
+        {"type": "text", "id": "text-2",
          "value": {
              "de": "## Restore: Versions-Kompatibilität\n\n"
                    "Ein Restore auf dieselbe NIOS-Version, aus der das Backup stammt, ist "
@@ -88,7 +88,7 @@ BETRIEB_MODULE = {
                    "from the backup's source, checking the supported upgrade path belongs at "
                    "the **start** of the action — not at the end.",
          }},
-        {"type": "debug", "payload": {
+        {"type": "debug", "id": "debug-1", "payload": {
             "prompt_de": "Ein Kollege zeigt dir das Ergebnis-Protokoll eines Grid-Restores. Eine "
                          "Zeile ist inhaltlich falsch — finde sie:",
             "prompt_en": "A colleague shows you the result log of a grid restore. One line is "
@@ -117,7 +117,7 @@ BETRIEB_MODULE = {
                               "maintenance windows or approvals silently go missing, with no "
                               "error shown anywhere.",
         }},
-        {"type": "reveal",
+        {"type": "reveal", "id": "reveal-1",
          "payload": {"teaser_de": "Warum überrascht diese Ausnahme so viele Betriebsteams?",
                      "teaser_en": "Why does this exception surprise so many operations teams?"},
          "value": {
@@ -135,7 +135,7 @@ BETRIEB_MODULE = {
                    "and open approvals against an overview captured beforehand, rather than "
                    "trusting the restore success message alone.",
          }},
-        {"type": "text",
+        {"type": "text", "id": "text-3",
          "value": {
              "de": "## Vor einem Upgrade: was zu prüfen ist\n\n"
                    "Bevor ein Grid-Upgrade angestoßen wird, gehören mehrere Punkte auf die "
@@ -169,7 +169,7 @@ BETRIEB_MODULE = {
                    "and supported upgrade paths depend on the current NIOS version and belong "
                    "in the current vendor documentation, not in a fixed course text.",
          }},
-        {"type": "order", "payload": {
+        {"type": "order", "id": "order-1", "payload": {
             "prompt_de": "Bringe die Vorbereitung und Durchführung eines Grid-Upgrades in die "
                          "richtige Reihenfolge:",
             "prompt_en": "Put the preparation and execution of a grid upgrade into the correct "
@@ -187,7 +187,7 @@ BETRIEB_MODULE = {
                          "Immediately before the upgrade: take a current backup and verify it succeeded",
                          "Perform the upgrade, then check grid status"],
         }},
-        {"type": "text",
+        {"type": "text", "id": "text-4",
          "value": {
              "de": "## Upgrade-Gruppen und Reporting-Member\n\n"
                    "Grid-Member werden in der Regel in **Upgrade-Gruppen** gestaffelt "
@@ -222,7 +222,7 @@ BETRIEB_MODULE = {
                    "example moving from a single indexer to a cluster), an **explicit reporting "
                    "backup** is recommended, independent of the regular grid backup.",
          }},
-        {"type": "reflect", "payload": {
+        {"type": "reflect", "id": "reflect-1", "payload": {
             "prompt_de": "Welchen der genannten Vorbereitungsschritte würde man in deinem "
                          "eigenen Betrieb am ehesten überspringen, wenn es schnell gehen soll "
                          "— und welches konkrete Risiko nimmst du damit in Kauf?",

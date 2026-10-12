@@ -77,8 +77,13 @@ export function CourseDetail({ course, workshopTitle, workshops, portalContainer
   // damit hier keine CourseDetail mit ungültiger Kurs-ID hängen bleibt.
   const [deleteCourseConfirm, setDeleteCourseConfirm] = useState(false)
   const deleteCourseTriggerRef = useRef<HTMLButtonElement | null>(null)
+  // Zertifikate überleben das Löschen des Kurses (unveränderlicher Nachweis,
+  // öffentlich unter /verifizieren) — ob sie mit verschwinden sollen, ist eine
+  // fachliche Entscheidung des Trainers. Standard: behalten.
+  const [deleteCertificates, setDeleteCertificates] = useState(false)
+  const certificateCount = dash.data?.course.certificate_count ?? 0
   const deleteCourse = useMutation({
-    mutationFn: () => trainerApi.deleteCourse(cid),
+    mutationFn: () => trainerApi.deleteCourse(cid, deleteCertificates),
     onSuccess: () => { qc.invalidateQueries({ queryKey: ['courses'] }); onDeleted() },
   })
   const requireApproval = course.require_approval ?? false
@@ -247,13 +252,24 @@ export function CourseDetail({ course, workshopTitle, workshops, portalContainer
       <ConfirmDialog
         open={deleteCourseConfirm}
         title="Kurs löschen"
-        description={<>„{course.name}“ endgültig löschen? ALLE Teilnehmer, ihr Fortschritt und alle Kommentare dieses Kurses werden unwiderruflich mitgelöscht.</>}
+        description={<>
+          „{course.name}“ endgültig löschen? ALLE Teilnehmer, ihr Fortschritt und alle Kommentare dieses Kurses werden unwiderruflich mitgelöscht.
+          {certificateCount > 0 && (
+            <span className="mt-3 block">
+              {certificateCount === 1 ? '1 ausgestellte Teilnahmebestätigung bleibt' : `${certificateCount} ausgestellte Teilnahmebestätigungen bleiben`} erhalten und mit Namen öffentlich prüfbar.
+              <label className="mt-2 flex items-start gap-2 text-[var(--wb-ink)]">
+                <input type="checkbox" className="mt-0.5" checked={deleteCertificates} onChange={(e) => setDeleteCertificates(e.target.checked)} />
+                <span>Teilnahmebestätigungen mitlöschen</span>
+              </label>
+            </span>
+          )}
+        </>}
         confirmLabel="Endgültig löschen"
         cancelLabel="Abbrechen"
         triggerRef={deleteCourseTriggerRef}
         container={portalContainer}
         onConfirm={() => { deleteCourse.mutate(); setDeleteCourseConfirm(false) }}
-        onCancel={() => setDeleteCourseConfirm(false)}
+        onCancel={() => { setDeleteCourseConfirm(false); setDeleteCertificates(false) }}
       />
     </div>
   )

@@ -26,7 +26,7 @@ DNS_HA_MODULE = {
               'enough.',
     },
     'blocks': [
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-1',
          'note': 'Wichtig sauber zu trennen: Grid-HA sichert die Verwaltung, Anycast verteilt den Dienst. Teilnehmende werfen das erfahrungsgemaess zusammen.',
          'value': {
              'de': '## Das Anycast-Prinzip\n\n'
@@ -50,7 +50,7 @@ DNS_HA_MODULE = {
                    'multiple NS records: there, each server has its own IP, and the client (or its '
                    'resolver) decides itself which one to try first.',
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-2',
          'value': {
              'de': '## Voraussetzungen in NIOS\n\n'
                    'Damit ein Grid-Member an einem DNS-Anycast-Verbund teilnimmt, braucht er:\n\n'
@@ -75,7 +75,7 @@ DNS_HA_MODULE = {
                    'network routing, adding coordination work with the network team that classic '
                    'redundancy via multiple NS records does not require.',
          }},
-        {'type': 'check',
+        {'type': 'check', 'id': 'check-1',
          'payload': {
              'kind': 'choice',
              'prompt_de': 'Worin unterscheidet sich Anycast am grundlegendsten von klassischer '
@@ -99,7 +99,7 @@ DNS_HA_MODULE = {
                  'Multiple NS records necessarily require BGP',
              ],
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-3',
          'value': {
              'de': '## Was beim Ausfall eines Members passiert\n\n'
                    'Fällt bei **Anycast** ein Standort komplett aus, konvergiert das Routing neu: '
@@ -133,7 +133,7 @@ DNS_HA_MODULE = {
                    'zone at all — Anycast does not change that, it only changes **how** the '
                    'reachability of those servers is organized externally.',
          }},
-        {'type': 'debug',
+        {'type': 'debug', 'id': 'debug-1',
          'payload': {
              'prompt_de': 'Ein Kollege beschreibt sein Setup so: „Wir haben Anycast eingerichtet, '
                           'jetzt ist unser DNS quasi wie das Grid-HA-Paar für den Grid Master — '
@@ -175,7 +175,7 @@ DNS_HA_MODULE = {
                                'Grid Master or a single member — and does not distribute requests '
                                'across sites.',
          }},
-        {'type': 'reveal',
+        {'type': 'reveal', 'id': 'reveal-1',
          'payload': {
              'teaser_de': 'Lab: Nordwind hat drei Standorte und will, dass Clients immer den '
                          'nächstgelegenen DNS-Server erreichen, auch bei Standortausfall — ohne '
@@ -200,7 +200,7 @@ DNS_HA_MODULE = {
                    'consistently announces this address — this has to be coordinated with the '
                    'network team, not just the DNS team.',
          }},
-        {'type': 'reflect',
+        {'type': 'reflect', 'id': 'reflect-1',
          'payload': {
              'prompt_de': 'Wann lohnt sich der zusätzliche Aufwand von Anycast (Loopback + BGP, '
                          'Abstimmung mit dem Netzwerk-Team) gegenüber einfacher Redundanz über '

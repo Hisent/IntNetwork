@@ -30,7 +30,7 @@ NAC_COA_MODULE = {
               'the cable. That is exactly what Change of Authorization (CoA) is for.',
     },
     'blocks': [
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-1',
          'note': 'CoA wird oft mit einer normalen Re-Authentifizierung verwechselt. '
                  'Klarstellen: CoA aendert eine laufende Session aktiv von aussen, ohne dass '
                  'der Client selbst eine neue Anmeldung anstoesst.',
@@ -60,7 +60,7 @@ NAC_COA_MODULE = {
                    'seconds via CoA — with no physical intervention, and without the user '
                    'noticing anything before the change takes effect.',
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-2',
          'value': {
              'de': '## Abgrenzung zur normalen Session\n\n'
                    'Ohne CoA ist eine einmal autorisierte Session weitgehend statisch: Das '
@@ -86,7 +86,7 @@ NAC_COA_MODULE = {
                    'and be rebuilt for that, its authorization is simply adjusted, or the '
                    'session is deliberately terminated.',
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-3',
          'value': {
              'de': '## Wer löst CoA aus — und wer setzt es um\n\n'
                    'Ausgelöst wird CoA vom **Policy-Server** (Authentication-/NAC-Server), '
@@ -111,7 +111,7 @@ NAC_COA_MODULE = {
                    'the NAS applies the new authorization or terminates the session and '
                    'confirms the result back to the policy server.',
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-4',
          'value': {
              'de': '## Zwei Nachrichtentypen: Disconnect und Change of Authorization\n\n'
                    'RFC 5176 unterscheidet zwei Nachrichtentypen:\n\n'
@@ -151,7 +151,7 @@ NAC_COA_MODULE = {
                    'directly. And: on a VLAN change the endpoint needs a new IP address — '
                    'switching the dACL is therefore often the gentler path.',
          }},
-        {'type': 'check',
+        {'type': 'check', 'id': 'check-1',
          'payload': {
              'kind': 'choice',
              'prompt_de': 'Ein Gerät bei Nordwind Logistik soll wegen deaktivierter '
@@ -177,7 +177,7 @@ NAC_COA_MODULE = {
                  'A manual restart of the switch port by the administrator',
              ],
          }},
-        {'type': 'reveal',
+        {'type': 'reveal', 'id': 'reveal-1',
          'payload': {
              'teaser_de': 'Welche Ereignisse lösen in der Praxis typischerweise eine CoA aus? '
                          'Erst selbst überlegen, dann aufdecken.',
@@ -212,7 +212,7 @@ NAC_COA_MODULE = {
                    '- **Result of an external security alert**: an endpoint protection or SIEM '
                    'system reports an anomaly that justifies an immediate restriction',
          }},
-        {'type': 'order',
+        {'type': 'order', 'id': 'order-1',
          'payload': {
              'prompt_de': 'Bringe den Ablauf einer CoA-Anwendung nach einer '
                           'Posture-Verschlechterung in die richtige Reihenfolge.',
@@ -241,7 +241,7 @@ NAC_COA_MODULE = {
                  'The NAS confirms the change back to the policy server',
              ],
          }},
-        {'type': 'reflect',
+        {'type': 'reflect', 'id': 'reflect-1',
          'payload': {
              'prompt_de': 'Nordwind Logistik überlegt, ob eine erkannte Posture-'
                          'Verschlechterung per CoA sofort in die Quarantäne verschoben oder '

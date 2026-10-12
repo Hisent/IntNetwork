@@ -27,7 +27,7 @@ NAC_GUEST_MODULE = {
               'exactly what a dedicated access path is for.',
     },
     'blocks': [
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-1',
          'note': 'Eigenstaendiges Modul begruenden: Gaeste sind kein Sonderfall von 802.1X, '
                  'sondern ein komplett anderer Zugangsweg mit eigenen Regeln.',
          'value': {
@@ -48,7 +48,7 @@ NAC_GUEST_MODULE = {
                    'but its own access path with its own rules: its own registration, its own '
                    'accounts, its own network segment.',
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-2',
          'value': {
              'de': '## Self-Registration und Sponsor-Genehmigung\n\n'
                    '- **Self-Registration** — der Gast registriert sich selbst über ein Portal, '
@@ -77,7 +77,7 @@ NAC_GUEST_MODULE = {
                    'Acceptable Use Policy) — typical for very short, anonymous use without '
                    'tracking individual guest accounts.',
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-3',
          'value': {
              'de': '## Zeitlich begrenzte Konten\n\n'
                    'Gastkonten werden praktisch immer **zeitlich begrenzt** angelegt — ein '
@@ -101,7 +101,7 @@ NAC_GUEST_MODULE = {
                    'This is a simple but effective lever: a guest account that deactivates itself '
                    'is one less risk on the inventory list.',
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-4',
          'value': {
              'de': '## Captive Portal vs. 802.1X\n\n'
                    'Der zentrale technische Unterschied liegt in der Art der Authentifizierung:\n\n'
@@ -129,7 +129,7 @@ NAC_GUEST_MODULE = {
                    'Captive portal therefore does not replace 802.1X, but complements it with a '
                    'path for exactly those devices where 802.1X is not practical.',
          }},
-        {'type': 'check',
+        {'type': 'check', 'id': 'check-1',
          'payload': {
              'kind': 'choice',
              'prompt_de': 'Ein Lieferant will kurzfristig WLAN-Zugang, hat aber weder einen '
@@ -154,7 +154,7 @@ NAC_GUEST_MODULE = {
                  'PEAP using an internal employee\'s credentials',
              ],
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-5',
          'value': {
              'de': '## Sicherheitsaspekte: Isolierung ist nicht optional\n\n'
                    'Der wichtigste Grundsatz beim Gastzugang: **Gäste kommen niemals ins interne '
@@ -179,7 +179,7 @@ NAC_GUEST_MODULE = {
                    'internal systems has failed its purpose, regardless of how cleanly '
                    'self-registration or the sponsor workflow is implemented.',
          }},
-        {'type': 'order',
+        {'type': 'order', 'id': 'order-1',
          'payload': {
              'prompt_de': 'Bringe die Schritte eines typischen Sponsor-genehmigten '
                          'Gastzugangs-Workflows in die richtige Reihenfolge.',
@@ -201,7 +201,7 @@ NAC_GUEST_MODULE = {
                  'The account automatically expires once the validity period ends',
              ],
          }},
-        {'type': 'reflect',
+        {'type': 'reflect', 'id': 'reflect-1',
          'payload': {
              'prompt_de': 'Nordwind Logistik überlegt, ob Lieferanten künftig per Self-'
                          'Registration ohne Sponsor-Genehmigung Zugang bekommen sollen, um den '

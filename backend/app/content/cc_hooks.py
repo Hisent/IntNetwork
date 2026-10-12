@@ -21,7 +21,7 @@ HOOKS_MODULE = {'key': 'hooks',
                     'fixed points in the lifecycle: formatting after every edit, linting before '
                     'every commit, blocking dangerous commands. Because hooks run independently of '
                     'what the model "decides", they are the tool of choice for enforced rules.'},
- 'blocks': [{'type': 'text',
+ 'blocks': [{'type': 'text', 'id': 'text-1',
              'value': {'de': '## Hooks vs. CLAUDE.md\n'
                              '\n'
                              'In Modul 5 haben wir gelernt: CLAUDE.md ist **Kontext**, keine '
@@ -53,7 +53,7 @@ HOOKS_MODULE = {'key': 'hooks',
                              '- **Observe** — log tool usage.'},
              'note': 'Einen PostToolUse-Format-Hook live einrichten; einen PreToolUse-Block per '
                      'Exit-Code 2 demonstrieren.'},
-            {'type': 'text',
+            {'type': 'text', 'id': 'text-2',
              'value': {'de': '## Die Lifecycle-Events\n'
                              '\n'
                              'Hooks feuern in drei Takten:\n'
@@ -88,7 +88,7 @@ HOOKS_MODULE = {'key': 'hooks',
                              'This covers the most common cases: `PostToolUse` on `Write|Edit` for '
                              'formatting, `PreToolUse` on `Bash` for blocking risky commands, '
                              '`SessionStart` for attaching context.'}},
-            {'type': 'text',
+            {'type': 'text', 'id': 'text-3',
              'value': {'de': '## Konfiguration & Matcher\n'
                              '\n'
                              'Hooks stehen in `settings.json` (Scopes wie bei CLAUDE.md: '
@@ -147,7 +147,7 @@ HOOKS_MODULE = {'key': 'hooks',
                              '\n'
                              'Matcher rules: `*`/empty = everything; `Bash` = exact; `Edit|Write` '
                              '= list; MCP tools via `mcp__<server>__.*`.'}},
-            {'type': 'check',
+            {'type': 'check', 'id': 'check-1',
              'payload': {'kind': 'choice',
                          'prompt_de': 'Welches Event nutzt du, um Code nach jeder Änderung '
                                       'automatisch zu formatieren?',
@@ -160,7 +160,7 @@ HOOKS_MODULE = {'key': 'hooks',
                          'options_en': ['PreToolUse',
                                         'PostToolUse (matcher Write|Edit)',
                                         'SessionEnd']}},
-            {'type': 'text',
+            {'type': 'text', 'id': 'text-4',
              'value': {'de': '## Exit-Codes: erlauben oder blockieren\n'
                              '\n'
                              'Ein Command-Hook steuert über seinen **Exit-Code**, was passiert:\n'
@@ -189,7 +189,7 @@ HOOKS_MODULE = {'key': 'hooks',
                              'reliably prevents execution — no matter what the model wanted. For '
                              'finer control, a hook can return JSON with a `permissionDecision` '
                              '(`deny`/`allow`).'}},
-            {'type': 'text',
+            {'type': 'text', 'id': 'text-5',
              'value': {'de': '## Hooks selbst absichern\n'
                              '\n'
                              'Ein Command-Hook läuft mit den Rechten des angemeldeten Benutzers. '
@@ -210,7 +210,7 @@ HOOKS_MODULE = {'key': 'hooks',
                              '\n'
                              'For technical blocking, use `PreToolUse` or permission rules; a note '
                              'in CLAUDE.md alone is not access control.'}},
-            {'type': 'text',
+            {'type': 'text', 'id': 'text-6',
              'value': {'de': '## Beispiel: Kontext beim Sessionstart\n'
                              '\n'
                              'Ein `SessionStart`-Hook kann nützliche Infos beilegen — hier den '
@@ -247,7 +247,7 @@ HOOKS_MODULE = {'key': 'hooks',
                              '\n'
                              'Important: keep `SessionStart` hooks **fast** — they run on every '
                              'start.'}},
-            {'type': 'order',
+            {'type': 'order', 'id': 'order-1',
              'payload': {'prompt_de': 'Einen blockierenden PreToolUse-Hook einrichten — '
                                       'Reihenfolge:',
                          'prompt_en': 'Setting up a blocking PreToolUse hook — order:',
@@ -261,7 +261,7 @@ HOOKS_MODULE = {'key': 'hooks',
                                       'Register it in settings.json under PreToolUse with matcher '
                                       '"Bash"',
                                       'Test a risky command in a session']}},
-            {'type': 'debug',
+            {'type': 'debug', 'id': 'debug-1',
              'payload': {'prompt_de': 'Aussagen zu Hooks — welche ist falsch?',
                          'prompt_en': 'Statements about hooks — which one is false?',
                          'lines_de': ['Hooks laufen unabhängig davon, was das Modell entscheidet.',
@@ -345,7 +345,7 @@ HOOKS_MODULE = {'key': 'hooks',
              'note': 'Teilnehmende die fünf Commands live ausprobieren lassen; besonders '
                      'die Unterscheidung /memory (welche Dateien) vs. /context '
                      '(Fensterauslastung) betonen.'},
-            {'type': 'reflect',
+            {'type': 'reflect', 'id': 'reflect-1',
              'payload': {'prompt_de': 'Welche Regel in deinem Team wird heute nur „hoffentlich” '
                                       'eingehalten und wäre als Hook (z.B. '
                                       'Lint/Format/Testschranke) besser aufgehoben?',

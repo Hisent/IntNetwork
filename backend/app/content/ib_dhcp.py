@@ -24,7 +24,7 @@ DHCP_INFOBLOX_MODULE = {
                'same lease time in ten different places?'),
     },
     'blocks': [
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-1',
          'value': {
              'de': ('## Die DHCP-Objekthierarchie in NIOS\n'
                     '\n'
@@ -64,7 +64,7 @@ DHCP_INFOBLOX_MODULE = {
          },
          'note': ('Bezug zum Netzwerk-Lehrgang herstellen: Pool ≈ Range, Reservierung ≈ Fixed '
                   'Address — hier aber als eigenständige Objekte in der NIOS-Hierarchie.')},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-2',
          'value': {
              'de': ('## Bereiche, Exclusion Ranges und feste Adressen\n'
                     '\n'
@@ -97,7 +97,7 @@ DHCP_INFOBLOX_MODULE = {
                     'excluded sub-sections and fixed mappings without needing separate '
                     'networks.'),
          }},
-        {'type': 'order',
+        {'type': 'order', 'id': 'order-1',
          'payload': {
              'prompt_de': ('Bringe die DHCP-Objekte in die richtige Reihenfolge, vom größten '
                            'organisatorischen Rahmen bis zur einzelnen festen Zuordnung:'),
@@ -106,7 +106,7 @@ DHCP_INFOBLOX_MODULE = {
              'items_de': ['Netzwerk-Container', 'Netzwerk', 'Bereich (Range)', 'Fixed Address'],
              'items_en': ['Network container', 'Network', 'Range', 'Fixed address'],
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-3',
          'value': {
              'de': ('## Vererbung: Grid → Member → Netzwerk → Bereich\n'
                     '\n'
@@ -143,7 +143,7 @@ DHCP_INFOBLOX_MODULE = {
                     'an explicit setting at the range level always wins over an inherited '
                     'Grid setting.'),
          }},
-        {'type': 'check',
+        {'type': 'check', 'id': 'check-1',
          'payload': {
              'kind': 'choice',
              'prompt_de': ('Die Lease-Zeit ist auf Grid-Ebene auf 8 Stunden gesetzt. Ein '
@@ -161,7 +161,7 @@ DHCP_INFOBLOX_MODULE = {
                             '24 hours (inherited from the network)',
                             'The range always needs its own explicit setting'],
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-4',
          'value': {
              'de': ('## Lease-Verwaltung und Lease-Zeiten\n'
                     '\n'
@@ -202,7 +202,7 @@ DHCP_INFOBLOX_MODULE = {
                     'purpose — for example when a device has been swapped and the old '
                     'mapping is getting in the way.'),
          }},
-        {'type': 'check',
+        {'type': 'check', 'id': 'check-2',
          'payload': {
              'kind': 'number',
              'prompt_de': ('Ein Bereich reicht von 10.20.30.50 bis 10.20.30.150. Darin liegt '
@@ -215,7 +215,7 @@ DHCP_INFOBLOX_MODULE = {
                            'range for dynamic assignment?'),
              'answer': 91,
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-5',
          'value': {
              'de': ('## Zusammenspiel von DHCP und DNS\n'
                     '\n'
@@ -246,7 +246,7 @@ DHCP_INFOBLOX_MODULE = {
                     'key takeaway is enough: lease assignment and name resolution are not '
                     'separate, they are tied together through DDNS.'),
          }},
-        {'type': 'debug',
+        {'type': 'debug', 'id': 'debug-1',
          'payload': {
              'prompt_de': ('Ein Kollege beschreibt die Options-Konfiguration eines '
                            'Netzwerks. Eine Aussage ist fachlich falsch. Welche?'),

@@ -162,3 +162,16 @@ describe('Workshop-Theme-Allowlist (teal-* muss in index.css überschrieben werd
     expect(gaps, gaps.join('\n')).toEqual([])
   })
 })
+
+// SVG-Grafiken umgehen beide Theming-Wege, sobald sie feste Hex-Farben in
+// fill=/stroke= tragen: weder die Dark-Mode-Palette noch der Kursfarben-
+// Override erreichen sie (Topologie-Grafik bis v1.42: helle Kreise mit dunkler
+// Schrift auf dunklem Grund). Farben gehören dort in Tailwind-Klassen.
+describe('SVG-Grafiken in widgets/visuals ohne feste Hex-Farben', () => {
+  it('kein #rrggbb-Literal in den .tsx-Dateien', () => {
+    const dir = path.resolve(SRC_DIR, 'widgets/visuals')
+    const hits = fs.readdirSync(dir).filter((f) => f.endsWith('.tsx')).flatMap((f) =>
+      (stripComments(fs.readFileSync(path.join(dir, f), 'utf8')).match(/#[0-9a-fA-F]{3,8}\b/g) ?? []).map((hex) => `${f}: ${hex}`))
+    expect(hits).toEqual([])
+  })
+})

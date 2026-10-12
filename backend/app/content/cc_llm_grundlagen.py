@@ -22,7 +22,7 @@ LLM_GRUNDLAGEN_MODULE = {'key': 'llm-grundlagen',
                     '**word by word**. Anyone who internalizes this also understands why good '
                     'context, clear instructions, and a tidy context window make all the '
                     'difference.'},
- 'blocks': [{'type': 'text',
+ 'blocks': [{'type': 'text', 'id': 'text-1',
              'value': {'de': '## Was ein LLM eigentlich tut\n'
                              '\n'
                              'Ein **Large Language Model (LLM)** wie Claude ist auf eine scheinbar '
@@ -59,7 +59,7 @@ LLM_GRUNDLAGEN_MODULE = {'key': 'llm-grundlagen',
                              'which is why we verify results.'},
              'note': 'Live am Tokenizer zeigen, dass Umlaute/Bezeichner in mehrere Tokens '
                      'zerfallen; das Kontextfenster als endliche Ressource betonen.'},
-            {'type': 'text',
+            {'type': 'text', 'id': 'text-2',
              'value': {'de': '## Der Transformer & Attention (in aller Kürze)\n'
                              '\n'
                              'Moderne LLMs beruhen auf der **Transformer**-Architektur (2017). Ihr '
@@ -84,7 +84,7 @@ LLM_GRUNDLAGEN_MODULE = {'key': 'llm-grundlagen',
                              'For this workshop, this intuition is enough: **attention = the model '
                              'links context.** The clearer and more relevant the context, the '
                              'better the linking — and the better the answer.'}},
-            {'type': 'text',
+            {'type': 'text', 'id': 'text-3',
              'value': {'de': '## Tokenisierung: Text wird zu Zahlen\n'
                              '\n'
                              'Modelle sehen keinen Text, sondern **Tokens** — kurze Zeichenketten, '
@@ -121,14 +121,14 @@ LLM_GRUNDLAGEN_MODULE = {'key': 'llm-grundlagen',
              'id': 'tokenizer-demo',
              'note': 'Teilnehmende einen deutschen Satz und ein Code-Snippet eingeben lassen — '
                      'sichtbar machen, dass Umlaute und Bezeichner in mehrere Tokens zerfallen.'},
-            {'type': 'check',
+            {'type': 'check', 'id': 'check-1',
              'payload': {'kind': 'choice',
                          'prompt_de': 'Grob geschätzt: Wie viele Tokens sind ~750 Wörter Text?',
                          'prompt_en': 'Roughly estimated: how many tokens is ~750 words of text?',
                          'answer': 1,
                          'options_de': ['~100 Tokens', '~1000 Tokens', '~10.000 Tokens'],
                          'options_en': ['~100 tokens', '~1000 tokens', '~10,000 tokens']}},
-            {'type': 'text',
+            {'type': 'text', 'id': 'text-4',
              'value': {'de': '## Das Kontextfenster\n'
                              '\n'
                              'Das **Kontextfenster** ist die maximale Menge Tokens, die das Modell '
@@ -160,7 +160,7 @@ LLM_GRUNDLAGEN_MODULE = {'key': 'llm-grundlagen',
                              '2. **Relevance beats volume.** Ten precise lines of `CLAUDE.md` have '
                              "more impact than 500 lines of noise. That's why later modules "
                              'actively focus on clean context (memory, subagents, `/context`).'}},
-            {'type': 'order',
+            {'type': 'order', 'id': 'order-1',
              'payload': {'prompt_de': 'Bring die autoregressive Text-Erzeugung in die richtige '
                                       'Reihenfolge:',
                          'prompt_en': 'Put autoregressive text generation into the correct order:',
@@ -173,7 +173,7 @@ LLM_GRUNDLAGEN_MODULE = {'key': 'llm-grundlagen',
                                       'The model calculates probabilities for the next token',
                                       'A token is selected and appended',
                                       'The extended text goes back into the model — until stop']}},
-            {'type': 'reflect',
+            {'type': 'reflect', 'id': 'reflect-1',
              'payload': {'prompt_de': 'Denk an eine Aufgabe, die du zuletzt an eine KI gestellt '
                                       'hast. Welche Informationen hätte das Modell im '
                                       'Kontextfenster gebraucht, um sie wirklich gut zu lösen — '
@@ -182,7 +182,7 @@ LLM_GRUNDLAGEN_MODULE = {'key': 'llm-grundlagen',
                                       'would the model have needed in the context window to solve '
                                       'it really well — and how much of that did you actually '
                                       'provide?'}},
-            {'type': 'reveal',
+            {'type': 'reveal', 'id': 'reveal-1',
              'payload': {'teaser_de': 'Kurzfrage zum Selbst-Prüfen: Warum liefert dasselbe Prompt '
                                       'manchmal unterschiedliche Antworten? Formuliere eine '
                                       'Erklärung in einem Satz, dann aufdecken.',

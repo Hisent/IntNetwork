@@ -34,7 +34,7 @@ ROLLEN_BERECHTIGUNGEN_MODULE = {
     },
     'blocks': [
         {
-            'type': 'text',
+            'type': 'text', 'id': 'text-1',
             'note': 'Hier lohnt die Frage in die Runde, wer im eigenen Haus Superuser ist — meist '
                     'sind es deutlich mehr Personen als noetig. Guter Anlass, das '
                     'Least-Privilege-Prinzip an einem echten Beispiel durchzuspielen.',
@@ -72,7 +72,7 @@ ROLLEN_BERECHTIGUNGEN_MODULE = {
             },
         },
         {
-            'type': 'text',
+            'type': 'text', 'id': 'text-2',
             'value': {
                 'de': '## Die drei Berechtigungsstufen\n'
                       '\n'
@@ -109,7 +109,7 @@ ROLLEN_BERECHTIGUNGEN_MODULE = {
             },
         },
         {
-            'type': 'text',
+            'type': 'text', 'id': 'text-3',
             'value': {
                 'de': '## Granularität bis auf Objektebene\n'
                       '\n'
@@ -140,7 +140,7 @@ ROLLEN_BERECHTIGUNGEN_MODULE = {
             },
         },
         {
-            'type': 'check',
+            'type': 'check', 'id': 'check-1',
             'payload': {
                 'kind': 'choice',
                 'prompt_de': 'Worin liegt der praktische Vorteil einer Rolle '
@@ -172,7 +172,7 @@ ROLLEN_BERECHTIGUNGEN_MODULE = {
             },
         },
         {
-            'type': 'text',
+            'type': 'text', 'id': 'text-4',
             'value': {
                 'de': '## Authentifizierung und Audit-Log\n'
                       '\n'
@@ -207,7 +207,7 @@ ROLLEN_BERECHTIGUNGEN_MODULE = {
             },
         },
         {
-            'type': 'order',
+            'type': 'order', 'id': 'order-1',
             'payload': {
                 'prompt_de': 'Bring die Schritte beim Einrichten eines neuen, '
                              'eingeschränkten Admin-Kontos in eine sinnvolle '
@@ -237,7 +237,7 @@ ROLLEN_BERECHTIGUNGEN_MODULE = {
             },
         },
         {
-            'type': 'debug',
+            'type': 'debug', 'id': 'debug-1',
             'payload': {
                 'prompt_de': 'Vier Aussagen zu Berechtigungen in NIOS — welche ist '
                              'falsch?',
@@ -277,7 +277,7 @@ ROLLEN_BERECHTIGUNGEN_MODULE = {
             },
         },
         {
-            'type': 'text',
+            'type': 'text', 'id': 'text-5',
             'value': {
                 'de': '## Geringste Rechte im DDI-Alltag\n'
                       '\n'

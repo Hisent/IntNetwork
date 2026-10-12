@@ -212,8 +212,105 @@ Plattform ihre Netze zusammensteckt.
   „kein frei geschriebener Code", aber keine absolute Garantie: Es bleibt eine
   Allowlist, die von Hand gepflegt wird, kein Beweis, dass jedes zugelassene
   Unterkommando in jeder Argumentkombination harmlos ist.
+  Seit v1.43 gibt es dagegen eine **Zwischenstufe, das Ergebnis-Token** (siehe
+  eigener Abschnitt unten). Es erschwert das Fälschen, schließt die Lücke aber
+  nicht.
 - **Missbrauch durch Berechtigte.** Wer sich anmelden darf, darf Code
   ausführen. Der Teilnehmerkreis ist die eigentliche Zugangskontrolle.
+
+## Ergebnis-Token (Zwischenstufe gegen gefälschte Ergebnisse)
+
+Das Backend legt in jeden Auftrag ein Zufalls-Token (`secrets.token_urlsafe(32)`,
+`backend/app/routers/lab.py`). Der Runner liest den Auftrag **beim Beanspruchen**
+und löscht die Datei sofort (`_auftrag_lesen` in `runner/worker.py`, aufgerufen
+aus `_runde`); danach existiert das Token nur noch im Speicher des Workers. Er
+legt es dem Ergebnis bei. Das Backend nimmt `out/<id>.json` nur an, wenn das
+Token stimmt und alle Felder vorhanden sind — sonst `502` mit klarer Meldung
+statt eines ungeprüft durchgereichten Inhalts.
+
+**Was das verhindert:** das „blinde" Fälschen. Ein Playbook, das einfach
+`out/<fremde-id>.json` schreibt, wird verworfen; ebenso kaputte oder
+unvollständige Ergebnisdateien (vorher `500`).
+
+**Was es NICHT verhindert** — solange Playbook und Worker dieselbe uid haben:
+
+1. **Lesen des Auftrags vor dem Beanspruchen.** `in/<id>.json` liegt lesbar im
+   Volume, bis der Worker sie beansprucht: im Normalfall höchstens
+   `RUNNER_POLL_SECONDS` (0,2 s), bei voller Warteschlange
+   (`RUNNER_MAX_QUEUE_DEPTH`) beliebig lange. Ein Playbook, das `in/` in einer
+   Schleife abfragt, liest das Token und kann damit ein gültiges Ergebnis
+   schreiben oder den Auftrag gegen einen eigenen austauschen. Die Warteschlange
+   kann der Angreifer mit eigenen langen Läufen selbst füllen.
+2. **Lesen des Worker-Speichers.** Gleiche uid, gleiche (leere)
+   Capability-Menge: `/proc/<pid>/mem` und `ptrace` des Workers sind erlaubt,
+   sofern der Host es nicht per Yama unterbindet (`kernel.yama.ptrace_scope`
+   ≥ 1 — Ubuntu-Standard 1, Debian-Standard 0; das Playbook ist ein Kind des
+   Workers, kein Vorfahre, und fällt bei 1 unter die Sperre). Auf das
+   Host-Setting darf sich das Bedrohungsmodell nicht verlassen.
+3. **Stören.** Aufträge und Ergebnisse löschen, den Worker per Signal beenden
+   (gleiche uid) — das Token ändert daran nichts.
+
+Die Aussage aus „Was NICHT abgedeckt ist" gilt also weiter: Wer `ansible`
+freigibt, vertraut dem Teilnehmerkreis. Die Arten `openssl` und `git` kommen an
+`/queue` nicht heran (Pfadprüfung im Runner).
+
+**Rollout:** Backend und Runner gemeinsam ausrollen. Ein neuer Runner mit altem
+Backend funktioniert (kein Token im Auftrag → keines im Ergebnis); ein **neues
+Backend mit altem Runner verwirft jedes Ergebnis mit 502**.
+
+### Echte Trennung: Läufe unter einer zweiten uid (Umsetzungsplan, NICHT umgesetzt)
+
+Nicht umgesetzt, weil es sich ohne Docker/Linux nicht belastbar testen lässt:
+`setuid()` braucht Root bzw. Capabilities, und genau deren Zusammenspiel mit
+`cap_drop`, `no-new-privileges`, Volume-Rechten und `tmpfs` ist der riskante
+Teil. Ein Fehler hier macht das Lab unbenutzbar oder — schlimmer — gibt
+Playbooks Root im Container.
+
+Ziel: Worker = uid 0 mit minimalen Capabilities, Läufe = uid 10002 ohne
+Capabilities. Dann kann ein Lauf weder `/queue` noch den Worker-Prozess
+anfassen; Punkte 1–3 oben entfallen.
+
+1. `runner/Dockerfile` (Z. 28–39): zweiten Benutzer `labjob` (uid/gid 10002)
+   anlegen; `USER labrunner` entfernen (Worker startet als root); `/queue/in`
+   und `/queue/out` als `root:10001`, Modus `0770` (10001 = uid/gid des
+   Backend-Containers, `backend/Dockerfile` Z. 16) — das Backend schreibt über
+   die Gruppe, `labjob` kommt nicht hinein. Kein `0777` mehr.
+2. `docker-compose.yml`, Dienst `runner` (Z. 120–128): `cap_drop: ALL`
+   behalten, dazu `cap_add: [SETUID, SETGID, KILL, CHOWN, DAC_OVERRIDE]`.
+   `KILL`: root ohne `CAP_KILL` darf Prozesse einer fremden uid nicht beenden —
+   ohne das greift die Zeitgrenze (`os.killpg`, `worker.py` Z. 170) nicht mehr.
+   `CHOWN`/`DAC_OVERRIDE`: Arbeitsverzeichnisse an `labjob` übergeben und
+   wieder aufräumen. `no-new-privileges` und `read_only` bleiben; `tmpfs`
+   bleibt `mode=1777,noexec`.
+3. `runner/worker.py`:
+   - `_mit_zeitgrenze_ausfuehren` (Z. 162): `subprocess.Popen(..., user=JOB_UID,
+     group=JOB_GID, extra_groups=[])` (neue Konstanten aus `RUNNER_JOB_UID`,
+     Standard: keine Trennung, damit Tests und lokale Läufe unverändert bleiben).
+     Der Wechsel von uid 0 auf 10002 leert die Capability-Mengen des Kindes.
+   - `_workspace` (Z. 94–119), `_run_ansible` (Z. 198, `mkdtemp`) und
+     `_run_werkzeug`: jedes Verzeichnis, in das der Lauf schreibt
+     (`lab_dir`, `HOME`, `ANSIBLE_LOCAL_TEMP`), nach dem Anlegen per
+     `os.chown(..., JOB_UID, JOB_GID)` übergeben, Modus `0700`.
+   - `_antwort_schreiben` (Z. 725) und `_warteschlange_vorbereiten` (Z. 810):
+     `chmod 0o666`/`0o777` durch `0o640`/`0o770` ersetzen und `os.chown(...,
+     0, BACKEND_GID)`.
+   - Startprüfung in `main()`: läuft der Worker als uid 0 **ohne** gesetzte
+     `RUNNER_JOB_UID`, nicht starten (sonst liefen Playbooks als root).
+4. Bestehendes Volume: `lab_queue` einmal entfernen (Rechte werden nur in ein
+   leeres Volume übernommen, siehe Betriebshinweise).
+5. Testschritte (Linux mit Docker, vor dem Merge):
+   - `docker compose up runner`; Playbook mit `command: id` → uid=10002, und
+     `grep Cap /proc/self/status` → `CapEff: 0000000000000000`.
+   - Playbook `command: ls /queue/in` → „Permission denied"; `cat
+     /proc/1/environ` und `kill -9 1` → abgelehnt.
+   - Playbook `command: sleep 300` → nach `RUNNER_TIMEOUT` beendet
+     (`docker top` zeigt keinen `sleep` mehr).
+   - Regulärer Lauf zweimal (Idempotenz-Übung), je einmal `openssl` und `git`.
+   - Backend-Seite: Auftrag wird angenommen, Ergebnis gelesen und gelöscht
+     (kein `PermissionError` im Backend-Log).
+   - `docker inspect` → `NetworkMode: none` unverändert.
+
+Das Ergebnis-Token bleibt danach als zweite Schicht sinnvoll.
 
 ## Wann man das Lab besser aus lässt
 
@@ -246,8 +343,10 @@ Steht eine Art nur beim Backend, bietet das Widget sie an und der Lauf scheitert
 mit einer Meldung des Runners. Steht sie nur beim Runner, bleibt sie ungenutzt.
 
 Das Volume `lab_queue` ist in `docker-compose.yml` bereits bei Backend und
-Runner eingehängt. Ein Token gibt es bewusst nicht mehr: Ohne Netzwerk ist das
-Volume die Grenze, ein geteiltes Geheimnis würde daran nichts verbessern.
+Runner eingehängt. Ein konfiguriertes Zugangs-Token gibt es bewusst nicht mehr:
+Ohne Netzwerk ist das Volume die Grenze, ein geteiltes Geheimnis würde daran
+nichts verbessern. (Das Ergebnis-Token weiter oben ist etwas anderes: Es wird je
+Auftrag erzeugt und braucht keine Konfiguration.)
 
 **Ausschalten:** `LAB_QUEUE_DIR` leeren und neu ausrollen. Die API antwortet
 dann mit `503`, das Widget zeigt einen Hinweis, der Kurs läuft weiter.
@@ -256,6 +355,13 @@ dann mit `503`, das Widget zeigt einen Hinweis, der Kurs läuft weiter.
 aufrufen — die Antwort ist `{"enabled": false}`.
 
 ## Betriebshinweise
+
+- **Basis-Image und OpenSSL:** Der Runner baut auf `python:3.12-slim-trixie`
+  (Debian 13, in `runner/Dockerfile` ausdrücklich benannt). Das Paket `openssl`
+  ist dort **OpenSSL 3.5** (LTS-Zweig; geprüft am 12.10.2026:
+  `3.5.7-1~deb13u3`) — die Befehle des PKI-Lehrgangs brauchen ≥ 3.0. Nach einem
+  Wechsel des Debian-Release im Container nachprüfen:
+  `docker exec <runner-container> openssl version`.
 
 - **Logs:** Der Runner schreibt nach stderr (`docker logs <runner-container>`),
   darunter Startmeldung, unlesbare Aufträge und interne Fehler. Playbook-Inhalte

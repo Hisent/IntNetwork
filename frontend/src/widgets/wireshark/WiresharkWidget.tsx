@@ -90,6 +90,12 @@ export function Wireshark({ lang }: { lang: Lang }) {
               <tr
                 key={p.no}
                 onClick={() => select(p)}
+                // Per Tastatur bedienbar: fokussierbar, Enter/Leertaste wählt aus.
+                tabIndex={0}
+                aria-selected={selected?.no === p.no}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); select(p) }
+                }}
                 className={`cursor-pointer border-t border-slate-100 ${PROTO_STYLE[p.protocol] ?? ''} ${
                   selected?.no === p.no ? 'outline outline-2 -outline-offset-2 outline-teal-500' : 'hover:brightness-95'
                 }`}

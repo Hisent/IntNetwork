@@ -441,6 +441,9 @@ p { text-wrap: pretty; }
 .workshop-theme:not(.workshop-theme--network) .ring-teal-500 { --tw-ring-color: var(--workshop-accent-strong); }
 .workshop-theme:not(.workshop-theme--network) .focus\:ring-teal-100:focus { --tw-ring-color: var(--workshop-accent-soft); }
 .workshop-theme:not(.workshop-theme--network) .accent-teal-600 { accent-color: var(--workshop-accent); }
+/* SVG-Grafiken (widgets/visuals): Linien/Raender und aktive Flaechen. */
+.workshop-theme:not(.workshop-theme--network) .stroke-teal-600 { stroke: var(--workshop-accent); }
+.workshop-theme:not(.workshop-theme--network) .fill-teal-100 { fill: var(--workshop-accent-soft); }
 /* Weitere Flaechenfarben (teal-100/200 als helle Markierung -> Kurs-Soft). */
 .workshop-theme:not(.workshop-theme--network) .bg-teal-100,
 .workshop-theme:not(.workshop-theme--network) .bg-teal-200 { background-color: var(--workshop-accent-soft); }

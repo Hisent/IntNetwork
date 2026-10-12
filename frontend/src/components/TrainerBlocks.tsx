@@ -1,7 +1,9 @@
 import { useState } from 'react'
 import Markdown from 'react-markdown'
 import type { Block } from '@/types'
-import { MD_COMPONENTS, WidgetBlock } from '@/components/Blocks'
+import { DeclarativeBlock, MD_COMPONENTS, WidgetBlock } from '@/components/Blocks'
+import { isDeclarative } from '@/components/blocks/types'
+import { gapSolution } from '@/components/blocks/exerciseLogic'
 
 function NoteBox({ note }: { note: string }) {
   const [open, setOpen] = useState(false)
@@ -85,6 +87,18 @@ export function TrainerBlocks({ blocks }: { blocks: Block[] }) {
               <p className="text-xs text-slate-400 mb-2">(für Teilnehmer erst nach Klick sichtbar)</p>
               <Markdown components={MD_COMPONENTS}>{b.value}</Markdown>
             </div>
+          )}
+          {/* Baukasten-Blöcke: dieselbe interaktive Komponente wie beim Teilnehmer (am Beamer
+              vorführbar); die Lösung der Übungen steht eingeklappt darunter. */}
+          {isDeclarative(b) && <DeclarativeBlock block={b} lang="de" />}
+          {(b.type === 'match' || b.type === 'cloze') && (
+            <details className="text-sm text-slate-600">
+              <summary className="cursor-pointer text-xs font-medium text-teal-700">Lösung</summary>
+              <ul className="mt-1 list-disc pl-5">
+                {b.type === 'match' && b.pairs.map((p, pi) => <li key={pi}><strong>{p.left}</strong> — {p.right}</li>)}
+                {b.type === 'cloze' && b.gaps.map((g) => <li key={g.id}><span className="font-mono">{g.id}</span>: {gapSolution(g)}</li>)}
+              </ul>
+            </details>
           )}
           {b.note && <NoteBox note={b.note} />}
         </div>

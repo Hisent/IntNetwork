@@ -1,4 +1,6 @@
-FROM python:3.11-slim
+# Debian-Release ausdruecklich benannt: "-slim" allein wechselt beim naechsten
+# Debian-Stable stillschweigend die Basis (zuletzt bookworm -> trixie).
+FROM python:3.11-slim-trixie
 
 WORKDIR /app
 

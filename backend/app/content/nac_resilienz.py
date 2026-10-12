@@ -31,7 +31,7 @@ NAC_RESILIENZ_MODULE = {
               'exactly that server becomes unreachable — should every device get in, or none?',
     },
     'blocks': [
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-1',
          'note': 'Diese Entscheidung frueh als Entweder-Oder positionieren: es gibt keine echte '
                  'neutrale Option. Beide Seiten haben einen echten Preis.',
          'value': {
@@ -64,7 +64,7 @@ NAC_RESILIENZ_MODULE = {
                    'VLAN (see below) only soften one of the two consequences, they do not '
                    'remove it.',
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-2',
          'value': {
              'de': '## Die Wahl ist eine Risikoentscheidung, kein Automatismus\n\n'
                    'Fail-Open balanciert **Verfügbarkeit** gegen Fail-Closed, das **Sicherheit** '
@@ -87,7 +87,7 @@ NAC_RESILIENZ_MODULE = {
                    'the hardware somehow gets "right" on its own. Whoever never addresses it '
                    'still gets one of the two consequences — just unplanned.',
          }},
-        {'type': 'check',
+        {'type': 'check', 'id': 'check-1',
          'payload': {
              'kind': 'choice',
              'prompt_de': 'Was beschreibt „Fail-Open“ bei einem RADIUS-Ausfall am treffendsten?',
@@ -109,7 +109,7 @@ NAC_RESILIENZ_MODULE = {
                  'The switch automatically switches to Low-Impact Mode',
              ],
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-3',
          'value': {
              'de': '## Critical Authentication: kontrolliertes Fail-Open für den Notfall\n\n'
                    'Zwischen den beiden Extremen gibt es eine gebräuchliche Zwischenlösung: '
@@ -135,7 +135,7 @@ NAC_RESILIENZ_MODULE = {
                    'access level in advance. Already-running, authenticated sessions are not '
                    'immediately disconnected by a RADIUS outage in this setup.',
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-4',
          'note': 'RADIUS-Redundanz kompakt halten: Kernpunkt ist Vermeidung eines Single Point '
                  'of Failure, keine Konfigurationsdetails zu Primary/Secondary-Setups.',
          'value': {
@@ -161,7 +161,7 @@ NAC_RESILIENZ_MODULE = {
                    '(e.g. a shared network segment or power outage), and for exactly that rarer '
                    'case Nordwind still needs a deliberate answer.',
          }},
-        {'type': 'check',
+        {'type': 'check', 'id': 'check-2',
          'payload': {
              'kind': 'choice',
              'prompt_de': 'Warum bleibt eine Fail-Open/Fail-Closed-Politik auch bei redundanten '
@@ -184,7 +184,7 @@ NAC_RESILIENZ_MODULE = {
                  'Because a secondary RADIUS server automatically rejects all devices',
              ],
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-5',
          'value': {
              'de': '## Das NAC-Ökosystem im Überblick (herstellerneutral)\n\n'
                    'Wer RADIUS-Redundanz und Fail-Open/Fail-Closed einmal verstanden hat, trifft '
@@ -214,7 +214,7 @@ NAC_RESILIENZ_MODULE = {
                    'visibility and segmentation on top of existing switches/firewalls, without '
                    'replacing the existing AAA infrastructure.',
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-6',
          'value': {
              'de': '## Einfacherer RADIUS und Open Source\n\n'
                    'Nicht jede Umgebung braucht sofort eine vollständige NAC-Suite:\n\n'
@@ -246,7 +246,7 @@ NAC_RESILIENZ_MODULE = {
                    'more "how much posture, profiling, and guest functionality do we actually '
                    'need, measured against effort and budget."',
          }},
-        {'type': 'check',
+        {'type': 'check', 'id': 'check-3',
          'payload': {
              'kind': 'choice',
              'prompt_de': 'Wie ordnet sich Microsoft NPS im NAC-Ökosystem am zutreffendsten ein?',
@@ -268,7 +268,7 @@ NAC_RESILIENZ_MODULE = {
                  'As an open-source alternative to FreeRADIUS',
              ],
          }},
-        {'type': 'debug',
+        {'type': 'debug', 'id': 'debug-1',
          'payload': {
              'prompt_de': 'Nordwind betreibt einen einzelnen RADIUS-Server ohne Backup, um '
                           'Kosten zu sparen. Nach einem Ausfall zeigt sich an den '
@@ -318,7 +318,7 @@ NAC_RESILIENZ_MODULE = {
                                'correctly describe the behavior of Closed Mode with and without '
                                'a critical authentication configuration.',
          }},
-        {'type': 'reflect',
+        {'type': 'reflect', 'id': 'reflect-1',
          'payload': {
              'prompt_de': 'Nordwind hat aktuell weder RADIUS-Redundanz noch eine dokumentierte '
                           'Fail-Open/Fail-Closed-Politik. Welche der beiden Maßnahmen würdest du '

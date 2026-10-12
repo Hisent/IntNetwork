@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { decidingRule, subnetSlices } from './NetworkVisuals'
+import { decidingRule, subnetSlices } from './networkVisualsLogic'
 
 describe('network visualizations', () => {
   it('splits a /24 into correctly aligned /26 networks', () => {

@@ -27,7 +27,7 @@ DHCP_FAILOVER_MODULE = {
                'correct procedure for a planned outage.'),
     },
     'blocks': [
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-1',
          'note': 'Die Verwechslung von Grid-HA und DHCP-Failover ist der Klassiker in diesem Kurs. Wenn die Zeit knapp wird, lieber diesen Punkt vertiefen als die Zustandsnamen auswendig lernen zu lassen.',
          'value': {
              'de': ('## Was ein DHCP-Failover-Paar ist\n'
@@ -53,7 +53,7 @@ DHCP_FAILOVER_MODULE = {
                     'the entire address pool without clients noticing any interruption '
                     'in address assignment.'),
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-2',
          'value': {
              'de': ('## Abgrenzung: Grid-HA-Paar vs. DHCP-Failover-Paar\n'
                     '\n'
@@ -92,7 +92,7 @@ DHCP_FAILOVER_MODULE = {
                     'meaning the two DHCP servers conflates two different failure '
                     'concepts.'),
          }},
-        {'type': 'check',
+        {'type': 'check', 'id': 'check-1',
          'payload': {
              'kind': 'choice',
              'prompt_de': ('Zwei Grid-Member bedienen gemeinsam denselben '
@@ -105,7 +105,7 @@ DHCP_FAILOVER_MODULE = {
              'options_de': ['Grid-HA-Paar', 'DHCP-Failover-Paar', 'Grid Master Candidate'],
              'options_en': ['Grid-HA pair', 'DHCP failover pair', 'Grid Master Candidate'],
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-3',
          'value': {
              'de': ('## Lastverteilung: Hash und Split\n'
                     '\n'
@@ -130,7 +130,7 @@ DHCP_FAILOVER_MODULE = {
                     'remaining server takes over its share in addition to its own — '
                     'the address space stays fully usable.'),
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-4',
          'value': {
              'de': ('## Zustände eines Failover-Paars und MCLT\n'
                     '\n'
@@ -182,7 +182,7 @@ DHCP_FAILOVER_MODULE = {
                     'causes more renewal load while the peers cannot communicate; a '
                     'longer MCLT means a slower full takeover.'),
          }},
-        {'type': 'check',
+        {'type': 'check', 'id': 'check-2',
          'payload': {
              'kind': 'number',
              'prompt_de': ('Ein Netzwerk stellt 200 Adressen für die dynamische Vergabe '
@@ -195,7 +195,7 @@ DHCP_FAILOVER_MODULE = {
                            'normal operation?'),
              'answer': 100,
          }},
-        {'type': 'order',
+        {'type': 'order', 'id': 'order-1',
          'payload': {
              'prompt_de': ('Ein Wartungsfenster an einem der beiden Failover-Peers ist '
                            'geplant. Bringe die Schritte in die richtige Reihenfolge:'),
@@ -216,7 +216,7 @@ DHCP_FAILOVER_MODULE = {
                  'Restart the service and wait for synchronization before normal operation resumes',
              ],
          }},
-        {'type': 'reveal',
+        {'type': 'reveal', 'id': 'reveal-1',
          'payload': {
              'teaser_de': ('Störungsbericht: Nach einem Switch-Ausfall bleibt der '
                           'zweite DHCP-Server im Zustand „Communication Interrupted”, '
@@ -257,7 +257,7 @@ DHCP_FAILOVER_MODULE = {
                     'server unambiguously switch to “Partner Down” and take over the '
                     'full address space.'),
          }},
-        {'type': 'reflect',
+        {'type': 'reflect', 'id': 'reflect-1',
          'payload': {
              'prompt_de': ('Nenne ein Szenario aus deinem eigenen Betrieb, in dem die '
                            'Verwechslung von Grid-HA-Paar und DHCP-Failover-Paar zu '

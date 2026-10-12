@@ -34,7 +34,7 @@ WIDERRUF_MODULE = {
               'checking has historically been enforced more softly than one might expect.',
     },
     'blocks': [
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-1',
          'value': {
              'de': '## Wann ein Zertifikat widerrufen werden muss\n\n'
                    'Typische Gründe für einen Widerruf vor Ablauf:\n\n'
@@ -62,7 +62,7 @@ WIDERRUF_MODULE = {
                    'certificate - other systems need to actively learn that it is no longer '
                    'trustworthy.',
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-2',
          'note': 'Drei Mechanismen sauber trennen: CRL = Liste, OCSP = Einzelabfrage, '
                  'Stapling = Server liefert die Antwort gleich mit. Verwechslung von OCSP '
                  'und Stapling ist der haeufigste Fehler in Pruefungsfragen.',
@@ -99,7 +99,7 @@ WIDERRUF_MODULE = {
                    'handshake. The client no longer has to make its own request to the CA '
                    '- this solves both the latency and the privacy problem.',
          }},
-        {'type': 'check',
+        {'type': 'check', 'id': 'check-1',
          'payload': {
              'kind': 'choice',
              'prompt_de': 'Welcher Mechanismus löst das Datenschutzproblem, dass die CA bei '
@@ -125,7 +125,7 @@ WIDERRUF_MODULE = {
                  'certificates',
              ],
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-3',
          'value': {
              'de': '## Das ehrliche Bild: Weich statt hart\n\n'
                    'Widerrufsprüfung im Browser ist historisch ein **"Soft-Fail"**: Ist der '
@@ -166,7 +166,7 @@ WIDERRUF_MODULE = {
                    'revocation entries compiled by Google and distributed via browser '
                    'updates - deliberately not a complete list of all revoked certificates.',
          }},
-        {'type': 'debug',
+        {'type': 'debug', 'id': 'debug-1',
          'payload': {
              'prompt_de': 'Ein Kollege behauptet nach einem Vorfall: „Der Server hatte kein '
                           'OCSP-Stapling aktiviert, deshalb hat der Browser die Verbindung '
@@ -215,7 +215,7 @@ WIDERRUF_MODULE = {
                                'connection. Statement 3 assumes a single root cause that '
                                'does not exist in this form.',
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-4',
          'value': {
              'de': '## Trend: Kurze Laufzeiten statt Widerruf\n\n'
                    'Wenn Widerrufsprüfung so unzuverlässig ist, wie oben beschrieben, '
@@ -251,7 +251,7 @@ WIDERRUF_MODULE = {
                    'certificates (valid for about 6 days) as a regular option since January '
                    '2026.',
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-5',
          'value': {
              'de': '## Certificate Transparency: Öffentliche, nachprüfbare Logs\n\n'
                    '**Certificate Transparency (CT)** verlangt, dass neu ausgestellte '
@@ -279,7 +279,7 @@ WIDERRUF_MODULE = {
                    'knowing. CT turns certificate issuance from a silent process into a '
                    'publicly observable one.',
          }},
-        {'type': 'check',
+        {'type': 'check', 'id': 'check-2',
          'payload': {
              'kind': 'choice',
              'prompt_de': 'Welchen konkreten Nutzen zieht Nordwind Logistik im eigenen '
@@ -303,7 +303,7 @@ WIDERRUF_MODULE = {
                  'CT automatically shortens the certificate validity period',
              ],
          }},
-        {'type': 'reflect',
+        {'type': 'reflect', 'id': 'reflect-1',
          'payload': {
              'prompt_de': 'Nordwind Logistik hat noch nie die eigenen Domains in '
                           'Certificate-Transparency-Logs überwacht. Welches Risiko besteht '

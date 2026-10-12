@@ -374,7 +374,7 @@ def test_bearbeiten_uebersteht_kaputte_auftragsdatei(tmp_path, monkeypatch, caps
     kaputte_datei = queue / "in" / "kaputt.json"
     kaputte_datei.write_text("{das ist kein gueltiges json", encoding="utf-8")
 
-    worker._bearbeiten(kaputte_datei)  # darf auf keinen Fall werfen
+    assert worker._auftrag_lesen(kaputte_datei) is None  # darf auf keinen Fall werfen
 
     assert not kaputte_datei.exists()  # wird trotzdem aus der Warteschlange entfernt
     assert list((queue / "out").glob("*.json")) == []  # kein Ergebnis vorgetaeuscht
@@ -403,7 +403,7 @@ def test_bearbeiten_end_zu_ende_schreibt_ergebnis_atomar(tmp_path, monkeypatch):
         "workspace": "smoke-test",
     }), encoding="utf-8")
 
-    worker._bearbeiten(auftrag_pfad)
+    worker._bearbeiten(*worker._auftrag_lesen(auftrag_pfad))
 
     ausgabe_datei = queue / "out" / "auftrag-42.json"
     assert ausgabe_datei.exists()
@@ -470,7 +470,7 @@ def test_bearbeiten_mit_unbekannter_art_schreibt_regulaeres_ergebnis_und_stuerzt
     auftrag_pfad = queue / "in" / "auftrag-unbekannt.json"
     auftrag_pfad.write_text(json.dumps({"kind": "nmap", "workspace": "y"}), encoding="utf-8")
 
-    worker._bearbeiten(auftrag_pfad)  # darf auf keinen Fall werfen
+    worker._bearbeiten(*worker._auftrag_lesen(auftrag_pfad))  # darf auf keinen Fall werfen
 
     ausgabe = json.loads((queue / "out" / "auftrag-unbekannt.json").read_text(encoding="utf-8"))
     assert ausgabe["rc"] == 2
@@ -882,6 +882,36 @@ def test_runde_verwendet_echten_threadpoolexecutor_und_beansprucht_erneut_nach_a
 
     ausgaben = list((queue / "out").glob("*.json"))
     assert len(ausgaben) == 2
+
+
+def test_runde_loescht_auftragsdatei_beim_beanspruchen_und_spiegelt_token(tmp_path, monkeypatch):
+    """Ergebnis-Token: Sobald der Auftrag beansprucht ist, liegt im Volume
+    KEINE Datei mehr, aus der ein parallel laufendes Playbook das Token lesen
+    koennte - auch dann nicht, wenn der Auftrag im Executor noch wartet. Das
+    Ergebnis traegt das Token, die Handler sehen es nicht."""
+    queue = tmp_path / "queue"
+    (queue / "in").mkdir(parents=True)
+    (queue / "out").mkdir(parents=True)
+    monkeypatch.setattr(worker, "QUEUE", queue)
+    gesehen = {}
+
+    def fake_handler(auftrag):
+        gesehen.update(auftrag)
+        return {"rc": 0, "output": "ok", "truncated": False, "duration_ms": 1,
+                "timed_out": False}
+
+    monkeypatch.setitem(worker.HANDLER, "ansible", fake_handler)
+    (queue / "in" / "a1.json").write_text(
+        json.dumps({"playbook": "- hosts: all", "token": "geheim"}), encoding="utf-8")
+    pool = _NichtEinreichenderPool()
+
+    worker._runde(pool, [])
+
+    assert list((queue / "in").iterdir()) == []  # weder .json noch .claimed
+    fn, args = pool.eingereicht[0]
+    fn(*args)
+    assert "token" not in gesehen
+    assert json.loads((queue / "out" / "a1.json").read_text(encoding="utf-8"))["token"] == "geheim"
 
 
 # ---------------------------------------------------------------------------

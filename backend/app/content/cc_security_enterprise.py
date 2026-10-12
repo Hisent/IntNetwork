@@ -18,7 +18,7 @@ SECURITY_ENTERPRISE_MODULE = {'key': 'security-enterprise',
                     'especially in a team and in an enterprise setting. This module covers how to '
                     'operate Claude Code **securely**: permissions, sandboxing, centrally managed '
                     'policies, and the proper handling of secrets.'},
- 'blocks': [{'type': 'text',
+ 'blocks': [{'type': 'text', 'id': 'text-1',
              'value': {'de': '## Das Permission-Modell\n'
                              '\n'
                              'Im manuellen Modus (`default`) fragt Claude Code um Erlaubnis, bevor '
@@ -71,7 +71,7 @@ SECURITY_ENTERPRISE_MODULE = {'key': 'security-enterprise',
                              'model decides.'},
              'note': 'deny-Regeln live testen (z.B. Bash(rm -rf *)); das Secrets-Antipattern am '
                      'debug-Block besprechen.'},
-            {'type': 'text',
+            {'type': 'text', 'id': 'text-2',
              'value': {'de': '## Permission-Modi\n'
                              '\n'
                              'Zusätzlich zu den Regeln gibt es Betriebs-Modi (Modul 4): der '
@@ -98,14 +98,14 @@ SECURITY_ENTERPRISE_MODULE = {'key': 'security-enterprise',
                              'in every mode. Rule of thumb: **as '
                              'much autonomy as necessary, as little as possible** — and the more '
                              'autonomy, the stronger the isolation.'}},
-            {'type': 'check',
+            {'type': 'check', 'id': 'check-1',
              'payload': {'kind': 'choice',
                          'prompt_de': 'Welche Permission-Klasse überstimmt alle anderen?',
                          'prompt_en': 'Which permission class overrides all others?',
                          'answer': 2,
                          'options_de': ['allow', 'ask', 'deny'],
                          'options_en': ['allow', 'ask', 'deny']}},
-            {'type': 'text',
+            {'type': 'text', 'id': 'text-3',
              'value': {'de': '## Sandboxing\n'
                              '\n'
                              '**Sandboxing** kapselt aus, was Claude Code tun kann — '
@@ -163,7 +163,7 @@ SECURITY_ENTERPRISE_MODULE = {'key': 'security-enterprise',
                              '(e.g. in CI or unattended), the more important a sandbox becomes as '
                              'a safety net. Permissions say *what is allowed*; the sandbox limits '
                              '*what is even possible* — two layers that complement each other.'}},
-            {'type': 'text',
+            {'type': 'text', 'id': 'text-4',
              'value': {'de': '## Enterprise: Managed Settings\n'
                              '\n'
                              'Organisationen können Vorgaben zentral ausrollen, die einzelne '
@@ -202,7 +202,7 @@ SECURITY_ENTERPRISE_MODULE = {'key': 'security-enterprise',
                              'Rule of thumb: **Settings enforce technically, CLAUDE.md guides '
                              'behavior.** An organization-wide CLAUDE.md (managed policy) cannot '
                              'be excluded by users.'}},
-            {'type': 'text',
+            {'type': 'text', 'id': 'text-5',
              'value': {'de': '## Sichere Praktiken\n'
                              '\n'
                              'Unabhängig von Enterprise gelten Grundregeln:\n'
@@ -230,7 +230,7 @@ SECURITY_ENTERPRISE_MODULE = {'key': 'security-enterprise',
                              '- **Protect sensitive paths** — e.g. block `Read(./.env)` via deny.\n'
                              '- **Vet external sources** — only install plugins/MCP servers from '
                              'trusted sources.'}},
-            {'type': 'order',
+            {'type': 'order', 'id': 'order-1',
              'payload': {'prompt_de': 'Sichere Autonomie aufbauen — sinnvolle Reihenfolge:',
                          'prompt_en': 'Building secure autonomy — a sensible order:',
                          'items_de': ['deny-Regeln für gefährliche Kommandos und sensible Pfade '
@@ -246,7 +246,7 @@ SECURITY_ENTERPRISE_MODULE = {'key': 'security-enterprise',
                                       'In the enterprise, roll out policies centrally as Managed '
                                       'Settings',
                                       'Review AI output before merging']}},
-            {'type': 'debug',
+            {'type': 'debug', 'id': 'debug-1',
              'payload': {'prompt_de': 'Sicherheits-Aussagen — welche ist falsch?',
                          'prompt_en': 'Security statements — which one is false?',
                          'lines_de': ['deny-Regeln werden vom Client erzwungen, egal was das '
@@ -278,7 +278,7 @@ SECURITY_ENTERPRISE_MODULE = {'key': 'security-enterprise',
              'id': 'permission-simulator',
              'note': 'Beispiel-Tool-Aufrufe gegen allow/ask/deny-Regeln testen; zeigen, dass deny '
                      'alles überstimmt.'},
-            {'type': 'reflect',
+            {'type': 'reflect', 'id': 'reflect-1',
              'payload': {'prompt_de': 'Welche zwei deny-Regeln würdest du sofort in deinem Repo '
                                       'setzen, um typische Unfälle (gefährliche Kommandos, '
                                       'Secret-Zugriff) zu verhindern?',

@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.models.comment import Comment
+from app.services.audit import log_action
 from app.services.comment_validation import require_comment_target, require_course
 from app.services.deps import get_trainer
 from app.services.features import require_comments_enabled as _guard
@@ -49,11 +50,15 @@ def add_trainer_comment(cid: int, key: str, data: TComReq, db: Session = Depends
 
 
 @router.delete("/trainer/comments/{cid}")
-def delete_trainer_comment(cid: int, db: Session = Depends(get_db), _t: dict = Depends(get_trainer)):
+def delete_trainer_comment(cid: int, db: Session = Depends(get_db), trainer: dict = Depends(get_trainer)):
     _guard(db)
     c = db.query(Comment).filter(Comment.id == cid).first()
     if not c:
         raise HTTPException(status_code=404, detail="Kommentar nicht gefunden")
+    # Bewusst ohne Kommentartext: das Audit-Log soll gelöschte Inhalte nicht
+    # aufbewahren, nur wer wessen Kommentar wo entfernt hat.
+    detail = f"course:{c.course_id} {c.module_key}#{c.block_index} von {c.author_kind}:{c.author_name}"
     db.delete(c)
     db.commit()
+    log_action(db, trainer, "comment.delete", target=f"comment:{cid}", detail=detail)
     return {"ok": True}

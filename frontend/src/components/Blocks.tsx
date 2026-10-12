@@ -1,6 +1,7 @@
-import { Children, createContext, isValidElement, Suspense, useContext, useMemo, useState, type ReactNode } from 'react'
+import { Children, createContext, isValidElement, lazy, Suspense, useContext, useMemo, useState, type ReactNode } from 'react'
 import Markdown from 'react-markdown'
 import type { Block } from '@/types'
+import { isDeclarative, type DeclarativeBlockData } from '@/components/blocks/types'
 import { WIDGETS } from '@/widgets/registry'
 import { shuffledIndices } from '@/components/Quiz'
 import { t, type Lang } from '@/lib/i18n'
@@ -73,6 +74,32 @@ export function WidgetBlock({ id, lang }: { id: string; lang: Lang }) {
       <ErrorBoundary fallback={<div className="rounded-xl border bg-white p-6 text-sm text-slate-400">{lang === 'de' ? 'Dieses interaktive Element konnte nicht geladen werden.' : 'This interactive element could not be loaded.'}</div>}>
         <Suspense fallback={<div className="rounded-xl border bg-white p-6 text-sm text-slate-400 animate-pulse">{t(lang, 'loading')}</div>}>
           <W lang={lang} />
+        </Suspense>
+      </ErrorBoundary>
+    </div>
+  )
+}
+
+// Deklarativer Baukasten: jeder Typ ist ein eigener Lazy-Chunk (wie die Widgets),
+// damit der Haupt-Chunk nicht mit SVG-Layout und Übungslogik wächst.
+const DiagramBlock = lazy(() => import('@/components/blocks/DiagramBlock'))
+const TerminalBlock = lazy(() => import('@/components/blocks/TerminalBlock'))
+const MatchBlock = lazy(() => import('@/components/blocks/MatchBlock'))
+const ClozeBlock = lazy(() => import('@/components/blocks/ClozeBlock'))
+const ScenarioBlock = lazy(() => import('@/components/blocks/ScenarioBlock'))
+
+export function DeclarativeBlock({ block: b, lang }: { block: DeclarativeBlockData; lang: Lang }) {
+  return (
+    // contain: die Mindestbreite von SVG/Tabelle/Terminal darf die Seite nicht aufziehen —
+    // der Block scrollt in sich (am Handy sonst waagerechter Seiten-Overflow).
+    <div className="w-full min-w-0 [contain:inline-size]">
+      <ErrorBoundary fallback={<div className="rounded-xl border bg-white p-6 text-sm text-slate-400">{lang === 'de' ? 'Dieses interaktive Element konnte nicht geladen werden.' : 'This interactive element could not be loaded.'}</div>}>
+        <Suspense fallback={<div className="rounded-xl border bg-white p-6 text-sm text-slate-400 animate-pulse">{t(lang, 'loading')}</div>}>
+          {b.type === 'diagram' && <DiagramBlock data={b} lang={lang} />}
+          {b.type === 'terminal' && <TerminalBlock data={b} lang={lang} />}
+          {b.type === 'match' && <MatchBlock data={b} lang={lang} />}
+          {b.type === 'cloze' && <ClozeBlock data={b} lang={lang} />}
+          {b.type === 'scenario' && <ScenarioBlock data={b} lang={lang} />}
         </Suspense>
       </ErrorBoundary>
     </div>
@@ -334,7 +361,8 @@ export function Blocks({
   footer?: (block: Block, index: number) => ReactNode
 }) {
   const phaseOf = (type: Block['type']): 'understand' | 'practice' | 'reflect' => {
-    if (type === 'widget' || type === 'check' || type === 'order' || type === 'debug') return 'practice'
+    if (type === 'widget' || type === 'check' || type === 'order' || type === 'debug'
+      || type === 'terminal' || type === 'match' || type === 'cloze' || type === 'scenario') return 'practice'
     if (type === 'reflect') return 'reflect'
     return 'understand'
   }
@@ -379,6 +407,7 @@ export function Blocks({
           {b.type === 'debug' && <DebugBlock prompt={b.prompt} lines={b.lines} wrong={b.wrong} explanation={b.explanation} lang={lang} />}
           {/* key: der Teilnehmer-Scope steht erst nach /me fest — ohne Remount bliebe das Feld leer und überschriebe die gespeicherte Notiz. */}
           {b.type === 'reflect' && <ReflectBlock key={`${keyScope}-${moduleKey}-${i}`} prompt={b.prompt} storageKey={`intnetwork-reflect-${keyScope}-${moduleKey}-${i}`} lang={lang} />}
+          {isDeclarative(b) && <DeclarativeBlock block={b} lang={lang} />}
           {footer?.(b, i)}
         </div>
       ))}

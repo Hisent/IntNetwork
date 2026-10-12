@@ -23,7 +23,7 @@ VAULT_MODULE = {'key': 'ansible-vault',
                     "but obviously not in plain text. This module shows how `ansible-vault` "
                     "makes secrets encrypted and version-controllable, without requiring a "
                     "separate secret-management system."},
- 'blocks': [{'type': 'text',
+ 'blocks': [{'type': 'text', 'id': 'text-1',
              'value': {'de': '## Wofür Vault gedacht ist — und wofür nicht\n'
                              '\n'
                              '`ansible-vault` verschlüsselt Dateien oder einzelne Werte '
@@ -57,7 +57,7 @@ VAULT_MODULE = {'key': 'ansible-vault',
                              'them in plain text?”'},
              'note': 'Klar machen: Vault ist kein Ersatz für zentrales Secret-Management, '
                      'sondern die Ansible-eigene Verschlüsselung für Repo-Inhalte.'},
-            {'type': 'text',
+            {'type': 'text', 'id': 'text-2',
              'value': {'de': '## Ganze Datei vs. einzelner Wert\n'
                              '\n'
                              'Zwei Verschlüsselungsebenen stehen zur Wahl:\n'
@@ -128,7 +128,7 @@ VAULT_MODULE = {'key': 'ansible-vault',
                              '\n'
                              'A fully encrypted file starts directly with this header, with no '
                              'YAML structure before it.'}},
-            {'type': 'check',
+            {'type': 'check', 'id': 'check-1',
              'payload': {'kind': 'choice',
                          'prompt_de': 'Eine YAML-Datei beginnt direkt mit '
                                       '`$ANSIBLE_VAULT;1.1;AES256`, ohne erkennbare '
@@ -145,7 +145,7 @@ VAULT_MODULE = {'key': 'ansible-vault',
                                         'The entire file was encrypted with '
                                         '`ansible-vault encrypt`',
                                         'The file is corrupted and must be recreated']}},
-            {'type': 'text',
+            {'type': 'text', 'id': 'text-3',
              'value': {'de': '## Die wichtigsten Subkommandos\n'
                              '\n'
                              '\n'
@@ -199,7 +199,7 @@ VAULT_MODULE = {'key': 'ansible-vault',
                              '```'},
              'note': 'Gut zum Nachschlagen: create/edit/view arbeiten immer verschlüsselt, nur '
                      'decrypt hinterlässt dauerhaften Klartext.'},
-            {'type': 'reveal',
+            {'type': 'reveal', 'id': 'reveal-1',
              'payload': {'teaser_de': 'Übung: Ein Kollege will eine Konfigurationsvorlage '
                                       '(`templates/app.conf.j2`) ansehen, ohne sie dauerhaft zu '
                                       'entschlüsseln, weil sie unter Vault steht. Welches '
@@ -223,7 +223,7 @@ VAULT_MODULE = {'key': 'ansible-vault',
                              'which leaves the file permanently in plain text (so `encrypt` must '
                              'run again before any commit), and from `edit`, which additionally '
                              'opens an editor to change the content.'}},
-            {'type': 'text',
+            {'type': 'text', 'id': 'text-4',
              'value': {'de': '## Vault-IDs und mehrere Passwörter\n'
                              '\n'
                              'Sobald mehrere Umgebungen (z. B. Test, Produktion) unterschiedliche '
@@ -272,7 +272,7 @@ VAULT_MODULE = {'key': 'ansible-vault',
                              'A default path to the password file can be set in `ansible.cfg` '
                              '(`vault_password_file = ~/.vault_pass.txt`), so it does not have to '
                              'be repeated on every call.'}},
-            {'type': 'debug',
+            {'type': 'debug', 'id': 'debug-1',
              'payload': {'prompt_de': 'Ein Kollege beschreibt sein Vault-Vorgehen für ein neues '
                                       'Projekt in vier Schritten. Einer davon ist ein '
                                       'Sicherheitsfehler — welcher?',
@@ -319,7 +319,7 @@ VAULT_MODULE = {'key': 'ansible-vault',
                                            'repo-external password file with restricted '
                                            'permissions, or is entered interactively '
                                            '(`--ask-vault-pass`).'}},
-            {'type': 'text',
+            {'type': 'text', 'id': 'text-5',
              'value': {'de': '## Zusammenspiel mit Anmeldedaten in der Plattform\n'
                              '\n'
                              'Läuft die Automatisierung über eine Automatisierungsplattform '
@@ -349,7 +349,7 @@ VAULT_MODULE = {'key': 'ansible-vault',
                              "therefore aren't mutually exclusive — they complement each other: "
                              'Vault secures content in the repo, and platform credential '
                              'management secures access to the password needed for it.'}},
-            {'type': 'reflect',
+            {'type': 'reflect', 'id': 'reflect-1',
              'payload': {'prompt_de': 'Nenne zwei Geheimnisse aus einem deiner eigenen Projekte, '
                                       'die aktuell noch im Klartext irgendwo liegen (Config-Datei, '
                                       'Notiz, Chat) — und was sich ändern müsste, damit sie unter '

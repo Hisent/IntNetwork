@@ -28,7 +28,7 @@ ZERT_FEHLERSUCHE_MODULE = {
               'approach — and a repertoire of recurring fault patterns you recognize at a glance.',
     },
     'blocks': [
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-1',
          'note': 'Vor den Einzelbildern die Systematik setzen: erst die Ebene klaeren (Zertifikat, '
                  'Kette, Trust Store, Client-Uhr, Netzwerkpfad), dann erst ins Detail gehen. Sonst '
                  'wird geraten statt geprueft.',
@@ -56,7 +56,7 @@ ZERT_FEHLERSUCHE_MODULE = {
                    'hypotheses that never fit the message in the first place. The following blocks '
                    'work through the most common patterns one by one.',
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-2',
          'value': {
              'de': '## Überblick: die häufigsten Fehlerbilder\n\n'
                    'Sechs Bilder tauchen im Betrieb immer wieder auf:\n\n'
@@ -91,7 +91,7 @@ ZERT_FEHLERSUCHE_MODULE = {
          'note': 'Widget zeigt typische Zertifikatsfehler interaktiv. Direkt nach dem Ueberblick '
                  'einsetzen, bevor es in die Einzelfaelle geht — gute Gelegenheit, die Teilnehmer '
                  'selbst zuordnen zu lassen.'},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-3',
          'value': {
              'de': '## Unvollständige Kette: geht im Browser, geht nicht in der Anwendung\n\n'
                    'Das klassische Verwirrspiel: Im Browser öffnet sich die Seite ohne Warnung, aber '
@@ -120,7 +120,7 @@ ZERT_FEHLERSUCHE_MODULE = {
                    '**server-side incomplete certificate chain**, not a problem with the particular '
                    'application.',
          }},
-        {'type': 'check',
+        {'type': 'check', 'id': 'check-1',
          'payload': {
              'kind': 'choice',
              'prompt_de': 'Ein `curl`-Aufruf gegen einen internen API-Server meldet `unable to get '
@@ -143,7 +143,7 @@ ZERT_FEHLERSUCHE_MODULE = {
                  'The certificate has expired, but the browser caches old results',
              ],
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-4',
          'value': {
              'de': '## Name-Mismatch und Zugriff per IP\n\n'
                    'Ein Name-Mismatch entsteht, wenn der aufgerufene Hostname in keinem Eintrag der '
@@ -170,7 +170,7 @@ ZERT_FEHLERSUCHE_MODULE = {
                    'for troubleshooting: the CN field no longer counts here — modern browsers check '
                    'only the SAN list, a matching CN field alone has not been sufficient for years.',
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-5',
          'value': {
              'de': '## Abgelaufen und Uhrzeitversatz am Client\n\n'
                    'Ein abgelaufenes Zertifikat ist der einfachste Fall: Das aktuelle Datum liegt hinter '
@@ -199,7 +199,7 @@ ZERT_FEHLERSUCHE_MODULE = {
                    'environment is to deliberately shift a test system\'s clock and re-check the '
                    'connection, rather than relying on a memorized error text.',
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-6',
          'value': {
              'de': '## Selbstsigniert, unbekannte CA, Trust Store je System\n\n'
                    'Ein **selbstsigniertes Zertifikat** oder eines von einer unbekannten CA wird '
@@ -232,7 +232,7 @@ ZERT_FEHLERSUCHE_MODULE = {
                    'internal root into the `cacerts` store. The problem then is not the certificate '
                    'itself, but **which** trust store the particular program actually uses.',
          }},
-        {'type': 'debug',
+        {'type': 'debug', 'id': 'debug-1',
          'payload': {
              'prompt_de': 'Ein Ticket beschreibt: "Unser Java-Batchjob meldet seit heute '
                           '\'unable to find valid certification path\' gegen den internen '
@@ -275,7 +275,7 @@ ZERT_FEHLERSUCHE_MODULE = {
                                '`cacerts` store, into which the internal root CA must be imported '
                                'separately.',
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-7',
          'value': {
              'de': '## Der Unternehmensfall: die TLS-aufbrechende Firewall\n\n'
                    'In vielen Unternehmen läuft der ausgehende Verkehr durch eine '
@@ -312,7 +312,7 @@ ZERT_FEHLERSUCHE_MODULE = {
                    'precisely the trade-off: pinning protects against a genuine MITM, but it also '
                    'blocks legitimate TLS inspection infrastructure.',
          }},
-        {'type': 'check',
+        {'type': 'check', 'id': 'check-2',
          'payload': {
              'kind': 'choice',
              'prompt_de': 'Eine mobile App mit Certificate Pinning funktioniert im Büro-WLAN nicht '
@@ -337,7 +337,7 @@ ZERT_FEHLERSUCHE_MODULE = {
                  'The office Wi-Fi fundamentally blocks all TLS connections',
              ],
          }},
-        {'type': 'reflect',
+        {'type': 'reflect', 'id': 'reflect-1',
          'payload': {
              'prompt_de': 'Welches der hier besprochenen Fehlerbilder hättet ihr in eurer Umgebung am '
                           'wahrscheinlichsten falsch diagnostiziert, bevor ihr die jeweilige '

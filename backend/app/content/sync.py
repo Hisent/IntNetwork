@@ -18,11 +18,20 @@ Ablauf (aufgerufen aus seed_missing_content, siehe dort):
 - sein Stand entspricht bereits der aktuellen Quelle.
 
 Alles andere gilt als Trainer-Stand und wird nie angefasst, nur gemeldet.
+
+Zuordnung: Jeder Block und jede Frage trägt eine je Modul eindeutige Kennung
+(Spalte uid, in der Quelle "id"). apply_state() — genutzt vom Sync UND vom
+Editor (Speichern, Auslieferungszustand laden, Wiederherstellen) — ordnet
+darüber zu: bekannte Kennung = Zeile wird überschrieben und behält ihre DB-id
+(an der Frage-id hängen die Quiz-Abgaben, an der Blockzeile die Kommentare),
+neue Kennung = Zeile wird eingefügt, fehlende = gelöscht, Reihenfolge = Vorgabe.
+Der Inhalt eines Blocks ist dabei ein beliebiges Dict (blocktyp-agnostisch).
 """
 import hashlib
 import json
 import logging
-from collections import defaultdict
+import secrets
+from collections import Counter, defaultdict
 from pathlib import Path
 
 from sqlalchemy.orm import Session
@@ -31,43 +40,68 @@ from app.content.registry import MODULES
 from app.models.audit_log import AuditLog
 from app.models.comment import Comment
 from app.models.content import ContentBlock, ContentModule, ContentModuleSnapshot, ContentQuizQuestion
-from app.models.quiz_result import QuizResult
 from app.models.setting import Setting
-from app.routers.trainer_content import _serialize_module
 
 log = logging.getLogger(__name__)
 
 HASH_KEY = "content-sync:"          # + Modul-Key -> Hash der zuletzt eingespielten Quelle
 SKIPPED_KEY = "content-sync-skipped:"  # + Modul-Key -> Quell-Hash, für den das Auslassen schon gemeldet wurde
-# {Modul-Key: [Hashes aller Stände, die eine nie editierte DB bis v1.41.1 haben
-# kann]} — erzeugt von backend/build_content_baseline.py, nur für den Bootstrap.
-BASELINE: dict[str, list[str]] = json.loads(
-    Path(__file__).with_name("sync_baseline.json").read_text(encoding="utf-8"))
+# Erzeugt von backend/build_content_baseline.py, nur für den Bootstrap von
+# Datenbanken, die noch keinen gespeicherten Hash bzw. keine Kennungen haben:
+# BASELINE  {Modul-Key: [Hashes aller Stände, die eine nie editierte DB bis v1.42.0 haben kann]}
+# STRUCTURE {Modul-Key: {"blocks": [[Typ, Kennung], …], "quiz": [[Typ, Kennung], …]}} — Stand v1.42.0,
+#           der letzte ohne Kennungen in der DB (siehe _assign_missing_uids).
+_BASELINE_FILE = json.loads(Path(__file__).with_name("sync_baseline.json").read_text(encoding="utf-8"))
+BASELINE: dict[str, list[str]] = _BASELINE_FILE["hashes"]
+STRUCTURE: dict[str, dict[str, list[list[str]]]] = _BASELINE_FILE["structure"]
 
-PAYLOAD_BLOCK_TYPES = ("check", "reveal", "order", "debug", "reflect")
 _MODULE_FIELDS = ("title_de", "title_en", "order", "prerequisites", "goals", "scenario_de", "scenario_en")
+# Inhaltsfelder je Zeile; das erste ist der Typ. Die Kennung (uid) kommt dazu.
+BLOCK_FIELDS = ("type", "value_de", "value_en", "widget_id", "note", "payload")
+QUESTION_FIELDS = ("qtype", "prompt_de", "prompt_en", "options_de", "options_en", "answer",
+                   "explanation_de", "explanation_en")
+
+
+def new_uid() -> str:
+    """Kennung für Blöcke/Fragen, die nicht aus der Quelle stammen (im Editor angelegt)."""
+    return "x" + secrets.token_hex(4)
+
+
+def serialize_module(m: ContentModule, blocks: list[ContentBlock], questions: list[ContentQuizQuestion]) -> dict:
+    """Die eine kanonische Form eines Moduls — für Seed, Vergleich, Editor (die
+    Felder entsprechen ModuleIn) und Snapshot."""
+    return {
+        **{name: getattr(m, name) for name in _MODULE_FIELDS},
+        "blocks": [{"uid": b.uid, **{f: getattr(b, f) for f in BLOCK_FIELDS}} for b in blocks],
+        "quiz": [{"uid": q.uid, **{f: getattr(q, f) for f in QUESTION_FIELDS}} for q in questions],
+    }
 
 
 def source_state(seed: dict) -> dict:
-    """Seed-Dict aus app/content/*.py in der Form von _serialize_module — die
-    eine kanonische Form für Seed, Vergleich und In-place-Update. Der
+    """Seed-Dict aus app/content/*.py in der Form von serialize_module. Der
     JSON-Roundtrip gleicht Tupel/Listen an, damit Quelle und DB-Stand direkt
-    vergleichbar sind."""
-    blocks = []
+    vergleichbar sind. Blocktyp-agnostisch: "payload" wird unbesehen übernommen.
+
+    Die Kennung ist die "id" aus der Quelle (Pflicht, erzwingt
+    tests/test_content_structure.py). Der Ersatz "<typ>-<n>" (n-ter Block seines
+    Typs) ist nur für alte Quellstände ohne Block-ids da: genau so wurden die
+    ids einmalig vergeben, und so leitet build_content_baseline.py sie für
+    STRUCTURE ab."""
+    blocks, nth = [], Counter()
     for b in seed["blocks"]:
+        nth[b["type"]] += 1
         value = b.get("value") or {}
-        if b["type"] == "text" or b["type"] in PAYLOAD_BLOCK_TYPES:
-            blocks.append({"type": b["type"], "value_de": value.get("de"), "value_en": value.get("en"),
-                           "widget_id": None, "note": b.get("note"),
-                           "payload": b["payload"] if b["type"] in PAYLOAD_BLOCK_TYPES else None})
-        else:
-            blocks.append({"type": "widget", "value_de": None, "value_en": None,
-                           "widget_id": b["id"], "note": b.get("note"), "payload": None})
+        blocks.append({"uid": b.get("id") or f"{b['type']}-{nth[b['type']]}",
+                       "type": b["type"], "value_de": value.get("de"), "value_en": value.get("en"),
+                       "widget_id": b["id"] if b["type"] == "widget" else None,
+                       "note": b.get("note"), "payload": b.get("payload")})
     quiz = []
     for q in seed["quiz"]["questions"]:
-        options = q.get("options") or {}
-        quiz.append({"qtype": q["type"], "prompt_de": q["prompt"]["de"], "prompt_en": q["prompt"]["en"],
-                     "options_de": options.get("de"), "options_en": options.get("en"), "answer": q["answer"]})
+        options, explanation = q.get("options") or {}, q.get("explanation") or {}
+        quiz.append({"uid": q["id"], "qtype": q["type"],
+                     "prompt_de": q["prompt"]["de"], "prompt_en": q["prompt"]["en"],
+                     "options_de": options.get("de"), "options_en": options.get("en"), "answer": q["answer"],
+                     "explanation_de": explanation.get("de"), "explanation_en": explanation.get("en")})
     return json.loads(json.dumps({
         "title_de": seed["title"], "title_en": seed.get("title_en", seed["title"]),
         "order": seed["order"], "prerequisites": seed.get("prerequisites", []),
@@ -78,9 +112,9 @@ def source_state(seed: dict) -> dict:
 
 
 def db_state(m: ContentModule, blocks: list[ContentBlock], questions: list[ContentQuizQuestion]) -> dict:
-    state = _serialize_module(m, blocks, questions)
+    state = serialize_module(m, blocks, questions)
     for b in state["blocks"]:
-        # "Auslieferungszustand laden" im Editor schreibt die Quell-id auch an
+        # "Auslieferungszustand laden" schrieb bis v1.42.0 die Quell-id auch an
         # Nicht-Widget-Blöcke, der Seed nicht — inhaltlich ist das derselbe Stand.
         if b["type"] != "widget":
             b["widget_id"] = None
@@ -88,7 +122,16 @@ def db_state(m: ContentModule, blocks: list[ContentBlock], questions: list[Conte
 
 
 def content_hash(state: dict) -> str:
-    return hashlib.sha256(json.dumps(state, sort_keys=True, ensure_ascii=False).encode()).hexdigest()
+    """Hash über den INHALT: Kennungen zählen nicht mit (kein Trainer kann sie
+    ändern), eine fehlende Erklärung auch nicht. Damit hat ein Stand ohne
+    Erklärungen denselben Hash wie unter v1.42.0 — gespeicherte Hashes und
+    sync_baseline.json bleiben gültig."""
+    slim = {**state,
+            "blocks": [{k: v for k, v in b.items() if k != "uid"} for b in state["blocks"]],
+            "quiz": [{k: v for k, v in q.items()
+                      if k != "uid" and not (k.startswith("explanation_") and v is None)}
+                     for q in state["quiz"]]}
+    return hashlib.sha256(json.dumps(slim, sort_keys=True, ensure_ascii=False).encode()).hexdigest()
 
 
 def load_all(db: Session) -> dict[str, tuple[ContentModule, list[ContentBlock], list[ContentQuizQuestion]]]:
@@ -131,68 +174,126 @@ def pristine_modules(db: Session) -> set[str]:
             unedited = current == stored[key]
         else:
             unedited = key not in edited_once or current in BASELINE.get(key, ())
-        if unedited or state == source_state(seed):
+        if unedited or current == content_hash(source_state(seed)):
             pristine.add(key)
     return pristine
 
 
-def _write_rows(db: Session, model, key: str, existing: list, matched: list, values: list[dict]) -> None:
-    """Schreibt values in die zugeordneten Zeilen (matched[i] gehört zu values[i],
+def _assign_missing_uids(loaded: dict) -> None:
+    """Bootstrap für Datenbanken bis v1.42.0: Zeilen ohne Kennung bekommen die
+    des Stands v1.42.0 (STRUCTURE) — zugeordnet wie der Sync von v1.42.0 es tat:
+    Widgets über ihre widget_id, alle anderen Blöcke als n-ter Block ihres Typs,
+    Fragen über die Position (bei gleichem Fragetyp). Was sich so nicht zuordnen
+    lässt (Trainer-Blöcke, eigene Module), bekommt eine neue Kennung. Läuft je
+    Zeile einmal; danach gilt nur noch die Kennung."""
+    for key, (_m, blocks, questions) in loaded.items():
+        known = STRUCTURE.get(key, {"blocks": [], "quiz": []})
+        taken = {b.uid for b in blocks if b.uid}
+        pools: dict[tuple, list[str]] = defaultdict(list)
+        for type_, uid in reversed(known["blocks"]):
+            if uid not in taken:
+                pools[(type_, uid if type_ == "widget" else None)].append(uid)
+        for block in blocks:
+            if block.uid is None:
+                pool = pools[(block.type, block.widget_id if block.type == "widget" else None)]
+                block.uid = pool.pop() if pool else new_uid()
+        taken = {q.uid for q in questions if q.uid}
+        for position, question in enumerate(questions):
+            if question.uid is None:
+                qtype, uid = known["quiz"][position] if position < len(known["quiz"]) else (None, None)
+                question.uid = uid if qtype == question.qtype and uid not in taken else new_uid()
+                taken.add(question.uid)
+
+
+def _signature(item: dict, fields: tuple[str, ...]) -> str:
+    return json.dumps([item[f] for f in fields], sort_keys=True)
+
+
+def _match_rows(rows: list, items: list[dict], fields: tuple[str, ...]) -> list:
+    """Ordnet jedem Eintrag der Vorgabe die vorhandene Zeile zu (None = neu):
+
+    1. über die Kennung;
+    2. sonst über identischen Inhalt — die Zeile übernimmt dann die Kennung der
+       Vorgabe (z. B. im Editor gelöscht und inhaltsgleich neu angelegt);
+    3. nur für Einträge OHNE Kennung (alte Snapshots, API-Aufrufe ohne uid):
+       gleiche Position bei gleichem Typ, wie vor Einführung der Kennungen
+       (die Textkorrektur an Ort und Stelle)."""
+    by_uid = {row.uid: row for row in rows if row.uid}
+    matched = [by_uid.pop(item["uid"], None) if item.get("uid") else None for item in items]
+    free = {id(row) for row in rows} - {id(row) for row in matched if row is not None}
+    by_content: dict[str, list] = defaultdict(list)
+    for row in reversed(rows):
+        if id(row) in free:
+            by_content[_signature({f: getattr(row, f) for f in fields}, fields)].append(row)
+    for i, item in enumerate(items):
+        if matched[i] is None and by_content[_signature(item, fields)]:
+            matched[i] = by_content[_signature(item, fields)].pop()
+            free.discard(id(matched[i]))
+    for i, item in enumerate(items):
+        if (matched[i] is None and not item.get("uid") and i < len(rows) and id(rows[i]) in free
+                and getattr(rows[i], fields[0]) == item[fields[0]]):
+            matched[i] = rows[i]
+            free.discard(id(rows[i]))
+    return matched
+
+
+def _write_rows(db: Session, model, key: str, existing: list, matched: list, items: list[dict],
+                fields: tuple[str, ...]) -> None:
+    """Schreibt items in die zugeordneten Zeilen (matched[i] gehört zu items[i],
     None = neu anlegen) und löscht nicht zugeordnete. Zugeordnete Zeilen behalten
-    ihre id — an der Frage-id hängen die Quiz-Abgaben."""
-    for position, (row, fields) in enumerate(zip(matched, values, strict=True)):
+    ihre DB-id."""
+    taken = {row.uid for row, item in zip(matched, items, strict=True) if row is not None and not item.get("uid")}
+    for position, (row, item) in enumerate(zip(matched, items, strict=True)):
+        uid = item.get("uid") or (row.uid if row is not None else None)
+        if not uid or (uid in taken and item.get("uid")):  # ohne oder mit doppelter Kennung geliefert
+            uid = new_uid()
+        taken.add(uid)
         if row is None:
             row = model(module_key=key)
             db.add(row)
-        row.position = position
-        for name, value in fields.items():
-            setattr(row, name, value)
+        row.uid, row.position = uid, position
+        for name in fields:
+            setattr(row, name, item[name])
     kept = {id(row) for row in matched}
     for row in existing:
         if id(row) not in kept:
             db.delete(row)
 
 
-def _match_blocks(blocks: list[ContentBlock], src_blocks: list[dict]) -> list[ContentBlock | None]:
-    """Ordnet jedem Quellblock die vorhandene Zeile zu: Widgets über ihre
-    widget_id, alle anderen als n-ter Block ihres Typs. Bei gleicher
-    Typ-Reihenfolge ist das genau die Zuordnung per Position; zusätzlich deckt
-    es reine Umsortierungen ab (die Widget-Migrationen stellen Widgets direkt
-    hinter ihren Anker, die Quelle hat sie teils an anderer Stelle)."""
-    pools: dict[tuple, list[ContentBlock]] = defaultdict(list)
-    for block in reversed(blocks):
-        pools[(block.type, block.widget_id if block.type == "widget" else None)].append(block)
-    matched = []
-    for src in src_blocks:
-        pool = pools[(src["type"], src["widget_id"])]
-        matched.append(pool.pop() if pool else None)
-    return matched
+def apply_state(db: Session, key: str, m: ContentModule, blocks: list[ContentBlock],
+                questions: list[ContentQuizQuestion], state: dict, *, keep_comments: bool = False) -> int:
+    """Bringt ein Modul in-place auf state (Form von serialize_module); blocks und
+    questions sind seine Zeilen in Positionsreihenfolge. Zuordnung siehe
+    Modul-Docstring und _match_rows.
 
+    Kommentare hängen an der Blockposition und wandern mit ihrem Block mit.
+    Entfällt der Block, wird der Kommentar gelöscht (Editor: der Trainer hat den
+    Block bewusst entfernt) bzw. mit keep_comments an den nächsten davor
+    verbliebenen Block gehängt (Sync: nie automatisch Teilnehmerbeiträge
+    löschen). Gibt die Zahl der so umgehängten Kommentare zurück.
 
-def _update_in_place(db: Session, key: str, m: ContentModule, blocks: list[ContentBlock],
-                     questions: list[ContentQuizQuestion], src: dict) -> str | None:
-    """Schreibt den Quellstand in die vorhandenen Zeilen. Gibt statt zu raten
-    einen Grund zurück (und ändert nichts), wenn die Struktur so abweicht, dass
-    Teilnehmerdaten ihren Bezug verlören: Kommentare hängen an der Blockposition,
-    Quiz-Abgaben an der Frage-id."""
-    matched_blocks = _match_blocks(blocks, src["blocks"])
-    comments = db.query(Comment).filter(Comment.module_key == key).all()
-    if comments and (None in matched_blocks or len(matched_blocks) != len(blocks)):
-        return "Blöcke sind hinzugekommen oder entfallen und es gibt Kommentare an den Blöcken"
-    if ([q.qtype for q in questions] != [q["qtype"] for q in src["quiz"]]
-            and db.query(QuizResult.id).filter(QuizResult.module_key == key).first()):
-        return "Quizstruktur weicht von der Quelle ab und es gibt Quiz-Abgaben"
-
-    new_index = {id(row): position for position, row in enumerate(matched_blocks)}
-    for comment in comments:  # Kommentar wandert mit seinem Block mit
-        if 0 <= comment.block_index < len(blocks):
-            comment.block_index = new_index[id(blocks[comment.block_index])]
+    Quiz-Abgaben (QuizResult) werden nie angefasst: Punktzahl und Gesamtzahl
+    sind dort zum Abgabezeitpunkt gespeichert."""
+    matched_blocks = _match_rows(blocks, state["blocks"], BLOCK_FIELDS)
+    new_index = {id(row): position for position, row in enumerate(matched_blocks) if row is not None}
+    moved = 0
+    for comment in db.query(Comment).filter(Comment.module_key == key):
+        if not 0 <= comment.block_index < len(blocks):
+            continue
+        survivors = [new_index[id(row)] for row in reversed(blocks[:comment.block_index + 1]) if id(row) in new_index]
+        if id(blocks[comment.block_index]) in new_index:
+            comment.block_index = survivors[0]
+        elif keep_comments:
+            comment.block_index = survivors[0] if survivors else 0
+            moved += 1
+        else:
+            db.delete(comment)
     for name in _MODULE_FIELDS:
-        setattr(m, name, src[name])
-    _write_rows(db, ContentBlock, key, blocks, matched_blocks, src["blocks"])
-    by_position = [questions[i] if i < len(questions) else None for i in range(len(src["quiz"]))]
-    _write_rows(db, ContentQuizQuestion, key, questions, by_position, src["quiz"])
-    return None
+        setattr(m, name, state[name])
+    _write_rows(db, ContentBlock, key, blocks, matched_blocks, state["blocks"], BLOCK_FIELDS)
+    _write_rows(db, ContentQuizQuestion, key, questions,
+                _match_rows(questions, state["quiz"], QUESTION_FIELDS), state["quiz"], QUESTION_FIELDS)
+    return moved
 
 
 def sync_content(db: Session, pristine: set[str], fresh: frozenset[str] = frozenset()) -> dict:
@@ -204,6 +305,7 @@ def sync_content(db: Session, pristine: set[str], fresh: frozenset[str] = frozen
     auch dort einzelne Blöcke um; das wird angeglichen, ist aber kein Update,
     das man melden müsste."""
     loaded = load_all(db)
+    _assign_missing_uids(loaded)
     stored = _settings(db, HASH_KEY)
     reported = _settings(db, SKIPPED_KEY)
     updated, skipped, failed = [], {}, []
@@ -214,16 +316,16 @@ def sync_content(db: Session, pristine: set[str], fresh: frozenset[str] = frozen
         src = source_state(seed)
         src_hash = content_hash(src)
         if key not in pristine:
-            if db_state(m, blocks, questions) != src:
+            if content_hash(db_state(m, blocks, questions)) != src_hash:
                 skipped[key] = "vom Trainer geändert"
             continue
         try:
             with db.begin_nested():
                 if db_state(m, blocks, questions) != src:
-                    reason = _update_in_place(db, key, m, blocks, questions, src)
-                    if reason:
-                        skipped[key] = reason
-                        continue
+                    moved = apply_state(db, key, m, blocks, questions, src, keep_comments=True)
+                    if moved:
+                        log.warning("Content-Sync: Modul %s: %s Kommentar(e) an entfallenen Blöcken hängen "
+                                    "jetzt am Block davor", key, moved)
                     if key not in fresh:
                         updated.append(key)
                 if stored.get(key) != src_hash:

@@ -20,7 +20,7 @@ TROUBLESHOOTING_MODULE = {
               "pulling cables, you work systematically.",
     },
     "blocks": [
-        {"type": "text",
+        {"type": "text", "id": "text-1",
          "value": {
              "de": "## Erst denken, dann tippen\n\nGute Fehlersuche beginnt nicht am "
                    "Rechner, sondern mit **Fragen**:\n\n- **Was genau** geht nicht? („Internet "
@@ -39,7 +39,7 @@ TROUBLESHOOTING_MODULE = {
                    "- **Since when** — and **what was changed last**? Moves, updates and new "
                    "devices are the usual suspects.",
          }},
-        {"type": "check", "payload": {
+        {"type": "check", "id": "check-1", "payload": {
             "prompt_de": "Ein Kollege ruft an: „Das Internet ist weg!“ Was ist deine erste Frage?",
             "prompt_en": "A colleague calls: “The internet is gone!” What is your first question?",
             "options_de": ["Sind nur Sie betroffen — oder auch die Kollegen?",
@@ -50,7 +50,7 @@ TROUBLESHOOTING_MODULE = {
                            "Which browser are you using?"],
             "answer": 0,
         }},
-        {"type": "text",
+        {"type": "text", "id": "text-2",
          "value": {
              "de": "## Dein Werkzeugkasten\n\nVier typische Diagnosebefehle "
                    "(die Beispiele verwenden Windows):\n\n- **`ipconfig`** — „Wer bin ich?“: eigene IP, "
@@ -73,7 +73,7 @@ TROUBLESHOOTING_MODULE = {
                    "- **`tracert <target>`** — “Where does the packet get stuck?”: shows every "
                    "router (hop) on the way to the target.",
          }},
-        {"type": "text",
+        {"type": "text", "id": "text-3",
          "value": {
              "de": "## Bottom-up durch die Schichten\n\nArbeite dich **von unten nach "
                    "oben** durchs Schichtenmodell — jeder Schritt schließt eine Fehlerquelle aus:\n\n"
@@ -94,7 +94,7 @@ TROUBLESHOOTING_MODULE = {
                    "**Rule of thumb**: `ping 8.8.8.8` works but no website loads → the network "
                    "is fine, **name resolution** is stuck.",
          }},
-        {"type": "order", "payload": {
+        {"type": "order", "id": "order-1", "payload": {
             "prompt_de": "Bringe die Diagnose-Schritte in die richtige Bottom-up-Reihenfolge:",
             "prompt_en": "Put the diagnostic steps into the correct bottom-up order:",
             "items_de": ["Kabel/WLAN prüfen (Physik)",
@@ -158,7 +158,7 @@ TROUBLESHOOTING_MODULE = {
             "answer": 0,
         }},
         {"type": "widget", "id": "learning-evidence", "note": "Den nächsten Beweisschritt der Diagnose wählen."},
-        {"type": "debug", "payload": {
+        {"type": "debug", "id": "debug-1", "payload": {
             "prompt_de": "Ein Praktikant hat einen PC statisch konfiguriert — der erreicht das "
                          "Gateway 192.168.10.1 nicht. Finde den Fehler:",
             "prompt_en": "An intern configured a PC statically — it cannot reach the gateway "
@@ -181,7 +181,7 @@ TROUBLESHOOTING_MODULE = {
                               "network, so it is unreachable. Correct here would be /24 "
                               "(255.255.255.0) — then .200 and .1 share the same network.",
         }},
-        {"type": "reveal", "payload": {
+        {"type": "reveal", "id": "reveal-1", "payload": {
             "teaser_de": "Was ist die häufigste Fehlerquelle in echten Netzen?",
             "teaser_en": "What is the most common source of errors in real networks?",
         },
@@ -195,7 +195,7 @@ TROUBLESHOOTING_MODULE = {
                    "and on again?” is no joke — it resolves a surprising number of tickets. Only "
                    "when the physical layer is solid is it worth looking at the upper layers.",
          }},
-        {"type": "reflect", "payload": {
+        {"type": "reflect", "id": "reflect-1", "payload": {
             "prompt_de": "Denk an dein letztes eigenes Netzwerkproblem (zu Hause oder auf der "
                          "Arbeit): Bist du systematisch vorgegangen oder hast du geraten? Welche "
                          "Schicht war am Ende schuld — und mit welchem Befehl hättest du das "
@@ -204,12 +204,12 @@ TROUBLESHOOTING_MODULE = {
                          "proceed systematically or did you guess? Which layer was to blame in "
                          "the end — and which command would have revealed that faster?",
         }},
-        {"type": "text",
+        {"type": "text", "id": "text-5",
          "value": {
              "de": "## Abschlussfallakte: Neuer Standort\n\nJetzt verbindest du die Themen des Kurses: Du planst passende Teilnetze, trennst Gäste sicher vom Büro und verfolgst ein Paket vom Namen bis zum Gateway. Zum Schluss grenzt du einen Störfall anhand von Beweisen ein.",
              "en": "## Capstone Case File: New Site\n\nNow you connect the course topics: plan suitable subnets, safely separate guests from the office and follow a packet from its name to the gateway. Finally, narrow down an incident using evidence.",
          }},
-        {"type": "check", "payload": {
+        {"type": "check", "id": "check-3", "payload": {
             "prompt_de": "Bevor du startest: Welcher Hinweis grenzt einen Fehler am stärksten auf DNS ein?",
             "prompt_en": "Before you start: which clue narrows a fault down most strongly to DNS?",
             "options_de": ["Ping zu einer externen IP klappt, ein Name lässt sich aber nicht auflösen",
@@ -222,7 +222,7 @@ TROUBLESHOOTING_MODULE = {
          "note": "Abschluss in vier Schritten: Anforderungen in Subnetze übersetzen, Gäste segmentieren, DNS/ARP/NAT als Paketreise einordnen und einen DNS-Störfall belegen. Erst allein entscheiden, dann die Begründung zu zweit vergleichen."},
         {"type": "widget", "id": "visual-topology",
          "note": "DNS-, ERP- und Internetpfade in der Nordwind-Topologie vergleichen."},
-        {"type": "reflect", "payload": {
+        {"type": "reflect", "id": "reflect-2", "payload": {
             "prompt_de": "Welche Entscheidung aus der Fallakte würdest du bei einem echten Standort zuerst mit dem Team abstimmen — Adressplan, VLAN-/Firewall-Regeln oder DNS-Betrieb? Begründe kurz mit dem Risiko, das du vermeiden willst.",
             "prompt_en": "Which decision from the case file would you align on with the team first at a real site — addressing, VLAN/firewall rules or DNS operations? Briefly explain the risk you want to avoid.",
         }},

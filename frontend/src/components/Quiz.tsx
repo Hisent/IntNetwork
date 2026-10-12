@@ -12,6 +12,7 @@ interface Result {
   passed: boolean
   best: number
   details: Record<string, boolean>
+  explanations?: Record<string, string>  // je Frage-id, erst nach der Bewertung vom Server
 }
 
 function isAnswered(q: Question, value: unknown): boolean {
@@ -174,6 +175,12 @@ export function Quiz({ moduleKey, questions, lang, onResult }: {
                     </label>
                   ))}
                 </div>
+              )}
+              {result?.explanations?.[q.id] && (
+                <p className="mt-3 flex items-start gap-1.5 rounded-lg bg-white/70 px-3 py-2 text-sm leading-relaxed text-slate-700">
+                  <Icon name="lightbulb" className="mt-0.5 h-4 w-4 shrink-0 text-teal-700" />
+                  <span><span className="font-semibold">{lang === 'de' ? 'Erklärung: ' : 'Explanation: '}</span>{result.explanations[q.id]}</span>
+                </p>
               )}
               {!locked && (
                 <div className="mt-3">

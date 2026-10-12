@@ -20,7 +20,7 @@ IPV6_MODULE = {
               "what changes?",
     },
     "blocks": [
-        {"type": "text",
+        {"type": "text", "id": "text-1",
          "value": {
              "de": "## Warum IPv6?\n\nIPv4 hat **32 Bit** — rund 4 Milliarden "
                    "Adressen, längst zu wenig. IPv6 hat **128 Bit**: praktisch unerschöpflich. "
@@ -34,7 +34,7 @@ IPV6_MODULE = {
                    "often also use temporary privacy addresses. **NAT is no longer needed for address "
                    "scarcity**. A firewall still matters: a global address is not automatic protection.",
          }},
-        {"type": "text",
+        {"type": "text", "id": "text-2",
          "value": {
              "de": "## Schreibweise\n\nEine IPv6-Adresse sind **8 Gruppen** "
                    "zu je **4 Hex-Ziffern**, durch `:` getrennt:\n\n"
@@ -74,7 +74,7 @@ IPV6_MODULE = {
                    "Eyeballs”) — the user notices nothing.\n\nFor Nordwind that means: "
                    "adopting IPv6 ≠ switching off IPv4.",
          }},
-        {"type": "text",
+        {"type": "text", "id": "text-4",
          "value": {
              "de": "## Wichtige Adresstypen\n\n- **Global Unicast** "
                    "(`2000::/3`): weltweit routbar, wie eine öffentliche IPv4.\n"
@@ -95,7 +95,7 @@ IPV6_MODULE = {
                    "- **Multicast** (`ff00::/8`): to a group. **Broadcasts no longer exist in "
                    "IPv6** — multicast takes over their job.",
          }},
-        {"type": "text",
+        {"type": "text", "id": "text-5",
          "value": {
              "de": "## Was noch anders ist\n\nStatt ARP nutzt IPv6 das "
                    "**Neighbor Discovery Protocol (NDP)** per Multicast. Adressen können sich "

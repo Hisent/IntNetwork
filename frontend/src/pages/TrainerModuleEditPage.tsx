@@ -4,7 +4,8 @@ import Markdown from 'react-markdown'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { errMsg } from '@/lib/api'
 import { trainerApi, type EditorBlock, type EditorModule, type EditorQuestion } from '@/lib/trainerApi'
-import { addOption, emptyBlock, emptyQuestion, moveItem, removeAt, removeOption } from '@/components/editorOps'
+import { addOption, declarativeTemplate, emptyBlock, emptyQuestion, isDeclarativeType, moveItem, removeAt, removeOption } from '@/components/editorOps'
+import { PayloadJsonField } from '@/components/PayloadJsonField'
 import { MD_COMPONENTS } from '@/components/Blocks'
 import { WIDGETS } from '@/widgets/registry'
 import { BrandLogo } from '@/components/BrandLogo'
@@ -16,13 +17,14 @@ import { workshopTheme } from '@/lib/workshopTheme'
 const TYPE_LABELS: Record<EditorBlock['type'], string> = {
   text: 'Text', widget: 'Widget', check: 'Kurz-Check', reveal: 'Aufdecken',
   order: 'Reihenfolge', debug: 'Fehler finden', reflect: 'Reflexion',
+  diagram: 'Diagramm', terminal: 'Terminal', match: 'Zuordnung', cloze: 'Lückentext', scenario: 'Szenario',
 }
 
 // Zusammenfassungszeile für eingeklappte Blöcke: Typ + Inhaltsanriss.
 function blockSnippet(b: EditorBlock): string {
   const src = b.type === 'widget'
     ? (b.widget_id || '— kein Widget gewählt —')
-    : (b.value_de || b.payload?.prompt_de || b.payload?.teaser_de || '')
+    : (b.value_de || b.payload?.prompt_de || b.payload?.teaser_de || String(b.payload?.title_de ?? b.payload?.title ?? b.payload?.prompt ?? ''))
   return src.replace(/[#*`>\n]+/g, ' ').trim().slice(0, 70)
 }
 
@@ -55,8 +57,11 @@ export function TrainerModuleEditPage() {
 
   const save = useMutation({
     mutationFn: (data: EditorModule) => trainerApi.saveContentModule(key, data),
-    onSuccess: () => {
+    onSuccess: (response) => {
       setError('')
+      // Neue Version sofort übernehmen: ein zweites Speichern vor Abschluss des
+      // Refetch liefe sonst mit der alten in den 409 der optimistischen Sperre.
+      setForm((current) => current && { ...current, version: response.data.version })
       qc.invalidateQueries({ queryKey: ['content-module', key] })
       qc.invalidateQueries({ queryKey: ['trainer-modules'] })
     },
@@ -120,7 +125,8 @@ export function TrainerModuleEditPage() {
       : type === 'reveal' ? { teaser_de: '', teaser_en: '' }
       : type === 'order' ? { prompt_de: '', prompt_en: '', items_de: ['', ''], items_en: ['', ''] }
       : type === 'debug' ? { prompt_de: '', prompt_en: '', lines_de: ['', ''], lines_en: ['', ''], wrong: [], explanation_de: '', explanation_en: '' }
-      : type === 'reflect' ? { prompt_de: '', prompt_en: '' } : null
+      : type === 'reflect' ? { prompt_de: '', prompt_en: '' }
+      : isDeclarativeType(type) ? declarativeTemplate(type) : null
     updateBlock(i, { type, payload })
   }
   function updateQuestion(i: number, patch: Partial<EditorQuestion>) {
@@ -208,6 +214,11 @@ export function TrainerModuleEditPage() {
                     <option value="order">Reihenfolge</option>
                     <option value="debug">Fehler finden</option>
                     <option value="reflect">Reflexion</option>
+                    <option value="diagram">Diagramm (JSON)</option>
+                    <option value="terminal">Terminal (JSON)</option>
+                    <option value="match">Zuordnung (JSON)</option>
+                    <option value="cloze">Lückentext (JSON)</option>
+                    <option value="scenario">Szenario (JSON)</option>
                   </select>
                   <div className="flex gap-1">
                     <button onClick={() => setForm({ ...form, blocks: moveItem(form.blocks, i, -1) })} className="px-2 text-slate-500 hover:text-slate-700">↑</button>
@@ -396,6 +407,13 @@ export function TrainerModuleEditPage() {
                     <p className="text-xs text-slate-400">Freitext-Antwort — wird nur lokal im Browser des Teilnehmers gespeichert.</p>
                   </>
                 )}
+                {isDeclarativeType(b.type) && (
+                  <>
+                    <PayloadJsonField value={b.payload} onChange={(payload) => updateBlock(i, { payload })} />
+                    <input className="border rounded-lg px-3 py-1.5 text-sm" placeholder="Trainer-Notiz (optional)"
+                      value={b.note ?? ''} onChange={(e) => updateBlock(i, { note: e.target.value })} />
+                  </>
+                )}
                 </div>
               </details>
             ))}
@@ -466,6 +484,12 @@ export function TrainerModuleEditPage() {
                     }} className="text-xs text-teal-700 hover:text-teal-800 self-start">+ Option</button>
                   </div>
                 )}
+                <textarea placeholder="Erklärung DE (optional, erscheint nach der Abgabe)" rows={2}
+                  className="border rounded-lg px-3 py-1.5 text-sm"
+                  value={q.explanation_de ?? ''} onChange={(e) => updateQuestion(i, { explanation_de: e.target.value })} />
+                <textarea placeholder="Erklärung EN (optional)" rows={2}
+                  className="border rounded-lg px-3 py-1.5 text-sm"
+                  value={q.explanation_en ?? ''} onChange={(e) => updateQuestion(i, { explanation_en: e.target.value })} />
               </div>
             ))}
           </div>

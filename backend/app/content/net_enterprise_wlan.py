@@ -30,7 +30,7 @@ ENTERPRISE_WLAN_MODULE = {
               "person is leaving the company? Time for the step up to enterprise Wi-Fi.",
     },
     "blocks": [
-        {"type": "text",
+        {"type": "text", "id": "text-1",
          "note": "Anschluss Modul 14 (WLAN): dort ging es um ein geteiltes Passwort "
                  "(Personal). Hier wird die Anmeldung individuell. Den "
                  "Nordwind-Kuendigungsfall als Aufhaenger fuers ganze Modul nutzen.",
@@ -50,7 +50,7 @@ ENTERPRISE_WLAN_MODULE = {
                    "shared passphrase anymore — instead, each person logs in with their "
                    "**own** credentials or their own certificate.",
          }},
-        {"type": "text",
+        {"type": "text", "id": "text-2",
          "value": {
              "de": "## 802.1X: drei Rollen\n\nDie technische Grundlage für Enterprise-WLAN "
                    "ist **802.1X**, ein Standard für portbasierte Zugangskontrolle mit drei "
@@ -76,7 +76,7 @@ ENTERPRISE_WLAN_MODULE = {
                    "Only once the authentication server approves does the authenticator open "
                    "up normal data traffic.",
          }},
-        {"type": "text",
+        {"type": "text", "id": "text-3",
          "value": {
              "de": "## RADIUS und EAP\n\nDer Authentication Server ist in der Praxis fast "
                    "immer ein **RADIUS-Server**: Er verwaltet die Konten (oder fragt ein "
@@ -100,7 +100,7 @@ ENTERPRISE_WLAN_MODULE = {
                    "side of EAP-TLS — issuing, structuring, and validating client "
                    "certificates — is covered by the PKI & Encryption course.",
          }},
-        {"type": "check", "payload": {
+        {"type": "check", "id": "check-1", "payload": {
             "kind": "choice",
             "prompt_de": "Warum ist WPA2/WPA3-Enterprise im laufenden Betrieb im Vorteil "
                          "gegenüber einem geteilten WLAN-Passwort?",
@@ -117,7 +117,7 @@ ENTERPRISE_WLAN_MODULE = {
                            "give everyone else a new passphrase",
                            "It no longer needs an access point", "It is inherently faster"],
         }},
-        {"type": "text",
+        {"type": "text", "id": "text-4",
          "value": {
              "de": "## Gastnetz getrennt vom Firmennetz\n\nGäste brauchen meist nur "
                    "Internetzugang, keinen Zugriff auf interne Server oder Drucker. Ein "
@@ -132,7 +132,7 @@ ENTERPRISE_WLAN_MODULE = {
                    "login (for example a portal instead of 802.1X). That way, a compromised "
                    "guest device stays isolated from the actual company network.",
          }},
-        {"type": "text",
+        {"type": "text", "id": "text-5",
          "value": {
              "de": "## Roaming zwischen Access Points\n\nIn größeren Büros oder Lagerhallen "
                    "(Modul 14) decken mehrere Access Points dieselbe SSID gemeinsam ab. Bewegt "
@@ -154,7 +154,7 @@ ENTERPRISE_WLAN_MODULE = {
                    "enterprise Wi-Fi relies on faster roaming methods that shorten the login "
                    "on handover instead of repeating it completely.",
          }},
-        {"type": "text",
+        {"type": "text", "id": "text-6",
          "value": {
              "de": "## Controller-basierte vs. autonome Access Points\n\nIn kleinen "
                    "Umgebungen konfiguriert man jeden Access Point einzeln (**autonom**) — "
@@ -173,7 +173,7 @@ ENTERPRISE_WLAN_MODULE = {
                    "makes management and consistent roaming much easier once dozens of "
                    "access points are in use.",
          }},
-        {"type": "order", "payload": {
+        {"type": "order", "id": "order-1", "payload": {
             "prompt_de": "Bringe die Schritte einer 802.1X-Anmeldung in die richtige "
                          "Reihenfolge.",
             "prompt_en": "Put the steps of an 802.1X login in the correct order.",
@@ -198,7 +198,7 @@ ENTERPRISE_WLAN_MODULE = {
                 "On success, the access point opens the port for normal data traffic",
             ],
         }},
-        {"type": "reflect", "payload": {
+        {"type": "reflect", "id": "reflect-1", "payload": {
             "prompt_de": "Die ausgeschiedene Mitarbeiterin aus dem Eingangsszenario hätte bei "
                          "WPA2-Personal ein Problem für alle bedeutet. Was genau ändert sich "
                          "für den Offboarding-Prozess, wenn Nordwind auf WPA2/WPA3-Enterprise "

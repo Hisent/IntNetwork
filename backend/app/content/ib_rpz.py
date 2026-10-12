@@ -28,7 +28,7 @@ RPZ_MODULE = {
               'DNS answers from the start instead of filtering network traffic after the fact.',
     },
     'blocks': [
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-1',
          'note': 'Der wunde Punkt in der Praxis sind Fehlalarme. Kurz besprechen, wer im eigenen Haus eine Ausnahme freigeben darf und wie schnell das gehen muss.',
          'value': {
              'de': '## RPZ — eine Firewall auf DNS-Ebene\n\n'
@@ -54,7 +54,7 @@ RPZ_MODULE = {
                    'target is even established — not only once malicious traffic is already '
                    'flowing.',
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-2',
          'value': {
              'de': '## Lokale Regeln vs. Feeds\n\n'
                    'RPZ-Regeln kommen aus zwei Quellen:\n\n'
@@ -79,7 +79,7 @@ RPZ_MODULE = {
                    'cases, feeds for breadth and currency against new threats that no single '
                    'company could detect on its own.',
          }},
-        {'type': 'check',
+        {'type': 'check', 'id': 'check-1',
          'payload': {
              'kind': 'choice',
              'prompt_de': 'Worin unterscheidet sich RPZ grundsätzlich von einer klassischen '
@@ -102,7 +102,7 @@ RPZ_MODULE = {
                  'RPZ and classic firewalls both filter exclusively by port number',
              ],
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-3',
          'value': {
              'de': '## RPZ vs. DNSSEC — nicht verwechseln\n\n'
                    'RPZ und DNSSEC lösen unterschiedliche Probleme:\n\n'
@@ -125,7 +125,7 @@ RPZ_MODULE = {
                    'protects against **undetected** forgery, RPZ provides **deliberate, visible** '
                    'redirection for known threats.',
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-4',
          'value': {
              'de': '## Fehlalarme und Ausnahmen\n\n'
                    'Eine RPZ-Regel oder ein Feed-Eintrag kann fälschlich eine harmlose, sogar '
@@ -151,7 +151,7 @@ RPZ_MODULE = {
                    '/reporting of RPZ hits is therefore not just proof of effectiveness, but also '
                    'the tool that first makes such false positives visible.',
          }},
-        {'type': 'debug',
+        {'type': 'debug', 'id': 'debug-1',
          'payload': {
              'prompt_de': 'Mehrere RPZ-Regeln existieren für dieselbe Domain: eine lokale Regel '
                           'erlaubt sie ausdrücklich (begründete Ausnahme), ein abonnierter Feed '
@@ -192,7 +192,7 @@ RPZ_MODULE = {
                                'of the RPZs decides: the local exception RPZ must be sorted above '
                                'the feed RPZ.',
          }},
-        {'type': 'reveal',
+        {'type': 'reveal', 'id': 'reveal-1',
          'payload': {
              'teaser_de': 'Log-Auswertung: Ein Client fragt in kurzer Zeit auffällig viele, '
                          'zufällig aussehende Domainnamen an, von denen die meisten gar nicht '
@@ -223,7 +223,7 @@ RPZ_MODULE = {
                    'detection of such DGA and zero-day domains, instead of only blocking domains '
                    'that are already known and individually listed.',
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-5',
          'value': {
              'de': '## Infoblox Threat Defense\n\n'
                    '**Infoblox Threat Defense** (Rebranding von „BloxOne Threat Defense“, '
@@ -258,7 +258,7 @@ RPZ_MODULE = {
                    'early, well-instrumentable point to stop attacks before they take effect at '
                    'all.',
          }},
-        {'type': 'reflect',
+        {'type': 'reflect', 'id': 'reflect-1',
          'payload': {
              'prompt_de': 'Nenne ein Szenario, in dem eine RPZ-Regel selbst zum Betriebsproblem '
                          'werden könnte (Fehlalarm auf einen legitimen Dienst), und beschreibe kurz, '

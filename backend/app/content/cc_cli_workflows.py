@@ -18,7 +18,7 @@ CLI_WORKFLOWS_MODULE = {'key': 'cli-workflows',
                     'right modes prevent unwanted changes, slash commands give quick access to '
                     'core features, and mindful management of the context window keeps long '
                     'sessions productive.'},
- 'blocks': [{'type': 'text',
+ 'blocks': [{'type': 'text', 'id': 'text-1',
              'value': {'de': '## Modi: von vorsichtig bis autonom\n'
                              '\n'
                              'Claude Code kann unterschiedlich „mutig” agieren. Die wichtigsten '
@@ -67,7 +67,7 @@ CLI_WORKFLOWS_MODULE = {'key': 'cli-workflows',
                              'execution.'},
              'note': 'Plan- und Accept-Edits-Modus live umschalten (Shift+Tab); /context und '
                      '/compact an einer vollen Session zeigen.'},
-            {'type': 'text',
+            {'type': 'text', 'id': 'text-2',
              'value': {'de': '## Eingebaute Slash-Commands\n'
                              '\n'
                              'In der Session öffnen `/` gefolgt vom Namen die eingebauten '
@@ -98,7 +98,7 @@ CLI_WORKFLOWS_MODULE = {'key': 'cli-workflows',
                              '- `/model` — switch the model in use.\n'
                              '\n'
                              '**Custom** commands/skills come later (Module 6).'}},
-            {'type': 'check',
+            {'type': 'check', 'id': 'check-1',
              'payload': {'kind': 'choice',
                          'prompt_de': 'Du sollst eine riskante Refaktorierung in fremdem Code '
                                       'starten. Welcher Modus ist der beste Einstieg?',
@@ -107,7 +107,7 @@ CLI_WORKFLOWS_MODULE = {'key': 'cli-workflows',
                          'answer': 1,
                          'options_de': ['Accept Edits sofort', 'Plan-Modus', 'Verlauf leeren'],
                          'options_en': ['Accept Edits immediately', 'Plan mode', 'Clear history']}},
-            {'type': 'text',
+            {'type': 'text', 'id': 'text-3',
              'value': {'de': '## @-Mentions & Dateien referenzieren\n'
                              '\n'
                              'Statt Pfade zu beschreiben, verweist du direkt: Mit `@` '
@@ -136,7 +136,7 @@ CLI_WORKFLOWS_MODULE = {'key': 'cli-workflows',
                              'This way you **actively** control what context enters the window — '
                              'more efficient (and cheaper) than letting Claude search the whole '
                              'repo.'}},
-            {'type': 'text',
+            {'type': 'text', 'id': 'text-4',
              'value': {'de': '## Sessions fortsetzen & wieder aufnehmen\n'
                              '\n'
                              'Arbeit erstreckt sich oft über mehrere Sitzungen:\n'
@@ -247,7 +247,7 @@ CLI_WORKFLOWS_MODULE = {'key': 'cli-workflows',
                              'CLAUDE.md short, and load uncommon skill details only when needed. '
                              'The goal is a focused context with verifiable output — not minimal '
                              'answers at any cost.'}},
-            {'type': 'order',
+            {'type': 'order', 'id': 'order-1',
              'payload': {'prompt_de': 'Empfohlener Ablauf für eine größere Aufgabe — richtige '
                                       'Reihenfolge:',
                          'prompt_en': 'Recommended workflow for a larger task — correct order:',
@@ -259,7 +259,7 @@ CLI_WORKFLOWS_MODULE = {'key': 'cli-workflows',
                                       'Review and approve the proposed plan',
                                       'Switch to execution and let Claude work',
                                       'Check with /context and run /compact if needed']}},
-            {'type': 'debug',
+            {'type': 'debug', 'id': 'debug-1',
              'payload': {'prompt_de': 'Ein Kollege beschreibt die Modi. Welche Aussage ist falsch?',
                          'prompt_en': 'A colleague describes the modes. Which statement is false?',
                          'lines_de': ['Im Plan-Modus ändert Claude keine Dateien, sondern schlägt '
@@ -288,7 +288,7 @@ CLI_WORKFLOWS_MODULE = {'key': 'cli-workflows',
              'id': 'cli-simulator',
              'note': 'Teilnehmende Slash-Commands und den Wechsel zwischen Plan- und Accept-Modus '
                      'gefahrlos ausprobieren lassen.'},
-            {'type': 'reflect',
+            {'type': 'reflect', 'id': 'reflect-1',
              'payload': {'prompt_de': 'Welche zwei Slash-Commands wirst du vermutlich am '
                                       'häufigsten nutzen — und warum?',
                          'prompt_en': 'Which two slash commands will you probably use most often — '

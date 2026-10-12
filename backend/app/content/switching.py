@@ -18,7 +18,7 @@ SWITCHING_MODULE = {
               "a device is connected to?",
     },
     "blocks": [
-        {"type": "text",
+        {"type": "text", "id": "text-1",
          "value": {
              "de": "## MAC-Adressen\n\nEine Netzwerkkarte hat eine "
                    "**MAC-Adresse** (Schicht 2). In einer Layer-2-Domäne sollte sie eindeutig "
@@ -31,7 +31,7 @@ SWITCHING_MODULE = {
          },
          "note": "Analogie: MAC = fest eingebaute Seriennummer der Netzwerkkarte, "
                  "IP = die verhandelbare Postadresse. Kurz die 48-Bit-Schreibweise zeigen."},
-        {"type": "text",
+        {"type": "text", "id": "text-2",
          "value": {
              "de": "## Lernen & Weiterleiten\n\nDer Switch führt eine "
                    "**MAC-Adresstabelle** (`MAC → Port`).\n\n"
@@ -72,7 +72,7 @@ SWITCHING_MODULE = {
          "note": "DE: Den Broadcast-Sturm eskalieren lassen (Frames verdoppeln sich pro "
                  "Tick) und dann den Loop trennen. EN: Let the broadcast storm escalate "
                  "(frames double each tick), then disconnect the loop."},
-        {"type": "reveal",
+        {"type": "reveal", "id": "reveal-2",
          "payload": {
              "teaser_de": "Was würde eigentlich passieren, wenn zwei Geräte dieselbe MAC-Adresse hätten?",
              "teaser_en": "What would actually happen if two devices had the same MAC address?",
@@ -87,7 +87,7 @@ SWITCHING_MODULE = {
                    "That's why MAC addresses should be **unique** within the same network "
                    "(duplicates practically only occur through manual overrides or spoofing).",
          }},
-        {"type": "text",
+        {"type": "text", "id": "text-3",
          "value": {
              "de": "## Broadcast & der Haken\n\nEin **Broadcast** "
                    "(`FF:FF:FF:FF:FF:FF`) geht **immer** an alle anderen Ports. Ein flacher Switch "

@@ -18,7 +18,7 @@ PAKET_MODULE = {
               "the first place — as a **frame** over the wire.",
     },
     "blocks": [
-        {"type": "text",
+        {"type": "text", "id": "text-1",
          "value": {
              "de": "## Das OSI-Schichtenmodell\n\nNetzwerk-Kommunikation "
                    "ist in **7 Schichten** organisiert. Beim Senden wandern die Daten von oben "
@@ -36,7 +36,7 @@ PAKET_MODULE = {
                  "die Decapsulation beim Empfänger — auf die Umkehrung hinweisen."},
         {"type": "widget", "id": "visual-encapsulation",
          "note": "Die Kapselung bis zum Ethernet-Frame schrittweise aufbauen."},
-        {"type": "text",
+        {"type": "text", "id": "text-2",
          "value": {
              "de": "## Der Ethernet-Frame\n\nEin Frame hat einen festen "
                    "Aufbau. Die wichtigsten Felder:\n\n"
@@ -55,14 +55,14 @@ PAKET_MODULE = {
          }},
         {"type": "widget", "id": "frame-builder"},
         {"type": "widget", "id": "learning-packet", "note": "Einen Webaufruf Schicht für Schicht verfolgen."},
-        {"type": "check", "payload": {
+        {"type": "check", "id": "check-1", "payload": {
             "prompt_de": "Wofür ist die FCS am Ende des Frames da?",
             "prompt_en": "What is the FCS at the end of the frame for?",
             "options_de": ["Prüfsumme zur Fehlererkennung", "Adresse des Empfängers", "Kennzeichnung des VLANs"],
             "options_en": ["Checksum for error detection", "Address of the receiver", "Marking the VLAN"],
             "answer": 0,
         }},
-        {"type": "text",
+        {"type": "text", "id": "text-3",
          "value": {
              "de": "## Wo steckt das VLAN drin?\n\nEin VLAN wird über "
                    "einen **802.1Q-Tag** markiert: 4 Byte, die **zwischen Quell-MAC und "

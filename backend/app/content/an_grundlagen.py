@@ -24,7 +24,7 @@ ANSIBLE_GRUNDLAGEN_MODULE = {
                        'permanent on the servers themselves. This module explains how that works '
                        'and which terms matter along the way.'},
     'blocks': [
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-1',
          'value': {'de': '## Was ist Ansible?\n'
                          '\n'
                          'Ansible ist ein Automatisierungswerkzeug für Konfigurationsmanagement, '
@@ -63,7 +63,7 @@ ANSIBLE_GRUNDLAGEN_MODULE = {
                          'to get there.'},
          'note': 'Gut geeignet für einen kurzen Vergleich mit einem den Teilnehmenden bekannten '
                  'Pull-basierten Werkzeug, falls vorhanden — hilft, das Push-Prinzip zu verankern.'},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-2',
          'value': {'de': '## Control Node und Managed Node\n'
                          '\n'
                          '- **Control Node**: der Rechner, auf dem Ansible installiert ist und von '
@@ -91,7 +91,7 @@ ANSIBLE_GRUNDLAGEN_MODULE = {
                          'Python at all. How Ansible handles that is covered in a later module — '
                          'for now, remember it as "the control node thinks and connects, the '
                          'managed node executes."'}},
-        {'type': 'check',
+        {'type': 'check', 'id': 'check-1',
          'payload': {'kind': 'choice',
                      'prompt_de': 'Welche Aussage beschreibt das Push-Prinzip von Ansible korrekt?',
                      'prompt_en': 'Which statement correctly describes Ansible’s push model?',
@@ -108,7 +108,7 @@ ANSIBLE_GRUNDLAGEN_MODULE = {
                                     'runs the task there.',
                                     'An agent installed on the managed node runs the tasks on its '
                                     'own.']}},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-3',
          'value': {'de': '## Drei Ebenen: ansible-core, Collections, Automation Platform\n'
                          '\n'
                          '- **ansible-core**: die eigentliche Engine — liest Inventar und '
@@ -145,7 +145,7 @@ ANSIBLE_GRUNDLAGEN_MODULE = {
                          'For day-to-day purposes: ansible-core is the engine, collections supply '
                          'the tools that plug into it, and AAP is the operating framework for '
                          'larger teams.'}},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-4',
          'value': {'de': '## Ad-hoc-Kommandos\n'
                          '\n'
                          'Ein Ad-hoc-Kommando führt eine einzelne Aufgabe direkt über die '
@@ -193,7 +193,7 @@ ANSIBLE_GRUNDLAGEN_MODULE = {
                          '- `ansible-playbook` — run a playbook\n'
                          '- `ansible-inventory` — display/check the inventory\n'
                          '- `ansible-doc` — look up module documentation offline'}},
-        {'type': 'order',
+        {'type': 'order', 'id': 'order-1',
          'payload': {'prompt_de': 'Erster Kontakt mit einer neuen Servergruppe — bring die '
                                   'Schritte in eine sinnvolle Reihenfolge:',
                      'prompt_en': 'First contact with a new server group — put the steps in a '
@@ -208,7 +208,7 @@ ANSIBLE_GRUNDLAGEN_MODULE = {
                                   'Write a playbook for the desired configuration',
                                   'Run the playbook in `--check` mode as a dry run',
                                   'Run the playbook for real']}},
-        {'type': 'debug',
+        {'type': 'debug', 'id': 'debug-1',
          'payload': {'prompt_de': 'Aussagen über Ansible — welche ist falsch?',
                      'prompt_en': 'Statements about Ansible — which one is false?',
                      'lines_de': ['Ansible verbindet sich per SSH oder WinRM zu den Zielsystemen.',
@@ -232,7 +232,7 @@ ANSIBLE_GRUNDLAGEN_MODULE = {
                      'explanation_en': 'Ansible is agentless — no permanent Ansible software is '
                                        'installed on target systems. The connection is established '
                                        'over SSH/WinRM on demand and closed again afterward.'}},
-        {'type': 'reveal',
+        {'type': 'reveal', 'id': 'reveal-1',
          'payload': {'teaser_de': 'Übung: Was genau bewirkt `ansible datenbank -m package -a '
                                   '"name=postgresql state=present" --become`? Formuliere die '
                                   'Wirkung in eigenen Worten, bevor du auflöst.',

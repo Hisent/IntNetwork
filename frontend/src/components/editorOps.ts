@@ -1,4 +1,4 @@
-import type { EditorBlock, EditorQuestion } from '@/lib/trainerApi'
+import type { BlockPayload, EditorBlock, EditorQuestion } from '@/lib/trainerApi'
 
 export function moveItem<T>(items: T[], index: number, dir: -1 | 1): T[] {
   const target = index + dir
@@ -24,3 +24,59 @@ export const emptyBlock = (): EditorBlock => ({ type: 'text', value_de: '', valu
 export const emptyQuestion = (): EditorQuestion => ({
   qtype: 'single', prompt_de: '', prompt_en: '', options_de: [''], options_en: [''], answer: 0,
 })
+
+// --- deklarativer Baukasten: Payload wird als JSON bearbeitet --------------------
+
+export const DECLARATIVE_TYPES = ['diagram', 'terminal', 'match', 'cloze', 'scenario'] as const
+export type DeclarativeType = (typeof DECLARATIVE_TYPES)[number]
+
+export function isDeclarativeType(type: string): type is DeclarativeType {
+  return (DECLARATIVE_TYPES as readonly string[]).includes(type)
+}
+
+/** Kleinstes gültiges Gerüst je Typ — Startpunkt beim Typwechsel im Editor. */
+export function declarativeTemplate(type: DeclarativeType): BlockPayload {
+  switch (type) {
+    case 'diagram':
+      return {
+        kind: 'sequence', title_de: 'Titel', title_en: 'Title',
+        actors: [{ id: 'a', label: 'A' }, { id: 'b', label: 'B' }],
+        messages: [{ from: 'a', to: 'b', label_de: 'Nachricht', label_en: 'Message' }],
+      }
+    case 'terminal':
+      return { prompt: 'device>', commands: [{ cmd: 'show version', output: 'v1.0' }] }
+    case 'match':
+      return {
+        prompt_de: 'Ordne zu.', prompt_en: 'Match the pairs.',
+        pairs: [1, 2, 3].map((n) => ({ left: `Begriff ${n}`, right_de: `Beschreibung ${n}`, right_en: `Description ${n}` })),
+      }
+    case 'cloze':
+      return {
+        prompt_de: 'Fülle die Lücke.', prompt_en: 'Fill the gap.', mono: true,
+        text: 'switchport mode [[mode]]', gaps: [{ id: 'mode', accept: ['access'] }],
+      }
+    case 'scenario':
+      return {
+        title_de: 'Titel', title_en: 'Title', start: 'start',
+        nodes: [
+          { id: 'start', text_de: 'Situation', text_en: 'Situation', options: [
+            { label_de: 'Option A', label_en: 'Option A', to: 'gut' },
+            { label_de: 'Option B', label_en: 'Option B', to: 'schlecht' },
+          ] },
+          { id: 'gut', outcome: 'good', text_de: 'Begründung', text_en: 'Reason' },
+          { id: 'schlecht', outcome: 'bad', text_de: 'Begründung', text_en: 'Reason' },
+        ],
+      }
+  }
+}
+
+/** JSON-Text des Editors -> Payload. Nur ein Objekt ist gültig (kein Array, keine Zahl). */
+export function parsePayloadJson(text: string): { payload: BlockPayload } | { error: string } {
+  try {
+    const parsed: unknown = JSON.parse(text)
+    if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) return { error: 'Erwartet wird ein JSON-Objekt { … }' }
+    return { payload: parsed as BlockPayload }
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : 'Ungültiges JSON' }
+  }
+}

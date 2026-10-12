@@ -1,4 +1,8 @@
-FROM python:3.12-slim
+# Debian-Release ausdruecklich benannt: "-slim" allein wechselt beim naechsten
+# Debian-Stable stillschweigend die Basis und damit die OpenSSL-Version des
+# Labs. trixie (Debian 13) liefert OpenSSL 3.5 (LTS) — der PKI-Lehrgang braucht
+# >= 3.0. Die Python-Version muss zum CI-Job "runner" passen.
+FROM python:3.12-slim-trixie
 
 # Ansible braucht einen POSIX-Control-Node. Das Image ist bewusst schlank und
 # enthaelt weder Compiler noch Netzwerkwerkzeuge (kein curl, kein wget) - die
@@ -8,7 +12,7 @@ WORKDIR /srv
 
 # openssl und git ausdruecklich installieren, nicht auf ein transitives Paket
 # verlassen (ob die openssl-CLI ueber die Bibliothek mitkommt, ist auf
-# python:3.12-slim nicht garantiert). --no-install-recommends haelt das Image
+# dem slim-Image nicht garantiert). --no-install-recommends haelt das Image
 # schlank, die Paketlisten werden danach entfernt.
 RUN apt-get update \
  && apt-get install --no-install-recommends -y openssl git \

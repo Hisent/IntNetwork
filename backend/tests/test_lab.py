@@ -58,7 +58,7 @@ def _fake_runner(warteschlange, ergebnis: dict, verzoegerung: float = 0.05):
                 pfad.unlink()
                 time.sleep(verzoegerung)
                 (warteschlange / "out" / pfad.name).write_text(
-                    json.dumps({**ergebnis, "_workspace": auftrag.get("workspace")}),
+                    json.dumps({**ergebnis, "token": auftrag.get("token"), "_workspace": auftrag.get("workspace")}),
                     encoding="utf-8")
                 return
             time.sleep(0.02)
@@ -82,7 +82,7 @@ def _fake_runner_erfasst(warteschlange, erfasst: list, ergebnis: dict, verzoeger
                 pfad.unlink()
                 time.sleep(verzoegerung)
                 (warteschlange / "out" / pfad.name).write_text(
-                    json.dumps(ergebnis), encoding="utf-8")
+                    json.dumps({"token": auftrag.get("token"), **ergebnis}), encoding="utf-8")
                 return
             time.sleep(0.02)
     faden = threading.Thread(target=arbeiten, daemon=True)
@@ -312,3 +312,32 @@ def test_lab_freigegebene_art_kommt_durch(warteschlange, monkeypatch):
             "kind": "openssl", "commands": ["version"],
         }, headers=_teilnehmer(client))
         assert antwort.status_code == 200
+
+
+@pytest.mark.parametrize("ergebnis", [
+    # gefaelscht: vollstaendig, aber ohne bzw. mit falschem Token
+    {"rc": 0, "output": "gefaelscht", "truncated": False, "duration_ms": 1, "timed_out": False},
+    {"rc": 0, "output": "gefaelscht", "truncated": False, "duration_ms": 1, "timed_out": False,
+     "token": "falsch"},
+    # kaputt: Token stimmt (vom Fake-Runner gespiegelt, None wird ueberschrieben), Felder fehlen
+    {"rc": 0, "token": None},
+])
+def test_lab_verwirft_ergebnis_ohne_passendes_token_oder_unvollstaendig(warteschlange, ergebnis):
+    if ergebnis.get("token", "") is None:
+        ergebnis = {k: v for k, v in ergebnis.items() if k != "token"}
+        _fake_runner(warteschlange, ergebnis)  # spiegelt das echte Token
+    else:
+        def faelschen():
+            frist = time.monotonic() + 10
+            while time.monotonic() < frist:
+                for pfad in (warteschlange / "in").glob("*.json"):
+                    (warteschlange / "out" / pfad.name).write_text(
+                        json.dumps(ergebnis), encoding="utf-8")
+                    return
+                time.sleep(0.02)
+        threading.Thread(target=faelschen, daemon=True).start()
+    with TestClient(app) as client:
+        antwort = client.post("/api/lab/run", json={"playbook": "- hosts: all"},
+                              headers=_teilnehmer(client, f"Token-{len(ergebnis)}"))
+        assert antwort.status_code == 502, antwort.text
+        assert list((warteschlange / "out").glob("*.json")) == []

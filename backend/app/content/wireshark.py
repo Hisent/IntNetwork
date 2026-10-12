@@ -22,7 +22,7 @@ WIRESHARK_MODULE = {
               "is a capture in which someone logged in unencrypted …",
     },
     "blocks": [
-        {"type": "text",
+        {"type": "text", "id": "text-1",
          "value": {
              "de": "## Was ein Sniffer sieht\n\nEin **Paket-Sniffer** schneidet den "
                    "Verkehr an einer Netzwerkkarte mit. Jedes Paket wird mit allen "
@@ -41,7 +41,7 @@ WIRESHARK_MODULE = {
                    "bytes. Captures are stored as **pcap files** and can be analyzed "
                    "later.",
          }},
-        {"type": "text",
+        {"type": "text", "id": "text-2",
          "value": {
              "de": "## Anzeigefilter: die wichtigste Fertigkeit\n\nEin echter Mitschnitt "
                    "hat schnell **zehntausende Pakete** — ungefiltert findest du nichts. "
@@ -69,14 +69,14 @@ WIRESHARK_MODULE = {
                  "Auch den TCP-Handshake (Pakete 5–7) und das DNS-Anfrage/Antwort-Paar "
                  "(Pakete 3–4) zeigen."},
         {"type": "widget", "id": "learning-filter", "note": "Den passenden Wireshark-Display-Filter finden."},
-        {"type": "check", "payload": {
+        {"type": "check", "id": "check-1", "payload": {
             "prompt_de": "Du suchst in 50.000 Paketen alle Pakete von/zu 192.168.20.34. Welcher Filter?",
             "prompt_en": "You are looking for all packets from/to 192.168.20.34 among 50,000 packets. Which filter?",
             "options_de": ["ip.addr == 192.168.20.34", "ping 192.168.20.34", "tcp.port == 192.168.20.34"],
             "options_en": ["ip.addr == 192.168.20.34", "ping 192.168.20.34", "tcp.port == 192.168.20.34"],
             "answer": 0,
         }},
-        {"type": "text",
+        {"type": "text", "id": "text-3",
          "value": {
              "de": "## tcpdump: dasselbe auf der Konsole\n\nAuf Servern ohne grafische "
                    "Oberfläche übernimmt **tcpdump**:\n\n"
@@ -101,7 +101,7 @@ WIRESHARK_MODULE = {
                    "(`-w`), download the pcap file and **analyze it comfortably in "
                    "Wireshark**. Both require admin/root privileges.",
          }},
-        {"type": "text",
+        {"type": "text", "id": "text-4",
          "value": {
              "de": "## Rechtliches & Ethik\n\nMitschneiden heißt **mitlesen**. In fremden "
                    "Netzen oder ohne Erlaubnis ist das **verboten** — auch im Firmennetz "
@@ -118,7 +118,7 @@ WIRESHARK_MODULE = {
                    "widget shows you why cleartext protocols are a problem: whatever you "
                    "can capture, an attacker can capture too.",
          }},
-        {"type": "reflect", "payload": {
+        {"type": "reflect", "id": "reflect-1", "payload": {
             "prompt_de": "Der Mitschnitt hat gezeigt: Das HTTP-Login-Passwort war im Klartext "
                          "lesbar, die HTTPS-Verbindung nicht. Welche Dienste in deinem Alltag "
                          "nutzen noch unverschlüsselte Protokolle — und wo wäre das am "

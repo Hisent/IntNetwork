@@ -40,3 +40,26 @@ def test_audit_action_filter():
         c.put("/api/trainer/features", json={"comments": True}, headers=h)
         entries = c.get("/api/trainer/audit?action=feature.toggle", headers=h).json()
         assert entries and all(e["action"] == "feature.toggle" for e in entries)
+
+
+def test_approval_and_comment_delete_are_logged():
+    with TestClient(app) as c:
+        h = _trainer(c)
+        c.put("/api/trainer/features", json={"comments": True}, headers=h)
+        course = c.post("/api/courses", json={"name": "AuditKurs2"}, headers=h).json()
+        cid = course["id"]
+        p = {"Authorization": "Bearer " + c.post(
+            "/api/join", json={"code": course["join_code"], "name": "Ava"}).json()["access_token"]}
+        pid = c.get(f"/api/courses/{cid}/dashboard", headers=h).json()["participants"][0]["id"]
+        comment = c.post("/api/modules/vlan/comments", json={"block_index": 0, "body": "geheimer Text"},
+                         headers=p).json()
+
+        c.post(f"/api/courses/{cid}/participants/{pid}/approve", json={"approved": True}, headers=h)
+        assert c.delete(f"/api/trainer/comments/{comment['id']}", headers=h).status_code == 200
+
+        entries = c.get("/api/trainer/audit", headers=h).json()
+        approve = next(e for e in entries if e["action"] == "participant.approve")
+        assert approve["target"] == f"participant:{pid}" and "approved=True" in approve["detail"]
+        deleted = next(e for e in entries if e["action"] == "comment.delete")
+        assert deleted["target"] == f"comment:{comment['id']}"
+        assert "geheimer Text" not in deleted["detail"]  # Inhalt wird nicht aufbewahrt

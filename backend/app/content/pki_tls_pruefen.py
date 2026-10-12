@@ -26,7 +26,7 @@ TLS_PRUEFEN_MODULE = {
               'a consistent procedure to resolve such reports systematically instead of by chance.',
     },
     'blocks': [
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-1',
          'note': 'Dieses Modul ist bewusst sehr praktisch. Wenn moeglich live im Terminal mitlaufen lassen statt nur die Befehle vorzulesen - der Wert liegt im Lesen der tatsaechlichen Ausgabe, nicht im Auswendiglernen der Optionen.',
          'value': {
              'de': '## Das Arbeitspferd: openssl s_client\n\n'
@@ -58,7 +58,7 @@ TLS_PRUEFEN_MODULE = {
                    'a different name, or are dealing with an older version. Always specifying it '
                    'never hurts.',
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-2',
          'value': {
              'de': '## Die Ausgabe von s_client lesen\n\n'
                    'Die Ausgabe von `openssl s_client -connect host:443 -servername host` enthält '
@@ -86,7 +86,7 @@ TLS_PRUEFEN_MODULE = {
                    'directly whether the server is actually delivering the expected profile (see the '
                    'configuration module) or whether, say, an outdated protocol is still accepted.',
          }},
-        {'type': 'check',
+        {'type': 'check', 'id': 'check-1',
          'payload': {
              'kind': 'choice',
              'prompt_de': 'Warum ist die Option `-servername` bei `openssl s_client` für virtuelle Hosts wichtig?',
@@ -105,7 +105,7 @@ TLS_PRUEFEN_MODULE = {
                  'It replaces specifying the port in -connect',
              ],
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-3',
          'value': {
              'de': '## Einzelne Zertifikatsfelder ansehen: openssl x509\n\n'
                    'Liegt ein Zertifikat als Datei vor, lassen sich seine Felder gezielt auslesen:\n\n'
@@ -140,7 +140,7 @@ TLS_PRUEFEN_MODULE = {
                    'quickly comparing two certificates for identity without checking every field '
                    'individually.',
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-4',
          'value': {
              'de': '## Kette prüfen: openssl verify und -showcerts\n\n'
                    'Ob eine Kette gegen einen bestimmten Vertrauensanker gültig ist, prüft:\n\n'
@@ -170,7 +170,7 @@ TLS_PRUEFEN_MODULE = {
                    'certificate — so you can see directly whether the intermediate is missing, which '
                    'clients without their own cache need for chain validation.',
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-5',
          'value': {
              'de': '## Passen Schlüssel und Zertifikat zusammen?\n\n'
                    'Ein klassisches Betriebsproblem: Ein Zertifikat wurde installiert, aber der '
@@ -202,7 +202,7 @@ TLS_PRUEFEN_MODULE = {
                    'not belong together — the server then cannot even establish the connection '
                    'correctly in the first place.',
          }},
-        {'type': 'check',
+        {'type': 'check', 'id': 'check-2',
          'payload': {
              'kind': 'choice',
              'prompt_de': 'Ein Zertifikat lässt sich nicht gegen eine lokale CA-Datei validieren, obwohl die Datei korrekt aussieht. Welcher Befehl prüft gezielt genau diese Konstellation?',
@@ -221,7 +221,7 @@ TLS_PRUEFEN_MODULE = {
                  'openssl x509 -in cert.pem -noout -dates',
              ],
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-6',
          'value': {
              'de': '## Fremde Werkzeuge kurz vorgestellt\n\n'
                    'openssl deckt das Handwerkszeug ab, für einen schnellen Rundumblick eignen sich '
@@ -247,7 +247,7 @@ TLS_PRUEFEN_MODULE = {
                    'certificates issued for a domain; useful for tracking down certificates issued '
                    'unnoticed or old forgotten ones.',
          }},
-        {'type': 'reveal',
+        {'type': 'reveal', 'id': 'reveal-1',
          'note': 'Diesen Block als Nachschlagewerk ankuendigen: nicht auswendig lernen, sondern wissen, dass die Sammlung existiert und wo man sie wiederfindet.',
          'payload': {
              'teaser_de': 'Befehlssammlung: Klick, um alle Befehle dieses Moduls an einem Ort '
@@ -362,7 +362,7 @@ TLS_PRUEFEN_MODULE = {
         {'type': 'widget', 'id': 'openssl-lab',
          'note': 'Laeuft im Runner, nicht im Browser. Ohne freigegebene Art "openssl" zeigt das '
                  'Widget einen Hinweis statt eines Fehlers.'},
-        {'type': 'reflect',
+        {'type': 'reflect', 'id': 'reflect-1',
          'payload': {
              'prompt_de': 'Ein Kunde meldet eine Zertifikatswarnung, aber du kannst die Website in '
                           'deinem eigenen Browser problemlos öffnen. Nach welchem der fünf Schritte aus '

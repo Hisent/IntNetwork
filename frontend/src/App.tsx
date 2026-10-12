@@ -6,6 +6,7 @@ import { ErrorBoundary } from '@/components/ErrorBoundary'
 import { LandingPage } from '@/pages/LandingPage'
 import { useAuthStore } from '@/store/auth'
 import type { ApiError } from '@/lib/api'
+import { storedLang, t } from '@/lib/i18n'
 
 // Landing bleibt eager (erste Route). Alles andere lazy — vor allem die vier
 // Trainer-Seiten, die ein Teilnehmer nie lädt, hängen sonst im Hauptbundle.
@@ -41,6 +42,20 @@ useAuthStore.subscribe((state, prev) => {
   if (state.token !== prev.token) qc.removeQueries({ predicate: (q) => !PUBLIC_QUERIES.includes(String(q.queryKey[0])) })
 })
 
+// Letzte Rückfallebene der ErrorBoundary. Liest die Sprache direkt aus dem
+// Speicher statt über einen Hook-State: hier soll nichts mehr schiefgehen können.
+function ErrorFallback() {
+  const lang = storedLang() ?? 'de'
+  return (
+    <main className="grid min-h-dvh place-items-center bg-slate-50 p-6 text-center">
+      <div>
+        <p className="text-slate-600">{t(lang, 'errorGeneric')}</p>
+        <button onClick={() => window.location.reload()} className="mt-3 rounded-lg bg-teal-600 px-4 py-2 text-sm font-medium text-white hover:bg-teal-700">{t(lang, 'reload')}</button>
+      </div>
+    </main>
+  )
+}
+
 export default function App() {
   return (
     <QueryClientProvider client={qc}>
@@ -51,13 +66,7 @@ export default function App() {
           className="sr-only focus:not-sr-only focus:fixed focus:left-2 focus:top-2 focus:z-[200] focus:rounded-lg focus:bg-teal-600 focus:px-4 focus:py-2 focus:font-medium focus:text-white">
           Zum Inhalt springen / Skip to content
         </a>
-        <ErrorBoundary fallback={
-          <main className="grid min-h-dvh place-items-center bg-slate-50 p-6 text-center">
-            <div>
-              <p className="text-slate-600">Etwas ist schiefgelaufen.</p>
-              <button onClick={() => window.location.reload()} className="mt-3 rounded-lg bg-teal-600 px-4 py-2 text-sm font-medium text-white hover:bg-teal-700">Neu laden</button>
-            </div>
-          </main>}>
+        <ErrorBoundary fallback={<ErrorFallback />}>
         <Suspense fallback={<PageSkeleton />}>
           <Routes>
             <Route path="/" element={<LandingPage />} />

@@ -30,7 +30,7 @@ NAC_DEPLOYMENT_MODULE = {
               'out what can go wrong when jumping straight into the strictest mode.',
     },
     'blocks': [
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-1',
          'note': 'Einstieg bewusst am Betriebsrisiko, nicht an der Modus-Definition. Erst zeigen, '
                  'was beim direkten Scharfschalten schiefgeht, dann die Stufen einfuehren.',
          'value': {
@@ -62,7 +62,7 @@ NAC_DEPLOYMENT_MODULE = {
                    'rolled out **in stages** in practice, instead of being switched on hard over '
                    'a weekend — starting with a stage that has no consequences at all.',
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-2',
          'value': {
              'de': '## Stufe 1: Monitor Mode (auch Open Mode)\n\n'
                    'Im **Monitor Mode** laufen die Authentifizierungsmethoden (802.1X, MAB) '
@@ -85,7 +85,7 @@ NAC_DEPLOYMENT_MODULE = {
                    'a configured supplicant and which legacy devices do not support 802.1X at '
                    'all — without a single device losing access in the meantime.',
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-3',
          'value': {
              'de': '## Stufe 2: Low-Impact Mode\n\n'
                    'Im **Low-Impact Mode** bleibt der Port weiterhin offen konfiguriert, aber '
@@ -113,7 +113,7 @@ NAC_DEPLOYMENT_MODULE = {
                    'unchecked in the full company network — it gets a tightly '
                    'limited access until authentication succeeds.',
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-4',
          'value': {
              'de': '## Stufe 3: Closed Mode\n\n'
                    '**Closed Mode** ist das strengste Modell: Ohne erfolgreiche Authentifizierung '
@@ -137,7 +137,7 @@ NAC_DEPLOYMENT_MODULE = {
          'note': 'Alle drei Modi am selben Geraet und Auth-Ergebnis durchklicken lassen, bevor '
                  'es zur Reihenfolge-Aufgabe geht — der Unterschied soll sich anfuehlen, nicht '
                  'nur auswendig gelernt werden.'},
-        {'type': 'check',
+        {'type': 'check', 'id': 'check-1',
          'payload': {
              'kind': 'choice',
              'prompt_de': 'Ein Gerät hat sich noch nicht authentifiziert. In welchem Modus '
@@ -158,7 +158,7 @@ NAC_DEPLOYMENT_MODULE = {
                  'None of the three modes',
              ],
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-5',
          'value': {
              'de': '## Warum stufenweise — nicht optional\n\n'
                    'Diese Reihenfolge ist kein reines Vorsichtsprinzip, sondern eine dokumentierte '
@@ -182,7 +182,7 @@ NAC_DEPLOYMENT_MODULE = {
                    '(observe, then limit, then enforce) is vendor-neutral and can be implemented '
                    'with comparable built-in tools from other vendors as well.',
          }},
-        {'type': 'check',
+        {'type': 'check', 'id': 'check-2',
          'payload': {
              'kind': 'choice',
              'prompt_de': 'Nordwind will Monitor Mode überspringen und direkt mit Closed Mode '
@@ -206,7 +206,7 @@ NAC_DEPLOYMENT_MODULE = {
                  'An extra VLAN is created that has to be manually removed again',
              ],
          }},
-        {'type': 'order',
+        {'type': 'order', 'id': 'order-1',
          'payload': {
              'prompt_de': 'Bringe die Rollout-Stufen eines 802.1X-Deployments bei Nordwind in die '
                           'richtige Reihenfolge.',
@@ -230,7 +230,7 @@ NAC_DEPLOYMENT_MODULE = {
                  'authentication',
              ],
          }},
-        {'type': 'reflect',
+        {'type': 'reflect', 'id': 'reflect-1',
          'payload': {
              'prompt_de': 'Nordwind will alle Etagen der Zentrale gleichzeitig auf Closed Mode '
                           'umstellen, statt Standort für Standort vorzugehen. Welche zusätzlichen '

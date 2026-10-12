@@ -47,11 +47,11 @@ def test_question_results_per_question():
 def test_question_stats_aggregates_submissions():
     subs = [{"q1": 1, "q2": [0, 2], "q3": 24},   # alles richtig
             {"q1": 0, "q2": [0, 2], "q3": 99},   # nur q2 richtig
-            {"q1": 1}]                            # q2/q3 nicht beantwortet -> falsch
+            {"q1": 1}]                            # kennt q2/q3 nicht (Abgabe vor deren Hinzukommen)
     stats = grading.question_stats(QUIZ, subs)
     assert stats == [{"id": "q1", "correct": 2, "attempts": 3},
-                     {"id": "q2", "correct": 2, "attempts": 3},
-                     {"id": "q3", "correct": 1, "attempts": 3}]
+                     {"id": "q2", "correct": 2, "attempts": 2},
+                     {"id": "q3", "correct": 1, "attempts": 2}]
     assert grading.question_stats(QUIZ, []) == [
         {"id": "q1", "correct": 0, "attempts": 0},
         {"id": "q2", "correct": 0, "attempts": 0},

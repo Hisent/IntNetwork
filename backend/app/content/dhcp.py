@@ -20,7 +20,7 @@ DHCP_MODULE = {
               "on its own?",
     },
     "blocks": [
-        {"type": "text",
+        {"type": "text", "id": "text-1",
          "value": {
              "de": "## Wozu DHCP?\n\nEin Gerät braucht mindestens **IP**, "
                    "**Subnetzmaske**, **Standard-Gateway** und **DNS-Server**, um zu funktionieren. "
@@ -31,7 +31,7 @@ DHCP_MODULE = {
                    "**DHCP** (Dynamic Host Configuration Protocol) hands these out automatically — the "
                    "user doesn't need to configure anything.",
          }},
-        {"type": "text",
+        {"type": "text", "id": "text-2",
          "value": {
              "de": "## Der DORA-Ablauf\n\nVier Nachrichten, Merkwort **DORA**:\n\n"
                    "1. **Discover** — der Client ruft per **Broadcast**: „Ist ein DHCP-Server da?“\n"
@@ -43,6 +43,40 @@ DHCP_MODULE = {
                    "2. **Offer** — a server **offers** a free IP (including mask/gateway/DNS).\n"
                    "3. **Request** — the client **requests** exactly this offer (broadcast).\n"
                    "4. **Ack** — the server **confirms**; the address is now assigned as a **lease**.",
+         }},
+        {"type": "diagram", "id": "diagram-dora",
+         "note": "Schritt für Schritt durchklicken. Bei Schritt 3 fragen: Warum sendet der Client "
+                 "den Request noch als Broadcast, obwohl er den Server schon kennt?",
+         "payload": {
+             "kind": "sequence",
+             "title_de": "DORA: ein neuer Client holt sich eine Adresse",
+             "title_en": "DORA: a new client obtains an address",
+             "actors": [
+                 {"id": "client", "label_de": "Client (noch ohne IP)", "label_en": "Client (no IP yet)"},
+                 {"id": "server", "label_de": "DHCP-Server", "label_en": "DHCP server"},
+             ],
+             "messages": [
+                 {"from": "client", "to": "server", "style": "broadcast", "label": "DHCPDISCOVER",
+                  "detail_de": "Broadcast von 0.0.0.0 an 255.255.255.255 (UDP-Port 68 → 67): Der Client "
+                               "hat noch keine Adresse und kennt keinen Server.",
+                  "detail_en": "Broadcast from 0.0.0.0 to 255.255.255.255 (UDP port 68 → 67): the client "
+                               "has no address yet and knows no server."},
+                 {"from": "server", "to": "client", "style": "reply", "label": "DHCPOFFER: 192.168.10.100",
+                  "detail_de": "Der Server bietet eine freie Adresse aus dem Pool an — zusammen mit "
+                               "Maske, Gateway, DNS-Server und Lease-Dauer.",
+                  "detail_en": "The server offers a free address from the pool — together with mask, "
+                               "gateway, DNS server and lease time."},
+                 {"from": "client", "to": "server", "style": "broadcast", "label": "DHCPREQUEST",
+                  "detail_de": "Wieder ein Broadcast: So erfahren auch andere DHCP-Server, welches "
+                               "Angebot angenommen wurde, und geben ihre vorgemerkte Adresse wieder frei.",
+                  "detail_en": "A broadcast again: this way other DHCP servers also learn which offer "
+                               "was accepted and release the address they had set aside."},
+                 {"from": "server", "to": "client", "style": "reply", "label": "DHCPACK",
+                  "detail_de": "Bestätigung: Die Adresse ist jetzt als Lease vergeben. Erst danach "
+                               "konfiguriert der Client sein Interface.",
+                  "detail_en": "Confirmation: the address is now assigned as a lease. Only then does "
+                               "the client configure its interface."},
+             ],
          }},
         {"type": "widget", "id": "dhcp-demo",
          "note": "Mehrmals einen neuen Client verbinden lassen → jeder bekommt die "
@@ -74,7 +108,7 @@ DHCP_MODULE = {
                  "mit Relay durchspielen. EN: Play through the path client (VLAN 20) → "
                  "router → DHCP server (VLAN 10) without and with relay."},
         {"type": "widget", "id": "learning-dhcp", "note": "DHCP-Symptome der Fehlerquelle zuordnen."},
-        {"type": "text",
+        {"type": "text", "id": "text-4",
          "value": {
              "de": "## Lease & Pool\n\nEine Adresse wird nur **auf Zeit** "
                    "(Lease-Time) vergeben und muss vor Ablauf erneuert werden, sonst wird sie "

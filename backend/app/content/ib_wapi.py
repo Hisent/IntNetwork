@@ -32,7 +32,7 @@ WAPI_MODULE = {
               "pitfalls automation typically brings along.",
     },
     "blocks": [
-        {"type": "text",
+        {"type": "text", "id": "text-1",
          "value": {
              "de": "## Was ist WAPI?\n\n"
                    "WAPI (Web API) ist die **REST-basierte Programmierschnittstelle** zu NIOS. "
@@ -58,7 +58,7 @@ WAPI_MODULE = {
                    "reference** (`_ref`), which WAPI returns when reading an object and which "
                    "is then used for later updates or deletions of that same object.",
          }},
-        {"type": "text",
+        {"type": "text", "id": "text-2",
          "value": {
              "de": "## Aufbau einer WAPI-Anfrage\n\n"
                    "Eine lesende Anfrage nach einem Host-Record könnte so aussehen (die "
@@ -108,7 +108,7 @@ WAPI_MODULE = {
                    "of the created object.",
          },
          "note": "Kein echter API-Call nötig — reine Lese-/Analyseaufgabe am Beispiel-Snippet."},
-        {"type": "check", "payload": {
+        {"type": "check", "id": "check-1", "payload": {
             "kind": "choice",
             "prompt_de": "Welche HTTP-Methode legt über WAPI ein neues Objekt an?",
             "prompt_en": "Which HTTP method creates a new object via WAPI?",
@@ -116,7 +116,7 @@ WAPI_MODULE = {
             "options_de": ["GET", "POST", "DELETE"],
             "options_en": ["GET", "POST", "DELETE"],
         }},
-        {"type": "text",
+        {"type": "text", "id": "text-3",
          "value": {
              "de": "## Authentifizierung und Rechte\n\n"
                    "WAPI-Anfragen laufen über HTTPS und werden authentifiziert — üblicherweise "
@@ -141,7 +141,7 @@ WAPI_MODULE = {
                    "automation does not replace oversight, it can even enforce it more "
                    "consistently.",
          }},
-        {"type": "text",
+        {"type": "text", "id": "text-4",
          "value": {
              "de": "## Typische Automatisierungsfälle\n\n"
                    "- **Massenanlage** — z. B. 40 neue Filialnetzwerke inklusive passender "
@@ -169,7 +169,7 @@ WAPI_MODULE = {
                    "Not every use case needs automation: a one-off, rare manual change is often "
                    "done faster through the UI than through a purpose-built script.",
          }},
-        {"type": "debug", "payload": {
+        {"type": "debug", "id": "debug-1", "payload": {
             "prompt_de": "Ein Kollege beschreibt sein neues Provisionierungs-Skript in vier "
                          "Schritten. Ein Schritt ist der Grund für ein Problem, das erst beim "
                          "zweiten Lauf sichtbar wird — finde ihn:",
@@ -206,7 +206,7 @@ WAPI_MODULE = {
                               "an update-instead-of-create pattern) — then a rerun after a crash "
                               "would not create duplicates.",
         }},
-        {"type": "reveal",
+        {"type": "reveal", "id": "reveal-1",
          "payload": {"teaser_de": "Was genau bedeutet Idempotenz — und warum ist sie bei "
                                   "Automatisierung so wichtig?",
                      "teaser_en": "What exactly does idempotency mean — and why does it matter "
@@ -229,7 +229,7 @@ WAPI_MODULE = {
                    "current state via GET before making a change, and only create or update "
                    "when actually needed.",
          }},
-        {"type": "text",
+        {"type": "text", "id": "text-5",
          "value": {
              "de": "## Fehlerbehandlung und Abgrenzung zu Ansible/Terraform\n\n"
                    "Ein solides Automatisierungsskript wertet HTTP-Statuscodes gezielt aus "
@@ -257,7 +257,7 @@ WAPI_MODULE = {
                    "replace it, they wrap it in a model that fits infrastructure-as-code "
                    "workflows better.",
          }},
-        {"type": "reflect", "payload": {
+        {"type": "reflect", "id": "reflect-1", "payload": {
             "prompt_de": "Für welchen wiederkehrenden manuellen Vorgang in deinem eigenen "
                          "Umfeld würde sich eine WAPI-Automatisierung lohnen — und woran würdest "
                          "du prüfen, ob dein Skript idempotent ist, bevor du es produktiv "

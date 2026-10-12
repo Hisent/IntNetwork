@@ -27,7 +27,7 @@ SIGNATUREN_MODULE = {
               'takes hold in the department.',
     },
     'blocks': [
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-1',
          'note': 'Die Kernverwechslung des Moduls sofort benennen: "signiert mit dem privaten, geprueft mit dem oeffentlichen" ist die Umkehrung von Verschluesselung — genau hier verrutscht es bei Lernenden am haeufigsten.',
          'value': {
              'de': '## Signieren = Umkehrung der Verschlüsselungsrichtung\n\n'
@@ -61,7 +61,7 @@ SIGNATUREN_MODULE = {
                    'freely available public key, a signature would have no evidentiary value at '
                    'all, since then anyone could produce a "valid" signature.',
          }},
-        {'type': 'check',
+        {'type': 'check', 'id': 'check-1',
          'payload': {
              'kind': 'choice',
              'prompt_de': 'Mit welchem Schlüssel wird eine digitale Signatur erzeugt, und mit '
@@ -83,7 +83,7 @@ SIGNATUREN_MODULE = {
                  'Both creating and verifying happen exclusively with the public key',
              ],
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-2',
          'value': {
              'de': '## Was eine Signatur beweist — und was nicht\n\n'
                    'Eine gültige digitale Signatur beweist zwei Dinge zugleich:\n\n'
@@ -126,7 +126,7 @@ SIGNATUREN_MODULE = {
                    'signature says nothing about secrecy — it says "this came from here and was '
                    'not altered," not "nobody else has seen this".',
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-3',
          'value': {
              'de': '## Nichtabstreitbarkeit und ihre Voraussetzung\n\n'
                    '**Nichtabstreitbarkeit** bedeutet: Der Unterzeichner kann im Nachhinein nicht '
@@ -156,7 +156,7 @@ SIGNATUREN_MODULE = {
                    'property of the algorithm, but a property that is only as good as the '
                    'protection of the private key.',
          }},
-        {'type': 'reveal',
+        {'type': 'reveal', 'id': 'reveal-1',
          'payload': {
              'teaser_de': 'Ein Praktikant bei Nordwind Logistik nutzt versehentlich denselben '
                           'privaten Signaturschlüssel wie sein Kollege (beide haben Zugriff auf '
@@ -178,7 +178,7 @@ SIGNATUREN_MODULE = {
                    'produced it. Non-repudiation is thereby effectively voided for all signatures '
                    'produced with this key, regardless of how strong the underlying algorithm is.',
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-4',
          'value': {
              'de': '## Die Brücke zum Zertifikat\n\n'
                    'Alles aus diesem Modul führt direkt zum eigentlichen Thema des Lehrgangs: Ein '
@@ -221,7 +221,7 @@ SIGNATUREN_MODULE = {
                    'PKIs also **Ed25519** — each a signature variant of the asymmetric schemes '
                    'from module 4 of this block.',
          }},
-        {'type': 'debug',
+        {'type': 'debug', 'id': 'debug-1',
          'payload': {
              'prompt_de': 'Ein Kollege erklärt im Team-Chat, wie digitale Signaturen '
                           'funktionieren. Welche der folgenden vier Aussagen ist falsch?',
@@ -254,7 +254,7 @@ SIGNATUREN_MODULE = {
                                'signature — the signature would then have no evidentiary value at '
                                'all.',
          }},
-        {'type': 'reflect',
+        {'type': 'reflect', 'id': 'reflect-1',
          'payload': {
              'prompt_de': 'Ein Kollege sagt: "Das Dokument ist digital signiert, also ist es '
                          'auch verschlüsselt und niemand außer dem Empfänger kann es lesen." '

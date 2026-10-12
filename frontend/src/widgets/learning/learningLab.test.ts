@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { diagnosisForSymptom, isValidAddressFilter } from './LearningLab'
+import { diagnosisForSymptom, isValidAddressFilter } from './learningLabLogic'
 
 describe('LearningLab logic', () => {
   it('maps observations to diagnoses instead of matching identical labels', () => {

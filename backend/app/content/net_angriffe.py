@@ -29,7 +29,7 @@ NETZ_ANGRIFFE_MODULE = {
               "defend against them.",
     },
     "blocks": [
-        {"type": "text",
+        {"type": "text", "id": "text-1",
          "note": "Rahmen setzen: alle folgenden Angriffe brauchen keinen Zugriff von aussen, "
                  "nur einen Anschluss im lokalen Netz (WLAN oder Kabel). Das relativiert oft "
                  "die Vorstellung, Firewall am Rand reiche als Schutz.",
@@ -45,7 +45,7 @@ NETZ_ANGRIFFE_MODULE = {
                    "already sits **behind** that border. The following attacks therefore work "
                    "purely locally, with no access from outside at all.",
          }},
-        {"type": "text",
+        {"type": "text", "id": "text-2",
          "value": {
              "de": "## ARP-Spoofing und Man-in-the-Middle\n\nARP (Modul 5) hat keinerlei "
                    "**Authentifizierung**: Jeder Host im Netz glaubt jeder ARP-Antwort, die er "
@@ -65,7 +65,7 @@ NETZ_ANGRIFFE_MODULE = {
                    "unchanged so nobody notices. That's exactly a **man-in-the-middle (MITM)** "
                    "attack.",
          }},
-        {"type": "debug", "payload": {
+        {"type": "debug", "id": "debug-1", "payload": {
             "prompt_de": "Ein Nutzer meldet: Der Internetzugriff ist plötzlich langsam, und "
                          "einige Verbindungen brechen ab. Ein Blick in den ARP-Cache zeigt "
                          "folgendes Bild. Finde den auffälligen Eintrag:",
@@ -97,7 +97,7 @@ NETZ_ANGRIFFE_MODULE = {
                               "IP with their own MAC address, so clients send their traffic "
                               "to the attacker instead of to the real router.",
         }},
-        {"type": "text",
+        {"type": "text", "id": "text-3",
          "value": {
              "de": "## MAC-Flooding\n\nEin Switch (Modul 2) merkt sich MAC-Adressen in einer "
                    "**begrenzten** Tabelle. Ein Angreifer kann diese Tabelle absichtlich mit "
@@ -114,7 +114,7 @@ NETZ_ANGRIFFE_MODULE = {
                    "lets the attacker read traffic that should only have gone to one specific "
                    "port.",
          }},
-        {"type": "text",
+        {"type": "text", "id": "text-4",
          "value": {
              "de": "## DHCP-Spoofing\n\nEin Angreifer kann im lokalen Netz einen **eigenen "
                    "DHCP-Server** betreiben (Modul 10), der auf DHCP-Anfragen schneller "
@@ -130,7 +130,7 @@ NETZ_ANGRIFFE_MODULE = {
                    "their traffic through the attacker — another form of man-in-the-middle, "
                    "this time via DHCP configuration instead of ARP.",
          }},
-        {"type": "text",
+        {"type": "text", "id": "text-5",
          "value": {
              "de": "## Gegenmaßnahmen: drei Begriffe\n\nGegen diese drei Angriffe gibt es "
                    "jeweils passende Schutzmechanismen auf Switch-Ebene, hier nur als Begriff "
@@ -151,7 +151,7 @@ NETZ_ANGRIFFE_MODULE = {
                    "- **Port Security** — limits how many or which MAC addresses are valid on "
                    "a port, curbing MAC flooding.",
          }},
-        {"type": "check", "payload": {
+        {"type": "check", "id": "check-1", "payload": {
             "kind": "choice",
             "prompt_de": "Welche Gegenmaßnahme schützt gezielt gegen ARP-Spoofing?",
             "prompt_en": "Which countermeasure specifically protects against ARP spoofing?",
@@ -161,7 +161,7 @@ NETZ_ANGRIFFE_MODULE = {
             "options_en": ["Dynamic ARP Inspection", "DHCP Snooping", "Port Security",
                            "A longer Wi-Fi password"],
         }},
-        {"type": "text",
+        {"type": "text", "id": "text-6",
          "value": {
              "de": "## Port-Scans\n\nEin **Port-Scan** prüft systematisch, welche Ports auf "
                    "einem Zielsystem offen (Dienst antwortet), geschlossen (kein Dienst lauscht, "
@@ -187,7 +187,7 @@ NETZ_ANGRIFFE_MODULE = {
                    "**own** network or with **explicit written authorization** — never simply "
                    "against a network that isn't yours.",
          }},
-        {"type": "text",
+        {"type": "text", "id": "text-7",
          "value": {
              "de": "## IDS vs. IPS\n\nEin **IDS** (Intrusion Detection System) beobachtet den "
                    "Verkehr, erkennt verdächtige Muster und schlägt **Alarm** — greift aber "
@@ -207,7 +207,7 @@ NETZ_ANGRIFFE_MODULE = {
                    "the safeguard then causes an outage itself. An IDS, by contrast, only "
                    "costs attention on a false positive, not a blocked packet.",
          }},
-        {"type": "text",
+        {"type": "text", "id": "text-8",
          "value": {
              "de": "## Segmentierung — und ein Ausblick auf Zero Trust\n\nDie wirksamste "
                    "Maßnahme gegen alle bisher genannten Angriffe ist letztlich "
@@ -232,7 +232,7 @@ NETZ_ANGRIFFE_MODULE = {
                    "from. A device on the internal VLAN doesn't automatically get more trust "
                    "than one coming from outside.",
          }},
-        {"type": "reflect", "payload": {
+        {"type": "reflect", "id": "reflect-1", "payload": {
             "prompt_de": "Nordwind hat bisher ein einziges großes Büro-VLAN ohne weitere "
                          "Unterteilung. Welchen der in diesem Modul beschriebenen Angriffe "
                          "würde eine Segmentierung in kleinere VLANs am ehesten eindämmen — "

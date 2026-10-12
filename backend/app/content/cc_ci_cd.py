@@ -18,7 +18,7 @@ CI_CD_MODULE = {'key': 'ci-cd',
                     'bringing it into the **CI/CD pipeline**: an `@claude` comment on an issue or '
                     'PR analyzes code, creates PRs, implements features, and fixes bugs — directly '
                     "on GitHub's runners, following your project standards from `CLAUDE.md`."},
- 'blocks': [{'type': 'text',
+ 'blocks': [{'type': 'text', 'id': 'text-1',
              'value': {'de': '## Was die GitHub-Action leistet\n'
                              '\n'
                              'Die **Claude Code GitHub Action** bringt agentic coding in deinen '
@@ -53,7 +53,7 @@ CI_CD_MODULE = {'key': 'ci-cd',
                              'is built on the Agent SDK — for custom automations beyond GitHub.'},
              'note': '/install-github-app als Vorführung; @claude in einem Test-Issue auslösen '
                      '(Secret vorher setzen).'},
-            {'type': 'text',
+            {'type': 'text', 'id': 'text-2',
              'value': {'de': '## Einrichtung\n'
                              '\n'
                              'Der schnellste Weg — interaktiv aus der CLI:\n'
@@ -92,7 +92,7 @@ CI_CD_MODULE = {'key': 'ci-cd',
                              '`.github/workflows/`. Alternative to the API key: a subscription '
                              'token from `claude setup-token` stored as the secret '
                              '`CLAUDE_CODE_OAUTH_TOKEN` (input `claude_code_oauth_token`).'}},
-            {'type': 'text',
+            {'type': 'text', 'id': 'text-3',
              'value': {'de': '## Ein einfacher Workflow\n'
                              '\n'
                              '```yaml\n'
@@ -155,7 +155,7 @@ CI_CD_MODULE = {'key': 'ci-cd',
                              '(run immediately with a `prompt`). The Action needs `id-token: write` '
                              'for its default GitHub App authentication; `actions/checkout` gives '
                              'Claude a working copy of the repo.'}},
-            {'type': 'check',
+            {'type': 'check', 'id': 'check-1',
              'payload': {'kind': 'choice',
                          'prompt_de': 'Wie löst du Claude in einem Issue oder PR aus?',
                          'prompt_en': 'How do you trigger Claude on an issue or PR?',
@@ -166,7 +166,7 @@ CI_CD_MODULE = {'key': 'ci-cd',
                          'options_en': ['With /claude',
                                         'With @claude in a comment',
                                         'With a Git tag']}},
-            {'type': 'text',
+            {'type': 'text', 'id': 'text-4',
              'value': {'de': '## Automatisiertes PR-Review\n'
                              '\n'
                              'Statt auf einen Trigger zu warten, kann Claude **jeden** PR prüfen. '
@@ -229,7 +229,7 @@ CI_CD_MODULE = {'key': 'ci-cd',
                              'result goes to the workflow run log by default; for Claude to comment '
                              'on the PR it needs suitable tools/write permissions — the official '
                              'docs show the `code-review` skill with `--comment` for this.'}},
-            {'type': 'text',
+            {'type': 'text', 'id': 'text-5',
              'value': {'de': '## Geplante Jobs & Kostenbewusstsein\n'
                              '\n'
                              'Weil es ein normaler Workflow ist, kannst du Claude auch **planen** '
@@ -262,7 +262,7 @@ CI_CD_MODULE = {'key': 'ci-cd',
                              '`--max-turns`, set workflow timeouts. And always: **secrets** via '
                              'GitHub Secrets, never hardcode keys in the workflow. (For GitLab, '
                              'GitLab CI/CD works analogously.)'}},
-            {'type': 'order',
+            {'type': 'order', 'id': 'order-1',
              'payload': {'prompt_de': 'Die GitHub-Integration aufsetzen — richtige Reihenfolge:',
                          'prompt_en': 'Setting up the GitHub integration — correct order:',
                          'items_de': ['/install-github-app in der CLI ausführen (als Repo-Admin)',
@@ -273,7 +273,7 @@ CI_CD_MODULE = {'key': 'ci-cd',
                                       'Store ANTHROPIC_API_KEY as a repository secret',
                                       'Create the workflow file in .github/workflows/',
                                       'Mention @claude in an issue and check the result']}},
-            {'type': 'debug',
+            {'type': 'debug', 'id': 'debug-1',
              'payload': {'prompt_de': 'Ein Workflow-Setup enthält einen Sicherheitsfehler. Welche '
                                       'Zeile ist falsch?',
                          'prompt_en': 'A workflow setup contains a security error. Which line is '
@@ -297,7 +297,7 @@ CI_CD_MODULE = {'key': 'ci-cd',
                                            '`anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}`. '
                                            'Hardcoded keys otherwise end up permanently in the Git '
                                            'history.'}},
-            {'type': 'reflect',
+            {'type': 'reflect', 'id': 'reflect-1',
              'payload': {'prompt_de': 'Welcher Schritt in eurem PR-Prozess (Review, Triage, '
                                       'Changelog, Übersetzung) ließe sich als erster sinnvoll an '
                                       'die GitHub-Action delegieren?',

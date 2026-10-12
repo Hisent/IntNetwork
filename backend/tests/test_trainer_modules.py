@@ -51,7 +51,9 @@ def test_quiz_stats_aggregate_per_question():
         assert by_id[ids[0]]["correct"] >= 2
         assert by_id[ids[1]]["correct"] >= 1
         assert all(q["prompt"] for q in data["questions"])
-        assert all(q["attempts"] == data["submissions"] for q in data["questions"])
+        # Versuch = Abgabe, die die Frage enthält: die zweite Abgabe kennt nur Frage 1
+        assert all(q["attempts"] <= data["submissions"] for q in data["questions"])
+        assert by_id[ids[1]]["attempts"] < by_id[ids[0]]["attempts"]
 
         assert c.get("/api/trainer/modules/nope/quiz-stats", headers=h).status_code == 404
         assert c.get("/api/trainer/modules/vlan/quiz-stats").status_code in (401, 403)

@@ -142,6 +142,19 @@ describe('Seiten-Smoke-Tests', () => {
     expect(localStorage.getItem('intnetwork-reflect-1-9-m2-0')).toBe('Notiz B')
   })
 
+  it('ModulePage meldet Präsenz nur im sichtbaren Tab und sofort bei Rückkehr', async () => {
+    useAuthStore.setState({ token: 'demo', role: 'participant', displayName: 'Ada' })
+    mockGet({})
+    const hidden = vi.spyOn(document, 'hidden', 'get').mockReturnValue(true)
+    renderWithProviders(<ModulePage />, { route: '/lernen/m1', path: '/lernen/:key' })
+    expect(api.post).not.toHaveBeenCalledWith('/modules/m1/heartbeat')
+
+    hidden.mockReturnValue(false)
+    document.dispatchEvent(new Event('visibilitychange'))
+    expect(api.post).toHaveBeenCalledWith('/modules/m1/heartbeat')
+    hidden.mockRestore()
+  })
+
   it('ModulePage leitet ohne Teilnehmer-Sitzung zur Startseite um', () => {
     renderWithProviders(<ModulePage />, { route: '/lernen/m1', path: '/lernen/:key' })
     expect(screen.queryByText('Konnte nicht geladen werden')).toBeNull()

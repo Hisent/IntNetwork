@@ -28,7 +28,7 @@ ASYMMETRISCH_MODULE = {
               'at stake if the server key is stolen years later.',
     },
     'blocks': [
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-1',
          'note': 'Diese Grundabgrenzung vor allem Weiteren klaeren — sonst vermischen Teilnehmende spaeter "verschluesseln" und "Schluessel aushandeln" (siehe DH-Abschnitt unten).',
          'value': {
              'de': '## Öffentlicher und privater Schlüssel — was womit geht\n\n'
@@ -63,7 +63,7 @@ ASYMMETRISCH_MODULE = {
                    'owner. Everything RSA, ECC, and similar schemes offer in terms of security '
                    'depends on exactly one private key staying with exactly one party.',
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-2',
          'value': {
              'de': '## RSA vs. ECC: gleiche Sicherheit, sehr unterschiedliche Schlüssellänge\n\n'
                    'RSA und ECC (Elliptic Curve Cryptography) sind beides asymmetrische Verfahren, '
@@ -114,7 +114,7 @@ ASYMMETRISCH_MODULE = {
                    'in private PKIs. For SSH keys, on the other hand, Ed25519 is already the '
                    'preferred choice per common recommendation.',
          }},
-        {'type': 'check',
+        {'type': 'check', 'id': 'check-1',
          'payload': {
              'kind': 'choice',
              'prompt_de': 'Was ist der zentrale praktische Vorteil von ECC gegenüber RSA bei '
@@ -137,7 +137,7 @@ ASYMMETRISCH_MODULE = {
                  'ECC completely eliminates the need for a key exchange',
              ],
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-3',
          'value': {
              'de': '## Diffie-Hellman/ECDHE: Schlüsseleinigung, kein Verschlüsseln\n\n'
                    'Ein häufiger Denkfehler: Diffie-Hellman (DH) bzw. seine elliptische Variante '
@@ -170,7 +170,7 @@ ASYMMETRISCH_MODULE = {
          'note': 'Direkt nach dem DH-Text einsetzen: den ECDHE-Ablauf interaktiv durchspielen '
                  'lassen, damit sichtbar wird, dass ein Mithoerer trotz oeffentlich sichtbarem '
                  'Nachrichtenaustausch das gemeinsame Geheimnis nicht berechnen kann.'},
-        {'type': 'debug',
+        {'type': 'debug', 'id': 'debug-1',
          'payload': {
              'prompt_de': 'Ein neuer Kollege erklärt im Standup, wie TLS Schlüssel austauscht. '
                           'Welche der folgenden vier Aussagen ist falsch?',
@@ -204,7 +204,7 @@ ASYMMETRISCH_MODULE = {
                                'by a symmetric scheme (e.g. AES-GCM), not by ECDHE itself. '
                                'Conflating the two confuses key agreement with encryption.',
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-4',
          'note': 'PFS ist der schwierigste Begriff des Moduls — die "Aufzeichnen und spaeter entschluesseln"-Bedrohung konkret machen, das macht den Nutzen greifbar.',
          'value': {
              'de': '## Perfect Forward Secrecy: warum flüchtige Schlüssel zählen\n\n'
@@ -254,7 +254,7 @@ ASYMMETRISCH_MODULE = {
                    'possibility remained there to fully decrypt historical traffic if the key was '
                    'ever stolen.',
          }},
-        {'type': 'check',
+        {'type': 'check', 'id': 'check-2',
          'payload': {
              'kind': 'choice',
              'prompt_de': 'Warum hat TLS 1.3 die statische RSA-Schlüsselübertragung als Option '
@@ -277,7 +277,7 @@ ASYMMETRISCH_MODULE = {
                  'Because RSA keys are no longer needed for signatures',
              ],
          }},
-        {'type': 'reflect',
+        {'type': 'reflect', 'id': 'reflect-1',
          'payload': {
              'prompt_de': 'Ein Kollege argumentiert: "Unser Serverschlüssel ist gut geschützt, '
                          'ein Diebstahl ist unwahrscheinlich — deshalb brauchen wir kein PFS." '

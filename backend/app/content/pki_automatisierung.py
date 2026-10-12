@@ -30,7 +30,7 @@ PKI_AUTOMATISIERUNG_MODULE = {
               'to make automation the default instead of a nice-to-have.',
     },
     'blocks': [
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-1',
          'note': 'Einstieg bewusst an das Vormodul (zertifikats-lebenszyklus) anschliessen: kuerzere '
                  'Laufzeiten sind der eigentliche Treiber, nicht Bequemlichkeit. Diesen Zusammenhang '
                  'explizit machen, sonst wirkt Automatisierung wie ein Nice-to-have.',
@@ -55,7 +55,7 @@ PKI_AUTOMATISIERUNG_MODULE = {
                    'reliable operations**. The rest of this module shows which building blocks make '
                    'this possible — from the open ACME protocol to the Windows-native solution AD CS.',
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-2',
          'value': {
              'de': '## ACME: Automatisierung von Anfang bis Ende\n\n'
                    '**ACME** (Automated Certificate Management Environment, RFC 8555) ist ein Protokoll, '
@@ -84,7 +84,7 @@ PKI_AUTOMATISIERUNG_MODULE = {
                    '- The client can trigger **renewal** on its own, in good time before expiry — '
                    'exactly what makes ACME practical at short lifetimes.',
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-3',
          'value': {
              'de': '## Domain-Validierung: HTTP-01 vs. DNS-01\n\n'
                    'ACME kennt mehrere Challenge-Typen, mit denen die CA prüft, ob der Antragsteller '
@@ -122,7 +122,7 @@ PKI_AUTOMATISIERUNG_MODULE = {
                    'file. DNS-01 still works here, because only the DNS answer needs to be publicly '
                    'visible, not the server itself.',
          }},
-        {'type': 'check',
+        {'type': 'check', 'id': 'check-1',
          'payload': {
              'kind': 'choice',
              'prompt_de': 'Nordwind Logistik will ein Wildcard-Zertifikat für *.nordwind-intern.de '
@@ -145,7 +145,7 @@ PKI_AUTOMATISIERUNG_MODULE = {
                  'HTTP-01 only works with internal CAs like smallstep',
              ],
          }},
-        {'type': 'order',
+        {'type': 'order', 'id': 'order-1',
          'payload': {
              'prompt_de': 'Bringe die Schritte einer ACME-Zertifikatsausstellung in die richtige '
                           'Reihenfolge.',
@@ -169,7 +169,7 @@ PKI_AUTOMATISIERUNG_MODULE = {
                  'Client automatically renews the certificate in good time before expiry',
              ],
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-4',
          'value': {
              'de': '## Let\'s Encrypt und interne CAs\n\n'
                    '**Let\'s Encrypt** ist der bekannteste ACME-Anbieter und hat ACME als Standard für '
@@ -192,7 +192,7 @@ PKI_AUTOMATISIERUNG_MODULE = {
                    'servers and databases can obtain certificates just as automatically as the public '
                    'website.',
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-5',
          'value': {
              'de': '## Microsoft AD CS für Windows-Umgebungen\n\n'
                    'In reinen Windows-/Active-Directory-Umgebungen ist **Microsoft AD CS (Active '
@@ -222,7 +222,7 @@ PKI_AUTOMATISIERUNG_MODULE = {
                    '(RFC 7030) natively**. Anyone who still wants to reach AD CS via ACME needs a '
                    'bridge/adapter solution in between.',
          }},
-        {'type': 'check',
+        {'type': 'check', 'id': 'check-2',
          'payload': {
              'kind': 'choice',
              'prompt_de': 'Ein Kollege will AD CS direkt per ACME ansprechen, wie er es von seinem '
@@ -243,7 +243,7 @@ PKI_AUTOMATISIERUNG_MODULE = {
                  'ACME only works with public CAs, never with AD CS',
              ],
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-6',
          'value': {
              'de': '## Der Betriebsklassiker: das vergessene Zertifikat\n\n'
                    'So gut Automatisierung auch funktioniert — irgendwo im Unternehmen findet sich '
@@ -274,7 +274,7 @@ PKI_AUTOMATISIERUNG_MODULE = {
                    'With lifetimes headed toward just 47 days, such an inventory is no longer '
                    'optional — it is the only way to keep an overview at all.',
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-7',
          'value': {
              'de': '## Private Schlüssel: wo sie nicht hingehören\n\n'
                    'Ein Grundsatz, der bei aller Automatisierung nie unterlaufen werden sollte: '
@@ -300,7 +300,7 @@ PKI_AUTOMATISIERUNG_MODULE = {
                    'physically never leaves the HSM, all signing/decryption operations happen inside '
                    'the module.',
          }},
-        {'type': 'reflect',
+        {'type': 'reflect', 'id': 'reflect-1',
          'payload': {
              'prompt_de': 'Wo in eurer Umgebung würde ein vergessenes, bald ablaufendes Zertifikat am '
                           'ehesten auffallen — und wo würde es am längsten unbemerkt bleiben? Was '

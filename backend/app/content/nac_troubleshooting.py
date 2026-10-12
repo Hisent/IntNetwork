@@ -35,7 +35,7 @@ NAC_TROUBLESHOOTING_MODULE = {
               'This wrap-up module practices exactly that, across the entire course.',
     },
     'blocks': [
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-1',
          'note': 'Diesen Pfad als Skelett fuer den ganzen Debug-Teil des Moduls nutzen: bei '
                  'jedem Fehlerbild danach fragen lassen, an welcher der vier Stationen es haengt.',
          'value': {
@@ -64,7 +64,7 @@ NAC_TROUBLESHOOTING_MODULE = {
                    'request reach the RADIUS server, but the answer does not fit? Then the '
                    'cause sits further back in the chain.',
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-2',
          'value': {
              'de': '## Am Client: Supplicant und Zertifikat\n\n'
                    '- **Supplicant nicht konfiguriert** — die häufigste Grundursache für '
@@ -89,7 +89,7 @@ NAC_TROUBLESHOOTING_MODULE = {
                    '"parking lot" — a restricted network segment for devices with a failed '
                    'certificate, often combined with MAB as a fallback.',
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-3',
          'value': {
              'de': '## Am RADIUS: falsches VLAN und ungewollter MAB-Fallback\n\n'
                    '- **Falsches VLAN zugewiesen** — entsteht aus der Attribut-/Regel-Mechanik '
@@ -119,7 +119,7 @@ NAC_TROUBLESHOOTING_MODULE = {
                    'accidentally ends up in a production network instead of a restricted one — '
                    'tight, clearly scoped authorization rules for the MAB case are the key here.',
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-4',
          'value': {
              'de': '## Infrastruktur: RADIUS nicht erreichbar und Zeitsynchronisation\n\n'
                    '- **RADIUS-Server nicht erreichbar** — führt in die Fail-Open/Fail-Closed-'
@@ -152,7 +152,7 @@ NAC_TROUBLESHOOTING_MODULE = {
                    'all involved systems (including endpoints such as printers) remains the '
                    'actual safeguard.',
          }},
-        {'type': 'check',
+        {'type': 'check', 'id': 'check-1',
          'payload': {
              'kind': 'choice',
              'prompt_de': 'Ein Client sendet gar keine EAPOL-Antwort, der Switch bekommt also '
@@ -175,7 +175,7 @@ NAC_TROUBLESHOOTING_MODULE = {
                  'At the PKI',
              ],
          }},
-        {'type': 'check',
+        {'type': 'check', 'id': 'check-2',
          'payload': {
              'kind': 'choice',
              'prompt_de': 'Warum ist ein ungewollter MAB-Fallback ein eigenständiges Risiko, '
@@ -201,7 +201,7 @@ NAC_TROUBLESHOOTING_MODULE = {
                  'Because MAB automatically revokes all certificates',
              ],
          }},
-        {'type': 'order',
+        {'type': 'order', 'id': 'order-1',
          'payload': {
              'prompt_de': 'Bringe die Prüfschritte einer systematischen NAC-Fehlersuche entlang '
                           'des Pfads in die richtige Reihenfolge.',
@@ -226,7 +226,7 @@ NAC_TROUBLESHOOTING_MODULE = {
                  'directory response?',
              ],
          }},
-        {'type': 'debug',
+        {'type': 'debug', 'id': 'debug-1',
          'payload': {
              'prompt_de': 'Meldung: „Der Laptop von Mitarbeiterin Kaya kommt seit heute Morgen '
                           'nicht mehr per 802.1X ins Netz, landet aber trotzdem im normalen '
@@ -273,7 +273,7 @@ NAC_TROUBLESHOOTING_MODULE = {
                                'broad authorization rule for the MAB case that wrongly places '
                                'the device into production instead of a restricted network.',
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-5',
          'value': {
              'de': '## Der rote Faden: ein Lehrgang, eine Kette\n\n'
                    'Dieser Lehrgang hat die gesamte Kette einmal durchmessen, die eine '
@@ -319,7 +319,7 @@ NAC_TROUBLESHOOTING_MODULE = {
                    'once — systematic troubleshooting therefore also means being able to move '
                    'between stations in the chain instead of getting stuck at one.',
          }},
-        {'type': 'reflect',
+        {'type': 'reflect', 'id': 'reflect-1',
          'payload': {
              'prompt_de': 'Der Lehrgang ist damit abgeschlossen. Wenn du morgen bei einer '
                           'Umgebung wie Nordwind anfangen würdest: Welchen einzelnen Baustein '

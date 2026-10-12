@@ -23,7 +23,7 @@ ROLLEN_MODULE = {
                     'copy-pasted across different projects. A **role** bundles related tasks, '
                     'templates, and variables into a fixed, reusable structure — one role per '
                     'function.'},
- 'blocks': [{'type': 'text',
+ 'blocks': [{'type': 'text', 'id': 'text-1',
              'value': {'de': '## Die Standard-Verzeichnisstruktur\n'
                              '\n'
                              '```text\n'
@@ -76,7 +76,7 @@ ROLLEN_MODULE = {
                              'Ansible finds these files automatically based on the directory '
                              'name — without this convention, every path would have to be '
                              'listed individually in the playbook.'}},
-            {'type': 'text',
+            {'type': 'text', 'id': 'text-2',
              'note': 'Gute Stelle fuer die Frage, ab wann sich eine Rolle lohnt. Faustregel im Kurs: sobald dieselbe Aufgabe in einem zweiten Playbook auftaucht.',
              'value': {'de': '## defaults vs. vars — die Priorität entscheidet\n'
                              '\n'
@@ -109,7 +109,7 @@ ROLLEN_MODULE = {
                              '\n'
                              '`meta/main.yml` can additionally declare dependencies on other '
                              'roles (`dependencies:`) — those run before the role itself.'}},
-            {'type': 'check',
+            {'type': 'check', 'id': 'check-1',
              'payload': {'kind': 'choice',
                          'prompt_de': 'In welches Verzeichnis gehört ein Standardwert, den '
                                       'Nutzer der Rolle typischerweise überschreiben sollen?',
@@ -118,7 +118,7 @@ ROLLEN_MODULE = {
                          'answer': 0,
                          'options_de': ['defaults/', 'vars/', 'meta/', 'handlers/'],
                          'options_en': ['defaults/', 'vars/', 'meta/', 'handlers/']}},
-            {'type': 'text',
+            {'type': 'text', 'id': 'text-3',
              'value': {'de': '## Gerüst erzeugen: ansible-galaxy init\n'
                              '\n'
                              '`ansible-galaxy role init webserver` legt die komplette '
@@ -135,7 +135,7 @@ ROLLEN_MODULE = {
                              'directory and file by hand. The result can then be filled in step '
                              'by step: tasks first, then handlers, templates, and defaults as '
                              'needed.'}},
-            {'type': 'text',
+            {'type': 'text', 'id': 'text-4',
              'value': {'de': '## Rollen einbinden\n'
                              '\n'
                              'Zwei gebräuchliche Wege:\n'
@@ -192,7 +192,7 @@ ROLLEN_MODULE = {
                              'run only conditionally (`when`) or repeatedly (`loop`). '
                              '`import_role` does not support `loop` for this; `include_role` '
                              'does.'}},
-            {'type': 'debug',
+            {'type': 'debug', 'id': 'debug-1',
              'payload': {'prompt_de': 'Dieser Verzeichnisbaum einer neuen Rolle soll dem '
                                       'Standardlayout folgen, damit Ansible die Dateien '
                                       'automatisch findet. Eine Zeile weicht vom Standard ab. '
@@ -228,7 +228,7 @@ ROLLEN_MODULE = {
                                            'and other metadata exclusively in the dedicated '
                                            '`meta/` directory — in the wrong location the file '
                                            'is simply ignored.'}},
-            {'type': 'text',
+            {'type': 'text', 'id': 'text-5',
              'value': {'de': '## Wiederverwendbarkeit und wann sich eine Rolle lohnt\n'
                              '\n'
                              'Rollen zahlen sich vor allem aus, wenn mindestens eines zutrifft:\n'
@@ -260,7 +260,7 @@ ROLLEN_MODULE = {
                              '\n'
                              'For a one-off, short playbook with no reuse need, the extra '
                              'structural overhead of a role usually is not worth it.'}},
-            {'type': 'reveal',
+            {'type': 'reveal', 'id': 'reveal-1',
              'payload': {'teaser_de': 'Variante A: ein einziges Playbook mit 40 Tasks für '
                                       'Webserver, Datenbank und Monitoring. Variante B: '
                                       'dieselbe Automatisierung als drei Rollen. Was ist der '
@@ -284,7 +284,7 @@ ROLLEN_MODULE = {
                              'monitoring setup needs to be reused in a second project, '
                              'maintained by someone else, or tested independently. As project '
                              'size grows, the trade-off almost always tips in favor of roles.'}},
-            {'type': 'reflect',
+            {'type': 'reflect', 'id': 'reflect-1',
              'payload': {'prompt_de': 'Denk an ein Playbook aus deinem Umfeld: Welcher '
                                       'Aufgabenblock darin (z. B. „Datenbank-Setup" oder '
                                       '„Monitoring-Agent installieren") wäre ein guter Kandidat '

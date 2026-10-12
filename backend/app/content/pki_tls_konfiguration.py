@@ -25,7 +25,7 @@ TLS_KONFIGURATION_MODULE = {
               'hardening measures such as HSTS and OCSP stapling are still missing?',
     },
     'blocks': [
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-1',
          'note': 'Teilnehmende oft daran erinnern, dass eine Cipher Suite kein einzelner Algorithmus ist, sondern ein Buendel aus mehreren Verfahren. Den Namen Baustein fuer Baustein an der Tafel/im Chat zerlegen, bevor es weitergeht.',
          'value': {
              'de': '## Eine Cipher Suite in TLS 1.2 lesen\n\n'
@@ -56,7 +56,7 @@ TLS_KONFIGURATION_MODULE = {
                    '(ECDHE yes/no)? Which signature scheme authenticates the server? Does the '
                    'encryption run over a modern AEAD cipher?',
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-2',
          'value': {
              'de': '## TLS 1.3: die Suite wird schlanker\n\n'
                    'In TLS 1.3 sieht eine Cipher Suite deutlich kürzer aus, z. B. `TLS_AES_128_GCM_'
@@ -77,7 +77,7 @@ TLS_KONFIGURATION_MODULE = {
                    'ECDHE/RSA/ECDSA simply no longer appear in the suite itself, even though they still '
                    'play a role in the handshake.',
          }},
-        {'type': 'check',
+        {'type': 'check', 'id': 'check-1',
          'payload': {
              'kind': 'choice',
              'prompt_de': 'Warum benennt eine TLS-1.3-Cipher-Suite wie `TLS_AES_128_GCM_SHA256` keinen Schlüsseltausch- oder Authentifizierungsalgorithmus?',
@@ -96,7 +96,7 @@ TLS_KONFIGURATION_MODULE = {
                  'Because TLS 1.3 works exclusively with pre-installed pre-shared keys',
              ],
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-3',
          'value': {
              'de': '## Die drei Mozilla-Profile\n\n'
                    'Der Mozilla SSL Configuration Generator bietet drei fertige Profile für gängige '
@@ -128,7 +128,7 @@ TLS_KONFIGURATION_MODULE = {
                    'clients connect is "modern" the right choice — when in doubt, "intermediate" is the '
                    'safer starting point.',
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-4',
          'value': {
              'de': '## HSTS: HTTPS erzwingen (RFC 6797)\n\n'
                    'Der Header **Strict-Transport-Security** weist den Browser an, eine Domain '
@@ -157,7 +157,7 @@ TLS_KONFIGURATION_MODULE = {
                    '- **preload** — consent for the domain to be included in the browsers\' HSTS '
                    'preload list (more on that in the next block).',
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-5',
          'value': {
              'de': '## Die Preload-Falle\n\n'
                    'Für die Aufnahme in die Preload-Liste gilt: `max-age` muss mindestens ein Jahr '
@@ -183,7 +183,7 @@ TLS_KONFIGURATION_MODULE = {
                    'be certain that **all** subdomains really are permanently HTTPS-capable before the '
                    'header gets set.',
          }},
-        {'type': 'check',
+        {'type': 'check', 'id': 'check-2',
          'payload': {
              'kind': 'choice',
              'prompt_de': 'Was ist die praktische Falle bei der HSTS-Preload-Option?',
@@ -202,7 +202,7 @@ TLS_KONFIGURATION_MODULE = {
                  'A domain that has landed in the browsers\' preload list is difficult and slow to remove again',
              ],
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-6',
          'value': {
              'de': '## Mixed Content\n\n'
                    'Auch wenn die Seite selbst über HTTPS ausgeliefert wird, kann sie Ressourcen (Bilder, '
@@ -220,7 +220,7 @@ TLS_KONFIGURATION_MODULE = {
                    'Practical rule: after migrating to HTTPS, check all embedded resources for '
                    '`https://` or protocol-relative/relative paths.',
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-7',
          'value': {
              'de': '## Was in einer aktuellen Konfiguration nichts mehr zu suchen hat\n\n'
                    'Eine moderne TLS-Serverkonfiguration schließt aus:\n\n'
@@ -244,7 +244,7 @@ TLS_KONFIGURATION_MODULE = {
                    'Anyone reviewing an existing configuration should specifically look for exactly '
                    'these points before dealing with finer details such as cipher ordering.',
          }},
-        {'type': 'debug',
+        {'type': 'debug', 'id': 'debug-1',
          'payload': {
              'prompt_de': 'Ein Kollege bei Nordwind Logistik zeigt dir folgenden Auszug aus einer '
                           'nginx-TLS-Konfiguration zur Prüfung:\n\n'
@@ -292,7 +292,7 @@ TLS_KONFIGURATION_MODULE = {
                                '`TLSv1.3` (modern). The `preload` directive is also still missing from '
                                'the header if the domain is actually meant to join the preload list.',
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-8',
          'value': {
              'de': '## Kurz auch: OCSP-Stapling und vollständige Kette\n\n'
                    'Zwei weitere Punkte, die bei jeder Serverkonfiguration geprüft werden sollten:\n\n'
@@ -315,7 +315,7 @@ TLS_KONFIGURATION_MODULE = {
                    'server must also send the intermediate certificates, otherwise verification fails '
                    'for clients that do not already have the intermediate cached locally.',
          }},
-        {'type': 'reflect',
+        {'type': 'reflect', 'id': 'reflect-1',
          'payload': {
              'prompt_de': 'Ein Dienst von Nordwind Logistik muss noch von einigen älteren '
                           'internen Clients erreichbar sein, die kein TLS 1.3 unterstützen. Wie gehst '

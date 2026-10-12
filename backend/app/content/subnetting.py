@@ -20,7 +20,7 @@ SUBNETTING_MODULE = {
               "a device know whether a destination is on the same network or has to go through the router?",
     },
     "blocks": [
-        {"type": "text",
+        {"type": "text", "id": "text-1",
          "value": {
              "de": "## IP-Adresse & Subnetzmaske\n\nEine **IPv4-Adresse** "
                    "(z.B. `192.168.10.37`) hat 32 Bit. Die **Subnetzmaske** (bzw. der "
@@ -35,7 +35,7 @@ SUBNETTING_MODULE = {
                    "- **Host part** — on the right, individual per device.\n\n"
                    "`/24` means: the first **24 bits** are network, the remaining **8 bits** are host.",
          }},
-        {"type": "text",
+        {"type": "text", "id": "text-2",
          "value": {
              "de": "## Netz-, Broadcast- & Host-Adressen\n\n"
                    "- **Netzadresse**: Hostanteil komplett `0` (`192.168.10.0`) — benennt das Netz.\n"
@@ -87,13 +87,13 @@ SUBNETTING_MODULE = {
         {"type": "widget", "id": "visual-subnet-map",
          "note": "Ein /24 visuell bis /28 teilen und die entstehenden Netze vergleichen."},
         {"type": "widget", "id": "learning-subnet", "note": "Kleinste passende Subnetze für Abteilungen planen."},
-        {"type": "check", "payload": {
+        {"type": "check", "id": "check-2", "payload": {
             "kind": "number",
             "prompt_de": "Wie viele nutzbare Host-Adressen hat ein /26-Subnetz?",
             "prompt_en": "How many usable host addresses does a /26 subnet have?",
             "answer": 62,
         }},
-        {"type": "text",
+        {"type": "text", "id": "text-4",
          "value": {
              "de": "## Liegt das Ziel im selben Netz?\n\nBevor ein Gerät ein Paket "
                    "verschickt, prüft es: Liegt die Ziel-IP in meinem eigenen Subnetz? Dafür "

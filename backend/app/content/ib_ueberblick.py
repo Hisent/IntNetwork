@@ -34,7 +34,7 @@ INFOBLOX_UEBERBLICK_MODULE = {
     },
     'blocks': [
         {
-            'type': 'text',
+            'type': 'text', 'id': 'text-1',
             'value': {
                 'de': '## Was bedeutet DDI?\n'
                       '\n'
@@ -74,7 +74,7 @@ INFOBLOX_UEBERBLICK_MODULE = {
                     'Reverse-Lookups), bevor der Begriff DDI eingeführt wird.',
         },
         {
-            'type': 'text',
+            'type': 'text', 'id': 'text-2',
             'value': {
                 'de': '## Drei Werkzeuge oder ein System?\n'
                       '\n'
@@ -115,7 +115,7 @@ INFOBLOX_UEBERBLICK_MODULE = {
             },
         },
         {
-            'type': 'text',
+            'type': 'text', 'id': 'text-3',
             'value': {
                 'de': '## Produktlandschaft: NIOS und Universal DDI\n'
                       '\n'
@@ -167,7 +167,7 @@ INFOBLOX_UEBERBLICK_MODULE = {
             },
         },
         {
-            'type': 'check',
+            'type': 'check', 'id': 'check-1',
             'payload': {
                 'kind': 'choice',
                 'prompt_de': 'Welche Aussage zu NIOS und Universal DDI trifft zu?',
@@ -199,7 +199,7 @@ INFOBLOX_UEBERBLICK_MODULE = {
             },
         },
         {
-            'type': 'text',
+            'type': 'text', 'id': 'text-4',
             'value': {
                 'de': '## Infoblox Threat Defense: Umbenennung, nicht neue Funktion\n'
                       '\n'
@@ -232,7 +232,7 @@ INFOBLOX_UEBERBLICK_MODULE = {
             },
         },
         {
-            'type': 'order',
+            'type': 'order', 'id': 'order-1',
             'payload': {
                 'prompt_de': 'Bring die typischen Entwicklungsstufen eines '
                              'Unternehmens auf dem Weg zu zentraler '
@@ -267,7 +267,7 @@ INFOBLOX_UEBERBLICK_MODULE = {
             },
         },
         {
-            'type': 'debug',
+            'type': 'debug', 'id': 'debug-1',
             'payload': {
                 'prompt_de': 'Vier Aussagen zur aktuellen Infoblox-Produktlandschaft '
                              '— welche ist falsch?',
@@ -309,7 +309,7 @@ INFOBLOX_UEBERBLICK_MODULE = {
             },
         },
         {
-            'type': 'reveal',
+            'type': 'reveal', 'id': 'reveal-1',
             'payload': {
                 'teaser_de': 'Kurzfall: Die Dokumentation, die du von einem Kunden '
                              'erhalten hast, spricht durchgehend von BloxOne DDI. '

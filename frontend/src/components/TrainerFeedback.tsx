@@ -93,8 +93,11 @@ function FeedbackModule({
                   onClick={() => {
                     const body = (drafts[g.blockIndex] ?? '').trim()
                     if (body) {
-                      add.mutate({ blockIndex: g.blockIndex, body })
-                      setDrafts((d) => ({ ...d, [g.blockIndex]: '' }))
+                      // Entwurf erst nach Erfolg leeren — schlägt das Senden fehl,
+                      // bleibt der Text zum erneuten Versuch stehen.
+                      add.mutate({ blockIndex: g.blockIndex, body }, {
+                        onSuccess: () => setDrafts((d) => ({ ...d, [g.blockIndex]: '' })),
+                      })
                     }
                   }}
                   className="rounded-lg bg-teal-600 hover:bg-teal-700 text-white px-3 text-sm font-medium"

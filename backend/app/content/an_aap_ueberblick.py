@@ -24,7 +24,7 @@ AAP_UEBERBLICK_MODULE = {'key': 'automation-platform-ueberblick',
                     "recurring schedules, and self-service for people who aren't Ansible "
                     'experts, needs more than a terminal. That gap is exactly what an '
                     'automation platform on top of the Ansible core fills.'},
- 'blocks': [{'type': 'text',
+ 'blocks': [{'type': 'text', 'id': 'text-1',
              'value': {'de': '## Warum eine Plattform über dem Kern?\n'
                              '\n'
                              '`ansible-core` plus Collections reicht, um Playbooks zu schreiben '
@@ -59,7 +59,7 @@ AAP_UEBERBLICK_MODULE = {'key': 'automation-platform-ueberblick',
                              'about the underlying Ansible core (modules, playbooks, YAML).'},
              'note': 'Bewusst „eine Automatisierungsplattform” statt konkreter Versionsnummer '
                      '(2.5/2.6/2.7 lt. Recherche unklar) — siehe Hinweis weiter unten.'},
-            {'type': 'text',
+            {'type': 'text', 'id': 'text-2',
              'value': {'de': '## Control Plane und Execution Plane\n'
                              '\n'
                              'Eine zentrale Architekturidee ist die Trennung zweier Ebenen:\n'
@@ -99,7 +99,7 @@ AAP_UEBERBLICK_MODULE = {'key': 'automation-platform-ueberblick',
                              '**Automation Controller**, **Automation Hub**, **Execution '
                              'Environments**, **Automation Mesh**, and **Event-Driven Ansible '
                              '(EDA)**.'}},
-            {'type': 'check',
+            {'type': 'check', 'id': 'check-1',
              'payload': {'kind': 'choice',
                          'prompt_de': 'Was ist der zentrale Unterschied zwischen Control Plane '
                                       'und Execution Plane?',
@@ -118,7 +118,7 @@ AAP_UEBERBLICK_MODULE = {'key': 'automation-platform-ueberblick',
                                         'The control plane only runs on Windows, the execution '
                                         'plane only on Linux',
                                         "There's no difference, both terms mean the same thing"]}},
-            {'type': 'text',
+            {'type': 'text', 'id': 'text-3',
              'value': {'de': '## Automation Controller und Automation Hub\n'
                              '\n'
                              '**Automation Controller** ist die zentrale Stelle zum Definieren, '
@@ -161,7 +161,7 @@ AAP_UEBERBLICK_MODULE = {'key': 'automation-platform-ueberblick',
                              '“Private Automation Hub” for offline/on-prem operation. It '
                              'complements the public Ansible Galaxy with curated or certified '
                              'collections in a controlled, internal source.'}},
-            {'type': 'order',
+            {'type': 'order', 'id': 'order-1',
              'payload': {'prompt_de': 'Ein Playbook soll über die Plattform ausgeführt werden. '
                                       'Bring die Stationen in die Reihenfolge, in der sie '
                                       'thematisch zusammenpassen — von „wo der Code liegt” bis '
@@ -187,7 +187,7 @@ AAP_UEBERBLICK_MODULE = {'key': 'automation-platform-ueberblick',
                                       'Execution Environment — the container on the execution '
                                       'node in which the playbook actually runs with the matching '
                                       'collection versions']}},
-            {'type': 'text',
+            {'type': 'text', 'id': 'text-4',
              'value': {'de': '## Execution Environments: Container statt gewachsenem Control '
                              'Node\n'
                              '\n'
@@ -236,7 +236,7 @@ AAP_UEBERBLICK_MODULE = {'key': 'automation-platform-ueberblick',
                              'jobs.'},
              'note': 'ansible-navigator und ansible-builder nur benennen; Bedienung ist '
                      'nicht Teil dieses Überblicksmoduls.'},
-            {'type': 'reveal',
+            {'type': 'reveal', 'id': 'reveal-1',
              'payload': {'teaser_de': 'Übung: Zwei Teams beschweren sich, dass „das Playbook bei '
                                       'uns anders läuft als beim anderen Team, obwohl der Code '
                                       'identisch ist”. Welche der bisher genannten Komponenten '
@@ -261,7 +261,7 @@ AAP_UEBERBLICK_MODULE = {'key': 'automation-platform-ueberblick',
                              'execution behave differently. The “it ran differently for me” '
                              'problem is solved structurally through a shared, reproducible '
                              'image, rather than through manual version reconciliation.'}},
-            {'type': 'text',
+            {'type': 'text', 'id': 'text-5',
              'value': {'de': '## Automation Mesh und Event-Driven Ansible\n'
                              '\n'
                              '**Automation Mesh** verteilt Ausführungsknoten über Netzwerkgrenzen '
@@ -316,7 +316,7 @@ AAP_UEBERBLICK_MODULE = {'key': 'automation-platform-ueberblick',
              'note': 'Versionsnummern zu ansible-rulebook/ansible.eda bewusst weggelassen — '
                      'Recherche stützt sich nur auf einzelne Fundstellen, nicht auf eine '
                      'verifizierte Versionsmatrix.'},
-            {'type': 'reflect',
+            {'type': 'reflect', 'id': 'reflect-1',
              'payload': {'prompt_de': 'Stell dir ein Team mit fünf Personen vor, das aktuell nur '
                                       'per CLI automatisiert. Welche der hier vorgestellten '
                                       'Komponenten (Controller, Hub, Execution Environment, Mesh, '

@@ -27,7 +27,7 @@ NAC_RADIUS_MODULE = {
               'before expanding the configuration further.',
     },
     'blocks': [
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-1',
          'note': 'Die vier Antworttypen sind die Grundlage fuer den spaeteren Debug-Block. Hier '
                  'ruhig mit konkreten Beispielen pro Typ arbeiten, nicht nur die Namen nennen.',
          'value': {
@@ -59,7 +59,7 @@ NAC_RADIUS_MODULE = {
                    'password, a PIN, or a token; used for multi-step EAP exchanges (see module '
                    'nac-8021x, step 5 of the flow).',
          }},
-        {'type': 'check',
+        {'type': 'check', 'id': 'check-1',
          'payload': {
              'kind': 'choice',
              'prompt_de': 'Ein Gerät liefert gültige Zugangsdaten, der RADIUS-Server benötigt '
@@ -82,7 +82,7 @@ NAC_RADIUS_MODULE = {
                  'Access-Challenge',
              ],
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-2',
          'value': {
              'de': '## Dynamische VLAN-Zuweisung über Attribute\n\n'
                    'Im **Access-Accept** kann der RADIUS-Server Attribute mitschicken, die dem '
@@ -108,7 +108,7 @@ NAC_RADIUS_MODULE = {
                    'VLAN, a guest into the guest VLAN — without manually reconfiguring anything '
                    'at the port itself. This builds on the platform\'s VLAN module.',
          }},
-        {'type': 'debug',
+        {'type': 'debug', 'id': 'debug-1',
          'payload': {
              'prompt_de': 'Ein Mitarbeiter-Laptop bei Nordwind wird erfolgreich authentifiziert '
                           '(Access-Accept), landet aber im Gäste-VLAN statt im Mitarbeiter-VLAN. '
@@ -149,7 +149,7 @@ NAC_RADIUS_MODULE = {
                                'Private-Group-ID values, or a misconfigured authorization rule '
                                'that matches the user to the wrong group.',
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-3',
          'value': {
              'de': '## Accounting\n\n'
                    'Neben Authentifizierung und Autorisierung übernimmt RADIUS auch '
@@ -172,7 +172,7 @@ NAC_RADIUS_MODULE = {
                    'device was active in which network segment and when — relevant for audits '
                    'and incident analysis.',
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-4',
          'note': 'RadSec kompakt halten: Kernpunkt ist TLS-Kapselung ganzer RADIUS-Pakete statt '
                  'nur des Passworts. Keine Konfigurationsdetails, nur das Prinzip.',
          'value': {
@@ -198,7 +198,7 @@ NAC_RADIUS_MODULE = {
                    'For Nordwind, RadSec matters especially when RADIUS traffic crosses '
                    'unsecured or less trusted network segments, e.g. between sites.',
          }},
-        {'type': 'check',
+        {'type': 'check', 'id': 'check-2',
          'payload': {
              'kind': 'choice',
              'prompt_de': 'Was verbessert RadSec gegenüber klassischem RADIUS über UDP?',
@@ -218,7 +218,7 @@ NAC_RADIUS_MODULE = {
                  'It replaces Access-Challenge with a new packet format',
              ],
          }},
-        {'type': 'text',
+        {'type': 'text', 'id': 'text-5',
          'value': {
              'de': '## Abgrenzung zu TACACS+\n\n'
                    '**TACACS+** stellt, wie RADIUS, zentrales AAA bereit — aber für einen '
@@ -249,7 +249,7 @@ NAC_RADIUS_MODULE = {
                    'would decide who can log into a switch and which commands they may run '
                    'there.',
          }},
-        {'type': 'reflect',
+        {'type': 'reflect', 'id': 'reflect-1',
          'payload': {
              'prompt_de': 'Nordwind nutzt RADIUS bereits für den Netzzugang der Mitarbeiter-'
                           'Laptops. Nun soll auch geregelt werden, wer sich auf den Switches '

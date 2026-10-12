@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { ChallengeBox } from '@/components/ChallengeBox'
 import type { Lang } from '@/lib/i18n'
+import { diagnosisForSymptom, isValidAddressFilter, type DhcpDiagnosis, type DhcpSymptom } from './learningLabLogic'
 
 type Mode = 'route' | 'policy' | 'dhcp' | 'dns' | 'packet' | 'subnet' | 'filter' | 'attack' | 'ipv6' | 'evidence'
 
@@ -66,21 +67,6 @@ const tasks = {
     evidence: 'After a successful IP ping, choose the next evidence step.',
   },
 } as const
-
-export type DhcpSymptom = 'apipa' | 'existing-only' | 'names-fail'
-export type DhcpDiagnosis = 'server' | 'pool' | 'dns'
-
-export function diagnosisForSymptom(symptom: DhcpSymptom): DhcpDiagnosis {
-  return symptom === 'apipa' ? 'server' : symptom === 'existing-only' ? 'pool' : 'dns'
-}
-
-export function isValidAddressFilter(value: string): boolean {
-  const normalized = value.toLowerCase().replace(/[\s()]/g, '')
-  const ip = '192.168.20.34'
-  return normalized === `ip.addr==${ip}`
-    || normalized === `ip.src==${ip}||ip.dst==${ip}`
-    || normalized === `ip.dst==${ip}||ip.src==${ip}`
-}
 
 function Result({ ok, lang, hint }: { ok: boolean | null; lang: Lang; hint?: string }) {
   if (ok === null) return null

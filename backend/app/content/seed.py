@@ -43,6 +43,12 @@ NETWORK_VISUAL_V2_ANCHORS = {
 }
 
 
+def _source_block(module_key: str, source_id: str) -> dict:
+    """Quellblock über seine Kennung — nie über den Listenindex: neue Blöcke
+    davor würden den Index still auf einen anderen Block zeigen lassen."""
+    return next(b for b in MODULES[module_key]["blocks"] if b.get("id") == source_id)
+
+
 def _reindex_and_remap_comments(db: Session, module_key: str,
                                 old_positions: dict[int, int],
                                 ordered: list[ContentBlock]) -> None:
@@ -116,13 +122,9 @@ CONTENT_BLOCK_ANCHORS = [
 ]
 
 
-def _source_block(module_key: str, source_id: str) -> dict:
-    return next(b for b in MODULES[module_key]["blocks"] if b.get("id") == source_id)
-
-
 def _block_matches_source(block: ContentBlock, source: dict) -> bool:
-    """Idempotenz-/Anker-Abgleich per Inhalt, da Text/Check/Reveal-Blöcke keine
-    persistente id wie Widgets (widget_id) tragen."""
+    """Idempotenz-/Anker-Abgleich per Inhalt: diese Migrationen laufen nur noch auf
+    Datenbanken von vor v1.42.0, deren Zeilen noch keine Kennung (uid) tragen."""
     if source["type"] == "text":
         return block.type == "text" and block.value_de == source["value"]["de"]
     if source["type"] == "check":
@@ -279,9 +281,9 @@ _OLD_DNS_HIERARCHY_DE = (
 # wenn value_de exakt dem alten Wortlaut entspricht (Trainer hat nichts geändert).
 CONTENT_TEXT_EDITS = [
     ("wlan", _OLD_WLAN_FREQ_DE,
-     MODULES["wlan"]["blocks"][1]["value"]["de"], MODULES["wlan"]["blocks"][1]["value"]["en"]),
+     _source_block("wlan", "text-2")["value"]["de"], _source_block("wlan", "text-2")["value"]["en"]),
     ("dns", _OLD_DNS_HIERARCHY_DE,
-     MODULES["dns"]["blocks"][1]["value"]["de"], MODULES["dns"]["blocks"][1]["value"]["en"]),
+     _source_block("dns", "text-2")["value"]["de"], _source_block("dns", "text-2")["value"]["en"]),
 ]
 
 
@@ -560,10 +562,10 @@ CONTENT_TEXT_EDITS_V4 = [
      _source_block("tls-pruefen", "text-openssl-lab")["value"]["de"],
      _source_block("tls-pruefen", "text-openssl-lab")["value"]["en"]),
     ("vpn", _OLD_VPN_TUNNEL_DE,
-     MODULES["vpn"]["blocks"][0]["value"]["de"], MODULES["vpn"]["blocks"][0]["value"]["en"]),
+     _source_block("vpn", "text-1")["value"]["de"], _source_block("vpn", "text-1")["value"]["en"]),
     ("enterprise-wlan", _OLD_WLAN_RADIUS_EAP_DE,
-     MODULES["enterprise-wlan"]["blocks"][2]["value"]["de"],
-     MODULES["enterprise-wlan"]["blocks"][2]["value"]["en"]),
+     _source_block("enterprise-wlan", "text-3")["value"]["de"],
+     _source_block("enterprise-wlan", "text-3")["value"]["en"]),
 ]
 # Hinweis zu obigem Abgleich: der alte openssl-Lab-Wortlaut ist unabhängig
 # davon exakt getroffen, ob der Block ursprünglich direkt geseedet oder erst

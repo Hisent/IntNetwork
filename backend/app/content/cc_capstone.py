@@ -21,7 +21,7 @@ CAPSTONE_MODULE = {'key': 'capstone',
                     'real task — spec-driven, with memory, a custom skill, a review subagent, and '
                     'an automation hook. Choose the scope and level of ambition based on your '
                     'experience.'},
- 'blocks': [{'type': 'text',
+ 'blocks': [{'type': 'text', 'id': 'text-1',
              'value': {'de': '## Die Aufgabe\n'
                              '\n'
                              'Nimm ein eigenes kleines Repo (oder lege eins an) und führe eine '
@@ -38,7 +38,7 @@ CAPSTONE_MODULE = {'key': 'capstone',
                              'the three days work together.'},
              'note': 'Als begleitete Projektarbeit fahren; Teilnehmende am Bewertungsraster '
                      'entlang selbst prüfen lassen.'},
-            {'type': 'text',
+            {'type': 'text', 'id': 'text-2',
              'value': {'de': '## Meilensteine\n'
                              '\n'
                              'Arbeite dich durch diese Stationen (jede baut auf einem '
@@ -80,7 +80,7 @@ CAPSTONE_MODULE = {'key': 'capstone',
                              'read-only review subagent and iterate (Module 9/10).\n'
                              '8. **Optional/Bonus** — connect an MCP server (Module 8) or set up '
                              'the GitHub Action for PR review (Module 12).'}},
-            {'type': 'order',
+            {'type': 'order', 'id': 'order-1',
              'payload': {'prompt_de': 'Bring die Capstone-Meilensteine in die empfohlene '
                                       'Reihenfolge:',
                          'prompt_en': 'Put the capstone milestones in the recommended order:',
@@ -100,7 +100,7 @@ CAPSTONE_MODULE = {'key': 'capstone',
                                       'Set up a hook for format/lint',
                                       'Check against the acceptance criteria with a review '
                                       'subagent']}},
-            {'type': 'check',
+            {'type': 'check', 'id': 'check-1',
              'payload': {'kind': 'choice',
                          'prompt_de': 'Womit startest du das Capstone sinnvollerweise?',
                          'prompt_en': "What's the sensible way to start the capstone?",
@@ -188,7 +188,7 @@ CAPSTONE_MODULE = {'key': 'capstone',
                              'plan, and your use of subagents in your own words.'},
              'note': 'Als Abnahme-Checkliste am Ende der Projektarbeit gemeinsam '
                      'durchgehen; jeder Punkt ist objektiv prüfbar.'},
-            {'type': 'reveal',
+            {'type': 'reveal', 'id': 'reveal-1',
              'payload': {'teaser_de': 'Brauchst du eine Idee? Klapp einen konkreten Beispiel-Scope '
                                       'auf.',
                          'teaser_en': 'Need an idea? Expand a concrete example scope.'},
@@ -216,14 +216,14 @@ CAPSTONE_MODULE = {'key': 'capstone',
                              'control.\n'
                              '- *Hook*: `PostToolUse` on `Write|Edit` calls the formatter.\n'
                              '- *Bonus*: a GitHub Action that automatically reviews the PR.'}},
-            {'type': 'reflect',
+            {'type': 'reflect', 'id': 'reflect-1',
              'payload': {'prompt_de': 'Welcher der drei Workshop-Tage hat deinen Arbeitsalltag am '
                                       'unmittelbarsten verändert — und welche *eine* Sache setzt '
                                       'du morgen als Erstes um?',
                          'prompt_en': 'Which of the three workshop days changed your everyday work '
                                       "most directly — and what's the *one* thing you'll implement "
                                       'first tomorrow?'}},
-            {'type': 'reflect',
+            {'type': 'reflect', 'id': 'reflect-2',
              'payload': {'prompt_de': 'Wo lagen im Capstone die Grenzen des Agenten — an welcher '
                                       'Stelle war dein menschliches Urteil (Verifikation, Scope, '
                                       'Sicherheit) unverzichtbar?',

@@ -18,7 +18,7 @@ PLUGINS_MODULE = {'key': 'plugins',
                     'whole setup with your team or the community? The answer: as a **plugin**. A '
                     'plugin bundles skills, agents, hooks, and MCP servers into a versioned, '
                     "installable package. They're distributed via **marketplaces**."},
- 'blocks': [{'type': 'text',
+ 'blocks': [{'type': 'text', 'id': 'text-1',
              'value': {'de': '## Was ist ein Plugin?\n'
                              '\n'
                              'Ein Plugin ist ein selbstständiges Verzeichnis, das mehrere '
@@ -57,7 +57,7 @@ PLUGINS_MODULE = {'key': 'plugins',
                              'directory, not inside it.'},
              'note': 'Ein Plugin mit --plugin-dir laden und /reload-plugins zeigen; auf die '
                      '.claude-plugin/-Struktur achten.'},
-            {'type': 'text',
+            {'type': 'text', 'id': 'text-2',
              'value': {'de': '## Standalone vs. Plugin — wann was?\n'
                              '\n'
                              '\n'
@@ -86,7 +86,7 @@ PLUGINS_MODULE = {'key': 'plugins',
                              'versions and updates. Common recommendation: iterate standalone in '
                              "`.claude/` first, then turn it into a plugin once it's ready to "
                              'share.'}},
-            {'type': 'text',
+            {'type': 'text', 'id': 'text-3',
              'value': {'de': '## Das Manifest\n'
                              '\n'
                              '`my-plugin/.claude-plugin/plugin.json`:\n'
@@ -120,7 +120,7 @@ PLUGINS_MODULE = {'key': 'plugins',
                              "`version` is set, users only get an update when it's incremented; "
                              'without `version`, every commit counts as a new version when '
                              'distributed via Git.'}},
-            {'type': 'check',
+            {'type': 'check', 'id': 'check-1',
              'payload': {'kind': 'choice',
                          'prompt_de': 'Wo liegt im Plugin das Verzeichnis skills/?',
                          'prompt_en': 'Where does the `skills/` directory live within the plugin?',
@@ -132,7 +132,7 @@ PLUGINS_MODULE = {'key': 'plugins',
                                         "In the plugin's root directory (alongside "
                                         '`.claude-plugin/`)',
                                         'In `~/.claude/`']}},
-            {'type': 'text',
+            {'type': 'text', 'id': 'text-4',
              'value': {'de': '## Lokal testen: --plugin-dir\n'
                              '\n'
                              'Beim Entwickeln lädst du ein Plugin ohne Installation direkt:\n'
@@ -160,7 +160,7 @@ PLUGINS_MODULE = {'key': 'plugins',
                              'changes, `/reload-plugins` '
                              'reloads everything without a restart. `claude plugin validate` '
                              'checks the structure.'}},
-            {'type': 'text',
+            {'type': 'text', 'id': 'text-5',
              'value': {'de': '## Marketplaces & Installation\n'
                              '\n'
                              'Verteilt werden Plugins über **Marketplaces** (im Kern ein Git-Repo '
@@ -205,7 +205,7 @@ PLUGINS_MODULE = {'key': 'plugins',
                              'For internal teams, simply host the marketplace in a **private** '
                              'repo. Important for any third-party plugins: only install from '
                              'sources you trust.'}},
-            {'type': 'order',
+            {'type': 'order', 'id': 'order-1',
              'payload': {'prompt_de': 'Ein eigenes Plugin bauen und teilen — richtige Reihenfolge:',
                          'prompt_en': 'Building and sharing your own plugin — the correct order:',
                          'items_de': ['Plugin-Verzeichnis + .claude-plugin/plugin.json anlegen',
@@ -218,7 +218,7 @@ PLUGINS_MODULE = {'key': 'plugins',
                                       'Test locally with `--plugin-dir` and use `/reload-plugins`',
                                       'Put it in a (optionally private) marketplace and have it '
                                       'installed']}},
-            {'type': 'debug',
+            {'type': 'debug', 'id': 'debug-1',
              'payload': {'prompt_de': 'Ein Plugin lädt seine Skills nicht. Welche Aussage benennt '
                                       'den wahrscheinlichen Fehler korrekt?',
                          'prompt_en': "A plugin isn't loading its skills. Which statement "
@@ -245,7 +245,7 @@ PLUGINS_MODULE = {'key': 'plugins',
                                            "must be in the plugin's root directory — if they end "
                                            "up in `.claude-plugin/`, they won't be loaded. This is "
                                            'the most common plugin mistake.'}},
-            {'type': 'reflect',
+            {'type': 'reflect', 'id': 'reflect-1',
              'payload': {'prompt_de': 'Welches Bündel aus Skills/Hooks/MCP würde deinem Team am '
                                       'meisten bringen, wenn alle es mit einem Befehl installieren '
                                       'könnten?',

@@ -2,7 +2,7 @@ import { api } from '@/lib/api'
 import type { ModuleMeta, TrainerModuleDetail } from '@/types'
 import type { TrainerComment } from '@/components/commentGroups'
 
-export interface Course { id: number; name: string; join_code: string; workshop_key: string | null; participant_count?: number; require_approval?: boolean }
+export interface Course { id: number; name: string; join_code: string; workshop_key: string | null; participant_count?: number; require_approval?: boolean; /** nur im Dashboard: ausgestellte Zertifikate dieses Kurses */ certificate_count?: number }
 export interface Dashboard {
   course: Course
   modules: { key: string; title: string; order: number }[]
@@ -16,7 +16,7 @@ export interface PresenceEntry { name: string; module_key: string; module_title:
 // typ-spezifische Zusatzdaten: check nutzt prompt/options/answer (kind
 // "number": answer = Zahl), reveal teaser, order items, debug lines/wrong/explanation
 export interface BlockPayload {
-  kind?: 'choice' | 'number'
+  kind?: 'choice' | 'number' | 'sequence' | 'layers' | 'flow' | 'compare'  // check bzw. diagram
   prompt_de?: string
   prompt_en?: string
   options_de?: string[]
@@ -31,10 +31,15 @@ export interface BlockPayload {
   wrong?: number[]
   explanation_de?: string
   explanation_en?: string
+  // diagram/terminal/match/cloze/scenario: freies JSON nach docs/content-authoring.md,
+  // im Editor als JSON-Feld bearbeitet (kein Spezial-Editor)
+  [key: string]: unknown
 }
 
 export interface EditorBlock {
+  uid?: string | null  // stabile Kennung; unverändert zurückschicken, bei neuen Blöcken weglassen
   type: 'text' | 'widget' | 'check' | 'reveal' | 'order' | 'debug' | 'reflect'
+    | 'diagram' | 'terminal' | 'match' | 'cloze' | 'scenario'
   value_de?: string | null
   value_en?: string | null
   widget_id?: string | null
@@ -42,12 +47,15 @@ export interface EditorBlock {
   payload?: BlockPayload | null
 }
 export interface EditorQuestion {
+  uid?: string | null  // wie EditorBlock.uid — an ihr hängen Abgaben und Statistik der Frage
   qtype: 'single' | 'multi' | 'number'
   prompt_de: string
   prompt_en: string
   options_de?: string[] | null
   options_en?: string[] | null
   answer: number | number[]
+  explanation_de?: string | null
+  explanation_en?: string | null
 }
 export interface EditorModule {
   key: string
@@ -63,6 +71,8 @@ export interface EditorModule {
   quiz: EditorQuestion[]
   has_snapshot: boolean
   has_seed: boolean
+  /** Fingerabdruck des geladenen Stands — geht beim Speichern als base_version mit (409 bei Abweichung). */
+  version?: string
 }
 export interface EditorModuleMeta { key: string; title_de: string; title_en: string; order: number; workshop_key: string | null }
 export interface TrainerAccount { id: number; email: string; name: string }
@@ -111,7 +121,11 @@ export const trainerApi = {
   courseModules: (id: number) => api.get<CourseModule[]>(`/courses/${id}/modules`),
   setCourseApproval: (id: number, require_approval: boolean) =>
     api.patch<{ require_approval: boolean }>(`/courses/${id}/approval`, { require_approval }),
-  deleteCourse: (id: number) => api.delete(`/courses/${id}`),
+  // Zertifikate bleiben standardmäßig stehen (öffentlich unter /verify);
+  // deleteCertificates löscht sie ausdrücklich mit.
+  deleteCourse: (id: number, deleteCertificates = false) =>
+    api.delete<{ ok: boolean; certificates_deleted: number; certificates_kept: number }>(
+      `/courses/${id}${deleteCertificates ? '?delete_certificates=true' : ''}`),
   approveParticipant: (courseId: number, participantId: number, approved: boolean) =>
     api.post<{ id: number; approved: boolean }>(`/courses/${courseId}/participants/${participantId}/approve`, { approved }),
   resetResumeCode: (courseId: number, participantId: number) =>
@@ -136,7 +150,8 @@ export const trainerApi = {
   createContentModule: (key: string, title_de: string, workshop_key: string) =>
     api.post<EditorModuleMeta>('/trainer/content/modules', { key, title_de, workshop_key }),
   saveContentModule: (key: string, data: Omit<EditorModule, 'key'>) =>
-    api.put<EditorModuleMeta>(`/trainer/content/modules/${key}`, data),
+    api.put<EditorModuleMeta & { version: string }>(
+      `/trainer/content/modules/${key}${data.version ? `?base_version=${encodeURIComponent(data.version)}` : ''}`, data),
   restoreContentModule: (key: string) => api.post<EditorModuleMeta>(`/trainer/content/modules/${key}/restore`),
   reseedContentModule: (key: string) => api.post<EditorModuleMeta>(`/trainer/content/modules/${key}/reseed`),
   listTrainerAccounts: () => api.get<TrainerAccount[]>('/trainer/accounts'),
