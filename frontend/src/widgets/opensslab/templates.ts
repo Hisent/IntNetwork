@@ -23,7 +23,7 @@ export const OPENSSL_TEMPLATES: OpensslTemplate[] = [
     files: {},
     commands: [
       'genrsa -out server.key 2048',
-      'req -new -key server.key -out server.csr -subj /CN=www.nordwind-logistik.de',
+      'req -new -key server.key -out server.csr -subj /CN=www.nordwind-logistik.de -addext subjectAltName=DNS:www.nordwind-logistik.de',
       'req -in server.csr -noout -text',
     ],
   },
@@ -41,8 +41,10 @@ export const OPENSSL_TEMPLATES: OpensslTemplate[] = [
       'genrsa -out ca.key 4096',
       'req -new -x509 -key ca.key -out ca.pem -days 3650 -subj /CN=Kurs-CA',
       'genrsa -out server.key 2048',
-      'req -new -key server.key -out server.csr -subj /CN=www.nordwind-logistik.de',
-      'x509 -req -in server.csr -CA ca.pem -CAkey ca.key -CAcreateserial -out server.pem -days 365',
+      // SAN im CSR mitgeben und beim Signieren übernehmen (-copy_extensions) —
+      // ohne SAN wäre das Zertifikat für die Hostnamen-Prüfung wertlos.
+      'req -new -key server.key -out server.csr -subj /CN=www.nordwind-logistik.de -addext subjectAltName=DNS:www.nordwind-logistik.de',
+      'x509 -req -in server.csr -CA ca.pem -CAkey ca.key -CAcreateserial -copy_extensions copy -out server.pem -days 365',
     ],
   },
   {

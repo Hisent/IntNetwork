@@ -19,13 +19,13 @@ export const CASES: ErrorCase[] = [
   {
     id: 'expired',
     context: {
-      de: 'Ein Kunde meldet: Beim Aufruf von https://shop.nordwind-logistik.de zeigt Chrome eine rote Warnseite mit diesem Code.',
-      en: 'A customer reports: opening https://shop.nordwind-logistik.de shows Chrome’s red warning page with this code.',
+      de: 'Seit heute Morgen melden mehrere Kunden unabhängig voneinander: Beim Aufruf von https://shop.nordwind-logistik.de zeigt Chrome eine rote Warnseite mit diesem Code.',
+      en: 'Since this morning, several customers have independently reported: opening https://shop.nordwind-logistik.de shows Chrome’s red warning page with this code.',
     },
     message: 'NET::ERR_CERT_DATE_INVALID',
     options: [
       { de: 'Das Serverzertifikat ist abgelaufen — niemand hat es rechtzeitig erneuert', en: 'The server certificate has expired — nobody renewed it in time' },
-      { de: 'Die Uhr des Kunden geht falsch', en: "The customer's clock is wrong" },
+      { de: 'Die Uhren der Kunden gehen falsch', en: "The customers' clocks are wrong" },
       { de: 'Das Zertifikat gilt für einen anderen Hostnamen', en: 'The certificate is issued for a different hostname' },
       { de: 'Der Server sendet das Intermediate-Zertifikat nicht mit', en: 'The server is not sending the intermediate certificate' },
     ],
@@ -65,8 +65,8 @@ export const CASES: ErrorCase[] = [
   {
     id: 'tls-proxy',
     context: {
-      de: 'Ein Mitarbeiter greift von seinem privaten Laptop (nicht in der Firmen-Geräteverwaltung) auf https://intranet.nordwind-logistik.de zu. Auf den Firmen-Notebooks der Kollegen tritt derselbe Aufruf klaglos durch.',
-      en: 'An employee accesses https://intranet.nordwind-logistik.de from a personal laptop (not enrolled in company device management). The same request works silently on colleagues’ managed company notebooks.',
+      de: 'Ein Mitarbeiter ruft im Firmennetz von seinem privaten Laptop (nicht in der Firmen-Geräteverwaltung) die öffentliche Website https://www.example.org auf. Auf den Firmen-Notebooks der Kollegen tritt derselbe Aufruf klaglos durch.',
+      en: 'On the company network, an employee opens the public website https://www.example.org from a personal laptop (not enrolled in company device management). The same request works silently on colleagues’ managed company notebooks.',
     },
     message: 'NET::ERR_CERT_AUTHORITY_INVALID',
     options: [
@@ -81,8 +81,8 @@ export const CASES: ErrorCase[] = [
       en: 'The classic enterprise case: the proxy breaks TLS open and issues the client a certificate signed by an internal “corporate CA”. On managed devices that root was installed as trusted via GPO/MDM — nobody notices there. On unmanaged devices that trust anchor is missing, so the browser reports NET::ERR_CERT_AUTHORITY_INVALID. Services with certificate pinning (expecting a fixed certificate/key) break even on managed devices, because the swapped certificate fails the pin.',
     },
     nextStep: {
-      de: 'openssl s_client -connect intranet.nordwind-logistik.de:443 -servername intranet.nordwind-logistik.de </dev/null 2>/dev/null | openssl x509 -noout -issuer  → zeigt eine unternehmensinterne CA statt der erwarteten öffentlichen/internen PKI.',
-      en: 'openssl s_client -connect intranet.nordwind-logistik.de:443 -servername intranet.nordwind-logistik.de </dev/null 2>/dev/null | openssl x509 -noout -issuer  → shows an internal corporate CA instead of the expected public/internal PKI.',
+      de: 'openssl s_client -connect www.example.org:443 -servername www.example.org </dev/null 2>/dev/null | openssl x509 -noout -issuer  → zeigt die unternehmensinterne CA statt der erwarteten öffentlichen CA.',
+      en: 'openssl s_client -connect www.example.org:443 -servername www.example.org </dev/null 2>/dev/null | openssl x509 -noout -issuer  → shows the internal corporate CA instead of the expected public CA.',
     },
   },
   {
@@ -118,7 +118,7 @@ export const CASES: ErrorCase[] = [
     options: [
       { de: 'Das Serverzertifikat ist abgelaufen', en: 'The server certificate has expired' },
       { de: 'Der Hostname passt nicht zum Zertifikat', en: 'The hostname does not match the certificate' },
-      { de: 'Dem Server ausstellenden internen CA-Root fehlt es im lokalen CA-Bundle dieses Linux-Hosts', en: 'The internal issuing CA root is missing from this Linux host’s local CA bundle' },
+      { de: 'Das Root-Zertifikat der ausstellenden internen CA fehlt im lokalen CA-Bundle dieses Linux-Hosts', en: 'The internal issuing CA root is missing from this Linux host’s local CA bundle' },
       { de: 'Eine TLS-Firewall bricht die Verbindung auf', en: 'A TLS firewall is intercepting the connection' },
     ],
     answer: 2,

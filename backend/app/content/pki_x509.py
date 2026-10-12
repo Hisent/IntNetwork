@@ -84,10 +84,11 @@ X509_MODULE = {
                    'bis wann das Zertifikat gilt.\n'
                    '- **Public Key** - der öffentliche Schlüssel, um den es eigentlich geht, '
                    'plus Angabe des Verfahrens (RSA, ECDSA, ...).\n\n'
-                   'Darüber hinaus trägt fast jedes Zertifikat einen **Fingerprint** - einen '
-                   'Hash (meist SHA-256) über das gesamte DER-kodierte Zertifikat. Der '
-                   'Fingerprint dient als eindeutiger Vergleichswert außerhalb der Kette, '
-                   'etwa um ein Zertifikat manuell zu identifizieren.',
+                   'Darüber hinaus zeigen Werkzeuge zu jedem Zertifikat einen **Fingerprint** '
+                   'an - einen Hash (meist SHA-256) über das gesamte DER-kodierte Zertifikat. '
+                   'Er ist **kein Feld im Zertifikat**, sondern wird vom Betrachter berechnet '
+                   'und dient als eindeutiger Vergleichswert außerhalb der Kette, etwa um ein '
+                   'Zertifikat manuell zu identifizieren.',
              'en': '## The Mandatory Fields per RFC 5280\n\n'
                    'A certificate consists of a fixed set of fields:\n\n'
                    '- **Version** - usually version 3 (X.509v3), the only version that '
@@ -103,10 +104,11 @@ X509_MODULE = {
                    'when the certificate is valid.\n'
                    '- **Public key** - the public key the certificate is actually about, '
                    'plus the algorithm (RSA, ECDSA, ...).\n\n'
-                   'In addition, almost every certificate carries a **fingerprint** - a hash '
-                   '(usually SHA-256) over the entire DER-encoded certificate. The '
-                   'fingerprint serves as a unique comparison value outside the chain, for '
-                   'example to identify a certificate manually.',
+                   'In addition, tools display a **fingerprint** for every certificate - a '
+                   'hash (usually SHA-256) over the entire DER-encoded certificate. It is '
+                   '**not a field inside the certificate** but is computed by the viewer, and '
+                   'serves as a unique comparison value outside the chain, for example to '
+                   'identify a certificate manually.',
          }},
         {'type': 'widget', 'id': 'cert-inspector',
          'note': 'Kursteilnehmer hier ein echtes Zertifikat inspizieren lassen (z. B. das '
@@ -122,16 +124,18 @@ X509_MODULE = {
                    '**RFC 2818** (Jahr 2000) gilt aber: Ist eine '
                    '**Subject Alternative Name (SAN)**-Erweiterung mit Hostnamen vorhanden, '
                    'muss diese für die Prüfung verwendet werden. Das CA/Browser Forum machte '
-                   'SANs 2012 für alle CA-Zertifikate verpflichtend.\n\n'
+                   'SANs 2012 für alle von öffentlichen CAs ausgestellten Zertifikate '
+                   'verpflichtend.\n\n'
                    'Seit **Chrome 58** (2017) ist der CN-Fallback vollständig entfernt: '
                    'Chrome prüft ausschließlich die SAN-Liste. Steht der aufgerufene '
                    'Hostname nicht in den SANs, schlägt die Prüfung fehl '
                    '(`NET::ERR_CERT_COMMON_NAME_INVALID` bzw. `missing_subjectAltName`) - '
                    'selbst wenn das CN-Feld formal passen würde. Andere aktuelle Browser '
-                   'folgen demselben Prinzip; das genaue Versionsdetail lässt sich hier nicht '
-                   'für jeden Browser einzeln mit Datum belegen, die Konsequenz für den '
-                   'Betrieb ist aber eindeutig: **Ein Zertifikat ohne passenden SAN-Eintrag '
-                   'ist praktisch nutzlos**, ganz gleich, was im CN steht.',
+                   'folgen demselben Prinzip, und der aktuelle Standard **RFC 9525** (2023) '
+                   'schreibt es fest: Der Common Name darf zur Identifikation eines Dienstes '
+                   'nicht mehr verwendet werden. Die Konsequenz für den Betrieb ist '
+                   'eindeutig: **Ein Zertifikat ohne passenden SAN-Eintrag ist praktisch '
+                   'nutzlos**, ganz gleich, was im CN steht.',
              'en': '## SAN Decides, Not the Common Name\n\n'
                    'The hostname used to live in the **Common Name (CN)** of the subject '
                    'field. But since **RFC 2818** (year 2000), the rule has been: if a '
@@ -142,10 +146,11 @@ X509_MODULE = {
                    'Chrome checks only the SAN list. If the requested hostname is not in the '
                    'SANs, verification fails (`NET::ERR_CERT_COMMON_NAME_INVALID` or '
                    '`missing_subjectAltName`) - even if the CN field would formally match. '
-                   'Other current browsers follow the same principle; the exact version '
-                   'detail cannot be pinned down with a date for every browser here, but the '
-                   'operational consequence is clear: **a certificate without a matching SAN '
-                   'entry is practically useless**, no matter what the CN says.',
+                   'Other current browsers follow the same principle, and the current '
+                   'standard **RFC 9525** (2023) codifies it: the Common Name must not be '
+                   'used to identify a service anymore. The operational consequence is '
+                   'clear: **a certificate without a matching SAN entry is practically '
+                   'useless**, no matter what the CN says.',
          }},
         {'type': 'check',
          'payload': {

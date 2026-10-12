@@ -224,7 +224,7 @@ ANSIBLE_GRUNDLAGEN_MODULE = {
                                   'end state.',
                                   '`ansible-core` is the engine; collections supply additional '
                                   'modules.'],
-                     'wrong': [2],
+                     'wrong': [1],
                      'explanation_de': 'Ansible ist agentenlos — es wird keine dauerhafte '
                                        'Ansible-Software auf den Zielsystemen installiert. Die '
                                        'Verbindung wird bei Bedarf per SSH/WinRM aufgebaut und '
@@ -244,8 +244,8 @@ ANSIBLE_GRUNDLAGEN_MODULE = {
                          '— es sorgt also dafür, dass das Paket `postgresql` installiert ist (ohne '
                          'anzugeben, welche Version, und ohne den Dienst zu starten). `--become` '
                          'sorgt dafür, dass die Aktion mit erhöhten Rechten läuft (vergleichbar '
-                         '`sudo`), was für eine Paketinstallation in der Regel nötig ist. Da kein '
-                         '`-m`-Wert wie „installiere jetzt Version 3” genannt wird, kümmert sich '
+                         '`sudo`), was für eine Paketinstallation in der Regel nötig ist. Da keine '
+                         'Version angegeben ist, kümmert sich '
                          'Ansible nur um den Zustand „vorhanden”, nicht um eine bestimmte Version.',
                    'en': 'The command runs the `package` module on all hosts in the `datenbank` '
                          'group with the parameters `name=postgresql` and `state=present` — so it '

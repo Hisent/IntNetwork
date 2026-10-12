@@ -108,8 +108,12 @@ HASHFUNKTIONEN_MODULE = {
                    'SHA-1-signierter TLS-Zertifikate ab dem 1. Januar 2016, und Browser-Hersteller '
                    'zogen ab 2017 nach und ließen SHA-1-Zertifikate nicht mehr zu. MD5 gilt schon '
                    'länger als vollständig ungeeignet und taucht in keiner aktuellen Empfehlung '
-                   'mehr auf. Für neue Zertifikate und Signaturen ist heute mindestens SHA-256 '
-                   'Standard.',
+                   'mehr auf. Für SHA-1 wurde 2017 die erste echte Kollision veröffentlicht '
+                   '("SHAttered"), 2020 folgte ein praktikabler Chosen-Prefix-Angriff. Für neue '
+                   'Zertifikate und Signaturen ist heute mindestens SHA-256 Standard: Die '
+                   'SHA-2-Familie (SHA-256, SHA-384, SHA-512) gilt als ungebrochen, ebenso das '
+                   'intern völlig anders aufgebaute **SHA-3**, das als Alternative bereitsteht, '
+                   'in Zertifikaten und TLS aber kaum verbreitet ist.',
              'en': '## Collision Attacks on MD5 and SHA-1 — Why This Affected Certificates\n\n'
                    'MD5 and SHA-1 are considered cryptographically broken: for both, practically '
                    'feasible collision attacks have been demonstrated — meaning two different '
@@ -123,8 +127,12 @@ HASHFUNKTIONEN_MODULE = {
                    'TLS certificates as of January 1, 2016, and browser vendors followed suit '
                    'starting in 2017 by no longer accepting SHA-1 certificates. MD5 has been '
                    'considered fully unsuitable for even longer and no longer appears in any '
-                   'current recommendation. For new certificates and signatures, at least SHA-256 '
-                   'is standard today.',
+                   'current recommendation. For SHA-1, the first real collision was published in '
+                   '2017 ("SHAttered"), followed in 2020 by a practical chosen-prefix attack. For '
+                   'new certificates and signatures, at least SHA-256 is standard today: the SHA-2 '
+                   'family (SHA-256, SHA-384, SHA-512) is considered unbroken, as is **SHA-3**, '
+                   'which has a completely different internal design and stands ready as an '
+                   'alternative but is rarely seen in certificates and TLS.',
          }},
         {'type': 'check',
          'payload': {
@@ -152,11 +160,12 @@ HASHFUNKTIONEN_MODULE = {
         {'type': 'text',
          'value': {
              'de': '## HMAC — Integrität mit Schlüssel\n\n'
-                   'Ein blanker Hash-Wert (z. B. SHA-256 über eine Nachricht) beweist nur, dass '
-                   'niemand die Nachricht verändert hat — vorausgesetzt, der Angreifer kennt die '
-                   'Nachricht nicht vorher. Ein Angreifer, der die Nachricht abfängt, kann sie '
-                   'jedoch ändern und einfach den passenden neuen Hash-Wert selbst berechnen und '
-                   'mitschicken, da die Hash-Berechnung keinen Schlüssel braucht.\n\n'
+                   'Ein blanker Hash-Wert (z. B. SHA-256 über eine Nachricht) beweist nur dann, '
+                   'dass niemand die Nachricht verändert hat, wenn der Hash-Wert selbst auf einem '
+                   'vertrauenswürdigen, getrennten Weg beim Empfänger ankommt. Reist er zusammen '
+                   'mit der Nachricht, kann ein Angreifer, der sie abfängt, die Nachricht ändern '
+                   'und einfach den passenden neuen Hash-Wert selbst berechnen und mitschicken, '
+                   'da die Hash-Berechnung keinen Schlüssel braucht.\n\n'
                    '**HMAC (Hash-based Message Authentication Code)** schließt genau diese Lücke: '
                    'Er kombiniert eine Hashfunktion mit einem geheimen Schlüssel, den nur Sender '
                    'und Empfänger kennen. Nur wer den Schlüssel besitzt, kann einen gültigen HMAC '
@@ -166,10 +175,11 @@ HASHFUNKTIONEN_MODULE = {
                    'dass die Nachricht von jemandem stammt, der den geheimen Schlüssel kennt.',
              'en': '## HMAC — Integrity with a Key\n\n'
                    'A plain hash value (e.g. SHA-256 over a message) only proves that nobody '
-                   'altered the message — provided the attacker did not know the message '
-                   'beforehand. An attacker who intercepts the message, however, can change it and '
-                   'simply compute the matching new hash value themselves and send it along, since '
-                   'hash computation requires no key.\n\n'
+                   'altered the message if the hash value itself reaches the receiver over a '
+                   'trusted, separate channel. If it travels together with the message, an '
+                   'attacker who intercepts it can change the message and simply compute the '
+                   'matching new hash value themselves and send it along, since hash computation '
+                   'requires no key.\n\n'
                    '**HMAC (Hash-based Message Authentication Code)** closes exactly this gap: it '
                    'combines a hash function with a secret key known only to sender and receiver. '
                    'Only whoever holds the key can compute a valid HMAC — an attacker without the '

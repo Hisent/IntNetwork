@@ -249,18 +249,26 @@ SCHLEIFEN_HANDLER_MODULE = {
                                       '    ansible.builtin.service:',
                                       '      name: nginx',
                                       '      state: restarted'],
-                         'wrong': [9],
+                         'wrong': [8],
                          'explanation_de': 'Der `notify`-Aufruf in Zeile 6 lautet „Nginx neu '
                                            'starten" (mit Leerzeichen), der Handler in Zeile 9 '
                                            'heißt „Nginx neustarten" (zusammengeschrieben). '
                                            'Handler-Namen müssen exakt mit dem notifizierten '
-                                           'Namen übereinstimmen — bei jeder Abweichung wird der '
-                                           'Handler nie ausgelöst.',
+                                           'Namen übereinstimmen. Bei einer Abweichung läuft der '
+                                           'Handler nie: Sobald der Task `changed` meldet, bricht '
+                                           'Ansible stattdessen mit „The requested handler … was '
+                                           'not found“ ab (Standard `error_on_missing_handler = '
+                                           'True`); meldet der Task `ok`, fällt der Fehler gar '
+                                           'nicht auf.',
                          'explanation_en': 'The `notify` call in line 6 says "Restart nginx", '
                                            'but the handler in line 9 is named "Restartnginx" '
                                            '(no space). Handler names must match the notified '
-                                           'name exactly — any mismatch means the handler is '
-                                           'never triggered.'}},
+                                           'name exactly. With a mismatch the handler never '
+                                           'runs: as soon as the task reports `changed`, Ansible '
+                                           'aborts with "The requested handler … was not found" '
+                                           'instead (default `error_on_missing_handler = True`); '
+                                           'if the task reports `ok`, the mistake goes '
+                                           'unnoticed.'}},
             {'type': 'order',
              'payload': {'prompt_de': 'Drei Tasks notifizieren denselben Handler „Nginx neu '
                                       'starten". Bring den tatsächlichen Ablauf in die richtige '
@@ -378,10 +386,12 @@ SCHLEIFEN_HANDLER_MODULE = {
                                             'notify']}},
                         {'id': 'sh4',
                          'type': 'single',
-                         'prompt': {'de': 'Drei Tasks notifizieren denselben Handler. Wie oft '
-                                          'läuft der Handler insgesamt?',
-                                    'en': 'Three tasks notify the same handler. How many times '
-                                          'does the handler run in total?'},
+                         'prompt': {'de': 'Drei Tasks melden changed und notifizieren '
+                                          'denselben Handler. Wie oft läuft der Handler '
+                                          'insgesamt?',
+                                    'en': 'Three tasks report changed and notify the same '
+                                          'handler. How many times does the handler run in '
+                                          'total?'},
                          'answer': 0,
                          'options': {'de': ['Einmal', 'Zweimal', 'Dreimal', 'Gar nicht'],
                                      'en': ['Once', 'Twice', 'Three times', 'Not at all']}},

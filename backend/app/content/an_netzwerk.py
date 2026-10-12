@@ -186,7 +186,7 @@ NETZWERK_MODULE = {'key': 'netzwerk-automatisierung',
                                       '`ansible_network_os: cisco.ios.ios`',
                                       '`ansible_connection: ansible.netcommon.network_cli`',
                                       '`ansible_become_method: sudo`'],
-                         'wrong': [4],
+                         'wrong': [3],
                          'explanation_de': 'Netzwerkgeräte eskalieren Privilegien über den '
                                            '„enable”-Modus, nicht über `sudo` — richtig wäre '
                                            '`ansible_become_method: enable`. `sudo` ist ein '
@@ -225,7 +225,17 @@ NETZWERK_MODULE = {'key': 'netzwerk-automatisierung',
                              'Nachbarschaften) diese Rolle plattformspezifisch. Die '
                              'Backup-Datei aus `ios_config` mit `backup: true` landet im '
                              'angegebenen Verzeichnis **auf dem Control Node** — konsequent aus '
-                             'dem Grundprinzip „Modul läuft auf dem Control Node”.',
+                             'dem Grundprinzip „Modul läuft auf dem Control Node”.\n'
+                             '\n'
+                             '**Idempotenz bei Netzwerkgeräten** funktioniert anders als bei '
+                             'Servern: `ios_config` vergleicht die gewünschten Zeilen textuell '
+                             'mit der laufenden Konfiguration. Abgekürzte Befehle (`int gi0/1` '
+                             'statt `interface GigabitEthernet0/1`) passen nie zum Gerätetext '
+                             'und melden deshalb bei jedem Lauf `changed`; Befehlsmodule wie '
+                             '`ios_command` kennen gar keinen Zielzustand. Wirklich deklarativ '
+                             'arbeiten die Ressourcenmodule (z. B. `cisco.ios.ios_vlans` mit '
+                             '`state: merged`), die den Ist-Zustand strukturiert einlesen und '
+                             'nur die Differenz senden.',
                        'en': '## Gathering facts and backing up configuration\n'
                              '\n'
                              'Instead of the generic `ansible.builtin.setup` module, network '
@@ -253,7 +263,17 @@ NETZWERK_MODULE = {'key': 'netzwerk-automatisierung',
                              'this role in a platform-specific way. The backup file from '
                              '`ios_config` with `backup: true` ends up in the given directory '
                              '**on the control node** — consistent with the basic principle that '
-                             'the module runs on the control node.'},
+                             'the module runs on the control node.\n'
+                             '\n'
+                             '**Idempotency on network devices** works differently than on '
+                             'servers: `ios_config` compares the desired lines textually with '
+                             'the running configuration. Abbreviated commands (`int gi0/1` '
+                             'instead of `interface GigabitEthernet0/1`) never match the device '
+                             'text and therefore report `changed` on every run; command modules '
+                             'like `ios_command` have no notion of a target state at all. The '
+                             'resource modules (e.g. `cisco.ios.ios_vlans` with `state: merged`) '
+                             'are truly declarative: they read the current state in structured '
+                             'form and send only the difference.'},
              'note': 'Beispiel bewusst als Cisco-IOS-Muster gewählt (Recherche verifiziert), '
                      'Prinzip gilt analog für andere Herstellercollections.'},
             {'type': 'order',
@@ -290,8 +310,8 @@ NETZWERK_MODULE = {'key': 'netzwerk-automatisierung',
                                       'your own words.'}}],
  'quiz': {'questions': [{'id': 'nw1',
                          'type': 'single',
-                         'prompt': {'de': 'Wo läuft ein Modul wie `cisco.ios.ios_facts` '
-                                          'tatsächlich aus?',
+                         'prompt': {'de': 'Wo wird ein Modul wie `cisco.ios.ios_facts` '
+                                          'tatsächlich ausgeführt?',
                                     'en': 'Where does a module like `cisco.ios.ios_facts` '
                                           'actually execute?'},
                          'answer': 1,

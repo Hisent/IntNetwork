@@ -76,10 +76,13 @@ VAULT_MODULE = {'key': 'ansible-vault',
                              '  ```\n'
                              '  Das Ergebnis fügst du direkt in eine ansonsten normale YAML-Datei '
                              'ein — praktisch, wenn Struktur und Kommentare der Datei sichtbar '
-                             'bleiben sollen und nur der Wert selbst geheim ist.\n'
+                             'bleiben sollen und nur der Wert selbst geheim ist. Achtung: Als '
+                             'Argument übergeben landet das Geheimnis in der Shell-Historie — '
+                             'für echte Werte besser `ansible-vault encrypt_string --stdin-name '
+                             '\'db_password\'` nutzen und den Wert eingeben.\n'
                              '\n'
                              '**Erkennungsmerkmal im YAML**: Ein verschlüsselter Wert trägt den '
-                             '`!vault`-Tag, gefolgt von einem Base64-Block mit dem Header '
+                             '`!vault`-Tag, gefolgt von einem Hex-Block mit dem Header '
                              '`$ANSIBLE_VAULT;1.1;AES256`:\n'
                              '\n'
                              '```yaml\n'
@@ -108,10 +111,13 @@ VAULT_MODULE = {'key': 'ansible-vault',
                              '  ```\n'
                              '  You paste the result straight into an otherwise normal YAML '
                              'file — handy when the structure and comments of the file should '
-                             'stay visible and only the value itself is secret.\n'
+                             'stay visible and only the value itself is secret. Caution: passed '
+                             'as an argument, the secret ends up in your shell history — for '
+                             'real values prefer `ansible-vault encrypt_string --stdin-name '
+                             '\'db_password\'` and type the value in.\n'
                              '\n'
                              '**How to recognize it in YAML**: an encrypted value carries the '
-                             '`!vault` tag, followed by a Base64 block with the header '
+                             '`!vault` tag, followed by a hex block with the header '
                              '`$ANSIBLE_VAULT;1.1;AES256`:\n'
                              '\n'
                              '```yaml\n'
@@ -194,11 +200,11 @@ VAULT_MODULE = {'key': 'ansible-vault',
              'note': 'Gut zum Nachschlagen: create/edit/view arbeiten immer verschlüsselt, nur '
                      'decrypt hinterlässt dauerhaften Klartext.'},
             {'type': 'reveal',
-             'payload': {'teaser_de': 'Lab: Ein Kollege will eine Konfigurationsvorlage '
+             'payload': {'teaser_de': 'Übung: Ein Kollege will eine Konfigurationsvorlage '
                                       '(`templates/app.conf.j2`) ansehen, ohne sie dauerhaft zu '
                                       'entschlüsseln, weil sie unter Vault steht. Welches '
                                       'Subkommando passt? Erst selbst überlegen.',
-                         'teaser_en': 'Lab: A colleague wants to look at a configuration '
+                         'teaser_en': 'Exercise: a colleague wants to look at a configuration '
                                       'template (`templates/app.conf.j2`) without permanently '
                                       'decrypting it, since it sits under Vault. Which subcommand '
                                       'fits? Think it through yourself first.'},
@@ -276,7 +282,7 @@ VAULT_MODULE = {'key': 'ansible-vault',
                          'lines_de': ["`ansible-vault encrypt_string 'S3cr3t!' --name "
                                       "'db_password'` erzeugt einen einzelnen verschlüsselten "
                                       'Wert für ein Playbook.',
-                                      'Das Vault-Passwort selbst wird zur Sicherheit direkt in '
+                                      'Das Vault-Passwort selbst wird der Einfachheit halber direkt in '
                                       '`vars/secrets.yml` mit abgelegt, damit es beim Checkout '
                                       'sofort verfügbar ist.',
                                       '`ansible-vault view vars/secrets.yml` zeigt den Inhalt an, '
@@ -296,7 +302,7 @@ VAULT_MODULE = {'key': 'ansible-vault',
                                       '`ansible-playbook site.yml --vault-password-file '
                                       '~/.vault_pass.txt` runs the playbook and automatically '
                                       'decrypts the needed values.'],
-                         'wrong': [2],
+                         'wrong': [1],
                          'explanation_de': 'Das Vault-Passwort darf niemals im selben Repo (erst '
                                            'recht nicht in derselben Datei) wie die '
                                            'verschlüsselten Geheimnisse liegen — sonst kann jeder '
@@ -372,11 +378,11 @@ VAULT_MODULE = {'key': 'ansible-vault',
                          'answer': 2,
                          'options': {'de': ['An einem Kommentar `# encrypted`',
                                             'An einer `.vault`-Dateiendung',
-                                            'Am `!vault`-Tag mit Base64-Block und Header '
+                                            'Am `!vault`-Tag mit Hex-Block und Header '
                                             '`$ANSIBLE_VAULT;1.1;AES256`'],
                                      'en': ['A `# encrypted` comment',
                                             'A `.vault` file extension',
-                                            'The `!vault` tag with a Base64 block and header '
+                                            'The `!vault` tag with a hex block and header '
                                             '`$ANSIBLE_VAULT;1.1;AES256`']}},
                         {'id': 'vt3',
                          'type': 'single',

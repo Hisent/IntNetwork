@@ -64,7 +64,7 @@ export function OsiModel({ lang }: { lang: Lang }) {
         <div className="flex flex-col items-center justify-center min-h-[10rem] px-2">
           <div className="flex gap-0.5">
             {cur.pieces.map((p, idx) => (
-              <span key={idx} className={`rounded px-1.5 py-1 text-[10px] font-mono font-semibold ${PIECE_COLOR[p] ?? 'bg-slate-200'}`}>{p}</span>
+              <span key={idx} className={`rounded px-1.5 py-1 text-[10px] font-mono font-semibold ${PIECE_COLOR[p] ?? 'bg-slate-200'}`}>{p === 'Daten' && lang === 'en' ? 'Data' : p}</span>
             ))}
           </div>
           <p className="text-[11px] text-slate-400 mt-2">{cur.side === 'tx' ? s.encap : s.decap}</p>

@@ -36,15 +36,15 @@ export const SCENARIOS: Scenario[] = [
       {
         cmd: 'ping 192.168.10.1',
         output: {
-          de: 'Zeitüberschreitung der Anforderung. (4 gesendet, 4 verloren)',
-          en: 'Request timed out. (4 sent, 4 lost)',
+          de: 'PING: Fehler bei der Übertragung. Allgemeiner Fehler. (4 gesendet, 4 verloren)',
+          en: 'PING: transmit failed. General failure. (4 sent, 4 lost)',
         },
       },
       {
         cmd: 'ping 8.8.8.8',
         output: {
-          de: 'Zeitüberschreitung der Anforderung. (4 gesendet, 4 verloren)',
-          en: 'Request timed out. (4 sent, 4 lost)',
+          de: 'PING: Fehler bei der Übertragung. Allgemeiner Fehler. (4 gesendet, 4 verloren)',
+          en: 'PING: transmit failed. General failure. (4 sent, 4 lost)',
         },
       },
       {

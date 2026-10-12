@@ -7,7 +7,7 @@ export interface Node {
 // Pfad vom Client zum Ziel-Server (letzter Eintrag = Ziel).
 export const PATH: Node[] = [
   { name: { de: 'Gateway', en: 'Gateway' }, ip: '192.168.10.1', rttMs: 1 },
-  { name: { de: 'ISP-Edge', en: 'ISP Edge' }, ip: '203.0.113.1', rttMs: 9 },
+  { name: { de: 'ISP-Edge', en: 'ISP Edge' }, ip: '203.0.113.2', rttMs: 9 },
   { name: { de: 'Backbone', en: 'Backbone' }, ip: '62.10.0.1', rttMs: 21 },
   { name: { de: 'Ziel-Server', en: 'Destination Server' }, ip: '198.51.100.10', rttMs: 28 },
 ]

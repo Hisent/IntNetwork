@@ -103,23 +103,25 @@ REDUNDANZ_MODULE = {
                    "accidentally or maliciously.",
          }},
         {"type": "widget", "id": "redundancy-demo",
-         "note": "Erst eine unkontrollierte Schleife zeigen (Broadcast-Sturm), dann STP "
-                 "aktivieren und den blockierten Port hervorheben. Danach den aktiven Link "
-                 "kappen und die Umschaltung auf den vormals blockierten Port beobachten."},
+         "note": "Tab 1: Prioritaet eines Switches aendern und die Root-Wahl kippen lassen "
+                 "(Gleichstand -> niedrigste MAC). Tab 2: Leitungen buendeln, eine ausfallen "
+                 "lassen und auf 'eine einzelne grosse Uebertragung' umschalten. Der "
+                 "Broadcast-Sturm selbst ist in Modul 2 visualisiert; VRRP/HSRP wird nicht "
+                 "simuliert."},
         {"type": "text",
          "value": {
              "de": "## Link-Aggregation (LACP/EtherChannel)\n\nMehrere physische Leitungen "
                    "zwischen denselben zwei Geräten lassen sich zu **einer logischen "
-                   "Verbindung** bündeln — Standard-Protokoll dafür ist **LACP**, bei Cisco "
-                   "oft als **EtherChannel** bezeichnet. Das bringt zwei Vorteile: "
+                   "Verbindung** bündeln — Standard-Protokoll dafür ist **LACP** (IEEE 802.1AX); "
+                   "das Bündel selbst heißt bei Cisco **EtherChannel**. Das bringt zwei Vorteile: "
                    "**Ausfallsicherheit** (fällt eine Leitung im Bündel aus, läuft der Verkehr "
                    "über die verbleibenden weiter, ohne dass STP neu konvergieren muss) und "
                    "**Summenbandbreite** (vier gebündelte 1-Gbit-Leitungen stellen in Summe "
                    "4 Gbit/s für viele gleichzeitige Verbindungen bereit).",
              "en": "## Link Aggregation (LACP/EtherChannel)\n\nMultiple physical links between "
                    "the same two devices can be bundled into **one logical connection** — the "
-                   "standard protocol for this is **LACP**, on Cisco gear often called "
-                   "**EtherChannel**. This brings two benefits: **fault tolerance** (if one "
+                   "standard protocol for this is **LACP** (IEEE 802.1AX); on Cisco gear the "
+                   "bundle itself is called **EtherChannel**. This brings two benefits: **fault tolerance** (if one "
                    "link in the bundle fails, traffic keeps flowing over the remaining ones "
                    "without STP having to reconverge) and **aggregate bandwidth** (four "
                    "bundled 1 Gbit links together provide 4 Gbit/s for many simultaneous "
@@ -155,33 +157,32 @@ REDUNDANZ_MODULE = {
                          "one LACP channel, but the channel won't come up stably. Find the "
                          "error:",
             "lines_de": [
-                "Switch A: Gi1/1 und Gi1/2 im Kanal, Modus 'active', beide auf 10 GBit/s "
-                "fest eingestellt",
-                "Switch B: Gi1/1 und Gi1/2 im Kanal, Modus 'active'",
-                "Switch B: Gi1/1 auf 10 GBit/s, Gi1/2 auf 1 GBit/s per Autonegotiation "
-                "ausgehandelt",
+                "Switch A: Te1/1 und Te1/2 im Kanal, Modus 'active', beide Ports laufen "
+                "mit 10 GBit/s",
+                "Switch B: Te1/1 und Te1/2 im Kanal, Modus 'active'",
+                "Switch B: Te1/1 läuft mit 10 GBit/s, Te1/2 ist fest auf 1 GBit/s "
+                "konfiguriert",
                 "Beide Switches haben dieselbe VLAN-Zuordnung auf den Kanal-Ports",
             ],
             "lines_en": [
-                "Switch A: Gi1/1 and Gi1/2 in the channel, mode 'active', both fixed at "
-                "10 Gbit/s",
-                "Switch B: Gi1/1 and Gi1/2 in the channel, mode 'active'",
-                "Switch B: Gi1/1 negotiated at 10 Gbit/s, Gi1/2 negotiated at 1 Gbit/s via "
-                "autonegotiation",
+                "Switch A: Te1/1 and Te1/2 in the channel, mode 'active', both ports run "
+                "at 10 Gbit/s",
+                "Switch B: Te1/1 and Te1/2 in the channel, mode 'active'",
+                "Switch B: Te1/1 runs at 10 Gbit/s, Te1/2 is hard-set to 1 Gbit/s",
                 "Both switches have the same VLAN assignment on the channel ports",
             ],
             "wrong": [2],
             "explanation_de": "Alle Mitgliedsports eines LACP-Kanals müssen identische "
                               "Geschwindigkeit und Duplex haben. Ein Port mit abweichender "
                               "Geschwindigkeit (hier 1 statt 10 GBit/s) wird nicht stabil in "
-                              "den Kanal aufgenommen und stört die Bündelung. Die "
-                              "Autonegotiation müsste hier auf beiden Seiten fest auf "
-                              "10 GBit/s gesetzt werden.",
+                              "den Kanal aufgenommen und stört die Bündelung. Te1/2 auf "
+                              "Switch B muss wie alle anderen Mitgliedsports mit "
+                              "10 GBit/s laufen.",
             "explanation_en": "All member ports of an LACP channel must have identical speed "
                               "and duplex settings. A port with a different speed (here 1 "
                               "instead of 10 Gbit/s) won't join the channel stably and "
-                              "disrupts the bundle. Autonegotiation here would need to be "
-                              "fixed to 10 Gbit/s on both sides.",
+                              "disrupts the bundle. Te1/2 on switch B must run at "
+                              "10 Gbit/s like every other member port.",
         }},
         {"type": "text",
          "value": {
@@ -208,10 +209,12 @@ REDUNDANZ_MODULE = {
          }},
         {"type": "check", "payload": {
             "kind": "choice",
-            "prompt_de": "Ein Kernswitch fällt komplett aus, dennoch bleibt das "
+            "prompt_de": "Der Router, der bisher als Standard-Gateway geantwortet hat, "
+                         "fällt komplett aus, dennoch bleibt das "
                          "Standard-Gateway für alle Clients erreichbar. Welches Verfahren "
                          "macht das möglich?",
-            "prompt_en": "A core switch fails completely, yet the default gateway stays "
+            "prompt_en": "The router that has been answering as the default gateway "
+                         "fails completely, yet the default gateway stays "
                          "reachable for all clients. Which mechanism makes that possible?",
             "answer": 2,
             "options_de": ["STP", "LACP", "VRRP/HSRP", "Keines — das ist immer ein Ausfall"],

@@ -12,7 +12,7 @@ const STR = {
     modeLabel: 'Einführungsmodus',
     modes: {
       monitor: { name: 'Monitor / Open Mode', desc: 'Nur protokollieren, nichts blocken.' },
-      'low-impact': { name: 'Low-Impact Mode', desc: 'Begrenzter Zugang (dACL) schon vor der Auth.' },
+      'low-impact': { name: 'Low-Impact Mode', desc: 'Begrenzter Zugang (Pre-Auth-ACL) schon vor der Auth.' },
       closed: { name: 'Closed Mode', desc: 'Kein Zugang ohne erfolgreiche Auth.' },
     },
     authLabel: 'Authentifizierungsergebnis',
@@ -40,7 +40,7 @@ const STR = {
     modeLabel: 'Deployment mode',
     modes: {
       monitor: { name: 'Monitor / Open Mode', desc: 'Log only, block nothing.' },
-      'low-impact': { name: 'Low-Impact Mode', desc: 'Limited access (dACL) already before auth.' },
+      'low-impact': { name: 'Low-Impact Mode', desc: 'Limited access (pre-auth ACL) already before auth.' },
       closed: { name: 'Closed Mode', desc: 'No access without successful auth.' },
     },
     authLabel: 'Authentication outcome',

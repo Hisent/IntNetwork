@@ -50,15 +50,16 @@ NETZ_ANGRIFFE_MODULE = {
              "de": "## ARP-Spoofing und Man-in-the-Middle\n\nARP (Modul 5) hat keinerlei "
                    "**Authentifizierung**: Jeder Host im Netz glaubt jeder ARP-Antwort, die er "
                    "bekommt. Ein Angreifer nutzt das aus, indem er gefälschte ARP-Antworten "
-                   "verschickt und behauptet, die MAC-Adresse des Gateways (oder eines anderen "
-                   "Hosts) zu besitzen. Die Opfer aktualisieren daraufhin ihren ARP-Cache mit "
+                   "verschickt und behauptet, die IP-Adresse des Gateways (oder eines anderen "
+                   "Hosts) gehöre zu seiner eigenen MAC-Adresse. Die Opfer aktualisieren daraufhin ihren ARP-Cache mit "
                    "der falschen MAC und schicken ihren Verkehr unwissentlich an den Angreifer "
                    "— der ihn mitliest und meist unverändert weiterleitet, damit niemand etwas "
                    "merkt. Genau das ist ein **Man-in-the-Middle (MITM)**.",
              "en": "## ARP Spoofing and Man-in-the-Middle\n\nARP (module 5) has no "
                    "**authentication** whatsoever: every host on the network believes every "
                    "ARP reply it receives. An attacker exploits this by sending forged ARP "
-                   "replies claiming to own the gateway's MAC address (or another host's). "
+                   "replies claiming that the gateway's IP address (or another host's) belongs "
+                   "to their own MAC address. "
                    "Victims then update their ARP cache with the wrong MAC and unknowingly "
                    "send their traffic to the attacker — who reads it and usually forwards it "
                    "unchanged so nobody notices. That's exactly a **man-in-the-middle (MITM)** "
@@ -116,14 +117,14 @@ NETZ_ANGRIFFE_MODULE = {
         {"type": "text",
          "value": {
              "de": "## DHCP-Spoofing\n\nEin Angreifer kann im lokalen Netz einen **eigenen "
-                   "DHCP-Server** betreiben (Modul 8/DHCP), der auf DHCP-Anfragen schneller "
+                   "DHCP-Server** betreiben (Modul 10), der auf DHCP-Anfragen schneller "
                    "oder zusätzlich antwortet als der echte Server. Verteilt dieser gefälschte "
                    "Server sich selbst als **Standard-Gateway** oder DNS-Server, laufen "
                    "ahnungslose Clients ihren gesamten Verkehr über den Angreifer — eine "
                    "weitere Form von Man-in-the-Middle, diesmal über die DHCP-Konfiguration "
                    "statt über ARP.",
              "en": "## DHCP Spoofing\n\nAn attacker on the local network can run their own "
-                   "**DHCP server** (module 8/DHCP) that answers DHCP requests faster than or "
+                   "**DHCP server** (module 10) that answers DHCP requests faster than or "
                    "in addition to the real server. If this rogue server hands itself out as "
                    "the **default gateway** or DNS server, unsuspecting clients route all "
                    "their traffic through the attacker — another form of man-in-the-middle, "
@@ -163,8 +164,8 @@ NETZ_ANGRIFFE_MODULE = {
         {"type": "text",
          "value": {
              "de": "## Port-Scans\n\nEin **Port-Scan** prüft systematisch, welche Ports auf "
-                   "einem Zielsystem offen (Dienst antwortet), geschlossen (Dienst antwortet "
-                   "aktiv mit Ablehnung) oder gefiltert (keine Antwort, vermutlich durch eine "
+                   "einem Zielsystem offen (Dienst antwortet), geschlossen (kein Dienst lauscht, "
+                   "das System lehnt aktiv ab, bei TCP mit einem RST) oder gefiltert (keine Antwort, vermutlich durch eine "
                    "Firewall) sind. Ein Scan-Ergebnis zeigt also nicht automatisch eine "
                    "Schwachstelle — sondern zunächst nur, **welche Dienste erreichbar sind**. "
                    "Genau deshalb ist ein Scan oft der erste Schritt, um eine Angriffsfläche "
@@ -175,8 +176,8 @@ NETZ_ANGRIFFE_MODULE = {
                    "oder mit **ausdrücklicher schriftlicher Beauftragung** erfolgen — nie "
                    "einfach so gegen ein Netz, das einem nicht gehört.",
              "en": "## Port Scans\n\nA **port scan** systematically checks which ports on a "
-                   "target system are open (a service answers), closed (a service actively "
-                   "answers with a refusal), or filtered (no answer, presumably due to a "
+                   "target system are open (a service answers), closed (no service is listening, "
+                   "the host actively refuses, with a RST for TCP), or filtered (no answer, presumably due to a "
                    "firewall). A scan result therefore doesn't automatically reveal a "
                    "vulnerability — at first it only shows **which services are reachable**. "
                    "That's exactly why a scan is often the first step in assessing an attack "

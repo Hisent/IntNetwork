@@ -196,7 +196,7 @@ EXTENSIBLE_ATTRIBUTES_MODULE = {
                     'objects that still inherit the value and have not '
                     'overridden it.',
                 ],
-                'wrong': [3],
+                'wrong': [2],
                 'explanation_de': 'EA-Werte auf Kind-Objekten lassen sich '
                                   'jederzeit überschreiben, unverändert '
                                   'übernehmen oder als „nicht geerbt” markieren. '

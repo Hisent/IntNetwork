@@ -41,10 +41,24 @@ export function compress(addr: string): string {
   return `${before}::${after}`
 }
 
+/** Syntaxprüfung: nur Hex-Gruppen mit 1–4 Ziffern, höchstens ein „::", genau 8 Gruppen. */
+export function isValid(addr: string): boolean {
+  const a = addr.trim().toLowerCase()
+  const parts = a.split('::')
+  if (parts.length > 2) return false
+  const groups = parts.flatMap((p) => (p ? p.split(':') : []))
+  if (!groups.every((g) => /^[0-9a-f]{1,4}$/.test(g))) return false
+  return parts.length === 2 ? groups.length <= 7 : groups.length === 8
+}
+
 export function classify(addr: string): string {
   const full = expand(addr)
+  const first = parseInt(full.slice(0, 4), 16)
+  if (full === '0000:0000:0000:0000:0000:0000:0000:0000') return 'Unspecified (::)'
   if (full === '0000:0000:0000:0000:0000:0000:0000:0001') return 'Loopback (::1)'
-  if (full.startsWith('fe80')) return 'Link-Local (fe80::/10)'
-  if (full.startsWith('ff')) return 'Multicast (ff00::/8)'
-  return 'Global Unicast'
+  if ((first & 0xffc0) === 0xfe80) return 'Link-Local (fe80::/10)'
+  if ((first & 0xfe00) === 0xfc00) return 'Unique Local (fc00::/7)'
+  if ((first & 0xff00) === 0xff00) return 'Multicast (ff00::/8)'
+  if ((first & 0xe000) === 0x2000) return 'Global Unicast (2000::/3)'
+  return 'Reserved / other'
 }

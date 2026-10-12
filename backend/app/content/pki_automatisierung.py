@@ -8,20 +8,20 @@ PKI_AUTOMATISIERUNG_MODULE = {
     'order': 413,
     'prerequisites': ['zertifikats-lebenszyklus'],
     'goals': [
-        'Erklaeren koennen, warum kuerzere Zertifikatslaufzeiten Automatisierung faktisch erzwingen',
-        'Den ACME-Ablauf (Validierung, Ausstellung, Erneuerung) in eigenen Worten beschreiben koennen',
-        'HTTP-01 und DNS-01 unterscheiden und begruenden koennen, wann DNS-01 zwingend ist',
-        'Let\'s Encrypt und interne ACME-CAs wie smallstep gegenueberstellen koennen',
-        'Zertifikatvorlagen und Autoenrollment in Microsoft AD CS grob einordnen koennen',
-        'Die Grundprinzipien einer Zertifikats-Inventarisierung und sicheren Schluesselablage benennen koennen',
+        'Erklären können, warum kürzere Zertifikatslaufzeiten Automatisierung faktisch erzwingen',
+        'Den ACME-Ablauf (Validierung, Ausstellung, Erneuerung) in eigenen Worten beschreiben können',
+        'HTTP-01 und DNS-01 unterscheiden und begründen können, wann DNS-01 zwingend ist',
+        'Let\'s Encrypt und interne ACME-CAs wie smallstep gegenüberstellen können',
+        'Zertifikatvorlagen und Autoenrollment in Microsoft AD CS grob einordnen können',
+        'Die Grundprinzipien einer Zertifikats-Inventarisierung und sicheren Schlüsselablage benennen können',
     ],
     'scenario': {
-        'de': 'Nordwind Logistik betreibt mittlerweile weit ueber hundert TLS-Zertifikate — auf '
-              'oeffentlichen Webservern, internen APIs, Datenbanken und Gateways zwischen Standorten. '
+        'de': 'Nordwind Logistik betreibt mittlerweile weit über hundert TLS-Zertifikate — auf '
+              'öffentlichen Webservern, internen APIs, Datenbanken und Gateways zwischen Standorten. '
               'Bisher wurden neue Zertifikate von Hand beantragt und per Ticket verteilt, was schon bei '
-              'der aktuellen Laufzeit gelegentlich zu knapp getakteten Erneuerungen fuehrte. Mit den '
-              'weiter sinkenden Zertifikatslaufzeiten aus dem letzten Modul waere Handarbeit endgueltig '
-              'nicht mehr zu bewaeltigen. Zeit, Automatisierung als Standard statt als Kuer zu etablieren.',
+              'der aktuellen Laufzeit gelegentlich zu knapp getakteten Erneuerungen führte. Mit den '
+              'weiter sinkenden Zertifikatslaufzeiten aus dem letzten Modul wäre Handarbeit endgültig '
+              'nicht mehr zu bewältigen. Zeit, Automatisierung als Standard statt als Kür zu etablieren.',
         'en': 'Nordwind Logistik now runs well over a hundred TLS certificates — on public web '
               'servers, internal APIs, databases, and gateways between sites. So far, new certificates '
               'were requested manually and distributed via ticket, which already caused occasionally '
@@ -36,14 +36,14 @@ PKI_AUTOMATISIERUNG_MODULE = {
                  'explizit machen, sonst wirkt Automatisierung wie ein Nice-to-have.',
          'value': {
              'de': '## Warum Automatisierung jetzt Pflicht ist\n\n'
-                   'Das CA/Browser Forum hat die maximale Laufzeit oeffentlicher TLS-Zertifikate in '
-                   'mehreren Stufen deutlich verkuerzt — der langfristige Zielwert liegt bei nur noch '
-                   '**47 Tagen**. Bei einer Laufzeit in dieser Groessenordnung lassen sich Erneuerungen '
+                   'Das CA/Browser Forum hat die maximale Laufzeit öffentlicher TLS-Zertifikate in '
+                   'mehreren Stufen deutlich verkürzt — der langfristige Zielwert liegt bei nur noch '
+                   '**47 Tagen**. Bei einer Laufzeit in dieser Größenordnung lassen sich Erneuerungen '
                    'nicht mehr manuell im Kalender nachhalten: Zu viele Zertifikate, zu kurze Fenster, '
-                   'zu hohes Risiko, eines zu uebersehen.\n\n'
-                   'Automatisierung ist damit kein Komfortmerkmal mehr, sondern **Voraussetzung fuer '
-                   'zuverlaessigen Betrieb**. Der Rest dieses Moduls zeigt, mit welchen Bausteinen sich '
-                   'das umsetzen laesst — vom offenen Protokoll ACME bis zur Windows-eigenen Loesung '
+                   'zu hohes Risiko, eines zu übersehen.\n\n'
+                   'Automatisierung ist damit kein Komfortmerkmal mehr, sondern **Voraussetzung für '
+                   'zuverlässigen Betrieb**. Der Rest dieses Moduls zeigt, mit welchen Bausteinen sich '
+                   'das umsetzen lässt — vom offenen Protokoll ACME bis zur Windows-eigenen Lösung '
                    'AD CS.',
              'en': '## Why Automation Is Now Mandatory\n\n'
                    'The CA/Browser Forum has significantly shortened the maximum lifetime of publicly '
@@ -60,15 +60,15 @@ PKI_AUTOMATISIERUNG_MODULE = {
              'de': '## ACME: Automatisierung von Anfang bis Ende\n\n'
                    '**ACME** (Automated Certificate Management Environment, RFC 8555) ist ein Protokoll, '
                    'mit dem eine CA und ein Antragsteller Domainvalidierung und Zertifikatsausstellung '
-                   'automatisieren — ohne dass ein Mensch einen CSR per Hand hochlaedt.\n\n'
+                   'automatisieren — ohne dass ein Mensch einen CSR per Hand hochlädt.\n\n'
                    'Zentrale Eigenschaften:\n\n'
-                   '- Der **ACME-Client erzeugt das Schluesselpaar lokal** auf dem Zielsystem — der '
-                   'private Schluessel verlaesst die Maschine nie, nur die CSR (mit dem oeffentlichen '
-                   'Schluessel) geht an die CA.\n'
-                   '- Die CA prueft automatisiert, ob der Antragsteller tatsaechlich die Kontrolle ueber '
-                   'die Domain hat (**Domain-Validierung**, siehe naechster Block).\n'
+                   '- Der **ACME-Client erzeugt das Schlüsselpaar lokal** auf dem Zielsystem — der '
+                   'private Schlüssel verlässt die Maschine nie, nur die CSR (mit dem öffentlichen '
+                   'Schlüssel) geht an die CA.\n'
+                   '- Die CA prüft automatisiert, ob der Antragsteller tatsächlich die Kontrolle über '
+                   'die Domain hat (**Domain-Validierung**, siehe nächster Block).\n'
                    '- Nach erfolgreicher Validierung wird das Zertifikat automatisch ausgestellt.\n'
-                   '- Der Client kann die **Erneuerung** eigenstaendig rechtzeitig vor Ablauf anstossen '
+                   '- Der Client kann die **Erneuerung** eigenständig rechtzeitig vor Ablauf anstoßen '
                    '— genau das macht ACME bei kurzen Laufzeiten praktikabel.',
              'en': '## ACME: Automation from Start to Finish\n\n'
                    '**ACME** (Automated Certificate Management Environment, RFC 8555) is a protocol '
@@ -87,22 +87,22 @@ PKI_AUTOMATISIERUNG_MODULE = {
         {'type': 'text',
          'value': {
              'de': '## Domain-Validierung: HTTP-01 vs. DNS-01\n\n'
-                   'ACME kennt mehrere Challenge-Typen, mit denen die CA prueft, ob der Antragsteller '
+                   'ACME kennt mehrere Challenge-Typen, mit denen die CA prüft, ob der Antragsteller '
                    'die Domain kontrolliert:\n\n'
                    '- **HTTP-01**: Der Client legt eine Datei mit einem von der CA vorgegebenen Token '
                    'unter einer wohldefinierten URL auf dem Webserver ab (`http://domain/.well-known/'
-                   'acme-challenge/<token>`). Die CA ruft diese URL ab und bestaetigt damit die '
-                   'Kontrolle. Voraussetzung: Der Server ist ueber Port 80 aus dem oeffentlichen '
+                   'acme-challenge/<token>`). Die CA ruft diese URL ab und bestätigt damit die '
+                   'Kontrolle. Voraussetzung: Der Server ist über Port 80 aus dem öffentlichen '
                    'Internet erreichbar.\n'
                    '- **DNS-01**: Der Client legt einen TXT-Record mit einem Hashwert unter '
                    '`_acme-challenge.domain` an. Die CA fragt diesen TXT-Record ab.\n\n'
-                   'DNS-01 ist in zwei Faellen **zwingend**, nicht nur eine Option:\n\n'
-                   '- Fuer **Wildcard-Zertifikate** (z. B. `*.nordwind-intern.de`) verlangen CAs '
-                   'grundsaetzlich DNS-01 — ueber HTTP-01 laesst sich die Kontrolle ueber alle '
-                   'moeglichen Subdomains gar nicht sinnvoll pruefen.\n'
-                   '- Fuer **Server ohne oeffentlichen HTTP-Zugang** (z. B. rein interne Systeme hinter '
-                   'einer Firewall) ist HTTP-01 technisch unmoeglich — die CA kaeme gar nicht an die '
-                   'Datei heran. DNS-01 funktioniert hier trotzdem, weil nur die DNS-Antwort oeffentlich '
+                   'DNS-01 ist in zwei Fällen **zwingend**, nicht nur eine Option:\n\n'
+                   '- Für **Wildcard-Zertifikate** (z. B. `*.nordwind-intern.de`) verlangen CAs '
+                   'grundsätzlich DNS-01 — über HTTP-01 lässt sich die Kontrolle über alle '
+                   'möglichen Subdomains gar nicht sinnvoll prüfen.\n'
+                   '- Für **Server ohne öffentlichen HTTP-Zugang** (z. B. rein interne Systeme hinter '
+                   'einer Firewall) ist HTTP-01 technisch unmöglich — die CA käme gar nicht an die '
+                   'Datei heran. DNS-01 funktioniert hier trotzdem, weil nur die DNS-Antwort öffentlich '
                    'sichtbar sein muss, nicht der Server selbst.',
              'en': '## Domain Validation: HTTP-01 vs. DNS-01\n\n'
                    'ACME defines several challenge types the CA uses to verify that the applicant '
@@ -125,16 +125,16 @@ PKI_AUTOMATISIERUNG_MODULE = {
         {'type': 'check',
          'payload': {
              'kind': 'choice',
-             'prompt_de': 'Nordwind Logistik will ein Wildcard-Zertifikat fuer *.nordwind-intern.de '
-                          'beziehen. Warum reicht HTTP-01 dafuer nicht aus?',
+             'prompt_de': 'Nordwind Logistik will ein Wildcard-Zertifikat für *.nordwind-intern.de '
+                          'beziehen. Warum reicht HTTP-01 dafür nicht aus?',
              'prompt_en': 'Nordwind Logistik wants to obtain a wildcard certificate for '
                           '*.nordwind-intern.de. Why is HTTP-01 not sufficient for this?',
              'answer': 1,
              'options_de': [
-                 'HTTP-01 ist grundsaetzlich langsamer als DNS-01',
-                 'HTTP-01 kann Kontrolle nur ueber eine konkrete URL nachweisen, nicht ueber beliebig '
-                 'viele moegliche Subdomains auf einmal',
-                 'HTTP-01 wird von Let\'s Encrypt seit 2025 gar nicht mehr unterstuetzt',
+                 'HTTP-01 ist grundsätzlich langsamer als DNS-01',
+                 'HTTP-01 kann Kontrolle nur über eine konkrete URL nachweisen, nicht über beliebig '
+                 'viele mögliche Subdomains auf einmal',
+                 'HTTP-01 wird von Let\'s Encrypt seit 2025 gar nicht mehr unterstützt',
                  'HTTP-01 funktioniert nur bei internen CAs wie smallstep',
              ],
              'options_en': [
@@ -151,11 +151,11 @@ PKI_AUTOMATISIERUNG_MODULE = {
                           'Reihenfolge.',
              'prompt_en': 'Put the steps of an ACME certificate issuance in the correct order.',
              'items_de': [
-                 'Client erzeugt lokal ein neues Schluesselpaar und eine CSR',
-                 'Client fordert bei der ACME-CA eine Autorisierung fuer die Domain an',
+                 'Client erzeugt lokal ein neues Schlüsselpaar und eine CSR',
+                 'Client fordert bei der ACME-CA eine Autorisierung für die Domain an',
                  'CA gibt eine Challenge vor (HTTP-01 oder DNS-01)',
-                 'Client loest die Challenge (Datei bereitstellen bzw. TXT-Record setzen)',
-                 'CA prueft die Challenge und bestaetigt die Domainkontrolle',
+                 'Client löst die Challenge (Datei bereitstellen bzw. TXT-Record setzen)',
+                 'CA prüft die Challenge und bestätigt die Domainkontrolle',
                  'CA stellt das Zertifikat aus, Client installiert es',
                  'Client erneuert das Zertifikat automatisch rechtzeitig vor Ablauf',
              ],
@@ -172,15 +172,15 @@ PKI_AUTOMATISIERUNG_MODULE = {
         {'type': 'text',
          'value': {
              'de': '## Let\'s Encrypt und interne CAs\n\n'
-                   '**Let\'s Encrypt** ist der bekannteste ACME-Anbieter und hat ACME als Standard fuer '
-                   'oeffentliche TLS-Zertifikate etabliert. ACME ist aber kein Let\'s-Encrypt-'
-                   'exklusives Verfahren — es laesst sich genauso gut fuer **interne CAs** einsetzen.\n\n'
-                   '**smallstep / step-ca** ist ein bekanntes Open-Source-Beispiel dafuer: eine private '
-                   'CA mit nativer ACME-Unterstuetzung. Damit koennen gaengige ACME-Clients Zertifikate '
-                   'von einer internen CA beziehen — ganz ohne oeffentliches Internet, aber mit '
-                   'demselben Automatisierungsgrad wie bei Let\'s Encrypt. Fuer Nordwind Logistik heisst '
-                   'das: interne API-Server und Datenbanken koennen genauso automatisiert Zertifikate '
-                   'beziehen wie die oeffentliche Website.',
+                   '**Let\'s Encrypt** ist der bekannteste ACME-Anbieter und hat ACME als Standard für '
+                   'öffentliche TLS-Zertifikate etabliert. ACME ist aber kein Let\'s-Encrypt-'
+                   'exklusives Verfahren — es lässt sich genauso gut für **interne CAs** einsetzen.\n\n'
+                   '**smallstep / step-ca** ist ein bekanntes Open-Source-Beispiel dafür: eine private '
+                   'CA mit nativer ACME-Unterstützung. Damit können gängige ACME-Clients Zertifikate '
+                   'von einer internen CA beziehen — ganz ohne öffentliches Internet, aber mit '
+                   'demselben Automatisierungsgrad wie bei Let\'s Encrypt. Für Nordwind Logistik heißt '
+                   'das: interne API-Server und Datenbanken können genauso automatisiert Zertifikate '
+                   'beziehen wie die öffentliche Website.',
              'en': '## Let\'s Encrypt and Internal CAs\n\n'
                    '**Let\'s Encrypt** is the best-known ACME provider and has established ACME as the '
                    'standard for publicly trusted TLS certificates. But ACME is not exclusive to '
@@ -194,20 +194,20 @@ PKI_AUTOMATISIERUNG_MODULE = {
          }},
         {'type': 'text',
          'value': {
-             'de': '## Microsoft AD CS fuer Windows-Umgebungen\n\n'
+             'de': '## Microsoft AD CS für Windows-Umgebungen\n\n'
                    'In reinen Windows-/Active-Directory-Umgebungen ist **Microsoft AD CS (Active '
                    'Directory Certificate Services)** die naheliegende Alternative zu ACME:\n\n'
                    '- **Zertifikatvorlagen (Templates)** legen Parameter fest — erlaubte '
-                   'Schluesselverwendung, Gueltigkeitsdauer, wer ein Zertifikat aus dieser Vorlage '
+                   'Schlüsselverwendung, Gültigkeitsdauer, wer ein Zertifikat aus dieser Vorlage '
                    'anfordern darf.\n'
-                   '- **Autoenrollment** ueber Gruppenrichtlinie (GPO) stellt Domain-Mitgliedern '
-                   'automatisch Standardzertifikate aus, ohne dass jemand manuell etwas anstossen muss.\n'
+                   '- **Autoenrollment** über Gruppenrichtlinie (GPO) stellt Domain-Mitgliedern '
+                   'automatisch Standardzertifikate aus, ohne dass jemand manuell etwas anstoßen muss.\n'
                    '- Die eigene interne Root-CA wird ebenfalls per Gruppenrichtlinie automatisch in den '
                    'Trust Store aller Domain-Rechner verteilt — jeder Client vertraut der internen CA, '
-                   'ohne dass sie manuell importiert werden muesste.\n\n'
-                   'Wichtige Einschraenkung: **AD CS unterstuetzt weder ACME (RFC 8555) noch EST '
+                   'ohne dass sie manuell importiert werden müsste.\n\n'
+                   'Wichtige Einschränkung: **AD CS unterstützt weder ACME (RFC 8555) noch EST '
                    '(RFC 7030) nativ**. Wer AD CS trotzdem per ACME ansprechen will, braucht eine '
-                   'Bruecken-/Adapter-Loesung dazwischen.',
+                   'Brücken-/Adapter-Lösung dazwischen.',
              'en': '## Microsoft AD CS for Windows Environments\n\n'
                    'In pure Windows/Active Directory environments, **Microsoft AD CS (Active Directory '
                    'Certificate Services)** is the natural alternative to ACME:\n\n'
@@ -233,8 +233,8 @@ PKI_AUTOMATISIERUNG_MODULE = {
              'options_de': [
                  'AD CS spricht ACME nativ, das geht ohne Weiteres',
                  'AD CS spricht nur EST, nicht ACME',
-                 'AD CS unterstuetzt ACME nicht nativ — dafuer braucht es eine Bruecken-/Adapter-Loesung',
-                 'ACME funktioniert nur mit oeffentlichen CAs, niemals mit AD CS',
+                 'AD CS unterstützt ACME nicht nativ — dafür braucht es eine Brücken-/Adapter-Lösung',
+                 'ACME funktioniert nur mit öffentlichen CAs, niemals mit AD CS',
              ],
              'options_en': [
                  'AD CS speaks ACME natively, this works without any extra step',
@@ -248,17 +248,17 @@ PKI_AUTOMATISIERUNG_MODULE = {
              'de': '## Der Betriebsklassiker: das vergessene Zertifikat\n\n'
                    'So gut Automatisierung auch funktioniert — irgendwo im Unternehmen findet sich '
                    'fast immer ein Zertifikat, an das niemand mehr denkt: ein alter Loadbalancer, ein '
-                   'internes Verwaltungstool, ein Geraet, das seit Jahren einfach laeuft. Genau dieses '
-                   'Zertifikat ist es dann auch, das unbemerkt ablaeuft.\n\n'
-                   'Gegenmittel ist ein **Zertifikats-Inventar**: eine zentrale, vollstaendige Uebersicht '
-                   'aller ausgestellten Zertifikate — unabhaengig davon, ob sie automatisiert oder '
-                   'manuell erstellt wurden. Dazu gehoert:\n\n'
-                   '- **Ablaufueberwachung mit Vorwarnzeit**, statt erst zu reagieren, wenn das '
+                   'internes Verwaltungstool, ein Gerät, das seit Jahren einfach läuft. Genau dieses '
+                   'Zertifikat ist es dann auch, das unbemerkt abläuft.\n\n'
+                   'Gegenmittel ist ein **Zertifikats-Inventar**: eine zentrale, vollständige Übersicht '
+                   'aller ausgestellten Zertifikate — unabhängig davon, ob sie automatisiert oder '
+                   'manuell erstellt wurden. Dazu gehört:\n\n'
+                   '- **Ablaufüberwachung mit Vorwarnzeit**, statt erst zu reagieren, wenn das '
                    'Zertifikat bereits abgelaufen ist.\n'
-                   '- Eine klare **Zustaendigkeit je Zertifikat** — wer wird benachrichtigt, wer darf '
-                   'erneuern, wer entscheidet ueber Ausserbetriebnahme.\n\n'
-                   'Bei perspektivisch nur noch 47 Tagen Laufzeit ist ein solches Inventar keine Kuer '
-                   'mehr, sondern die einzige Moeglichkeit, den Ueberblick zu behalten.',
+                   '- Eine klare **Zuständigkeit je Zertifikat** — wer wird benachrichtigt, wer darf '
+                   'erneuern, wer entscheidet über Außerbetriebnahme.\n\n'
+                   'Bei perspektivisch nur noch 47 Tagen Laufzeit ist ein solches Inventar keine Kür '
+                   'mehr, sondern die einzige Möglichkeit, den Überblick zu behalten.',
              'en': '## The Classic Operational Trap: the Forgotten Certificate\n\n'
                    'No matter how well automation works — somewhere in the company there is almost '
                    'always a certificate nobody thinks about anymore: an old load balancer, an '
@@ -276,17 +276,17 @@ PKI_AUTOMATISIERUNG_MODULE = {
          }},
         {'type': 'text',
          'value': {
-             'de': '## Private Schluessel: wo sie nicht hingehoeren\n\n'
+             'de': '## Private Schlüssel: wo sie nicht hingehören\n\n'
                    'Ein Grundsatz, der bei aller Automatisierung nie unterlaufen werden sollte: '
-                   '**private Schluessel gehoeren nicht in ein Ticketsystem und nicht per E-Mail '
+                   '**private Schlüssel gehören nicht in ein Ticketsystem und nicht per E-Mail '
                    'verschickt**. Beides sind Systeme, die auf Nachvollziehbarkeit und Weiterleitung '
-                   'ausgelegt sind — genau das Gegenteil von dem, was ein privater Schluessel braucht.\n\n'
-                   'Stattdessen gehoert ein privater Schluessel in einen dafuer vorgesehenen '
-                   '**Schluesselspeicher** (Key Store) — im einfachsten Fall verschluesselt und mit '
+                   'ausgelegt sind — genau das Gegenteil von dem, was ein privater Schlüssel braucht.\n\n'
+                   'Stattdessen gehört ein privater Schlüssel in einen dafür vorgesehenen '
+                   '**Schlüsselspeicher** (Key Store) — im einfachsten Fall verschlüsselt und mit '
                    'restriktiven Zugriffsrechten auf dem Zielsystem selbst, im anspruchsvolleren Fall '
-                   'in einem zentralen Secrets-Management-System. Die staerkste Variante ist ein '
-                   '**HSM (Hardware Security Module)**: Der private Schluessel verlaesst das HSM '
-                   'physisch nie, alle Signier-/Entschluesselungsoperationen finden innerhalb des '
+                   'in einem zentralen Secrets-Management-System. Die stärkste Variante ist ein '
+                   '**HSM (Hardware Security Module)**: Der private Schlüssel verlässt das HSM '
+                   'physisch nie, alle Signier-/Entschlüsselungsoperationen finden innerhalb des '
                    'Moduls statt.',
              'en': '## Private Keys: Where They Do Not Belong\n\n'
                    'One principle that should never be undermined, no matter how much automation is '
@@ -302,9 +302,9 @@ PKI_AUTOMATISIERUNG_MODULE = {
          }},
         {'type': 'reflect',
          'payload': {
-             'prompt_de': 'Wo in eurer Umgebung wuerde ein vergessenes, bald ablaufendes Zertifikat am '
-                          'ehesten auffallen — und wo wuerde es am laengsten unbemerkt bleiben? Was '
-                          'muesste sich aendern, damit auch der zweite Fall auffaellt, bevor der '
+             'prompt_de': 'Wo in eurer Umgebung würde ein vergessenes, bald ablaufendes Zertifikat am '
+                          'ehesten auffallen — und wo würde es am längsten unbemerkt bleiben? Was '
+                          'müsste sich ändern, damit auch der zweite Fall auffällt, bevor der '
                           'Ausfall eintritt?',
              'prompt_en': 'Where in your environment would a forgotten, soon-to-expire certificate '
                           'most likely be noticed — and where would it stay unnoticed the longest? '
@@ -321,10 +321,10 @@ PKI_AUTOMATISIERUNG_MODULE = {
          'options': {
              'de': [
                  'Weil manuelle Ausstellung von der ISO 27001 verboten ist',
-                 'Weil die maximale Laufzeit oeffentlicher TLS-Zertifikate so stark verkuerzt wurde, '
-                 'dass manuelle Erneuerung im grossen Massstab nicht mehr praktikabel ist',
-                 'Weil ACME inzwischen der einzige unterstuetzte Ausstellungsweg ist',
-                 'Weil Browser manuell ausgestellte Zertifikate grundsaetzlich ablehnen',
+                 'Weil die maximale Laufzeit öffentlicher TLS-Zertifikate so stark verkürzt wurde, '
+                 'dass manuelle Erneuerung im großen Maßstab nicht mehr praktikabel ist',
+                 'Weil ACME inzwischen der einzige unterstützte Ausstellungsweg ist',
+                 'Weil Browser manuell ausgestellte Zertifikate grundsätzlich ablehnen',
              ],
              'en': [
                  'Because manual issuance is prohibited by ISO 27001',
@@ -335,13 +335,13 @@ PKI_AUTOMATISIERUNG_MODULE = {
              ],
          }},
         {'id': 'pa2', 'type': 'single',
-         'prompt': {'de': 'Was passiert beim privaten Schluessel im ACME-Ablauf?',
+         'prompt': {'de': 'Was passiert beim privaten Schlüssel im ACME-Ablauf?',
                     'en': 'What happens to the private key in the ACME flow?'},
          'answer': 0,
          'options': {
              'de': [
-                 'Der Client erzeugt ihn lokal, er verlaesst die Maschine nie',
-                 'Die CA erzeugt ihn und schickt ihn dem Client verschluesselt zu',
+                 'Der Client erzeugt ihn lokal, er verlässt die Maschine nie',
+                 'Die CA erzeugt ihn und schickt ihn dem Client verschlüsselt zu',
                  'Er wird bei jeder Erneuerung neu per E-Mail zugestellt',
                  'Er wird zentral im ACME-Protokoll gespeichert und wiederverwendet',
              ],
@@ -353,16 +353,16 @@ PKI_AUTOMATISIERUNG_MODULE = {
              ],
          }},
         {'id': 'pa3', 'type': 'single',
-         'prompt': {'de': 'Ein interner Server hat keinen oeffentlichen HTTP-Zugang. Welche '
+         'prompt': {'de': 'Ein interner Server hat keinen öffentlichen HTTP-Zugang. Welche '
                          'ACME-Challenge kommt infrage?',
                     'en': 'An internal server has no public HTTP access. Which ACME challenge is '
                          'usable?'},
          'answer': 1,
          'options': {
-             'de': ['HTTP-01, weil das Protokoll ohnehin firewall-unabhaengig ist',
-                    'DNS-01, weil dafuer nur die DNS-Antwort oeffentlich sichtbar sein muss',
-                    'Keine — interne Server koennen prinzipiell kein ACME nutzen',
-                    'Nur eine manuelle Ausstellung ist in diesem Fall moeglich'],
+             'de': ['HTTP-01, weil das Protokoll ohnehin firewall-unabhängig ist',
+                    'DNS-01, weil dafür nur die DNS-Antwort öffentlich sichtbar sein muss',
+                    'Keine — interne Server können prinzipiell kein ACME nutzen',
+                    'Nur eine manuelle Ausstellung ist in diesem Fall möglich'],
              'en': ['HTTP-01, because the protocol is firewall-independent anyway',
                     'DNS-01, because only the DNS answer needs to be publicly visible for it',
                     'None — internal servers can never use ACME in principle',
@@ -373,24 +373,24 @@ PKI_AUTOMATISIERUNG_MODULE = {
                     'en': 'What does smallstep / step-ca provide?'},
          'answer': 2,
          'options': {
-             'de': ['Es ersetzt Let\'s Encrypt als oeffentliche CA',
-                    'Es ist ein reiner ACME-Client fuer Let\'s Encrypt',
-                    'Es ist eine private CA mit nativer ACME-Unterstuetzung fuer interne Zertifikate',
-                    'Es ist ein Trust-Store-Format fuer Java'],
+             'de': ['Es ersetzt Let\'s Encrypt als öffentliche CA',
+                    'Es ist ein reiner ACME-Client für Let\'s Encrypt',
+                    'Es ist eine private CA mit nativer ACME-Unterstützung für interne Zertifikate',
+                    'Es ist ein Trust-Store-Format für Java'],
              'en': ['It replaces Let\'s Encrypt as a public CA',
                     'It is a pure ACME client for Let\'s Encrypt',
                     'It is a private CA with native ACME support for internal certificates',
                     'It is a trust store format for Java'],
          }},
         {'id': 'pa5', 'type': 'single',
-         'prompt': {'de': 'Wo sollte ein privater Schluessel abgelegt werden?',
+         'prompt': {'de': 'Wo sollte ein privater Schlüssel abgelegt werden?',
                     'en': 'Where should a private key be stored?'},
          'answer': 3,
          'options': {
              'de': ['Als Anhang im Ticket, in dem die Ausstellung dokumentiert wird',
-                    'Im E-Mail-Postfach des zustaendigen Admins, gut sichtbar zum Nachschlagen',
-                    'In einem gemeinsamen Netzlaufwerk ohne Zugriffsbeschraenkung',
-                    'In einem dafuer vorgesehenen Schluesselspeicher, im starken Fall einem HSM'],
+                    'Im E-Mail-Postfach des zuständigen Admins, gut sichtbar zum Nachschlagen',
+                    'In einem gemeinsamen Netzlaufwerk ohne Zugriffsbeschränkung',
+                    'In einem dafür vorgesehenen Schlüsselspeicher, im starken Fall einem HSM'],
              'en': ['As an attachment in the ticket documenting the issuance',
                     'In the responsible admin\'s email inbox, easy to find later',
                     'On a shared network drive without access restrictions',

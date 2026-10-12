@@ -36,12 +36,16 @@ FAKTEN_BEDINGUNGEN_MODULE = {
                              '(Standard: `true`). Technisch führt Ansible dafür intern das Modul '
                              '`ansible.builtin.setup` aus. Mit `gather_facts: false` sparst du '
                              'Zeit bei sehr einfachen Playbooks — dann stehen aber auch keine '
-                             '`ansible_*`-Variablen zur Verfügung, es sei denn, du rufst `setup` '
+                             'Facts zur Verfügung, es sei denn, du rufst `setup` '
                              'selbst als Task auf.\n'
                              '\n'
-                             'Zugriff erfolgt in der Regel direkt über die Top-Level-Variable, '
-                             'z. B. `ansible_os_family`, oder über das strukturierte Dict '
-                             '`ansible_facts.os_family`.',
+                             'Zugriff erfolgt über das Dict `ansible_facts`, z. B. '
+                             '`ansible_facts.os_family` oder `ansible_facts["os_family"]`. In '
+                             'älteren Playbooks findest du dieselben Werte als '
+                             'Top-Level-Variablen mit Präfix (`ansible_os_family`). Diese '
+                             '„injizierten“ Facts sind seit ansible-core 2.20 abgekündigt und '
+                             'ab 2.24 standardmäßig abgeschaltet — neue Playbooks nutzen '
+                             'deshalb durchgehend `ansible_facts`.',
                        'en': '## What Are Facts?\n'
                              '\n'
                              '**Facts** are system information that Ansible automatically '
@@ -53,12 +57,16 @@ FAKTEN_BEDINGUNGEN_MODULE = {
                              '(default: `true`). Under the hood, Ansible runs the '
                              '`ansible.builtin.setup` module to do this. Setting '
                              '`gather_facts: false` saves time on very simple playbooks — but '
-                             'then no `ansible_*` variables are available unless you call '
+                             'then no facts are available unless you call '
                              '`setup` yourself as a task.\n'
                              '\n'
-                             'Access usually happens directly through the top-level variable, '
-                             'e.g. `ansible_os_family`, or through the structured dict '
-                             '`ansible_facts.os_family`.'},
+                             'Access goes through the `ansible_facts` dict, e.g. '
+                             '`ansible_facts.os_family` or `ansible_facts["os_family"]`. In '
+                             'older playbooks you will find the same values as prefixed '
+                             'top-level variables (`ansible_os_family`). These "injected" facts '
+                             'are deprecated since ansible-core 2.20 and switched off by '
+                             'default from 2.24 — new playbooks therefore use `ansible_facts` '
+                             'throughout.'},
              'note': 'Falls eine Live-Umgebung verfügbar ist: ansible <host> -m setup laufen '
                      'lassen und gemeinsam durch die Ausgabe scrollen — zeigt eindrücklich, wie '
                      'viele Facts tatsächlich gesammelt werden.'},
@@ -67,34 +75,34 @@ FAKTEN_BEDINGUNGEN_MODULE = {
                              '\n'
                              'Eine kleine Auswahl, die im Alltag am häufigsten gebraucht wird:\n'
                              '\n'
-                             '- `ansible_os_family` — grobe Familie, z. B. `Debian` oder '
+                             '- `ansible_facts.os_family` — grobe Familie, z. B. `Debian` oder '
                              '`RedHat`\n'
-                             '- `ansible_distribution` / `ansible_distribution_version` — genaue '
+                             '- `ansible_facts.distribution` / `ansible_facts.distribution_version` — genaue '
                              'Distribution und Version, z. B. `Ubuntu` / `22.04`\n'
-                             '- `ansible_default_ipv4.address` — primäre IPv4-Adresse des Hosts\n'
-                             '- `ansible_memtotal_mb` — Arbeitsspeicher in Megabyte\n'
-                             '- `ansible_hostname` — kurzer Hostname (ohne Domain)\n'
+                             '- `ansible_facts.default_ipv4.address` — primäre IPv4-Adresse des Hosts\n'
+                             '- `ansible_facts.memtotal_mb` — Arbeitsspeicher in Megabyte\n'
+                             '- `ansible_facts.hostname` — kurzer Hostname (ohne Domain)\n'
                              '\n'
-                             'Merke: `ansible_os_family` gruppiert verwandte Distributionen '
+                             'Merke: `ansible_facts.os_family` gruppiert verwandte Distributionen '
                              '(Ubuntu und Debian zählen beide zu `Debian`, RHEL und CentOS beide '
                              'zu `RedHat`) — für „läuft das auf einem Debian-artigen System?" ist '
-                             'das meist die passendere Variable als `ansible_distribution`.',
+                             'das meist die passendere Variable als `ansible_facts.distribution`.',
                        'en': '## Useful Fact Variables\n'
                              '\n'
                              'A small selection that comes up most often in practice:\n'
                              '\n'
-                             '- `ansible_os_family` — coarse family, e.g. `Debian` or `RedHat`\n'
-                             '- `ansible_distribution` / `ansible_distribution_version` — exact '
+                             '- `ansible_facts.os_family` — coarse family, e.g. `Debian` or `RedHat`\n'
+                             '- `ansible_facts.distribution` / `ansible_facts.distribution_version` — exact '
                              'distribution and version, e.g. `Ubuntu` / `22.04`\n'
-                             '- `ansible_default_ipv4.address` — the host\'s primary IPv4 '
+                             '- `ansible_facts.default_ipv4.address` — the host\'s primary IPv4 '
                              'address\n'
-                             '- `ansible_memtotal_mb` — memory in megabytes\n'
-                             '- `ansible_hostname` — short hostname (without domain)\n'
+                             '- `ansible_facts.memtotal_mb` — memory in megabytes\n'
+                             '- `ansible_facts.hostname` — short hostname (without domain)\n'
                              '\n'
-                             'Note: `ansible_os_family` groups related distributions (Ubuntu and '
+                             'Note: `ansible_facts.os_family` groups related distributions (Ubuntu and '
                              'Debian both count as `Debian`, RHEL and CentOS both as `RedHat`) — '
                              'for "does this run on a Debian-like system?" it is usually the '
-                             'better fit than `ansible_distribution`.'}},
+                             'better fit than `ansible_facts.distribution`.'}},
             {'type': 'check',
              'payload': {'kind': 'choice',
                          'prompt_de': 'Welches Modul führt Ansible standardmäßig aus, um Facts '
@@ -103,11 +111,11 @@ FAKTEN_BEDINGUNGEN_MODULE = {
                                       'facts?',
                          'answer': 0,
                          'options_de': ['ansible.builtin.setup',
-                                        'ansible.builtin.gather_facts',
+                                        'ansible.builtin.stat',
                                         'ansible.builtin.facts',
                                         'ansible.builtin.info'],
                          'options_en': ['ansible.builtin.setup',
-                                        'ansible.builtin.gather_facts',
+                                        'ansible.builtin.stat',
                                         'ansible.builtin.facts',
                                         'ansible.builtin.info']}},
             {'type': 'text',
@@ -131,8 +139,8 @@ FAKTEN_BEDINGUNGEN_MODULE = {
                              '    name: monitoring-agent\n'
                              '    state: present\n'
                              '  when:\n'
-                             '    - ansible_os_family == "Debian"\n'
-                             '    - ansible_memtotal_mb > 2048\n'
+                             '    - ansible_facts.os_family == "Debian"\n'
+                             '    - ansible_facts.memtotal_mb > 2048\n'
                              '```\n'
                              '\n'
                              '**Praxisfalle:** `when` prüft die Faktenlage, wie sie zu Beginn des '
@@ -160,8 +168,8 @@ FAKTEN_BEDINGUNGEN_MODULE = {
                              '    name: monitoring-agent\n'
                              '    state: present\n'
                              '  when:\n'
-                             '    - ansible_os_family == "Debian"\n'
-                             '    - ansible_memtotal_mb > 2048\n'
+                             '    - ansible_facts.os_family == "Debian"\n'
+                             '    - ansible_facts.memtotal_mb > 2048\n'
                              '```\n'
                              '\n'
                              '**Practical trap:** `when` checks the facts as known at the start '
@@ -180,31 +188,31 @@ FAKTEN_BEDINGUNGEN_MODULE = {
                          'lines_de': ['- name: Paketquellen aktualisieren',
                                       '  ansible.builtin.apt:',
                                       '    update_cache: true',
-                                      '  when: ansible_os_famliy == "Debian"'],
+                                      '  when: ansible_facts.os_famliy == "Debian"'],
                          'lines_en': ['- name: Update package cache',
                                       '  ansible.builtin.apt:',
                                       '    update_cache: true',
-                                      '  when: ansible_os_famliy == "Debian"'],
-                         'wrong': [4],
+                                      '  when: ansible_facts.os_famliy == "Debian"'],
+                         'wrong': [3],
                          'explanation_de': 'Zeile 4 enthält einen Tippfehler: Die Fact-Variable '
-                                           'heißt `ansible_os_family` (mit einem l), nicht '
-                                           '`ansible_os_famliy`. Weil die falsch geschriebene '
+                                           'heißt `ansible_facts.os_family` (i vor l), nicht '
+                                           '`ansible_facts.os_famliy`. Weil die falsch geschriebene '
                                            'Variable so nicht existiert, scheitert der Task mit '
                                            'einem Fehler zur undefinierten Variablen — er wird '
                                            'NICHT still übersprungen. Übersprungen wird nur, wenn '
                                            'die Bedingung die Existenz selbst prüft, etwa '
-                                           '`when: ansible_os_family is defined and '
-                                           'ansible_os_family == „Debian“`. Genau deshalb ist ein '
+                                           '`when: ansible_facts.os_family is defined and '
+                                           'ansible_facts.os_family == "Debian"`. Genau deshalb ist ein '
                                            'Tippfehler hier gutmütiger als er wirkt: Er fällt '
                                            'sofort auf, statt den Task lautlos zu überspringen.',
                          'explanation_en': 'Line 4 has a typo: the fact variable is called '
-                                           '`ansible_os_family` (with an l), not '
-                                           '`ansible_os_famliy`. Since the misspelled variable '
+                                           '`ansible_facts.os_family` (i before l), not '
+                                           '`ansible_facts.os_famliy`. Since the misspelled variable '
                                            'does not exist, the task fails with an undefined '
                                            'variable error — it is NOT silently skipped. A task is '
                                            'only skipped when the condition checks existence '
-                                           'itself, e.g. `when: ansible_os_family is defined and '
-                                           'ansible_os_family == "Debian"`. That makes this typo '
+                                           'itself, e.g. `when: ansible_facts.os_family is defined and '
+                                           'ansible_facts.os_family == "Debian"`. That makes this typo '
                                            'kinder than it looks: it surfaces immediately instead '
                                            'of skipping the task in silence.'}},
             {'type': 'text',
@@ -286,18 +294,18 @@ FAKTEN_BEDINGUNGEN_MODULE = {
                              'not report meaningful idempotency information on their own.'}},
             {'type': 'reveal',
              'payload': {'teaser_de': 'Vier Hosts, eine Bedingung: '
-                                      '`when: ansible_os_family == "Debian"`. web01 (Ubuntu), '
+                                      '`when: ansible_facts.os_family == "Debian"`. web01 (Ubuntu), '
                                       'web02 (Ubuntu), db01 (CentOS), db02 (Debian). Auf welchen '
                                       'Hosts läuft der Task? Erst selbst überlegen.',
                          'teaser_en': 'Four hosts, one condition: '
-                                      '`when: ansible_os_family == "Debian"`. web01 (Ubuntu), '
+                                      '`when: ansible_facts.os_family == "Debian"`. web01 (Ubuntu), '
                                       'web02 (Ubuntu), db01 (CentOS), db02 (Debian). On which '
                                       'hosts does the task run? Work it out yourself first.'},
              'value': {'de': 'Auf **web01, web02 und db02**. Ubuntu und Debian gehören beide zur '
-                             'Fact-Familie `ansible_os_family: "Debian"`. Nur **db01** (CentOS, '
+                             'Fact-Familie `Debian` (`ansible_facts.os_family`). Nur **db01** (CentOS, '
                              'Familie `RedHat`) wird übersprungen.',
                        'en': 'On **web01, web02, and db02**. Ubuntu and Debian both belong to '
-                             'the fact family `ansible_os_family: "Debian"`. Only **db01** '
+                             'the fact family `Debian` (`ansible_facts.os_family`). Only **db01** '
                              '(CentOS, family `RedHat`) is skipped.'}},
             {'type': 'reflect',
              'payload': {'prompt_de': 'Denk an ein Playbook, das du kennst oder dir vorstellen '
@@ -315,11 +323,11 @@ FAKTEN_BEDINGUNGEN_MODULE = {
                                           'facts?'},
                          'answer': 0,
                          'options': {'de': ['ansible.builtin.setup',
-                                            'ansible.builtin.gather_facts',
+                                            'ansible.builtin.stat',
                                             'ansible.builtin.facts',
                                             'ansible.builtin.info'],
                                      'en': ['ansible.builtin.setup',
-                                            'ansible.builtin.gather_facts',
+                                            'ansible.builtin.stat',
                                             'ansible.builtin.facts',
                                             'ansible.builtin.info']}},
                         {'id': 'fb2',
@@ -344,14 +352,14 @@ FAKTEN_BEDINGUNGEN_MODULE = {
                                     'en': 'Which fact variable gives the coarse operating system '
                                           'family (e.g. Debian or RedHat)?'},
                          'answer': 0,
-                         'options': {'de': ['ansible_os_family',
-                                            'ansible_distribution',
-                                            'ansible_hostname',
-                                            'ansible_kernel'],
-                                     'en': ['ansible_os_family',
-                                            'ansible_distribution',
-                                            'ansible_hostname',
-                                            'ansible_kernel']}},
+                         'options': {'de': ['ansible_facts.os_family',
+                                            'ansible_facts.distribution',
+                                            'ansible_facts.hostname',
+                                            'ansible_facts.kernel'],
+                                     'en': ['ansible_facts.os_family',
+                                            'ansible_facts.distribution',
+                                            'ansible_facts.hostname',
+                                            'ansible_facts.kernel']}},
                         {'id': 'fb4',
                          'type': 'single',
                          'prompt': {'de': 'Ein `when` ist als YAML-Liste mit drei Einträgen '

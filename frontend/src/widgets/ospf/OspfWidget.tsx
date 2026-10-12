@@ -33,7 +33,7 @@ const STR = {
       + 'OSPF wählt nicht den Weg mit den wenigsten Sprüngen, sondern den mit der niedrigsten Kostensumme.',
     reference: 'Referenzbandbreite', referenceHint: (mbit: number) =>
       mbit <= 100
-        ? 'Klassischer Standardwert: Alle Leitungen ab 100 Mbit/s bekommen die Kosten 1 — sie sind dann nicht mehr unterscheidbar.'
+        ? `${mbit === 100 ? 'Klassischer Standardwert' : 'Unter dem klassischen Standardwert (100 Mbit/s)'}: Alle Leitungen ab ${mbit} Mbit/s bekommen die Kosten 1 — sie sind dann nicht mehr unterscheidbar.`
         : 'Höher gesetzt: schnelle Leitungen bekommen wieder unterschiedliche Kosten, statt alle auf 1 zu fallen.',
     from: 'Von', to: 'Nach',
     linksTitle: 'Leitungen', bandwidth: 'Bandbreite', cost: 'Kosten', down: 'ausfallen lassen', restore: 'wiederherstellen',
@@ -49,7 +49,7 @@ const STR = {
       + 'OSPF does not choose the path with fewest hops, but the one with the lowest total cost.',
     reference: 'Reference bandwidth', referenceHint: (mbit: number) =>
       mbit <= 100
-        ? 'Classic default: every link at 100 Mbit/s or above gets cost 1 — they become indistinguishable.'
+        ? `${mbit === 100 ? 'Classic default' : 'Below the classic default (100 Mbit/s)'}: every link at ${mbit} Mbit/s or above gets cost 1 — they become indistinguishable.`
         : 'Raised: fast links get distinguishable costs again instead of all collapsing to 1.',
     from: 'From', to: 'To',
     linksTitle: 'Links', bandwidth: 'Bandwidth', cost: 'Cost', down: 'fail link', restore: 'restore',

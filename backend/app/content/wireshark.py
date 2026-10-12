@@ -66,7 +66,8 @@ WIRESHARK_MODULE = {
          "note": "Kern-Aufgabe: http filtern, POST /login öffnen → Klartext-Passwort "
                  "(gelb markiert). Danach Paket 14 (TLS Application Data) zeigen: nur "
                  "Datensalat. Der Aha-Moment ist der direkte Vergleich HTTP vs. HTTPS. "
-                 "Auch den TCP-Handshake (Pakete 5–7) und DORA-artige DNS-Paare zeigen."},
+                 "Auch den TCP-Handshake (Pakete 5–7) und das DNS-Anfrage/Antwort-Paar "
+                 "(Pakete 3–4) zeigen."},
         {"type": "widget", "id": "learning-filter", "note": "Den passenden Wireshark-Display-Filter finden."},
         {"type": "check", "payload": {
             "prompt_de": "Du suchst in 50.000 Paketen alle Pakete von/zu 192.168.20.34. Welcher Filter?",

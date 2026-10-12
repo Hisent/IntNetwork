@@ -20,5 +20,12 @@ describe('resolve', () => {
   it('unbekannte TLD -> keine Auflösung', () => {
     const r = resolve('example.com')
     expect(r.ip).toBeNull()
+    expect(r.steps).toHaveLength(1) // kein falscher ".de"-Verweis vom Root
+  })
+
+  it('fremde .de-Domain scheitert am TLD-Server, nicht an ns1.nordwind', () => {
+    const r = resolve('example.de')
+    expect(r.ip).toBeNull()
+    expect(r.steps).toHaveLength(2)
   })
 })

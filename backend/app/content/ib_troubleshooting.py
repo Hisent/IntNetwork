@@ -156,7 +156,7 @@ IB_TROUBLESHOOTING_MODULE = {
                          "over the full address range.",
                          "Ten minutes later, server A still shows only Communication "
                          "Interrupted instead of Partner Down."],
-            "wrong": [2],
+            "wrong": [1],
             "explanation_de": "Der Fehler liegt darin, den Switch-Port zu deaktivieren statt "
                               "den DHCP-Dienst aktiv zu stoppen. Für Server A ist ein reines "
                               "Abschalten des Ports nicht von einer kurzen Netzwerkstörung zu "

@@ -80,7 +80,7 @@ SWITCHING_MODULE = {
          "value": {
              "de": "Der Switch lernt die MAC immer am **zuletzt gesehenen Port** — der Eintrag "
                    "springt also ständig hin und her, und Frames landen mal beim einen, mal beim "
-                   "anderen Gerät. Deshalb müssen MAC-Adressen im selben Netz **eindeutig** sein "
+                   "anderen Gerät. Deshalb sollten MAC-Adressen im selben Netz **eindeutig** sein "
                    "(Duplikate entstehen praktisch nur durch manuelles Überschreiben oder Fälschung).",
              "en": "The switch always learns the MAC on the **most recently seen port** — the entry "
                    "keeps flipping back and forth, and frames end up at one device or the other. "
@@ -90,11 +90,11 @@ SWITCHING_MODULE = {
         {"type": "text",
          "value": {
              "de": "## Broadcast & der Haken\n\nEin **Broadcast** "
-                   "(`FF:FF:FF:FF:FF:FF`) geht **immer** an alle Ports. Ein flacher Switch "
+                   "(`FF:FF:FF:FF:FF:FF`) geht **immer** an alle anderen Ports. Ein flacher Switch "
                    "**trennt nichts** — jedes Gerät kann jedes erreichen. Genau dieses Problem "
                    "lösen als Nächstes die **VLANs**.",
              "en": "## Broadcast & the Catch\n\nA **broadcast** "
-                   "(`FF:FF:FF:FF:FF:FF`) **always** goes to every port. A flat switch "
+                   "(`FF:FF:FF:FF:FF:FF`) **always** goes to every other port. A flat switch "
                    "**separates nothing** — every device can reach every other device. "
                    "Solving exactly this problem is the job of **VLANs**, up next.",
          }},

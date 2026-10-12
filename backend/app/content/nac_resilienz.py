@@ -32,13 +32,13 @@ NAC_RESILIENZ_MODULE = {
     },
     'blocks': [
         {'type': 'text',
-         'note': 'Diese Entscheidung frueh als Entweder-Oder positionieren: es gibt keine dritte, '
+         'note': 'Diese Entscheidung frueh als Entweder-Oder positionieren: es gibt keine echte '
                  'neutrale Option. Beide Seiten haben einen echten Preis.',
          'value': {
              'de': '## Fail-Open vs. Fail-Closed\n\n'
                    'Wenn der RADIUS-Server als Authentication Server ausfällt oder nicht mehr '
                    'erreichbar ist, kann der Authenticator (Switch/AP) keine neue '
-                   'Autorisierungsentscheidung mehr einholen. Für diesen Fall gibt es genau zwei '
+                   'Autorisierungsentscheidung mehr einholen. Für diesen Fall gibt es zwei '
                    'grundsätzliche Verhaltensweisen:\n\n'
                    '- **Fail-Open** — neue Geräte werden trotz fehlender Prüfung durchgelassen. '
                    'Der Betrieb bei Nordwind läuft weiter, aber ungeprüft: Ein Angreifer, der '
@@ -46,12 +46,13 @@ NAC_RESILIENZ_MODULE = {
                    '- **Fail-Closed** — neue Geräte werden bei RADIUS-Ausfall abgewiesen. '
                    'Sicherheit geht vor, aber auch legitime Mitarbeiter und Geräte kommen dann '
                    'nicht mehr ins Netz, solange der Ausfall andauert.\n\n'
-                   'Es gibt keine dritte, „neutrale“ Option — eine der beiden Konsequenzen tritt '
-                   'bei jedem RADIUS-Ausfall zwangsläufig ein.',
+                   'Eine wirklich „neutrale“ Option gibt es nicht — Zwischenlösungen wie das Critical '
+                   'VLAN (siehe unten) mildern eine der beiden Konsequenzen nur ab, sie '
+                   'beseitigen sie nicht.',
              'en': '## Fail-Open vs. Fail-Closed\n\n'
                    'When the RADIUS server as authentication server fails or becomes '
                    'unreachable, the authenticator (switch/AP) can no longer obtain a new '
-                   'authorization decision. For this case, there are exactly two fundamental '
+                   'authorization decision. For this case, there are two fundamental '
                    'behaviors:\n\n'
                    '- **Fail-open** — new devices are let through despite the missing check. '
                    'Operations at Nordwind continue, but unchecked: an attacker who waits for '
@@ -59,8 +60,9 @@ NAC_RESILIENZ_MODULE = {
                    '- **Fail-closed** — new devices are rejected during a RADIUS outage. '
                    'Security comes first, but legitimate employees and devices then also cannot '
                    'get onto the network for as long as the outage lasts.\n\n'
-                   'There is no third, "neutral" option — one of the two consequences '
-                   'inevitably occurs with every RADIUS outage.',
+                   'There is no truly "neutral" option — intermediate solutions such as the critical '
+                   'VLAN (see below) only soften one of the two consequences, they do not '
+                   'remove it.',
          }},
         {'type': 'text',
          'value': {
@@ -277,9 +279,9 @@ NAC_RESILIENZ_MODULE = {
                          'following picture. Which of the following statements about it is '
                          'false?',
              'lines_de': [
-                 'Solange der RADIUS-Server nicht erreichbar ist, greift automatisch eine '
-                 'Critical-Authentication-Regel und ordnet neue Anmeldeversuche in ein '
-                 'definiertes Critical VLAN ein',
+                 'Ist eine Critical-Authentication-Regel konfiguriert, ordnet sie neue '
+                 'Anmeldeversuche in ein definiertes Critical VLAN ein, solange der '
+                 'RADIUS-Server nicht erreichbar ist',
                  'Bereits authentifizierte, laufende Sitzungen werden durch den RADIUS-Ausfall '
                  'nicht sofort getrennt',
                  'Die Wahl zwischen Fail-Open und Fail-Closed ist ein reiner Automatismus der '
@@ -289,9 +291,9 @@ NAC_RESILIENZ_MODULE = {
                  'aussperren',
              ],
              'lines_en': [
-                 'As long as the RADIUS server is unreachable, a critical authentication rule '
-                 'automatically kicks in and places new login attempts into a defined critical '
-                 'VLAN',
+                 'If a critical authentication rule is configured, it places new login attempts '
+                 'into a defined critical VLAN for as long as the RADIUS server is '
+                 'unreachable',
                  'Already-authenticated, running sessions are not immediately disconnected by '
                  'the RADIUS outage',
                  'The choice between fail-open and fail-closed is a pure automatism of the '

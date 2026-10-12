@@ -23,7 +23,7 @@ export interface DeploymentOutcome {
  * - Monitor/Open Mode: NIE Enforcement — der Port bleibt immer offen, auch bei
  *   Fehlschlag. Es wird nur protokolliert, was passiert wäre.
  * - Low-Impact Mode: Bei Erfolg voller Zugriff. Bei Fehlschlag greift bereits
- *   eine begrenzte dACL (z. B. nur DHCP/DNS/Patch-Server) — kritische Dienste
+ *   eine begrenzte Pre-Auth-ACL (z. B. nur DHCP/DNS/Patch-Server) — kritische Dienste
  *   bleiben erreichbar, aber das Gerät ist nicht im Produktivnetz.
  * - Closed Mode: Ohne erfolgreiche Authentifizierung überhaupt kein Zugang.
  */
@@ -54,8 +54,8 @@ export function outcome(mode: NacMode, authOk: boolean): DeploymentOutcome {
         access: 'limited',
         log: true,
         note: {
-          de: 'Low-Impact Mode: Schon vor erfolgreicher Authentifizierung greift eine begrenzte dACL — z. B. DHCP/DNS und ein Remediation-/Patch-Server bleiben erreichbar, das Produktivnetz aber nicht.',
-          en: 'Low-Impact Mode: even before successful authentication a limited dACL applies — e.g. DHCP/DNS and a remediation/patch server stay reachable, but not the production network.',
+          de: 'Low-Impact Mode: Schon vor erfolgreicher Authentifizierung greift eine begrenzte, statische Pre-Auth-ACL am Port — z. B. DHCP/DNS und ein Remediation-/Patch-Server bleiben erreichbar, das Produktivnetz aber nicht.',
+          en: 'Low-Impact Mode: even before successful authentication a limited, static pre-auth ACL on the port applies — e.g. DHCP/DNS and a remediation/patch server stay reachable, but not the production network.',
         },
       }
     case 'closed':

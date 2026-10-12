@@ -19,23 +19,29 @@ export interface Packet {
   secret?: boolean // das Klartext-Passwort-Paket (Challenge-Ziel)
 }
 
+// Bekannte Protokollnamen: unbekannte Wörter färbt auch das echte Wireshark rot.
+const KNOWN_PROTOCOLS = new Set(['frame', 'eth', 'arp', 'ip', 'ipv6', 'icmp', 'icmpv6', 'tcp', 'udp',
+  'dns', 'dhcp', 'http', 'tls', 'ssh', 'ftp', 'smtp', 'ntp', 'telnet', 'quic'])
+
 /** Anzeigefilter → Prädikat. Unterstützt: leer, Protokollname (dns/tcp/http/
- *  tls/icmp/udp/ip), `ip.addr == X`, `tcp.port == N`. Ungültig → null. */
+ *  tls/icmp/udp/ip …), `ip.addr|ip.src|ip.dst == X`, `tcp.port|udp.port == N`.
+ *  Ungültig → null. */
 export function parseFilter(filter: string): ((p: Packet) => boolean) | null {
   const f = filter.trim().toLowerCase()
   if (f === '') return () => true
-  if (/^[a-z0-9.]+$/.test(f) && !f.includes('.')) {
+  if (KNOWN_PROTOCOLS.has(f)) {
     return (p) => p.protocols.includes(f)
   }
-  let m = f.match(/^ip\.addr\s*==\s*([0-9.]+)$/)
+  let m = f.match(/^ip\.(addr|src|dst)\s*==\s*([0-9.]+)$/)
   if (m) {
-    const ip = m[1]
-    return (p) => p.src === ip || p.dst === ip
+    const [, field, ip] = m
+    return (p) => (field !== 'dst' && p.src === ip) || (field !== 'src' && p.dst === ip)
   }
-  m = f.match(/^tcp\.port\s*==\s*(\d+)$/)
+  m = f.match(/^(tcp|udp)\.port\s*==\s*(\d+)$/)
   if (m) {
-    const port = Number(m[1])
-    return (p) => p.protocols.includes('tcp') && (p.ports?.includes(port) ?? false)
+    const [, proto] = m
+    const port = Number(m[2])
+    return (p) => p.protocols.includes(proto) && (p.ports?.includes(port) ?? false)
   }
   return null
 }

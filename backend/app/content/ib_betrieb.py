@@ -103,7 +103,7 @@ BETRIEB_MODULE = {
                          "Extensible attributes and admin permissions were restored.",
                          "All scheduled tasks and open approval workflows are automatically "
                          "active again after the restore."],
-            "wrong": [4],
+            "wrong": [3],
             "explanation_de": "Scheduled- und Approval-Tasks werden beim Backup zwar mitgesichert "
                               "(zu Diagnosezwecken), beim Restore aber bewusst NICHT "
                               "wiederhergestellt. Nach jedem Restore müssen geplante Aufgaben und "
@@ -175,39 +175,49 @@ BETRIEB_MODULE = {
             "prompt_en": "Put the preparation and execution of a grid upgrade into the correct "
                          "order:",
             "items_de": ["Release Notes lesen und unterstützten Upgrade-Pfad prüfen",
-                         "Aktuelles Backup anlegen und dessen Erfolg verifizieren",
                          "Lizenz- und Kapazitätsbedarf der Zielversion prüfen",
                          "Wartungsfenster planen und an Betroffene kommunizieren",
-                         "Upgrade-Gruppen festlegen, Reporting-Member gestaffelt einplanen",
+                         "Upgrade-Gruppen und Reporting-Member-Gruppe prüfen, Reihenfolge und Zeitfenster festlegen",
+                         "Unmittelbar vor dem Upgrade: aktuelles Backup anlegen und dessen Erfolg verifizieren",
                          "Upgrade durchführen und anschließend Grid-Status prüfen"],
             "items_en": ["Read release notes and confirm the supported upgrade path",
-                         "Take a current backup and verify it succeeded",
                          "Check license and capacity needs for the target version",
                          "Plan the maintenance window and communicate it to those affected",
-                         "Define upgrade groups, staggering reporting members",
+                         "Review upgrade groups and the reporting member group, set order and time windows",
+                         "Immediately before the upgrade: take a current backup and verify it succeeded",
                          "Perform the upgrade, then check grid status"],
         }},
         {"type": "text",
          "value": {
              "de": "## Upgrade-Gruppen und Reporting-Member\n\n"
                    "Grid-Member werden in der Regel in **Upgrade-Gruppen** gestaffelt "
-                   "aktualisiert, statt alle gleichzeitig. Besonders wichtig ist das bei "
-                   "Reporting-Membern: Werden alle Reporting-Member gleichzeitig in dieselbe "
-                   "Upgrade-Gruppe gelegt, gehen sie während des Upgrades gemeinsam offline — "
-                   "mit dem Risiko, dass in diesem Zeitraum anfallende Reporting-Daten verloren "
-                   "gehen. Eine gestaffelte Aufteilung auf mehrere Upgrade-Gruppen hält die "
-                   "Reporting-Funktion durchgehend zumindest teilweise verfügbar.\n\n"
+                   "aktualisiert, statt alle gleichzeitig. Reporting-Member sind ein Sonderfall: "
+                   "NIOS legt für sie automatisch eine eigene Upgrade-Gruppe an, deren "
+                   "Mitglieder sich nicht ändern lassen und die nach dem Grid Master und vor "
+                   "den übrigen Gruppen aktualisiert wird. Wichtig bleibt, dass bei einem "
+                   "Reporting-Cluster nicht alle Reporting-Member gleichzeitig offline gehen: "
+                   "Sonst können in dieser Zeit Ereignisse von anderen Grid-Membern nicht "
+                   "empfangen werden und Reporting-Daten verloren gehen. Die Infoblox-Doku zu "
+                   "Reporting-Clustern empfiehlt deshalb, die Reporting-Member auf "
+                   "unterschiedliche Upgrade-Zeitpunkte zu verteilen, damit stets einige "
+                   "Member verfügbar bleiben — welche Einstellmöglichkeiten das in deiner "
+                   "NIOS-Version gibt, steht in der jeweiligen Upgrade-Doku.\n\n"
                    "Zusätzliche Praxis: Vor größeren strukturellen Änderungen am Reporting "
                    "(zum Beispiel dem Wechsel von einem einzelnen Indexer zu einem Cluster) "
                    "empfiehlt sich ein **explizites Reporting-Backup**, unabhängig vom "
                    "regulären Grid-Backup.",
              "en": "## Upgrade Groups and Reporting Members\n\n"
                    "Grid members are typically upgraded in staggered **upgrade groups** rather "
-                   "than all at once. This matters especially for reporting members: if all "
-                   "reporting members sit in the same upgrade group, they all go offline "
-                   "together during the upgrade — risking loss of reporting data generated "
-                   "during that window. Staggering them across several upgrade groups keeps "
-                   "reporting at least partially available throughout.\n\n"
+                   "than all at once. Reporting members are a special case: NIOS automatically "
+                   "creates a dedicated upgrade group for them, whose membership cannot be "
+                   "changed and which is upgraded after the Grid Master and before the other "
+                   "groups. What still matters is that, in a reporting cluster, not all "
+                   "reporting members go offline at the same time: otherwise they cannot "
+                   "receive events from other Grid members during that window and reporting "
+                   "data can be lost. The Infoblox documentation for reporting clusters "
+                   "therefore recommends spreading the reporting members across different "
+                   "upgrade times so that some members always stay available — which options "
+                   "your NIOS version offers for this is covered in its upgrade documentation.\n\n"
                    "Additional practice: before major structural changes to reporting (for "
                    "example moving from a single indexer to a cluster), an **explicit reporting "
                    "backup** is recommended, independent of the regular grid backup.",
@@ -253,9 +263,10 @@ BETRIEB_MODULE = {
                     "Only if a reporting backup was taken first"],
          }},
         {"id": "bt3", "type": "single",
-         "prompt": {"de": "Warum werden Reporting-Member häufig in unterschiedliche "
-                          "Upgrade-Gruppen gelegt?",
-                    "en": "Why are reporting members often placed in different upgrade groups?"},
+         "prompt": {"de": "Warum empfiehlt die Infoblox-Doku für Reporting-Cluster, Reporting-Member "
+                          "nicht alle im selben Zeitfenster zu aktualisieren?",
+                    "en": "Why does the Infoblox documentation for reporting clusters recommend not "
+                          "upgrading all reporting members in the same time window?"},
          "answer": 0,
          "options": {
              "de": ["Damit nicht alle Reporting-Member gleichzeitig offline gehen und Reporting-"

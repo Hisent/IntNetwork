@@ -11,13 +11,13 @@ HOOKS_MODULE = {'key': 'hooks',
            'Einen Hook in settings.json mit Matcher konfigurieren',
            'Exit-Codes (0/2) und Blockierverhalten verstehen'],
  'scenario': {'de': 'CLAUDE.md ist eine Bitte — Hooks sind eine Garantie. Ein **Hook** ist ein '
-                    'Shell-Kommando (oder HTTP-/Prompt-/Agent-Aufruf), das Claude Code an festen '
+                    'Shell-Kommando (oder HTTP-/MCP-Tool-/Prompt-/Agent-Aufruf), das Claude Code an festen '
                     'Punkten im Lebenszyklus **automatisch** ausführt: nach jedem Edit '
                     'formatieren, vor jedem Commit linten, gefährliche Kommandos blockieren. Weil '
                     'Hooks unabhängig davon laufen, was das Modell „entscheidet”, sind sie das '
                     'Mittel der Wahl für erzwungene Regeln.',
               'en': 'CLAUDE.md is a request — hooks are a guarantee. A **hook** is a shell command '
-                    '(or an HTTP/prompt/agent call) that Claude Code executes **automatically** at '
+                    '(or an HTTP/MCP-tool/prompt/agent call) that Claude Code executes **automatically** at '
                     'fixed points in the lifecycle: formatting after every edit, linting before '
                     'every commit, blocking dangerous commands. Because hooks run independently of '
                     'what the model "decides", they are the tool of choice for enforced rules.'},
@@ -213,8 +213,8 @@ HOOKS_MODULE = {'key': 'hooks',
             {'type': 'text',
              'value': {'de': '## Beispiel: Kontext beim Sessionstart\n'
                              '\n'
-                             'Ein `SessionStart`-Hook kann nützliche Infos beilegen — hier Branch '
-                             'und offene Issues:\n'
+                             'Ein `SessionStart`-Hook kann nützliche Infos beilegen — hier den '
+                             'aktuellen Branch:\n'
                              '\n'
                              '```bash\n'
                              '#!/bin/bash\n'
@@ -232,7 +232,7 @@ HOOKS_MODULE = {'key': 'hooks',
                        'en': '## Example: Context at Session Start\n'
                              '\n'
                              'A `SessionStart` hook can attach useful information — here the '
-                             'branch and open issues:\n'
+                             'current branch:\n'
                              '\n'
                              '```bash\n'
                              '#!/bin/bash\n'
@@ -240,7 +240,7 @@ HOOKS_MODULE = {'key': 'hooks',
                              'jq -n --arg b "$BRANCH" \'{\n'
                              '  hookSpecificOutput: {\n'
                              '    hookEventName: "SessionStart",\n'
-                             '    additionalContext: "Aktueller Branch: \\($b)"\n'
+                             '    additionalContext: "Current branch: \\($b)"\n'
                              '  }\n'
                              "}'\n"
                              '```\n'

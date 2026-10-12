@@ -35,19 +35,19 @@ function showRun(routes: Route[]): string {
   return lines.join('\n')
 }
 
-const HELP = [
-  'Verfügbare Befehle:',
+const help = (lang: 'de' | 'en') => [
+  lang === 'de' ? 'Verfügbare Befehle:' : 'Available commands:',
   '  show ip route',
   '  show ip interface brief',
   '  show running-config',
 ].join('\n')
 
-export function runRouterCommand(routes: Route[], raw: string): string {
+export function runRouterCommand(routes: Route[], raw: string, lang: 'de' | 'en' = 'de'): string {
   const cmd = raw.trim().toLowerCase().replace(/\s+/g, ' ')
   if (!cmd) return ''
-  if (cmd === '?' || cmd === 'help') return HELP
+  if (cmd === '?' || cmd === 'help') return help(lang)
   if (cmd === 'show ip route') return showIpRoute(routes)
   if (cmd === 'show ip interface brief' || cmd === 'show ip int brief') return showIpIntBrief(routes)
   if (cmd === 'show running-config' || cmd === 'show run') return showRun(routes)
-  return '% Invalid input detected\nTippe ? für die Befehlsliste.'
+  return `% Invalid input detected\n${lang === 'de' ? 'Tippe ? für die Befehlsliste.' : 'Type ? for the command list.'}`
 }

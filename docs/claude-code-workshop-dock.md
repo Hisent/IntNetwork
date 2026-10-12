@@ -1,5 +1,9 @@
 # Andockung: „Mastering Claude Code"-Workshop
 
+> **Stand 2026-10-12:** historisches Andock-Protokoll. Inzwischen überholt: Der Lehrgang hat **18** Module
+> (order 101–118; neu: `safe-ai-workflows` 115, `effective-workflows` 116, `git-collaboration` 117; `capstone` jetzt 118)
+> und zusätzlich das Widget `git-lab`. Die Abschnitte „Vor dem Deploy“ und „Offene Punkte“ sind erledigt.
+
 Der dreitägige Claude-Code-Workshop wurde als **15 zusätzliche Content-Module**
 in die bestehende Plattform eingehängt — im gleichen Daten-/Serving-Weg wie die
 Netzwerk-Module.

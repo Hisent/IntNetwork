@@ -13,10 +13,19 @@ export const WELL_KNOWN: Record<number, string> = {
   3389: 'RDP',
 }
 
-const NO_SERVICE = { de: 'kein Standard-Dienst (dynamischer Port)', en: 'no standard service (dynamic port)' }
+// Bereiche nach IANA/RFC 6335: 0–1023 System (well-known), 1024–49151 registriert, 49152–65535 dynamisch.
+function noService(port: number): { de: string; en: string } {
+  if (!Number.isInteger(port) || port < 0 || port > 65535)
+    return { de: 'ungültig (Ports: 0–65535)', en: 'invalid (ports: 0–65535)' }
+  if (port < 1024)
+    return { de: 'hier kein Dienst hinterlegt (Well-known-/System-Port)', en: 'no service listed here (well-known/system port)' }
+  if (port < 49152)
+    return { de: 'hier kein Dienst hinterlegt (registrierter Port)', en: 'no service listed here (registered port)' }
+  return { de: 'kein Standard-Dienst (dynamischer Port)', en: 'no standard service (dynamic port)' }
+}
 
 export function serviceFor(port: number, lang: 'de' | 'en' = 'de'): string {
-  return WELL_KNOWN[port] ?? NO_SERVICE[lang]
+  return WELL_KNOWN[port] ?? noService(port)[lang]
 }
 
 export interface HandshakeStep {

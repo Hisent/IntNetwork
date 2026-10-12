@@ -88,7 +88,8 @@ QUALITAET_MODULE = {'key': 'qualitaet-testen',
                              'bei mehreren installierten Collections\n'
                              '- `shell:`/`command:` wo ein deklaratives Modul existieren würde — '
                              'meist nicht idempotent\n'
-                             '- fest codierte Zugangsdaten oder Pfade statt Variablen\n'
+                             '- Datei-Tasks ohne explizites `mode:` (`risky-file-permissions`) — '
+                             'Dateirechte hängen dann vom Zufall der Umgebung ab\n'
                              '\n'
                              '```bash\n'
                              'ansible-lint site.yml\n'
@@ -114,7 +115,8 @@ QUALITAET_MODULE = {'key': 'qualitaet-testen',
                              '— ambiguous once several collections are installed\n'
                              '- `shell:`/`command:` where a declarative module would exist — '
                              'usually not idempotent\n'
-                             '- Hardcoded credentials or paths instead of variables\n'
+                             '- File tasks without an explicit `mode:` (`risky-file-permissions`) '
+                             '— file permissions then depend on the environment\n'
                              '\n'
                              '```bash\n'
                              'ansible-lint site.yml\n'
@@ -217,12 +219,13 @@ QUALITAET_MODULE = {'key': 'qualitaet-testen',
                              'Die Rolle läuft ein zweites Mal, und dieser Lauf darf keine '
                              'Änderungen mehr melden.\n'
                              '\n'
-                             '**Hinweis zur Vorsicht**: Die genaue Schrittfolge und '
-                             'Konfigurationsdetails von Molecule stammen in dieser Quelle vor '
-                             'allem aus Sekundärquellen (Community-Artikeln), nicht aus einem '
-                             'vollständigen Abgleich mit der offiziellen Dokumentation — für den '
-                             'produktiven Einsatz lohnt sich ein Blick in die aktuelle '
-                             'Molecule-Dokumentation, bevor konkrete Szenario-Dateien entstehen.\n'
+                             'Die Schrittfolge von `molecule test` laut Molecule-Dokumentation: '
+                             '`dependency` → `cleanup` → `destroy` → `syntax` → `create` → '
+                             '`prepare` → `converge` → `idempotence` → `side_effect` → `verify` → '
+                             '`cleanup` → `destroy`. `converge` wendet die Rolle an, '
+                             '`idempotence` ist der zweite Lauf, `verify` prüft das Ergebnis. Die '
+                             'Folge lässt sich pro Szenario anpassen; `molecule matrix test` '
+                             'zeigt, was tatsächlich laufen würde.\n'
                              '\n'
                              'Wichtig für die Abgrenzung: **Lint ist kein Bestandteil der '
                              'Molecule-Testsequenz selbst** — es läuft typischerweise als '
@@ -241,18 +244,19 @@ QUALITAET_MODULE = {'key': 'qualitaet-testen',
                              '**idempotency**: the role runs a second time, and that run must not '
                              'report any changes.\n'
                              '\n'
-                             '**A note of caution**: the exact step sequence and configuration '
-                             'details of Molecule, as used here, come mostly from secondary '
-                             'sources (community articles), not from a full cross-check against '
-                             'the official documentation — before production use, it is worth '
-                             'checking the current Molecule documentation before writing concrete '
-                             'scenario files.\n'
+                             'The step sequence of `molecule test` per the Molecule '
+                             'documentation: `dependency` → `cleanup` → `destroy` → `syntax` → '
+                             '`create` → `prepare` → `converge` → `idempotence` → `side_effect` → '
+                             '`verify` → `cleanup` → `destroy`. `converge` applies the role, '
+                             '`idempotence` is the second run, `verify` checks the result. The '
+                             'sequence can be adjusted per scenario; `molecule matrix test` shows '
+                             'what would actually run.\n'
                              '\n'
                              'Important distinction: **linting is not part of the Molecule test '
                              'sequence itself** — it typically runs as a separate, earlier CI '
                              'step.'},
-             'note': 'Bewusst vorsichtig formuliert (Recherche stützt sich hier auf '
-                     'Sekundärquellen, nicht auf die offizielle Molecule-Doku im Volltext).'},
+             'note': 'Schrittfolge gegen die Molecule-Doku (Configuration, test_sequence) '
+                     'geprüft; Lint ist dort kein Schritt.'},
             {'type': 'debug',
              'payload': {'prompt_de': 'Ein Team beschreibt seine geplante CI-Pipeline für '
                                       'Ansible-Rollen in vier Schritten. Einer davon ist '
@@ -260,23 +264,23 @@ QUALITAET_MODULE = {'key': 'qualitaet-testen',
                          'prompt_en': "A team describes its planned CI pipeline for Ansible "
                                       'roles in four steps. One of them is factually wrong — '
                                       'which one?',
-                         'lines_de': ['Schritt 1: `ansible-lint` läuft gegen alle geänderten '
+                         'lines_de': ['Schritt 1: `ansible-playbook --syntax-check` läuft zuerst, '
+                                      'um grobe YAML-Fehler früh zu erkennen.',
+                                      'Schritt 2: `ansible-lint` läuft gegen alle geänderten '
                                       'Rollen und bricht bei Findings im `production`-Profil ab.',
-                                      'Schritt 2: `ansible-playbook --syntax-check` läuft vor dem '
-                                      'Lint, um grobe YAML-Fehler früh zu erkennen.',
                                       'Schritt 3: Molecule führt die Rolle gegen eine isolierte '
                                       'Testumgebung aus und prüft dabei auch Idempotenz.',
                                       'Schritt 4: Da Lint bereits Teil der Molecule-Testsequenz '
-                                      'ist, kann Schritt 1 komplett entfallen.'],
-                         'lines_en': ['Step 1: `ansible-lint` runs against all changed roles and '
+                                      'ist, kann Schritt 2 komplett entfallen.'],
+                         'lines_en': ['Step 1: `ansible-playbook --syntax-check` runs first, to '
+                                      'catch gross YAML errors early.',
+                                      'Step 2: `ansible-lint` runs against all changed roles and '
                                       'fails the build on findings in the `production` profile.',
-                                      'Step 2: `ansible-playbook --syntax-check` runs before the '
-                                      'lint step, to catch gross YAML errors early.',
                                       'Step 3: Molecule runs the role against an isolated test '
                                       'environment and also checks idempotency.',
                                       'Step 4: Since linting is already part of the Molecule test '
-                                      'sequence, step 1 can be dropped entirely.'],
-                         'wrong': [4],
+                                      'sequence, step 2 can be dropped entirely.'],
+                         'wrong': [3],
                          'explanation_de': 'Linting ist **nicht** Teil der Molecule-Testsequenz '
                                            '— beide prüfen unterschiedliche Dinge (Stil/Best '
                                            'Practices vs. tatsächliches Verhalten inkl. '
@@ -306,9 +310,11 @@ QUALITAET_MODULE = {'key': 'qualitaet-testen',
                              '- Unklare Variablenvorrangkonflikte, die als „Bug” erscheinen, aber '
                              'nur eine überschriebene Variable sind.\n'
                              '\n'
-                             'Die gute Nachricht: Jede dieser Fallen wird von genau einer der vier '
-                             'Prüfstufen aufgedeckt — vorausgesetzt, die Stufe läuft auch '
-                             'tatsächlich.',
+                             'Die gute Nachricht: Die meisten dieser Fallen deckt mindestens eine '
+                             'der vier Prüfstufen auf — vorausgesetzt, die Stufe läuft auch '
+                             'tatsächlich. Falsche `when`-Bedingungen und Vorrangkonflikte '
+                             'zeigen sich allerdings oft erst im Check-Lauf oder Rollentest '
+                             'gegen realistische Testdaten.',
                        'en': '## Typical beginner mistakes\n'
                              '\n'
                              '\n'
@@ -324,8 +330,11 @@ QUALITAET_MODULE = {'key': 'qualitaet-testen',
                              '- Unclear variable-precedence conflicts that look like a “bug” but '
                              'are just an overridden variable.\n'
                              '\n'
-                             'The good news: each of these traps is caught by exactly one of the '
-                             'four quality gates — provided that gate actually runs.'}},
+                             'The good news: most of these traps are caught by at least one of '
+                             'the four quality gates — provided that gate actually runs. Wrong '
+                             '`when` conditions and precedence conflicts, however, often only '
+                             'show up in a check run or role test against realistic test '
+                             'data.'}},
             {'type': 'reflect',
              'payload': {'prompt_de': 'Welche der vier Prüfstufen (Syntax-Check, Lint, '
                                       'Check/Diff, Rollentest) fehlt in deinem aktuellen '

@@ -5,14 +5,14 @@ import type { Lang } from '@/lib/i18n'
 
 const STR = {
   de: {
-    title: 'Switch — MAC-Lernen', from: 'Von', to: 'An', send: 'Frame senden', clear: 'Tabelle leeren',
+    title: 'Switch — MAC-Lernen', from: 'Von', to: 'An', port: 'Port', send: 'Frame senden', clear: 'Tabelle leeren',
     table: 'MAC-Adresstabelle', empty: 'leer',
     flooded: (ports: string, port: number) => `Ziel unbekannt → Flooding an Ports ${ports}. Quell-MAC am Port ${port} gelernt.`,
     unicast: (port: number) => `Ziel bekannt → Unicast an Port ${port}.`,
     challenge: 'Bring den Switch dazu, einen Frame als Unicast zuzustellen — Tipp: das Ziel muss vorher selbst gesendet haben.',
   },
   en: {
-    title: 'Switch — MAC Learning', from: 'From', to: 'To', send: 'Send frame', clear: 'Clear table',
+    title: 'Switch — MAC Learning', from: 'From', to: 'To', port: 'Port', send: 'Send frame', clear: 'Clear table',
     table: 'MAC address table', empty: 'empty',
     flooded: (ports: string, port: number) => `Unknown destination → flooding to ports ${ports}. Source MAC learned on port ${port}.`,
     unicast: (port: number) => `Known destination → unicast to port ${port}.`,
@@ -26,6 +26,8 @@ export function MacLearning({ lang }: { lang: Lang }) {
   const [dst, setDst] = useState(2)
   const [last, setLast] = useState<LearnResult | null>(null)
   const s = STR[lang]
+  // Port des zuletzt gesendeten Frames — nicht der aktuelle Dropdown-Wert
+  const lastSrc = last ? HOSTS.find((h) => h.mac === last.learnedMac)!.port : null
 
   function send() {
     if (src === dst) return
@@ -42,11 +44,11 @@ export function MacLearning({ lang }: { lang: Lang }) {
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-4">
         {HOSTS.map((h) => {
           const lit = last?.delivered.includes(h.port)
-          const isSrc = last && src === h.port
+          const isSrc = lastSrc === h.port
           return (
             <div key={h.port}
               className={`rounded-xl border-2 p-2 text-xs ${isSrc ? 'border-teal-500 bg-teal-50' : lit ? 'border-amber-400 bg-amber-50' : 'border-slate-200 bg-white'}`}>
-              <div className="font-semibold text-slate-700">{s.to} {h.port} · {h.name[lang]}</div>
+              <div className="font-semibold text-slate-700">{s.port} {h.port} · {h.name[lang]}</div>
               <div className="font-mono text-[10px] text-slate-500">{h.mac}</div>
             </div>
           )
@@ -74,7 +76,7 @@ export function MacLearning({ lang }: { lang: Lang }) {
 
       {last && (
         <p className="mt-3 text-xs text-slate-600">
-          {last.flooded ? s.flooded(last.delivered.join(', '), src) : s.unicast(last.delivered[0])}
+          {last.flooded ? s.flooded(last.delivered.join(', '), lastSrc!) : s.unicast(last.delivered[0])}
         </p>
       )}
 
@@ -87,7 +89,7 @@ export function MacLearning({ lang }: { lang: Lang }) {
             ? <div className="px-3 py-2 text-slate-400">{s.empty}</div>
             : Object.entries(table).map(([mac, port]) => (
               <div key={mac} className="flex justify-between px-3 py-1.5">
-                <span className="text-slate-700">{mac}</span><span className="text-slate-500">{s.to} {port}</span>
+                <span className="text-slate-700">{mac}</span><span className="text-slate-500">{s.port} {port}</span>
               </div>
             ))}
         </div>

@@ -142,10 +142,10 @@ WIDERRUF_MODULE = {
                    'Gleichzeitig setzen Browser zunehmend auf **eigene, vorverteilte '
                    'Sperrmechanismen** statt auf Live-Abfragen bei der CA - Firefox '
                    'verteilt dafür über den Mechanismus **CRLite** kompakt kodierte '
-                   'Widerrufsdaten aus CT-Logs periodisch an alle Nutzer. Andere Browser '
-                   'verfolgen ähnliche Ideen mit eigenen, nicht identischen Mechanismen; '
-                   'die genauen Details unterscheiden sich hier von Browser zu Browser und '
-                   'sind nicht durchgängig mit gleicher Verlässlichkeit dokumentiert.',
+                   'Widerrufsdaten aus CT-Logs periodisch an alle Nutzer. Chrome verfolgt '
+                   'mit **CRLSets** eine ähnliche Idee: eine von Google zusammengestellte, '
+                   'per Browser-Update verteilte Auswahl wichtiger Sperreinträge - bewusst '
+                   'keine vollständige Liste aller widerrufenen Zertifikate.',
              'en': '## The Honest Picture: Soft Instead of Hard\n\n'
                    'Revocation checking in the browser has historically been a '
                    '**"soft-fail"**: if the OCSP responder or the CRL source is currently '
@@ -161,10 +161,10 @@ WIDERRUF_MODULE = {
                    'At the same time, browsers increasingly rely on their **own, '
                    'pre-distributed revocation mechanisms** instead of live queries to the '
                    'CA - Firefox distributes compactly encoded revocation data from CT logs '
-                   'periodically to all users via a mechanism called **CRLite**. Other '
-                   'browsers pursue similar ideas with their own, non-identical mechanisms; '
-                   'the exact details differ from browser to browser here and are not '
-                   'consistently documented with the same level of reliability.',
+                   'periodically to all users via a mechanism called **CRLite**. Chrome '
+                   'pursues a similar idea with **CRLSets**: a selection of important '
+                   'revocation entries compiled by Google and distributed via browser '
+                   'updates - deliberately not a complete list of all revoked certificates.',
          }},
         {'type': 'debug',
          'payload': {
@@ -226,7 +226,13 @@ WIDERRUF_MODULE = {
                    '"Zertifikats-Lebenszyklus" behandelten Stufenplan zur '
                    'Laufzeitverkürzung (Ballot SC-081v3, Richtung 47 Tage): Je kürzer die '
                    'Laufzeit, desto kleiner das Zeitfenster, in dem ein nicht (rechtzeitig) '
-                   'widerrufenes Zertifikat überhaupt Schaden anrichten kann.',
+                   'widerrufenes Zertifikat überhaupt Schaden anrichten kann.\n\n'
+                   'Die Regeln für öffentliche CAs folgen dieser Logik bereits: Seit 2024 '
+                   'ist OCSP dort nur noch optional, CRLs sind Pflicht (Ballot SC-063). Für '
+                   '**kurzlebige Zertifikate** mit höchstens 7 Tagen Laufzeit darf die CA '
+                   'sogar ganz auf Widerrufsinformationen verzichten - sie laufen schneller '
+                   'ab, als ein Widerruf verlässlich ankäme. Let\'s Encrypt bietet solche '
+                   'Zertifikate (rund 6 Tage gültig) seit Januar 2026 regulär an.',
              'en': '## Trend: Short Validity Periods Instead of Revocation\n\n'
                    'If revocation checking is as unreliable as described above, the '
                    'strategy shifts: instead of trusting that a revocation reliably '
@@ -236,7 +242,14 @@ WIDERRUF_MODULE = {
                    'periods covered in the "Certificate Lifecycle" module (Ballot '
                    'SC-081v3, heading toward 47 days): the shorter the validity period, '
                    'the smaller the window in which a certificate that was not (or not '
-                   'promptly) revoked can do any damage at all.',
+                   'promptly) revoked can do any damage at all.\n\n'
+                   'The rules for public CAs already follow this logic: since 2024, OCSP has '
+                   'been merely optional there while CRLs are mandatory (Ballot SC-063). For '
+                   '**short-lived certificates** valid for at most 7 days, the CA may even '
+                   'omit revocation information entirely - they expire faster than a '
+                   'revocation would reliably arrive. Let\'s Encrypt has offered such '
+                   'certificates (valid for about 6 days) as a regular option since January '
+                   '2026.',
          }},
         {'type': 'text',
          'value': {

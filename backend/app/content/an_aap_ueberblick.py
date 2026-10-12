@@ -129,7 +129,11 @@ AAP_UEBERBLICK_MODULE = {'key': 'automation-platform-ueberblick',
                              '**Historische Einordnung**: Automation Controller ist der '
                              'Nachfolgename von „Ansible Tower” — wer ältere Dokumentation, '
                              'Foren-Beiträge oder Schulungsmaterial liest, findet den alten Namen '
-                             'noch häufig; funktional ist es dieselbe Rolle in der Architektur.\n'
+                             'noch häufig; funktional ist es dieselbe Rolle in der Architektur. '
+                             'Seit AAP 2.5 bündelt eine gemeinsame Oberfläche (Platform Gateway) '
+                             'alle Dienste; dort heißen die Bereiche „Automation Execution” '
+                             '(Controller), „Automation Content” (Hub) und „Automation Decisions” '
+                             '(Event-Driven Ansible).\n'
                              '\n'
                              '**Automation Hub** ist das Gegenstück für Inhalte statt Ausführung: '
                              'ein Repository für Collections, wahlweise als „Private Automation '
@@ -146,7 +150,11 @@ AAP_UEBERBLICK_MODULE = {'key': 'automation-platform-ueberblick',
                              '**Historical note**: Automation Controller is the successor name '
                              'for “Ansible Tower” — anyone reading older documentation, forum '
                              'posts, or training material will still often find the old name; '
-                             'functionally it is the same role in the architecture.\n'
+                             'functionally it is the same role in the architecture. Since AAP 2.5 '
+                             'a unified UI (platform gateway) fronts all services; there the '
+                             'areas are called “Automation Execution” (controller), “Automation '
+                             'Content” (hub), and “Automation Decisions” (Event-Driven '
+                             'Ansible).\n'
                              '\n'
                              '**Automation Hub** is the counterpart for content rather than '
                              'execution: a repository for collections, optionally run as a '
@@ -165,20 +173,20 @@ AAP_UEBERBLICK_MODULE = {'key': 'automation-platform-ueberblick',
                                       'die das Playbook nutzt',
                                       'Automation Controller — definiert Job-Template '
                                       '(Playbook, Inventar, Credential) und startet den Job',
-                                      'Execution Environment — Container, in dem das Playbook '
-                                      'tatsächlich mit den passenden Collection-Versionen läuft',
-                                      'Automation Mesh — leitet die Verbindung ggf. über '
-                                      'Hop-Nodes zum passenden Ausführungsknoten im Zielnetz'],
+                                      'Automation Mesh — leitet den Job ggf. über Hop-Nodes zum '
+                                      'passenden Ausführungsknoten im Zielnetz',
+                                      'Execution Environment — Container auf dem '
+                                      'Ausführungsknoten, in dem das Playbook tatsächlich mit den '
+                                      'passenden Collection-Versionen läuft'],
                          'items_en': ['Automation Hub — holds the (certified) collections the '
                                       'playbook uses',
                                       'Automation Controller — defines the job template '
                                       '(playbook, inventory, credential) and launches the job',
-                                      'Execution Environment — the container in which the '
-                                      'playbook actually runs with the matching collection '
-                                      'versions',
-                                      'Automation Mesh — routes the connection, possibly via '
-                                      'hop nodes, to the right execution node in the target '
-                                      'network']}},
+                                      'Automation Mesh — routes the job, possibly via hop '
+                                      'nodes, to the right execution node in the target network',
+                                      'Execution Environment — the container on the execution '
+                                      'node in which the playbook actually runs with the matching '
+                                      'collection versions']}},
             {'type': 'text',
              'value': {'de': '## Execution Environments: Container statt gewachsenem Control '
                              'Node\n'
@@ -196,12 +204,13 @@ AAP_UEBERBLICK_MODULE = {'key': 'automation-platform-ueberblick',
                              '„läuft nur auf meinem Rechner”-Problem verschwindet, weil das Image '
                              'überall identisch ist.\n'
                              '\n'
-                             'Konzeptionell führt ein Frontend-Werkzeug Playbooks kontrolliert '
-                             'innerhalb einer solchen Execution Environment aus, statt sie direkt '
-                             'mit den lokal installierten Versionen auf dem Control Node laufen '
-                             'zu lassen. Auf konkrete Versions- oder Zukunftsaussagen zu diesem '
-                             'Werkzeug wird hier bewusst verzichtet, da das nicht abschließend '
-                             'verifiziert werden konnte.',
+                             'Zwei Werkzeuge gehören dazu: `ansible-builder` baut ein solches '
+                             'Image aus einer Definitionsdatei (`execution-environment.yml`), '
+                             'und `ansible-navigator` führt Playbooks auf der Kommandozeile '
+                             'innerhalb einer Execution Environment aus (`ansible-navigator run '
+                             'site.yml`), statt sie direkt mit den lokal installierten Versionen '
+                             'auf dem Control Node laufen zu lassen. Der Controller nutzt '
+                             'dieselben Images für seine Jobs.',
                        'en': '## Execution Environments: containers instead of a hand-grown '
                              'control node\n'
                              '\n'
@@ -218,21 +227,21 @@ AAP_UEBERBLICK_MODULE = {'key': 'automation-platform-ueberblick',
                              'machine” problem disappears, because the image is identical '
                              'everywhere.\n'
                              '\n'
-                             'Conceptually, a front-end tool runs playbooks in a controlled way '
-                             'inside such an execution environment, instead of running them '
-                             'directly with the versions locally installed on the control node. '
-                             "This module deliberately avoids concrete version or roadmap "
-                             'statements about that tool, since these could not be conclusively '
-                             'verified.'},
-             'note': 'Vorsichtig formuliert: Recherche fand Community-Diskussionen zu '
-                     'Verhaltensunterschieden des Frontend-Tools, konnte Aktualität/Zukunft '
-                     'nicht verifizieren.'},
+                             'Two tools go with this: `ansible-builder` builds such an image '
+                             'from a definition file (`execution-environment.yml`), and '
+                             '`ansible-navigator` runs playbooks on the command line inside an '
+                             'execution environment (`ansible-navigator run site.yml`), instead '
+                             'of running them directly with the versions locally installed on '
+                             'the control node. The controller uses the same images for its '
+                             'jobs.'},
+             'note': 'ansible-navigator und ansible-builder nur benennen; Bedienung ist '
+                     'nicht Teil dieses Überblicksmoduls.'},
             {'type': 'reveal',
-             'payload': {'teaser_de': 'Lab: Zwei Teams beschweren sich, dass „das Playbook bei '
+             'payload': {'teaser_de': 'Übung: Zwei Teams beschweren sich, dass „das Playbook bei '
                                       'uns anders läuft als beim anderen Team, obwohl der Code '
                                       'identisch ist”. Welche der bisher genannten Komponenten '
                                       'löst genau dieses Problem? Erst selbst überlegen.',
-                         'teaser_en': 'Lab: two teams complain that “the playbook behaves '
+                         'teaser_en': 'Exercise: two teams complain that “the playbook behaves '
                                       'differently for us than for the other team, even though '
                                       'the code is identical”. Which of the components covered '
                                       'so far solves exactly this problem? Think it through '
@@ -276,8 +285,9 @@ AAP_UEBERBLICK_MODULE = {'key': 'automation-platform-ueberblick',
                              '\n'
                              'Statt „ich starte ein Playbook, weil gerade Montag 3 Uhr ist” gilt '
                              'hier „ich starte eine Aktion, weil gerade ein bestimmtes Ereignis '
-                             'eingetroffen ist”. Auf konkrete Versionsnummern der '
-                             'EDA-Komponenten wird hier bewusst verzichtet.',
+                             'eingetroffen ist”. Ausgeführt werden Rulebooks vom Werkzeug '
+                             '`ansible-rulebook` bzw. in der Plattform vom Event-Driven Ansible '
+                             'Controller.',
                        'en': '## Automation Mesh and Event-Driven Ansible\n'
                              '\n'
                              '**Automation Mesh** distributes execution nodes across network '
@@ -300,8 +310,9 @@ AAP_UEBERBLICK_MODULE = {'key': 'automation-platform-ueberblick',
                              '\n'
                              'Instead of “I start a playbook because it happens to be Monday, 3 '
                              'a.m.”, the logic here is “I trigger an action because a specific '
-                             'event just occurred”. This module deliberately omits concrete '
-                             'version numbers for the EDA components.'},
+                             'event just occurred”. Rulebooks are executed by the '
+                             '`ansible-rulebook` tool or, in the platform, by the Event-Driven '
+                             'Ansible controller.'},
              'note': 'Versionsnummern zu ansible-rulebook/ansible.eda bewusst weggelassen — '
                      'Recherche stützt sich nur auf einzelne Fundstellen, nicht auf eine '
                      'verifizierte Versionsmatrix.'},
@@ -346,7 +357,7 @@ AAP_UEBERBLICK_MODULE = {'key': 'automation-platform-ueberblick',
                                             'Fehlende Verschlüsselung von Vault-Dateien'],
                                      'en': ['Inconsistent, “hand-grown” ansible-core/collection '
                                             'versions across different control nodes',
-                                            'Networks connections between data centers being too '
+                                            'Network connections between data centers being too '
                                             'slow',
                                             'Missing encryption of vault files']}},
                         {'id': 'ap4',

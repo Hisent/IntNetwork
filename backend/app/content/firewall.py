@@ -7,7 +7,7 @@ FIREWALL_MODULE = {
     "goals": [
         "Die Aufgabe einer Firewall an der Netzgrenze benennen",
         "Regelreihenfolge und Default-Deny erklären",
-        "Verstehen, warum die Regelreihenfolge zählt (stateful als Ausblick)",
+        "Das Stateful-Prinzip einordnen: Antworten auf erlaubte Verbindungen brauchen keine eigene Regel",
     ],
     "scenario": {
         "de": "Nordwind hängt am Internet. Der Webserver soll erreichbar sein, "

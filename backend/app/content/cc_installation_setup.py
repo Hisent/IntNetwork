@@ -249,8 +249,8 @@ INSTALLATION_SETUP_MODULE = {'key': 'installation-setup',
                              '`claude -p`, das den Prompt einmalig ausführt und die Antwort auf '
                              'stdout schreibt.',
                        'en': '```bash\n'
-                             'tail -50 build.log | claude -p "Fasse die Fehler in einem Satz '
-                             'zusammen"\n'
+                             'tail -50 build.log | claude -p "Summarize the errors in one '
+                             'sentence"\n'
                              '```\n'
                              '\n'
                              '`tail -50` returns the last lines, the pipe passes them to `claude '

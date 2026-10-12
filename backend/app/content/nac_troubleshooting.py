@@ -97,10 +97,12 @@ NAC_TROUBLESHOOTING_MODULE = {
                    'Type- oder Tunnel-Private-Group-ID-Attribut, oder eine falsch gepflegte '
                    'Autorisierungsregel (siehe `nac-radius`).\n'
                    '- **MAB-Fallback greift ungewollt** — MAB ist als Fallback gedacht, wenn '
-                   '802.1X fehlschlägt, etwa bei einem abgelaufenen Zertifikat. Weil MAB '
+                   'kein Supplicant antwortet; viele Umgebungen konfigurieren den Switch '
+                   'zusätzlich so, dass er MAB auch nach einem 802.1X-Fehlschlag versucht, '
+                   'etwa bei einem abgelaufenen Zertifikat. Weil MAB '
                    'grundsätzlich schwächer ist als zertifikatsbasierte Authentifizierung (die '
                    'MAC-Adresse ist spoofbar, siehe `nac-mab`), ist es ein eigenständiges '
-                   'Risiko, wenn ein per MAB durchgefallenes Gerät versehentlich in ein '
+                   'Risiko, wenn ein auf MAB zurückgefallenes Gerät versehentlich in ein '
                    'produktives statt in ein eingeschränktes Netz gelangt — enge, klar '
                    'begrenzte Autorisierungsregeln für den MAB-Fall sind hier der Schlüssel.',
              'en': '## At RADIUS: Wrong VLAN and Unwanted MAB Fallback\n\n'
@@ -108,8 +110,10 @@ NAC_TROUBLESHOOTING_MODULE = {
                    'themselves: a wrongly set or missing Tunnel-Type, Tunnel-Medium-Type, or '
                    'Tunnel-Private-Group-ID attribute, or a misconfigured authorization rule '
                    '(see `nac-radius`).\n'
-                   '- **MAB fallback kicks in unwantedly** — MAB is meant as a fallback when '
-                   '802.1X fails, e.g. due to an expired certificate. Because MAB is inherently '
+                   '- **MAB fallback kicks in unwantedly** — MAB is meant as a fallback when no '
+                   'supplicant responds; many environments additionally configure the switch '
+                   'to try MAB after an 802.1X failure as well, e.g. due to an expired '
+                   'certificate. Because MAB is inherently '
                    'weaker than certificate-based authentication (the MAC address is spoofable, '
                    'see `nac-mab`), it is a distinct risk if a device that falls back to MAB '
                    'accidentally ends up in a production network instead of a restricted one — '
@@ -127,7 +131,9 @@ NAC_TROUBLESHOOTING_MODULE = {
                    'gegen den Gültigkeitszeitraum läuft. In der Praxis kursiert dazu eine '
                    'häufig zitierte Faustregel für eine maximal tolerierte Zeitabweichung im '
                    'niedrigen Minutenbereich — das ist **kein** normativer IEEE/IETF-'
-                   'Standardwert für EAP-TLS, sondern ein Erfahrungswert. NTP-Synchronisation '
+                   'Standardwert für EAP-TLS, sondern ein Erfahrungswert (der oft genannte '
+                   '5-Minuten-Wert ist die Standardtoleranz von Kerberos, nicht von EAP-TLS). '
+                   'NTP-Synchronisation '
                    'für alle beteiligten Systeme (inklusive Endgeräte wie Drucker) bleibt die '
                    'eigentliche Absicherung.',
              'en': '## Infrastructure: RADIUS Unreachable and Time Synchronization\n\n'
@@ -140,7 +146,9 @@ NAC_TROUBLESHOOTING_MODULE = {
                    'checks the validity period. In practice, a frequently cited rule of thumb '
                    'circulates for a maximum tolerated time drift in the low single-digit-'
                    'minutes range — this is **not** a normative IEEE/IETF standard value for '
-                   'EAP-TLS, just a rule of thumb from experience. NTP synchronization across '
+                   'EAP-TLS, just a rule of thumb from experience (the often-quoted 5-minute '
+                   'value is the default tolerance of Kerberos, not of EAP-TLS). NTP '
+                   'synchronization across '
                    'all involved systems (including endpoints such as printers) remains the '
                    'actual safeguard.',
          }},
@@ -179,8 +187,8 @@ NAC_TROUBLESHOOTING_MODULE = {
                  'Weil MAB grundsätzlich verschlüsselt ist und deshalb mehr Rechenleistung '
                  'braucht',
                  'Weil MAB ausschließlich für Gastgeräte vorgesehen ist',
-                 'Weil MAB nur eine spoofbare MAC-Adresse prüft — landet ein per MAB '
-                 'durchgefallenes Gerät im produktiven statt im eingeschränkten Netz, ist das '
+                 'Weil MAB nur eine spoofbare MAC-Adresse prüft — landet ein auf MAB '
+                 'zurückgefallenes Gerät im produktiven statt im eingeschränkten Netz, ist das '
                  'ein echtes Sicherheitsproblem',
                  'Weil MAB automatisch alle Zertifikate widerruft',
              ],
@@ -359,13 +367,14 @@ NAC_TROUBLESHOOTING_MODULE = {
          'answer': 1,
          'options': {
              'de': ['Weil MAB niemals mit RADIUS zusammenarbeitet',
-                    'Weil MAB nur eine spoofbare MAC-Adresse prüft und ein durchgefallenes '
-                    'Gerät so ins produktive statt ins eingeschränkte Netz gelangen kann',
+                    'Weil MAB nur eine spoofbare MAC-Adresse prüft und ein auf MAB '
+                    'zurückgefallenes Gerät so ins produktive statt ins eingeschränkte Netz '
+                    'gelangen kann',
                     'Weil MAB automatisch alle VLANs zusammenfasst',
                     'Weil MAB ausschließlich in Monitor Mode verfügbar ist'],
              'en': ['Because MAB never works together with RADIUS',
-                    'Because MAB only checks a spoofable MAC address, so a failed device can '
-                    'end up in production instead of a restricted network',
+                    'Because MAB only checks a spoofable MAC address, so a device that fell '
+                    'back to MAB can end up in production instead of a restricted network',
                     'Because MAB automatically merges all VLANs',
                     'Because MAB is only available in Monitor Mode'],
          }},

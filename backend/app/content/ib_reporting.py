@@ -163,15 +163,15 @@ REPORTING_MODULE = {
              'kind': 'number',
              'prompt_de': ('Ein /24-Netzwerk liegt aktuell bei 70 % Auslastung und '
                            'wächst konstant um 5 Prozentpunkte pro Woche. In wie '
-                           'vielen Wochen wird die 90-%-Schwelle überschritten?'),
+                           'vielen Wochen wird die 90-%-Schwelle erreicht?'),
              'prompt_en': ('A /24 network currently sits at 70% utilization and '
                            'grows steadily by 5 percentage points per week. In how '
-                           'many weeks will the 90% threshold be exceeded?'),
+                           'many weeks will the 90% threshold be reached?'),
              'answer': 4,
          }},
         {'type': 'text',
          'value': {
-             'de': ('## Aufbewahrung, Dashboards und der Wert guter EAs\n'
+             'de': ('## Rollenbasierte Dashboards und der Wert guter EAs\n'
                     '\n'
                     'Dashboards lassen sich rollenbasiert aufbauen — der '
                     'Netzwerk-Betrieb sieht andere Kennzahlen als das '
@@ -181,11 +181,11 @@ REPORTING_MODULE = {
                     'Wie aussagekräftig und filterbar ein Report ist, hängt dabei '
                     'direkt an der Datenqualität: Sind Netzwerke, Standorte und '
                     'Geräte sauber mit **Extensible Attributes** versehen (siehe '
-                    'IPAM-Modul), lassen sich Reports gezielt nach Standort, '
+                    'Modul „Extensible Attributes”), lassen sich Reports gezielt nach Standort, '
                     'Abteilung oder Umgebung aufschlüsseln. Fehlt diese Pflege, '
                     'bleibt auch der beste vorkonfigurierte Report nur eine grobe '
                     'Gesamtzahl ohne Kontext.'),
-             'en': ('## Retention, Dashboards and the Value of Good EAs\n'
+             'en': ('## Role-Based Dashboards and the Value of Good EAs\n'
                     '\n'
                     'Dashboards can be built role-based — network operations sees '
                     'different metrics than the security team, even though both '
@@ -193,7 +193,7 @@ REPORTING_MODULE = {
                     '\n'
                     "A report's usefulness and filterability depend directly on "
                     'data quality: if networks, sites and devices are cleanly '
-                    'tagged with **extensible attributes** (see the IPAM module), '
+                    'tagged with **extensible attributes** (see the Extensible Attributes module), '
                     'reports can be broken down precisely by site, department or '
                     'environment. Without that upkeep, even the best preconfigured '
                     'report stays a rough total number without context.'),
@@ -212,15 +212,15 @@ REPORTING_MODULE = {
                  'RPZ-Treffer der letzten 24 Stunden',
                  'Anzahl geblockter DGA-Domains',
                  'DHCP-Bereichs-Auslastung in Prozent je Standort',
-                 'Anzahl fehlgeschlagener Zonentransfers',
+                 'Abgelehnte Zonentransfer-Anfragen von nicht autorisierten Quellen',
              ],
              'lines_en': [
                  'RPZ hits in the last 24 hours',
                  'Number of blocked DGA domains',
                  'DHCP range utilization in percent per site',
-                 'Number of failed zone transfers',
+                 'Rejected zone transfer requests from unauthorized sources',
              ],
-             'wrong': [3],
+             'wrong': [2],
              'explanation_de': ('Die DHCP-Bereichs-Auslastung ist eine Kapazitäts- '
                                 'bzw. Betriebskennzahl, keine Sicherheitskennzahl — '
                                 'sie gehört eher auf ein Netzwerk-Betriebs- oder '
@@ -290,10 +290,10 @@ REPORTING_MODULE = {
         {'id': 'ra5', 'type': 'number',
          'prompt': {'de': ('Ein Standort liegt aktuell bei 60 % Auslastung und '
                            'wächst konstant um 10 Prozentpunkte pro Woche. In wie '
-                           'vielen Wochen wird die 90-%-Schwelle überschritten?'),
+                           'vielen Wochen wird die 90-%-Schwelle erreicht?'),
                     'en': ('A site currently sits at 60% utilization and grows '
                           'steadily by 10 percentage points per week. In how many '
-                          'weeks will the 90% threshold be exceeded?')},
+                          'weeks will the 90% threshold be reached?')},
          'answer': 3},
     ]},
 }

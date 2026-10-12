@@ -168,7 +168,7 @@ PLAYBOOKS_MODULE = {
                                   '  become: true', '  tasks:', '  - name: nginx installieren',
                                   '    ansible.builtin.package:', '      name:nginx',
                                   '      state: present'],
-                     'wrong': [8],
+                     'wrong': [7],
                      'explanation_de': 'Zeile 8 (`name:nginx`) fehlt das Leerzeichen nach dem '
                                        'Doppelpunkt — YAML interpretiert `name:nginx` als '
                                        'einzelnen String statt als Key-Value-Paar `name: nginx`. '
@@ -238,7 +238,7 @@ PLAYBOOKS_MODULE = {
                          'ok: [web02]\n'
                          '\n'
                          'TASK [Service starten] *********************************\n'
-                         'failed: [web01]\n'
+                         'fatal: [web01]: FAILED! => {"changed": false, "msg": "..."}\n'
                          'ok: [web02]\n'
                          '\n'
                          'PLAY RECAP ******************************************\n'
@@ -249,7 +249,8 @@ PLAYBOOKS_MODULE = {
                          '- **ok** — Task lief, es gab nichts zu ändern (Zielzustand bereits '
                          'erreicht).\n'
                          '- **changed** — Task hat eine tatsächliche Änderung vorgenommen.\n'
-                         '- **failed** — Task ist fehlgeschlagen.\n'
+                         '- **failed** — Task ist fehlgeschlagen (in der Task-Zeile als '
+                         '`fatal: … FAILED!` zu sehen, im Recap als `failed=`).\n'
                          '- **skipped** — Task wurde übersprungen (z. B. durch eine Bedingung).\n'
                          '\n'
                          'Der `PLAY RECAP` am Ende fasst diese Zähler pro Host zusammen — der '
@@ -266,7 +267,7 @@ PLAYBOOKS_MODULE = {
                          'ok: [web02]\n'
                          '\n'
                          'TASK [Service starten] *********************************\n'
-                         'failed: [web01]\n'
+                         'fatal: [web01]: FAILED! => {"changed": false, "msg": "..."}\n'
                          'ok: [web02]\n'
                          '\n'
                          'PLAY RECAP ******************************************\n'
@@ -277,7 +278,8 @@ PLAYBOOKS_MODULE = {
                          '- **ok** — the task ran, there was nothing to change (target state '
                          'already met).\n'
                          '- **changed** — the task made an actual change.\n'
-                         '- **failed** — the task failed.\n'
+                         '- **failed** — the task failed (shown as `fatal: … FAILED!` on the '
+                         'task line, as `failed=` in the recap).\n'
                          '- **skipped** — the task was skipped (e.g., by a condition).\n'
                          '\n'
                          'The `PLAY RECAP` at the end summarizes these counters per host — the '
@@ -308,19 +310,21 @@ PLAYBOOKS_MODULE = {
                                   'did a problem occur?'},
          'value': {'de': 'Auf `web01` schlug ein Task fehl (`failed=1`), der Lauf brach für '
                          'diesen Host an dieser Stelle ab. `web02` durchlief beide Tasks ohne '
-                         'Fehler (`ok=2`, `failed=0`). Insgesamt lief also nur ein Host '
-                         'vollständig fehlerfrei durch das Playbook.',
+                         'Fehler (`ok=2`, `failed=0`). Insgesamt liefen also drei '
+                         'Task-Ausführungen fehlerfrei (eine auf `web01`, zwei auf `web02`), '
+                         'aber nur ein Host kam vollständig fehlerfrei durch das Playbook.',
                    'en': 'On `web01`, one task failed (`failed=1`), and the run stopped for that '
                          'host at that point. `web02` completed both tasks without error '
-                         '(`ok=2`, `failed=0`). Overall, only one host made it through the '
-                         'playbook completely without error.'}},
+                         '(`ok=2`, `failed=0`). Overall, three task executions completed '
+                         'without error (one on `web01`, two on `web02`), but only one host '
+                         'made it through the playbook completely without error.'}},
         {'type': 'text', 'id': 'text-lab-fehler',
          'value': {'de': '## Praxis: Das Ansible-Lab ausprobieren\n'
                          '\n'
                          'Ab hier lässt sich ein Playbook nicht nur lesen, sondern im Lab-Widget '
                          'unten wirklich ausführen. Wähle dort die Vorlage **Fehler lesen**: Sie '
-                         'enthält ein Playbook mit einem absichtlich kaputten Modulnamen bzw. '
-                         'YAML-Fehler, ähnlich dem Beispiel weiter oben. Lass es laufen, lies die '
+                         'enthält ein Playbook mit einem absichtlich falsch geschriebenen '
+                         'Modulnamen. Lass es laufen, lies die '
                          'Fehlermeldung genau, korrigiere die betroffene Zeile und starte erneut, '
                          'bis das Playbook sauber durchläuft.\n'
                          '\n'
@@ -334,8 +338,8 @@ PLAYBOOKS_MODULE = {
                          '\n'
                          'From here on, a playbook can not only be read but actually run, in the '
                          'lab widget below. Choose the **Reading errors** template there: it '
-                         'contains a playbook with a deliberately broken module name or YAML '
-                         'error, similar to the example above. Run it, read the error message '
+                         'contains a playbook with a deliberately misspelled module name. '
+                         'Run it, read the error message '
                          'carefully, fix the offending line, and rerun until the playbook '
                          'completes cleanly.\n'
                          '\n'

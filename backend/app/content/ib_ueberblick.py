@@ -296,7 +296,7 @@ INFOBLOX_UEBERBLICK_MODULE = {
                     'NIOS-X refers to a deployment model without a dedicated '
                     'hardware appliance.',
                 ],
-                'wrong': [3],
+                'wrong': [2],
                 'explanation_de': 'Infoblox Threat Defense ist die aktuelle '
                                   'Bezeichnung für das frühere BloxOne Threat '
                                   'Defense — ein Rebranding mit weitgehend '

@@ -8,6 +8,8 @@ import type { Lang } from '@/lib/i18n'
 const ROUTES: Route[] = [
   { network: '192.168.10.0', prefix: 24, via: null, iface: 'Gi0/0', ip: '192.168.10.1' },
   { network: '192.168.20.0', prefix: 24, via: null, iface: 'Gi0/1', ip: '192.168.20.1' },
+  // Transfernetz zum ISP: ohne dieses connected-Netz wäre der Next-Hop der Default-Route nicht erreichbar
+  { network: '203.0.113.0', prefix: 30, via: null, iface: 'Gi0/2', ip: '203.0.113.1' },
   { network: '0.0.0.0', prefix: 0, via: '203.0.113.2', iface: 'Gi0/2' },
 ]
 
@@ -53,6 +55,7 @@ const STR = {
     viaVerdict: (net: string, prefix: number, nextHop: string, iface: string) =>
       `Kein direktes Netz → Longest-Prefix-Match ${net}/${prefix}, weiter an Next-Hop ${nextHop} (${iface}).`,
     noneVerdict: 'Keine passende Route → Ziel nicht erreichbar.',
+    invalid: 'Bitte eine vollständige IPv4-Adresse eingeben (z.B. 192.168.20.5).',
     challenge: 'Finde eine Ziel-IP, die über die Default-Route (0.0.0.0/0) hinausgeleitet wird.',
     traceTitle: 'Traceroute — Hop für Hop', traceTarget: 'Ziel', nextHop: 'Nächster Hop',
     restart: 'Neu starten', natBadge: 'NAT',
@@ -64,6 +67,7 @@ const STR = {
     viaVerdict: (net: string, prefix: number, nextHop: string, iface: string) =>
       `No direct network → longest-prefix match ${net}/${prefix}, forwarded to next hop ${nextHop} (${iface}).`,
     noneVerdict: 'No matching route → destination unreachable.',
+    invalid: 'Please enter a complete IPv4 address (e.g. 192.168.20.5).',
     challenge: 'Find a destination IP that gets forwarded via the default route (0.0.0.0/0).',
     traceTitle: 'Traceroute — hop by hop', traceTarget: 'Target', nextHop: 'Next hop',
     restart: 'Restart', natBadge: 'NAT',
@@ -112,10 +116,11 @@ function Traceroute({ lang }: { lang: Lang }) {
 
 export function Routing({ lang }: { lang: Lang }) {
   const [dst, setDst] = useState('192.168.20.5')
+  const valid = /^(\d{1,3}\.){3}\d{1,3}$/.test(dst.trim()) && dst.split('.').every((o) => Number(o) <= 255)
   const res = routeLookup(ROUTES, dst)
   const s = STR[lang]
 
-  const verdict =
+  const verdict = !valid ? s.invalid :
     res.reason === 'connected'
       ? s.connectedVerdict(res.route!.network, res.route!.prefix, res.route!.iface)
       : res.reason === 'via'
@@ -163,11 +168,11 @@ export function Routing({ lang }: { lang: Lang }) {
       <p className="text-xs text-slate-600">{verdict}</p>
 
       <ChallengeBox lang={lang} task={s.challenge}
-        done={res.reason === 'via' && res.route?.prefix === 0} />
+        done={valid && res.reason === 'via' && res.route?.prefix === 0} />
 
       <Traceroute lang={lang} />
 
-      <DeviceCli prompt="Nordwind-R1#" run={(c) => runRouterCommand(ROUTES, c)} lang={lang} />
+      <DeviceCli prompt="Nordwind-R1#" run={(c) => runRouterCommand(ROUTES, c, lang)} lang={lang} />
     </div>
   )
 }

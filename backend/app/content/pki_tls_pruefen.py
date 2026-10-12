@@ -36,10 +36,13 @@ TLS_PRUEFEN_MODULE = {
                    '```\n\n'
                    'Warum `-servername` fast immer dazugehört: Betreibt der Server mehrere Domains '
                    'auf derselben IP-Adresse (virtuelles Hosting), entscheidet SNI darüber, welches '
-                   'Zertifikat ausgeliefert wird (siehe Handshake-Modul). Fehlt `-servername`, bekommt '
-                   'openssl unter Umständen das Standard- oder ein völlig falsches Zertifikat '
+                   'Zertifikat ausgeliefert wird (siehe Handshake-Modul). Ohne passenden SNI-Namen '
+                   'bekommt openssl unter Umständen das Standard- oder ein völlig falsches Zertifikat '
                    'präsentiert — und die Diagnose beginnt mit einer Verwechslung, bevor sie überhaupt '
-                   'begonnen hat.',
+                   'begonnen hat. Aktuelle OpenSSL-Versionen (seit 1.1.1) übernehmen den Hostnamen '
+                   'aus `-connect` zwar automatisch als SNI; explizit nötig bleibt `-servername`, '
+                   'sobald du per IP-Adresse verbindest, einen anderen Namen testen willst oder eine '
+                   'ältere Version vor dir hast. Ihn immer anzugeben schadet nie.',
              'en': '## The Workhorse: openssl s_client\n\n'
                    'The most important diagnostic command for TLS connections is:\n\n'
                    '```\n'
@@ -47,9 +50,13 @@ TLS_PRUEFEN_MODULE = {
                    '```\n\n'
                    'Why `-servername` should almost always be included: if the server hosts several '
                    'domains on the same IP address (virtual hosting), SNI determines which '
-                   'certificate gets served (see the handshake module). Without `-servername`, '
+                   'certificate gets served (see the handshake module). Without a matching SNI name, '
                    'openssl may be presented with the default or a completely wrong certificate — and '
-                   'the diagnosis starts with a mix-up before it has even begun.',
+                   'the diagnosis starts with a mix-up before it has even begun. Current OpenSSL '
+                   'versions (since 1.1.1) do take the hostname from `-connect` as SNI automatically; '
+                   '`-servername` remains necessary as soon as you connect by IP address, want to test '
+                   'a different name, or are dealing with an older version. Always specifying it '
+                   'never hurts.',
          }},
         {'type': 'text',
          'value': {
@@ -88,13 +95,13 @@ TLS_PRUEFEN_MODULE = {
              'options_de': [
                  'Sie beschleunigt die Verbindung, hat aber keinen Einfluss auf das Zertifikat',
                  'Sie ist nur für die Anzeige der Zertifikatskette relevant, nicht für das ausgelieferte Zertifikat selbst',
-                 'Ohne sie entscheidet der Server ohne SNI-Angabe, welches Zertifikat er ausliefert — das kann ein falsches oder das Standard-Zertifikat sein',
+                 'Sie legt den SNI-Namen fest — ohne passenden SNI kann der Server ein falsches oder das Standard-Zertifikat ausliefern',
                  'Sie ersetzt die Angabe des Ports in -connect',
              ],
              'options_en': [
                  'It speeds up the connection but has no effect on the certificate',
                  'It only matters for displaying the certificate chain, not for the certificate actually served',
-                 'Without it, the server decides which certificate to serve without an SNI hint — that can be the wrong or the default certificate',
+                 'It sets the SNI name — without a matching SNI, the server may serve the wrong or the default certificate',
                  'It replaces specifying the port in -connect',
              ],
          }},
@@ -109,10 +116,11 @@ TLS_PRUEFEN_MODULE = {
                    'Modul). Für gezielte Einzelwerte gibt es kompaktere Varianten:\n\n'
                    '```\n'
                    'openssl x509 -in cert.pem -noout -dates\n'
-                   'openssl x509 -in cert.pem -noout -fingerprint\n'
+                   'openssl x509 -in cert.pem -noout -fingerprint -sha256\n'
                    '```\n\n'
                    '`-dates` zeigt Gültigkeitsbeginn und -ende (relevant für abgelaufene Zertifikate), '
-                   '`-fingerprint` den Hash-Wert über das gesamte DER-kodierte Zertifikat — praktisch, '
+                   '`-fingerprint -sha256` den SHA-256-Hash-Wert über das gesamte DER-kodierte '
+                   'Zertifikat (ohne `-sha256` rechnet openssl hier noch mit SHA-1) — praktisch, '
                    'um zwei Zertifikate schnell auf Identität zu vergleichen, ohne jedes Feld einzeln '
                    'gegenzuprüfen.',
              'en': '## Viewing Individual Certificate Fields: openssl x509\n\n'
@@ -124,10 +132,11 @@ TLS_PRUEFEN_MODULE = {
                    'module). For targeted single values there are more compact variants:\n\n'
                    '```\n'
                    'openssl x509 -in cert.pem -noout -dates\n'
-                   'openssl x509 -in cert.pem -noout -fingerprint\n'
+                   'openssl x509 -in cert.pem -noout -fingerprint -sha256\n'
                    '```\n\n'
                    '`-dates` shows the validity start and end (relevant for expired certificates), '
-                   '`-fingerprint` the hash value over the entire DER-encoded certificate — handy for '
+                   '`-fingerprint -sha256` the SHA-256 hash value over the entire DER-encoded '
+                   'certificate (without `-sha256`, openssl still uses SHA-1 here) — handy for '
                    'quickly comparing two certificates for identity without checking every field '
                    'individually.',
          }},
@@ -168,7 +177,13 @@ TLS_PRUEFEN_MODULE = {
                    'private Schlüssel dazu ist der falsche (z. B. nach einem Neu-Ausstellen mit einem '
                    'neuen Schlüsselpaar). Prüfen lässt sich das über den Vergleich des Modulus '
                    '(bei RSA) bzw. des öffentlichen Schlüssels: Zertifikat und privater Schlüssel '
-                   'müssen denselben öffentlichen Schlüssel referenzieren. Stimmen die aus Zertifikat '
+                   'müssen denselben öffentlichen Schlüssel referenzieren:\n\n'
+                   '```\n'
+                   'openssl x509 -in cert.pem -noout -pubkey\n'
+                   'openssl pkey -in server.key -pubout\n'
+                   '```\n\n'
+                   'Beide Befehle geben den öffentlichen Schlüssel aus — unabhängig davon, ob es ein '
+                   'RSA- oder ein ECDSA-Schlüssel ist. Stimmen die aus Zertifikat '
                    'und privatem Schlüssel extrahierten Werte nicht überein, gehören die beiden Dateien '
                    'nicht zueinander — der Server kann die Verbindung dann gar nicht erst korrekt '
                    'aufbauen.',
@@ -176,7 +191,13 @@ TLS_PRUEFEN_MODULE = {
                    'A classic operational problem: a certificate was installed, but the private key '
                    'that goes with it is the wrong one (e.g. after re-issuing with a new key pair). '
                    'This can be checked by comparing the modulus (for RSA) or the public key: '
-                   'certificate and private key must reference the same public key. If the values '
+                   'certificate and private key must reference the same public key:\n\n'
+                   '```\n'
+                   'openssl x509 -in cert.pem -noout -pubkey\n'
+                   'openssl pkey -in server.key -pubout\n'
+                   '```\n\n'
+                   'Both commands print the public key — regardless of whether it is an RSA or an '
+                   'ECDSA key. If the values '
                    'extracted from the certificate and the private key do not match, the two files do '
                    'not belong together — the server then cannot even establish the connection '
                    'correctly in the first place.',
@@ -254,7 +275,7 @@ TLS_PRUEFEN_MODULE = {
                    '```\n'
                    '- Fingerprint eines Zertifikats:\n'
                    '```\n'
-                   'openssl x509 -in cert.pem -noout -fingerprint\n'
+                   'openssl x509 -in cert.pem -noout -fingerprint -sha256\n'
                    '```\n'
                    '- Kette gegen einen Vertrauensanker prüfen:\n'
                    '```\n'
@@ -263,7 +284,7 @@ TLS_PRUEFEN_MODULE = {
                    'Das durchgehende Vorgehen bei einer TLS-Störung, in dieser Reihenfolge:\n\n'
                    '1. Ist der Server überhaupt erreichbar?\n'
                    '2. Ist die Zertifikatskette vollständig (Intermediate mitgeliefert)?\n'
-                   '3. Stimmt der angefragte Name mit CN/SAN überein?\n'
+                   '3. Steht der angefragte Name in der SAN-Liste?\n'
                    '4. Ist das Zertifikat innerhalb seiner Laufzeit?\n'
                    '5. Sind Protokollversion und Cipher Suite wie erwartet?',
              'en': '## Command Reference\n\n'
@@ -285,7 +306,7 @@ TLS_PRUEFEN_MODULE = {
                    '```\n'
                    '- Fingerprint of a certificate:\n'
                    '```\n'
-                   'openssl x509 -in cert.pem -noout -fingerprint\n'
+                   'openssl x509 -in cert.pem -noout -fingerprint -sha256\n'
                    '```\n'
                    '- Verify a chain against a trust anchor:\n'
                    '```\n'
@@ -294,7 +315,7 @@ TLS_PRUEFEN_MODULE = {
                    'The consistent procedure for a TLS incident, in this order:\n\n'
                    '1. Is the server reachable at all?\n'
                    '2. Is the certificate chain complete (intermediate delivered)?\n'
-                   '3. Does the requested name match CN/SAN?\n'
+                   '3. Is the requested name in the SAN list?\n'
                    '4. Is the certificate within its validity period?\n'
                    '5. Are protocol version and cipher suite as expected?',
          }},
@@ -310,9 +331,12 @@ TLS_PRUEFEN_MODULE = {
                    '- **Dein Arbeitsverzeichnis bleibt zwischen den Läufen bestehen.** Eine CA, '
                    'die du im ersten Schritt anlegst, kannst du im dritten benutzen. Damit lässt '
                    'sich eine ganze kleine PKI nachbauen.\n'
-                   '- **Fehler sind hier der Lehrstoff.** Stell absichtlich ein abgelaufenes '
-                   'Zertifikat her oder eines mit falschem Namen und sieh dir an, was `verify` '
-                   'dazu sagt. Genau diese Meldungen begegnen dir später im Betrieb.\n\n'
+                   '- **Fehler sind hier der Lehrstoff.** Prüfe ein Zertifikat absichtlich gegen '
+                   'einen falschen Namen (`verify -CAfile ca.pem -verify_hostname '
+                   'shop.nordwind-logistik.de server.pem`) oder zu einem Zeitpunkt nach seinem Ablauf '
+                   '(`verify -CAfile ca.pem -attime 2000000000 server.pem`, Unix-Zeit im Jahr 2033) '
+                   'und sieh dir an, was `verify` dazu sagt. Genau diese Meldungen begegnen dir '
+                   'später im Betrieb.\n\n'
                    'Es gibt kein Netz im Labor — alles, was du prüfst, erzeugst du vorher selbst. '
                    '`s_client` und `s_server` stehen deshalb hier nicht zur Verfügung — dieselbe '
                    'Sicherheitsgrenze wie im Git-Lab (kein Netzwerk). Geübt wird die Diagnose '
@@ -324,9 +348,12 @@ TLS_PRUEFEN_MODULE = {
                    'Two things make the difference:\n\n'
                    '- **Your working directory persists between runs.** A CA you create in the '
                    'first step is still there in the third. That is enough to build a small PKI.\n'
-                   '- **Errors are the lesson here.** Deliberately produce an expired certificate '
-                   'or one with the wrong name and see what `verify` says about it. These are '
-                   'exactly the messages you will meet in operations later.\n\n'
+                   '- **Errors are the lesson here.** Deliberately verify a certificate against a '
+                   'wrong name (`verify -CAfile ca.pem -verify_hostname shop.nordwind-logistik.de '
+                   'server.pem`) or at a point in time after its expiry (`verify -CAfile ca.pem '
+                   '-attime 2000000000 server.pem`, Unix time in the year 2033) and see what `verify` '
+                   'says about it. These are exactly the messages you will meet in operations '
+                   'later.\n\n'
                    'There is no network in the lab — whatever you check, you create yourself '
                    'first. `s_client` and `s_server` are therefore not available here — the same '
                    'security boundary as in the Git lab (no network). Diagnosis here is practiced '
