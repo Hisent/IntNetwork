@@ -1,5 +1,19 @@
 # Projekt-Changelog (nur für Trainer sichtbar). Neueste zuerst.
 CHANGELOG = [
+    {"date": "2026-10-12", "title": "v1.42.0 — Inhalts- und Technik-Audit aller Lehrgänge",
+     "text": "Alle sechs Lehrgänge wurden fachlich gegen Primärquellen geprüft und korrigiert "
+             "(u. a. Infoblox HA/MCLT/WAPI, Ansible-Fakten ab ansible-core 2.20, PKI-Laufzeiten "
+             "nach SC-081, NAC dACL/TEAP, aktuelle Claude-Code-Modi). In den Lehrgängen Ansible "
+             "und Infoblox werteten die „Fehler finden“-Übungen bisher die falsche Zeile — das "
+             "ist behoben. Mehrere Widgets rechnen jetzt korrekt (DNS-Pfad, Portbereiche, "
+             "IPv6-Prüfung, Wireshark-Filter). Korrigierte Inhalte werden beim Start automatisch "
+             "in bestehende Installationen übernommen; von Trainern bearbeitete Module bleiben "
+             "unangetastet und werden im Audit-Log gemeldet. Abgewählte Module bleiben nach einem "
+             "Neustart abgewählt — bitte die Modul-Auswahl der Kurse nach diesem Update einmal "
+             "prüfen. Außerdem: Datenbank-Migrationen werden auf Postgres wieder dauerhaft "
+             "gespeichert, die Lab-Befehlsprüfung für OpenSSL und git ist strenger, abgelaufene "
+             "Trainer-Sitzungen führen sauber zur Anmeldung zurück, und das Zertifikat zeigt den "
+             "richtigen Kursnamen und das Ausstellungsdatum."},
     {"date": "2026-07-23", "title": "v1.41.1 — Stabilerer Start nach Updates",
      "text": "Ein Update konnte die Anwendung in eine Neustart-Schleife bringen, wenn die "
              "Datenbank aus einer sehr frühen Version stammte und ein Schema-Schritt dort "
