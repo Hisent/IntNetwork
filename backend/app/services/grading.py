@@ -5,7 +5,10 @@ def _correct(question: dict, answer) -> bool:
     if t == "multi":
         if not isinstance(answer, list):
             return False
-        return sorted(answer) == sorted(question["answer"])
+        try:
+            return sorted(answer) == sorted(question["answer"])
+        except TypeError:  # gemischte/unsortierbare Typen vom Client -> falsch statt 500
+            return False
     if t == "number":
         try:
             return float(answer) == float(question["answer"])

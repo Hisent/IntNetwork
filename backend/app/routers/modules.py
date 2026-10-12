@@ -1,5 +1,7 @@
+import json
+
 from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
@@ -35,6 +37,15 @@ def get_module(key: str, db: Session = Depends(get_db), p: Participant = Depends
 
 class QuizSubmit(BaseModel):
     answers: dict
+
+    @field_validator("answers")
+    @classmethod
+    def _begrenzt(cls, v: dict) -> dict:
+        # answers landet 1:1 als JSON in quiz_result -- ohne Grenze liesse sich
+        # die DB mit beliebig grossen Abgaben fuellen (60/min je IP und Modul).
+        if len(json.dumps(v)) > 20_000:
+            raise ValueError("Abgabe zu gross")
+        return v
 
 
 # Ein NAT-Klassenraum (bis ~20 Teilnehmer) teilt sich eine WAN-IP. Beim gemeinsamen

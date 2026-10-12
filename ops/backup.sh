@@ -25,8 +25,12 @@ OUT_FILE="$DUMP_FILE.gz"
 # den von pg_dump -- scheitert pg_dump, entsteht trotzdem eine (leere/kaputte)
 # .gz-Datei und das Skript meldet "Erfolg". Erst in eine Datei dumpen (set -e
 # greift auf den echten pg_dump-Exit-Code), dann separat komprimieren.
-docker compose exec -T db pg_dump -U intnetwork intnetwork > "$DUMP_FILE"
+docker compose exec -T db pg_dump --clean --if-exists -U intnetwork intnetwork > "$DUMP_FILE"
 gzip "$DUMP_FILE"
+
+# Ein leerer Dump (z.B. falscher Compose-Kontext) ist kein Backup.
+gzip -t "$OUT_FILE"
+[ "$(gzip -dc "$OUT_FILE" | grep -c '^CREATE TABLE')" -gt 0 ] || { echo "FEHLER: Dump enthaelt keine Tabellen: $OUT_FILE" >&2; exit 1; }
 
 echo "Backup geschrieben: $OUT_FILE"
 

@@ -56,3 +56,9 @@ def test_question_stats_aggregates_submissions():
         {"id": "q1", "correct": 0, "attempts": 0},
         {"id": "q2", "correct": 0, "attempts": 0},
         {"id": "q3", "correct": 0, "attempts": 0}]
+
+
+def test_multi_with_unsortable_client_input_is_wrong_not_500():
+    q = {"id": "m", "type": "multi", "answer": [0, 2]}
+    assert grading._correct(q, [1, "a"]) is False
+    assert grading._correct(q, [{}, 1]) is False

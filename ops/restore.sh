@@ -32,6 +32,13 @@ if [ "$CONFIRM" != "ja" ]; then
     exit 1
 fi
 
-gunzip -c "$DUMP_FILE" | docker compose exec -T db psql -v ON_ERROR_STOP=1 -U intnetwork intnetwork
+# Schema erst leeren: ein pg_dump ohne --clean (alle Dumps vor dieser Aenderung)
+# scheitert sonst am ersten CREATE TABLE mit "already exists" -- der Restore in
+# eine nicht-leere DB hat so nie funktioniert. --single-transaction: schlaegt
+# irgendetwas fehl, wird auch das DROP zurueckgerollt, der alte Stand bleibt.
+# Backend vorher stoppen (docker compose stop backend), sonst wartet das DROP
+# auf dessen offene Verbindungen.
+{ echo 'DROP SCHEMA public CASCADE; CREATE SCHEMA public;'; gunzip -c "$DUMP_FILE"; } \
+    | docker compose exec -T db psql -v ON_ERROR_STOP=1 --single-transaction -U intnetwork intnetwork
 
 echo "Restore abgeschlossen."

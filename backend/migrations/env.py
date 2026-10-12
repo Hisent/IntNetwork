@@ -48,6 +48,13 @@ def run_migrations_online() -> None:
             # — der Start hing dann still, statt zu scheitern. Jetzt bricht das DDL
             # nach 10s mit klarer Meldung ab; run_migrations() versucht es erneut.
             connection.execute(sa_text("SET lock_timeout = '10s'"))
+            # ZWINGEND: das execute() oben öffnet per SQLAlchemy-2-Autobegin eine
+            # Transaktion. Bleibt sie offen, hält Alembic sie für eine "externe",
+            # macht aus begin_transaction() unten ein No-op und committet nie —
+            # beim Schließen der Verbindung rollt Postgres dann ALLE Migrationen
+            # samt alembic_version zurück (Bug v1.24.1 bis v1.41.1). Das SET gilt
+            # sitzungsweit und überlebt den Commit.
+            connection.commit()
         # render_as_batch=True: SQLite kennt kein natives ALTER — Batch-Modus baut
         # Tabellen bei Änderungen sauber um. Auf Postgres ein No-op.
         context.configure(connection=connection, target_metadata=target_metadata,
