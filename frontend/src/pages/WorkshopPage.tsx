@@ -4,7 +4,8 @@ import { useQuery } from '@tanstack/react-query'
 import { authApi, errMsg } from '@/lib/api'
 import { workshopApi } from '@/lib/workshopApi'
 import { useAuthStore } from '@/store/auth'
-import { t, useDocumentLang, type Lang } from '@/lib/i18n'
+import { storedLang, t, useDocumentLang, usePublicLang } from '@/lib/i18n'
+import { learnApi } from '@/lib/learnApi'
 import { PageSkeleton } from '@/components/PageSkeleton'
 import { LoadError } from '@/components/LoadError'
 import { WorkshopTheme } from '@/components/WorkshopTheme'
@@ -29,7 +30,7 @@ export function WorkshopPage() {
   const { key = '' } = useParams()
   const nav = useNavigate()
   const setAuth = useAuthStore((state) => state.setAuth)
-  const [lang, setLang] = useState<Lang>('de')
+  const [lang, setLang] = usePublicLang()
   useDocumentLang(lang)
   const [searchParams] = useSearchParams()
   // Nur der Query-Param BEIM ERSTEN Render zaehlt fuers Vorbefuellen — spaetere
@@ -73,6 +74,10 @@ export function WorkshopPage() {
     try {
       const result = await authApi.join(code, name, data.key, resumeCode)
       setAuth(result.data.access_token, 'participant', result.data.name)
+      // Ausdrücklich gewählte Sprache in den Kurs mitnehmen (Kursseiten lesen sie
+      // vom Server). Ohne Wahl bleibt die beim Teilnehmer gespeicherte Sprache.
+      const chosen = storedLang()
+      if (chosen) await learnApi.setLanguage(chosen).catch(() => {})
       // Neuer/erstmaliger Beitritt liefert den persönlichen Code — einmal zeigen,
       // bevor es weitergeht. Normale Wiederaufnahme (Code stimmte) navigiert direkt.
       if (result.data.resume_code) setIssuedCode(result.data.resume_code)
@@ -139,9 +144,9 @@ export function WorkshopPage() {
                 <p className="mt-3 rounded-lg bg-[var(--workshop-accent-surface)] px-3 py-2 text-xs text-[var(--workshop-accent)]">{t(lang, 'codeFromLinkHint')}</p>
               )}
               <form onSubmit={join} className="mt-6 space-y-4">
-                <label className="block text-sm font-medium text-slate-700">{lang === 'de' ? 'Kurs-Code' : 'Course code'}<input required value={code} onChange={(event) => setCode(event.target.value.toUpperCase())} autoComplete="one-time-code" className="mt-1.5 block w-full rounded-lg border border-slate-300 px-3 py-2 font-mono uppercase tracking-widest outline-none focus:border-[var(--workshop-accent)] focus:ring-2 focus:ring-[var(--workshop-accent-soft)]" /></label>
-                <label className="block text-sm font-medium text-slate-700">{lang === 'de' ? 'Dein Name' : 'Your name'}<input ref={nameInputRef} required value={name} onChange={(event) => setName(event.target.value)} autoComplete="name" className="mt-1.5 block w-full rounded-lg border border-slate-300 px-3 py-2 outline-none focus:border-[var(--workshop-accent)] focus:ring-2 focus:ring-[var(--workshop-accent-soft)]" /></label>
-                <label className="block text-sm font-medium text-slate-700">{lang === 'de' ? 'Wiederaufnahme-Code' : 'Resume code'} <span className="font-normal text-slate-400">({lang === 'de' ? 'nur beim erneuten Beitritt' : 'only when rejoining'})</span><input value={resumeCode} onChange={(event) => setResumeCode(event.target.value.toUpperCase())} autoComplete="off" className="mt-1.5 block w-full rounded-lg border border-slate-300 px-3 py-2 font-mono uppercase tracking-widest outline-none focus:border-[var(--workshop-accent)] focus:ring-2 focus:ring-[var(--workshop-accent-soft)]" /></label>
+                <label className="block text-sm font-medium text-slate-700">{lang === 'de' ? 'Kurs-Code' : 'Course code'}<input required maxLength={32} value={code} onChange={(event) => setCode(event.target.value.toUpperCase())} autoComplete="one-time-code" className="mt-1.5 block w-full rounded-lg border border-slate-300 px-3 py-2 font-mono uppercase tracking-widest outline-none focus:border-[var(--workshop-accent)] focus:ring-2 focus:ring-[var(--workshop-accent-soft)]" /></label>
+                <label className="block text-sm font-medium text-slate-700">{lang === 'de' ? 'Dein Name' : 'Your name'}<input ref={nameInputRef} required maxLength={80} value={name} onChange={(event) => setName(event.target.value)} autoComplete="name" className="mt-1.5 block w-full rounded-lg border border-slate-300 px-3 py-2 outline-none focus:border-[var(--workshop-accent)] focus:ring-2 focus:ring-[var(--workshop-accent-soft)]" /></label>
+                <label className="block text-sm font-medium text-slate-700">{lang === 'de' ? 'Wiederaufnahme-Code' : 'Resume code'} <span className="font-normal text-slate-400">({lang === 'de' ? 'nur beim erneuten Beitritt' : 'only when rejoining'})</span><input maxLength={16} value={resumeCode} onChange={(event) => setResumeCode(event.target.value.toUpperCase())} autoComplete="off" className="mt-1.5 block w-full rounded-lg border border-slate-300 px-3 py-2 font-mono uppercase tracking-widest outline-none focus:border-[var(--workshop-accent)] focus:ring-2 focus:ring-[var(--workshop-accent-soft)]" /></label>
                 {error && <p role="alert" className="text-sm text-rose-600">{error}</p>}
                 <button disabled={busy} className="inline-flex w-full items-center justify-center gap-1.5 rounded-lg bg-[var(--workshop-accent)] px-4 py-2.5 font-semibold text-white hover:bg-[var(--workshop-accent-hover)] disabled:opacity-50 disabled:cursor-not-allowed">{busy ? (lang === 'de' ? 'Wird gestartet…' : 'Starting…') : <>{lang === 'de' ? 'Workshop starten' : 'Start workshop'}<Icon name="arrowRight" className="h-4 w-4" /></>}</button>
               </form>

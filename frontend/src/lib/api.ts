@@ -18,6 +18,12 @@ async function request<T>(method: string, url: string, body?: unknown): Promise<
   })
   const data = await res.json().catch(() => undefined)
   if (!res.ok) {
+    // Abgelaufene/entwertete Sitzung (Trainer-Token 8 h, Code-Reset, Passwortwechsel):
+    // ohne Abmelden bliebe nur ein „Konnte nicht geladen werden“ ohne Ausweg.
+    // Nur wenn der gesendete Token noch der aktuelle ist (kein Rennen mit Neu-Login).
+    // ponytail: POST /trainer/password antwortet bei falschem Alt-Passwort ebenfalls
+    // mit 401 — hat aktuell keine UI; beim Bau einer solchen hier ausnehmen.
+    if (res.status === 401 && token && useAuthStore.getState().token === token) useAuthStore.getState().logout()
     const err = new Error(`HTTP ${res.status}`) as ApiError
     err.response = { status: res.status, data }
     throw err
@@ -34,7 +40,10 @@ export const api = {
 }
 
 export function errMsg(e: unknown, fallback = 'Fehler.'): string {
-  return (e as ApiError).response?.data?.detail ?? fallback
+  // 422 (Pydantic) liefert `detail` als Liste von Objekten — roh in JSX gerendert
+  // wirft React und die ganze Seite fällt in die Fehlergrenze. Nur Strings durchlassen.
+  const detail: unknown = (e as ApiError).response?.data?.detail
+  return typeof detail === 'string' && detail ? detail : fallback
 }
 
 export const authApi = {

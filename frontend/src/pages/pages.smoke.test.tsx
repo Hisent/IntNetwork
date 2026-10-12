@@ -5,6 +5,7 @@
 // prüfen. Kein E2E, kein echter Server — nur "rendert es überhaupt sinnvoll".
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { cleanup, fireEvent, screen } from '@testing-library/react'
+import { Link } from 'react-router-dom'
 import { renderWithProviders } from '@/test/renderWithProviders'
 import { useAuthStore } from '@/store/auth'
 import { LandingPage } from '@/pages/LandingPage'
@@ -43,6 +44,9 @@ function mockGetError(url: string) {
   vi.mocked(api.get).mockImplementation((requested: string) =>
     requested === url ? Promise.reject(new Error('Netzwerkfehler')) : Promise.reject(new Error(`kein Mock für ${requested}`)))
 }
+
+// jsdom kennt scrollTo nicht (ModulePage scrollt beim Modulwechsel nach oben).
+window.scrollTo = vi.fn()
 
 afterEach(() => {
   cleanup()
@@ -108,6 +112,40 @@ describe('Seiten-Smoke-Tests', () => {
     renderWithProviders(<ModulePage />, { route: '/lernen/m1', path: '/lernen/:key' })
 
     expect(await screen.findByText('Hallo Blockinhalt')).toBeTruthy()
+  })
+
+  it('ModulePage trägt Modul-Zustand (Reflexion) nicht in ein anderes, bereits geladenes Modul', async () => {
+    useAuthStore.setState({ token: 'demo', role: 'participant', displayName: 'Test' })
+    const module = (key: string) => ({
+      key, title: `Modul ${key}`, order: 1, prerequisites: [],
+      blocks: [{ type: 'reflect', prompt: `Frage ${key}` }], quiz: { questions: [] },
+    })
+    mockGet({
+      '/me': { name: 'Test', participant_id: 1, course_id: 9, language: 'de', course: { id: 9, name: 'Kurs' }, workshop: null, progress: [] },
+      '/modules/m1': module('m1'),
+      '/modules/m2': module('m2'),
+      '/modules': [],
+      '/features': { comments: false },
+    })
+
+    renderWithProviders(
+      <><ModulePage /><Link to="/lernen/m1">zu-m1</Link><Link to="/lernen/m2">zu-m2</Link></>,
+      { route: '/lernen/m1', path: '/lernen/:key' })
+
+    fireEvent.change(await screen.findByLabelText('Frage m1'), { target: { value: 'Notiz A' } })
+    fireEvent.click(screen.getByText('zu-m2'))
+    fireEvent.change(await screen.findByLabelText('Frage m2'), { target: { value: 'Notiz B' } })
+    // m1 liegt jetzt im Query-Cache -> kein Skeleton dazwischen, der den Zustand zufällig räumt.
+    fireEvent.click(screen.getByText('zu-m1'))
+
+    expect((await screen.findByLabelText<HTMLTextAreaElement>('Frage m1')).value).toBe('Notiz A')
+    expect(localStorage.getItem('intnetwork-reflect-1-9-m2-0')).toBe('Notiz B')
+  })
+
+  it('ModulePage leitet ohne Teilnehmer-Sitzung zur Startseite um', () => {
+    renderWithProviders(<ModulePage />, { route: '/lernen/m1', path: '/lernen/:key' })
+    expect(screen.queryByText('Konnte nicht geladen werden')).toBeNull()
+    expect(api.get).not.toHaveBeenCalled()
   })
 
   it('zeigt bei einem Ladefehler LoadError statt eines Dauerskeletons', async () => {

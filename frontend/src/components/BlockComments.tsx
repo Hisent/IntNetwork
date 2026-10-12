@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { learnApi } from '@/lib/learnApi'
+import { errMsg } from '@/lib/api'
 import { t, type Lang } from '@/lib/i18n'
 
 export function BlockComments({ moduleKey, blockIndex, lang }: { moduleKey: string; blockIndex: number; lang: Lang }) {
@@ -54,7 +55,7 @@ export function BlockComments({ moduleKey, blockIndex, lang }: { moduleKey: stri
               </div>
             ))}
           </div>
-          <div className="flex gap-2">
+          <form className="flex gap-2" onSubmit={(e) => { e.preventDefault(); if (text.trim() && !add.isPending) add.mutate() }}>
             <input
               value={text}
               onChange={(e) => setText(e.target.value)}
@@ -63,13 +64,17 @@ export function BlockComments({ moduleKey, blockIndex, lang }: { moduleKey: stri
               className="flex-1 border rounded-lg px-2 py-1 text-sm"
             />
             <button
-              onClick={() => text.trim() && add.mutate()}
               disabled={add.isPending}
               className="rounded-lg bg-teal-600 hover:bg-teal-700 text-white px-3 text-sm font-medium disabled:opacity-60"
             >
               {t(lang, 'send')}
             </button>
-          </div>
+          </form>
+          {(add.isError || del.isError) && (
+            <p role="alert" className="mt-2 text-xs text-rose-600">
+              {errMsg(add.error ?? del.error, lang === 'de' ? 'Das hat nicht geklappt. Bitte erneut versuchen.' : 'That did not work. Please try again.')}
+            </p>
+          )}
         </div>
       )}
     </div>

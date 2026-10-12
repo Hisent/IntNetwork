@@ -30,7 +30,7 @@ export function WorkbenchTopbar({ lang = 'de', title, actions }: { lang?: Lang; 
 // Seiten.
 export function LangToggle({ lang, onChange, className = 'flex' }: { lang: Lang; onChange: (lang: Lang) => void; className?: string }) {
   return (
-    <div className={className} aria-label={lang === 'de' ? 'Sprache' : 'Language'}>
+    <div role="group" className={className} aria-label={lang === 'de' ? 'Sprache' : 'Language'}>
       {(['de', 'en'] as Lang[]).map((value) => (
         <button
           key={value}

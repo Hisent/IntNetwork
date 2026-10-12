@@ -145,7 +145,7 @@ export function Quiz({ moduleKey, questions, lang, onResult }: {
           return (
             <div key={q.id} className={`rounded-xl border ${ring} p-4 transition-colors`}>
               <div className="flex items-start justify-between gap-3 mb-2">
-                <p className="font-medium text-slate-800">
+                <p id={`quiz-${q.id}`} className="font-medium text-slate-800">
                   <span className="text-slate-400 mr-1.5">{qi + 1}.</span>{q.prompt}
                 </p>
                 {locked && (
@@ -160,7 +160,7 @@ export function Quiz({ moduleKey, questions, lang, onResult }: {
                   value={(answers[q.id] as string) ?? ''}
                   onChange={(e) => set(q.id, e.target.value)} />
               ) : (
-                <div className="flex flex-col gap-1.5">
+                <div role={q.type === 'single' ? 'radiogroup' : 'group'} aria-labelledby={`quiz-${q.id}`} className="flex flex-col gap-1.5">
                   {(optionOrder[q.id] ?? q.options.map((_, i) => i)).map((i) => (
                     <label key={i} className={`flex items-center gap-2 ${locked ? 'text-slate-500' : 'text-slate-700 cursor-pointer'}`}>
                       <input

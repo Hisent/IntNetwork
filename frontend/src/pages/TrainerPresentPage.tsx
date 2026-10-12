@@ -9,6 +9,9 @@ import { useAuthStore } from '@/store/auth'
 import { BrandLogo } from '@/components/BrandLogo'
 import { WorkshopTheme } from '@/components/WorkshopTheme'
 import { workshopTheme } from '@/lib/workshopTheme'
+import { slideKeyAction } from '@/lib/slideKeys'
+import { modulePositions } from '@/lib/modulePosition'
+import { LoadError } from '@/components/LoadError'
 
 // Beamer-Modus: Folie 0 = Titel/Szenario/Lernziele, danach ein Block pro Folie.
 // Navigation: Pfeiltasten/Leertaste, Esc beendet. Notizen bleiben einklappbar
@@ -25,18 +28,25 @@ export function TrainerPresentPage() {
     queryFn: () => trainerApi.trainerModule(key).then((r) => r.data),
     enabled: role === 'trainer' && !!token,
   })
+  // Für die Folien-Nummer „Modul n“: Position im Workshop statt des internen
+  // order-Sortierschlüssels (101, 301 …) — siehe lib/modulePosition.ts.
+  const allMods = useQuery({
+    queryKey: ['trainer-modules'],
+    queryFn: () => trainerApi.trainerModules().then((r) => r.data),
+    enabled: role === 'trainer' && !!token,
+  })
   const total = 1 + (mod.data?.blocks.length ?? 0)
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
-      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return
-      if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+      const action = slideKeyAction(e.key, e.target)
+      if (action === 'next') {
         e.preventDefault()
         setSlide((s) => Math.min(s + 1, total - 1))
-      } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+      } else if (action === 'prev') {
         e.preventDefault()
         setSlide((s) => Math.max(s - 1, 0))
-      } else if (e.key === 'Escape') {
+      } else if (action === 'exit') {
         navigate(`/trainer/modul/${key}`)
       }
     }
@@ -50,8 +60,10 @@ export function TrainerPresentPage() {
         Nur für Trainer. <Link to="/trainer" className="text-teal-600">Zum Login</Link>
       </div>
     )
+  if (mod.isError && !mod.data) return <LoadError onRetry={() => mod.refetch()} />
   if (mod.isLoading || !mod.data) return <div className="p-10">Lädt…</div>
   const m = mod.data
+  const position = modulePositions((allMods.data ?? []).filter((x) => (x.workshop_key ?? null) === (m.workshop_key ?? null))).get(key)
 
   return (
     <WorkshopTheme theme={workshopTheme(m.workshop_key)}><main id="main-content" tabIndex={-1} className="min-h-[100dvh] bg-white flex flex-col">
@@ -61,7 +73,7 @@ export function TrainerPresentPage() {
             <div>
               <BrandLogo className="mb-8 h-10 text-lg" showName />
               <p className="text-sm font-semibold uppercase tracking-widest text-teal-600 mb-3">
-                Modul {m.order}
+                {position ? `Modul ${position}` : 'Modul'}
               </p>
               <h1 className="text-4xl sm:text-5xl font-bold text-slate-900 leading-tight mb-6">{m.title}</h1>
               {m.scenario && (

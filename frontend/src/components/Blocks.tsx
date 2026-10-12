@@ -65,7 +65,7 @@ export const MD_COMPONENTS = {
 
 export function WidgetBlock({ id, lang }: { id: string; lang: Lang }) {
   const W = WIDGETS[id]
-  if (!W) return <div className="text-sm text-red-500">Unbekanntes Widget: {id}</div>
+  if (!W) return <div className="text-sm text-red-500">{lang === 'de' ? 'Unbekanntes Widget' : 'Unknown widget'}: {id}</div>
   return (
     // Widgets bleiben innerhalb der aktuellen Inhalts-/Navigationsspalte.
     // Tabellen und lange Inhalte müssen sich darin selbst scrollbar machen.
@@ -304,13 +304,14 @@ export function DebugBlock({ prompt, lines, wrong, explanation, lang }: {
 }
 
 export function ReflectBlock({ prompt, storageKey, lang }: { prompt: string; storageKey: string; lang: Lang }) {
-  const [text, setText] = useState(() => localStorage.getItem(storageKey) ?? '')
+  // Speicherzugriffe abgesichert: blockiertes/volles localStorage darf nicht die ganze Modulseite reißen.
+  const [text, setText] = useState(() => { try { return localStorage.getItem(storageKey) ?? '' } catch { return '' } })
   return (
     <div className="rounded-xl border border-slate-200 bg-white p-4">
       <p className="text-xs font-semibold uppercase tracking-wide text-teal-700 mb-1">{t(lang, 'reflection')}</p>
       <p className="font-medium text-slate-800 mb-2">{prompt}</p>
       <textarea value={text} rows={3}
-        onChange={(e) => { setText(e.target.value); localStorage.setItem(storageKey, e.target.value) }}
+        onChange={(e) => { setText(e.target.value); try { localStorage.setItem(storageKey, e.target.value) } catch { /* nur für diese Sitzung */ } }}
         aria-label={prompt}
         className="w-full border border-slate-200 rounded-lg px-3 py-1.5 text-sm text-slate-700" />
       <p className="text-xs text-slate-400 mt-1">{t(lang, 'reflectHint')}</p>
@@ -376,7 +377,8 @@ export function Blocks({
           {b.type === 'reveal' && <RevealBlock teaser={b.teaser} value={b.value} lang={lang} />}
           {b.type === 'order' && <OrderBlock prompt={b.prompt} items={b.items} lang={lang} />}
           {b.type === 'debug' && <DebugBlock prompt={b.prompt} lines={b.lines} wrong={b.wrong} explanation={b.explanation} lang={lang} />}
-          {b.type === 'reflect' && <ReflectBlock prompt={b.prompt} storageKey={`intnetwork-reflect-${keyScope}-${moduleKey}-${i}`} lang={lang} />}
+          {/* key: der Teilnehmer-Scope steht erst nach /me fest — ohne Remount bliebe das Feld leer und überschriebe die gespeicherte Notiz. */}
+          {b.type === 'reflect' && <ReflectBlock key={`${keyScope}-${moduleKey}-${i}`} prompt={b.prompt} storageKey={`intnetwork-reflect-${keyScope}-${moduleKey}-${i}`} lang={lang} />}
           {footer?.(b, i)}
         </div>
       ))}
