@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import Markdown from 'react-markdown'
-import { Link, useParams } from 'react-router-dom'
+import { Link, Navigate, useParams } from 'react-router-dom'
 import { learnApi } from '@/lib/learnApi'
 import { Blocks } from '@/components/Blocks'
 import { BlockComments } from '@/components/BlockComments'
@@ -9,11 +9,12 @@ import { Quiz } from '@/components/Quiz'
 import { loadRead, pruneOtherParticipants, toggleRead } from '@/lib/readProgress'
 import { PageSkeleton } from '@/components/PageSkeleton'
 import { LoadError } from '@/components/LoadError'
-import { t, useDocumentLang, type Lang } from '@/lib/i18n'
+import { storeLang, t, useDocumentLang, type Lang } from '@/lib/i18n'
 import { GlossaryPanel } from '@/components/GlossaryPanel'
 import { termsForModule } from '@/lib/glossary'
 import { Icon } from '@/components/Icon'
 import type { Block, ModuleDetail, ModuleMeta, ProgressItem } from '@/types'
+import { useAuthStore } from '@/store/auth'
 import { LangToggle, WorkbenchProgress, WorkbenchSectionTitle, WorkbenchTopbar } from '@/components/workbench/WorkbenchShell'
 import { readPercent } from '@/components/workbench/workbenchLogic'
 import { groupModulesBySection, type ModuleSection } from '@/lib/moduleGroups'
@@ -23,18 +24,24 @@ import { WorkshopTheme } from '@/components/WorkshopTheme'
 export function ModulePage() {
   const { key = '' } = useParams()
   const qc = useQueryClient()
+  // Ohne (oder nach abgelaufener) Teilnehmer-Sitzung zurück zur Startseite —
+  // sonst bliebe nur „Konnte nicht geladen werden“ ohne Ausweg.
+  const isParticipant = useAuthStore((state) => state.role) === 'participant'
 
   useEffect(() => {
-    if (!key) return
+    if (!key || !isParticipant) return
+    // Modulwechsel ohne Ladezustand (Modul im Cache) behielte sonst die
+    // Scrollposition vom Seitenende des vorherigen Moduls.
+    window.scrollTo(0, 0)
     learnApi.heartbeat(key).catch(() => {})
     const id = setInterval(() => {
       learnApi.heartbeat(key).catch(() => {})
     }, 20_000)
     return () => clearInterval(id)
-  }, [key])
+  }, [key, isParticipant])
 
   const [read, setRead] = useState<number[]>([])
-  const me = useQuery({ queryKey: ['me'], queryFn: () => learnApi.me().then((r) => r.data) })
+  const me = useQuery({ queryKey: ['me'], queryFn: () => learnApi.me().then((r) => r.data), enabled: isParticipant })
   const courseId = me.data?.course_id
   const participantId = me.data?.participant_id
   const scoped = participantId != null && courseId != null
@@ -49,9 +56,9 @@ export function ModulePage() {
   }, [scoped, participantId, courseId, key])
   const lang: Lang = me.data?.language ?? 'de'
   useDocumentLang(lang)
-  const mod = useQuery({ queryKey: ['module', key, lang], queryFn: () => learnApi.getModule(key).then((r) => r.data) })
-  const features = useQuery({ queryKey: ['features'], queryFn: () => learnApi.features().then((r) => r.data) })
-  const mods = useQuery({ queryKey: ['modules', lang], queryFn: () => learnApi.listModules().then((r) => r.data) })
+  const mod = useQuery({ queryKey: ['module', key, lang], queryFn: () => learnApi.getModule(key).then((r) => r.data), enabled: isParticipant })
+  const features = useQuery({ queryKey: ['features'], queryFn: () => learnApi.features().then((r) => r.data), enabled: isParticipant })
+  const mods = useQuery({ queryKey: ['modules', lang], queryFn: () => learnApi.listModules().then((r) => r.data), enabled: isParticipant })
   const [justPassed, setJustPassed] = useState(false)
   useEffect(() => setJustPassed(false), [key])
 
@@ -63,13 +70,14 @@ export function ModulePage() {
   }, [mods.data, key])
   const sortedModules = useMemo(() => [...(mods.data ?? [])].sort((a, b) => a.order - b.order), [mods.data])
   const setLang = useMutation({
-    mutationFn: (l: Lang) => learnApi.setLanguage(l),
+    mutationFn: (l: Lang) => { storeLang(l); return learnApi.setLanguage(l) },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['me'] })
       qc.invalidateQueries({ queryKey: ['module'] })
     },
   })
 
+  if (!isParticipant) return <Navigate to="/" replace />
   if (mod.isError || me.isError) return <LoadError lang={lang} onRetry={() => { me.refetch(); mod.refetch() }} />
   if (mod.isLoading || !mod.data) return <PageSkeleton />
 
@@ -84,7 +92,11 @@ export function ModulePage() {
 
   return (
     <WorkshopTheme theme={me.data?.workshop?.theme}>
+      {/* key: Quiz-Ergebnis, Kurz-Checks und Reflexionen sind Zustand EINES Moduls —
+          ohne Remount zeigte ein Wechsel zu einem bereits geladenen Modul das
+          Quiz-Ergebnis des vorherigen und schrieb dessen Reflexionstext fort. */}
       <WorkbenchModuleView
+        key={key}
         lang={lang}
         moduleKey={key}
         keyScope={keyScope}

@@ -18,14 +18,19 @@ export function loadRead(participantId: number, courseId: number, moduleKey: str
 
 export function toggleRead(participantId: number, courseId: number, moduleKey: string, current: number[], index: number): number[] {
   const next = current.includes(index) ? current.filter((x) => x !== index) : [...current, index]
-  localStorage.setItem(storageKey(participantId, courseId, moduleKey), JSON.stringify(next))
+  try {
+    localStorage.setItem(storageKey(participantId, courseId, moduleKey), JSON.stringify(next))
+  } catch {
+    // Speicher voll/blockiert — der Haken gilt dann nur für diese Sitzung.
+  }
   return next
 }
 
 // Alle participantId-tragenden Schlüsselarten (Lese-Fortschritt, Reflexionen,
-// Live-CLI-Session — siehe Blocks.tsx / ClaudeCliWidget.tsx). Die participantId
+// Live-CLI-Session, Lab-Snapshots — siehe Blocks.tsx / ClaudeCliWidget.tsx /
+// widgets/*lab*). Die participantId
 // steht dabei immer als erstes Zahlen-Segment nach der Art.
-const SCOPED_KEY = /^intnetwork-(?:read|reflect|cli)-(\d+)-/
+const SCOPED_KEY = /^intnetwork-(?:read|reflect|cli|ansiblelab|gitlab|opensslab)-(\d+)-/
 
 // Räumt an geteilten Browsern die Reste anderer Teilnehmer auf: ruft man beim
 // Bekanntwerden der aktuellen participantId auf, entfernt sie alle App-eigenen

@@ -1,9 +1,10 @@
 import { useQuery } from '@tanstack/react-query'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, Navigate } from 'react-router-dom'
 import { learnApi } from '@/lib/learnApi'
 import { useAuthStore } from '@/store/auth'
 import { t, useDocumentLang, type Lang } from '@/lib/i18n'
 import { WorkshopTheme } from '@/components/WorkshopTheme'
+import { LoadError } from '@/components/LoadError'
 import { BrandLogo } from '@/components/BrandLogo'
 import { Icon } from '@/components/Icon'
 import { WorkbenchProgress, WorkbenchTopbar } from '@/components/workbench/WorkbenchShell'
@@ -11,7 +12,6 @@ import { WorkbenchProgress, WorkbenchTopbar } from '@/components/workbench/Workb
 // Druckbares Abschluss-Zertifikat: erst verfügbar, wenn alle Module bestanden
 // sind. „Drucken" nutzt den Browser-Dialog — PDF gibt es dort gratis dazu.
 export function CertificatePage() {
-  const nav = useNavigate()
   const { role, displayName } = useAuthStore()
   const me = useQuery({ queryKey: ['me'], queryFn: () => learnApi.me().then((r) => r.data) })
   const lang: Lang = me.data?.language ?? 'de'
@@ -23,11 +23,13 @@ export function CertificatePage() {
     mods.data.every((m) => me.data?.progress.find((p) => p.module_key === m.key)?.done)
   const cert = useQuery({ queryKey: ['certificate'], queryFn: () => learnApi.issueCertificate().then((r) => r.data), enabled: allDone })
 
-  if (role !== 'participant') { nav('/'); return null }
+  if (role !== 'participant') return <Navigate to="/" replace />
+  if (me.isError || mods.isError) return <LoadError lang={lang} onRetry={() => { me.refetch(); mods.refetch() }} />
   if (me.isLoading || mods.isLoading || !mods.data) return <div className="p-10">{t(lang, 'loading')}</div>
 
   const total = mods.data.length
-  const today = new Date().toLocaleDateString(lang === 'de' ? 'de-DE' : 'en-GB',
+  // Ausstellungsdatum des Datensatzes — „heute“ wich bei späterem Ausdruck von der Prüfseite ab.
+  const today = (cert.data ? new Date(cert.data.issued_at) : new Date()).toLocaleDateString(lang === 'de' ? 'de-DE' : 'en-GB',
     { day: '2-digit', month: 'long', year: 'numeric' })
   const workshopTitle = me.data?.workshop?.title[lang] ?? 'IntLab'
 
@@ -74,7 +76,7 @@ export function CertificatePage() {
         <BrandLogo className="mx-auto mb-4 h-12" />
         <p className="text-xs font-semibold uppercase tracking-[0.3em] text-teal-600 mb-1">IntLab</p>
         <h1 className="text-4xl font-bold text-slate-900 mb-1">{t(lang, 'certTitle')}</h1>
-        <p className="text-sm text-slate-500 mb-8">{t(lang, 'certSubtitle')}</p>
+        <p className="text-sm text-slate-500 mb-8">{me.data?.course.name}</p>
 
         <p className="text-2xl font-semibold text-slate-900 mb-4">{displayName}</p>
         <p className="text-slate-600 leading-relaxed mb-8">

@@ -1,12 +1,12 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, Navigate } from 'react-router-dom'
 import { learnApi } from '@/lib/learnApi'
 import { PageSkeleton } from '@/components/PageSkeleton'
 import { LoadError } from '@/components/LoadError'
 import type { Company, ModuleMeta, ProgressItem } from '@/types'
 import { useAuthStore } from '@/store/auth'
-import { t, useDocumentLang, type Lang } from '@/lib/i18n'
+import { storeLang, t, useDocumentLang, type Lang } from '@/lib/i18n'
 import { LangToggle, WorkbenchProgress, WorkbenchSectionTitle, WorkbenchTopbar } from '@/components/workbench/WorkbenchShell'
 import { groupModulesBySection } from '@/lib/moduleGroups'
 import { modulePositions } from '@/lib/modulePosition'
@@ -17,18 +17,18 @@ import { Icon } from '@/components/Icon'
 type Group = { key: string; title: string; mods: ModuleMeta[] }
 
 export function LearnPage() {
-  const nav = useNavigate()
   const qc = useQueryClient()
   const { role, displayName } = useAuthStore()
-  const me = useQuery({ queryKey: ['me'], queryFn: () => learnApi.me().then((r) => r.data) })
+  const isParticipant = role === 'participant'
+  const me = useQuery({ queryKey: ['me'], queryFn: () => learnApi.me().then((r) => r.data), enabled: isParticipant })
   const lang: Lang = me.data?.language ?? 'de'
   useDocumentLang(lang)
-  const mods = useQuery({ queryKey: ['modules', lang], queryFn: () => learnApi.listModules().then((r) => r.data) })
+  const mods = useQuery({ queryKey: ['modules', lang], queryFn: () => learnApi.listModules().then((r) => r.data), enabled: isParticipant })
   const networkWorkshop = me.data?.workshop?.key === 'network'
   const company = useQuery({ queryKey: ['company', lang], queryFn: () => learnApi.company().then((r) => r.data), enabled: networkWorkshop })
   const links = useQuery({ queryKey: ['links', me.data?.workshop?.key], queryFn: () => learnApi.links().then((r) => r.data), enabled: !!me.data?.workshop })
   const setLang = useMutation({
-    mutationFn: (l: Lang) => learnApi.setLanguage(l),
+    mutationFn: (l: Lang) => { storeLang(l); return learnApi.setLanguage(l) },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['me'] })
       qc.invalidateQueries({ queryKey: ['modules'] })
@@ -37,7 +37,7 @@ export function LearnPage() {
     },
   })
 
-  if (role !== 'participant') { nav('/'); return null }
+  if (role !== 'participant') return <Navigate to="/" replace />
   if (me.isError || mods.isError) return <LoadError lang={lang} onRetry={() => { me.refetch(); mods.refetch() }} />
   if (me.isLoading || mods.isLoading) return <PageSkeleton />
 

@@ -41,6 +41,15 @@ export function QueryState({ query, empty, children }: { query: { isLoading: boo
 // CopyCode oben zeigt den Code SELBST als Button-Beschriftung, das passt fuer
 // kurze Codes, aber nicht fuer eine lange URL. Gleiches aria-live-Feedback-
 // Muster, nur mit eigener, kurzer Beschriftung statt dem kopierten Text.
+// „Kopiert ✓“ nur, wenn es wirklich geklappt hat (ohne HTTPS/Berechtigung gibt es
+// kein navigator.clipboard bzw. der Aufruf wird abgelehnt).
+function copyToClipboard(text: string, setCopied: (copied: boolean) => void) {
+  navigator.clipboard?.writeText(text).then(() => {
+    setCopied(true)
+    setTimeout(() => setCopied(false), 1500)
+  }).catch(() => {})
+}
+
 export function CopyButton({ text, lang = 'de' as Lang, label }: { text: string; lang?: Lang; label?: string }) {
   const [copied, setCopied] = useState(false)
   return (
@@ -48,9 +57,7 @@ export function CopyButton({ text, lang = 'de' as Lang, label }: { text: string;
       <button
         onClick={(e) => {
           e.stopPropagation()
-          navigator.clipboard.writeText(text)
-          setCopied(true)
-          setTimeout(() => setCopied(false), 1500)
+          copyToClipboard(text, setCopied)
         }}
         className="wb-control inline-flex items-center gap-1 rounded-lg border border-[var(--wb-border)] px-2.5 py-1 text-xs font-semibold text-[var(--wb-accent)] hover:text-[var(--wb-accent-hover)]"
       >
@@ -68,9 +75,7 @@ export function CopyCode({ code, lang = 'de' as Lang }: { code: string; lang?: L
       <button
         onClick={(e) => {
           e.stopPropagation()
-          navigator.clipboard.writeText(code)
-          setCopied(true)
-          setTimeout(() => setCopied(false), 1500)
+          copyToClipboard(code, setCopied)
         }}
         title="Kurs-Code kopieren"
         className="font-mono text-sm text-[var(--wb-accent)] hover:text-[var(--wb-accent-hover)] hover:underline"

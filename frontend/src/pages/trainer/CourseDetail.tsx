@@ -127,6 +127,13 @@ export function CourseDetail({ course, workshopTitle, workshops, portalContainer
         {deleteCourse.isError && <p className="mt-2 text-right text-sm text-rose-600">Löschen fehlgeschlagen.</p>}
       </div>
 
+      {/* Vorher scheiterten Modul-Freischaltung, Freigabe, Code-Reset und Teilnehmer-Löschen lautlos. */}
+      {[toggleMod, setApproval, approve, resetCode, removeParticipant].some((mutation) => mutation.isError) && (
+        <p role="alert" className="rounded-lg border border-rose-300 bg-rose-50 px-3 py-2 text-sm text-rose-700">
+          Die letzte Aktion ist fehlgeschlagen und wurde nicht gespeichert — bitte erneut versuchen.
+        </p>
+      )}
+
       {course.workshop_key && (
         <Section title={t('de', 'inviteTitle')}>
           {(() => {

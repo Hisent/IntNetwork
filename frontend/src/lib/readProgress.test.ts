@@ -25,8 +25,15 @@ describe('pruneOtherParticipants (Aufräumen an geteilten Browsern)', () => {
     localStorage.setItem('intnetwork-read-2-9-arp', '[0,1]')
     localStorage.setItem('intnetwork-reflect-2-9-arp-3', 'fremder text')
     localStorage.setItem('intnetwork-cli-2-9', '{}')
+    // Lab-Snapshots (Playbooks/Dateien) tragen denselben Scope und müssen mit weg.
+    const labKeys = ['intnetwork-ansiblelab-2-9', 'intnetwork-gitlab-2-9', 'intnetwork-opensslab-2-9']
+    labKeys.forEach((key) => localStorage.setItem(key, '{}'))
+    localStorage.setItem('intnetwork-ansiblelab-1-9', '{"own":true}')
 
     pruneOtherParticipants(1)
+
+    labKeys.forEach((key) => expect(localStorage.getItem(key)).toBeNull())
+    expect(localStorage.getItem('intnetwork-ansiblelab-1-9')).toBe('{"own":true}')
 
     expect(localStorage.getItem('intnetwork-read-2-9-arp')).toBeNull()
     expect(localStorage.getItem('intnetwork-reflect-2-9-arp-3')).toBeNull()

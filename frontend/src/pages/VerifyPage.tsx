@@ -35,7 +35,7 @@ export function VerifyPage() {
         <p className="mt-1 text-sm text-slate-500">Gib die Prüf-ID der Bestätigung ein.</p>
 
         <form
-          onSubmit={(e) => { e.preventDefault(); if (input.trim() && !busy) nav(`/verifizieren/${input.trim()}`) }}
+          onSubmit={(e) => { e.preventDefault(); if (input.trim() && !busy) nav(`/verifizieren/${encodeURIComponent(input.trim())}`) }}
           className="mt-5 flex gap-2">
           <input value={input} onChange={(e) => setInput(e.target.value)}
             aria-label="Prüf-ID"

@@ -36,6 +36,11 @@ export function ConfirmDialog({
   const portalTarget = container ?? document.body
   const dialogRef = useRef<HTMLDivElement | null>(null)
   const cancelButtonRef = useRef<HTMLButtonElement | null>(null)
+  // onCancel ist beim Aufrufer eine Inline-Funktion (neu je Render). Als
+  // Effekt-Abhängigkeit baute jedes Eltern-Rerender (z.B. der 10-s-Präsenz-Poll
+  // im Kurs-Detail) den Fokus-Trap neu auf und riss den Fokus zurück auf „Abbrechen“.
+  const onCancelRef = useRef(onCancel)
+  useEffect(() => { onCancelRef.current = onCancel })
 
   useEffect(() => {
     if (!open) return
@@ -43,7 +48,7 @@ export function ConfirmDialog({
     const trigger = triggerRef.current
 
     const handleKeydown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') { onCancel(); return }
+      if (event.key === 'Escape') { onCancelRef.current(); return }
       if (event.key !== 'Tab' || !dialogNode) return
       // Tab-Zyklus: `inert` allein reicht nicht, weil Chromium den Fokus beim
       // Verlassen des letzten Elements auf <body> setzt statt zum ersten
@@ -80,7 +85,7 @@ export function ConfirmDialog({
       clearInert(backgroundSiblings)
       trigger?.focus()
     }
-  }, [open, onCancel, triggerRef, portalTarget])
+  }, [open, triggerRef, portalTarget])
 
   if (!open) return null
 

@@ -1,3 +1,5 @@
+import type { WorkshopThemeName } from '@/lib/workshopTheme'
+
 export type Block =
   | { type: 'text'; value: string; note?: string }
   | { type: 'widget'; id: string; note?: string }
@@ -32,7 +34,7 @@ export interface Workshop {
   key: string
   title: Record<'de' | 'en', string>
   summary?: Record<'de' | 'en', string>
-  theme: 'network' | 'claude'
+  theme: WorkshopThemeName
   sections: { key: string; from: number; to: number; title_de: string; title_en: string }[]
   context?: { name: string; blurb_de: string; blurb_en: string } | null
 }

@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 
 export type Lang = 'de' | 'en'
 
@@ -10,52 +10,62 @@ export function useDocumentLang(lang: Lang) {
   }, [lang])
 }
 
+// Sprachwahl dieses Browsers. Vorher hielt jede öffentliche Seite ihren eigenen
+// useState('de'): wer auf der Startseite EN wählte, landete auf der
+// Workshop-Seite und nach dem Beitritt jeweils wieder bei DE.
+const LANG_KEY = 'intnetwork-lang'
+
+/** Ausdrücklich gewählte Sprache oder null (noch nie umgeschaltet). */
+export function storedLang(): Lang | null {
+  try {
+    const value = localStorage.getItem(LANG_KEY)
+    return value === 'de' || value === 'en' ? value : null
+  } catch {
+    return null
+  }
+}
+
+export function storeLang(lang: Lang): void {
+  try {
+    localStorage.setItem(LANG_KEY, lang)
+  } catch {
+    // Persistenz optional — die Wahl gilt dann nur für diese Seite.
+  }
+}
+
+/** Sprach-State der öffentlichen Seiten (Landing, Workshop-Beitritt). */
+export function usePublicLang(): [Lang, (lang: Lang) => void] {
+  const [lang, setLang] = useState<Lang>(() => storedLang() ?? 'de')
+  return [lang, (next) => { setLang(next); storeLang(next) }]
+}
+
 export const STRINGS = {
   de: {
     join: 'Beitreten',
     courseCode: 'Kurs-Code',
-    yourName: 'Dein Name',
-    joinCourse: 'Kurs beitreten',
-    joinHint: 'Code und Namen vom Trainer erhalten.',
-    trainerLogin: 'Ich bin Trainer',
-    joinError: 'Kurs-Code ungültig oder Name fehlt.',
     modules: 'Module',
     hello: 'Hallo',
     tagline: 'Netzwerk-Grundlagen — am Beispiel einer echten Firma.',
     sites: 'Standorte',
-    done: 'erledigt',
     open: 'offen',
     best: 'best',
     courseProgress: 'Kurs-Fortschritt',
-    modulesDone: 'Module abgeschlossen',
     courseComplete: 'Kurs abgeschlossen!',
-    courseCompleteText: 'Alle Module bestanden — vom ersten Frame bis zur Fehlersuche. Stark!',
     linksTitle: 'Wissenswertes & Vertiefung',
-    linksIntro: 'Handverlesene Links, wenn du tiefer einsteigen willst — zum Nachschlagen, Üben und Staunen.',
     continueHere: 'Hier weitermachen',
     nextModule: 'Weiter zum nächsten Modul',
     backToOverview: 'Zurück zur Übersicht',
-    resumeHint: 'Gleicher Code + gleicher Name setzt beim nächsten Besuch deinen Fortschritt fort.',
     lockedOrderHint: 'Module schalten sich der Reihe nach frei — schließe eines ab, um das nächste zu öffnen.',
     showMoreModules: 'Weitere Module anzeigen',
     showFewerModules: 'Weniger anzeigen',
-    groupBasics: 'Grundlagen',
-    groupServices: 'Adressierung & Dienste',
-    groupSecurity: 'Sicherheit & Vertiefung',
-    groupPractice: 'Praxis & Analyse',
-    groupMore: 'Weitere Module',
     tocTitle: 'Inhalt',
     certButton: 'Teilnahmebestätigung anzeigen',
     certTitle: 'Teilnahmebestätigung',
-    certSubtitle: 'Netzwerk-Grundlagenkurs',
-    certText: 'hat den interaktiven Netzwerk-Grundlagenkurs mit allen',
-    certText2: 'Modulen erfolgreich abgeschlossen — vom Ethernet-Frame bis zur Paket-Analyse.',
     certDate: 'Abgeschlossen am',
     certPrint: 'Drucken / als PDF speichern',
     certNotYet: 'Die Teilnahmebestätigung gibt es, sobald alle Module abgeschlossen sind.',
     prerequisitesHint: 'setzt voraus',
     loading: 'Lädt…',
-    quiz: 'Quiz',
     knowledgeCheck: 'Wissenscheck',
     knowledgeCheckIntro: 'Prüfe, ob alles sitzt.',
     answeredProgress: 'beantwortet',
@@ -90,10 +100,6 @@ export const STRINGS = {
     delete: 'löschen',
     noComments: 'Noch keine Kommentare.',
     commentPlaceholder: 'Kommentar…',
-    heroTitle: 'Netzwerk-Grundlagen, interaktiv.',
-    heroBody: 'Ein Kurs, der Netzwerke nicht erklärt, sondern zeigt. Frames bauen, '
-      + 'Switches lernen lassen, Pakete routen.',
-    internalNote: 'Interne Schulung. Zugang per Kurs-Code.',
     codeFromLinkHint: 'Der Kurs-Code wurde aus deinem Einladungslink übernommen — trag einfach noch deinen Namen ein.',
     inviteTitle: 'Teilnehmer einladen',
     inviteHint: 'Teilnehmer öffnen den Link oder scannen den QR-Code und tragen dort nur noch ihren Namen ein.',
@@ -105,48 +111,29 @@ export const STRINGS = {
   en: {
     join: 'Join',
     courseCode: 'Course code',
-    yourName: 'Your name',
-    joinCourse: 'Join course',
-    joinHint: 'Get the code and your name from the trainer.',
-    trainerLogin: "I'm a trainer",
-    joinError: 'Invalid course code or missing name.',
     modules: 'Modules',
     hello: 'Hello',
     tagline: 'Networking fundamentals, taught through a real company.',
     sites: 'Sites',
-    done: 'done',
     open: 'open',
     best: 'best',
     courseProgress: 'Course progress',
-    modulesDone: 'modules completed',
     courseComplete: 'Course completed!',
-    courseCompleteText: 'All modules passed — from the first frame to troubleshooting. Well done!',
     linksTitle: 'Worth Knowing & Going Deeper',
-    linksIntro: 'Hand-picked links if you want to dig deeper — for reference, practice and wonder.',
     continueHere: 'Continue here',
     nextModule: 'Continue to the next module',
     backToOverview: 'Back to the overview',
-    resumeHint: 'Same code + same name resumes your progress on your next visit.',
     lockedOrderHint: 'Modules unlock in order — complete one to open the next.',
     showMoreModules: 'Show more modules',
     showFewerModules: 'Show fewer',
-    groupBasics: 'Basics',
-    groupServices: 'Addressing & Services',
-    groupSecurity: 'Security & Beyond',
-    groupPractice: 'Practice & Analysis',
-    groupMore: 'More Modules',
     tocTitle: 'Contents',
     certButton: 'View attendance certificate',
     certTitle: 'Certificate of attendance',
-    certSubtitle: 'Networking Fundamentals Course',
-    certText: 'has successfully completed the interactive networking fundamentals course with all',
-    certText2: 'modules — from the Ethernet frame to packet analysis.',
     certDate: 'Completed on',
     certPrint: 'Print / save as PDF',
     certNotYet: 'The attendance certificate becomes available once all modules are completed.',
     prerequisitesHint: 'requires',
     loading: 'Loading…',
-    quiz: 'Quiz',
     knowledgeCheck: 'Knowledge Check',
     knowledgeCheckIntro: 'See if it all stuck.',
     answeredProgress: 'answered',
@@ -181,10 +168,6 @@ export const STRINGS = {
     delete: 'delete',
     noComments: 'No comments yet.',
     commentPlaceholder: 'Comment…',
-    heroTitle: 'Networking fundamentals, interactive.',
-    heroBody: "A course that doesn't just explain networks, it shows them. Build frames, "
-      + 'let switches learn, route packets.',
-    internalNote: 'Internal training. Access via course code.',
     codeFromLinkHint: 'The course code was filled in from your invitation link — just add your name.',
     inviteTitle: 'Invite participants',
     inviteHint: 'Participants open the link or scan the QR code and only need to enter their name there.',

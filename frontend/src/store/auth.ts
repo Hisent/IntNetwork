@@ -14,7 +14,11 @@ interface AuthState {
 // Entfernt einmalig Tokens aus Versionen vor 1.4, die dauerhaft im Local
 // Storage lagen. Die aktuelle Sitzung wird ausschließlich im Session Storage
 // gehalten.
-if (typeof window !== 'undefined') window.localStorage.removeItem('intnetwork-auth')
+try {
+  if (typeof window !== 'undefined') window.localStorage.removeItem('intnetwork-auth')
+} catch {
+  // localStorage blockiert (z.B. Cookies gesperrt) — darf den App-Start nicht verhindern.
+}
 
 export const useAuthStore = create<AuthState>()(
   persist(

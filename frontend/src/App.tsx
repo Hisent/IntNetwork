@@ -4,6 +4,8 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { PageSkeleton } from '@/components/PageSkeleton'
 import { ErrorBoundary } from '@/components/ErrorBoundary'
 import { LandingPage } from '@/pages/LandingPage'
+import { useAuthStore } from '@/store/auth'
+import type { ApiError } from '@/lib/api'
 
 // Landing bleibt eager (erste Route). Alles andere lazy — vor allem die vier
 // Trainer-Seiten, die ein Teilnehmer nie lädt, hängen sonst im Hauptbundle.
@@ -18,7 +20,26 @@ const TrainerPresentPage = lazy(() => import('@/pages/TrainerPresentPage').then(
 const VerifyPage = lazy(() => import('@/pages/VerifyPage').then((m) => ({ default: m.VerifyPage })))
 const NotFoundPage = lazy(() => import('@/pages/NotFoundPage').then((m) => ({ default: m.NotFoundPage })))
 
-const qc = new QueryClient()
+// 4xx sind endgültig (unbekannter Workshop, abgelaufene Sitzung, gesperrtes Modul):
+// drei Wiederholungen mit Backoff zeigten dort ~7 s lang nur ein Skeleton.
+const qc = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: (failures, error) => {
+        const status = (error as ApiError).response?.status
+        return !(status && status >= 400 && status < 500) && failures < 3
+      },
+    },
+  },
+})
+
+// Sitzungswechsel (Beitritt, Login, Logout, 401): sitzungsgebundene Daten verwerfen,
+// sonst zeigt ein geteilter Browser kurz Fortschritt/Kursdaten der vorherigen Person.
+// Der öffentliche Katalog bleibt — er ist beim Beitritt gerade gemountet.
+const PUBLIC_QUERIES = ['workshops', 'workshop']
+useAuthStore.subscribe((state, prev) => {
+  if (state.token !== prev.token) qc.removeQueries({ predicate: (q) => !PUBLIC_QUERIES.includes(String(q.queryKey[0])) })
+})
 
 export default function App() {
   return (

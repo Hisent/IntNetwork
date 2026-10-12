@@ -60,6 +60,7 @@ function FeedbackModule({
   return (
     <div className="rounded-xl border bg-white p-4">
       <h4 className="text-sm font-semibold text-slate-800 mb-2">{mod.data?.title ?? moduleKey}</h4>
+      {(add.isError || del.isError) && <p role="alert" className="mb-2 text-xs text-rose-600">Aktion fehlgeschlagen — bitte erneut versuchen.</p>}
       <div className="flex flex-col gap-3">
         {groups.map((g) => {
           const snippet = blockSnippet(mod.data?.blocks[g.blockIndex])

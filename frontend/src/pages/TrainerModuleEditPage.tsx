@@ -9,6 +9,8 @@ import { MD_COMPONENTS } from '@/components/Blocks'
 import { WIDGETS } from '@/widgets/registry'
 import { BrandLogo } from '@/components/BrandLogo'
 import { WorkshopTheme } from '@/components/WorkshopTheme'
+import { LoadError } from '@/components/LoadError'
+import { useAuthStore } from '@/store/auth'
 import { workshopTheme } from '@/lib/workshopTheme'
 
 const TYPE_LABELS: Record<EditorBlock['type'], string> = {
@@ -35,13 +37,16 @@ export function TrainerModuleEditPage() {
   const [error, setError] = useState('')
   const [preview, setPreview] = useState<Record<number, boolean>>({})
 
+  const isTrainer = useAuthStore((state) => state.role === 'trainer' && !!state.token)
   const mod = useQuery({
     queryKey: ['content-module', key],
     queryFn: () => trainerApi.getContentModule(key).then((r) => r.data),
+    enabled: isTrainer,
   })
   const allMods = useQuery({
     queryKey: ['content-modules'],
     queryFn: () => trainerApi.listContentModules().then((r) => r.data),
+    enabled: isTrainer,
   })
 
   useEffect(() => {
@@ -78,7 +83,26 @@ export function TrainerModuleEditPage() {
     onError: (e) => setError(errMsg(e)),
   })
 
-  if (mod.isLoading || !form) return <div className="p-10">Lädt…</div>
+  // Ungespeicherte Änderungen: Tab schließen/neu laden nachfragen lassen.
+  // ponytail: nur beforeunload — In-App-Links bräuchten useBlocker (Data Router).
+  const dirty = !!form && form !== mod.data
+  useEffect(() => {
+    if (!dirty) return
+    const warn = (event: BeforeUnloadEvent) => event.preventDefault()
+    window.addEventListener('beforeunload', warn)
+    return () => window.removeEventListener('beforeunload', warn)
+  }, [dirty])
+
+  if (!isTrainer)
+    return (
+      <div className="p-10 text-slate-600">
+        Nur für Trainer. <Link to="/trainer" className="text-teal-600">Zum Login</Link>
+      </div>
+    )
+  // Nur ohne geladenes Formular: ein fehlgeschlagener Hintergrund-Refetch darf den Editor nicht verdrängen.
+  if (mod.isError && !form) return <LoadError onRetry={() => mod.refetch()} />
+  // form.key !== key: bei Modulwechsel nie das Formular des vorherigen Moduls unter dem neuen Key speichern.
+  if (mod.isLoading || !form || form.key !== key) return <div className="p-10">Lädt…</div>
 
   function updateBlock(i: number, patch: Partial<EditorBlock>) {
     setForm((f) => f && { ...f, blocks: f.blocks.map((b, idx) => (idx === i ? { ...b, ...patch } : b)) })

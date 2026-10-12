@@ -5,6 +5,7 @@ import { Link, useParams } from 'react-router-dom'
 import { trainerApi, type QuizStats } from '@/lib/trainerApi'
 import { TrainerBlocks } from '@/components/TrainerBlocks'
 import { PageSkeleton } from '@/components/PageSkeleton'
+import { LoadError } from '@/components/LoadError'
 import { TrainerQuiz } from '@/components/TrainerQuiz'
 import { useAuthStore } from '@/store/auth'
 import { BrandLogo } from '@/components/BrandLogo'
@@ -84,6 +85,7 @@ export function TrainerModulePage() {
         Nur für Trainer. <Link to="/trainer" className="text-teal-600">Zum Login</Link>
       </div>
     )
+  if (mod.isError && !mod.data) return <LoadError onRetry={() => mod.refetch()} />
   if (mod.isLoading || !mod.data) return <PageSkeleton />
   const m = mod.data
 

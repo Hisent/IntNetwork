@@ -19,7 +19,7 @@ export const learnApi = {
   heartbeat: (key: string) => api.post(`/modules/${key}/heartbeat`),
   links: () => api.get<LinkCategory[]>('/links'),
   issueCertificate: () => api.post<CertificateData>('/certificate'),
-  verifyCertificate: (id: string) => api.get<CertificateData>(`/verify/${id}`),
+  verifyCertificate: (id: string) => api.get<CertificateData>(`/verify/${encodeURIComponent(id)}`),
 }
 
 export interface CertificateData {

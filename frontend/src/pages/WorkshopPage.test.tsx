@@ -5,7 +5,7 @@
 // werden. Ohne Query-Param bleibt das Verhalten exakt wie zuvor (leeres Feld,
 // kein Hinweistext).
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { cleanup, screen } from '@testing-library/react'
+import { cleanup, fireEvent, screen, waitFor } from '@testing-library/react'
 import { renderWithProviders } from '@/test/renderWithProviders'
 import { WorkshopPage } from '@/pages/WorkshopPage'
 import type { WorkshopDetail } from '@/types'
@@ -16,7 +16,7 @@ vi.mock('@/lib/api', () => ({
   errMsg: (_e: unknown, fallback = 'Fehler.') => fallback,
 }))
 
-import { api } from '@/lib/api'
+import { api, authApi } from '@/lib/api'
 
 const WORKSHOP: WorkshopDetail = {
   key: 'network',
@@ -39,6 +39,7 @@ function mockGet(routes: Record<string, unknown>) {
 afterEach(() => {
   cleanup()
   vi.clearAllMocks()
+  localStorage.clear()
 })
 
 describe('WorkshopPage — Kurs-Code aus dem Einladungslink', () => {
@@ -69,5 +70,36 @@ describe('WorkshopPage — Kurs-Code aus dem Einladungslink', () => {
 
     const nameInput = await screen.findByLabelText('Dein Name')
     expect(document.activeElement).toBe(nameInput)
+  })
+})
+
+describe('WorkshopPage — Sprachwahl', () => {
+  it('merkt sich die Wahl über Seiten hinweg und nimmt sie beim Beitritt in den Kurs mit', async () => {
+    mockGet({ '/workshops/network': WORKSHOP })
+    vi.mocked(authApi.join).mockResolvedValue({ data: { access_token: 'tok', course_name: 'Kurs', name: 'Ada', resume_code: null } })
+    vi.mocked(api.patch).mockResolvedValue({ data: { language: 'en' } })
+
+    renderWithProviders(<WorkshopPage />, { route: '/workshops/network', path: '/workshops/:key' })
+    fireEvent.click(await screen.findByRole('button', { name: 'en' }))
+    cleanup()
+
+    // „Neue Seite“: die Wahl kommt aus dem Browser-Speicher, nicht aus dem alten State.
+    renderWithProviders(<WorkshopPage />, { route: '/workshops/network?code=abc123', path: '/workshops/:key' })
+    fireEvent.change(await screen.findByLabelText('Your name'), { target: { value: 'Ada' } })
+    fireEvent.click(screen.getByRole('button', { name: /Start workshop/ }))
+
+    await waitFor(() => expect(api.patch).toHaveBeenCalledWith('/me/language', { language: 'en' }))
+  })
+
+  it('lässt die gespeicherte Teilnehmer-Sprache ohne ausdrückliche Wahl unangetastet', async () => {
+    mockGet({ '/workshops/network': WORKSHOP })
+    vi.mocked(authApi.join).mockResolvedValue({ data: { access_token: 'tok', course_name: 'Kurs', name: 'Ada', resume_code: null } })
+
+    renderWithProviders(<WorkshopPage />, { route: '/workshops/network?code=abc123', path: '/workshops/:key' })
+    fireEvent.change(await screen.findByLabelText('Dein Name'), { target: { value: 'Ada' } })
+    fireEvent.click(screen.getByRole('button', { name: /Workshop starten/ }))
+
+    await waitFor(() => expect(authApi.join).toHaveBeenCalled())
+    expect(api.patch).not.toHaveBeenCalled()
   })
 })

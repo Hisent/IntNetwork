@@ -6,7 +6,7 @@ import type { Lang } from '@/lib/i18n'
 export function LoadError({ onRetry, lang = 'de' }: { onRetry?: () => void; lang?: Lang }) {
   const en = lang === 'en'
   return (
-    <main className="min-h-dvh flex items-center justify-center bg-slate-50 p-6">
+    <main id="main-content" tabIndex={-1} className="min-h-dvh flex items-center justify-center bg-slate-50 p-6">
       <div className="max-w-sm text-center">
         <p className="text-lg font-semibold text-slate-900">{en ? 'Could not load' : 'Konnte nicht geladen werden'}</p>
         <p className="mt-2 text-sm text-slate-500">{en ? 'Please check your connection and try again.' : 'Bitte Verbindung prüfen und erneut versuchen.'}</p>

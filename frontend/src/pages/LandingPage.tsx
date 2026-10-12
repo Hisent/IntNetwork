@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { workshopApi } from '@/lib/workshopApi'
-import { useDocumentLang, type Lang } from '@/lib/i18n'
+import { useDocumentLang, usePublicLang } from '@/lib/i18n'
 import { WorkshopTheme } from '@/components/WorkshopTheme'
 import { BrandLogo } from '@/components/BrandLogo'
 import { ThemeToggle } from '@/components/ThemeToggle'
@@ -67,7 +67,7 @@ function LoadingCards({ label }: { label: string }) {
 }
 
 export function LandingPage() {
-  const [lang, setLang] = useState<Lang>('de')
+  const [lang, setLang] = usePublicLang()
   useDocumentLang(lang)
   const [query, setQuery] = useState('')
   const workshops = useQuery({ queryKey: ['workshops'], queryFn: () => workshopApi.list().then((r) => r.data) })

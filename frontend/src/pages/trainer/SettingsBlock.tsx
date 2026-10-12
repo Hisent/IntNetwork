@@ -19,6 +19,7 @@ export function SettingsBlock() {
             onChange={(e) => toggle.mutate(e.target.checked)} />
           Feedback-Kommentare für Teilnehmer aktiv
         </label>
+        {toggle.isError && <p role="alert" className="mt-2 text-sm text-rose-600">Speichern fehlgeschlagen.</p>}
       </QueryState>
     </Section>
   )
