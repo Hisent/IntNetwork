@@ -187,9 +187,10 @@ async def lab_run(data: LabRunRequest,
     felder = _auftragsfelder(data)
     auftrags_id = uuid.uuid4().hex
     # Zufalls-Token je Auftrag: Der Runner hält es nur im Speicher und legt es
-    # dem Ergebnis bei. Ein Teilnehmer-Lauf im Runner (gleiche uid, gleiches
-    # Volume) kann damit nicht mehr einfach out/<fremde-id>.json schreiben.
-    # Grenzen dieser Zwischenstufe: docs/lab-sicherheit.md, "Ergebnis-Token".
+    # dem Ergebnis bei. Zweite Schicht hinter der Trennung per uid im Runner
+    # (Läufe kommen dort nicht mehr an /queue): Ein untergeschobenes
+    # out/<fremde-id>.json ohne Token wird verworfen.
+    # Siehe docs/lab-sicherheit.md, "Ergebnis-Token".
     token = secrets.token_urlsafe(32)
     auftrag = {"kind": data.kind, **felder, "workspace": _workspace_kennung(teilnehmer),
                "token": token}

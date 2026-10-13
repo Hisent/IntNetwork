@@ -1,4 +1,4 @@
-Stand: v1.43.0 (2026-10-13) · Quelle: docs/lab-sicherheit.md, runner/worker.py, docker-compose.yml, backend/app/routers/lab.py
+Stand: v1.43.0 + Trennung der Läufe per uid (2026-10-13) · Quelle: docs/lab-sicherheit.md, runner/worker.py, runner/Dockerfile, docker-compose.yml, backend/app/routers/lab.py, runner/tests/isolation_check.py
 
 # IntLab: Sicherheit des Labs
 
@@ -31,7 +31,7 @@ Bewertung: `ansible` erlaubt beliebige Codeausführung, `openssl` und `git` nur 
 - **Das Backend führt nichts aus.** Es kennt `SECRET_KEY` und die Datenbank, nimmt das Playbook entgegen, legt es als Auftrag ab und wartet auf das Ergebnis.
 - **Der Runner hat kein Netzwerk:** `network_mode: "none"`, also keine Adresse, keine Namensauflösung, kein Socket.
 - **Austausch über ein gemeinsames Volume:** Das Backend schreibt `/queue/in/<id>.json`, der Runner antwortet mit `/queue/out/<id>.json`. Beide Seiten schreiben zuerst eine temporäre Datei und benennen sie atomar um.
-- Unprivilegierter Benutzer (uid 10001), `cap_drop: ALL`, `no-new-privileges`, `read_only` für das Wurzeldateisystem.
+- Jeder Lauf unter einer eigenen, unprivilegierten uid (10002 bis 10009, ohne Gruppen, ohne Capabilities), getrennt vom Worker und von gleichzeitig laufenden Läufen (Abschnitt „Trennung der Läufe per uid“). Worker: uid 0 mit `cap_drop: ALL` plus genau `CHOWN`, `DAC_OVERRIDE`, `SETUID`, `SETGID`, `KILL`; dazu `no-new-privileges` und `read_only` für das Wurzeldateisystem.
 - Einziger Schreibort ist ein `tmpfs` mit `noexec` (64 MB). Dass Ansible auf einem `noexec`-Dateisystem läuft, wurde geprüft (Module laufen über den Python-Interpreter).
 - Zeitgrenze je Lauf (`RUNNER_TIMEOUT`, Standard 30 s), Obergrenze für die Ergebnis-Ausgabe, begrenzte Parallelität (`RUNNER_MAX_PARALLEL`, Standard 2). Die Ausgabe des Kindprozesses wird zuerst in einer temporären Datei im `tmpfs` gesammelt; unbegrenzte Ausgabe kann den RAM des Workers nicht füllen.
 - CPU-, Speicher- und Prozessgrenzen am Container.
@@ -70,29 +70,96 @@ Zusätzlich setzt der Runner für `git` `GIT_ALLOW_PROTOCOL=file` in der Prozess
 
 Wichtig für Autoren von Lab-Vorlagen: Es bleibt eine Allowlist, keine Blockliste. Ein neues Unterkommando funktioniert erst, wenn es bewusst in `runner/worker.py` freigeschaltet wird; sonst scheitert die Vorlage mit einer regulären `rc=2`-Meldung, nicht mit einem Absturz.
 
-### Ergebnis-Token (Zwischenstufe gegen gefälschte Ergebnisse, seit v1.43)
+### Ergebnis-Token (zweite Schicht gegen gefälschte Ergebnisse, seit v1.43)
 
 - Das Backend legt in jeden Auftrag ein Zufalls-Token (`secrets.token_urlsafe(32)`, `backend/app/routers/lab.py`).
 - Der Runner liest den Auftrag beim Beanspruchen und löscht die Datei sofort (`_auftrag_lesen` in `runner/worker.py`). Danach existiert das Token nur noch im Speicher des Workers; er legt es dem Ergebnis bei.
 - Das Backend nimmt `out/<id>.json` nur an, wenn das Token stimmt und alle Felder vorhanden sind. Sonst antwortet es mit `502` und klarer Meldung statt eines ungeprüft durchgereichten Inhalts.
 
-Was das verhindert: das „blinde“ Fälschen. Ein Playbook, das einfach `out/<fremde-id>.json` schreibt, wird verworfen; ebenso kaputte oder unvollständige Ergebnisdateien (vorher `500`).
-
-Was es nicht verhindert, solange Playbook und Worker dieselbe uid haben:
-
-1. **Lesen des Auftrags vor dem Beanspruchen.** `in/<id>.json` liegt lesbar im Volume, bis der Worker sie beansprucht (im Normalfall höchstens `RUNNER_POLL_SECONDS`, 0,2 s; bei voller Warteschlange `RUNNER_MAX_QUEUE_DEPTH` beliebig lange, und die Warteschlange kann der Angreifer mit eigenen langen Läufen füllen). Ein Playbook, das `in/` in einer Schleife abfragt, liest das Token und kann damit ein gültiges Ergebnis schreiben oder den Auftrag austauschen.
-2. **Lesen des Worker-Speichers.** Gleiche uid und gleiche (leere) Capability-Menge: `/proc/<pid>/mem` und `ptrace` des Workers sind erlaubt, sofern der Host es nicht per Yama unterbindet (`kernel.yama.ptrace_scope` ≥ 1; Ubuntu-Standard 1, Debian-Standard 0). Auf das Host-Setting darf sich das Bedrohungsmodell nicht verlassen.
-3. **Stören.** Aufträge und Ergebnisse löschen, den Worker per Signal beenden (gleiche uid).
+Das Token stammt aus der Zeit vor der Trennung per uid. Damals ließ es sich umgehen (Auftrag vor dem Beanspruchen lesen, Speicher des Workers lesen). Mit der Trennung kommt ein Lauf an beides nicht mehr heran. Das Token bleibt als zweite Schicht für den Fall, dass die Trennung einmal nicht greift, und fängt weiterhin kaputte oder unvollständige Ergebnisdateien ab.
 
 Rollout: Backend und Runner gemeinsam ausrollen. Ein neuer Runner mit altem Backend funktioniert (kein Token im Auftrag, keines im Ergebnis). Ein neues Backend mit altem Runner verwirft jedes Ergebnis mit `502`.
+
+## Trennung der Läufe per uid
+
+Umgesetzt am 13.10.2026. Vorher lief ein Playbook unter der uid des Workers und konnte in `/queue` fremde Aufträge lesen und löschen, mit dem mitgelesenen Token Ergebnisse fälschen, fremde Arbeitsverzeichnisse lesen und ändern, den Worker beenden und dessen Speicher lesen.
+
+### Aufbau
+
+| Wer | uid | Rechte |
+|---|---|---|
+| Worker (`worker.py`) | 0 | `CHOWN`, `DAC_OVERRIDE`, `SETUID`, `SETGID`, `KILL`, sonst nichts |
+| Lauf (Playbook, `openssl`, `git`) | eine aus 10002 bis 10009 | keine Capability, keine Gruppe, `umask 077` |
+| Backend | 10001 | Gruppe 10001 auf `/queue` |
+
+- **Eine uid je gleichzeitigem Lauf.** Der Worker vergibt die uids exklusiv und reihum. Mit einer gemeinsamen Job-uid könnten gleichzeitige Läufe einander lesen und beenden; so sind auch Teilnehmer untereinander getrennt. Acht uids sind die Obergrenze gleichzeitiger Läufe.
+- **`/queue`** gehört `root:10001`, Modus `0750`, `in/` und `out/` `0770`: Worker und Backend ja, Läufe nein. Der Worker setzt das bei jedem Start.
+- **Arbeitsverzeichnis.** Vor dem Lauf gibt der Worker es samt Inhalt der uid des Laufs (`0700`), danach nimmt er es zurück (`root`, `0700`). In Ruhe kommt keine Job-uid hinein, auch nicht der nächste Lauf mit derselben uid. Das übergeordnete Verzeichnis ist nicht auflistbar (`0711`). Ein Arbeitsverzeichnis hat höchstens einen Lauf gleichzeitig.
+- **Umgebung.** `HOME`, `TMPDIR` und die Ansible-Temp-Verzeichnisse liegen im Laufverzeichnis des Laufs, bei `openssl`/`git` ist `HOME` das Arbeitsverzeichnis. Nichts zeigt nach `/queue`. Das Ergebnis-Token steht nie in einer Umgebung oder Kommandozeile.
+- **Zeitgrenze und Aufräumen.** Bei Zeitüberschreitung beendet der Worker die Prozessgruppe. Nach jedem Lauf beendet er zusätzlich alle Prozesse der Job-uid, auch solche, die die Prozessgruppe mit `setsid()` verlassen haben, und löscht, was der Lauf in `/tmp` und `/dev/shm` hinterlassen hat. Gelingt das Beenden nicht, bleiben uid und Arbeitsverzeichnis bis zum Neustart gesperrt (`Job-Slot uid … GESPERRT` im Log).
+
+### Verworfene Alternativen
+
+| Alternative | Warum nicht |
+|---|---|
+| Worker unprivilegiert, Start über ein setuid-Hilfsprogramm (`setpriv`, `su`) | `no-new-privileges` macht setuid-Bits und Datei-Capabilities wirkungslos, und die Option soll bleiben |
+| Worker als uid 10001 mit Capabilities | Docker gibt die Capabilities aus `cap_add` nur uid 0 |
+| Zwei Container (Worker und Läufe getrennt) | bräuchte den Docker-Socket oder eine zweite Warteschlange |
+| Eine gemeinsame Job-uid | gleichzeitige Läufe könnten einander lesen und beenden |
+| `CAP_KILL` einsparen (Hilfsprozess unter der Job-uid ruft `kill(-1)`) | den Hilfsprozess könnte der Lauf selbst zuerst beenden |
+
+### Was die Trennung verhindert
+
+Ein Lauf kann nicht mehr:
+
+- `/queue`, `/queue/in`, `/queue/out` auflisten, lesen, beschreiben oder dort löschen,
+- ein fremdes Arbeitsverzeichnis lesen oder ändern, die Liste der Arbeitsverzeichnisse sehen,
+- dem Worker oder einem fremden Lauf ein Signal schicken,
+- `/proc/<pid>/environ`, `mem`, `cwd`, `fd` des Workers oder eines fremden Laufs lesen,
+- die Zeitgrenze mit `setsid()` überleben.
+
+### Fail-closed
+
+Beim Start probiert der Worker aus, was er braucht (`chown` an eine Job-uid, Schreiben in deren Verzeichnis, Prozess unter der Job-uid starten und beenden, Prüfung auf leere Capabilities und `NoNewPrivs`). Scheitert ein Schritt, etwa weil `user: "0:0"` oder ein `cap_add` in der Compose-Datei fehlt:
+
+- Im Log steht `ANSIBLE-LAB DEAKTIVIERT (fail-closed): <Schritt und Ursache>`.
+- Jeder Ansible-Auftrag endet mit `rc=2` und der Meldung „Das Ansible-Lab ist auf diesem Server deaktiviert …“ (sichtbar im Widget).
+- `openssl` und `git` laufen weiter, unter der uid des Workers wie vor der Trennung. Sie führen keinen frei geschriebenen Code aus, und die Argumentprüfung hält sie im Arbeitsverzeichnis.
+
+Entwicklungsschalter (unsicher): `RUNNER_ISOLATION=aus-unsicher` lässt Playbooks ohne Trennung laufen. Nur für lokale Entwicklung ohne root und Container und für die Unit-Tests. Der Wert steht in keiner Compose-Datei und in keinem Image; ein Worker mit uid 0 verweigert ihn.
+
+### Trennung nachprüfen
+
+Der Test stellt echte Aufträge und lässt ein bösartiges Playbook alles versuchen, was oben als verhindert steht. Er läuft in der CI bei jedem Push (Job `runner-isolation`).
+
+Auf einem Rechner mit Docker, im Repository (eigenes Compose-Projekt, ein laufendes System bleibt unberührt):
+
+```text
+bash ops/lab-isolation-test.sh
+```
+
+Gegen das laufende System, zum Beispiel auf dem Coolify-Server:
+
+```text
+docker exec -i <backend-container> python - < runner/tests/isolation_check.py
+```
+
+Das belegt für etwa eine Minute zwei Läufe. Jede Prüfung erscheint als Zeile `OK …` oder `FEHLER …`; Exit-Code 0 heißt: alles bestanden.
+
+| Prüfung | Inhalt |
+|---|---|
+| (a) | Normales Playbook läuft unter einer Job-uid, liefert ein Ergebnis mit Token, zweiter Lauf idempotent |
+| (b) | Bösartiges Playbook scheitert an `/queue`, an fremden Arbeitsverzeichnissen und am Worker (Signal, `environ`, `mem`) |
+| (c) | Endlos-Playbook mit `setsid()`-Kindern wird an der Zeitgrenze beendet, danach läuft keiner seiner Prozesse mehr |
+| (d) | Kursvorlagen für `openssl` (darunter die Post-Quanten-Vorlage) und `git` laufen, `openssl version` ist mindestens 3.5 |
+| (e) | Zwei gleichzeitige Läufe haben verschiedene uids und kommen nicht aneinander heran |
 
 ## Bekannte Restrisiken (nicht abgedeckt)
 
 - **Ausbruch aus dem Container.** Eine Lücke im Kernel oder in der Container-Laufzeit hebelt die Isolierung aus. Wer das im Bedrohungsmodell braucht, muss auf VM-Isolierung wechseln (eigene Maschine, Firecracker, gVisor).
 - **Rechenzeit.** Angemeldete Teilnehmer können den Runner beschäftigen. Zeitgrenze, Parallelitätsgrenze und CPU-Limit bremsen das, verhindern es aber nicht vollständig.
-- **Böswillig abgekoppelte Prozesse.** Ein Programm kann die Prozessgruppe mit `setsid()` verlassen. Es blockiert den Worker nicht mehr über eine offene Ausgabe-Pipe, läuft aber bis zum Container-Limit weiter. Eine harte Grenze braucht einen separaten Job-Container oder eine VM/cgroup je Lauf.
-- **Alles im Runner-Container.** Ein Playbook kann das Image und die Arbeitsverzeichnisse anderer Teilnehmer im selben Container lesen. Dort liegen keine Geheimnisse und keine Nutzerdaten, aber es ist keine Trennung wie zwischen zwei Maschinen.
-- **Die gemeinsame Warteschlange `/queue`.** Der Runner braucht dort Schreibrechte, und ein Playbook läuft mit genau diesen Rechten. Ein böswilliger Teilnehmer kann fremde Aufträge und Ergebnisse lesen, verändern oder löschen, fremde Läufe stören oder deren Ausgabe fälschen. Nach außen (Backend, Datenbank, Netz) führt von dort kein Weg. Wer das nicht tragen will, gibt `ansible` nicht frei. `openssl` und `git` sind enger, aber keine absolute Garantie: Es bleibt eine von Hand gepflegte Allowlist, kein Beweis, dass jedes zugelassene Unterkommando in jeder Argumentkombination harmlos ist. Das Ergebnis-Token erschwert das Fälschen, schließt die Lücke aber nicht.
+- **Was Läufe trotz Trennung gemeinsam haben.** Alle Läufe teilen sich Kernel, Image, Rechenzeit, das 64-MB-`tmpfs` und die Prozessgrenze (128). Die Prozessliste ist nicht verborgen: Ein Lauf sieht die Kommandozeilen anderer Läufe, darin den Pfad des fremden Arbeitsverzeichnisses und dessen `extra_vars` (deshalb keine Geheimnisse in `extra_vars`), nicht aber Umgebung, Speicher oder Dateien. `/tmp` und `/dev/shm` sind für alle beschreibbar; der Worker räumt sie nach jedem Lauf auf. Ein Lauf kann das `tmpfs` füllen oder die Prozessgrenze ausschöpfen und damit andere Läufe scheitern lassen, solange er läuft (höchstens `RUNNER_TIMEOUT`).
+- **Der Worker ist root im Container.** Mit `SETUID`, `CHOWN` und `DAC_OVERRIDE` hat er vollen Zugriff auf `/queue` und alle Arbeitsverzeichnisse (wie vorher unter uid 10001). Neu ist: Ein ausnutzbarer Fehler im Worker selbst hätte diese Capabilities. Das Netz bleibt aus, das Wurzeldateisystem nur lesbar, nach außen führt nur `/queue`.
 - **Missbrauch durch Berechtigte.** Wer sich anmelden darf, darf Code ausführen. Der Teilnehmerkreis ist die eigentliche Zugangskontrolle.
 
 Wann man das Lab besser auslässt:
@@ -100,30 +167,6 @@ Wann man das Lab besser auslässt:
 - Der Teilnehmerkreis ist nicht vertrauenswürdig (offene Anmeldung, externe Gäste ohne Aufsicht).
 - Der Host trägt andere, sensible Dienste, sodass eine Container-Lücke entsprechend teuer wäre.
 - Niemand hat die Auslastung im Blick.
-
-## Offener Umsetzungsplan: Läufe unter einer zweiten uid (NICHT umgesetzt)
-
-Nicht umgesetzt, weil es sich ohne Docker/Linux nicht belastbar testen lässt: `setuid()` braucht Root bzw. Capabilities, und deren Zusammenspiel mit `cap_drop`, `no-new-privileges`, Volume-Rechten und `tmpfs` ist der riskante Teil. Ein Fehler macht das Lab unbenutzbar oder gibt Playbooks Root im Container.
-
-Ziel: Worker = uid 0 mit minimalen Capabilities, Läufe = uid 10002 ohne Capabilities. Dann kann ein Lauf weder `/queue` noch den Worker-Prozess anfassen; die Punkte 1 bis 3 des Ergebnis-Tokens entfallen. Das Ergebnis-Token bleibt danach als zweite Schicht sinnvoll.
-
-Schritte (Zeilenangaben der Quelle beziehen sich auf den Stand der Dokumentation):
-
-1. `runner/Dockerfile`: zweiten Benutzer `labjob` (uid/gid 10002) anlegen; `USER labrunner` entfernen (Worker startet als root); `/queue/in` und `/queue/out` als `root:10001` mit Modus `0770` anlegen (10001 ist uid/gid des Backend-Containers, `backend/Dockerfile`). Das Backend schreibt über die Gruppe, `labjob` kommt nicht hinein. Kein `0777` mehr.
-2. `docker-compose.yml`, Dienst `runner`: `cap_drop: ALL` behalten, dazu `cap_add: [SETUID, SETGID, KILL, CHOWN, DAC_OVERRIDE]`. `KILL`: Root ohne `CAP_KILL` darf Prozesse einer fremden uid nicht beenden, sonst greift die Zeitgrenze (`os.killpg`) nicht. `CHOWN` und `DAC_OVERRIDE`: Arbeitsverzeichnisse an `labjob` übergeben und aufräumen. `no-new-privileges` und `read_only` bleiben; `tmpfs` bleibt `mode=1777,noexec`.
-3. `runner/worker.py`:
-   - `_mit_zeitgrenze_ausfuehren`: `subprocess.Popen(..., user=JOB_UID, group=JOB_GID, extra_groups=[])` mit neuen Konstanten aus `RUNNER_JOB_UID` (Standard: keine Trennung, damit Tests und lokale Läufe unverändert bleiben). Der Wechsel von uid 0 auf 10002 leert die Capability-Mengen des Kindes.
-   - `_workspace`, `_run_ansible` (`mkdtemp`) und `_run_werkzeug`: jedes Verzeichnis, in das der Lauf schreibt (`lab_dir`, `HOME`, `ANSIBLE_LOCAL_TEMP`), nach dem Anlegen per `os.chown(..., JOB_UID, JOB_GID)` übergeben, Modus `0700`.
-   - `_antwort_schreiben` und `_warteschlange_vorbereiten`: `chmod 0o666`/`0o777` durch `0o640`/`0o770` ersetzen und `os.chown(..., 0, BACKEND_GID)`.
-   - Startprüfung in `main()`: Läuft der Worker als uid 0 ohne gesetzte `RUNNER_JOB_UID`, nicht starten (sonst liefen Playbooks als root).
-4. Bestehendes Volume: `lab_queue` einmal entfernen. Rechte werden nur in ein leeres Volume übernommen.
-5. Testschritte (Linux mit Docker, vor dem Merge):
-   - `docker compose up runner`; Playbook mit `command: id` muss uid=10002 zeigen, und `grep Cap /proc/self/status` muss `CapEff: 0000000000000000` liefern.
-   - Playbook `command: ls /queue/in` muss „Permission denied“ liefern; `cat /proc/1/environ` und `kill -9 1` müssen abgelehnt werden.
-   - Playbook `command: sleep 300` wird nach `RUNNER_TIMEOUT` beendet (`docker top` zeigt keinen `sleep` mehr).
-   - Regulärer Lauf zweimal (Idempotenz-Übung), je einmal `openssl` und `git`.
-   - Backend-Seite: Auftrag wird angenommen, Ergebnis gelesen und gelöscht (kein `PermissionError` im Backend-Log).
-   - `docker inspect` zeigt unverändert `NetworkMode: none`.
 
 ## Ein- und Ausschalten
 
@@ -145,8 +188,9 @@ Erkennen, ob es aus ist: Als angemeldeter Teilnehmer `GET /api/lab/status` aufru
 
 - **Basis-Image und OpenSSL:** Der Runner baut auf `python:3.12-slim-trixie` (Debian 13). Das Paket `openssl` ist dort OpenSSL 3.5 (LTS; geprüft am 12.10.2026: `3.5.7-1~deb13u3`). Mindestversion 3.5, weil die Vorlage „Post-Quanten-Schlüssel“ ML-KEM-768 und ML-DSA-65 erzeugt (`genpkey -algorithm ML-KEM-768` bzw. `ML-DSA-65`); ältere Versionen brechen mit „Algorithm … not found“ ab. Alle übrigen Befehle des PKI-Lehrgangs laufen ab 3.0. Nach einem Wechsel des Debian-Release prüfen: `docker exec <runner-container> openssl version`.
 - **Logs:** Der Runner schreibt nach stderr (`docker logs <runner-container>`). Playbook-Inhalte landen bewusst nicht im Log.
-- **Prüfen, ob der Runner arbeitet:** `docker logs --tail 5 <runner-container>`; erwartet wird beim Start `Lab-Runner bereit. Warteschlange: /queue, … Netzwerk: keines`. Ob die Kette insgesamt steht, zeigt am ehrlichsten ein Playbook, das zweimal ausgeführt wird.
+- **Prüfen, ob der Runner arbeitet:** `docker logs --tail 5 <runner-container>`; erwartet werden beim Start `Trennung aktiv: Läufe unter uid 10002-10009, ohne Capabilities.` und `Lab-Runner bereit. Warteschlange: /queue, … Netzwerk: keines, …, Trennung: uid je Lauf`. Steht dort `ANSIBLE-LAB DEAKTIVIERT`, nennt dieselbe Zeile die Ursache. Ob die Kette insgesamt steht, zeigt am ehrlichsten ein Playbook, das zweimal ausgeführt wird.
 - **Isolierung nachprüfen** (nach jedem größeren Plattform-Update): `docker inspect <runner-container> --format '{{.HostConfig.NetworkMode}}'` muss `none` liefern. Sonst das Lab abschalten, bis das geklärt ist.
-- **`PermissionError: '/queue/in'` im Runner-Log:** Das Volume gehört `root`, der Runner läuft unprivilegiert. Docker übernimmt die Eigentümerschaft aus dem Image nur, wenn das Volume beim ersten Start leer ist. Volume einmal entfernen (`docker volume rm <projekt>_lab_queue`) und neu ausrollen. Der Runner stirbt in diesem Fall nicht, sondern meldet die Ursache und versucht es alle fünf Sekunden erneut.
+- **Rechte von `/queue`:** Der Worker setzt sie bei jedem Start selbst (`root:10001`, `0750`/`0770`), auch auf einem Volume einer älteren Fassung (uid 10001, `0777`). Das Volume muss dafür nicht mehr entfernt werden. Gelingt es nicht, meldet der Runner alle fünf Sekunden `Warteschlange … lässt sich nicht für Läufe schließen` und nimmt keine Aufträge an. Rollout einer bestehenden Installation: Seite „Betrieb“, Abschnitt „Rollout: Trennung der Lab-Läufe“.
+- **`Job-Slot uid … GESPERRT` im Runner-Log:** Prozesse eines Laufs ließen sich nicht beenden. Der Slot und das betroffene Arbeitsverzeichnis bleiben außer Betrieb, die übrigen arbeiten weiter. Runner-Container neu starten.
 - **Dauerlast:** `RUNNER_MAX_PARALLEL` senken oder das Lab abschalten. Läufe, die regelmäßig in die Zeitgrenze laufen, deuten eher auf zu ambitionierte Übungs-Playbooks hin als auf Missbrauch.
 - **Speicher:** Das `tmpfs` ist auf 64 MB begrenzt und nach einem Neustart des Containers leer. Arbeitsverzeichnisse sind Übungsstände, kein Speicher.

@@ -19,6 +19,12 @@ Auftrag und Ergebnis laufen über ein gemeinsames Volume:
 Was das NICHT löst: Ein Playbook kann weiterhin im Runner-Container Rechenzeit
 verbrauchen und in dessen Dateisystem schreiben. Dafür gelten weiter Zeitgrenze,
 Parallelitätsgrenze, tmpfs und die Container-Limits.
+
+Trennung der Läufe vom Worker (Stand 2026-10-13): Der Worker läuft als uid 0
+mit genau fünf Capabilities, jeder Lauf unter einer eigenen, exklusiv
+vergebenen uid ohne jede Capability (JOB_UIDS). Ein Lauf kommt damit weder an
+/queue noch an den Worker-Prozess noch an fremde Arbeitsverzeichnisse. Siehe
+Abschnitt "Trennung der Läufe" weiter unten und docs/lab-sicherheit.md.
 """
 from __future__ import annotations
 
@@ -29,11 +35,14 @@ import re
 import shlex
 import shutil
 import signal
+import stat
 import subprocess
 import sys
 import tempfile
+import threading
 import time
 from concurrent.futures import ThreadPoolExecutor
+from contextlib import contextmanager
 from pathlib import Path
 
 QUEUE = Path(os.getenv("RUNNER_QUEUE_DIR", "/queue"))
@@ -91,6 +100,280 @@ def _clip(text: str) -> tuple[str, bool]:
     return roh[:MAX_OUTPUT_BYTES].decode("utf-8", "ignore") + "\n\n[Ausgabe gekürzt]", True
 
 
+# ---------------------------------------------------------------------------
+# Trennung der Läufe (docs/lab-sicherheit.md, "Trennung der Läufe per uid").
+# ---------------------------------------------------------------------------
+#
+# Ein Playbook ist beliebiger Code. Lief es unter der uid des Workers, konnte
+# es /queue lesen und beschreiben (fremde Aufträge, Ergebnis-Token), den Worker
+# beenden und dessen Speicher lesen. Deshalb:
+#   - Worker = uid 0 mit CHOWN, DAC_OVERRIDE, SETUID, SETGID, KILL (compose).
+#     Ein unprivilegierter Worker kann keine uid wechseln: setuid-Hilfsprogramme
+#     und Datei-Capabilities sind durch "no-new-privileges" wirkungslos, und
+#     Docker gibt einem Nicht-root-Benutzer keine Capabilities aus cap_add.
+#   - Jeder Lauf = eine uid aus JOB_UIDS, exklusiv für die Dauer des Laufs,
+#     ohne Gruppen, ohne Capabilities. Eine uid je Slot statt EINER Job-uid:
+#     sonst könnten gleichzeitige Läufe einander lesen und beenden.
+#   - /queue gehört root:QUEUE_GID (0750, in/ und out/ 0770): Worker und
+#     Backend ja, Läufe nein.
+# Standard ist die Trennung. Kann sie nicht eingerichtet werden, bleibt die Art
+# "ansible" gesperrt (fail-closed, _ansible_sperrgrund).
+ISOLATION_UNSICHER = "aus-unsicher"
+# UNSICHER, nur für lokale Entwicklung/Tests ohne root (macOS, Windows, CI-Job
+# "runner"): RUNNER_ISOLATION=aus-unsicher lässt Playbooks unter der uid des
+# Workers laufen. Nie im Container setzen - als uid 0 wird der Wert verweigert.
+ISOLATION = os.getenv("RUNNER_ISOLATION", "uid")
+# = Benutzer labjob10002..labjob10009 in runner/Dockerfile. Mehr gleichzeitige
+# Läufe als uids gibt es nicht: ein Lauf wartet dann auf einen freien Slot.
+JOB_UIDS = tuple(range(10002, 10010))
+# Gruppe des Backend-Containers (backend/Dockerfile: useradd --uid 10001).
+QUEUE_GID = int(os.getenv("RUNNER_QUEUE_GID", "10001"))
+# Für alle beschreibbare Orte im Container; was ein Lauf dort hinterlässt,
+# wird nach dem Lauf entfernt (sonst erbte es der nächste Lauf im selben Slot).
+GEMEINSAME_SCHREIBORTE = (Path("/tmp"), Path("/dev/shm"))
+KILL_RUNDEN = 40
+
+_slots = threading.Condition()
+_freie_uids: list[int] = []
+_belegte_arbeitsplaetze: set[Path] = set()
+_isolation_aktiv = False
+_isolation_fehler = "Die Startprüfung der Trennung ist nicht gelaufen."
+
+# Läuft unter der Job-uid und meldet, was ein Lauf tatsächlich an Rechten hat.
+_PROBE = (
+    "import os,time;"
+    "s=dict(z.split(':\\t',1) for z in open('/proc/self/status').read().splitlines() if ':\\t' in z);"
+    "print(os.getuid(),os.getgid(),os.getgroups(),int(s['CapPrm'],16)|int(s['CapEff'],16),"
+    "s.get('NoNewPrivs'),flush=True);time.sleep(30)"
+)
+
+
+def _eigene_uid() -> int:
+    return os.getuid() if hasattr(os, "getuid") else -1  # Windows: nur Tests
+
+
+def _isolation_probe(uid: int) -> str | None:
+    """Probiert ECHT aus, was die Trennung braucht, statt Capability-Bits zu
+    lesen: eine fehlende Capability zeigt sich genau an dem Schritt, der sie
+    braucht. Liefert die Ursache als Text oder None, wenn alles stimmt."""
+    schritt = "Probeverzeichnis anlegen"
+    verzeichnis = proc = None
+    try:
+        verzeichnis = Path(tempfile.mkdtemp(prefix="probe-"))
+        schritt = "chown an die Job-uid (CAP_CHOWN)"
+        os.chown(verzeichnis, uid, uid)
+        schritt = "Schreiben in ein fremdes 0700-Verzeichnis (CAP_DAC_OVERRIDE)"
+        (verzeichnis / "probe").write_text("", encoding="utf-8")
+        schritt = "Prozess unter der Job-uid starten (CAP_SETUID/CAP_SETGID)"
+        proc = subprocess.Popen([sys.executable, "-c", _PROBE], stdout=subprocess.PIPE,
+                                text=True, user=uid, group=uid, extra_groups=[])
+        zeile = proc.stdout.readline().strip()
+        schritt = "Prozess der Job-uid beenden (CAP_KILL)"
+        os.kill(proc.pid, signal.SIGKILL)
+        proc.wait()
+    except (OSError, subprocess.SubprocessError) as fehler:
+        return f"{schritt} fehlgeschlagen: {fehler}"
+    finally:
+        if proc is not None:
+            proc.stdout.close()
+        if verzeichnis is not None:
+            shutil.rmtree(verzeichnis, ignore_errors=True)
+    erwartet = f"{uid} {uid} [] 0 1"
+    if zeile != erwartet:
+        return (f"Ein Lauf hätte nicht die erwarteten Rechte (uid gid Gruppen Capabilities "
+                f"NoNewPrivs): {zeile!r} statt {erwartet!r} - fehlt "
+                f"security_opt no-new-privileges?")
+    return None
+
+
+def _isolation_einrichten() -> None:
+    """Startprüfung. Danach gilt genau einer von drei Zuständen: Trennung aktiv
+    (Slots vergeben), ausdrücklich unsicher (nur Nicht-root) oder gesperrt."""
+    global _isolation_aktiv, _isolation_fehler
+    uid = _eigene_uid()
+    if ISOLATION == ISOLATION_UNSICHER and uid != 0:
+        log("WARNUNG: RUNNER_ISOLATION=aus-unsicher - Läufe sind NICHT vom Worker getrennt "
+            "und können /queue lesen und schreiben. Nur für lokale Entwicklung.")
+        return
+    if ISOLATION == ISOLATION_UNSICHER:
+        fehler = "RUNNER_ISOLATION=aus-unsicher bei einem Worker mit uid 0 - Playbooks liefen als root."
+    elif uid != 0:
+        fehler = (f"Der Worker läuft als uid {uid} statt 0 und kann keine uid wechseln "
+                  f"(docker-compose.yml, Dienst runner: user \"0:0\" und cap_add).")
+    else:
+        fehler = _isolation_probe(JOB_UIDS[0])
+    if fehler is None:
+        with _slots:
+            _freie_uids[:] = JOB_UIDS
+        _isolation_aktiv = True
+        log(f"Trennung aktiv: Läufe unter uid {JOB_UIDS[0]}-{JOB_UIDS[-1]}, ohne Capabilities.")
+    else:
+        _isolation_fehler = fehler
+        log(f"ANSIBLE-LAB DEAKTIVIERT (fail-closed): {fehler} Playbooks werden abgelehnt, "
+            f"bis die Trennung steht. openssl/git laufen weiter unter uid {uid} - sie führen "
+            f"keinen Teilnehmer-Code aus (Argumentprüfung). Siehe docs/lab-sicherheit.md.")
+
+
+def _ansible_sperrgrund() -> str | None:
+    if _isolation_aktiv or (ISOLATION == ISOLATION_UNSICHER and _eigene_uid() != 0):
+        return None
+    return _isolation_fehler
+
+
+def _uebergeben(pfad: Path, uid: int | None) -> None:
+    """Gibt `pfad` samt Inhalt der uid (Verzeichnis: 0700). Ohne Trennung nichts.
+
+    os.fwalk + dir_fd + follow_symlinks=False: der Worker ist root und darf sich
+    von einem im Arbeitsverzeichnis hinterlegten Symlink nicht nach /queue
+    führen lassen. Aufrufer sorgen dafür, dass dabei kein Prozess eines Laufs
+    mehr in `pfad` arbeitet (_job, _job_prozesse_beenden)."""
+    if uid is None:
+        return
+    # Erst an root, dann chmod, dann an die uid: ohne CAP_FOWNER darf auch root
+    # die Rechte nur an eigenen Dateien ändern.
+    os.chown(pfad, 0, 0, follow_symlinks=False)
+    istverzeichnis = stat.S_ISDIR(os.lstat(pfad).st_mode)
+    if istverzeichnis:
+        os.chmod(pfad, 0o700)
+    os.chown(pfad, uid, uid, follow_symlinks=False)
+    if not istverzeichnis:
+        return
+    for _wurzel, ordner, dateien, fd in os.fwalk(pfad):
+        for name in ordner + dateien:
+            os.chown(name, uid, uid, dir_fd=fd, follow_symlinks=False)
+
+
+def _loeschen(pfad: Path) -> None:
+    if _isolation_aktiv:
+        try:
+            # Erst an root: in einem Sticky-Verzeichnis eines Laufs dürfte sonst
+            # auch root (ohne CAP_FOWNER) nichts löschen.
+            _uebergeben(pfad, 0)
+        except OSError:
+            pass
+    if pfad.is_dir() and not pfad.is_symlink():
+        shutil.rmtree(pfad, ignore_errors=True)
+    else:
+        try:
+            pfad.unlink(missing_ok=True)
+        except OSError:
+            pass
+
+
+def _prozesse_der_uid(uid: int) -> list[int]:
+    """Alle Prozesse, deren reale, effektive oder gespeicherte uid `uid` ist.
+
+    Aus /proc/<pid>/status und nicht aus dem Eigentümer von /proc/<pid>: der
+    gehört root, sobald ein Prozess sich mit prctl(PR_SET_DUMPABLE, 0)
+    versteckt. Zombies zählen mit - ein beendeter Thread-Gruppenführer steht
+    als Zombie da, während seine Threads weiterlaufen."""
+    pids = []
+    for eintrag in os.listdir("/proc"):
+        if not eintrag.isdigit():
+            continue
+        try:
+            status = Path("/proc", eintrag, "status").read_text(encoding="utf-8", errors="replace")
+        except OSError:
+            continue  # inzwischen beendet
+        for zeile in status.splitlines():
+            if zeile.startswith("Uid:"):
+                if str(uid) in zeile.split()[1:]:
+                    pids.append(int(eintrag))
+                break
+    return pids
+
+
+def _job_prozesse_beenden(uid: int | None, *, finden=_prozesse_der_uid, senden=os.kill,
+                          ernten=None, warten=time.sleep) -> bool:
+    """Beendet ALLE Prozesse der Job-uid, auch solche, die ihre Prozessgruppe
+    mit setsid() verlassen haben. True, wenn danach keiner mehr existiert.
+
+    Je Runde erst SIGSTOP an alle, dann SIGKILL: ein angehaltener Prozess kann
+    nicht mehr forken, ein Wettlauf "schneller forken als der Worker zählt"
+    endet damit nach wenigen Runden. Verwaiste Kinder hängen am Worker (PID 1
+    im Container) und werden hier geerntet, sonst blieben sie als Zombies
+    stehen und zählten gegen das pids-Limit.
+    """
+    if uid is None:
+        return True
+    ernten = ernten or os.waitpid
+    for _ in range(KILL_RUNDEN):
+        pids = finden(uid)
+        if not pids:
+            return True
+        # ponytail: pid-Wiederverwendung zwischen Zählen und Signal ist nicht
+        # ausgeschlossen (Fenster: Mikrosekunden). Falls das je zählt: pidfd_open
+        # + pidfd_send_signal.
+        for signalnummer in (signal.SIGSTOP, signal.SIGKILL):
+            for pid in pids:
+                try:
+                    senden(pid, signalnummer)
+                except ProcessLookupError:
+                    pass
+        for pid in pids:
+            try:
+                ernten(pid, os.WNOHANG)
+            except ChildProcessError:
+                pass  # nicht unser Kind: erntet ein anderer (z. B. tini)
+        warten(0.05)
+    return not finden(uid)
+
+
+def _slot_aufraeumen(arbeitsplatz: Path, uid: int) -> bool:
+    """Nach dem Lauf: Prozesse der uid beenden, Arbeitsverzeichnis zurück an
+    root (in Ruhe kommt keine Job-uid hinein - auch nicht der nächste Lauf im
+    selben Slot), Hinterlassenschaften an gemeinsamen Orten entfernen."""
+    try:
+        if not _job_prozesse_beenden(uid):
+            raise OSError("Prozesse der uid lassen sich nicht beenden")
+        os.chown(arbeitsplatz, 0, 0, follow_symlinks=False)
+        os.chmod(arbeitsplatz, 0o700)
+        for ort in GEMEINSAME_SCHREIBORTE:
+            if not ort.is_dir():
+                continue
+            for eintrag in list(os.scandir(ort)):
+                if eintrag.stat(follow_symlinks=False).st_uid == uid:
+                    _loeschen(Path(eintrag.path))
+        return True
+    except OSError as fehler:
+        log(f"Job-Slot uid {uid} GESPERRT, Aufräumen fehlgeschlagen: {fehler}. Der Slot und "
+            f"{arbeitsplatz.name} bleiben bis zum Neustart des Runners außer Betrieb.")
+        return False
+
+
+@contextmanager
+def _job(kennung: str):
+    """Belegt für einen Lauf das Arbeitsverzeichnis und - mit Trennung - eine
+    Job-uid. Liefert (arbeitsplatz, uid); uid ist None ohne Trennung.
+
+    Ein Arbeitsverzeichnis hat höchstens EINEN Lauf gleichzeitig: sonst würde
+    der zweite es dem ersten per chown unter den Füßen wegnehmen.
+    """
+    arbeitsplatz = _workspace(kennung)
+    if not _isolation_aktiv:
+        yield arbeitsplatz, None
+        return
+    with _slots:
+        if not _slots.wait_for(
+                lambda: _freie_uids and arbeitsplatz not in _belegte_arbeitsplaetze,
+                timeout=TIMEOUT_SECONDS + 10):
+            raise RuntimeError("Kein freier Job-Slot (alle belegt oder gesperrt).")
+        # Vorn nehmen, hinten zurückgeben: die uids rotieren, ein Arbeitsverzeichnis
+        # hängt nie an einer bestimmten uid.
+        uid = _freie_uids.pop(0)
+        _belegte_arbeitsplaetze.add(arbeitsplatz)
+    try:
+        _uebergeben(arbeitsplatz, uid)
+        yield arbeitsplatz, uid
+    finally:
+        # Schlägt das Aufräumen fehl, bleiben uid UND Arbeitsverzeichnis gesperrt.
+        if _slot_aufraeumen(arbeitsplatz, uid):
+            with _slots:
+                _freie_uids.append(uid)
+                _belegte_arbeitsplaetze.discard(arbeitsplatz)
+                _slots.notify_all()
+
+
 def _workspace(kennung: str) -> Path:
     """Dauerhaftes Arbeitsverzeichnis je Teilnehmer (siehe lab_dir im Playbook).
 
@@ -107,11 +390,14 @@ def _workspace(kennung: str) -> Path:
         # ist. Ein Hash des Rohwerts bleibt eindeutig UND ueber Laeufe stabil.
         sicher = "x" + hashlib.sha256(kennung.encode("utf-8")).hexdigest()[:16]
     WORKSPACE_ROOT.mkdir(parents=True, exist_ok=True)
+    if _isolation_aktiv:
+        os.chmod(WORKSPACE_ROOT, 0o711)  # Läufe dürfen hindurch, aber nichts auflisten
     jetzt = time.time()
     for eintrag in WORKSPACE_ROOT.iterdir():
         try:
-            if eintrag.is_dir() and jetzt - eintrag.stat().st_mtime > WORKSPACE_MAX_AGE_SECONDS:
-                shutil.rmtree(eintrag, ignore_errors=True)
+            if (eintrag.is_dir() and eintrag not in _belegte_arbeitsplaetze
+                    and jetzt - eintrag.stat().st_mtime > WORKSPACE_MAX_AGE_SECONDS):
+                _loeschen(eintrag)
         except OSError:
             pass
     verzeichnis = WORKSPACE_ROOT / sicher
@@ -120,7 +406,7 @@ def _workspace(kennung: str) -> Path:
 
 
 def _mit_zeitgrenze_ausfuehren(argv: list[str], cwd: Path, env: dict[str, str],
-                                zeitgrenze: float) -> tuple[int, bytes, bool]:
+                                zeitgrenze: float, uid: int | None = None) -> tuple[int, bytes, bool]:
     """Wie `subprocess.run(argv, ..., timeout=zeitgrenze)`, beendet bei
     Zeitueberschreitung aber die GESAMTE Prozessgruppe des gestarteten
     Prozesses statt nur ihn selbst.
@@ -156,11 +442,18 @@ def _mit_zeitgrenze_ausfuehren(argv: list[str], cwd: Path, env: dict[str, str],
 
     Rueckgabe: (rc, stdout_bytes, timed_out). Bei Abbruch ist rc IMMER 124,
     stdout_bytes enthaelt die bis zum Abbruch angefallene Teilausgabe.
+
+    `uid` (Trennung der Laeufe): der Prozess startet unter dieser uid/gid, ohne
+    Zusatzgruppen; der Wechsel weg von uid 0 leert seine Capabilities. Wer der
+    Prozessgruppe entkommt, wird danach von _job_prozesse_beenden erfasst.
     """
     posix = sys.platform != "win32"
+    trennung = {} if uid is None else {"user": uid, "group": uid, "extra_groups": [],
+                                       "umask": 0o077}
     with tempfile.TemporaryFile(mode="w+b", dir=cwd) as ausgabe:
         proc = subprocess.Popen(argv, cwd=cwd, env=env, stdout=ausgabe,
-                                stderr=subprocess.STDOUT, start_new_session=posix)
+                                stderr=subprocess.STDOUT, start_new_session=posix,
+                                **trennung)
         try:
             proc.wait(timeout=zeitgrenze)
             timed_out = False
@@ -193,8 +486,12 @@ def _run_ansible(auftrag: dict) -> dict:
     inventar = auftrag.get("inventory") or DEFAULT_INVENTORY
     extra_vars = auftrag.get("extra_vars")
     check = bool(auftrag.get("check"))
-    arbeitsplatz = _workspace(str(auftrag.get("workspace", "gast")))
+    with _job(str(auftrag.get("workspace", "gast"))) as (arbeitsplatz, uid):
+        return _run_ansible_im_slot(playbook, inventar, extra_vars, check, arbeitsplatz, uid)
 
+
+def _run_ansible_im_slot(playbook: str, inventar: object, extra_vars: object, check: bool,
+                         arbeitsplatz: Path, uid: int | None) -> dict:
     laufverzeichnis = Path(tempfile.mkdtemp(prefix="lauf-"))
     begonnen = time.monotonic()
     abgebrochen = False
@@ -244,8 +541,11 @@ def _run_ansible(auftrag: dict) -> dict:
             if systemroot:
                 umgebung["SystemRoot"] = systemroot
 
+        # Erst jetzt, mit Playbook und Inventar darin, an die Job-uid: HOME,
+        # TMPDIR und die Ansible-Temp-Verzeichnisse liegen alle hier.
+        _uebergeben(laufverzeichnis, uid)
         rc, roh, abgebrochen = _mit_zeitgrenze_ausfuehren(
-            argumente, laufverzeichnis, umgebung, TIMEOUT_SECONDS)
+            argumente, laufverzeichnis, umgebung, TIMEOUT_SECONDS, uid)
         text = roh.decode("utf-8", "replace")
         if abgebrochen:
             text += (f"\n\nAbgebrochen: Der Lauf hat die Zeitgrenze von "
@@ -256,7 +556,11 @@ def _run_ansible(auftrag: dict) -> dict:
                 "duration_ms": int((time.monotonic() - begonnen) * 1000),
                 "timed_out": abgebrochen}
     finally:
-        shutil.rmtree(laufverzeichnis, ignore_errors=True)
+        # Das Laufverzeichnis gehoert dem Lauf und liegt im Sticky-/tmp: solange
+        # noch ein Prozess der uid lebt, koennte er es gegen einen Symlink
+        # tauschen. Also erst beenden, dann loeschen.
+        if _job_prozesse_beenden(uid):
+            _loeschen(laufverzeichnis)
 
 
 # ---------------------------------------------------------------------------
@@ -588,6 +892,30 @@ def _argv_bauen(befehl: str, art: str, binaer: str) -> list[str] | None:
     return [binaer] + tokens
 
 
+def _datei_schreiben(ziel: Path, inhalt: str, uid: int | None) -> None:
+    """Legt eine mitgeschickte Datei im Arbeitsverzeichnis an.
+
+    Mit Trennung schreibt hier root in ein Verzeichnis, das zuvor einem Lauf
+    gehörte: ein dort hinterlegter Symlink `ziel -> /queue/in/x.json` würde den
+    Worker sonst zum Schreiben eines fremden Auftrags bringen. Deshalb alten
+    Eintrag entfernen und mit O_EXCL|O_NOFOLLOW neu anlegen."""
+    if uid is None:
+        ziel.write_text(inhalt, encoding="utf-8")
+        return
+    ziel.unlink(missing_ok=True)
+    fd = os.open(ziel, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600)
+    with os.fdopen(fd, "w", encoding="utf-8") as datei:
+        datei.write(inhalt)
+        os.fchown(fd, uid, uid)
+
+
+def _werkzeug_ergebnis(begonnen: float, rc: int, text: str, timed_out: bool = False) -> dict:
+    text_gekuerzt, gekappt = _clip(text)
+    return {"rc": rc, "output": text_gekuerzt, "truncated": gekappt,
+            "duration_ms": int((time.monotonic() - begonnen) * 1000),
+            "timed_out": timed_out}
+
+
 def _run_werkzeug(auftrag: dict, art: str, binaer: str, zeitgrenze: float,
                    zusatz_umgebung: dict[str, str] | None = None) -> dict:
     """Führt eine kurze Folge von Befehlen für ein Kommandozeilen-Werkzeug aus.
@@ -598,25 +926,28 @@ def _run_werkzeug(auftrag: dict, art: str, binaer: str, zeitgrenze: float,
     """
     begonnen = time.monotonic()
 
-    def _ergebnis(rc: int, text: str, timed_out: bool = False) -> dict:
-        text_gekuerzt, gekappt = _clip(text)
-        return {"rc": rc, "output": text_gekuerzt, "truncated": gekappt,
-                "duration_ms": int((time.monotonic() - begonnen) * 1000),
-                "timed_out": timed_out}
-
     dateien = auftrag.get("files") or {}
     fehler = _dateien_pruefen(dateien)
     if fehler:
-        return _ergebnis(2, fehler)
+        return _werkzeug_ergebnis(begonnen, 2, fehler)
 
     befehle = auftrag.get("commands") or []
     fehler = _befehle_pruefen(befehle)
     if fehler:
-        return _ergebnis(2, fehler)
+        return _werkzeug_ergebnis(begonnen, 2, fehler)
 
-    arbeitsplatz = _workspace(str(auftrag.get("workspace", "gast")))
+    # Auch openssl/git laufen im Slot unter der Job-uid: git führt Hooks aus,
+    # die ein früheres Playbook im selben Arbeitsverzeichnis hinterlegt haben kann.
+    with _job(str(auftrag.get("workspace", "gast"))) as (arbeitsplatz, uid):
+        return _run_werkzeug_im_slot(dateien, befehle, art, binaer, zeitgrenze,
+                                     zusatz_umgebung, arbeitsplatz, uid, begonnen)
+
+
+def _run_werkzeug_im_slot(dateien: dict, befehle: list, art: str, binaer: str,
+                          zeitgrenze: float, zusatz_umgebung: dict[str, str] | None,
+                          arbeitsplatz: Path, uid: int | None, begonnen: float) -> dict:
     for name, inhalt in dateien.items():
-        (arbeitsplatz / name).write_text(str(inhalt), encoding="utf-8")
+        _datei_schreiben(arbeitsplatz / name, str(inhalt), uid)
 
     umgebung = {
         "PATH": os.getenv("PATH", "/usr/local/bin:/usr/bin:/bin"),
@@ -638,7 +969,8 @@ def _run_werkzeug(auftrag: dict, art: str, binaer: str, zeitgrenze: float,
     # Die Zeitgrenze gilt für den GESAMTEN Lauf, nicht je Befehl - sonst könnte
     # ein Auftrag mit 6 Befehlen bis zu 6-mal so lange laufen und würde damit
     # die Parallelitätsgrenze unterlaufen.
-    frist = begonnen + zeitgrenze
+    # Ab hier, nicht ab Auftragsbeginn: Warten auf einen Slot zählt nicht mit.
+    frist = time.monotonic() + zeitgrenze
     for befehl in befehle:
         argv = _argv_bauen(befehl, art, binaer)
         if argv is None:
@@ -663,7 +995,7 @@ def _run_werkzeug(auftrag: dict, art: str, binaer: str, zeitgrenze: float,
             break
         try:
             rc, roh, befehl_abgebrochen = _mit_zeitgrenze_ausfuehren(
-                argv, arbeitsplatz, umgebung, verbleibend)
+                argv, arbeitsplatz, umgebung, verbleibend, uid)
         except OSError as fehler:
             rc = 2
             ausgabe_teile.append(f"Werkzeug nicht ausführbar: {fehler}")
@@ -677,7 +1009,7 @@ def _run_werkzeug(auftrag: dict, art: str, binaer: str, zeitgrenze: float,
         if rc != 0:
             break
 
-    return _ergebnis(rc, "\n".join(ausgabe_teile), timed_out=abgebrochen)
+    return _werkzeug_ergebnis(begonnen, rc, "\n".join(ausgabe_teile), timed_out=abgebrochen)
 
 
 def _run_openssl(auftrag: dict) -> dict:
@@ -724,6 +1056,14 @@ def _ausfuehren(auftrag: dict) -> dict:
                 "output": (f"Auftragsart {art!r} ist auf diesem Runner nicht freigegeben "
                            f"(RUNNER_KINDS={freigegeben})."),
                 "truncated": False, "duration_ms": 0, "timed_out": False}
+    # Fail-closed: ohne Trennung kein Teilnehmer-Code. openssl/git bleiben
+    # nutzbar - sie führen keinen frei geschriebenen Code aus.
+    sperrgrund = _ansible_sperrgrund() if art == "ansible" else None
+    if sperrgrund:
+        return {"rc": 2,
+                "output": ("Das Ansible-Lab ist auf diesem Server deaktiviert, weil Läufe nicht "
+                           f"vom Lab-Dienst getrennt werden können: {sperrgrund}"),
+                "truncated": False, "duration_ms": 0, "timed_out": False}
     return handler(auftrag)
 
 
@@ -731,11 +1071,13 @@ def _antwort_schreiben(auftrags_id: str, ergebnis: dict) -> None:
     ziel = QUEUE / "out" / f"{auftrags_id}.json"
     vorlaeufig = ziel.with_suffix(".json.tmp")
     vorlaeufig.write_text(json.dumps(ergebnis), encoding="utf-8")
-    os.replace(vorlaeufig, ziel)  # atomar: das Backend sieht nie eine halbe Datei
     try:
-        os.chmod(ziel, 0o666)
+        # Lesbar für das Backend (andere uid). Den Schutz vor Läufen leisten die
+        # Verzeichnisrechte von /queue (_warteschlange_vorbereiten), nicht dieser Modus.
+        os.chmod(vorlaeufig, 0o644)
     except OSError:
         pass
+    os.replace(vorlaeufig, ziel)  # atomar: das Backend sieht nie eine halbe Datei
 
 
 def _uebernehmen(pfad: Path) -> Path | None:
@@ -758,9 +1100,9 @@ def _auftrag_lesen(pfad: Path) -> tuple[str, dict] | None:
 
     Passiert direkt beim Beanspruchen (in _runde), nicht erst wenn ein Thread
     frei wird: Der Auftrag trägt ein Ergebnis-Token des Backends, und solange
-    die Datei im Volume liegt, kann ein gerade laufendes Teilnehmer-Playbook
-    (gleiche uid) sie lesen. Danach existiert das Token nur noch im Speicher
-    dieses Prozesses. Was das nicht abdeckt: docs/lab-sicherheit.md.
+    die Datei im Volume liegt, könnte ein Teilnehmer-Playbook sie lesen, falls
+    die Trennung per uid einmal nicht greift (zweite Schicht). Danach existiert
+    das Token nur noch im Speicher dieses Prozesses. Siehe docs/lab-sicherheit.md.
     """
     auftrags_id = pfad.name.removesuffix(".claimed").removesuffix(".json")
     try:
@@ -814,13 +1156,23 @@ def _warteschlange_vorbereiten() -> bool:
         except OSError as fehler:
             log(f"Warteschlange {QUEUE / ordner} nicht nutzbar: {fehler}. "
                 f"Erwartet wird ein Volume, in das der Runner-Benutzer (uid "
-                f"{os.getuid()}) schreiben darf — siehe runner/Dockerfile und "
+                f"{_eigene_uid()}) schreiben darf — siehe runner/Dockerfile und "
                 f"docs/lab-sicherheit.md.")
             return False
+    # root:QUEUE_GID, kein Zugriff für andere: Worker (Eigentümer) und Backend
+    # (Gruppe) ja, Läufe nein. Korrigiert auch ein Volume einer älteren Fassung
+    # (uid 10001, 0777) beim ersten Start - erst chown, dann darf root chmod.
+    for pfad, modus in ((QUEUE, 0o750), (QUEUE / "in", 0o770), (QUEUE / "out", 0o770)):
         try:
-            os.chmod(QUEUE / ordner, 0o777)  # Backend und Runner laufen als verschiedene Nutzer
-        except OSError:
-            pass  # Rechte reichen bereits, sonst waere das mkdir gescheitert
+            if _isolation_aktiv:
+                os.chown(pfad, 0, QUEUE_GID)
+            os.chmod(pfad, modus)
+        except OSError as fehler:
+            if _isolation_aktiv:
+                # Fail-closed: mit offener Warteschlange wäre die Trennung wertlos.
+                log(f"Warteschlange {pfad} lässt sich nicht für Läufe schließen: {fehler}.")
+                return False
+            # ohne Trennung nicht Eigentümer: Rechte bleiben, wie sie sind
     return True
 
 
@@ -866,12 +1218,14 @@ def _runde(pool: ThreadPoolExecutor, offene: list) -> tuple[list, int]:
 
 
 def main() -> None:
+    _isolation_einrichten()  # vor der Warteschlange: deren Rechte hängen davon ab
     while not _warteschlange_vorbereiten():
         time.sleep(5)
     log(f"Lab-Runner bereit. Warteschlange: {QUEUE}, parallel: {MAX_PARALLEL}, "
         f"Warteschlangentiefe: {MAX_QUEUE_DEPTH}, "
         f"Zeitgrenze: {TIMEOUT_SECONDS:.0f}s, Netzwerk: keines, "
-        f"Arten: {', '.join(sorted(RUNNER_KINDS)) or '(keine)'}")
+        f"Arten: {', '.join(sorted(RUNNER_KINDS)) or '(keine)'}, "
+        f"Trennung: {'uid je Lauf' if _isolation_aktiv else 'KEINE'}")
 
     letzte_reinigung = 0.0
     offene: list = []

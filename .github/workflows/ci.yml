@@ -89,6 +89,20 @@ jobs:
       - run: docker build ./frontend
       - run: docker build ./runner
 
+  # Der einzige Test, der die Trennung der Lab-Laeufe WIRKLICH prueft: Runner
+  # mit der Haertung aus docker-compose.yml, echte Auftraege aus dem
+  # Backend-Image, ein boesartiges Playbook, das an /queue, den Worker und
+  # fremde Arbeitsverzeichnisse will (docs/lab-sicherheit.md). Lokal ohne
+  # Docker nicht pruefbar -- die Unit-Tests im Job "runner" decken nur die Logik.
+  # Jede gescheiterte Pruefung steht als Zeile "FEHLER ..." im Log, danach
+  # folgt das Runner-Log.
+  runner-isolation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - run: bash ops/lab-isolation-test.sh
+
   # Deckt den Postgres-spezifischen Pfad aus app/db_migrate.py ab (Advisory-Lock,
   # lock_timeout) -- der Job "backend" oben laeuft nur gegen SQLite. Danach
   # laeuft die ganze Testsuite noch einmal gegen Postgres: Produktion ist

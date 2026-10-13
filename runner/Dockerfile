@@ -24,18 +24,27 @@ RUN pip install --no-cache-dir -U "pip" "setuptools>=78.1.1" \
 
 COPY worker.py .
 
-# Unprivilegiert ausfuehren: das Playbook laeuft mit genau diesen Rechten.
-RUN useradd --create-home --uid 10001 labrunner
+# labrunner (uid/gid 10001 = uid/gid des Backend-Containers) ist der Standard-
+# Benutzer des Images. labjob10002..10009 sind die Benutzer, unter denen die
+# Laeufe starten (worker.py, JOB_UIDS) - je gleichzeitigem Lauf einer, damit
+# Teilnehmende einander nicht lesen koennen. Die Eintraege braucht nur, wer
+# nach dem Benutzernamen fragt (Ansible-Fakten, git).
+RUN useradd --create-home --uid 10001 labrunner \
+ && for uid in $(seq 10002 10009); do \
+      useradd --no-create-home --shell /usr/sbin/nologin --uid "$uid" "labjob$uid"; \
+    done
 
-# Warteschlangen-Verzeichnisse schon im Image anlegen und dem Runner geben.
-# Docker befuellt ein LEERES benanntes Volume beim ersten Start aus dem Image
-# und uebernimmt dabei die Eigentuemerschaft — sonst gehoert /queue root und
-# der unprivilegierte Runner kann dort nichts anlegen (Fehlerbild vom
-# 2026-07-21: PermissionError beim Start). 0777, weil das Backend als anderer
-# Nutzer in dasselbe Verzeichnis schreibt; das Volume ist privat zwischen
-# genau diesen beiden Diensten.
-RUN mkdir -p /queue/in /queue/out  && chown -R labrunner:labrunner /queue  && chmod -R 0777 /queue
+# Warteschlange: root + Gruppe des Backends, niemand sonst - ein Lauf (uid
+# 10002+) kommt nicht hinein. Docker uebernimmt das in ein LEERES Volume; ein
+# Volume einer aelteren Fassung (10001, 0777) korrigiert der Worker beim Start
+# selbst (worker.py, _warteschlange_vorbereiten).
+RUN mkdir -p /queue/in /queue/out && chown -R root:labrunner /queue \
+ && chmod 0750 /queue && chmod 0770 /queue/in /queue/out
 
+# Standard bleibt unprivilegiert. Die Trennung der Laeufe braucht uid 0 mit
+# fuenf Capabilities - das schaltet docker-compose.yml ausdruecklich ein
+# (user "0:0" + cap_add). Ohne das startet der Worker trotzdem, lehnt aber
+# Playbooks ab (fail-closed) und sagt im Log, warum.
 USER labrunner
 
 # Kein EXPOSE, kein Port: Der Container laeuft mit network_mode: none.
