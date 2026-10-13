@@ -321,15 +321,18 @@ function Layers({ d, lang }: { d: LayersDiagram; lang: Lang }) {
 function Compare({ d, lang }: { d: CompareDiagram; lang: Lang }) {
   const [sel, setSel] = useState<number | null>(null)
   const current = sel === null ? null : d.rows[sel]
+  // 4 Spalten sind kompakter gesetzt, damit sie in der Inhaltsspalte (~590 px) ohne waagerechtes Scrollen passen
+  const dense = d.columns.length >= 4
+  const cellPad = dense ? 'px-2' : 'px-3'
   return (
     <>
     <div className="overflow-x-auto">
-      <table className="w-full border-separate border-spacing-x-2 border-spacing-y-0 text-left text-sm" style={{ minWidth: 140 + d.columns.length * 150 }}>
+      <table className={`w-full border-separate border-spacing-y-0 text-left text-sm ${dense ? 'border-spacing-x-1' : 'border-spacing-x-2'}`} style={{ minWidth: dense ? 100 + d.columns.length * 100 : 140 + d.columns.length * 150 }}>
         <thead>
           <tr>
             <td />
             {d.columns.map((c, i) => (
-              <th key={i} scope="col" className="rounded-t-lg border border-b-0 border-teal-200 bg-teal-50 px-3 py-2 text-base font-semibold text-teal-900">{c.title}</th>
+              <th key={i} scope="col" className={`rounded-t-lg border border-b-0 border-teal-200 bg-teal-50 ${cellPad} py-2 font-semibold text-teal-900 ${dense ? 'text-sm' : 'text-base'}`}>{c.title}</th>
             ))}
           </tr>
         </thead>
@@ -345,7 +348,7 @@ function Compare({ d, lang }: { d: CompareDiagram; lang: Lang }) {
                 ) : r.label}
               </th>
               {r.values.map((v, ci) => (
-                <td key={ci} className={`border-x border-t border-slate-200 bg-slate-50 px-3 py-2 align-top text-slate-700 ${r.mono ? 'whitespace-pre-wrap break-words font-mono text-[0.8125rem]' : ''} ${ri === d.rows.length - 1 ? 'rounded-b-lg border-b' : ''}`}>{v}</td>
+                <td key={ci} className={`border-x border-t border-slate-200 bg-slate-50 ${cellPad} py-2 align-top text-slate-700 ${dense ? 'text-[0.8125rem]' : ''} ${r.mono ? 'whitespace-pre-wrap break-words font-mono text-[0.8125rem]' : ''} ${ri === d.rows.length - 1 ? 'rounded-b-lg border-b' : ''}`}>{v}</td>
               ))}
             </tr>
           ))}
