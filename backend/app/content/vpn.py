@@ -55,7 +55,7 @@ VPN_MODULE = {
                    "packet** (private source/destination IP + data) is **encrypted** and put into a "
                    "**new packet**. Its outer header only carries the **public "
                    "IPs of the two VPN gateways**. On the Internet you mainly see “gateway talking "
-                   "to gateway”. Inner addresses and contents stay hidden, but observers can still "
+                   "to gateway.” Inner addresses and contents stay hidden, but observers can still "
                    "infer metadata such as timing, volume or the destination gateway.",
          }},
         {"type": "widget", "id": "vpn-demo",
@@ -127,9 +127,9 @@ VPN_MODULE = {
                  "OpenVPN sind bei der IANA registriert, 51820 ist bei WireGuard nur verbreitete Konvention.",
          "payload": {
              "kind": "compare",
-             "title_de": "Drei VPN-Familien im Vergleich", "title_en": "Three VPN families compared",
+             "title_de": "Drei VPN-Familien im Vergleich", "title_en": "Three VPN Families Compared",
              "columns": [{"title": "IPsec / IKEv2"}, {"title": "WireGuard"},
-                         {"title_de": "TLS-VPN (z. B. OpenVPN)", "title_en": "TLS VPN (e.g. OpenVPN)"}],
+                         {"title_de": "TLS-VPN (z. B. OpenVPN)", "title_en": "TLS VPN (e.g., OpenVPN)"}],
              "rows": [
                  {"label": "Transport",
                   "values_de": ["IKE: UDP 500/4500 · Daten: ESP (IP-Protokoll 50)",
@@ -163,7 +163,7 @@ VPN_MODULE = {
                  "Zertifikatsanforderung, Cookies und NAT-Erkennung.",
          "payload": {
              "kind": "sequence",
-             "title_de": "IPsec: der IKEv2-Verbindungsaufbau", "title_en": "IPsec: the IKEv2 handshake",
+             "title_de": "IPsec: der IKEv2-Verbindungsaufbau", "title_en": "IPsec: the IKEv2 Handshake",
              "caption_de": "Site-to-Site: Gateway der Filiale → Gateway der Zentrale",
              "caption_en": "Site-to-site: branch gateway → headquarters gateway",
              "actors": [
@@ -225,7 +225,7 @@ VPN_MODULE = {
                  "kennt und absichert. In der Runde fragen: Wie ist es bei euch geregelt?",
          "payload": {
              "title_de": "Remote-Access für den Außendienst planen",
-             "title_en": "Planning remote access for field staff",
+             "title_en": "Planning Remote Access for Field Staff",
              "start": "start",
              "nodes": [
                  {"id": "start",
@@ -347,11 +347,11 @@ VPN_MODULE = {
              "de": "Das VPN sichert den Weg, nicht die Endpunkte: Ein mit Schadsoftware befallener Laptop bleibt befallen — und bekommt durch den Tunnel sogar Zugang zum Firmennetz. Verschlüsselung, Integrität und das Verbergen der inneren Adressen leistet das VPN dagegen sehr wohl.",
              "en": "The VPN secures the path, not the endpoints: a laptop infected with malware stays infected — and through the tunnel even gains access to the company network. Encryption, integrity and hiding the inner addresses, on the other hand, are exactly what a VPN does provide."}},
         {"id": "vp5", "type": "single",
-         "prompt": {"de": "Ein Laptop im Hotel-WLAN nutzt ein Split-Tunnel-VPN: Nur 10.20.0.0/16 läuft durch "
-                          "den Tunnel. Der Nutzer ruft eine Seite per http:// (ohne TLS) im Internet auf. "
+         "prompt": {"de": "Ein Laptop im Hotel-WLAN nutzt ein Split-Tunnel-VPN: Nur das Rechenzentrums-Netz "
+                          "10.20.0.0/16 läuft durch den Tunnel. Der Nutzer ruft eine Seite per http:// (ohne TLS) im Internet auf. "
                           "Wer kann den Inhalt mitlesen?",
-                    "en": "A laptop on hotel Wi-Fi uses a split-tunnel VPN: only 10.20.0.0/16 goes through "
-                          "the tunnel. The user opens a page on the Internet via http:// (no TLS). Who can "
+                    "en": "A laptop on hotel Wi-Fi uses a split-tunnel VPN: only the data center network "
+                          "10.20.0.0/16 goes through the tunnel. The user opens a page on the Internet via http:// (no TLS). Who can "
                           "read the content?"},
          "options": {
              "de": ["Niemand — das VPN ist aktiv",
@@ -374,9 +374,9 @@ VPN_MODULE = {
                    "this traffic."}},
         {"id": "vp6", "type": "multi",
          "prompt": {"de": "Ein IPsec-Tunnel (IKEv2) kommt nicht zustande; eine Firewall zwischen den Gateways "
-                          "steht im Verdacht. Was muss sie für IPsec durchlassen? (mehrere)",
+                          "steht im Verdacht. Was muss sie für IPsec durchlassen? Mehrere Antworten sind richtig.",
                     "en": "An IPsec tunnel (IKEv2) does not come up; a firewall between the gateways is "
-                          "suspected. What must it let through for IPsec? (multiple)"},
+                          "suspected. What must it let through for IPsec? Select all that apply."},
          "options": {
              "de": ["UDP 500 (IKE)", "UDP 4500 (NAT-Traversal)", "ESP (IP-Protokoll 50)",
                     "TCP 23 (Telnet)", "UDP 53 (DNS)"],

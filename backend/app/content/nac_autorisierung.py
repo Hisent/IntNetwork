@@ -187,7 +187,7 @@ NAC_AUTORISIERUNG_MODULE = {
             'payload': {
                 'kind': 'flow',
                 'title_de': 'Ein Access-Accept, drei Arten von Ergebnis',
-                'title_en': 'One Access-Accept, three kinds of outcome',
+                'title_en': 'One Access-Accept, Three Kinds of Outcome',
                 'caption_de': 'Der Server entscheidet, der Switch setzt am Port um.',
                 'caption_en': 'The server decides, the switch enforces on the port.',
                 'nodes': [
@@ -256,9 +256,9 @@ NAC_AUTORISIERUNG_MODULE = {
             },
         },
         {'type': 'widget', 'id': 'nac-policy',
-         'note': 'Am Widget die Geraetetypen (verwalteter Laptop, Drucker/IoT, unbekannt/BYOD) '
-                 'durchspielen lassen und beobachten, wie 802.1X-Faehigkeit, Zertifikat und '
-                 'Compliance-Status zusammen das Ergebnis (Vollzugriff, Eingeschraenkt, Quarantaene, '
+         'note': 'Am Widget die Gerätetypen (verwalteter Laptop, Drucker/IoT, unbekannt/BYOD) '
+                 'durchspielen lassen und beobachten, wie 802.1X-Fähigkeit, Zertifikat und '
+                 'Compliance-Status zusammen das Ergebnis (Vollzugriff, Eingeschränkt, Quarantäne, '
                  'Gast, MAB/IoT, Deny) bestimmen - bevor die Zuordnungsaufgabe kommt. Der Schalter '
                  'Zertifikat ist ohne Supplicant bewusst deaktiviert (kein 802.1X, kein EAP-TLS).'},
         {
@@ -337,9 +337,9 @@ NAC_AUTORISIERUNG_MODULE = {
                           'VLAN-Zuweisung nutzen, brauchen wir keine dACLs mehr — VLAN reicht '
                           'für jede Art von Zugriffssteuerung.“ Welche der folgenden Aussagen '
                           'zu dieser Behauptung ist falsch?',
-             'prompt_en': 'A colleague at Nordwind Logistik says: "If we use dynamic VLAN '
+             'prompt_en': 'A colleague at Nordwind Logistik says: “If we use dynamic VLAN '
                          'assignment, we don\'t need dACLs anymore — VLAN is enough for any '
-                         'kind of access control." Which of the following statements about '
+                         'kind of access control.” Which of the following statements about '
                          'this claim is false?',
              'lines_de': [
                  'VLAN trennt Broadcast-Domänen und grenzt grobe Netzbereiche ab, dACLs steuern '
@@ -380,7 +380,7 @@ NAC_AUTORISIERUNG_MODULE = {
             'note': 'Ausgaben im IOS-XE-Format, gekürzt. Heruntergeladene ACLs erscheinen auf dem Switch mit dem Präfix „xACSACLx-IP-“ und dem Zusatz „(per-user)“. Die dACL filtert eingehend am Port: Quelle ist immer das Endgerät.',
             'payload': {
                 'title_de': 'Was darf der Drucker wirklich?',
-                'title_en': 'What may the printer really do?',
+                'title_en': 'What May the Printer Really Do?',
                 'prompt': 'nw-acc1#',
                 'abbreviations': True,
                 'unknown': '% Invalid input detected: {cmd}',
@@ -396,7 +396,7 @@ NAC_AUTORISIERUNG_MODULE = {
                         'cmd': 'show ip access-lists',
                         'desc_de': 'alle ACLs samt heruntergeladener dACL',
                         'desc_en': 'all ACLs incl. downloaded dACL',
-                        'output': 'Extended IP access list ACL-DEFAULT\n    10 permit udp any eq bootpc any eq bootps\n    20 permit udp any any eq domain\n    30 deny ip any any\nExtended IP access list xACSACLx-IP-PRN-5f2a91c4 (per-user)\n    1 permit udp any eq bootpc any eq bootps\n    2 permit udp any host 10.10.0.53 eq domain\n    3 permit tcp any eq 9100 host 10.20.5.10\n    4 deny ip any any',
+                        'output': 'Extended IP access list ACL-DEFAULT\n    10 permit udp any eq bootpc any eq bootps\n    20 permit udp any any eq domain\n    30 deny ip any any\nExtended IP access list xACSACLx-IP-PRN-5f2a91c4 (per-user)\n    1 permit udp any eq bootpc any eq bootps\n    2 permit udp any host 10.10.0.53 eq domain\n    3 permit tcp any eq 9100 host 10.10.0.20\n    4 deny ip any any',
                     },
                     {
                         'cmd': 'show vlan id 40',
@@ -424,7 +424,7 @@ NAC_AUTORISIERUNG_MODULE = {
                     {
                         'text_de': 'Mit welchem Host darf der Drucker über TCP 9100 sprechen (IP-Adresse)?',
                         'text_en': 'Which host may the printer talk to over TCP 9100 (IP address)?',
-                        'answers': ['10.20.5.10'],
+                        'answers': ['10.10.0.20'],
                     },
                     {
                         'text_de': 'An Gi1/0/9 hängt ein zweiter Drucker im selben VLAN. Darf Gi1/0/7 ihn laut dACL erreichen (ja/nein)?',
@@ -471,7 +471,7 @@ NAC_AUTORISIERUNG_MODULE = {
          },
          'explanation': {
              'de': 'Authentifizierung klärt das „Wer“, Autorisierung das „Was darf es“. Die Autorisierung baut auf der geklärten Identität auf und kann deshalb nicht vorher stattfinden.',
-             'en': 'Authentication settles the "who", authorization the "what may it do". Authorization builds on the established identity and therefore cannot happen before it.',
+             'en': 'Authentication settles the “who,” authorization the “what may it do.” Authorization builds on the established identity and therefore cannot happen before it.',
          }},
         {'id': 'az2', 'type': 'single',
          'prompt': {'de': 'Über welchen Mechanismus wird dynamische VLAN-Zuweisung typischerweise '
@@ -580,7 +580,7 @@ NAC_AUTORISIERUNG_MODULE = {
             'type': 'single',
             'prompt': {
                 'de': 'Ein Drucker ist laut „show access-session … details“ autorisiert: „Vlan: 40“ und „ACS ACL: xACSACLx-IP-PRN-5f2a91c4“. Drucken funktioniert, aber das Monitoring-System im selben VLAN erreicht ihn nicht per SNMP. Wo liegt die Ursache am wahrscheinlichsten?',
-                'en': 'According to "show access-session … details" a printer is authorized: "Vlan: 40" and "ACS ACL: xACSACLx-IP-PRN-5f2a91c4". Printing works, but the monitoring system in the same VLAN cannot reach it via SNMP. Where is the cause most likely?',
+                'en': 'According to “show access-session … details” a printer is authorized: “Vlan: 40” and “ACS ACL: xACSACLx-IP-PRN-5f2a91c4”. Printing works, but the monitoring system in the same VLAN cannot reach it via SNMP. Where is the cause most likely?',
             },
             'options': {
                 'de': [
@@ -606,8 +606,8 @@ NAC_AUTORISIERUNG_MODULE = {
             'id': 'az7',
             'type': 'multi',
             'prompt': {
-                'de': 'Welche Aussagen zu VLAN-Zuweisung und dACL treffen zu? (Mehrere richtig)',
-                'en': 'Which statements about VLAN assignment and dACL are true? (Several correct)',
+                'de': 'Welche Aussagen zu VLAN-Zuweisung und dACL treffen zu? Mehrere Antworten sind richtig.',
+                'en': 'Which statements about VLAN assignment and dACL are true? Select all that apply.',
             },
             'options': {
                 'de': [

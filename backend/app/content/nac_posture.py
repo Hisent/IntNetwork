@@ -34,9 +34,9 @@ NAC_POSTURE_MODULE = {
     },
     'blocks': [
         {'type': 'text', 'id': 'text-1',
-         'note': 'Kernunterscheidung fuer das ganze Modul: Authentifizierung beantwortet WER, '
+         'note': 'Kernunterscheidung für das ganze Modul: Authentifizierung beantwortet WER, '
                  'Posture beantwortet in WELCHEM ZUSTAND. Beides zusammen ergibt erst die '
-                 'vollstaendige Zugriffsentscheidung.',
+                 'vollständige Zugriffsentscheidung.',
          'value': {
              'de': '## Mehr als Identität: der Zustand des Geräts\n\n'
                    '802.1X und RADIUS beantworten die Frage „Wer bist du?“ — ein gültiges '
@@ -50,14 +50,14 @@ NAC_POSTURE_MODULE = {
                    'aus „wer“ und „in welchem Zustand“ ergibt eine vollständige '
                    'Zugriffsentscheidung.',
              'en': '## More Than Identity: The State of the Device\n\n'
-                   '802.1X and RADIUS answer the question "who are you?" — a valid certificate or '
+                   '802.1X and RADIUS answer the question “who are you?” — a valid certificate or '
                    'correct credentials are enough to be considered a trusted user. But that says '
                    'nothing about the security state the device being used is actually in.\n\n'
                    '**Posture assessment** asks exactly this second question: what state is the '
                    'device in when it joins the network? A correctly authenticated employee '
                    'laptop without current patches or with disabled antivirus is a risk that pure '
-                   'identity verification does not catch. Only the combination of "who" and "in '
-                   'what state" produces a complete access decision.',
+                   'identity verification does not catch. Only the combination of “who” and “in '
+                   'what state” produces a complete access decision.',
          }},
         {'type': 'text', 'id': 'text-2',
          'value': {
@@ -89,10 +89,10 @@ NAC_POSTURE_MODULE = {
                    'approval.',
          }},
         {'type': 'widget', 'id': 'nac-posture',
-         'note': 'Uebung direkt nach dem Kriterien-Text platziert, damit die vier Pruefkriterien '
-                 'noch frisch sind, wenn im Widget konkrete Geraetezustaende bewertet werden. Das Widget '
-                 'stuft ab: AV/EDR ist kritisch (sofort Quarantaene), die anderen drei Kriterien '
-                 'loesen eine Remediation-Frist aus - die Abstufung erklaert der Text danach.'},
+         'note': 'Übung direkt nach dem Kriterien-Text platziert, damit die vier Prüfkriterien '
+                 'noch frisch sind, wenn im Widget konkrete Gerätezustände bewertet werden. Das Widget '
+                 'stuft ab: AV/EDR ist kritisch (sofort Quarantäne), die anderen drei Kriterien '
+                 'lösen eine Remediation-Frist aus - die Abstufung erklärt der Text danach.'},
         {'type': 'text', 'id': 'text-3',
          'value': {
              'de': '## Compliant vs. non-compliant\n\n'
@@ -114,7 +114,7 @@ NAC_POSTURE_MODULE = {
                    '**Remediation-Frist** (Grace Period) und wird erst nach deren Ablauf '
                    'eingeschränkt. Welche Kriterien als kritisch gelten, ist eine Entscheidung der '
                    'eigenen Sicherheitsrichtlinie, keine technische Vorgabe.',
-             'en': '## Compliant vs. Non-compliant\n\n'
+             'en': '## Compliant vs. Non-Compliant\n\n'
                    'Based on the check, each device is classified as **compliant** or '
                    '**non-compliant** — and the access decision is tied to that:\n\n'
                    '- **Compliant** → full access to the intended network resources.\n'
@@ -139,7 +139,7 @@ NAC_POSTURE_MODULE = {
             'payload': {
                 'kind': 'sequence',
                 'title_de': 'Posture: eingeschränkt → Prüfung → CoA → Vollzugriff',
-                'title_en': 'Posture: restricted → check → CoA → full access',
+                'title_en': 'Posture: Restricted → Check → CoA → Full Access',
                 'actors': [
                     {
                         'id': 'dev',
@@ -172,7 +172,7 @@ NAC_POSTURE_MODULE = {
                         'label_en': 'Access-Accept (restricted)',
                         'style': 'reply',
                         'detail_de': 'Posture-Status „unbekannt“: Eine dACL erlaubt nur DHCP, DNS, den Policy-Server und die Remediation-Server.',
-                        'detail_en': 'Posture status "unknown": a dACL permits only DHCP, DNS, the policy server, and the remediation servers.',
+                        'detail_en': 'Posture status “unknown”: a dACL permits only DHCP, DNS, the policy server, and the remediation servers.',
                     },
                     {
                         'from': 'dev',
@@ -210,7 +210,7 @@ NAC_POSTURE_MODULE = {
                         'label_en': 'Access-Accept (full access)',
                         'style': 'reply',
                         'detail_de': 'VLAN 20 ohne einschränkende dACL. Wäre das Ergebnis „nicht konform“, käme hier die Quarantäne.',
-                        'detail_en': 'VLAN 20 without a restricting dACL. Had the result been "non-compliant", quarantine would follow here.',
+                        'detail_en': 'VLAN 20 without a restricting dACL. Had the result been “non-compliant,” quarantine would follow here.',
                     },
                     {
                         'from': 'sw',
@@ -252,8 +252,8 @@ NAC_POSTURE_MODULE = {
              'prompt_de': 'Ein Kollege sagt: „Das Gerät hat sich doch erfolgreich per 802.1X '
                          'authentifiziert, dann kann es auch ins produktive Netz.“ Welche der '
                          'folgenden Aussagen zu diesem Fehlschluss ist falsch?',
-             'prompt_en': 'A colleague says: "The device authenticated successfully via 802.1X, so '
-                         'it can go into the production network." Which of the following '
+             'prompt_en': 'A colleague says: “The device authenticated successfully via 802.1X, so '
+                         'it can go into the production network.” Which of the following '
                          'statements about this reasoning is false?',
              'lines_de': [
                  'Authentifizierung beantwortet nur die Frage nach der Identität, nicht nach dem '
@@ -296,7 +296,7 @@ NAC_POSTURE_MODULE = {
                    '(Profiling, Scans). Das reicht weiter und spart Software auf dem Endpunkt, geht '
                    'aber weniger tief als ein Agent — und ist nur so gut wie die Quelle: Ohne MDM '
                    'bleibt für die Zustandsfrage wenig übrig.',
-             'en': '## Agent-based vs. Agentless\n\n'
+             'en': '## Agent-Based vs. Agentless\n\n'
                    'Posture data can be collected in two ways:\n\n'
                    '- **Agent-based** — software runs on the device that checks and reports the '
                    'state. A distinction is made between **persistent agents** (permanently '
@@ -326,7 +326,7 @@ NAC_POSTURE_MODULE = {
                    'wird im Modul zu Change of Authorization vertieft; hier zählt vor allem: '
                    'Posture-Prüfung ist ohne eine Durchsetzungsmöglichkeit während der Sitzung nur '
                    'die halbe Miete.',
-             'en': '## Interplay with CoA\n\n'
+             'en': '## Interplay With CoA\n\n'
                    'The first posture check usually follows directly after authentication (restricted '
                    'access → check → CoA → full access) — and this flow alone already needs CoA. But a '
                    'device\'s state can also deteriorate during an already active session: the EDR '
@@ -344,7 +344,7 @@ NAC_POSTURE_MODULE = {
             'id': 'scenario-posture-frist',
             'payload': {
                 'title_de': 'Nicht konform — und jetzt?',
-                'title_en': 'Non-compliant — now what?',
+                'title_en': 'Non-Compliant — Now What?',
                 'start': 'start',
                 'nodes': [
                     {
@@ -379,7 +379,7 @@ NAC_POSTURE_MODULE = {
                         'id': 'streichen',
                         'outcome': 'bad',
                         'text_de': 'Dann bleibt ein Gerät auch nach Monaten ohne Updates „konform“. Das Kriterium ist richtig, nur die Reaktion muss zur Dringlichkeit passen.',
-                        'text_en': 'Then a device remains "compliant" even after months without updates. The criterion is right, only the reaction has to match the urgency.',
+                        'text_en': 'Then a device remains “compliant” even after months without updates. The criterion is right, only the reaction has to match the urgency.',
                     },
                     {
                         'id': 'frist',
@@ -486,7 +486,7 @@ NAC_POSTURE_MODULE = {
          }},
         {'id': 'po3', 'type': 'single',
          'prompt': {'de': 'Was ist ein „dissolvable Agent“?',
-                    'en': 'What is a "dissolvable agent"?'},
+                    'en': 'What is a “dissolvable agent”?'},
          'answer': 0,
          'options': {
              'de': [
@@ -506,7 +506,7 @@ NAC_POSTURE_MODULE = {
          },
          'explanation': {
              'de': 'Ein dissolvable Agent wird für eine Prüfung geladen und entfernt sich danach wieder. Er ist damit immer noch ein Agent — „agentless“ kommt ganz ohne NAC-Software auf dem Gerät aus.',
-             'en': 'A dissolvable agent is loaded for one check and removes itself afterwards. That still makes it an agent — "agentless" works without any NAC software on the device.',
+             'en': 'A dissolvable agent is loaded for one check and removes itself afterwards. That still makes it an agent — “agentless” works without any NAC software on the device.',
          }},
         {'id': 'po4', 'type': 'single',
          'prompt': {'de': 'Wann eignet sich agentless Posture Assessment besonders gut?',
@@ -588,8 +588,8 @@ NAC_POSTURE_MODULE = {
             'id': 'po7',
             'type': 'multi',
             'prompt': {
-                'de': 'Nordwind stuft Verstöße ab. Welche Zuordnungen sind sinnvoll? (Mehrere richtig)',
-                'en': 'Nordwind grades violations. Which assignments make sense? (Several correct)',
+                'de': 'Nordwind stuft Verstöße ab. Welche Zuordnungen sind sinnvoll? Mehrere Antworten sind richtig.',
+                'en': 'Nordwind grades violations. Which assignments make sense? Select all that apply.',
             },
             'options': {
                 'de': [

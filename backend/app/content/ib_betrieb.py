@@ -164,7 +164,7 @@ BETRIEB_MODULE = {
                    "- **Compatibility**: read the release notes and confirm the planned version "
                    "jump is a supported upgrade path.\n"
                    "- **Current backup**: taken immediately before the upgrade, not “last "
-                   "week's backup is good enough”.\n"
+                   "week's backup is good enough.”\n"
                    "- **License and capacity needs**: do the existing licenses cover the target "
                    "version, and do the hardware or virtual resources meet the new version's "
                    "minimum requirements?\n"
@@ -190,9 +190,9 @@ BETRIEB_MODULE = {
             "payload": {
                 "kind": "flow",
                 "title_de": "Upgrade: vier Phasen, dann die Reihenfolge der Knoten",
-                "title_en": "Upgrade: four phases, then the order of the nodes",
+                "title_en": "Upgrade: Four Phases, Then the Order of the Nodes",
                 "caption_de": "Oben die Phasen, unten die Reihenfolge innerhalb der Phase „Upgrade“.",
-                "caption_en": "Phases on top, below the order within the \"Upgrade\" phase.",
+                "caption_en": "Phases on top, below the order within the “Upgrade” phase.",
                 "nodes": [
                     {"id": "up", "row": 0, "col": 0, "label": "1. Upload"},
                     {"id": "dist", "row": 0, "col": 1, "label": "2. Distribute"},
@@ -304,7 +304,7 @@ BETRIEB_MODULE = {
             "note": "Ausgabeformate nach dem NIOS CLI Guide (show version, show upgrade_history, show status); Versionsstände und Seriennummer sind Beispielwerte.",
             "payload": {
                 "title_de": "Vor dem Upgrade: Ausgangslage an der Konsole festhalten",
-                "title_en": "Before the upgrade: record the starting point on the console",
+                "title_en": "Before the Upgrade: Record the Starting Point on the Console",
                 "intro_de": "Konsole des Grid Masters. Notiere die Werte, bevor du etwas veränderst.",
                 "intro_en": "Console of the Grid Master. Note the values before you change anything.",
                 "prompt": "Infoblox >",
@@ -389,7 +389,7 @@ BETRIEB_MODULE = {
             "id": "scenario-upgrade-planung",
             "payload": {
                 "title_de": "Upgrade am Donnerstagabend: drei Planungsentscheidungen",
-                "title_en": "Upgrade on Thursday evening: three planning decisions",
+                "title_en": "Upgrade on Thursday Evening: Three Planning Decisions",
                 "start": "start",
                 "nodes": [
                     {
@@ -452,7 +452,7 @@ BETRIEB_MODULE = {
                     {
                         "id": "getrennt",
                         "text_de": "Donnerstag, 21:05 Uhr. Der Grid Master ist aktualisiert, alles sieht gut aus. Vor dem Start hast du ein Backup angelegt? Ein Kollege meint: „Das von Sonntag reicht doch.“",
-                        "text_en": "Thursday, 9:05 p.m. The Grid Master is upgraded, everything looks good. Did you take a backup before starting? A colleague says: \"The one from Sunday is good enough.\"",
+                        "text_en": "Thursday, 9:05 p.m. The Grid Master is upgraded, everything looks good. Did you take a backup before starting? A colleague says: “The one from Sunday is good enough.”",
                         "options": [
                             {
                                 "label_de": "Stimmt, seit Sonntag wurde kaum etwas geändert.",
@@ -470,7 +470,7 @@ BETRIEB_MODULE = {
                         "id": "sonntag",
                         "outcome": "ok",
                         "text_de": "Solange nichts schiefgeht, merkt es niemand. Im Fehlerfall fehlen aber vier Tage an Änderungen — Zonen, Netze, feste Adressen —, und niemand weiß genau, welche. „Kaum etwas“ ist keine Liste.",
-                        "text_en": "As long as nothing goes wrong, nobody notices. But in case of failure four days of changes are missing — zones, networks, fixed addresses — and nobody knows exactly which. \"Hardly anything\" is not a list.",
+                        "text_en": "As long as nothing goes wrong, nobody notices. But in case of failure four days of changes are missing — zones, networks, fixed addresses — and nobody knows exactly which. “Hardly anything” is not a list.",
                     },
                     {
                         "id": "frisch",
@@ -513,7 +513,7 @@ BETRIEB_MODULE = {
         {"id": "bt2",
          "explanation": {
              "de": "Ein älteres Backup lässt sich auf einer neueren Version einspielen, wenn der Sprung ein unterstützter Upgrade-Pfad ist. „Immer“ stimmt nicht, weil nicht jeder Sprung unterstützt wird; „nie“ stimmt nicht, weil Vorwärtskompatibilität vorgesehen ist.",
-             "en": "An older backup can be restored onto a newer version if the jump is a supported upgrade path. \"Always\" is wrong because not every jump is supported; \"never\" is wrong because forward compatibility is intended.",
+             "en": "An older backup can be restored onto a newer version if the jump is a supported upgrade path. “Always” is wrong because not every jump is supported; “never” is wrong because forward compatibility is intended.",
          },
          "type": "single",
          "prompt": {"de": "Ein Backup stammt von einer älteren NIOS-Version als das Zielsystem. "
@@ -557,7 +557,7 @@ BETRIEB_MODULE = {
         {"id": "bt4",
          "explanation": {
              "de": "Ein Backup, das nur „bei Gelegenheit“ oder erst im Störfall entsteht, ist im Ernstfall zu alt oder gar nicht da. Automatisiert und außerhalb der Hauptlastzeit ist es regelmäßig vorhanden, ohne den Betrieb zu bremsen.",
-             "en": "A backup that is only taken \"when there is time\" or during an incident is too old or missing when it counts. Automated and outside peak hours, it is reliably there without slowing operations down.",
+             "en": "A backup that is only taken “when there is time” or during an incident is too old or missing when it counts. Automated and outside peak hours, it is reliably there without slowing operations down.",
          },
          "type": "single",
          "prompt": {"de": "Wann sollte ein geplantes Grid-Backup laufen?",
@@ -598,7 +598,7 @@ BETRIEB_MODULE = {
             "type": "single",
             "prompt": {
                 "de": "Die Phase „Distribute“ ist auf allen Membern abgeschlossen. Welche Aussage beschreibt den Zustand des Grids?",
-                "en": "The \"Distribute\" phase has completed on all members. Which statement describes the state of the Grid?",
+                "en": "The “Distribute” phase has completed on all members. Which statement describes the state of the Grid?",
             },
             "answer": 1,
             "options": {
@@ -624,8 +624,8 @@ BETRIEB_MODULE = {
             "id": "bt7",
             "type": "multi",
             "prompt": {
-                "de": "Nach einem Hardwaredefekt wird das Grid-Backup von vor 14 Tagen eingespielt. Der Restore meldet Erfolg. Was musst du danach ausdrücklich prüfen oder nacharbeiten (mehrere richtig)?",
-                "en": "After a hardware failure the Grid backup from 14 days ago is restored. The restore reports success. What must you explicitly check or redo afterwards (multiple)?",
+                "de": "Nach einem Hardwaredefekt wird das Grid-Backup von vor 14 Tagen eingespielt. Der Restore meldet Erfolg. Was musst du danach ausdrücklich prüfen oder nacharbeiten? Mehrere Antworten sind richtig.",
+                "en": "After a hardware failure the Grid backup from 14 days ago is restored. The restore reports success. What must you explicitly check or redo afterwards? Select all that apply.",
             },
             "answer": [0, 2, 3],
             "options": {

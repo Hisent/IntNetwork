@@ -67,7 +67,7 @@ DHCP_MODULE = {
          "payload": {
              "kind": "sequence",
              "title_de": "DORA: ein neuer Client holt sich eine Adresse",
-             "title_en": "DORA: a new client obtains an address",
+             "title_en": "DORA: a New Client Obtains an Address",
              "actors": [
                  {"id": "client", "label_de": "Client (noch ohne IP)", "label_en": "Client (no IP yet)"},
                  {"id": "server", "label_de": "DHCP-Server", "label_en": "DHCP server"},
@@ -101,9 +101,7 @@ DHCP_MODULE = {
          "note": "Mehrmals einen neuen Client verbinden lassen → jeder bekommt die "
                  "nächste Pool-Adresse; die vier DORA-Schritte des letzten durchgehen."},
         {"type": "widget", "id": "visual-dhcp-lease",
-         "note": "DE: Eine Lease von der Vergabe über T1/T2 bis Erneuerung oder Ablauf "
-                 "verfolgen. EN: Follow a lease from assignment through T1/T2 to renewal or "
-                 "expiration."},
+         "note": "Eine Lease von der Vergabe über T1/T2 bis Erneuerung oder Ablauf verfolgen."},
         {"type": "text", "id": "text-dhcp-relay",
          "value": {
              "de": "## DHCP über VLAN-Grenzen: Relay\n\nDORA startet mit Broadcast — und "
@@ -123,9 +121,7 @@ DHCP_MODULE = {
                    "the request came from and assigns an address from the matching pool.",
          }},
         {"type": "widget", "id": "visual-dhcp-relay",
-         "note": "DE: Den Pfad Client (VLAN 20) → Router → DHCP-Server (VLAN 10) ohne und "
-                 "mit Relay durchspielen. EN: Play through the path client (VLAN 20) → "
-                 "router → DHCP server (VLAN 10) without and with relay."},
+         "note": "Den Pfad Client (VLAN 20) → Router → DHCP-Server (VLAN 10) ohne und mit Relay durchspielen."},
         {"type": "widget", "id": "learning-dhcp", "note": "DHCP-Symptome der Fehlerquelle zuordnen."},
         {"type": "text", "id": "text-4",
          "value": {
@@ -139,7 +135,7 @@ DHCP_MODULE = {
              "en": "## Lease & Pool\n\nAn address is only assigned **for a "
                    "period of time** (lease time) and must be renewed before it expires, "
                    "otherwise it becomes free again — so addresses aren't permanently lost. The range the server assigns from is "
-                   "called the **pool** (e.g. `192.168.10.100–199`). Important devices like printers or "
+                   "called the **pool** (e.g., `192.168.10.100–199`). Important devices like printers or "
                    "servers often get a **reservation**: DHCP always assigns them the same address based on "
                    "their client ID/MAC. Alternatively, an address can be configured statically on the device.",
          }},
@@ -148,11 +144,11 @@ DHCP_MODULE = {
                  "genau der Fall „statisch, aber nicht mit dem DHCP-Server abgestimmt“.",
          "payload": {
              "kind": "compare",
-             "title_de": "Drei Wege zu einer IP-Adresse", "title_en": "Three ways to get an IP address",
+             "title_de": "Drei Wege zu einer IP-Adresse", "title_en": "Three Ways to Get an IP Address",
              "columns": [
-                 {"title_de": "Dynamisch (Pool)", "title_en": "Dynamic (pool)"},
-                 {"title_de": "DHCP-Reservierung", "title_en": "DHCP reservation"},
-                 {"title_de": "Statisch am Gerät", "title_en": "Static on the device"},
+                 {"title_de": "Dynamisch (Pool)", "title_en": "Dynamic (Pool)"},
+                 {"title_de": "DHCP-Reservierung", "title_en": "DHCP Reservation"},
+                 {"title_de": "Statisch am Gerät", "title_en": "Static on the Device"},
              ],
              "rows": [
                  {"label_de": "Konfiguriert wird", "label_en": "What is configured",
@@ -183,7 +179,7 @@ DHCP_MODULE = {
                  "IOS ein eigener Pool mit „host“.",
          "payload": {
              "title_de": "Dem DHCP-Server über die Schulter schauen",
-             "title_en": "Looking over the DHCP server's shoulder",
+             "title_en": "Looking Over the DHCP Server's Shoulder",
              "intro_de": "Nordwind-DHCP1 vergibt die Adressen im Lager-Netz. Tippe ? für die Befehle.",
              "intro_en": "Nordwind-DHCP1 hands out the addresses on the warehouse network. Type ? for the commands.",
              "prompt": "Nordwind-DHCP1#",
@@ -197,7 +193,7 @@ DHCP_MODULE = {
                             "ip dhcp pool LAGER\n"
                             " network 192.168.10.0 255.255.255.0\n"
                             " default-router 192.168.10.1\n"
-                            " dns-server 192.168.10.1\n"
+                            " dns-server 192.168.10.53\n"
                             " lease 1\n"
                             "ip dhcp pool DRUCKER-LAGER\n"
                             " host 192.168.10.12 255.255.255.0\n"
@@ -297,8 +293,8 @@ DHCP_MODULE = {
                    "to the pool. An address only stays permanently the same through a reservation — which "
                    "technically also runs on leases."}},
         {"id": "h5", "type": "multi",
-         "prompt": {"de": "Welche Aussagen zum DHCP-Verkehr stimmen? (mehrere)",
-                    "en": "Which statements about DHCP traffic are true? (multiple)"},
+         "prompt": {"de": "Welche Aussagen zum DHCP-Verkehr stimmen? Mehrere Antworten sind richtig.",
+                    "en": "Which statements about DHCP traffic are true? Select all that apply."},
          "options": {
              "de": ["DHCP nutzt UDP: Server-Port 67, Client-Port 68",
                     "Das Discover hat die Quell-IP 0.0.0.0 und die Ziel-IP 255.255.255.255",

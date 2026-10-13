@@ -68,7 +68,7 @@ PLUGINS_MODULE = {'key': 'plugins',
                      '.claude-plugin/, alles andere im Plugin-Wurzelverzeichnis.',
              'payload': {'kind': 'layers',
                          'title_de': 'Aufbau eines Plugins',
-                         'title_en': 'Anatomy of a plugin',
+                         'title_en': 'Anatomy of a Plugin',
                          'caption_de': 'Alle Einträge liegen direkt im Plugin-Wurzelverzeichnis; '
                                        'nur anlegen, was du brauchst.',
                          'caption_en': 'Every entry sits directly in the plugin root; add only '
@@ -89,7 +89,7 @@ PLUGINS_MODULE = {'key': 'plugins',
                                      'detail_de': 'Plugin-Skills tragen den Plugin-Namen als '
                                                   'Präfix, z.B. /my-plugin:hello.',
                                      'detail_en': 'Plugin skills carry the plugin name as a '
-                                                  'prefix, e.g. /my-plugin:hello.'},
+                                                  'prefix, e.g., /my-plugin:hello.'},
                                     {'name': 'agents/',
                                      'content_de': 'Eine Markdown-Datei je Subagent',
                                      'content_en': 'One Markdown file per subagent'},
@@ -267,7 +267,7 @@ PLUGINS_MODULE = {'key': 'plugins',
                              '```\n'
                              '\n'
                              'In the session, you then test `/my-plugin:hello`, check the loaded '
-                             'components via `/plugin` ("Installed" tab), and verify hooks. After '
+                             'components via `/plugin` (“Installed” tab), and verify hooks. After '
                              'changes, `/reload-plugins` reloads everything without a restart. '
                              '`claude plugin validate ./my-plugin` checks, from your shell, the '
                              'manifest and the frontmatter of the skill, agent and command files; '
@@ -279,7 +279,7 @@ PLUGINS_MODULE = {'key': 'plugins',
                      'loaded“ stammen aus der Doku; der Wortlaut der Warnung und das Layout sind '
                      'nachgestellt.',
              'payload': {'title_de': 'Plugin prüfen, bevor es jemand installiert',
-                         'title_en': 'Check a plugin before anyone installs it',
+                         'title_en': 'Check a Plugin Before Anyone Installs It',
                          'prompt': '$',
                          'unknown': 'error: unknown command: {cmd}',
                          'commands': [{'cmd': 'claude plugin validate ./my-plugin',
@@ -418,8 +418,8 @@ PLUGINS_MODULE = {'key': 'plugins',
                                       'command?'}}],
  'quiz': {'questions': [{'id': 'pl1',
                          'type': 'multi',
-                         'prompt': {'de': 'Was kann ein Plugin bündeln? (mehrere)',
-                                    'en': 'What can a plugin bundle? (multiple)'},
+                         'prompt': {'de': 'Was kann ein Plugin bündeln? Mehrere Antworten sind richtig.',
+                                    'en': 'What can a plugin bundle? Select all that apply.'},
                          'answer': [0, 1, 2, 3],
                          'options': {'de': ['Skills',
                                             'Agenten',
@@ -485,7 +485,7 @@ PLUGINS_MODULE = {'key': 'plugins',
                                          'en': '`--plugin-dir` loads a plugin straight from the '
                                                'directory for that one session — no marketplace, '
                                                'no installation. It points at the plugin root, '
-                                               'i.e. the folder that contains .claude-plugin/ and '
+                                               'i.e., the folder that contains .claude-plugin/ and '
                                                'skills/.'}},
                         {'id': 'pl4',
                          'type': 'single',
@@ -586,17 +586,17 @@ PLUGINS_MODULE = {'key': 'plugins',
                                                'grün. Erst `--strict` behandelt Warnungen als '
                                                'Fehler und liefert Exit-Code 1.',
                                          'en': 'A missing version is only a warning: without the '
-                                               'flag the run ends with "Validation passed with '
-                                               'warnings" and exit code 0, so the pipeline would '
+                                               'flag the run ends with “Validation passed with '
+                                               'warnings” and exit code 0, so the pipeline would '
                                                'stay green. Only `--strict` treats warnings as '
                                                'errors and returns exit code 1.'}},
                         {'id': 'pl8',
                          'type': 'multi',
                          'prompt': {'de': 'Nach einer Änderung an deinem Plugin taucht ein Skill '
                                           'nicht auf. Welche Schritte helfen bei der Fehlersuche? '
-                                          '(mehrere)',
+                                          'Mehrere Antworten sind richtig.',
                                     'en': 'After changing your plugin, a skill does not show up. '
-                                          'Which steps help with troubleshooting? (multiple)'},
+                                          'Which steps help with troubleshooting? Select all that apply.'},
                          'answer': [0, 1, 2],
                          'options': {'de': ['In der Shell `claude plugin validate <pfad>` '
                                             'ausführen',
@@ -606,7 +606,7 @@ PLUGINS_MODULE = {'key': 'plugins',
                                             'verschieben'],
                                      'en': ['Run `claude plugin validate <path>` in the shell',
                                             'Run `/reload-plugins` in the session',
-                                            'Look at the "Errors" tab in `/plugin`',
+                                            'Look at the “Errors” tab in `/plugin`',
                                             'Move the skills/ directory into .claude-plugin/']},
                          'explanation': {'de': 'Validieren, neu laden und den Errors-Tab lesen '
                                                'zeigen der Reihe nach, was Claude Code mit dem '

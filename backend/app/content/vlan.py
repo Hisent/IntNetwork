@@ -12,7 +12,7 @@ VLAN_MODULE = {
     "goals_en": [
         "Understand VLANs as separate broadcast domains on one switch",
         "Explain access and trunk ports and the 802.1Q tag",
-        "Know that crossing VLANs requires a router (layer 3)",
+        "Know that crossing VLANs requires a router (Layer 3)",
     ],
     "scenario": {
         "de": "Im Lager hängen Kameras, Gäste-WLAN, Büro-PCs und Drucker am "
@@ -39,15 +39,17 @@ VLAN_MODULE = {
         {"type": "text", "id": "text-2",
          "value": {
              "de": "## Warum VLANs?\n\n- **Trennung**: Lager (VLAN 10), Büro (VLAN 20) "
-                   "und Gäste-WLAN (VLAN 30) am selben Switch, aber logisch getrennt.\n"
+                   "und Gäste-WLAN (VLAN 99) am selben Switch, aber logisch getrennt; die von außen "
+                   "erreichbaren Server stehen in der DMZ (VLAN 30).\n"
                    "- **Begrenzung**: Broadcasts und direkte Layer-2-Kommunikation bleiben im VLAN. "
                    "Das ist noch keine vollständige Sicherheitsgrenze — dafür braucht es zusätzlich "
                    "sauberes Inter-VLAN-Routing und Firewall-Regeln.\n"
                    "- **Weniger Broadcast-Last**: Broadcasts bleiben im VLAN, fluten nicht das ganze Netz.\n"
                    "- **Flexibilität**: VLAN-Zugehörigkeit per Port-Konfiguration, nicht per Verkabelung.",
              "en": "## Why VLANs?\n\n- **Separation**: warehouse (VLAN 10), office (VLAN 20) "
-                   "and guest Wi-Fi (VLAN 30) on the same switch, but logically separate.\n"
-                   "- **Containment**: broadcasts and direct layer-2 traffic stay inside the VLAN. "
+                   "and guest Wi-Fi (VLAN 99) on the same switch, but logically separate; the servers "
+                   "reachable from outside sit in the DMZ (VLAN 30).\n"
+                   "- **Containment**: broadcasts and direct Layer 2 traffic stay inside the VLAN. "
                    "That is not yet a complete security boundary — that also takes properly set up "
                    "inter-VLAN routing and firewall rules.\n"
                    "- **Less broadcast load**: broadcasts stay within the VLAN, don't flood the whole network.\n"
@@ -72,10 +74,10 @@ VLAN_MODULE = {
          "payload": {
              "kind": "compare",
              "title_de": "Access-Port und Trunk-Port im Vergleich",
-             "title_en": "Access port and trunk port compared",
+             "title_en": "Access Port and Trunk Port Compared",
              "columns": [
-                 {"title_de": "Access-Port", "title_en": "Access port"},
-                 {"title_de": "Trunk-Port", "title_en": "Trunk port"},
+                 {"title_de": "Access-Port", "title_en": "Access Port"},
+                 {"title_de": "Trunk-Port", "title_en": "Trunk Port"},
              ],
              "rows": [
                  {"label_de": "VLANs auf dem Port", "label_en": "VLANs on the port",
@@ -113,9 +115,7 @@ VLAN_MODULE = {
                  "der Trunk (Port 6) zeigt das 802.1Q-Tag — außer für sein Native VLAN (ungetaggt). Dann zwei Ports aufs selbe VLAN "
                  "stellen → sie erreichen sich."},
         {"type": "widget", "id": "visual-vlan-tag-path",
-         "note": "DE: Frame vom Access-Port über den Trunk verfolgen und erkennen, wo der "
-                 "802.1Q-Tag ergänzt oder entfernt wird. EN: Trace a frame from an access port "
-                 "across the trunk and observe where its 802.1Q tag is added or removed."},
+         "note": "Frame vom Access-Port über den Trunk verfolgen und erkennen, wo der 802.1Q-Tag ergänzt oder entfernt wird."},
         {"type": "cloze", "id": "cloze-trunk-config",
          "note": "Cisco-IOS-Syntax. Ohne die Zeile „allowed vlan“ trägt ein Cisco-Trunk alle VLANs; "
                  "die Liste einzuschränken ist gute Praxis.",
@@ -153,7 +153,7 @@ VLAN_MODULE = {
                    "Broadcast-Domäne. Ein Broadcast (z.B. ARP) aus VLAN 10 erreicht nur Ports in "
                    "VLAN 10 — Ports in VLAN 20/30 sehen ihn nie.",
              "en": "## Broadcast Domains\n\nEvery VLAN is its own "
-                   "broadcast domain. A broadcast (e.g. ARP) from VLAN 10 only reaches ports in "
+                   "broadcast domain. A broadcast (e.g., ARP) from VLAN 10 only reaches ports in "
                    "VLAN 10 — ports in VLAN 20/30 never see it.",
          }},
         {"type": "text", "id": "text-6",
@@ -163,9 +163,9 @@ VLAN_MODULE = {
                    "Stichwort **Inter-VLAN-Routing** / „Router-on-a-Stick“: ein Trunk zum Router, der "
                    "zwischen den VLANs vermittelt. Ohne Layer 3 bleiben VLANs strikt getrennt.",
              "en": "## Talking Across VLANs? → Router\n\nFor VLAN 10 and "
-                   "VLAN 20 to communicate, a **layer-3 device** is needed (router or layer-3 switch). "
+                   "VLAN 20 to communicate, a **Layer 3 device** is needed (router or Layer 3 switch). "
                    "This is called **inter-VLAN routing**, or “router-on-a-stick”: a trunk to the router, which "
-                   "routes between the VLANs. Without layer 3, VLANs stay strictly separated.",
+                   "routes between the VLANs. Without Layer 3, VLANs stay strictly separated.",
          }},
         {"type": "diagram", "id": "diagram-router-on-a-stick",
          "note": "Schrittweise durchklicken: Der Frame läuft zweimal über denselben Trunk — einmal mit "
@@ -173,7 +173,7 @@ VLAN_MODULE = {
          "payload": {
              "kind": "flow",
              "title_de": "Router-on-a-Stick: vom Lager ins Büro",
-             "title_en": "Router-on-a-stick: from warehouse to office",
+             "title_en": "Router-on-a-Stick: From Warehouse to Office",
              "caption_de": "Ein Trunk zum Router, ein Subinterface je VLAN",
              "caption_en": "One trunk to the router, one subinterface per VLAN",
              "nodes": [
@@ -241,10 +241,10 @@ VLAN_MODULE = {
                    "Gerät gemeint ist — nicht, in welchem VLAN es liegt; IP-Header und Portnummern liest ein "
                    "Schicht-2-Switch dafür gar nicht.",
              "en": "The 802.1Q tag in the Ethernet header carries the VLAN ID. The MAC address only says "
-                   "which device is meant — not which VLAN it is in; a layer-2 switch does not read IP "
+                   "which device is meant — not which VLAN it is in; a Layer 2 switch does not read IP "
                    "headers or port numbers for this at all."}},
         {"id": "v3", "type": "multi",
-         "prompt": {"de": "Was stimmt über VLANs? (mehrere)", "en": "What's true about VLANs? (multiple)"},
+         "prompt": {"de": "Was stimmt über VLANs? Mehrere Antworten sind richtig.", "en": "What's true about VLANs? Select all that apply."},
          "options": {
              "de": ["Eigene Broadcast-Domäne", "Brauchen Router für VLAN-übergreifend",
                     "Access-Port taggt Frames", "Trennen Geräte logisch"],

@@ -3,7 +3,7 @@
 
 SPEC_DRIVEN_BMAD_MODULE = {'key': 'spec-driven-bmad',
  'title': 'Spec-driven Development & BMAD',
- 'title_en': 'Spec-driven Development & BMAD',
+ 'title_en': 'Spec-Driven Development & BMAD',
  'order': 110,
  'prerequisites': ['claude-md', 'subagents'],
  'goals': ['Verstehen, warum spec-driven Arbeiten die Ergebnisqualität hebt',
@@ -41,7 +41,7 @@ SPEC_DRIVEN_BMAD_MODULE = {'key': 'spec-driven-bmad',
                              '> So entstehen übrigens auch Kursinhalte wie diese — zuerst als '
                              'Design-Spec und Roadmap, bevor die einzelnen Module '
                              'geschrieben werden.',
-                       'en': '## Why spec-driven?\n'
+                       'en': '## Why Spec-Driven?\n'
                              '\n'
                              'An LLM is only as good as its context (Module 1). Throw a vague task '
                              'at it, and the agent guesses — and you end up making expensive '
@@ -75,7 +75,7 @@ SPEC_DRIVEN_BMAD_MODULE = {'key': 'spec-driven-bmad',
                              '\n'
                              'Die Spec bleibt im Repo — sie dokumentiert die Entscheidung und '
                              'beschleunigt spätere Änderungen.',
-                       'en': '## The workflow: Spec → Plan → Implementation → Review\n'
+                       'en': '## The Workflow: Spec → Plan → Implementation → Review\n'
                              '\n'
                              'A proven cycle with Claude Code:\n'
                              '\n'
@@ -139,11 +139,11 @@ SPEC_DRIVEN_BMAD_MODULE = {'key': 'spec-driven-bmad',
                              'Die Idee ist **kontextreiche Übergabe**: Jede Rolle bekommt genau '
                              'das Artefakt der vorherigen als Input — die Spec-driven-Idee, '
                              'konsequent über den ganzen Lebenszyklus gezogen.',
-                       'en': '## BMAD in brief\n'
+                       'en': '## BMAD in Brief\n'
                              '\n'
                              '**BMAD** (the project spells it *BMad Method*) is an open-source '
                              'methodology for agile, AI-driven development — the project itself '
-                             'calls this “Agile AI-Driven Development”. The long form of the '
+                             'calls this “Agile AI-Driven Development.” The long form of the '
                              'acronym that used to circulate no longer appears in the current '
                              'project docs; remember the idea, not the letters. Its core idea: '
                              '**specialized roles (agents)** move through the process and produce '
@@ -179,7 +179,7 @@ SPEC_DRIVEN_BMAD_MODULE = {'key': 'spec-driven-bmad',
                      'Pflichtkette – kleine Änderungen springen direkt zu Build.',
              'payload': {'kind': 'flow',
                          'title_de': 'BMAD: Phasen und ihre Artefakte',
-                         'title_en': 'BMAD: phases and their artifacts',
+                         'title_en': 'BMAD: Phases and Their Artifacts',
                          'caption_de': 'Jede Phase übergibt ein Dokument an die nächste. Kleine '
                                        'Änderungen starten direkt bei Build.',
                          'caption_en': 'Each phase hands a document to the next. Small changes '
@@ -256,7 +256,7 @@ SPEC_DRIVEN_BMAD_MODULE = {'key': 'spec-driven-bmad',
                              'Team denselben Prozess installiert.\n'
                              '\n'
                              'So bekommst du BMADs Struktur, ohne die Werkzeuge zu wechseln.',
-                       'en': '## Mapping BMAD roles onto Claude Code\n'
+                       'en': '## Mapping BMAD Roles Onto Claude Code\n'
                              '\n'
                              "You don't need an additional framework to use the core idea — Claude "
                              'Code already has the building blocks:\n'
@@ -264,7 +264,7 @@ SPEC_DRIVEN_BMAD_MODULE = {'key': 'spec-driven-bmad',
                              '- Each **role** is a **subagent** (Module 9) with a focused system '
                              'prompt and matching tool permissions (a pure review agent, for '
                              'example, is read-only).\n'
-                             '- Recurring process steps become **skills** (Module 6), e.g. '
+                             '- Recurring process steps become **skills** (Module 6), e.g., '
                              '`/write-prd` or `/slice-stories`.\n'
                              '- The **artifacts** (PRD, architecture, stories) live as Markdown in '
                              'the repo — just like specs and plans.\n'
@@ -357,7 +357,7 @@ SPEC_DRIVEN_BMAD_MODULE = {'key': 'spec-driven-bmad',
              'note': 'Im Plenum abstimmen lassen. Kernpunkt: Die Spec macht das Review erst '
                      'möglich.',
              'payload': {'title_de': 'Feature-Wunsch: Wie viel Spec braucht es?',
-                         'title_en': 'Feature request: how much spec does it need?',
+                         'title_en': 'Feature Request: How Much Spec Does It Need?',
                          'start': 'wunsch',
                          'nodes': [{'id': 'wunsch',
                                     'text_de': 'Im Ticket steht nur: „Wir brauchen einen Export '
@@ -405,7 +405,7 @@ SPEC_DRIVEN_BMAD_MODULE = {'key': 'spec-driven-bmad',
                                     'text_de': 'Der Agent meldet „fertig“. Der Export funktioniert '
                                                'in deinem Admin-Konto. Wann ist die Aufgabe '
                                                'erledigt?',
-                                    'text_en': 'The agent reports “done”. The export works in your '
+                                    'text_en': 'The agent reports “done.” The export works in your '
                                                'admin account. When is the task finished?',
                                     'options': [{'label_de': 'Jetzt – es funktioniert ja sichtbar.',
                                                  'label_en': 'Now – it visibly works.',
@@ -533,8 +533,8 @@ SPEC_DRIVEN_BMAD_MODULE = {'key': 'spec-driven-bmad',
                                                'afterwards what the agent guessed.'}},
                         {'id': 'sd2',
                          'type': 'multi',
-                         'prompt': {'de': 'Was gehört in eine gute Spec? (mehrere)',
-                                    'en': 'What belongs in a good spec? (multiple)'},
+                         'prompt': {'de': 'Was gehört in eine gute Spec? Mehrere Antworten sind richtig.',
+                                    'en': 'What belongs in a good spec? Select all that apply.'},
                          'answer': [0, 1, 2],
                          'options': {'de': ['Ziel',
                                             'Umfang & Nicht-Ziele',
@@ -660,7 +660,7 @@ SPEC_DRIVEN_BMAD_MODULE = {'key': 'spec-driven-bmad',
                                                'prüfen kann.',
                                          'en': 'An acceptance criterion is useful when a test or a '
                                                'request answers it with a clear yes or no – like '
-                                               'the status code for non-admins. “Fast”, “clean”, '
+                                               'the status code for non-admins. “Fast,” “clean,” '
                                                'and “happy” sound good but give a review agent '
                                                'nothing to check against.'}},
                         {'id': 'sd7',
@@ -671,7 +671,7 @@ SPEC_DRIVEN_BMAD_MODULE = {'key': 'spec-driven-bmad',
                                           'passt zur Idee – auch nach der BMAD-Doku?',
                                     'en': 'An error message contains a typo. A colleague demands a '
                                           'PRD, an architecture document, and stories for it, '
-                                          '“because we work spec-driven now”. What fits the idea – '
+                                          '“because we work spec-driven now.” What fits the idea – '
                                           'according to the BMAD docs as well?'},
                          'answer': 1,
                          'options': {'de': ['Er hat recht: Ohne alle Artefakte darf nichts '
@@ -705,9 +705,9 @@ SPEC_DRIVEN_BMAD_MODULE = {'key': 'spec-driven-bmad',
                         {'id': 'sd8',
                          'type': 'multi',
                          'prompt': {'de': 'Du bildest den Review-Schritt als Subagent ab. Was '
-                                          'gehört zu einer sauberen Umsetzung? (mehrere)',
+                                          'gehört zu einer sauberen Umsetzung? Mehrere Antworten sind richtig.',
                                     'en': 'You map the review step onto a subagent. What is part '
-                                          'of a clean setup? (multiple)'},
+                                          'of a clean setup? Select all that apply.'},
                          'answer': [0, 1, 3],
                          'options': {'de': ['Nur lesende Tools – der Prüfer ändert nichts',
                                             'Die Spec mit den Akzeptanzkriterien als Eingabe',

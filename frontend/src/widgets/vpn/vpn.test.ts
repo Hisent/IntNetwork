@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { attackerView, encapsulate, decapsulate, scenarioFor, SCENARIO, type Packet } from './vpn'
+import { attackerView, encapsulate, decapsulate, scenarioFor, SCENARIO, TUNNEL_OVERHEAD_BYTES, type Packet } from './vpn'
 
 const inner: Packet = { src: '192.168.10.5', dst: '10.20.0.9', payload: 'Gehaltsliste' }
 
@@ -42,8 +42,19 @@ describe('attackerView', () => {
 
   it('behält Metadaten (Größe, Zeitpunkt) auch mit VPN sichtbar', () => {
     const view = attackerView(inner, t, true, 812, '14:32:07')
-    expect(view.metadataVisible).toContain('812 Bytes')
+    expect(view.metadataVisible.join(' · ')).toContain('Bytes')
     expect(view.metadataVisible).toContain('14:32:07')
+  })
+
+  it('mit VPN ist das Paket um den Tunnel-Overhead größer, als Größenordnung gekennzeichnet (de/en)', () => {
+    expect(TUNNEL_OVERHEAD_BYTES).toBeGreaterThanOrEqual(60)
+    expect(TUNNEL_OVERHEAD_BYTES).toBeLessThanOrEqual(80)
+    expect(attackerView(inner, t, false, 812).metadataVisible).toContain('812 Bytes')
+    expect(attackerView(inner, t, false, 812, '14:32:07', 'en').metadataVisible).toContain('812 bytes')
+    const de = attackerView(inner, t, true, 812).metadataVisible[1]
+    const en = attackerView(inner, t, true, 812, '14:32:07', 'en').metadataVisible[1]
+    expect(de).toBe(`ca. ${812 + TUNNEL_OVERHEAD_BYTES} Bytes (812 + ca. ${TUNNEL_OVERHEAD_BYTES} Tunnel-Overhead, Größenordnung)`)
+    expect(en).toBe(`approx. ${812 + TUNNEL_OVERHEAD_BYTES} bytes (812 + approx. ${TUNNEL_OVERHEAD_BYTES} tunnel overhead, order of magnitude)`)
   })
 })
 

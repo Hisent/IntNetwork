@@ -36,9 +36,9 @@ NAC_8021X_MODULE = {
     },
     'blocks': [
         {'type': 'text', 'id': 'text-1',
-         'note': 'Rollen zuerst an den Nordwind-Geraeten festmachen (Laptop/Switch/RADIUS-'
+         'note': 'Rollen zuerst an den Nordwind-Geräten festmachen (Laptop/Switch/RADIUS-'
                  'Server), erst danach die Fachbegriffe Supplicant/Authenticator/Authentication '
-                 'Server einfuehren. Sonst bleiben es abstrakte Labels.',
+                 'Server einführen. Sonst bleiben es abstrakte Labels.',
          'value': {
              'de': '## Die drei Rollen von 802.1X\n\n'
                    '**IEEE 802.1X** (aktuell 802.1X-2020) spezifiziert Architektur und Protokolle '
@@ -73,7 +73,7 @@ NAC_8021X_MODULE = {
             'payload': {
                 'kind': 'flow',
                 'title_de': '802.1X: drei Rollen, zwei Strecken',
-                'title_en': '802.1X: three roles, two legs',
+                'title_en': '802.1X: Three Roles, Two Legs',
                 'nodes': [
                     {
                         'id': 'pc',
@@ -82,7 +82,7 @@ NAC_8021X_MODULE = {
                         'col': 0,
                         'label': 'Supplicant',
                         'detail_de': 'Software auf dem Endgerät (Windows: Dienst „Automatische Konfiguration (verkabelt)“, Linux: wpa_supplicant). Spricht EAPOL, kennt RADIUS nicht.',
-                        'detail_en': 'Software on the endpoint (Windows: "Wired AutoConfig" service, Linux: wpa_supplicant). Speaks EAPOL, knows nothing about RADIUS.',
+                        'detail_en': 'Software on the endpoint (Windows: “Wired AutoConfig” service, Linux: wpa_supplicant). Speaks EAPOL, knows nothing about RADIUS.',
                     },
                     {
                         'id': 'sw',
@@ -210,9 +210,9 @@ NAC_8021X_MODULE = {
          }},
         {'type': 'widget', 'id': 'dot1x-flow',
          'note': 'Kernvisualisierung des Moduls — der Text davor liefert die Begriffe, das '
-                 'Widget macht die Sequenz zwischen den drei Rollen fuer die Lernenden greifbar. '
-                 'Erst den Erfolgsfall (EAP-TLS) komplett, dann einen Fehlerpfad waehlen lassen; die '
-                 'Pfade MAB, Gast-VLAN und Critical VLAN sind hier nur Vorschau auf spaetere Module.'},
+                 'Widget macht die Sequenz zwischen den drei Rollen für die Lernenden greifbar. '
+                 'Erst den Erfolgsfall (EAP-TLS) komplett, dann einen Fehlerpfad wählen lassen; die '
+                 'Pfade MAB, Gast-VLAN und Critical VLAN sind hier nur Vorschau auf spätere Module.'},
         {
             'type': 'cloze',
             'id': 'cloze-port-8021x',
@@ -249,7 +249,7 @@ NAC_8021X_MODULE = {
                     },
                 ],
                 'explanation_de': '„dot1x system-auth-control“ schaltet 802.1X global ein. „port-control auto“ macht den Port abhängig vom Ergebnis der Authentifizierung; „force-authorized“ (Standard) ließe jeden durch, „force-unauthorized“ niemanden. Der Switch ist am Port der Authenticator.',
-                'explanation_en': '"dot1x system-auth-control" enables 802.1X globally. "port-control auto" makes the port depend on the authentication result; "force-authorized" (the default) would let everyone through, "force-unauthorized" nobody. The switch is the authenticator on the port.',
+                'explanation_en': '“dot1x system-auth-control” enables 802.1X globally. “port-control auto” makes the port depend on the authentication result; “force-authorized” (the default) would let everyone through, “force-unauthorized” nobody. The switch is the authenticator on the port.',
             },
         },
         {'type': 'order', 'id': 'order-1',
@@ -324,9 +324,9 @@ NAC_8021X_MODULE = {
             'note': 'Ausgaben im Format von IOS-XE 16/17, gekürzt (u. a. ohne IIF-ID, Handle, Local Policies). Auf älteren Plattformen heißt der Befehl „show authentication sessions interface … details“.',
             'payload': {
                 'title_de': 'Sitzung am Port prüfen',
-                'title_en': 'Inspect the session on the port',
+                'title_en': 'Inspect the Session on the Port',
                 'intro_de': 'Access-Switch der Nordwind-Zentrale. „?“ zeigt die Befehle.',
-                'intro_en': 'Access switch at Nordwind headquarters. "?" lists the commands.',
+                'intro_en': 'Access switch at Nordwind headquarters. “?” lists the commands.',
                 'prompt': 'nw-acc1#',
                 'abbreviations': True,
                 'unknown': '% Invalid input detected: {cmd}',
@@ -409,7 +409,7 @@ NAC_8021X_MODULE = {
             'note': 'Bewusst kompakt: Einordnung, nicht Konfiguration. Kernbotschaft: 802.1X prüft nur beim Verbindungsaufbau, MACsec schützt danach jeden Frame.',
             'value': {
                 'de': '## Ausblick: MACsec (802.1AE) und MKA\n\n802.1X prüft, **wer** sich am Port anmeldet — danach fließen die Frames aber unverschlüsselt und ungeschützt. Wer zwischen Endgerät und Switch einen kleinen Hub oder ein Gerät im Durchleitungsmodus setzt, kann die bereits autorisierte Sitzung mitbenutzen. Genau diese Lücke schließt **MACsec** (IEEE 802.1AE): Es verschlüsselt und authentifiziert jeden einzelnen Ethernet-Frame auf Layer 2.\n\n- **Hop-by-Hop, nicht Ende-zu-Ende**: MACsec schützt jeweils eine Punkt-zu-Punkt-Strecke — Endgerät↔Switch oder Switch↔Switch. Im Switch selbst liegen die Daten im Klartext vor.\n- **MKA** (MACsec Key Agreement, seit IEEE 802.1X-2010 Teil des Standards) handelt die Schlüssel aus: Aus der EAP-Authentifizierung entsteht ein Master Session Key, daraus der langlebige **CAK**; der Key Server erzeugt daraus die kurzlebigen **SAK**, mit denen die Frames tatsächlich verschlüsselt werden (Standard-Cipher GCM-AES-128).\n- **should-secure vs. must-secure**: Bei „should-secure“ wird verschlüsselt, wenn die Gegenstelle MACsec kann, sonst im Klartext gesendet; bei „must-secure“ werden unverschlüsselte Frames verworfen.\n\nVoraussetzung sind MACsec-fähige Hardware auf beiden Seiten und ein Supplicant, der MKA beherrscht. Für Nordwind ist MACsec deshalb kein erster Schritt, sondern eine Härtung für besonders schützenswerte Ports und Uplinks.',
-                'en': '## Looking Ahead: MACsec (802.1AE) and MKA\n\n802.1X checks **who** logs in on the port — but afterwards the frames flow unencrypted and unprotected. Anyone who places a small hub or a pass-through device between endpoint and switch can piggyback on the already authorized session. This is exactly the gap **MACsec** (IEEE 802.1AE) closes: it encrypts and authenticates every single Ethernet frame at Layer 2.\n\n- **Hop by hop, not end to end**: MACsec protects one point-to-point link at a time — endpoint↔switch or switch↔switch. Inside the switch the data is in clear text.\n- **MKA** (MACsec Key Agreement, part of the standard since IEEE 802.1X-2010) negotiates the keys: EAP authentication yields a master session key, from which the long-lived **CAK** is derived; the key server generates the short-lived **SAKs** from it, which actually encrypt the frames (default cipher GCM-AES-128).\n- **should-secure vs. must-secure**: with "should-secure", traffic is encrypted if the peer supports MACsec and sent in clear text otherwise; with "must-secure", unencrypted frames are dropped.\n\nIt requires MACsec-capable hardware on both sides and a supplicant that speaks MKA. For Nordwind, MACsec is therefore not a first step but a hardening measure for particularly sensitive ports and uplinks.',
+                'en': '## Looking Ahead: MACsec (802.1AE) and MKA\n\n802.1X checks **who** logs in on the port — but afterwards the frames flow unencrypted and unprotected. Anyone who places a small hub or a pass-through device between endpoint and switch can piggyback on the already authorized session. This is exactly the gap **MACsec** (IEEE 802.1AE) closes: it encrypts and authenticates every single Ethernet frame at Layer 2.\n\n- **Hop by hop, not end to end**: MACsec protects one point-to-point link at a time — endpoint↔switch or switch↔switch. Inside the switch the data is in cleartext.\n- **MKA** (MACsec Key Agreement, part of the standard since IEEE 802.1X-2010) negotiates the keys: EAP authentication yields a master session key, from which the long-lived **CAK** is derived; the key server generates the short-lived **SAKs** from it, which actually encrypt the frames (default cipher GCM-AES-128).\n- **should-secure vs. must-secure**: with “should-secure”, traffic is encrypted if the peer supports MACsec and sent in cleartext otherwise; with “must-secure”, unencrypted frames are dropped.\n\nIt requires MACsec-capable hardware on both sides and a supplicant that speaks MKA. For Nordwind, MACsec is therefore not a first step but a hardening measure for particularly sensitive ports and uplinks.',
             },
         },
         {'type': 'reflect', 'id': 'reflect-1',
@@ -418,8 +418,8 @@ NAC_8021X_MODULE = {
                           'warum brauchen wir überhaupt noch RADIUS?" Wie erklärst du ihm die '
                           'Aufgabenteilung zwischen 802.1X (als Rahmen) und dem, was der '
                           'Authentication Server tatsächlich leistet?',
-             'prompt_en': 'A colleague at Nordwind asks: "Isn\'t 802.1X enough on its own, why '
-                         'do we even need RADIUS?" How would you explain the division of labor '
+             'prompt_en': 'A colleague at Nordwind asks: “Isn\'t 802.1X enough on its own, why '
+                         'do we even need RADIUS?” How would you explain the division of labor '
                          'between 802.1X (as the framework) and what the authentication server '
                          'actually does?',
          }},
@@ -553,7 +553,7 @@ NAC_8021X_MODULE = {
             'type': 'single',
             'prompt': {
                 'de': 'Auf einem Port steht „authentication port-control force-authorized“. Ein Notebook ohne Supplicant wird angeschlossen. Was passiert?',
-                'en': 'A port is configured with "authentication port-control force-authorized". A laptop without a supplicant is connected. What happens?',
+                'en': 'A port is configured with “authentication port-control force-authorized”. A laptop without a supplicant is connected. What happens?',
             },
             'options': {
                 'de': [
@@ -572,15 +572,15 @@ NAC_8021X_MODULE = {
             'answer': 1,
             'explanation': {
                 'de': '„force-authorized“ schaltet den Port fest auf autorisiert, 802.1X findet nicht statt. Erst „port-control auto“ macht den Portzustand vom Ergebnis der Authentifizierung abhängig — wer das vergisst, hat 802.1X nur scheinbar eingeschaltet.',
-                'en': '"force-authorized" pins the port to authorized; 802.1X does not take place. Only "port-control auto" makes the port state depend on the authentication result — forgetting it means 802.1X only appears to be enabled.',
+                'en': '“force-authorized” pins the port to authorized; 802.1X does not take place. Only “port-control auto” makes the port state depend on the authentication result — forgetting it means 802.1X only appears to be enabled.',
             },
         },
         {
             'id': 'ax7',
             'type': 'multi',
             'prompt': {
-                'de': 'Ein Notebook bekommt am 802.1X-Port keinen Zugang. Ein Mitschnitt am Port zeigt EAPOL-Start und EAP-Response/Identity vom Notebook, danach nichts mehr. Welche Schlüsse sind zulässig? (Mehrere richtig)',
-                'en': 'A laptop gets no access on the 802.1X port. A capture on the port shows EAPOL-Start and EAP-Response/Identity from the laptop, then nothing more. Which conclusions are valid? (Several correct)',
+                'de': 'Ein Notebook bekommt am 802.1X-Port keinen Zugang. Ein Mitschnitt am Port zeigt EAPOL-Start und EAP-Response/Identity vom Notebook, danach nichts mehr. Welche Schlüsse sind zulässig? Mehrere Antworten sind richtig.',
+                'en': 'A laptop gets no access on the 802.1X port. A capture on the port shows EAPOL-Start and EAP-Response/Identity from the laptop, then nothing more. Which conclusions are valid? Select all that apply.',
             },
             'options': {
                 'de': [

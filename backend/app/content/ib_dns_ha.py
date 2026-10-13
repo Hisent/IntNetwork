@@ -88,7 +88,7 @@ DNS_HA_MODULE = {
             "payload": {
                 "kind": "flow",
                 "title_de": "Anycast: eine Adresse an zwei Standorten",
-                "title_en": "Anycast: one address at two sites",
+                "title_en": "Anycast: One Address at Two Sites",
                 "caption_de": "Beide Member tragen 192.0.2.53/32 auf dem Loopback-Interface.",
                 "caption_en": "Both members carry 192.0.2.53/32 on the loopback interface.",
                 "nodes": [
@@ -235,7 +235,7 @@ DNS_HA_MODULE = {
                    'that were previously routed to that site automatically land on the nearest '
                    'remaining server — without anything needing to change on the client. The '
                    'downside: until routing has converged, requests can briefly go nowhere, and '
-                   'troubleshooting is more involved because "which server actually answered" is '
+                   'troubleshooting is more involved because “which server actually answered” is '
                    'not directly visible.\n\n'
                    'With **multiple NS records**, the client itself notices the failure of a '
                    'server: its resolver remembers which servers do not answer and tries a '
@@ -252,11 +252,11 @@ DNS_HA_MODULE = {
             "payload": {
                 "kind": "compare",
                 "title_de": "Drei Mechanismen, die gern verwechselt werden",
-                "title_en": "Three mechanisms that are easily confused",
+                "title_en": "Three Mechanisms That Are Easily Confused",
                 "columns": [
-                    {"title_de": "Grid-HA-Paar", "title_en": "Grid HA pair"},
-                    {"title_de": "Mehrere NS-Records", "title_en": "Multiple NS records"},
-                    {"title_de": "DNS-Anycast", "title_en": "DNS anycast"},
+                    {"title_de": "Grid-HA-Paar", "title_en": "Grid HA Pair"},
+                    {"title_de": "Mehrere NS-Records", "title_en": "Multiple NS Records"},
+                    {"title_de": "DNS-Anycast", "title_en": "DNS Anycast"},
                 ],
                 "rows": [
                     {
@@ -322,9 +322,9 @@ DNS_HA_MODULE = {
                           'jetzt ist unser DNS quasi wie das Grid-HA-Paar für den Grid Master — '
                           'wenn ein Member ausfällt, übernimmt automatisch der Passive-Partner.“ '
                           'Was ist an dieser Aussage falsch?',
-             'prompt_en': 'A colleague describes their setup like this: "We set up anycast, so now '
+             'prompt_en': 'A colleague describes their setup like this: “We set up anycast, so now '
                           'our DNS basically works like the Grid HA pair for the Grid Master — if '
-                          'one member fails, the passive partner automatically takes over." What is '
+                          'one member fails, the passive partner automatically takes over.” What is '
                           'wrong with this statement?',
              'lines_de': [
                  'Anycast verteilt DNS-Anfragen über mehrere gleichwertige Grid-Member per Routing',
@@ -353,8 +353,8 @@ DNS_HA_MODULE = {
              'explanation_en': 'Anycast is not an active/passive pair. All participating Grid '
                                'members are simultaneously active and answer requests; which member '
                                'gets a specific request is decided by routing, not by a failover '
-                               'mechanism like the Grid HA pair. A Grid HA pair (the "Grid '
-                               'Architecture" module), by contrast, protects exactly one node — the '
+                               'mechanism like the Grid HA pair. A Grid HA pair (the “Grid '
+                               'Architecture” module), by contrast, protects exactly one node — the '
                                'Grid Master or a single member — and does not distribute requests '
                                'across sites.',
          }},
@@ -376,8 +376,8 @@ DNS_HA_MODULE = {
                    'zuständige Grid-Member eine Loopback-Adresse mit der gemeinsamen Anycast-IP '
                    'sowie eine OSPF- oder BGP-Anbindung, die diese Adresse konsistent ankündigt — das muss mit '
                    'dem Netzwerk-Team abgestimmt sein, nicht nur mit dem DNS-Team.',
-             'en': 'DNS anycast fits well here, because the requirement "automatically nearest '
-                   'server, no client change on failure" is exactly what routing-based redirection '
+             'en': 'DNS anycast fits well here, because the requirement “automatically nearest '
+                   'server, no client change on failure” is exactly what routing-based redirection '
                    'provides. Prerequisite: at each of the three sites, the responsible Grid member '
                    'needs a loopback address with the shared anycast IP, plus an OSPF or BGP adjacency that '
                    'consistently announces this address — this has to be coordinated with the '
@@ -388,7 +388,7 @@ DNS_HA_MODULE = {
             "id": "scenario-anycast-oder-ns",
             "payload": {
                 "title_de": "Drei Standorte: Anycast oder einfach zwei Resolver-Adressen?",
-                "title_en": "Three sites: anycast or simply two resolver addresses?",
+                "title_en": "Three Sites: Anycast or Simply Two Resolver Addresses?",
                 "start": "start",
                 "nodes": [
                     {
@@ -561,12 +561,12 @@ DNS_HA_MODULE = {
         {'id': 'dh4',
          "explanation": {
              "de": "Ein HA-Paar ist aktiv/passiv und schützt einen Knoten; bei Anycast sind alle Member gleichzeitig aktiv, und das Routing verteilt. Wer beides gleichsetzt, erwartet einen „passiven Partner“, den es bei Anycast nicht gibt.",
-             "en": "An HA pair is active/passive and protects one node; with anycast all members are active at once and routing distributes. Equating the two means expecting a \"passive partner\" that does not exist in anycast.",
+             "en": "An HA pair is active/passive and protects one node; with anycast all members are active at once and routing distributes. Equating the two means expecting a “passive partner” that does not exist in anycast.",
          },
          'type': 'single',
          'prompt': {'de': 'Was ist an der Aussage „Anycast funktioniert wie ein Grid-HA-Paar“ '
                          'falsch?',
-                    'en': 'What is wrong with the statement "Anycast works like a Grid HA pair"?'},
+                    'en': 'What is wrong with the statement “Anycast works like a Grid HA pair”?'},
          'answer': 1,
          'options': {
              'de': [
@@ -638,8 +638,8 @@ DNS_HA_MODULE = {
             "id": "dh7",
             "type": "multi",
             "prompt": {
-                "de": "Welche Aussagen zum Vergleich von Anycast und Redundanz über mehrere NS-Records treffen zu (mehrere richtig)?",
-                "en": "Which statements comparing anycast with redundancy through multiple NS records are correct (multiple)?",
+                "de": "Welche Aussagen zum Vergleich von Anycast und Redundanz über mehrere NS-Records treffen zu? Mehrere Antworten sind richtig.",
+                "en": "Which statements comparing anycast with redundancy through multiple NS records are correct? Select all that apply.",
             },
             "answer": [0, 1, 3],
             "options": {

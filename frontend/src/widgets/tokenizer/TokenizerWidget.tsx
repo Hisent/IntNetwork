@@ -26,7 +26,7 @@ export function Tokenizer({ lang }: { lang: Lang }) {
 
   const color = (kind: string) =>
     kind === 'word' ? 'bg-teal-100 text-teal-800'
-    : kind === 'space' ? 'bg-slate-100 text-slate-400'
+    : kind === 'space' ? 'bg-slate-100 text-slate-600'
     : 'bg-amber-100 text-amber-800'
 
   return (

@@ -205,7 +205,7 @@ GRID_ARCHITEKTUR_MODULE = {
             'payload': {
                 'kind': 'flow',
                 'title_de': 'Ein Grid: zentral verwalten, lokal ausführen',
-                'title_en': 'One Grid: manage centrally, serve locally',
+                'title_en': 'One Grid: Manage Centrally, Serve Locally',
                 'nodes': [
                     {'id': 'admin', 'shape': 'user', 'row': 0, 'col': 1,
                      'label_de': 'Admin im Grid Manager', 'label_en': 'Admin in Grid Manager'},
@@ -277,7 +277,7 @@ GRID_ARCHITEKTUR_MODULE = {
             "payload": {
                 "kind": "sequence",
                 "title_de": "Grid Master fällt aus: die manuelle Promotion",
-                "title_en": "Grid Master fails: the manual promotion",
+                "title_en": "Grid Master Fails: the Manual Promotion",
                 "caption_de": "Nichts davon passiert von selbst — Schritt 2 löst ein Mensch aus.",
                 "caption_en": "None of this happens by itself — step 2 is triggered by a person.",
                 "actors": [
@@ -460,7 +460,7 @@ GRID_ARCHITEKTUR_MODULE = {
             "note": "Format von show status, show network und show version nach dem NIOS CLI Guide; Ausgabe von show network gekürzt (ohne VLAN-, DSCP- und IPv6-Zeilen), Versions- und Seriennummer sind Beispielwerte.",
             "payload": {
                 "title_de": "Auf welchem Knoten bin ich? (NIOS-CLI an Standort A)",
-                "title_en": "Which node am I on? (NIOS CLI at site A)",
+                "title_en": "Which Node Am I on? (NIOS CLI at Site A)",
                 "intro_de": "Konsole eines Grid-Knotens. Tippe einen Befehl oder klicke ihn an; help zeigt die Liste.",
                 "intro_en": "Console of a Grid node. Type a command or click one; help lists them.",
                 "prompt": "Infoblox >",
@@ -511,13 +511,13 @@ GRID_ARCHITEKTUR_MODULE = {
             "note": "Im Plenum an der ersten Verzweigung abstimmen lassen: Die Mehrheit erwartet meist eine automatische Übernahme.",
             "payload": {
                 "title_de": "Der Grid Master am Hauptsitz antwortet nicht mehr",
-                "title_en": "The Grid Master at headquarters stops responding",
+                "title_en": "The Grid Master at Headquarters Stops Responding",
                 "start": "start",
                 "nodes": [
                     {
                         "id": "start",
                         "text_de": "Seit 20 Minuten ist der Grid Master nicht erreichbar. Die Zweigstellen melden: DNS und DHCP laufen normal. Ein Kollege drängt: „Wir müssen sofort etwas tun!“ Was machst du zuerst?",
-                        "text_en": "The Grid Master has been unreachable for 20 minutes. The branches report: DNS and DHCP work normally. A colleague urges: \"We have to do something right now!\" What do you do first?",
+                        "text_en": "The Grid Master has been unreachable for 20 minutes. The branches report: DNS and DHCP work normally. A colleague urges: “We have to do something right now!” What do you do first?",
                         "options": [
                             {
                                 "label_de": "Abwarten — der Grid Master Candidate übernimmt gleich automatisch.",
@@ -666,7 +666,7 @@ GRID_ARCHITEKTUR_MODULE = {
                 'id': 'ga2',
                 "explanation": {
                     "de": "Ein GMC hält die vollständige Grid-Datenbank bereit und kann deshalb Grid Master werden. „Nur Lesezugriff“ klingt plausibel, verfehlt aber den Zweck: Entscheidend ist die Fähigkeit zur Übernahme — die allerdings ein Admin auslöst, nicht das Grid selbst.",
-                    "en": "A GMC keeps the complete Grid database ready and can therefore become Grid Master. \"Read access only\" sounds plausible but misses the point: what matters is the ability to take over — which an admin triggers, not the Grid itself.",
+                    "en": "A GMC keeps the complete Grid database ready and can therefore become Grid Master. “Read access only” sounds plausible but misses the point: what matters is the ability to take over — which an admin triggers, not the Grid itself.",
                 },
                 'type': 'single',
                 'prompt': {
@@ -739,9 +739,9 @@ GRID_ARCHITEKTUR_MODULE = {
                 'type': 'multi',
                 'prompt': {
                     'de': 'Welche Aussagen zur Verteilung von Diensten im Grid '
-                          'treffen zu (mehrere richtig)?',
+                          'treffen zu? Mehrere Antworten sind richtig.',
                     'en': 'Which statements about the distribution of services in '
-                          'the Grid are correct (multiple)?',
+                          'the Grid are correct? Select all that apply.',
                 },
                 'answer': [0, 1, 3],
                 'options': {
@@ -832,8 +832,8 @@ GRID_ARCHITEKTUR_MODULE = {
             "id": "ga7",
             "type": "multi",
             "prompt": {
-                "de": "Zwischen einer neuen Zweigstelle und dem Grid Master liegt eine Firewall. Der Member kann dem Grid nicht beitreten. Welche Freigaben braucht die Grid-Kommunikation in der Standardkonfiguration (mehrere richtig)?",
-                "en": "A firewall sits between a new branch and the Grid Master. The member cannot join the Grid. Which firewall rules does Grid communication need in the default configuration (multiple)?",
+                "de": "Zwischen einer neuen Zweigstelle und dem Grid Master liegt eine Firewall. Der Member kann dem Grid nicht beitreten. Welche Freigaben braucht die Grid-Kommunikation in der Standardkonfiguration? Mehrere Antworten sind richtig.",
+                "en": "A firewall sits between a new branch and the Grid Master. The member cannot join the Grid. Which firewall rules does Grid communication need in the default configuration? Select all that apply.",
             },
             "answer": [0, 2],
             "options": {
@@ -860,7 +860,7 @@ GRID_ARCHITEKTUR_MODULE = {
             "type": "single",
             "prompt": {
                 "de": "Die NIOS-CLI zeigt nach „show status“: „Grid Status: ID Grid Member“, „HA Status: Active“ und „Grid Master IP: 192.0.2.10“. Was folgt daraus?",
-                "en": "After \"show status\" the NIOS CLI shows: \"Grid Status: ID Grid Member\", \"HA Status: Active\" and \"Grid Master IP: 192.0.2.10\". What follows?",
+                "en": "After “show status” the NIOS CLI shows: “Grid Status: ID Grid Member”, “HA Status: Active” and “Grid Master IP: 192.0.2.10”. What follows?",
             },
             "answer": 1,
             "options": {
@@ -879,7 +879,7 @@ GRID_ARCHITEKTUR_MODULE = {
             },
             "explanation": {
                 "de": "„Grid Member“ nennt die Rolle, „HA Status: Active“ den Zustand im HA-Paar — HA gibt es nicht nur für den Grid Master. Über DHCP-Failover sagt show status nichts: Das ist ein Zustand der Failover-Zuordnung, nicht des Knotens.",
-                "en": "\"Grid Member\" names the role, \"HA Status: Active\" the state within the HA pair — HA is not limited to the Grid Master. show status says nothing about DHCP failover: that is a state of the failover association, not of the node.",
+                "en": "“Grid Member” names the role, “HA Status: Active” the state within the HA pair — HA is not limited to the Grid Master. show status says nothing about DHCP failover: that is a state of the failover association, not of the node.",
             },
         },
         ],

@@ -40,7 +40,7 @@ IDEMPOTENZ_MODULE = {
                              'der Task **nicht idempotent** — oder er meldet seinen Status '
                              'falsch (typisch für `command`/`shell`, die ohne weitere Angaben '
                              'immer `changed` melden). Beides gehört behoben.',
-                       'en': '## What is idempotency?\n'
+                       'en': '## What Is Idempotency?\n'
                              '\n'
                              '**Idempotency** means: a task produces the same end result when '
                              'run repeatedly with the same inputs. A practical test: run a '
@@ -51,7 +51,7 @@ IDEMPOTENZ_MODULE = {
                              'its status wrongly (typical for `command`/`shell`, which always '
                              'report `changed` unless told otherwise). Both are worth fixing.'}},
             {'type': 'text', 'id': 'text-2',
-             'note': 'Idempotenz ist der Kern des ganzen Kurses. Wenn nur ein Modul haengen bleiben soll, dann dieses — der Rest baut darauf auf.',
+             'note': 'Idempotenz ist der Kern des ganzen Kurses. Wenn nur ein Modul hängen bleiben soll, dann dieses — der Rest baut darauf auf.',
              'value': {'de': '## Deklarativ vs. command/shell\n'
                              '\n'
                              'Deklarative Module beschreiben den **gewünschten Zustand** '
@@ -114,9 +114,9 @@ IDEMPOTENZ_MODULE = {
              'id': 'diagram-modul-vs-command',
              'payload': {'kind': 'compare',
                          'title_de': 'Deklaratives Modul vs. command/shell',
-                         'title_en': 'Declarative module vs. command/shell',
+                         'title_en': 'Declarative Module vs. command/shell',
                          'columns': [{'title_de': 'Modul (z. B. user, file)',
-                                      'title_en': 'Module (e.g. user, file)'},
+                                      'title_en': 'Module (e.g., user, file)'},
                                      {'title': 'command / shell'}],
                          'rows': [{'label_de': 'Du beschreibst',
                                    'label_en': 'You describe',
@@ -191,7 +191,7 @@ IDEMPOTENZ_MODULE = {
                              'gemeldet haben, erneut geprüft — bei deklarativen Modulen und '
                              'unverändertem Zielzustand meist mit `ok`, bei nicht-idempotenten '
                              '`command`/`shell`-Tasks unter Umständen erneut mit `changed`.',
-                       'en': '## Reading task status\n'
+                       'en': '## Reading Task Status\n'
                              '\n'
                              'In a playbook run\'s output, every task is prefixed with one of '
                              'these statuses:\n'
@@ -200,7 +200,7 @@ IDEMPOTENZ_MODULE = {
                              '- `changed` — Ansible actually changed something\n'
                              '- `failed` — the task failed\n'
                              '- `skipped` — the task was skipped by `when`\n'
-                             '- `unreachable` — the host could not be reached (e.g. SSH error)\n'
+                             '- `unreachable` — the host could not be reached (e.g., SSH error)\n'
                              '\n'
                              'These are the names of the counters in the final summary (PLAY '
                              'RECAP). In the task line itself two of them read differently: a '
@@ -258,7 +258,7 @@ IDEMPOTENZ_MODULE = {
                                            '`rescue:`, not `rescue_bei_fehler:`. Ansible only '
                                            'recognizes the fixed keywords `block`, `rescue`, and '
                                            '`always` — Ansible rejects a misnamed key while loading '
-                                           'the playbook ("is not a valid attribute for a Block"), '
+                                           'the playbook (“is not a valid attribute for a Block”), '
                                            'so the playbook does not even start.'}},
             {'type': 'order', 'id': 'order-1',
              'payload': {'prompt_de': 'Ein block schlägt fehl und besitzt sowohl rescue als auch '
@@ -368,14 +368,14 @@ IDEMPOTENZ_MODULE = {
                              'eingesetzt, desto weniger aussagekräftig wird die '
                              'Play-Zusammenfassung. Als Faustregel: so gezielt wie möglich, nie '
                              'pauschal auf ein ganzes Playbook angewendet.',
-                       'en': '## ignore_errors, failed_when, changed_when — with care\n'
+                       'en': '## ignore_errors, failed_when, changed_when — With Care\n'
                              '\n'
                              '- `ignore_errors: true` lets the play continue despite a failure '
                              '— but if used carelessly it hides real problems. Only sensible '
                              'when a failure at that spot is genuinely non-critical and '
                              'deliberately accepted.\n'
                              '- `failed_when: <condition>` overrides when a task counts as '
-                             'failed — for example to treat a naturally "successful" return '
+                             'failed — for example to treat a naturally “successful” return '
                              'code as a failure anyway.\n'
                              '- `changed_when: <condition>` overrides when a task counts as '
                              '`changed` — typically `changed_when: false` for plain read-only '
@@ -388,7 +388,7 @@ IDEMPOTENZ_MODULE = {
             {'type': 'scenario',
              'id': 'scenario-fehlerbehandlung',
              'payload': {'title_de': 'Ein Befehl, der beim zweiten Lauf scheitert',
-                         'title_en': 'A command that fails on the second run',
+                         'title_en': 'A Command That Fails on the Second Run',
                          'start': 'start',
                          'nodes': [{'id': 'start',
                                     'text_de': 'Ein Play bricht beim zweiten Lauf ab: Der Task '
@@ -396,7 +396,7 @@ IDEMPOTENZ_MODULE = {
                                                'weil die Datei schon weg ist. Wie reparierst du '
                                                'das?',
                                     'text_en': 'A play aborts on the second run: the task '
-                                               '"command: rm /var/cache/app/index.db" fails '
+                                               '“command: rm /var/cache/app/index.db” fails '
                                                'because the file is already gone. How do you '
                                                'fix it?',
                                     'options': [{'label_de': 'ignore_errors: true an den Task '
@@ -438,8 +438,8 @@ IDEMPOTENZ_MODULE = {
                                                '/var/lib/app/.migrated an. Ein Modul dafür gibt es '
                                                'nicht.',
                                     'text_en': 'Good: the module describes the target state and '
-                                               'reports ok on the second run. Next task: "command: '
-                                               '/opt/app/bin/migrate" must run only once; the '
+                                               'reports ok on the second run. Next task: “command: '
+                                               '/opt/app/bin/migrate” must run only once; the '
                                                'program then creates /var/lib/app/.migrated. There '
                                                'is no module for it.',
                                     'options': [{'label_de': 'creates: /var/lib/app/.migrated am '
@@ -482,7 +482,7 @@ IDEMPOTENZ_MODULE = {
                                                'ist als „Datei existiert“.',
                                     'text_en': 'Works, but needs two tasks and a variable for what '
                                                'creates does in one line. Worth it only when the '
-                                               'condition is more than "file exists".'}]}},
+                                               'condition is more than “file exists”.'}]}},
             {'type': 'text', 'id': 'text-5',
              'value': {'de': '## Grenzen des Check-Modus\n'
                              '\n'
@@ -495,7 +495,7 @@ IDEMPOTENZ_MODULE = {
                              'liefern. Der zuverlässige Idempotenz-Test bleibt der doppelte '
                              'echte Lauf: einmal ausführen, ein zweites Mal ausführen, '
                              '`changed=0` erwarten.',
-                       'en': '## Limits of check mode\n'
+                       'en': '## Limits of Check Mode\n'
                              '\n'
                              '`ansible-playbook --check` simulates a run without actually '
                              'changing anything; `--diff` additionally shows file differences. '
@@ -514,7 +514,7 @@ IDEMPOTENZ_MODULE = {
                              '`changed`? Ist das Lab bei euch nicht aktiv, überlege anhand der '
                              'Beispiele oben, welche Tasks beim zweiten Lauf voraussichtlich `ok` '
                              'statt `changed` melden würden.',
-                       'en': '## Hands-on: checking idempotency in the lab\n'
+                       'en': '## Hands-on: Checking Idempotency in the Lab\n'
                              '\n'
                              'Choose the **Idempotency** template in the lab and run the '
                              'playbook twice. Watch the `PLAY RECAP` line — what changes on the '
@@ -583,8 +583,8 @@ IDEMPOTENZ_MODULE = {
                                                'nicht ausgeführt“. `ok` hieße: ausgeführt, aber '
                                                'nichts zu ändern; `unreachable`: Der Host war gar '
                                                'nicht erreichbar.',
-                                         'en': '`skipped` stands for "condition not met, not '
-                                               'executed". `ok` would mean: executed, but nothing '
+                                         'en': '`skipped` stands for “condition not met, not '
+                                               'executed”. `ok` would mean: executed, but nothing '
                                                'to change; `unreachable`: the host could not be '
                                                'reached at all.'},
                          'type': 'single',

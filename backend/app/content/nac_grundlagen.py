@@ -21,9 +21,9 @@ NAC_GRUNDLAGEN_MODULE = {
         'Name the three fundamental questions of NAC (authentication, authorization, posture)',
     ],
     'scenario': {
-        'de': 'Bei Nordwind Logistik GmbH steckt jeder freie Netzwerkport in der Zentrale einfach '
-              'ins Netz — Praktikanten, Besucher, ein privat mitgebrachter Laptop, ein neu '
-              'angeschlossener Etikettendrucker im Lager. Die IT-Leitung will wissen: Wer genau '
+        'de': 'Bei Nordwind Logistik GmbH führt jeder freie Netzwerkport in der Zentrale einfach '
+              'ins Netz — für Praktikanten, Besucher, einen privat mitgebrachten Laptop, einen neu '
+              'angeschlossenen Etikettendrucker im Lager. Die IT-Leitung will wissen: Wer genau '
               'ist gerade im Netz, und warum darf jedes Gerät automatisch alles sehen? Du sollst '
               'die Grundlagen für ein NAC-Konzept legen, bevor Nordwind irgendein Produkt auswählt.',
         'en': 'At Nordwind Logistik GmbH, every free network port at headquarters leads straight '
@@ -58,7 +58,7 @@ NAC_GRUNDLAGEN_MODULE = {
                    'the sprawl of **BYOD** (employees\' personal devices) and **IoT** devices such as '
                    'label printers or cameras, which often do not support a classic endpoint '
                    'agent.\n\n'
-                   '**Network Access Control (NAC)** — also called "Network Admission Control" — '
+                   '**Network Access Control (NAC)** — also called “Network Admission Control” — '
                    'is the process that keeps unauthorized users and devices from accessing a '
                    'private network. NAC ensures that only authenticated users and authorized, '
                    'policy-compliant devices get access — and provides the visibility and '
@@ -116,7 +116,7 @@ NAC_GRUNDLAGEN_MODULE = {
             'payload': {
                 'kind': 'flow',
                 'title_de': 'NAC: wer entscheidet, wer setzt durch?',
-                'title_en': 'NAC: who decides, who enforces?',
+                'title_en': 'NAC: Who Decides, Who Enforces?',
                 'caption_de': 'Der Switch setzt durch, der Policy-Server entscheidet.',
                 'caption_en': 'The switch enforces, the policy server decides.',
                 'nodes': [
@@ -313,7 +313,7 @@ NAC_GRUNDLAGEN_MODULE = {
              ],
          }},
         {'type': 'text', 'id': 'text-5',
-         'note': 'Diese drei Fragen sind das Skelett fuer den ganzen Block 1. Ruhig woertlich '
+         'note': 'Diese drei Fragen sind das Skelett für den ganzen Block 1. Ruhig wörtlich '
                  'wiederholen lassen, bevor es in Modul 2 (802.1X) an die Rollen geht.',
          'value': {
              'de': '## Die drei Grundfragen von NAC\n\n'
@@ -400,7 +400,7 @@ NAC_GRUNDLAGEN_MODULE = {
                    'Posture-Prüfung sinnvoll erfolgen. Deshalb steht Authentifizierung technisch '
                    'am Anfang der Kette — bei 802.1X ist das der Grund, warum der Port zunächst '
                    'komplett gesperrt bleibt, bis eine Identität feststeht.',
-             'en': '"Who are you?" — authentication. Without an established identity, neither an '
+             'en': '“Who are you?” — authentication. Without an established identity, neither an '
                    'authorization decision (which VLAN, which rights) nor a posture check can '
                    'meaningfully happen. That is why authentication technically stands at the '
                    'start of the chain — with 802.1X, this is why the port stays fully blocked '
@@ -484,8 +484,8 @@ NAC_GRUNDLAGEN_MODULE = {
              ],
          },
          'explanation': {
-             'de': 'Ein Etikettendrucker hat kein Betriebssystem, auf dem sich ein Agent installieren ließe. Agentless ist deshalb nicht „sicherer“, sondern schlicht der einzige gangbare Weg — mit weniger Prüftiefe als ein Agent.',
-             'en': 'A label printer has no operating system an agent could be installed on. Agentless is therefore not "more secure", just the only feasible path — with less depth than an agent.',
+             'de': 'Ein Etikettendrucker hat kein offenes Betriebssystem: Seine Firmware bietet keine Möglichkeit, einen Agenten zu installieren. Agentless ist deshalb nicht „sicherer“, sondern schlicht der einzige gangbare Weg — mit weniger Prüftiefe als ein Agent.',
+             'en': 'A label printer has no open operating system: its firmware offers no way to install an agent. Agentless is therefore not “more secure,” just the only feasible path — with less depth than an agent.',
          }},
         {'id': 'ng4', 'type': 'single',
          'prompt': {'de': 'Wie verschiebt Zero Trust den Fokus gegenüber klassischer '
@@ -568,8 +568,8 @@ NAC_GRUNDLAGEN_MODULE = {
             'id': 'ng7',
             'type': 'multi',
             'prompt': {
-                'de': 'Nordwind führt zunächst nur agentless NAC ein. Welche Aussagen treffen zu? (Mehrere richtig)',
-                'en': 'Nordwind initially introduces agentless NAC only. Which statements are true? (Several correct)',
+                'de': 'Nordwind führt zunächst nur agentless NAC ein. Welche Aussagen treffen zu? Mehrere Antworten sind richtig.',
+                'en': 'Nordwind initially introduces agentless NAC only. Which statements are true? Select all that apply.',
             },
             'options': {
                 'de': [

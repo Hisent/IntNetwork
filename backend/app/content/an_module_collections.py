@@ -13,7 +13,7 @@ MODULE_COLLECTIONS_MODULE = {
               'Passendes Modul für eine gegebene Aufgabe aus einer kurzen Liste auswählen'],
     'goals_en': ['Explain what a module is and how it differs from a collection',
                  'Read and interpret fully qualified collection names (FQCN)',
-                 'Name ansible-doc and Galaxy/Automation Hub as reference sources',
+                 'Name ansible-doc and Galaxy/automation hub as reference sources',
                  'Pick the right module for a given job from a short list'],
     'scenario': {'de': 'Die bisherigen Playbook-Beispiele haben Module wie '
                        '`ansible.builtin.package` schon benutzt, ohne genauer zu erklären, was '
@@ -42,14 +42,14 @@ MODULE_COLLECTIONS_MODULE = {
                          '\n'
                          'Eine Collection ist also der Lieferumfang, ein Modul ist ein einzelnes '
                          'Werkzeug darin.',
-                   'en': '## Module vs. collection\n'
+                   'en': '## Module vs. Collection\n'
                          '\n'
                          '- **Module** — the actual unit of execution for a task: a single '
-                         'action with clearly defined parameters, e.g. `ansible.builtin.copy` '
+                         'action with clearly defined parameters, e.g., `ansible.builtin.copy` '
                          '(copy a file) or `ansible.builtin.service` (manage a service).\n'
                          '- **Collection** — a packaging format that ships modules, plugins, '
                          'roles, and documentation together, named as `namespace.collection` '
-                         '(e.g. `ansible.builtin` for the built-in base modules, `ansible.posix` '
+                         '(e.g., `ansible.builtin` for the built-in base modules, `ansible.posix` '
                          'for POSIX-specific extra modules).\n'
                          '\n'
                          'So a collection is the package it comes in, and a module is a single '
@@ -79,7 +79,7 @@ MODULE_COLLECTIONS_MODULE = {
                          '`ansible-lint` verlangt ihn mit der Regel `fqcn`.',
                    'en': '## FQCN — Fully Qualified Collection Name\n'
                          '\n'
-                         'An FQCN has three parts: `namespace.collection.module_name`, e.g. '
+                         'An FQCN has three parts: `namespace.collection.module_name`, e.g., '
                          '`ansible.posix.mount` instead of the short form `mount`. Modern '
                          'playbooks consistently use the full name rather than relying on '
                          'shorthand:\n'
@@ -138,7 +138,7 @@ MODULE_COLLECTIONS_MODULE = {
                          '**Automation Hub** (kuratierte, zertifizierte Collections, Teil der '
                          'Ansible Automation Platform — auch als „Private Automation Hub“ für '
                          'den Offline-/On-Prem-Betrieb).',
-                   'en': '## Installing collections\n'
+                   'en': '## Installing Collections\n'
                          '\n'
                          'Additional collections are installed via `ansible-galaxy`:\n'
                          '\n'
@@ -163,12 +163,12 @@ MODULE_COLLECTIONS_MODULE = {
                          'Two sources are available for collections: **Ansible Galaxy** (the '
                          'public community repository) and **Automation Hub** (curated, '
                          'certified collections, part of the Ansible Automation Platform — also '
-                         'available as a "Private Automation Hub" for offline/on-prem use).'}},
+                         'available as a “private automation hub” for offline/on-prem use).'}},
         {'type': 'diagram',
          'id': 'diagram-collection-weg',
          'payload': {'kind': 'flow',
                      'title_de': 'Vom Repository ins Playbook',
-                     'title_en': 'From the repository into the playbook',
+                     'title_en': 'From the Repository Into the Playbook',
                      'nodes': [{'id': 'galaxy',
                                 'shape': 'cloud',
                                 'row': 0,
@@ -185,7 +185,7 @@ MODULE_COLLECTIONS_MODULE = {
                                 'detail_de': 'Kuratierte, zertifizierte Collections; als Private '
                                              'Automation Hub auch intern betreibbar.',
                                 'detail_en': 'Curated, certified collections; can also be run '
-                                             'internally as a Private Automation Hub.'},
+                                             'internally as a private automation hub.'},
                                {'id': 'cli',
                                 'row': 0,
                                 'col': 1,
@@ -225,7 +225,7 @@ MODULE_COLLECTIONS_MODULE = {
                                 'text_de': 'ansible-galaxy holt die Collection aus der '
                                            'konfigurierten Quelle: Galaxy oder ein Automation Hub.',
                                 'text_en': 'ansible-galaxy fetches the collection from the '
-                                           'configured source: Galaxy or an Automation Hub.'},
+                                           'configured source: Galaxy or an automation hub.'},
                                {'highlight': ['cli', 'e3', 'path'],
                                 'text_de': 'Sie landet auf dem Control Node im Collections-Pfad — '
                                            'nicht auf den Managed Nodes.',
@@ -251,7 +251,7 @@ MODULE_COLLECTIONS_MODULE = {
                          'Ausgaben. Ein Playbook mit `ansible.posix.mount` würde im Lab mit '
                          "„couldn't resolve module/action“ abbrechen — nicht weil es falsch ist, "
                          'sondern weil die Collection dort nicht installiert ist.',
-                   'en': '## What the course lab contains\n'
+                   'en': '## What the Course Lab Contains\n'
                          '\n'
                          'The Ansible lab of this course deliberately contains only `ansible-core` '
                          '— exactly the modules and plugins from `ansible.builtin`. Examples with '
@@ -260,7 +260,7 @@ MODULE_COLLECTIONS_MODULE = {
                          '`molecule`, `ansible-navigator`) are therefore shown as terminal '
                          'simulations with real output or output taken from the documentation. A '
                          'playbook using `ansible.posix.mount` would abort in the lab with '
-                         '"couldn\'t resolve module/action" — not because it is wrong, but because '
+                         '“couldn\'t resolve module/action” — not because it is wrong, but because '
                          'the collection is not installed there.'}},
         {'type': 'terminal',
          'id': 'terminal-galaxy-doc',
@@ -268,7 +268,7 @@ MODULE_COLLECTIONS_MODULE = {
                  'Pfade gekürzt, ansible-doc -s auf fünf Parameter gekürzt, Beschreibungen '
                  'umbrochen und abgeschnitten.',
          'payload': {'title_de': 'Collection installieren und nachschlagen',
-                     'title_en': 'Install a collection and look it up',
+                     'title_en': 'Install a Collection and Look It Up',
                      'intro_de': 'Frischer Control Node, nur ansible-core. Reihenfolge: doc → '
                                  'install → list → doc.',
                      'intro_en': 'Fresh control node, ansible-core only. Order: doc → install → '
@@ -377,7 +377,7 @@ MODULE_COLLECTIONS_MODULE = {
                          'ein Modul wird als Task ausgeführt und verändert typischerweise etwas '
                          'auf dem Zielsystem; ein Plugin erweitert Ansibles eigenes Verhalten im '
                          'Hintergrund.',
-                   'en': '## Reading module docs, module vs. plugin\n'
+                   'en': '## Reading Module Docs, Module vs. Plugin\n'
                          '\n'
                          'Instead of searching online, `ansible-doc <module>` provides the '
                          'documentation directly on the command line — including all '
@@ -399,8 +399,8 @@ MODULE_COLLECTIONS_MODULE = {
                      'prompt_de': 'Welches Modul passt am besten zur Aufgabe „stelle sicher, dass '
                                   'ein bestimmter Systemdienst läuft und beim Booten automatisch '
                                   'startet“?',
-                     'prompt_en': 'Which module best fits the task "ensure a given system '
-                                  'service is running and starts automatically on boot"?',
+                     'prompt_en': 'Which module best fits the task “ensure a given system '
+                                  'service is running and starts automatically on boot”?',
                      'answer': 2,
                      'options_de': ['ansible.builtin.copy', 'ansible.builtin.package',
                                     'ansible.builtin.service', 'ansible.builtin.template'],
@@ -459,7 +459,7 @@ MODULE_COLLECTIONS_MODULE = {
                                        'jeweilige Collection bereits installiert ist.',
                      'explanation_en': '`ansible-doc` reads the documentation from the locally '
                                        'installed collections and displays it directly on the '
-                                       'command line — no internet access needed, as long as the '
+                                       'command line — no Internet access needed, as long as the '
                                        'relevant collection is already installed.'}},
         {'type': 'reveal', 'id': 'reveal-1',
          'payload': {'teaser_de': 'Übung: Ein Team installiert die Collection `community.mysql` '
@@ -490,8 +490,8 @@ MODULE_COLLECTIONS_MODULE = {
                                'enthält Collections“) stimmt die Richtung nicht, und installiert '
                                'werden Collections auf dem Control Node.',
                          'en': 'A collection is the package, a module a single tool inside it — '
-                               'alongside plugins, roles and docs. The reverse ("a module contains '
-                               'collections") gets the direction wrong, and collections are '
+                               'alongside plugins, roles and docs. The reverse (“a module contains '
+                               'collections”) gets the direction wrong, and collections are '
                                'installed on the control node.'},
          'type': 'single',
          'prompt': {'de': 'Was ist der Unterschied zwischen einem Modul und einer Collection?',
@@ -557,7 +557,7 @@ MODULE_COLLECTIONS_MODULE = {
                                'FQCNs apply to both.'},
          'type': 'single',
          'prompt': {'de': 'Was unterscheidet Automation Hub von Ansible Galaxy?',
-                    'en': 'What sets Automation Hub apart from Ansible Galaxy?'},
+                    'en': 'What sets automation hub apart from Ansible Galaxy?'},
          'answer': 1,
          'options': {'de': ['Automation Hub ist kostenlos, Galaxy kostenpflichtig',
                             'Automation Hub bietet kuratierte, zertifizierte Collections und ist '
@@ -567,7 +567,7 @@ MODULE_COLLECTIONS_MODULE = {
                      'en': ['Automation Hub is free, Galaxy is paid',
                             'Automation Hub offers curated, certified collections and is part of '
                             'the Ansible Automation Platform',
-                            'Galaxy only works with FQCNs, Automation Hub does not',
+                            'Galaxy only works with FQCNs, automation hub does not',
                             'There is no difference']}},
         {'id': 'mc5',
          'explanation': {'de': 'Plugins erweitern Ansible selbst — Lookups, Filter, Inventar- oder '

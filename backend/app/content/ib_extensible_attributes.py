@@ -63,7 +63,7 @@ EXTENSIBLE_ATTRIBUTES_MODULE = {
                       'Extensible attributes (EAs) are freely definable metadata '
                       'fields that can be attached to almost any object type in '
                       'NIOS — networks, hosts, zones, fixed addresses, and more. '
-                      'Typical examples are "Site", "Cost Center", or "Owner".\n'
+                      'Typical examples are “Site”, “Cost Center”, or “Owner”.\n'
                       '\n'
                       'Without EAs, this kind of information either stays '
                       'outside the system entirely (in a separate spreadsheet '
@@ -100,7 +100,7 @@ EXTENSIBLE_ATTRIBUTES_MODULE = {
                       'EAs have a fixed data type, among them String (free '
                       'text), List (a choice from predefined values), or Integer '
                       '(a number). The name of an EA is case-sensitive and '
-                      'limited to 128 characters — "Site" and "site" count as two '
+                      'limited to 128 characters — “Site” and “site” count as two '
                       'different EAs.\n'
                       '\n'
                       'For predefined EAs, the name and the allowed values can '
@@ -108,8 +108,8 @@ EXTENSIBLE_ATTRIBUTES_MODULE = {
                       'changed afterward. The List type is especially important '
                       'for data quality: it forces a choice from a fixed set of '
                       'values instead of allowing arbitrary free text, which '
-                      'prevents spelling variants such as "Berlin", "berlin", and '
-                      '"BER" for the same site.',
+                      'prevents spelling variants such as “Berlin”, “berlin”, and '
+                      '“BER” for the same site.',
             },
         },
         {
@@ -119,7 +119,7 @@ EXTENSIBLE_ATTRIBUTES_MODULE = {
                 'prompt_de': 'Warum ist der List-Typ für ein Feld wie „Standort“ '
                              'häufig sinnvoller als ein freier String?',
                 'prompt_en': 'Why is the List type often more sensible than a '
-                             'free String for a field such as "Site"?',
+                             'free String for a field such as “Site”?',
                 'answer': 0,
                 'options_de': [
                     'Weil er zu einer festen, konsistenten Auswahl an Werten '
@@ -164,10 +164,10 @@ EXTENSIBLE_ATTRIBUTES_MODULE = {
                       'on a network container — it can be inherited by child '
                       'objects. For each child object there are three '
                       'possibilities: keep the inherited value unchanged, '
-                      'override it, or explicitly mark it as "not inherited".\n'
+                      'override it, or explicitly mark it as “not inherited.”\n'
                       '\n'
                       'This inheritance saves maintenance effort: the EA value '
-                      '"Region: South" can be set once on the container instead of '
+                      '“Region: South” can be set once on the container instead of '
                       'entering it again on every single network. If one '
                       'individual network deviates, it can be overridden '
                       'specifically at that point.',
@@ -180,7 +180,7 @@ EXTENSIBLE_ATTRIBUTES_MODULE = {
             "payload": {
                 "kind": "flow",
                 "title_de": "EA-Vererbung: ein Wert am Container, drei Fälle darunter",
-                "title_en": "EA inheritance: one value on the container, three cases below",
+                "title_en": "EA Inheritance: One Value on the Container, Three Cases Below",
                 "nodes": [
                     {
                         "id": "cont",
@@ -197,7 +197,7 @@ EXTENSIBLE_ATTRIBUTES_MODULE = {
                         "row": 1,
                         "col": 0,
                         "label_de": "Netz A: erbt „Süd“",
-                        "label_en": "Network A: inherits \"South\"",
+                        "label_en": "Network A: inherits “South”",
                         "detail_de": "10.20.10.0/24 übernimmt den Wert unverändert und folgt künftigen Änderungen am Container.",
                         "detail_en": "10.20.10.0/24 adopts the value unchanged and follows future changes on the container.",
                     },
@@ -206,7 +206,7 @@ EXTENSIBLE_ATTRIBUTES_MODULE = {
                         "row": 1,
                         "col": 1,
                         "label_de": "Netz B: Override „West“",
-                        "label_en": "Network B: override \"West\"",
+                        "label_en": "Network B: override “West”",
                         "detail_de": "10.20.20.0/24 gehört organisatorisch zu einer anderen Region und überschreibt den Wert gezielt.",
                         "detail_en": "10.20.20.0/24 belongs to a different region organizationally and overrides the value on purpose.",
                     },
@@ -244,17 +244,17 @@ EXTENSIBLE_ATTRIBUTES_MODULE = {
                     {
                         "highlight": ["cont"],
                         "text_de": "Der EA „Region“ wird einmal am Container gesetzt statt auf jedem Netz einzeln.",
-                        "text_en": "The EA \"Region\" is set once on the container instead of on every network separately.",
+                        "text_en": "The EA “Region” is set once on the container instead of on every network separately.",
                     },
                     {
                         "highlight": ["cont", "e1", "n1"],
                         "text_de": "Netz A erbt. Ändert jemand den Wert am Container auf „Südost“, steht das auch an Netz A.",
-                        "text_en": "Network A inherits. If someone changes the value on the container to \"Southeast\", network A shows that too.",
+                        "text_en": "Network A inherits. If someone changes the value on the container to “Southeast”, network A shows that too.",
                     },
                     {
                         "highlight": ["e2", "n2"],
                         "text_de": "Netz B hat überschrieben. Die Änderung am Container kommt hier nicht an — der eigene Wert „West“ bleibt.",
-                        "text_en": "Network B has overridden the value. The change on the container does not take effect here — its own value \"West\" stays.",
+                        "text_en": "Network B has overridden the value. The change on the container does not take effect here — its own value “West” stays.",
                     },
                     {
                         "highlight": ["e3", "n3"],
@@ -286,7 +286,7 @@ EXTENSIBLE_ATTRIBUTES_MODULE = {
                     'An EA value set through inheritance can be overridden on '
                     'the child object.',
                     'A child object can explicitly mark an inherited EA value '
-                    'as "not inherited".',
+                    'as “not inherited.”',
                     'Once an EA value has been inherited, it can never be '
                     'changed again on the child object.',
                     'Changing the EA value on the container affects all child '
@@ -300,7 +300,7 @@ EXTENSIBLE_ATTRIBUTES_MODULE = {
                                   'Vererbung ist keine dauerhafte Sperre, sondern '
                                   'ein Startwert.',
                 'explanation_en': 'EA values on child objects can be overridden, '
-                                  'kept unchanged, or marked as "not inherited" at '
+                                  'kept unchanged, or marked as “not inherited” at '
                                   'any time. Inheritance is not a permanent '
                                   'lock, it is a starting value.',
             },
@@ -332,14 +332,14 @@ EXTENSIBLE_ATTRIBUTES_MODULE = {
                       'unterschiedliche Schreibweisen entstehen, und macht das '
                       'Feld zur verlässlichen Grundlage für Suche und '
                       'Reporting.',
-                'en': 'One possible approach: an EA named "Site", data type List, '
+                'en': 'One possible approach: an EA named “Site”, data type List, '
                       'with a fixed, pre-agreed list of values (for example the '
                       'actual site names used by the company, instead of free '
-                      'text). In addition, an EA named "Cost Center" (String or '
+                      'text). In addition, an EA named “Cost Center” (String or '
                       'List, depending on how standardized cost center labels '
-                      'already are within the company) and an EA named "Owner" '
+                      'already are within the company) and an EA named “Owner” '
                       'for the responsible person or group. The List type for '
-                      '"Site" prevents different spelling variants from '
+                      '“Site” prevents different spelling variants from '
                       'appearing again in the future, and makes the field a '
                       'reliable basis for search and reporting.',
             },
@@ -381,7 +381,7 @@ EXTENSIBLE_ATTRIBUTES_MODULE = {
             "note": "Syntax nach der WAPI-Doku (Abschnitte „Extensible attributes“ und „_return_fields+“). v2.x ist im Lehrgang bewusst ein Platzhalter für die WAPI-Version.",
             "payload": {
                 "prompt_de": "Die EA-Pflege zahlt sich bei der Suche aus. Vervollständige den WAPI-Aufruf, der alle Netzwerke mit dem EA Standort = Hamburg findet und die EAs in der Antwort mitliefert.",
-                "prompt_en": "EA upkeep pays off in search. Complete the WAPI call that finds all networks whose EA \"Standort\" (site) is set to Hamburg and includes the EAs in the response.",
+                "prompt_en": "EA upkeep pays off in search. Complete the WAPI call that finds all networks whose EA “Standort” (site) is set to Hamburg and includes the EAs in the response.",
                 "mono": True,
                 "text": "GET https://gm.nordwind.example/wapi/v2.x/[[objekt]]\n      ?[[praefix]]Standort=Hamburg\n      &[[felder]]=extattrs\n\n[\n  {\n    \"_ref\": \"network/ZG5zLm5ldHdvcmskMTk4:198.51.100.0/24/default\",\n    \"network\": \"198.51.100.0/24\",\n    \"network_view\": \"default\",\n    \"extattrs\": { \"Standort\": { \"[[schluessel]]\": \"Hamburg\" } }\n  }\n]",
                 "gaps": [
@@ -395,7 +395,7 @@ EXTENSIBLE_ATTRIBUTES_MODULE = {
                     {"id": "schluessel", "accept": ["value"]},
                 ],
                 "explanation_de": "Gesucht wird auf dem Objekttyp (network); ein EA wird in der Suche durch den vorangestellten Stern gekennzeichnet. _return_fields+ ergänzt die Standardfelder um extattrs — ohne das Plus kämen nur die EAs zurück. Der EA-Name ist case-sensitiv: *standort fände den EA „Standort“ nicht.",
-                "explanation_en": "The search runs on the object type (network); an EA is marked in a search by the leading asterisk. _return_fields+ adds extattrs to the default fields — without the plus only the EAs would come back. The EA name is case-sensitive: *standort would not find the EA \"Standort\".",
+                "explanation_en": "The search runs on the object type (network); an EA is marked in a search by the leading asterisk. _return_fields+ adds extattrs to the default fields — without the plus only the EAs would come back. The EA name is case-sensitive: *standort would not find the EA “Standort”.",
             },
         },
         {
@@ -426,7 +426,7 @@ EXTENSIBLE_ATTRIBUTES_MODULE = {
                       'a fixed set of choices, such as site — this leads to '
                       'spelling variants and unusable filters.\n'
                       '- Inconsistent naming: since EA names are case-sensitive, '
-                      '"Site" and "site" accidentally become two separate fields.\n'
+                      '“Site” and “site” accidentally become two separate fields.\n'
                       '- No plan for mandatory fields: an EA exists, but is '
                       'not consistently filled in whenever an object is created, '
                       'leaving reports full of gaps.\n'
@@ -458,7 +458,7 @@ EXTENSIBLE_ATTRIBUTES_MODULE = {
                     },
                     {
                         "left_de": "Kind ist „nicht geerbt“",
-                        "left_en": "Child is \"not inherited\"",
+                        "left_en": "Child is “not inherited”",
                         "right_de": "EA wird am Kind unabhängig gepflegt",
                         "right_en": "EA is maintained independently on the child",
                     },
@@ -522,14 +522,14 @@ EXTENSIBLE_ATTRIBUTES_MODULE = {
                 'id': 'ea2',
                 "explanation": {
                     "de": "Eine Werte-Liste lässt nur abgestimmte Werte zu; „Berlin“, „berlin“ und „BER“ können nicht nebeneinander entstehen. Mit Vererbung hat der Datentyp nichts zu tun: Geerbt werden Werte beider Typen.",
-                    "en": "A value list only allows agreed values; \"Berlin\", \"berlin\" and \"BER\" cannot coexist. The data type has nothing to do with inheritance: values of both types are inherited.",
+                    "en": "A value list only allows agreed values; “Berlin”, “berlin” and “BER” cannot coexist. The data type has nothing to do with inheritance: values of both types are inherited.",
                 },
                 'type': 'single',
                 'prompt': {
                     'de': 'Warum ist der List-Typ für ein Feld wie „Standort“ '
                           'oft sinnvoller als ein freier String?',
                     'en': 'Why is the List type often more sensible than a free '
-                          'String for a field such as "Site"?',
+                          'String for a field such as “Site”?',
                 },
                 'answer': 0,
                 'options': {
@@ -557,14 +557,14 @@ EXTENSIBLE_ATTRIBUTES_MODULE = {
                 'id': 'ea3',
                 "explanation": {
                     "de": "„Nicht geerbt“ löst nur dieses eine Kind-Objekt für diesen einen EA von der Vererbung. Das Elternobjekt und die Geschwister bleiben unberührt — der naheliegende Irrtum ist, die Markierung wirke nach oben oder zur Seite.",
-                    "en": "\"Not inherited\" detaches only this one child object for this one EA from inheritance. The parent and the siblings stay untouched — the tempting mistake is to think the marker works upward or sideways.",
+                    "en": "“Not inherited” detaches only this one child object for this one EA from inheritance. The parent and the siblings stay untouched — the tempting mistake is to think the marker works upward or sideways.",
                 },
                 'type': 'single',
                 'prompt': {
                     'de': 'Was passiert, wenn ein Kind-Objekt einen ererbten '
                           'EA-Wert explizit als „nicht geerbt“ markiert?',
                     'en': 'What happens when a child object explicitly marks an '
-                          'inherited EA value as "not inherited"?',
+                          'inherited EA value as “not inherited”?',
                 },
                 'answer': 0,
                 'options': {
@@ -598,10 +598,10 @@ EXTENSIBLE_ATTRIBUTES_MODULE = {
                 'type': 'multi',
                 'prompt': {
                     'de': 'Welche der folgenden Punkte gelten als typische '
-                          'Fehler beim Aufbau eines EA-Datenmodells (mehrere '
-                          'richtig)?',
+                          'Fehler beim Aufbau eines EA-Datenmodells? '
+                          'Mehrere Antworten sind richtig.',
                     'en': 'Which of the following count as typical mistakes when '
-                          'building an EA data model (multiple)?',
+                          'building an EA data model? Select all that apply.',
                 },
                 'answer': [0, 1, 3],
                 'options': {
@@ -670,7 +670,7 @@ EXTENSIBLE_ATTRIBUTES_MODULE = {
                 "type": "single",
                 "prompt": {
                     "de": "Am Container 10.20.0.0/16 steht Region = Süd. Netz A erbt, Netz B hat den Wert auf „West“ überschrieben. Nun ändert jemand den Wert am Container auf „Südost“. Was steht danach an den Netzen?",
-                    "en": "The container 10.20.0.0/16 has Region = South. Network A inherits, network B has overridden the value with \"West\". Now someone changes the value on the container to \"Southeast\". What do the networks show afterward?",
+                    "en": "The container 10.20.0.0/16 has Region = South. Network A inherits, network B has overridden the value with “West”. Now someone changes the value on the container to “Southeast”. What do the networks show afterward?",
                 },
                 "answer": 1,
                 "options": {
@@ -716,15 +716,15 @@ EXTENSIBLE_ATTRIBUTES_MODULE = {
                 },
                 "explanation": {
                     "de": "Der Modifikator „:“ macht den Wertvergleich case-insensitiv; „~“ wäre die Regex-Suche, „!“ die Negation. Der EA-Name selbst bleibt case-sensitiv — *standort träfe einen EA namens „Standort“ weiterhin nicht.",
-                    "en": "The \":\" modifier makes the value comparison case-insensitive; \"~\" would be the regex search, \"!\" the negation. The EA name itself stays case-sensitive — *standort would still not match an EA named \"Standort\".",
+                    "en": "The “:” modifier makes the value comparison case-insensitive; “~” would be the regex search, “!” the negation. The EA name itself stays case-sensitive — *standort would still not match an EA named “Standort”.",
                 },
             },
             {
                 "id": "ea8",
                 "type": "multi",
                 "prompt": {
-                    "de": "Nordwind will künftig Reports „Auslastung je Standort“ fahren. Welche Entscheidungen im EA-Schema machen das belastbar (mehrere richtig)?",
-                    "en": "Nordwind wants to run \"utilization per site\" reports in the future. Which decisions in the EA schema make that reliable (multiple)?",
+                    "de": "Nordwind will künftig Reports „Auslastung je Standort“ fahren. Welche Entscheidungen im EA-Schema machen das belastbar? Mehrere Antworten sind richtig.",
+                    "en": "Nordwind wants to run “utilization per site” reports in the future. Which decisions in the EA schema make that reliable? Select all that apply.",
                 },
                 "answer": [0, 3],
                 "options": {
@@ -735,9 +735,9 @@ EXTENSIBLE_ATTRIBUTES_MODULE = {
                         "Den Wert am Container setzen und nur begründete Abweichungen überschreiben",
                     ],
                     "en": [
-                        "Create the EA \"Standort\" as a List type with an agreed value list",
+                        "Create the EA “Standort” as a List type with an agreed value list",
                         "Additionally repeat the site in the comment field of every network",
-                        "Create a separate EA \"Standort_<department>\" for every department",
+                        "Create a separate EA “Standort_<department>” for every department",
                         "Set the value on the container and override only justified exceptions",
                     ],
                 },

@@ -43,8 +43,8 @@ NAC_TROUBLESHOOTING_MODULE = {
     },
     'blocks': [
         {'type': 'text', 'id': 'text-1',
-         'note': 'Diesen Pfad als Skelett fuer den ganzen Debug-Teil des Moduls nutzen: bei '
-                 'jedem Fehlerbild danach fragen lassen, an welcher der vier Stationen es haengt.',
+         'note': 'Diesen Pfad als Skelett für den ganzen Debug-Teil des Moduls nutzen: bei '
+                 'jedem Fehlerbild danach fragen lassen, an welcher der vier Stationen es hängt.',
          'value': {
              'de': '## Der Pfad als Suchraster\n\n'
                    'Eine 802.1X-Authentifizierung durchläuft immer dieselbe Kette von '
@@ -78,7 +78,7 @@ NAC_TROUBLESHOOTING_MODULE = {
             'payload': {
                 'kind': 'flow',
                 'title_de': 'Vier Stationen, vier Werkzeugkästen',
-                'title_en': 'Four stations, four toolboxes',
+                'title_en': 'Four Stations, Four Toolboxes',
                 'caption_de': 'Anklicken zeigt, was du an der Station prüfst.',
                 'caption_en': 'Click to see what you check at each station.',
                 'nodes': [
@@ -98,7 +98,7 @@ NAC_TROUBLESHOOTING_MODULE = {
                         'col': 1,
                         'label': 'Switch',
                         'detail_de': '„show access-session interface … details“: Status, Methode, VLAN/ACL. Dazu das Log (%DOT1X-5-FAIL, %MAB-5-…) und die Port-Konfiguration.',
-                        'detail_en': '"show access-session interface … details": status, method, VLAN/ACL. Plus the log (%DOT1X-5-FAIL, %MAB-5-…) and the port configuration.',
+                        'detail_en': '“show access-session interface … details”: status, method, VLAN/ACL. Plus the log (%DOT1X-5-FAIL, %MAB-5-…) and the port configuration.',
                     },
                     {
                         'id': 'rad',
@@ -107,7 +107,7 @@ NAC_TROUBLESHOOTING_MODULE = {
                         'col': 2,
                         'label': 'RADIUS',
                         'detail_de': 'Vom Switch aus: „show aaa servers“, „test aaa group …“. Am Server: das Authentifizierungs-Log — es nennt den Ablehnungsgrund und die getroffene Regel.',
-                        'detail_en': 'From the switch: "show aaa servers", "test aaa group …". On the server: the authentication log — it states the reject reason and the matched rule.',
+                        'detail_en': 'From the switch: “show aaa servers”, “test aaa group …”. On the server: the authentication log — it states the reject reason and the matched rule.',
                     },
                     {
                         'id': 'dir',
@@ -166,7 +166,7 @@ NAC_TROUBLESHOOTING_MODULE = {
                    '- **Certificate expired or untrusted (EAP-TLS)** — most 802.1X problems '
                    'with EAP-TLS stem from certificate issues: an expired certificate, a chain '
                    'verification failure, a failed revocation check. A typical remedy is a '
-                   '"parking lot" — a restricted network segment for devices with a failed '
+                   '“parking lot” — a restricted network segment for devices with a failed '
                    'certificate, often combined with MAB as a fallback.',
          }},
         {'type': 'text', 'id': 'text-3',
@@ -192,7 +192,7 @@ NAC_TROUBLESHOOTING_MODULE = {
                    '(see `nac-radius`).\n'
                    '- **MAB fallback kicks in unwantedly** — MAB is meant as a fallback when no '
                    'supplicant responds; many environments additionally configure the switch '
-                   'to try MAB after an 802.1X failure as well, e.g. due to an expired '
+                   'to try MAB after an 802.1X failure as well, e.g., due to an expired '
                    'certificate. Because MAB is inherently '
                    'weaker than certificate-based authentication (the MAC address is spoofable, '
                    'see `nac-mab`), it is a distinct risk if a device that falls back to MAB '
@@ -314,7 +314,7 @@ NAC_TROUBLESHOOTING_MODULE = {
                      'next-method“ lässt MAB zu → zu weite MAB-Regel vergibt VLAN 20.'),
             'payload': {
                 'title_de': 'Fall Kaya: Wie kam der Laptop ins Mitarbeiter-VLAN?',
-                'title_en': 'Case Kaya: how did the laptop get into the employee VLAN?',
+                'title_en': 'Case Kaya: How Did the Laptop Get Into the Employee VLAN?',
                 'prompt': 'nw-acc1#',
                 'abbreviations': True,
                 'unknown': '% Invalid input detected: {cmd}',
@@ -380,10 +380,10 @@ NAC_TROUBLESHOOTING_MODULE = {
                      'text_en': 'Find the line in the port configuration that allows MAB even AFTER a failed 802.1X.',
                      'command': 'show running-config interface Gi1/0/5'},
                     {'text_de': 'Welches Schlüsselwort steht in dieser Zeile hinter „action“?',
-                     'text_en': 'Which keyword follows "action" in that line?',
+                     'text_en': 'Which keyword follows “action” in that line?',
                      'answers': ['next-method', 'next method'],
                      'explanation_de': 'Die ganze Kette: Zertifikat abgelaufen → 802.1X scheitert → „authentication event fail action next-method“ lässt MAB zu → eine zu weite MAB-Regel vergibt VLAN 20.',
-                     'explanation_en': 'The whole chain: certificate expired → 802.1X fails → "authentication event fail action next-method" lets MAB take over → an overly broad MAB rule assigns VLAN 20.'},
+                     'explanation_en': 'The whole chain: certificate expired → 802.1X fails → “authentication event fail action next-method” lets MAB take over → an overly broad MAB rule assigns VLAN 20.'},
                 ],
             },
         },
@@ -393,9 +393,9 @@ NAC_TROUBLESHOOTING_MODULE = {
                           'nicht mehr per 802.1X ins Netz, landet aber trotzdem im normalen '
                           'Mitarbeiter-VLAN statt in einem eingeschränkten Netz.“ Welche der '
                           'folgenden Aussagen zu diesem Bild ist falsch?',
-             'prompt_en': 'Report: "Kaya\'s laptop can no longer get onto the network via '
+             'prompt_en': 'Report: “Kaya\'s laptop can no longer get onto the network via '
                          '802.1X since this morning, but still ends up in the normal employee '
-                         'VLAN instead of a restricted network." Which of the following '
+                         'VLAN instead of a restricted network.” Which of the following '
                          'statements about this situation is false?',
              'lines_de': [
                  'Laut Zertifikatsverwaltung ist das Client-Zertifikat des Laptops seit heute '
@@ -439,13 +439,13 @@ NAC_TROUBLESHOOTING_MODULE = {
             'id': 'scenario-kein-netz',
             'payload': {
                 'title_de': 'Ein neues Notebook kommt nicht ins Netz',
-                'title_en': 'A new laptop cannot get onto the network',
+                'title_en': 'A New Laptop Cannot Get Onto the Network',
                 'start': 'start',
                 'nodes': [
                     {
                         'id': 'start',
                         'text_de': 'Das neue Notebook von Frau Öztürk bekommt an Gi1/0/12 kein Netz; die Kollegen am selben Switch arbeiten normal. Der Switch zeigt für den Port: Status „Unauthorized“, Methode dot1x „Authc Failed“. Wo suchst du weiter?',
-                        'text_en': 'Ms. Öztürk\'s new laptop gets no network on Gi1/0/12; her colleagues on the same switch work normally. The switch shows for the port: status "Unauthorized", method dot1x "Authc Failed". Where do you look next?',
+                        'text_en': 'Ms. Öztürk\'s new laptop gets no network on Gi1/0/12; her colleagues on the same switch work normally. The switch shows for the port: status “Unauthorized”, method dot1x “Authc Failed”. Where do you look next?',
                         'options': [
                             {
                                 'label_de': 'Am Notebook prüfen, ob der Supplicant-Dienst überhaupt läuft',
@@ -459,7 +459,7 @@ NAC_TROUBLESHOOTING_MODULE = {
                             },
                             {
                                 'label_de': 'Den Port vorübergehend auf „force-authorized“ stellen',
-                                'label_en': 'Temporarily set the port to "force-authorized"',
+                                'label_en': 'Temporarily set the port to “force-authorized”',
                                 'to': 'force',
                             },
                         ],
@@ -468,18 +468,18 @@ NAC_TROUBLESHOOTING_MODULE = {
                         'id': 'dienst',
                         'outcome': 'ok',
                         'text_de': 'Richtige Station, aber die falsche Frage: „Authc Failed“ heißt, es wurde verhandelt und abgelehnt — der Supplicant läuft also. Ohne Supplicant gäbe es nur ein Timeout. Den Grund der Ablehnung kennt der RADIUS-Server.',
-                        'text_en': 'The right station, but the wrong question: "Authc Failed" means it was negotiated and rejected — so the supplicant is running. Without a supplicant there would only be a timeout. The RADIUS server knows the reason for the rejection.',
+                        'text_en': 'The right station, but the wrong question: “Authc Failed” means it was negotiated and rejected — so the supplicant is running. Without a supplicant there would only be a timeout. The RADIUS server knows the reason for the rejection.',
                     },
                     {
                         'id': 'force',
                         'outcome': 'bad',
                         'text_de': 'Das Notebook ist dann ungeprüft im Netz, die Ursache unbekannt — und solche „vorübergehenden“ Ausnahmen bleiben erfahrungsgemäß jahrelang stehen.',
-                        'text_en': 'The laptop is then on the network unchecked, the cause unknown — and such "temporary" exceptions tend to stay in place for years.',
+                        'text_en': 'The laptop is then on the network unchecked, the cause unknown — and such “temporary” exceptions tend to stay in place for years.',
                     },
                     {
                         'id': 'log',
                         'text_de': 'Das RADIUS-Log meldet: „EAP-TLS handshake failed — unknown CA in client certificate chain“. Das Zertifikat ist gültig, die Uhr stimmt. Was ist der richtige Schritt?',
-                        'text_en': 'The RADIUS log reports: "EAP-TLS handshake failed — unknown CA in client certificate chain". The certificate is valid, the clock is right. What is the right step?',
+                        'text_en': 'The RADIUS log reports: “EAP-TLS handshake failed — unknown CA in client certificate chain”. The certificate is valid, the clock is right. What is the right step?',
                         'options': [
                             {
                                 'label_de': 'Klären, welche CA das Zertifikat ausgestellt hat, und deren Kette am Server hinterlegen',
@@ -698,7 +698,7 @@ NAC_TROUBLESHOOTING_MODULE = {
             'type': 'single',
             'prompt': {
                 'de': 'Nach einem Akkutausch startet ein Notebook mit dem Datum 01.01.2015. EAP-TLS schlägt fehl, der Supplicant meldet, das Server-Zertifikat sei „noch nicht gültig“. Wie ordnest du das ein?',
-                'en': 'After a battery replacement a laptop boots with the date 01/01/2015. EAP-TLS fails, the supplicant reports the server certificate as "not yet valid". How do you assess this?',
+                'en': 'After a battery replacement a laptop boots with the date 01/01/2015. EAP-TLS fails, the supplicant reports the server certificate as “not yet valid”. How do you assess this?',
             },
             'options': {
                 'de': [
@@ -708,7 +708,7 @@ NAC_TROUBLESHOOTING_MODULE = {
                     'Die Uhrzeit spielt für EAP-TLS keine Rolle, die Ursache liegt am RADIUS Shared Secret',
                 ],
                 'en': [
-                    'The laptop\'s clock is the cause: certificates are checked against their validity period — correct the time; there is no fixed "5-minute tolerance" in EAP-TLS',
+                    'The laptop\'s clock is the cause: certificates are checked against their validity period — correct the time; there is no fixed “5-minute tolerance” in EAP-TLS',
                     'The server certificate was issued incorrectly and must be renewed',
                     'EAP-TLS tolerates exactly five minutes of drift; the client certificate must therefore be reissued',
                     'Time is irrelevant for EAP-TLS, the cause is the RADIUS shared secret',
@@ -725,7 +725,7 @@ NAC_TROUBLESHOOTING_MODULE = {
             'type': 'single',
             'prompt': {
                 'de': 'An einem neu installierten Switch scheitern ALLE 802.1X-Anmeldungen, an den übrigen Switches läuft alles. „test aaa group …“ meldet auf dem neuen Switch „No authoritative response from any server“, ein Ping zum RADIUS-Server funktioniert. Was ist die wahrscheinlichste Ursache?',
-                'en': 'On a newly installed switch ALL 802.1X logins fail, everything works on the other switches. On the new switch "test aaa group …" reports "No authoritative response from any server", a ping to the RADIUS server succeeds. What is the most likely cause?',
+                'en': 'On a newly installed switch ALL 802.1X logins fail, everything works on the other switches. On the new switch “test aaa group …” reports “No authoritative response from any server”, a ping to the RADIUS server succeeds. What is the most likely cause?',
             },
             'options': {
                 'de': [
@@ -744,15 +744,15 @@ NAC_TROUBLESHOOTING_MODULE = {
             'answer': 1,
             'explanation': {
                 'de': 'Alle Geräte EINES Switches betroffen, Server per Ping erreichbar, andere Switches in Ordnung: Die Ursache liegt zwischen genau diesem Switch und dem Server. Ein RADIUS-Server verwirft Anfragen unbekannter Absender oder mit falschem Secret stillschweigend — für den Switch sieht das wie „keine Antwort“ aus.',
-                'en': 'All devices on ONE switch affected, server reachable by ping, other switches fine: the cause lies between exactly this switch and the server. A RADIUS server silently drops requests from unknown senders or with a wrong secret — to the switch this looks like "no response".',
+                'en': 'All devices on ONE switch affected, server reachable by ping, other switches fine: the cause lies between exactly this switch and the server. A RADIUS server silently drops requests from unknown senders or with a wrong secret — to the switch this looks like “no response.”',
             },
         },
         {
             'id': 'ts7',
             'type': 'multi',
             'prompt': {
-                'de': 'Der Switch zeigt für einen Port: Status „Authorized“, „Vlan: 20“, dot1x „Authc Failed“, mab „Authc Success“. Welche Schlüsse sind richtig? (Mehrere richtig)',
-                'en': 'For a port the switch shows: status "Authorized", "Vlan: 20", dot1x "Authc Failed", mab "Authc Success". Which conclusions are correct? (Several correct)',
+                'de': 'Der Switch zeigt für einen Port: Status „Authorized“, „Vlan: 20“, dot1x „Authc Failed“, mab „Authc Success“. Welche Schlüsse sind richtig? Mehrere Antworten sind richtig.',
+                'en': 'For a port the switch shows: status “Authorized”, “Vlan: 20”, dot1x “Authc Failed”, mab “Authc Success”. Which conclusions are correct? Select all that apply.',
             },
             'options': {
                 'de': [
@@ -765,13 +765,13 @@ NAC_TROUBLESHOOTING_MODULE = {
                     'The supplicant answered but was rejected',
                     'The device got onto the network by its MAC address only',
                     'The MAB rule on the RADIUS server grants the same access here as for 802.1X devices',
-                    'All is well — "Authorized" means the strong authentication succeeded',
+                    'All is well — “Authorized” means the strong authentication succeeded',
                 ],
             },
             'answer': [0, 1, 2],
             'explanation': {
                 'de': '„Authorized“ sagt nur, dass der Port offen ist — nicht, wodurch. Erst die Methodenliste zeigt, dass hier der schwache Weg zum vollen Mitarbeiter-VLAN geführt hat: ein Fehler in der Autorisierungsregel, der im Alltag nicht auffällt, weil das Gerät ja funktioniert.',
-                'en': '"Authorized" only says that the port is open — not by which means. Only the method list shows that here the weak path led to the full employee VLAN: a flaw in the authorization rule that goes unnoticed in daily use, because the device does work.',
+                'en': '“Authorized” only says that the port is open — not by which means. Only the method list shows that here the weak path led to the full employee VLAN: a flaw in the authorization rule that goes unnoticed in daily use, because the device does work.',
             },
         },
     ]},

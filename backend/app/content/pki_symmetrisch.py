@@ -30,7 +30,7 @@ SYMMETRISCH_MODULE = {
         'en': 'Nordwind Logistik GmbH encrypts shipment data between two sites using AES. An '
               'intern encrypted a test image with AES in ECB mode and is confused: rough outlines '
               'of the original image are still visible in the ciphertext. Your task: explain why '
-              '"AES" alone is not a security statement — the mode of operation matters just as '
+              '“AES” alone is not a security statement — the mode of operation matters just as '
               'much.',
     },
     'blocks': [
@@ -91,12 +91,12 @@ SYMMETRISCH_MODULE = {
                    '128-bit block independently with the same key — identical plaintext blocks '
                    'therefore always produce identical ciphertext blocks. That sounds harmless, but '
                    'it is not: if the plaintext contains large contiguous areas with repeating '
-                   'patterns (e.g. large single-colored areas in an image), those patterns remain '
+                   'patterns (e.g., large single-colored areas in an image), those patterns remain '
                    'visible in the ciphertext, even though the content of each individual block is '
                    'technically encrypted correctly.\n\n'
                    'The best-known example is a test image of a penguin logo: when encrypted with '
                    'AES-ECB, the rough outlines of the original image remain clearly recognizable '
-                   'in the "encrypted" result, because uniform image areas map to identical '
+                   'in the “encrypted” result, because uniform image areas map to identical '
                    'ciphertext blocks. ECB is therefore considered unsuitable for most practical '
                    'applications.\n\n'
                    '**CBC (Cipher Block Chaining)** solves the pattern problem by linking each '
@@ -108,14 +108,14 @@ SYMMETRISCH_MODULE = {
          }},
         {'type': 'terminal', 'id': 'terminal-ecb-muster',
          'note': ('Ausgaben real mit OpenSSL 3.6 erzeugt (fester Demo-Schlüssel per -K, -nopad). xxd ist kein '
-             'openssl-Befehl und deshalb nicht im Openssl-Lab verfügbar - daher hier als Simulation. Das ist '
+             'openssl-Befehl und deshalb nicht im OpenSSL-Lab verfügbar - daher hier als Simulation. Das ist '
              'das Pinguin-Bild in drei Zeilen.'),
          'payload': {
              'title_de': 'ECB zeigt Muster, CBC nicht',
-             'title_en': 'ECB shows patterns, CBC does not',
+             'title_en': 'ECB Shows Patterns, CBC Does Not',
              'prompt': 'nordwind$',
              'intro_de': 'muster.txt enthält dreimal denselben 16-Byte-Block „PALETTE-HAMBURG-“.',
-             'intro_en': 'muster.txt contains the same 16-byte block "PALETTE-HAMBURG-" three times.',
+             'intro_en': 'muster.txt contains the same 16-byte block “PALETTE-HAMBURG-” three times.',
              'unknown_de': 'Befehl nicht in dieser Übung: {cmd} (Tipp: help)',
              'unknown_en': 'Command not part of this exercise: {cmd} (hint: help)',
              'commands': [
@@ -276,8 +276,8 @@ SYMMETRISCH_MODULE = {
                    'garantiert eindeutiger Zähler pro Schlüssel — und ein Nonce niemals über '
                    'verschiedene Verbindungen oder Sitzungen mit demselben Schlüssel '
                    'wiederverwenden.',
-             'en': '## Nonce/IV Reuse — the Classic Total Failure with GCM\n\n'
-                   'AES-GCM (and other AEAD schemes) need a **nonce** ("number used once") or IV '
+             'en': '## Nonce/IV Reuse — the Classic Total Failure With GCM\n\n'
+                   'AES-GCM (and other AEAD schemes) need a **nonce** (“number used once”) or IV '
                    'per encryption, which must **never be reused** for a given key. If the same '
                    'nonce is used twice with the same key, the damage is not gradual but '
                    'catastrophic:\n\n'
@@ -287,13 +287,13 @@ SYMMETRISCH_MODULE = {
                    'is broken.\n'
                    '- In addition, nonce reuse with GCM allows reconstructing the internal '
                    'authentication key (the so-called GHASH subkey). This lets an attacker forge '
-                   'arbitrary ciphertexts that still pass as "validly authenticated" — so '
+                   'arbitrary ciphertexts that still pass as “validly authenticated” — so '
                    'authenticity is broken too.\n\n'
                    'Nonce reuse with GCM therefore breaks **both at once**: confidentiality and '
                    'authenticity. This is exactly what happens regularly in practice when someone, '
                    'out of convenience or due to a configuration mistake, writes a **fixed IV** '
                    'into a configuration file instead of generating it randomly per encryption or '
-                   'as a guaranteed-unique (e.g. strictly monotonically increasing) counter per '
+                   'as a guaranteed-unique (e.g., strictly monotonically increasing) counter per '
                    'key. Recommendation: a random 12-byte nonce or a guaranteed-unique counter per '
                    'key — and never reuse a nonce across different connections or sessions with the '
                    'same key.',
@@ -304,7 +304,7 @@ SYMMETRISCH_MODULE = {
          'payload': {
              'kind': 'compare',
              'title_de': 'Betriebsarten im Vergleich',
-             'title_en': 'Modes of operation compared',
+             'title_en': 'Modes of Operation Compared',
              'columns': [
                     {'title': 'ECB'},
                     {'title': 'CBC'},
@@ -392,7 +392,7 @@ SYMMETRISCH_MODULE = {
                  'remain visible',
                  'CBC with an unpredictable IV — patterns disappear, but no built-in integrity '
                  'check',
-                 'AEAD (e.g. AES-GCM) with a guaranteed-unique nonce — encryption and '
+                 'AEAD (e.g., AES-GCM) with a guaranteed-unique nonce — encryption and '
                  'authentication in one step',
              ],
          }},
@@ -443,10 +443,10 @@ SYMMETRISCH_MODULE = {
                  '`-pbkdf2` leitet den Schlüssel aus dem Passwort mit einer langsamen Ableitung ab. Wichtig: '
                  '`enc` mit CBC liefert nur Vertraulichkeit — ein falsches Passwort fällt meist nur als „bad '
                  'decrypt“ am Padding auf, gezielte Manipulation nicht zuverlässig.'),
-             'explanation_en': ('ECB is out because of the patterns, and `openssl enc` rejects GCM ("AEAD ciphers not '
-                 'supported"). `-pbkdf2` derives the key from the password using a slow derivation. Important: '
-                 '`enc` with CBC only delivers confidentiality — a wrong password usually only shows up as "bad '
-                 'decrypt" at the padding; deliberate tampering is not detected reliably.'),
+             'explanation_en': ('ECB is out because of the patterns, and `openssl enc` rejects GCM (“AEAD ciphers not '
+                 'supported”). `-pbkdf2` derives the key from the password using a slow derivation. Important: '
+                 '`enc` with CBC only delivers confidentiality — a wrong password usually only shows up as “bad '
+                 'decrypt” at the padding; deliberate tampering is not detected reliably.'),
             },
         },
         {'type': 'reflect', 'id': 'reflect-1',
@@ -455,9 +455,9 @@ SYMMETRISCH_MODULE = {
                          'festen IV für AES-GCM in die Konfigurationsdatei schreiben, \"weil ja nur der Schlüssel geheim bleiben muss\". Wie würdest du ihm das '
                          'Risiko erklären, ohne nur "das macht man nicht" zu sagen?',
              'prompt_en': 'A colleague wants to write a fixed IV for AES-GCM into a configuration '
-                         'file in an internal service for simplicity, "since only the key needs '
-                         'to stay secret anyway". How would you explain the risk to him, without '
-                         'just saying "you don\'t do that"?',
+                         'file in an internal service for simplicity, “since only the key needs '
+                         'to stay secret anyway.” How would you explain the risk to him, without '
+                         'just saying “you don\'t do that”?',
          }},
     ],
     'quiz': {'questions': [
@@ -557,7 +557,7 @@ SYMMETRISCH_MODULE = {
               'Klartexte, und zusätzlich lässt sich der GHASH-Schlüssel rekonstruieren. „Zufällig“ hilft nicht, '
               'wenn derselbe Wert zweimal verwendet wird.'),
           'en': ('GCM is a counter mode internally: the same nonce means the same keystream, hence the XOR of the '
-              'plaintexts, and in addition the GHASH key can be reconstructed. "Random" does not help if the '
+              'plaintexts, and in addition the GHASH key can be reconstructed. “Random” does not help if the '
               'same value is used twice.'),
          }},
         {'id': 'sy5', 'type': 'single',
@@ -623,7 +623,7 @@ SYMMETRISCH_MODULE = {
          'prompt': {
              'de': ('Welche dieser Verfahren sind AEAD-Verfahren, liefern also Vertraulichkeit UND Integrität in '
                  'einem Schritt?'),
-             'en': 'Which of these are AEAD schemes, i.e. deliver confidentiality AND integrity in one step?',
+             'en': 'Which of these are AEAD schemes, i.e., deliver confidentiality AND integrity in one step?',
             },
          'options': {
              'de': ['AES-128-GCM', 'ChaCha20-Poly1305', 'AES-128-CCM', 'AES-256-CBC', 'AES-256-ECB'],

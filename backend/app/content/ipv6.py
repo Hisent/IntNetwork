@@ -60,9 +60,7 @@ IPV6_MODULE = {
          "note": "Eine lange Adresse eingeben und die Kurzform zeigen, dann fe80::1 und "
                  "::1 → die Typ-Erkennung vorlesen."},
         {"type": "widget", "id": "visual-ipv6-autoconfig",
-         "note": "DE: Von Router Advertisement und Präfix über SLAAC und DAD bis zur "
-                 "nutzbaren IPv6-Adresse gehen. EN: Follow router advertisement and prefix "
-                 "through SLAAC and DAD to a usable IPv6 address."},
+         "note": "Von Router Advertisement und Präfix über SLAAC und DAD bis zur nutzbaren IPv6-Adresse gehen."},
         {"type": "widget", "id": "learning-ipv6", "note": "IPv4 und IPv6 bei Auflösung, Broadcast und Adressvergabe vergleichen."},
         {"type": "text", "id": "text-dual-stack",
          "value": {
@@ -105,7 +103,7 @@ IPV6_MODULE = {
                  "MEHRERE Adressen gleichzeitig (mindestens Link-Local + Global).",
          "payload": {
              "kind": "compare",
-             "title_de": "IPv6-Adresstypen nebeneinander", "title_en": "IPv6 address types side by side",
+             "title_de": "IPv6-Adresstypen nebeneinander", "title_en": "IPv6 Address Types Side by Side",
              "caption_de": "Ein Interface trägt meist mehrere davon gleichzeitig.",
              "caption_en": "An interface usually carries several of them at once.",
              "columns": [{"title": "Global Unicast"}, {"title": "Unique Local"},
@@ -117,7 +115,7 @@ IPV6_MODULE = {
                   "values_de": ["weltweit routbar", "nur innerhalb der Organisation",
                                 "nur das eigene Segment — wird nie geroutet", "je nach Scope, z. B. ff02:: = Segment"],
                   "values_en": ["globally routable", "inside the organization only",
-                                "own segment only — never routed", "depends on scope, e.g. ff02:: = segment"]},
+                                "own segment only — never routed", "depends on scope, e.g., ff02:: = segment"]},
                  {"label_de": "Entspricht in IPv4", "label_en": "IPv4 counterpart",
                   "values_de": ["öffentliche Adresse", "private Adresse (RFC 1918)",
                                 "169.254.0.0/16 — dort nur Notlösung", "Multicast und Broadcast"],
@@ -130,7 +128,7 @@ IPV6_MODULE = {
                   "values_de": ["Verbindungen ins Internet", "interne Dienste ohne Internetbezug",
                                 "Nachbarsuche, Next-Hop von Routen", "ersetzt Broadcasts, z. B. bei NDP"],
                   "values_en": ["connections to the Internet", "internal services that do not need the Internet",
-                                "neighbor discovery, next hop of routes", "replaces broadcasts, e.g. in NDP"]},
+                                "neighbor discovery, next hop of routes", "replaces broadcasts, e.g., in NDP"]},
              ],
          }},
         {"type": "text", "id": "text-5",
@@ -150,7 +148,7 @@ IPV6_MODULE = {
          "payload": {
              "kind": "sequence",
              "title_de": "NDP: die MAC-Adresse eines Nachbarn finden",
-             "title_en": "NDP: finding a neighbor's MAC address",
+             "title_en": "NDP: Finding a Neighbor's MAC Address",
              "caption_de": "IPv6-Ersatz für ARP — ICMPv6 statt eines eigenen Protokolls",
              "caption_en": "IPv6's replacement for ARP — ICMPv6 instead of a protocol of its own",
              "actors": [
@@ -183,7 +181,7 @@ IPV6_MODULE = {
                  "erlaubt, weil Link-Local nur je Segment eindeutig sein muss.",
          "payload": {
              "title_de": "IPv6 auf dem Router Nordwind-R1 ansehen",
-             "title_en": "Inspecting IPv6 on router Nordwind-R1",
+             "title_en": "Inspecting IPv6 on Router Nordwind-R1",
              "intro_de": "Nordwind testet IPv6 mit dem Dokumentationspräfix 2001:db8::/32. Tippe ? für Hilfe.",
              "intro_en": "Nordwind is testing IPv6 with the documentation prefix 2001:db8::/32. Type ? for help.",
              "prompt": "r1#", "abbreviations": True,
@@ -248,8 +246,8 @@ IPV6_MODULE = {
          "prompt": {"de": "Wie viele Bit hat eine IPv6-Adresse?", "en": "How many bits does an IPv6 address have?"},
          "answer": 128,
          "explanation": {
-             "de": "Eine IPv6-Adresse hat 128 Bit: 8 Gruppen zu je 16 Bit (4 Hex-Ziffern). Das ist nicht „viermal so viel“ wie die 32 Bit von IPv4 — jedes zusätzliche Bit verdoppelt den Adressraum.",
-             "en": "An IPv6 address has 128 bits: 8 groups of 16 bits each (4 hex digits). That is not “four times as much” as IPv4's 32 bits — every additional bit doubles the address space."}},
+             "de": "Eine IPv6-Adresse hat 128 Bit: 8 Gruppen zu je 16 Bit (4 Hex-Ziffern). Das sind viermal so viele Bit wie die 32 von IPv4, aber nicht viermal so viele Adressen: Jedes zusätzliche Bit verdoppelt den Adressraum, 96 Bit mehr ergeben 2^96-mal so viele Adressen.",
+             "en": "An IPv6 address has 128 bits: 8 groups of 16 bits each (4 hex digits). That is four times as many bits as IPv4's 32, but not four times as many addresses: every additional bit doubles the address space, so 96 more bits give 2^96 times as many addresses."}},
         {"id": "6b", "type": "single",
          "prompt": {"de": "Wofür steht die Kurzschreibweise :: in einer IPv6-Adresse?",
                     "en": "What does the shorthand :: stand for in an IPv6 address?"},
@@ -299,8 +297,8 @@ IPV6_MODULE = {
                    "group count must add up: in 2001:db8::a0:0:1 the “::” would stand for three groups "
                    "instead of two."}},
         {"id": "6f", "type": "multi",
-         "prompt": {"de": "Welche Aussagen über Link-Local-Adressen (fe80::/10) stimmen? (mehrere)",
-                    "en": "Which statements about link-local addresses (fe80::/10) are true? (multiple)"},
+         "prompt": {"de": "Welche Aussagen über Link-Local-Adressen (fe80::/10) stimmen? Mehrere Antworten sind richtig.",
+                    "en": "Which statements about link-local addresses (fe80::/10) are true? Select all that apply."},
          "options": {
              "de": ["Jedes IPv6-Interface hat eine — auch ohne Router und ohne DHCP",
                     "Router leiten Pakete mit Link-Local-Adressen nicht in andere Netze weiter",
@@ -309,7 +307,7 @@ IPV6_MODULE = {
              "en": ["Every IPv6 interface has one — even without a router and without DHCP",
                     "Routers do not forward packets with link-local addresses to other networks",
                     "They are globally unique",
-                    "The same address, e.g. fe80::1, may exist in different segments at the same time"],
+                    "The same address, e.g., fe80::1, may exist in different segments at the same time"],
          },
          "answer": [0, 1, 3],
          "explanation": {

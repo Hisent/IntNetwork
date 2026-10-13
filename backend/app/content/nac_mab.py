@@ -36,9 +36,9 @@ NAC_MAB_MODULE = {
     },
     'blocks': [
         {'type': 'text', 'id': 'text-1',
-         'note': 'MAB ist kein Ersatz fuer 802.1X, sondern nur ein Fallback fuer Geraete, die '
-                 '802.1X nicht koennen. Diese Abgrenzung frueh setzen, sonst wirkt MAB im Kurs '
-                 'wie eine gleichwertige Alternative statt wie ein schwaecheres Verfahren.',
+         'note': 'MAB ist kein Ersatz für 802.1X, sondern nur ein Fallback für Geräte, die '
+                 '802.1X nicht können. Diese Abgrenzung früh setzen, sonst wirkt MAB im Kurs '
+                 'wie eine gleichwertige Alternative statt wie ein schwächeres Verfahren.',
          'value': {
              'de': '## MAB: Netzzugang ohne 802.1X-Supplicant\n\n'
                    '**MAC Authentication Bypass (MAB)** ist ein Fallback-Mechanismus für Geräte, '
@@ -75,7 +75,7 @@ NAC_MAB_MODULE = {
                    'ein Gerät, sondern erkennt lediglich eine bekannte Adresse wieder.',
              'en': '## Why MAB Is a Weak Proof\n\n'
                    'A MAC address is not a secret and not a cryptographic proof — it sits in '
-                   'plain text on every Ethernet frame and can be set (spoofed) without much '
+                   'cleartext on every Ethernet frame and can be set (spoofed) without much '
                    'effort on most operating systems and network cards. If an attacker knows or '
                    'sniffs the MAC address of a printer approved for MAB, they can take over '
                    'exactly that address and pose as that device.\n\n'
@@ -101,7 +101,7 @@ NAC_MAB_MODULE = {
              ],
              'options_en': [
                  'Because MAB only works over Wi-Fi',
-                 'Because the checked MAC address is transmitted in plain text and can easily '
+                 'Because the checked MAC address is transmitted in cleartext and can easily '
                  'be spoofed',
                  'Because MAB always requires a certificate, which is often missing',
                  'Because MAB only works with TACACS+, not with RADIUS',
@@ -190,7 +190,7 @@ NAC_MAB_MODULE = {
             'payload': {
                 'kind': 'sequence',
                 'title_de': 'Fallback 802.1X → MAB: der Zeitablauf',
-                'title_en': 'Fallback 802.1X → MAB: the timeline',
+                'title_en': 'Fallback 802.1X → MAB: the Timeline',
                 'caption_de': 'Standardwerte: tx-period 30 s, max-reauth-req 2.',
                 'caption_en': 'Defaults: tx-period 30 s, max-reauth-req 2.',
                 'actors': [
@@ -301,7 +301,7 @@ NAC_MAB_MODULE = {
             'id': 'text-timeout-reihenfolge',
             'value': {
                 'de': '## Die Gegenrichtung: zu langer Timeout — und die Reihenfolge der Methoden\n\nEin zu kurzer Timeout schickt Notebooks fälschlich in den MAB-Pfad. Ein **zu langer** Timeout trifft die MAB-Geräte selbst: Mit den Standardwerten wartet der Port 90 Sekunden, bevor MAB überhaupt beginnt. So lange ist der Port gesperrt — auch für DHCP. Der DHCP-Client des Druckers hat seine Anfragen in dieser Zeit womöglich schon aufgegeben oder sendet nur noch in großen Abständen: Der Port ist dann zwar autorisiert, das Gerät hat aber keine Adresse. Der Timeout ist also ein Kompromiss, der im eigenen Netz getestet werden muss; verbreitet sind Werte, die den Fallback auf etwa 30 Sekunden verkürzen (z. B. tx-period 10).\n\nZwei Stellschrauben sind dabei getrennt:\n\n- **Reihenfolge** (`authentication order`): welche Methode zuerst versucht wird. `order dot1x mab` ist der Normalfall; `order mab dot1x` bringt reine MAB-Geräte sofort ins Netz, schickt aber für jedes Gerät erst eine MAB-Anfrage an den RADIUS-Server.\n- **Priorität** (`authentication priority`): welche Methode eine laufende Sitzung der anderen ablösen darf. Mit `priority dot1x mab` kann ein Gerät, das zunächst per MAB angemeldet wurde und danach doch EAPOL spricht, auf die stärkere 802.1X-Sitzung wechseln.\n\nWichtig ist außerdem der Unterschied zwischen „keine Antwort“ und „802.1X fehlgeschlagen“: Antwortet ein Supplicant und wird abgelehnt (falsches Zertifikat), ist das kein Fall für den normalen Fallback — ob danach noch MAB versucht wird, ist eine eigene, bewusste Einstellung.\n\n**MAC-Randomisierung:** Aktuelle Smartphones melden sich im WLAN standardmäßig, Notebooks bei aktivierter Option mit einer zufälligen, je Netz eigenen MAC-Adresse an („private WLAN-Adresse“ bei iOS, zufällige MAC bei Android, „zufällige Hardwareadressen“ bei Windows). Eine MAB-Liste mit Geräteadressen ist für solche Geräte wertlos — ein weiterer Grund, MAB auf verwaltete, fest verkabelte Geräte wie Drucker und Kameras zu beschränken.',
-                'en': '## The Opposite Direction: Too Long a Timeout — and the Order of Methods\n\nToo short a timeout wrongly sends laptops down the MAB path. Too **long** a timeout hits the MAB devices themselves: with the defaults the port waits 90 seconds before MAB even starts. During that time the port is blocked — for DHCP too. By then the printer\'s DHCP client may have given up or only retries at long intervals: the port is authorized, but the device has no address. The timeout is therefore a trade-off that has to be tested in your own network; values that shorten the fallback to roughly 30 seconds are common (e.g. tx-period 10).\n\nTwo knobs are separate here:\n\n- **Order** (`authentication order`): which method is tried first. `order dot1x mab` is the normal case; `order mab dot1x` gets pure MAB devices onto the network immediately, but sends a MAB request to the RADIUS server for every device first.\n- **Priority** (`authentication priority`): which method may preempt a running session of the other. With `priority dot1x mab`, a device that was first authenticated via MAB and then speaks EAPOL after all can move to the stronger 802.1X session.\n\nThe difference between "no response" and "802.1X failed" also matters: if a supplicant answers and is rejected (wrong certificate), that is not a case for the normal fallback — whether MAB is tried afterwards is a separate, deliberate setting.\n\n**MAC randomization:** Current smartphones join Wi-Fi by default, and laptops when the option is enabled, with a random, per-network MAC address ("private Wi-Fi address" on iOS, randomized MAC on Android, "random hardware addresses" on Windows). A MAB list of device addresses is worthless for such devices — one more reason to limit MAB to managed, wired devices such as printers and cameras.',
+                'en': '## The Opposite Direction: Too Long a Timeout — and the Order of Methods\n\nToo short a timeout wrongly sends laptops down the MAB path. Too **long** a timeout hits the MAB devices themselves: with the defaults the port waits 90 seconds before MAB even starts. During that time the port is blocked — for DHCP too. By then the printer\'s DHCP client may have given up or only retries at long intervals: the port is authorized, but the device has no address. The timeout is therefore a trade-off that has to be tested in your own network; values that shorten the fallback to roughly 30 seconds are common (e.g., tx-period 10).\n\nTwo knobs are separate here:\n\n- **Order** (`authentication order`): which method is tried first. `order dot1x mab` is the normal case; `order mab dot1x` gets pure MAB devices onto the network immediately, but sends a MAB request to the RADIUS server for every device first.\n- **Priority** (`authentication priority`): which method may preempt a running session of the other. With `priority dot1x mab`, a device that was first authenticated via MAB and then speaks EAPOL after all can move to the stronger 802.1X session.\n\nThe difference between “no response” and “802.1X failed” also matters: if a supplicant answers and is rejected (wrong certificate), that is not a case for the normal fallback — whether MAB is tried afterwards is a separate, deliberate setting.\n\n**MAC randomization:** Current smartphones join Wi-Fi by default, and laptops when the option is enabled, with a random, per-network MAC address (“private Wi-Fi address” on iOS, randomized MAC on Android, “random hardware addresses” on Windows). A MAB list of device addresses is worthless for such devices — one more reason to limit MAB to managed, wired devices such as printers and cameras.',
             },
         },
         {'type': 'debug', 'id': 'debug-1',
@@ -312,10 +312,10 @@ NAC_MAB_MODULE = {
                           'authentifiziert statt per 802.1X, obwohl sie einen korrekt '
                           'konfigurierten Supplicant haben.“ Welche der folgenden Aussagen zu '
                           'diesem Bild ist falsch?',
-             'prompt_en': 'A colleague at Nordwind Logistik reports: "Since the last firmware '
+             'prompt_en': 'A colleague at Nordwind Logistik reports: “Since the last firmware '
                          'update, the laptops in the warehouse boot more slowly. Monitoring '
                          'shows these laptops are regularly authenticated via MAB instead of '
-                         '802.1X, even though they have a correctly configured supplicant." '
+                         '802.1X, even though they have a correctly configured supplicant.” '
                          'Which of the following statements about this situation is false?',
              'lines_de': [
                  'Die 802.1X-Timeout-Werte auf dem Port sind wahrscheinlich zu knapp für den '
@@ -342,7 +342,7 @@ NAC_MAB_MODULE = {
                                'Supplicant landen trotzdem per MAB im Netz) deutet klassisch auf '
                                'eine zu knapp bemessene 802.1X-Wartezeit hin: Der Port fällt '
                                'zurück, bevor der Supplicant überhaupt antworten konnte.',
-             'explanation_en': 'MAB is a RADIUS-based mechanism — "not compatible with RADIUS" '
+             'explanation_en': 'MAB is a RADIUS-based mechanism — “not compatible with RADIUS” '
                                'is false. The actual pattern (devices with a correct supplicant '
                                'still end up on MAB) classically points to an 802.1X wait time '
                                'that is set too tight: the port falls back before the '
@@ -373,7 +373,7 @@ NAC_MAB_MODULE = {
                     },
                 ],
                 'explanation_de': 'Ohne die Zeile „mab“ gibt es am Port gar keinen Fallback. Die Wartezeit ist (max-reauth-req + 1) × tx-period = 3 × 10 s = 30 s; mit tx-period 30 wären es die voreingestellten 90 s.',
-                'explanation_en': 'Without the "mab" line there is no fallback on the port at all. The wait time is (max-reauth-req + 1) × tx-period = 3 × 10 s = 30 s; with tx-period 30 it would be the default 90 s.',
+                'explanation_en': 'Without the “mab” line there is no fallback on the port at all. The wait time is (max-reauth-req + 1) × tx-period = 3 × 10 s = 30 s; with tx-period 30 it would be the default 90 s.',
             },
         },
         {
@@ -382,7 +382,7 @@ NAC_MAB_MODULE = {
             'note': 'Ausgaben im IOS-XE-Format, gekürzt. Das Format von „show mab“ variiert je nach Release.',
             'payload': {
                 'title_de': 'Wie kam der Drucker ins Netz?',
-                'title_en': 'How did the printer get on the network?',
+                'title_en': 'How Did the Printer Get on the Network?',
                 'prompt': 'nw-acc1#',
                 'abbreviations': True,
                 'unknown': '% Invalid input detected: {cmd}',
@@ -426,7 +426,7 @@ NAC_MAB_MODULE = {
                     },
                     {
                         'text_de': 'Welchen „Benutzernamen“ hat der Switch an den RADIUS-Server geschickt?',
-                        'text_en': 'Which "username" did the switch send to the RADIUS server?',
+                        'text_en': 'Which “username” did the switch send to the RADIUS server?',
                         'answers': ['0018f809cfd7', '0018.f809.cfd7', '00-18-F8-09-CF-D7', '00:18:f8:09:cf:d7'],
                     },
                     {
@@ -487,7 +487,7 @@ NAC_MAB_MODULE = {
                  'MAB kann nicht mit einem RADIUS-Server kombiniert werden',
              ],
              'en': [
-                 'MAB only checks a MAC address transmitted in plain text and easily spoofed, '
+                 'MAB only checks a MAC address transmitted in cleartext and easily spoofed, '
                  'instead of a cryptographic proof',
                  'MAB only works over encrypted VPN tunnels',
                  'MAB always requires a client certificate',
@@ -496,7 +496,7 @@ NAC_MAB_MODULE = {
          },
          'explanation': {
              'de': 'Die MAC-Adresse steht in jedem Frame im Klartext und lässt sich frei setzen. MAB läuft dabei sehr wohl über RADIUS — der Nachweis ist das Schwache, nicht der Transport.',
-             'en': 'The MAC address is in clear text in every frame and can be set freely. MAB does run over RADIUS — the weak part is the proof, not the transport.',
+             'en': 'The MAC address is in cleartext in every frame and can be set freely. MAB does run over RADIUS — the weak part is the proof, not the transport.',
          }},
         {'id': 'mb3', 'type': 'single',
          'prompt': {'de': 'Warum sollte MAB mit Geräte-Profiling kombiniert werden?',
@@ -582,7 +582,7 @@ NAC_MAB_MODULE = {
             'type': 'number',
             'prompt': {
                 'de': 'Ein Port hat „dot1x timeout tx-period 30“ und „dot1x max-reauth-req 2“ (Cisco-Standardwerte). Nach wie vielen Sekunden ohne EAPOL-Antwort beginnt der Switch mit MAB?',
-                'en': 'A port has "dot1x timeout tx-period 30" and "dot1x max-reauth-req 2" (Cisco defaults). After how many seconds without an EAPOL response does the switch start MAB?',
+                'en': 'A port has “dot1x timeout tx-period 30” and “dot1x max-reauth-req 2” (Cisco defaults). After how many seconds without an EAPOL response does the switch start MAB?',
             },
             'answer': 90,
             'explanation': {
@@ -595,7 +595,7 @@ NAC_MAB_MODULE = {
             'type': 'single',
             'prompt': {
                 'de': 'Seit der Einführung von 802.1X mit Standard-Timern melden einige Drucker „keine IP-Adresse“. Am Switch steht der Port auf „Authorized“ (Methode mab). Was ist die wahrscheinlichste Ursache?',
-                'en': 'Since 802.1X was introduced with default timers, some printers report "no IP address". On the switch the port shows "Authorized" (method mab). What is the most likely cause?',
+                'en': 'Since 802.1X was introduced with default timers, some printers report “no IP address.” On the switch the port shows “Authorized” (method mab). What is the most likely cause?',
             },
             'options': {
                 'de': [

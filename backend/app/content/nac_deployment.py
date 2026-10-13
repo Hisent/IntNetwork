@@ -40,7 +40,7 @@ NAC_DEPLOYMENT_MODULE = {
     'blocks': [
         {'type': 'text', 'id': 'text-1',
          'note': 'Einstieg bewusst am Betriebsrisiko, nicht an der Modus-Definition. Erst zeigen, '
-                 'was beim direkten Scharfschalten schiefgeht, dann die Stufen einfuehren.',
+                 'was beim direkten Scharfschalten schiefgeht, dann die Stufen einführen.',
          'value': {
              'de': '## Warum nicht einfach scharf schalten?\n\n'
                    'Sobald 802.1X an einem Port scharf konfiguriert ist, verweigert er jedem '
@@ -133,8 +133,8 @@ NAC_DEPLOYMENT_MODULE = {
              'en': '## Stage 3: Closed Mode\n\n'
                    '**Closed Mode** is the strictest model: without successful authentication, no '
                    'traffic at all is allowed on a port — not even DHCP or DNS. Only after '
-                   'successful authentication does the port move from the "unauthorized" to the '
-                   '"authorized" state and let regular traffic through.\n\n'
+                   'successful authentication does the port move from the “unauthorized” to the '
+                   '“authorized” state and let regular traffic through.\n\n'
                    'This stage is the actual goal of the rollout at Nordwind — but only after '
                    'Monitor Mode and Low-Impact Mode have shown that no legitimate devices are '
                    'still being unexpectedly locked out.',
@@ -146,7 +146,7 @@ NAC_DEPLOYMENT_MODULE = {
             'payload': {
                 'kind': 'compare',
                 'title_de': 'Monitor, Low-Impact, Closed im Vergleich',
-                'title_en': 'Monitor, Low-Impact, Closed compared',
+                'title_en': 'Monitor, Low-Impact, Closed Compared',
                 'columns': [
                     {
                         'title': 'Monitor Mode',
@@ -181,7 +181,7 @@ NAC_DEPLOYMENT_MODULE = {
                         'label_de': 'Cisco-Kennzeichen (Legacy)',
                         'label_en': 'Cisco marker (legacy)',
                         'values_de': ['authentication open', 'authentication open + Port-ACL', 'kein „open“'],
-                        'values_en': ['authentication open', 'authentication open + port ACL', 'no "open"'],
+                        'values_en': ['authentication open', 'authentication open + port ACL', 'no “open”'],
                     },
                     {
                         'label_de': 'Zweck',
@@ -199,8 +199,8 @@ NAC_DEPLOYMENT_MODULE = {
             },
         },
         {'type': 'widget', 'id': 'nac-deployment',
-         'note': 'Alle drei Modi am selben Geraet und Auth-Ergebnis durchklicken lassen, bevor '
-                 'es zur Reihenfolge-Aufgabe geht — der Unterschied soll sich anfuehlen, nicht '
+         'note': 'Alle drei Modi am selben Gerät und Auth-Ergebnis durchklicken lassen, bevor '
+                 'es zur Reihenfolge-Aufgabe geht — der Unterschied soll sich anfühlen, nicht '
                  'nur auswendig gelernt werden.'},
         {'type': 'check', 'id': 'check-1',
          'payload': {
@@ -208,7 +208,7 @@ NAC_DEPLOYMENT_MODULE = {
              'prompt_de': 'Ein Gerät hat sich noch nicht authentifiziert. In welchem Modus '
                           'bekommt es trotzdem begrenzten Zugriff, etwa auf DHCP und DNS?',
              'prompt_en': 'A device has not yet authenticated. In which mode does it still get '
-                         'limited access, e.g. to DHCP and DNS?',
+                         'limited access, e.g., to DHCP and DNS?',
              'answer': 1,
              'options_de': [
                  'Monitor Mode',
@@ -254,7 +254,7 @@ NAC_DEPLOYMENT_MODULE = {
                     },
                 ],
                 'explanation_de': '„authentication open“ lässt Verkehr schon vor der Anmeldung zu; die eingehende Port-ACL begrenzt ihn auf DHCP und DNS. Nach erfolgreicher Anmeldung öffnet eine dACL vom RADIUS-Server den Zugriff für genau dieses Gerät.',
-                'explanation_en': '"authentication open" admits traffic even before login; the inbound port ACL limits it to DHCP and DNS. After a successful login a dACL from the RADIUS server opens up access for exactly this device.',
+                'explanation_en': '“authentication open” admits traffic even before login; the inbound port ACL limits it to DHCP and DNS. After a successful login a dACL from the RADIUS server opens up access for exactly this device.',
             },
         },
         {'type': 'text', 'id': 'text-5',
@@ -276,7 +276,7 @@ NAC_DEPLOYMENT_MODULE = {
                    'Low-Impact → Closed) to minimize operational disruption and unexpected '
                    'connectivity problems. Skipping Monitor Mode is considered one of the most '
                    'common mistakes in an 802.1X rollout.\n\n'
-                   'The terms "Monitor Mode," "Low-Impact Mode," and "Closed Mode" come from '
+                   'The terms “Monitor Mode,” “Low-Impact Mode,” and “Closed Mode” come from '
                    'Cisco terminology and serve here only as a **reference** — the principle '
                    '(observe, then limit, then enforce) is vendor-neutral and can be implemented '
                    'with comparable built-in tools from other vendors as well.',
@@ -288,7 +288,7 @@ NAC_DEPLOYMENT_MODULE = {
                           'starten, um „gleich fertig zu sein“. Was ist das wahrscheinlichste '
                           'Risiko?',
              'prompt_en': 'Nordwind wants to skip Monitor Mode and start directly with Closed '
-                         'Mode to "just be done already." What is the most likely risk?',
+                         'Mode to “just be done already.” What is the most likely risk?',
              'answer': 2,
              'options_de': [
                  'Keines — die drei Modi unterscheiden sich nur im Log-Format',
@@ -312,13 +312,13 @@ NAC_DEPLOYMENT_MODULE = {
             'payload': {
                 'kind': 'compare',
                 'title_de': 'Cisco: klassische Syntax vs. IBNS 2.0',
-                'title_en': 'Cisco: classic syntax vs. IBNS 2.0',
+                'title_en': 'Cisco: Classic Syntax vs. IBNS 2.0',
                 'caption_de': 'Gleiche Funktion, zwei Schreibweisen.',
                 'caption_en': 'Same function, two notations.',
                 'columns': [
                     {
                         'title_de': 'Klassisch (Legacy)',
-                        'title_en': 'Classic (legacy)',
+                        'title_en': 'Classic (Legacy)',
                     },
                     {
                         'title': 'IBNS 2.0 (new-style)',
@@ -397,13 +397,13 @@ NAC_DEPLOYMENT_MODULE = {
             'id': 'scenario-rollout',
             'payload': {
                 'title_de': 'Rollout bei Nordwind planen',
-                'title_en': 'Planning the rollout at Nordwind',
+                'title_en': 'Planning the Rollout at Nordwind',
                 'start': 'start',
                 'nodes': [
                     {
                         'id': 'start',
                         'text_de': 'Die Zentrale hat 400 Switchports. Die IT-Leitung will 802.1X „am Wochenende scharf schalten“. Was schlägst du vor?',
-                        'text_en': 'Headquarters has 400 switch ports. IT management wants to "switch 802.1X on over the weekend". What do you propose?',
+                        'text_en': 'Headquarters has 400 switch ports. IT management wants to “switch 802.1X on over the weekend”. What do you propose?',
                         'options': [
                             {
                                 'label_de': 'Closed Mode auf allen Ports, Samstagabend',
@@ -638,7 +638,7 @@ NAC_DEPLOYMENT_MODULE = {
             'type': 'single',
             'prompt': {
                 'de': 'Ein Port ist so konfiguriert: „authentication open“, „authentication port-control auto“, „mab“, „dot1x pae authenticator“ — eine Zeile „ip access-group …“ gibt es nicht. In welchem Modus läuft er?',
-                'en': 'A port is configured like this: "authentication open", "authentication port-control auto", "mab", "dot1x pae authenticator" — there is no "ip access-group …" line. Which mode is it running in?',
+                'en': 'A port is configured like this: “authentication open”, “authentication port-control auto”, “mab”, “dot1x pae authenticator” — there is no “ip access-group …” line. Which mode is it running in?',
             },
             'options': {
                 'de': [
@@ -652,15 +652,15 @@ NAC_DEPLOYMENT_MODULE = {
             'answer': 0,
             'explanation': {
                 'de': '„authentication open“ ohne begrenzende Port-ACL bedeutet: authentifizieren und protokollieren, aber nichts einschränken — Monitor Mode. Erst die ACL macht daraus Low-Impact; abgeschaltet ist 802.1X wegen „port-control auto“ gerade nicht.',
-                'en': '"authentication open" without a limiting port ACL means: authenticate and log, but restrict nothing — Monitor Mode. Only the ACL turns it into Low-Impact; and 802.1X is precisely not disabled, because of "port-control auto".',
+                'en': '“authentication open” without a limiting port ACL means: authenticate and log, but restrict nothing — Monitor Mode. Only the ACL turns it into Low-Impact; and 802.1X is precisely not disabled, because of “port-control auto”.',
             },
         },
         {
             'id': 'dp7',
             'type': 'multi',
             'prompt': {
-                'de': 'Nordwind will von Monitor Mode auf Low-Impact Mode wechseln. Was sollte vorher erfüllt sein? (Mehrere richtig)',
-                'en': 'Nordwind wants to move from Monitor Mode to Low-Impact Mode. What should be in place beforehand? (Several correct)',
+                'de': 'Nordwind will von Monitor Mode auf Low-Impact Mode wechseln. Was sollte vorher erfüllt sein? Mehrere Antworten sind richtig.',
+                'en': 'Nordwind wants to move from Monitor Mode to Low-Impact Mode. What should be in place beforehand? Select all that apply.',
             },
             'options': {
                 'de': [

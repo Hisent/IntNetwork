@@ -51,7 +51,7 @@ FAKTEN_BEDINGUNGEN_MODULE = {
                              '„injizierten“ Facts sind seit ansible-core 2.20 abgekündigt und '
                              'ab 2.24 standardmäßig abgeschaltet — neue Playbooks nutzen '
                              'deshalb durchgehend `ansible_facts`.',
-                       'en': '## What are facts?\n'
+                       'en': '## What Are Facts?\n'
                              '\n'
                              '**Facts** are system information that Ansible automatically '
                              'collects from each managed node before a play\'s tasks run: '
@@ -65,10 +65,10 @@ FAKTEN_BEDINGUNGEN_MODULE = {
                              'then no facts are available unless you call '
                              '`setup` yourself as a task.\n'
                              '\n'
-                             'Access goes through the `ansible_facts` dict, e.g. '
+                             'Access goes through the `ansible_facts` dict, e.g., '
                              '`ansible_facts.os_family` or `ansible_facts["os_family"]`. In '
                              'older playbooks you will find the same values as prefixed '
-                             'top-level variables (`ansible_os_family`). These "injected" facts '
+                             'top-level variables (`ansible_os_family`). These “injected” facts '
                              'have been deprecated since ansible-core 2.20 and are off by '
                              'default from 2.24 — new playbooks therefore use `ansible_facts` '
                              'throughout.'},
@@ -92,13 +92,13 @@ FAKTEN_BEDINGUNGEN_MODULE = {
                              '(Ubuntu und Debian zählen beide zu `Debian`, RHEL und CentOS beide '
                              'zu `RedHat`) — für „läuft das auf einem Debian-artigen System?“ ist '
                              'das meist die passendere Variable als `ansible_facts.distribution`.',
-                       'en': '## Useful fact variables\n'
+                       'en': '## Useful Fact Variables\n'
                              '\n'
                              'A small selection that comes up most often in practice:\n'
                              '\n'
-                             '- `ansible_facts.os_family` — coarse family, e.g. `Debian` or `RedHat`\n'
+                             '- `ansible_facts.os_family` — coarse family, e.g., `Debian` or `RedHat`\n'
                              '- `ansible_facts.distribution` / `ansible_facts.distribution_version` — exact '
-                             'distribution and version, e.g. `Ubuntu` / `22.04`\n'
+                             'distribution and version, e.g., `Ubuntu` / `22.04`\n'
                              '- `ansible_facts.default_ipv4.address` — the host\'s primary IPv4 '
                              'address\n'
                              '- `ansible_facts.memtotal_mb` — memory in megabytes\n'
@@ -106,7 +106,7 @@ FAKTEN_BEDINGUNGEN_MODULE = {
                              '\n'
                              'Note: `ansible_facts.os_family` groups related distributions (Ubuntu and '
                              'Debian both count as `Debian`, RHEL and CentOS both as `RedHat`) — '
-                             'for "does this run on a Debian-like system?" it is usually the '
+                             'for “does this run on a Debian-like system?” it is usually the '
                              'better fit than `ansible_facts.distribution`.'}},
             {'type': 'check', 'id': 'check-1',
              'payload': {'kind': 'choice',
@@ -127,7 +127,7 @@ FAKTEN_BEDINGUNGEN_MODULE = {
              'id': 'diagram-facts-when',
              'payload': {'kind': 'sequence',
                          'title_de': 'Erst Fakten, dann Bedingung',
-                         'title_en': 'Facts first, then the condition',
+                         'title_en': 'Facts First, Then the Condition',
                          'caption_de': 'Die Bedingung wird je Host auf dem Control Node '
                                        'ausgewertet.',
                          'caption_en': 'The condition is evaluated per host on the control node.',
@@ -214,7 +214,7 @@ FAKTEN_BEDINGUNGEN_MODULE = {
                              'bewirkt hat. Wer im selben Play den Zustand ändert und danach '
                              'darauf reagieren will, braucht dafür `register` (siehe unten) oder '
                              'einen expliziten Re-Fact-Task.',
-                       'en': '## Conditionals with when\n'
+                       'en': '## Conditionals With when\n'
                              '\n'
                              '`when:` is a task keyword. Ansible evaluates the condition before '
                              'running the task — if it is not true, the task is skipped for '
@@ -245,11 +245,11 @@ FAKTEN_BEDINGUNGEN_MODULE = {
                              'facts again.'}},
             {'type': 'debug', 'id': 'debug-1',
              'payload': {'prompt_de': 'Dieser Task soll nur auf Debian-basierten Hosts laufen. '
-                                      'Auf einem Ubuntu-Server läuft er aber nie — auch nicht, '
-                                      'wenn er dort laufen sollte. Welche Zeile enthält den '
+                                      'Auf einem Ubuntu-Server bricht er aber jedes Mal mit einer '
+                                      'Fehlermeldung ab, statt zu laufen. Welche Zeile enthält den '
                                       'Fehler?',
                          'prompt_en': 'This task is meant to run only on Debian-based hosts. On '
-                                      'an Ubuntu server it never runs, even though it should. '
+                                      'an Ubuntu server it fails with an error every time instead of running. '
                                       'Which line contains the bug?',
                          'lines_de': ['- name: Paketquellen aktualisieren',
                                       '  ansible.builtin.apt:',
@@ -281,7 +281,7 @@ FAKTEN_BEDINGUNGEN_MODULE = {
                                            'because the dict `ansible_facts` has no attribute '
                                            '`os_famliy`. It is NOT silently skipped. A task is '
                                            'only skipped when the condition checks existence '
-                                           'itself, e.g. `when: ansible_facts.os_family is defined and '
+                                           'itself, e.g., `when: ansible_facts.os_family is defined and '
                                            'ansible_facts.os_family == "Debian"`. That makes this typo '
                                            'more benign than it looks: it surfaces immediately instead '
                                            'of skipping the task in silence.'}},
@@ -316,7 +316,7 @@ FAKTEN_BEDINGUNGEN_MODULE = {
                              '`register: name` stores a task\'s complete result object in a '
                              'variable — among other things `rc` (return code), `stdout`, '
                              '`stderr`, `changed`, and `failed`. That variable is then available '
-                             'to later tasks in the same play, e.g. inside a `when`.\n'
+                             'to later tasks in the same play, e.g., inside a `when`.\n'
                              '\n'
                              '```yaml\n'
                              '- name: Check whether the service is active\n'
@@ -332,8 +332,8 @@ FAKTEN_BEDINGUNGEN_MODULE = {
                              '```\n'
                              '\n'
                              '`changed_when: false` and `failed_when: false` here make sure a '
-                             'plain status check is not wrongly reported as "changed" or '
-                             '"failed" — more on that in the "Error Handling & Idempotency" '
+                             'plain status check is not wrongly reported as “changed” or '
+                             '“failed” — more on that in the “Error Handling & Idempotency” '
                              'module.'}},
             {'type': 'cloze',
              'id': 'cloze-when-register',
@@ -384,7 +384,7 @@ FAKTEN_BEDINGUNGEN_MODULE = {
                          'explanation_en': 'register stores the result of stat; konfig.stat.exists '
                                            'is then true or false. The list under when is an AND. '
                                            'os_family groups Debian and Ubuntu — distribution '
-                                           'would be "Ubuntu" on Ubuntu, making the condition '
+                                           'would be “Ubuntu” on Ubuntu, making the condition '
                                            'false.'}},
             {'type': 'text', 'id': 'text-5',
              'value': {'de': '## Ausblick: failed_when und changed_when\n'
@@ -408,7 +408,7 @@ FAKTEN_BEDINGUNGEN_MODULE = {
                              '- `failed_when: <condition>` — defines when a task counts as '
                              'failed, independent of its return code\n'
                              '- `changed_when: <condition>` — defines when a task counts as '
-                             '`changed`, e.g. so a plain read-only command never reports a '
+                             '`changed`, e.g., so a plain read-only command never reports a '
                              'change\n'
                              '\n'
                              'Both matter especially for `command`/`shell` tasks, since those do '
@@ -445,14 +445,14 @@ FAKTEN_BEDINGUNGEN_MODULE = {
                              'Ist das Lab bei euch nicht aktiv, sage anhand des Playbook-Texts '
                              'vorher, welche Tasks auf einem Debian-System laufen und welche '
                              'übersprungen werden.',
-                       'en': '## Hands-on: facts and when in the lab\n'
+                       'en': '## Hands-on: Facts and when in the Lab\n'
                              '\n'
                              'In the lab widget below the **Facts & when** template is '
                              'preselected. It shows three facts of the lab host, contains one task '
                              'each for Debian-like and RedHat-like systems, and finally evaluates '
                              'a `register` result together with a fact. Run it and check in the '
                              'output which task reports `skipping`. Then enter '
-                             '`min_ram_mb=99999999` in the "Extra vars" field and run again — the '
+                             '`min_ram_mb=99999999` in the “Extra vars” field and run again — the '
                              'last task must now be skipped as well. Note the `| int` in the '
                              'playbook: extra vars of the form `key=value` arrive as text.\n'
                              '\n'
@@ -535,7 +535,7 @@ FAKTEN_BEDINGUNGEN_MODULE = {
                          'prompt': {'de': 'Welche Fact-Variable liefert die grobe '
                                           'Betriebssystemfamilie (z. B. Debian oder RedHat)?',
                                     'en': 'Which fact variable gives the coarse operating system '
-                                          'family (e.g. Debian or RedHat)?'},
+                                          'family (e.g., Debian or RedHat)?'},
                          'answer': 0,
                          'options': {'de': ['ansible_facts.os_family',
                                             'ansible_facts.distribution',
@@ -651,20 +651,20 @@ FAKTEN_BEDINGUNGEN_MODULE = {
                                           '    msg: apache2 läuft nicht\n'
                                           '  when: status.rc != 0\n'
                                           '```',
-                                    'en': 'On RedHat hosts the second task aborts with "object of '
-                                          'type \'dict\' has no attribute \'rc\'". Why?\n'
+                                    'en': 'On RedHat hosts the second task aborts with “object of '
+                                          'type \'dict\' has no attribute \'rc\'”. Why?\n'
                                           '\n'
                                           '```yaml\n'
-                                          '- name: Status prüfen\n'
+                                          '- name: Check status\n'
                                           '  ansible.builtin.command: systemctl is-active apache2\n'
                                           '  register: status\n'
                                           '  changed_when: false\n'
                                           '  failed_when: false\n'
                                           '  when: ansible_facts[\'os_family\'] == "Debian"\n'
                                           '\n'
-                                          '- name: Melden\n'
+                                          '- name: Report\n'
                                           '  ansible.builtin.debug:\n'
-                                          '    msg: apache2 läuft nicht\n'
+                                          '    msg: apache2 is not running\n'
                                           '  when: status.rc != 0\n'
                                           '```'},
                          'answer': 1,

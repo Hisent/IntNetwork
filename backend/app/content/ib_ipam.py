@@ -138,7 +138,7 @@ IPAM_MODULE = {
             "payload": {
                 "kind": "layers",
                 "title_de": "Vom Adressblock zur einzelnen Adresse",
-                "title_en": "From address block to single address",
+                "title_en": "From Address Block to Single Address",
                 "caption_de": "Dieselben Objekte wie im DHCP-Modul — hier mit dem Blick, den IPAM ergänzt.",
                 "caption_en": "The same objects as in the DHCP module — here with the perspective IPAM adds.",
                 "layers": [
@@ -150,7 +150,7 @@ IPAM_MODULE = {
                         "pdu_de": "Überblick",
                         "pdu_en": "overview",
                         "detail_de": "Guter Ort für Extensible Attributes wie „Standort“: einmal setzen, darunter erben lassen. Der Container zeigt, wie viel seines Blocks schon in Netze aufgeteilt ist.",
-                        "detail_en": "A good place for extensible attributes such as \"Site\": set once, inherit below. The container shows how much of its block has already been carved into networks.",
+                        "detail_en": "A good place for extensible attributes such as “Site”: set once, inherit below. The container shows how much of its block has already been carved into networks.",
                     },
                     {
                         "name_de": "Netzwerk 10.20.30.0/24",
@@ -255,7 +255,7 @@ IPAM_MODULE = {
             "note": "Objekt ipv4address und Feldnamen nach der WAPI-Doku; die Antworten sind gekürzt (ohne _ref und weitere Felder) und die Werte Beispiele. Lernpunkt: .201 ist „USED“, obwohl niemand sie vergeben hat — ein Gerät antwortet dort, IPAM kennt aber kein Objekt dazu.",
             "payload": {
                 "title_de": "Was weiß IPAM über eine Adresse? Abfrage per WAPI",
-                "title_en": "What does IPAM know about an address? Querying via WAPI",
+                "title_en": "What Does IPAM Know About an Address? Querying via WAPI",
                 "intro_de": "Vereinfachte Darstellung der WAPI-Antworten. Kurzformen: ip 117, ip 201, ip 230.",
                 "intro_en": "Simplified rendering of the WAPI responses. Short forms: ip 117, ip 201, ip 230.",
                 "prompt": "admin@pc17:~$",
@@ -294,7 +294,7 @@ IPAM_MODULE = {
                      "text_en": "Query 10.20.30.201. What type does the address have?",
                      "answers": ["UNMANAGED", "unmanaged", "Unmanaged"],
                      "explanation_de": ".201 ist „USED“, obwohl niemand sie vergeben hat: Ein Gerät antwortet dort, IPAM kennt aber kein Objekt dazu.",
-                     "explanation_en": ".201 is \"USED\" although nobody assigned it: a device answers there, but IPAM has no object for it."},
+                     "explanation_en": ".201 is “USED” although nobody assigned it: a device answers there, but IPAM has no object for it."},
                     {"text_de": "Welche der drei Adressen könntest du bedenkenlos neu vergeben? (letztes Oktett)",
                      "text_en": "Which of the three addresses could you reassign without hesitation? (last octet)",
                      "answers": ["230", "10.20.30.230", ".230"]},
@@ -385,7 +385,7 @@ IPAM_MODULE = {
                     'statt den gesamten Adressraum manuell durchzusehen. Ohne '
                     'konsistente EA-Pflege bleibt auch IPAM letztlich eine große, '
                     'unsortierte Liste.'),
-             'en': ('## Interplay with Extensible Attributes\n'
+             'en': ('## Interplay With Extensible Attributes\n'
                     '\n'
                     'With a few dozen networks, simply looking through them is enough. Across '
                     'several hundred networks and many sites, IPAM needs structure — '
@@ -453,8 +453,8 @@ IPAM_MODULE = {
              "en": "Discovery probes addresses and compares the result with the IPAM entries; an unknown device is a rogue host. Discovery does not assign addresses — it only observes; DHCP remains necessary.",
          },
          'type': 'multi',
-         'prompt': {'de': 'Welche Aussagen zu Discovery treffen zu? (mehrere)',
-                    'en': 'Which statements about discovery are true? (multiple)'},
+         'prompt': {'de': 'Welche Aussagen zu Discovery treffen zu? Mehrere Antworten sind richtig.',
+                    'en': 'Which statements about discovery are true? Select all that apply.'},
          'answer': [0, 1, 3],
          'options': {'de': ['Discovery kann Adressen aktiv abfragen, etwa per Ping-Sweep',
                             'Discovery gleicht gefundene Geräte mit den erwarteten IPAM-Einträgen ab',
@@ -497,7 +497,7 @@ IPAM_MODULE = {
             "answer": 50,
             "explanation": {
                 "de": "200 + 150 + 100 + 58 = 508 von 4 × 254 = 1016 Adressen, also 50 %. Der Durchschnitt verdeckt aber den Engpass: Das erste Netz liegt bei rund 79 % — Kapazität plant man je Netz, nicht über den Container gemittelt.",
-                "en": "200 + 150 + 100 + 58 = 508 out of 4 × 254 = 1016 addresses, i.e. 50%. But the average hides the bottleneck: the first network is at about 79% — capacity is planned per network, not averaged across the container.",
+                "en": "200 + 150 + 100 + 58 = 508 out of 4 × 254 = 1016 addresses, i.e., 50%. But the average hides the bottleneck: the first network is at about 79% — capacity is planned per network, not averaged across the container.",
             },
         },
         {
@@ -505,7 +505,7 @@ IPAM_MODULE = {
             "type": "single",
             "prompt": {
                 "de": "Eine WAPI-Abfrage auf ipv4address liefert für 10.20.30.201: status „USED“, types [„UNMANAGED“], names leer. Was bedeutet das?",
-                "en": "A WAPI query on ipv4address returns for 10.20.30.201: status \"USED\", types [\"UNMANAGED\"], names empty. What does that mean?",
+                "en": "A WAPI query on ipv4address returns for 10.20.30.201: status “USED”, types [“UNMANAGED”], names empty. What does that mean?",
             },
             "answer": 2,
             "options": {
@@ -532,7 +532,7 @@ IPAM_MODULE = {
             "type": "single",
             "prompt": {
                 "de": "Ein Netz /24 zeigt 38 % Auslastung, trotzdem melden Clients „keine Adresse erhalten“. Was ist die wahrscheinlichste Erklärung?",
-                "en": "A /24 network shows 38% utilization, yet clients report \"no address received\". What is the most likely explanation?",
+                "en": "A /24 network shows 38% utilization, yet clients report “no address received.” What is the most likely explanation?",
             },
             "answer": 0,
             "options": {

@@ -75,7 +75,7 @@ INSTALLATION_SETUP_MODULE = {'key': 'installation-setup',
                              '\n'
                              'Requirements according to the docs: a current macOS, Windows, or '
                              'Linux on x64 or ARM64 hardware, at least 4 GB of RAM, and an '
-                             'internet connection.\n'
+                             'Internet connection.\n'
                              '\n'
                              '> Windows tip: install [Git for '
                              'Windows](https://git-scm.com/downloads/win) so Claude Code can use '
@@ -86,13 +86,13 @@ INSTALLATION_SETUP_MODULE = {'key': 'installation-setup',
              'id': 'diagram-installationswege',
              'payload': {'kind': 'compare',
                          'title_de': 'Installationswege im Vergleich',
-                         'title_en': 'Installation paths compared',
+                         'title_en': 'Installation Paths Compared',
                          'caption_de': 'Der wichtigste Unterschied im Alltag: Wer hält die Version '
                                        'aktuell?',
                          'caption_en': 'The difference that matters day to day: who keeps the '
                                        'version current?',
                          'columns': [{'title_de': 'Nativer Installer',
-                                      'title_en': 'Native installer'},
+                                      'title_en': 'Native Installer'},
                                      {'title': 'Homebrew'},
                                      {'title': 'WinGet'}],
                          'rows': [{'label_de': 'Plattform',
@@ -143,7 +143,7 @@ INSTALLATION_SETUP_MODULE = {'key': 'installation-setup',
                              'Change into a project directory and start:\n'
                              '\n'
                              '```bash\n'
-                             'cd mein-projekt\n'
+                             'cd my-project\n'
                              'claude\n'
                              '```\n'
                              '\n'
@@ -165,7 +165,7 @@ INSTALLATION_SETUP_MODULE = {'key': 'installation-setup',
                      'Ausschnitt, die Texte von `claude doctor` und `claude update` sind '
                      'nachgestellt und weichen je nach Version und Installationsweg ab.',
              'payload': {'title_de': 'Installation prüfen',
-                         'title_en': 'Check the installation',
+                         'title_en': 'Check the Installation',
                          'prompt': '$',
                          'intro_de': 'Frisch installiert. Prüfe, ob alles läuft – ohne eine '
                                      'Session zu starten.',
@@ -274,7 +274,7 @@ INSTALLATION_SETUP_MODULE = {'key': 'installation-setup',
             {'type': 'scenario',
              'id': 'scenario-erster-start',
              'payload': {'title_de': 'Der erste Start hakt',
-                         'title_en': 'The first launch hits a snag',
+                         'title_en': 'The First Launch Hits a Snag',
                          'start': 'start',
                          'nodes': [{'id': 'start',
                                     'text_de': 'Der Installer ist durchgelaufen. Du tippst `claude '
@@ -381,7 +381,7 @@ INSTALLATION_SETUP_MODULE = {'key': 'installation-setup',
                              '\n'
                              'Existiert schon eine `CLAUDE.md`, schlägt `/init` Verbesserungen '
                              'vor, statt sie zu überschreiben.',
-                       'en': '## /init — the first CLAUDE.md\n'
+                       'en': '## /init — the First CLAUDE.md\n'
                              '\n'
                              '`/init` has Claude analyze your repo and generate a first '
                              '**`CLAUDE.md`** from it: build/test commands, conventions, project '
@@ -487,7 +487,7 @@ INSTALLATION_SETUP_MODULE = {'key': 'installation-setup',
                                             '`claude build`',
                                             '`npm run claude`'],
                                      'en': ['`claude --serve`',
-                                            '`cd projekt && claude`',
+                                            '`cd project && claude`',
                                             '`claude build`',
                                             '`npm run claude`']},
                          'explanation': {'de': 'Claude Code arbeitet im aktuellen Verzeichnis: '
@@ -546,8 +546,8 @@ INSTALLATION_SETUP_MODULE = {'key': 'installation-setup',
                                                'produces build artifacts.'}},
                         {'id': 'is4',
                          'type': 'multi',
-                         'prompt': {'de': 'Welche Installationswege gibt es? (mehrere)',
-                                    'en': 'What installation paths are there? (multiple)'},
+                         'prompt': {'de': 'Welche Installationswege gibt es? Mehrere Antworten sind richtig.',
+                                    'en': 'What installation paths are there? Select all that apply.'},
                          'answer': [0, 1, 2],
                          'options': {'de': ['curl-Installer (macOS/Linux/WSL)',
                                             'PowerShell-Installer (Windows)',
@@ -602,9 +602,9 @@ INSTALLATION_SETUP_MODULE = {'key': 'installation-setup',
                         {'id': 'is6',
                          'type': 'multi',
                          'prompt': {'de': 'Welche Aufrufe erledigen ihre Aufgabe, ohne eine '
-                                          'interaktive Session zu öffnen? (mehrere)',
+                                          'interaktive Session zu öffnen? Mehrere Antworten sind richtig.',
                                     'en': 'Which invocations do their job without opening an '
-                                          'interactive session? (multiple)'},
+                                          'interactive session? Select all that apply.'},
                          'answer': [0, 1, 2],
                          'options': {'de': ['`claude --version`',
                                             '`claude doctor`',

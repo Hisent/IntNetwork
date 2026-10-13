@@ -81,7 +81,7 @@ LEBENSZYKLUS_MODULE = {
          'payload': {
              'kind': 'flow',
              'title_de': 'Der Zertifikats-Lebenszyklus als Kreislauf',
-             'title_en': 'The certificate lifecycle as a loop',
+             'title_en': 'The Certificate Lifecycle as a Loop',
              'nodes': [
                     {
                      'id': 'key',
@@ -236,7 +236,7 @@ LEBENSZYKLUS_MODULE = {
                    'oder Sichtbarkeitsgewinn im Browser.',
              'en': '## DV, OV, EV: What Is Actually Checked\n\n'
                    '- **DV (Domain Validation)** - the CA checks only whether the requester '
-                   'controls the domain (e.g. via a DNS record or an HTTP file). Fast, '
+                   'controls the domain (e.g., via a DNS record or an HTTP file). Fast, '
                    'usually automated (ACME), no check of the organization behind it.\n'
                    '- **OV (Organization Validation)** - in addition to domain control, the '
                    'CA verifies the existence and identity of the organization (commercial '
@@ -289,13 +289,13 @@ LEBENSZYKLUS_MODULE = {
                  'maximum TLS certificate validity period - starting from the previous 398 days:\n\n- since '
                  '**March 15, 2026**: 200 days\n- from **March 15, 2027**: 100 days\n- from **March 15, 2029**: '
                  '47 days\n\nSo the first stage is already in force. The stages are laid down in the CA/Browser '
-                 'Forum Baseline Requirements ("Relevant Dates" section).\n\nIn parallel, the reusability of '
+                 'Forum Baseline Requirements (“Relevant Dates” section).\n\nIn parallel, the reusability of '
                  'domain validation data drops on the same schedule: from 398 to 200 days (since 2026), 100 days '
                  '(from 2027), and finally 10 days (from 2029).\n\nIndividual CAs move faster than required: '
                  "Let's Encrypt has offered optional 45-day certificates since May 2026, will lower its default "
                  'lifetime from 90 to 64 days in February 2027 and to 45 days in February '
                  '2028.\n\n**Consequence for operations:** with validity periods of just a few weeks, manual '
-                 'renewal is simply no longer sustainable. Automation (e.g. via ACME) turns from a convenience '
+                 'renewal is simply no longer sustainable. Automation (e.g., via ACME) turns from a convenience '
                  'feature into an operational necessity.'),
             },
         },
@@ -306,14 +306,14 @@ LEBENSZYKLUS_MODULE = {
          'payload': {
              'kind': 'compare',
              'title_de': 'Stufenplan für öffentliche TLS-Zertifikate',
-             'title_en': 'Staged plan for public TLS certificates',
+             'title_en': 'Staged Plan for Public TLS Certificates',
              'caption_de': 'Maßgeblich ist jeweils das Ausstellungsdatum des Zertifikats.',
              'caption_en': "What counts in each case is the certificate's issuance date.",
              'columns': [
-                    {'title_de': 'bis 14.03.2026', 'title_en': 'until Mar 14, 2026'},
-                    {'title_de': 'ab 15.03.2026', 'title_en': 'from Mar 15, 2026'},
-                    {'title_de': 'ab 15.03.2027', 'title_en': 'from Mar 15, 2027'},
-                    {'title_de': 'ab 15.03.2029', 'title_en': 'from Mar 15, 2029'},
+                    {'title_de': 'bis 14.03.2026', 'title_en': 'Until Mar 14, 2026'},
+                    {'title_de': 'ab 15.03.2026', 'title_en': 'From Mar 15, 2026'},
+                    {'title_de': 'ab 15.03.2027', 'title_en': 'From Mar 15, 2027'},
+                    {'title_de': 'ab 15.03.2029', 'title_en': 'From Mar 15, 2029'},
                 ],
              'rows': [
                     {
@@ -392,15 +392,15 @@ LEBENSZYKLUS_MODULE = {
                    'installed, the intermediate(s) are missing. Some clients (which cache '
                    'the missing certificates) work anyway, others report '
                    '`unable to get local issuer certificate`.\n'
-                   '- **Private key sent by email** - e.g. a .pfx file to another team, "to '
-                   'speed things up". This means the key is no longer exclusively in the '
+                   '- **Private key sent by email** - e.g., a .pfx file to another team, “to '
+                   'speed things up.” This means the key is no longer exclusively in the '
                    'hands of the target system - a violation of the basic principle that the '
                    'private key never leaves the machine.',
          }},
         {'type': 'scenario', 'id': 'scenario-47-tage-planen',
          'payload': {
              'title_de': 'Die Laufzeitverkürzung einplanen',
-             'title_en': 'Planning for shorter lifetimes',
+             'title_en': 'Planning for Shorter Lifetimes',
              'start': 'start',
              'nodes': [
                     {
@@ -486,14 +486,14 @@ LEBENSZYKLUS_MODULE = {
          'note': 'Das Lab kann je nach Server abgeschaltet sein; dann die Befehle als Lesestoff nutzen.',
          'value': {
              'de': ('## Selbst ausprobieren: vom Schlüssel zum CSR\n\nDie ersten beiden Stationen des Lebenszyklus '
-                 'kannst du im Openssl-Lab unten selbst durchlaufen:\n\n- **Schlüssel + CSR erzeugen** — der '
+                 'kannst du im OpenSSL-Lab unten selbst durchlaufen:\n\n- **Schlüssel + CSR erzeugen** — der '
                  'klassische Weg mit einem RSA-Schlüssel.\n- **ECDSA-/Ed25519-Schlüssel + CSR** — dasselbe mit '
                  'elliptischen Kurven; achte auf die Zeile `Certificate request self-signature verify OK` und '
                  'auf den Abschnitt `Requested Extensions` mit den SAN-Einträgen.\n- **Eigene CA erzeugen und '
                  'signieren** bzw. **Mini-CA mit Intermediate + Kettenprüfung** — hier spielst du selbst die CA '
                  'und stellst aus dem CSR ein Zertifikat aus.\n\nPrüfe im CSR: Steht dort ein privater '
                  'Schlüssel? Eine Laufzeit? Ein Issuer? Was fehlt, legt erst die CA fest.'),
-             'en': ('## Try it yourself: from key to CSR\n\nYou can walk through the first two steps of the lifecycle yourself in the openssl lab below:\n\n- **Generate key + CSR** — the classic way '
+             'en': ('## Try It Yourself: From Key to CSR\n\nYou can walk through the first two steps of the lifecycle yourself in the OpenSSL lab below:\n\n- **Generate key + CSR** — the classic way '
                  'with an RSA key.\n- **ECDSA/Ed25519 keys + CSR** — the same with elliptic curves; look for '
                  'the line `Certificate request self-signature verify OK` and the `Requested Extensions` '
                  'section with the SAN entries.\n- **Create your own CA and sign** or **Mini CA with '
@@ -673,8 +673,8 @@ LEBENSZYKLUS_MODULE = {
          'prompt': {
              'de': ('`openssl req -in server.csr -noout -text -verify` beginnt mit der Zeile „Certificate request '
                  'self-signature verify OK“. Was ist damit belegt?'),
-             'en': ('`openssl req -in server.csr -noout -text -verify` starts with the line "Certificate request '
-                 'self-signature verify OK". What does that establish?'),
+             'en': ('`openssl req -in server.csr -noout -text -verify` starts with the line “Certificate request '
+                 'self-signature verify OK”. What does that establish?'),
             },
          'options': {
              'de': [
@@ -696,7 +696,7 @@ LEBENSZYKLUS_MODULE = {
                  'gar nicht beteiligt. Die Kontrolle über die Domain beweist erst die Validierung (z. B. eine '
                  'ACME-Challenge), und der private Schlüssel steht nie im CSR.'),
              'en': ("The CSR is signed with the requester's own private key (proof of possession) — no CA has been "
-                 'involved yet. Control over the domain is only proven by validation (e.g. an ACME challenge), '
+                 'involved yet. Control over the domain is only proven by validation (e.g., an ACME challenge), '
                  'and the private key is never in the CSR.'),
             },
         },

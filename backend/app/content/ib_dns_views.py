@@ -17,7 +17,7 @@ DNS_VIEWS_MODULE = {
     "goals_en": [
         "Explain what DNS views are for (different answers depending on where the client comes from)",
         "Correctly describe the significance of view order and of match-clients/match-destinations",
-        "Weigh the best practice \"one member, one view\" against the need for several views on one member",
+        "Weigh the best practice “one member, one view” against the need for several views on one member",
         "Assess forwarder configuration and the risk of a forwarders-only setup",
     ],
     'scenario': {
@@ -45,11 +45,11 @@ DNS_VIEWS_MODULE = {
                    'komplett getrenntem Record-Satz.',
              'en': '## What Are DNS Views For?\n\n'
                    'A **DNS view** is a self-contained, independent view of a zone name. Two views '
-                   'can contain the same zone name (e.g. `nordwind-intern.de`) but serve different '
+                   'can contain the same zone name (e.g., `nordwind-intern.de`) but serve different '
                    'records — depending on which view the incoming connection is matched to.\n\n'
                    'The classic case is **split DNS**: an `internal` view for clients on your own '
                    'network with internal IP addresses, an `external` view for requests from the '
-                   'internet with public IP addresses — both for the same domain, but with a '
+                   'Internet with public IP addresses — both for the same domain, but with a '
                    'completely separate set of records.',
          }},
         {'type': 'text', 'id': 'text-2',
@@ -71,15 +71,15 @@ DNS_VIEWS_MODULE = {
              'en': '## View Order Decides Everything\n\n'
                    'NIOS checks the configured views **in order** and uses the first one whose '
                    'match criteria fit. That makes order the single most important lever: if a '
-                   'view that is too broad (e.g. "match: any") comes before a more specific one, it '
-                   '"swallows" its requests — the more specific view is never reached.\n\n'
+                   'view that is too broad (e.g., “match: any”) comes before a more specific one, it '
+                   '“swallows” its requests — the more specific view is never reached.\n\n'
                    'Two match mechanisms control the assignment:\n\n'
                    '- **match-clients** — based on the source address of the request.\n'
                    '- **match-destinations** — based on the destination address the request was '
                    'sent to.\n\n'
                    'Both are only needed if a **single** Grid member has to serve several views at '
                    'once. If, on the other hand, each member serves only one view anyway (best '
-                   'practice "one member, one view"), assignment through interface or network is '
+                   'practice “one member, one view”), assignment through interface or network is '
                    'enough — the match lists stay simple.',
          }},
         {
@@ -88,7 +88,7 @@ DNS_VIEWS_MODULE = {
             "payload": {
                 "kind": "flow",
                 "title_de": "Split-DNS: derselbe Name, zwei Antworten",
-                "title_en": "Split DNS: same name, two answers",
+                "title_en": "Split DNS: Same Name, Two Answers",
                 "caption_de": "Der Member prüft seine Views in fester Reihenfolge — die erste passende gewinnt.",
                 "caption_en": "The member checks its views in a fixed order — the first match wins.",
                 "nodes": [
@@ -106,7 +106,7 @@ DNS_VIEWS_MODULE = {
                         "row": 1,
                         "col": 0,
                         "label_de": "Anfrage aus dem Internet",
-                        "label_en": "Query from the internet",
+                        "label_en": "Query from the Internet",
                     },
                     {
                         "id": "srv",
@@ -157,12 +157,12 @@ DNS_VIEWS_MODULE = {
                     {
                         "highlight": ["ext", "q2", "srv"],
                         "text_de": "Dieselbe Frage kommt aus dem Internet, Quelladresse 198.51.100.23.",
-                        "text_en": "The same question arrives from the internet, source address 198.51.100.23.",
+                        "text_en": "The same question arrives from the Internet, source address 198.51.100.23.",
                     },
                     {
                         "highlight": ["srv", "m2", "v2"],
                         "text_de": "View 1 passt nicht, View 2 („any“) passt immer: Antwort 203.0.113.80. Stünde „any“ an erster Stelle, bekäme auch der interne Client diese Antwort.",
-                        "text_en": "View 1 does not match, view 2 (\"any\") always matches: answer 203.0.113.80. If \"any\" came first, the internal client would get this answer too.",
+                        "text_en": "View 1 does not match, view 2 (“any”) always matches: answer 203.0.113.80. If “any” came first, the internal client would get this answer too.",
                     },
                 ],
             },
@@ -229,9 +229,9 @@ DNS_VIEWS_MODULE = {
             "note": "REFUSED ist hier gewollt: Die externe View ist rein autoritativ, Rekursion gibt es nur intern. dig-Ausgaben im Standardformat von BIND 9, gekürzt.",
             "payload": {
                 "title_de": "Welche View antwortet? Test mit dig",
-                "title_en": "Which view answers? Testing with dig",
-                "intro_de": "Admin-PC 10.20.30.77. Der Member hört intern auf 10.20.30.53 und extern auf 203.0.113.53 (match-destinations).",
-                "intro_en": "Admin PC 10.20.30.77. The member listens internally on 10.20.30.53 and externally on 203.0.113.53 (match-destinations).",
+                "title_en": "Which View Answers? Testing With dig",
+                "intro_de": "Admin-PC 10.20.30.77. Der Member hört intern auf 10.20.30.53 und extern auf 203.0.113.53. Anders als im Diagramm (match-clients) wählt hier die Zieladresse die View (match-destinations) – so lassen sich beide Views vom selben PC aus testen.",
+                "intro_en": "Admin PC 10.20.30.77. The member listens internally on 10.20.30.53 and externally on 203.0.113.53. Unlike in the diagram (match-clients), the destination address selects the view here (match-destinations) – so both views can be tested from the same PC.",
                 "prompt": "admin@pc17:~$",
                 "unknown": "bash: {cmd}: command not found",
                 "commands": [
@@ -291,7 +291,7 @@ DNS_VIEWS_MODULE = {
                    '**per view** — the more specific the level, the more precisely you can control '
                    'where a view forwards requests it cannot answer locally (conditional '
                    'forwarding: specific domains to specific forwarders).\n\n'
-                   'It gets risky with the **"resolve via forwarders only"** option: if no recursion '
+                   'It gets risky with the **“resolve via forwarders only”** option: if no recursion '
                    'fallback of its own is active and the configured forwarder fails, the view can '
                    'no longer resolve anything at all — there is no automatic fallback to its own '
                    'recursive resolution. The additional **match-recursive-only** option should be planned together with this: a view with this option accepts only **recursive** queries from the matching clients; non-recursive queries from the same clients fall through to the next matching view. It works together with the match lists of the views and requires recursion to be enabled for that view — typical use: one recursive and one purely authoritative view on the same member.',
@@ -301,7 +301,7 @@ DNS_VIEWS_MODULE = {
             "id": "scenario-vpn-falsche-antwort",
             "payload": {
                 "title_de": "Homeoffice: „Das Intranet zeigt auf die falsche Adresse“",
-                "title_en": "Working from home: \"The intranet points to the wrong address\"",
+                "title_en": "Working From Home: “The Intranet Points to the Wrong Address”",
                 "start": "start",
                 "nodes": [
                     {
@@ -336,7 +336,7 @@ DNS_VIEWS_MODULE = {
                         "id": "tausch",
                         "outcome": "bad",
                         "text_de": "internal steht bereits vorn. Nach dem Tausch stünde „any“ an erster Stelle — dann bekämen auch die Büro-Clients die externe Antwort.",
-                        "text_en": "internal is already first. After swapping, \"any\" would be first — then the office clients would get the external answer as well.",
+                        "text_en": "internal is already first. After swapping, “any” would be first — then the office clients would get the external answer as well.",
                     },
                     {
                         "id": "quelle",
@@ -345,7 +345,7 @@ DNS_VIEWS_MODULE = {
                         "options": [
                             {
                                 "label_de": "match-clients der internen View auf „any“ erweitern.",
-                                "label_en": "Widen the internal view's match-clients to \"any\".",
+                                "label_en": "Widen the internal view's match-clients to “any”.",
                                 "to": "any",
                             },
                             {
@@ -364,13 +364,13 @@ DNS_VIEWS_MODULE = {
                         "id": "any",
                         "outcome": "bad",
                         "text_de": "Damit trifft jede Anfrage die interne View — auch die aus dem Internet. Interne Adressen und Namen wären von außen abfragbar.",
-                        "text_en": "Then every query hits the internal view — including those from the internet. Internal addresses and names could be queried from outside.",
+                        "text_en": "Then every query hits the internal view — including those from the Internet. Internal addresses and names could be queried from outside.",
                     },
                     {
                         "id": "zweit",
                         "outcome": "bad",
                         "text_de": "Jetzt bekommen Internet-Besucher abwechselnd eine private Adresse, die sie nicht erreichen können. Das Symptom ist verschoben, die Ursache bleibt.",
-                        "text_en": "Now internet visitors alternately get a private address they cannot reach. The symptom has moved, the cause remains.",
+                        "text_en": "Now Internet visitors alternately get a private address they cannot reach. The symptom has moved, the cause remains.",
                     },
                     {
                         "id": "pool",
@@ -392,7 +392,7 @@ DNS_VIEWS_MODULE = {
                          'werden, damit auch er die interne Antwort bekommt?',
              'prompt_en': 'A real edge case: remote-access VPN clients are assigned an internal IP '
                          'over the VPN tunnel, but their original connection technically originates '
-                         'from an address range that at first glance looks "external" (the VPN '
+                         'from an address range that at first glance looks “external” (the VPN '
                          'dial-in range). Think it through: if the `internal` view only matches on '
                          'the physical internal IP range, what happens to a VPN client, and how '
                          'would match-clients need to be extended so it also gets the internal '
@@ -403,7 +403,7 @@ DNS_VIEWS_MODULE = {
              'prompt_de': 'Bringe die Prüfschritte in die Reihenfolge, in der du eine gemeldete '
                           '„falsche DNS-Antwort“ bei Split-DNS eingrenzen würdest.',
              'prompt_en': 'Put the diagnostic steps in the order you would use to narrow down a '
-                          'reported "wrong DNS answer" in a split-DNS setup.',
+                          'reported “wrong DNS answer” in a split-DNS setup.',
              'items_de': [
                  'Prüfen, welcher Grid-Member und welche View die Anfrage tatsächlich beantwortet hat',
                  'View-Reihenfolge auf diesem Member kontrollieren (zu breite View zu weit vorne?)',
@@ -415,7 +415,7 @@ DNS_VIEWS_MODULE = {
                  'Check which Grid member and which view actually answered the request',
                  'Check the view order on that member (is an overly broad view too early?)',
                  'Compare match-clients/match-destinations of the affected views with the client IP',
-                 'Check whether the client (e.g. via VPN) comes from an unexpected address range',
+                 'Check whether the client (e.g., via VPN) comes from an unexpected address range',
                  'Only then check the record content of the presumably correct view',
              ],
          }},
@@ -448,7 +448,7 @@ DNS_VIEWS_MODULE = {
         {'id': 'dv2',
          "explanation": {
              "de": "Es gewinnt die erste passende View, und „any“ passt auf alles. Eine automatische Wahl der „spezielleren“ View wie beim Longest-Prefix-Match im Routing gibt es nicht — genau diese Erwartung führt zu dem Fehler.",
-             "en": "The first matching view wins, and \"any\" matches everything. There is no automatic choice of the \"more specific\" view as with longest-prefix match in routing — that very expectation causes the mistake.",
+             "en": "The first matching view wins, and “any” matches everything. There is no automatic choice of the “more specific” view as with longest-prefix match in routing — that very expectation causes the mistake.",
          },
          'type': 'single',
          'prompt': {'de': 'Eine `external`-View mit match: any steht vor einer `internal`-View mit '
@@ -474,7 +474,7 @@ DNS_VIEWS_MODULE = {
         {'id': 'dv3',
          "explanation": {
              "de": "Match-Listen braucht der Member nur, um zwischen mehreren Views zu unterscheiden. Bedient er genau eine View, gibt es nichts zu unterscheiden — deshalb vereinfacht „ein Member, eine View“ den Betrieb so stark.",
-             "en": "A member needs match lists only to tell several views apart. If it serves exactly one view, there is nothing to tell apart — which is why \"one member, one view\" simplifies operations so much.",
+             "en": "A member needs match lists only to tell several views apart. If it serves exactly one view, there is nothing to tell apart — which is why “one member, one view” simplifies operations so much.",
          },
          'type': 'single',
          'prompt': {'de': 'Wann sind match-clients/match-destinations überhaupt notwendig?',
@@ -497,12 +497,12 @@ DNS_VIEWS_MODULE = {
         {'id': 'dv4',
          "explanation": {
              "de": "„Nur über Forwarder“ schaltet die eigene Rekursion als Rückfallebene ab: Antwortet der einzige Forwarder nicht, bleibt die Anfrage unbeantwortet. Ein automatisches Umschalten auf die Root-Server gibt es in diesem Modus gerade nicht.",
-             "en": "\"Forwarders only\" switches off the server's own recursion as a fallback: if the only forwarder does not answer, the query stays unanswered. An automatic switch to the root servers is exactly what this mode does not do.",
+             "en": "“Forwarders only” switches off the server's own recursion as a fallback: if the only forwarder does not answer, the query stays unanswered. An automatic switch to the root servers is exactly what this mode does not do.",
          },
          'type': 'single',
          'prompt': {'de': 'Was ist das Risiko der Option „nur über Forwarder auflösen“, wenn nur '
                          'ein Forwarder konfiguriert ist?',
-                    'en': 'What is the risk of the "resolve via forwarders only" option when only '
+                    'en': 'What is the risk of the “resolve via forwarders only” option when only '
                          'one forwarder is configured?'},
          'answer': 1,
          'options': {
@@ -524,7 +524,7 @@ DNS_VIEWS_MODULE = {
         {'id': 'dv5',
          "explanation": {
              "de": "Entscheidend ist die Quelladresse, mit der die Anfrage beim Member ankommt. Liegt der VPN-Pool nicht in match-clients der internen View, fällt der Client an die nächste passende View — meist die externe mit „any“.",
-             "en": "What counts is the source address with which the query reaches the member. If the VPN pool is not in the internal view's match-clients, the client falls through to the next matching view — usually the external one with \"any\".",
+             "en": "What counts is the source address with which the query reaches the member. If the VPN pool is not in the internal view's match-clients, the client falls through to the next matching view — usually the external one with “any”.",
          },
          'type': 'single',
          'prompt': {'de': 'Ein VPN-Client bekommt intern zwar eine Adresse aus dem internen '
@@ -566,21 +566,21 @@ DNS_VIEWS_MODULE = {
                 "en": [
                     "partner, because it is listed first",
                     "internal",
-                    "external, because \"any\" covers every address",
+                    "external, because “any” covers every address",
                     "None — the address is not listed literally anywhere",
                 ],
             },
             "explanation": {
                 "de": "Geprüft wird von oben nach unten: partner passt nicht, internal passt (10.99.4.7 liegt in 10.0.0.0/8) — damit ist die Suche beendet. „any“ würde ebenfalls passen, kommt aber nicht mehr zum Zug; und die erste Stelle allein genügt nicht, die View muss auch passen.",
-                "en": "Checking runs top to bottom: partner does not match, internal does (10.99.4.7 is within 10.0.0.0/8) — the search ends there. \"any\" would match too but never gets its turn; and being first is not enough, the view also has to match.",
+                "en": "Checking runs top to bottom: partner does not match, internal does (10.99.4.7 is within 10.0.0.0/8) — the search ends there. “any” would match too but never gets its turn; and being first is not enough, the view also has to match.",
             },
         },
         {
             "id": "dv7",
             "type": "multi",
             "prompt": {
-                "de": "Die interne View löst fremde Namen „nur über Forwarder“ auf. Welche Maßnahmen verringern das Risiko, dass ein einzelner Ausfall die gesamte externe Auflösung lahmlegt (mehrere richtig)?",
-                "en": "The internal view resolves external names \"via forwarders only\". Which measures reduce the risk that a single failure takes down all external resolution (multiple)?",
+                "de": "Die interne View löst fremde Namen „nur über Forwarder“ auf. Welche Maßnahmen verringern das Risiko, dass ein einzelner Ausfall die gesamte externe Auflösung lahmlegt? Mehrere Antworten sind richtig.",
+                "en": "The internal view resolves external names “via forwarders only”. Which measures reduce the risk that a single failure takes down all external resolution? Select all that apply.",
             },
             "answer": [0, 2],
             "options": {
@@ -593,7 +593,7 @@ DNS_VIEWS_MODULE = {
                 "en": [
                     "Configure at least two forwarders that do not share a site or uplink",
                     "Raise the TTL of your own zones",
-                    "Decide deliberately whether \"forwarders only\" is needed, or allow the server's own recursion as a fallback",
+                    "Decide deliberately whether “forwarders only” is needed, or allow the server's own recursion as a fallback",
                     "Place the external view before the internal one",
                 ],
             },

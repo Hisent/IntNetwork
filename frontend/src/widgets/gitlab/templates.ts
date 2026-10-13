@@ -10,12 +10,15 @@
 // "main"/"master") umgeht dabei bewusst die Frage, welchen
 // Standard-Zweignamen `git init` auf dem Runner wählt. clone/fetch/push/pull
 // fehlen hier absichtlich — kein Netzwerk im Runner, siehe Hinweis im Widget.
+import type { RunExpectation } from '@/widgets/lab/limits'
+
 export interface GitTemplate {
   id: string
   title: { de: string; en: string }
   hint: { de: string; en: string }
   files: Record<string, string>
   commands: string[]
+  expect?: RunExpectation
 }
 
 export const GIT_TEMPLATES: GitTemplate[] = [
@@ -95,6 +98,14 @@ export const GIT_TEMPLATES: GitTemplate[] = [
       'commit -m main-edit',
       'merge feature',
     ],
+    expect: {
+      rc: 1,
+      output: 'CONFLICT',
+      task: {
+        de: 'Führe einen Lauf aus, dessen letzter Befehl „CONFLICT“ meldet (Rückgabewert 1).',
+        en: 'Run a command batch whose last command reports "CONFLICT" (return code 1).',
+      },
+    },
   },
   {
     id: 'worktree',

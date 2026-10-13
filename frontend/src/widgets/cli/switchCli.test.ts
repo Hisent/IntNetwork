@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { clampVlan, runSwitchCommand, trunkTag, type Port } from './switchCli'
+import { clampVlan, runSwitchCommand, trunkTag, vlanChallengeDone, type Port } from './switchCli'
 
 const PORTS: Port[] = [
   { vlan: 10, mode: 'access' },
@@ -60,5 +60,30 @@ describe('runSwitchCommand', () => {
   })
   it('unbekannter Befehl', () => {
     expect(runSwitchCommand(PORTS, 'foobar')).toContain('% Invalid input')
+  })
+})
+
+describe('vlanChallengeDone (Port 5 ins VLAN 10)', () => {
+  const base = (): Port[] => [
+    { vlan: 10, mode: 'access' }, { vlan: 10, mode: 'access' }, { vlan: 20, mode: 'access' },
+    { vlan: 20, mode: 'access' }, { vlan: 30, mode: 'access' }, { vlan: 1, mode: 'trunk' },
+  ]
+  const with5 = (p: Port) => base().map((x, i) => (i === 4 ? p : x))
+
+  it('ist erfüllt, wenn Port 5 Access-Port in VLAN 10 ist und Port 1 sendet', () => {
+    expect(vlanChallengeDone(with5({ vlan: 10, mode: 'access' }), 0)).toBe(true)
+  })
+
+  it('ein Trunk mit Native VLAN 10 an Port 5 erfüllt die Aufgabe nicht', () => {
+    expect(vlanChallengeDone(with5({ vlan: 10, mode: 'trunk' }), 0)).toBe(false)
+  })
+
+  it('ist nicht erfüllt ohne Frame von Port 1, im falschen VLAN oder wenn Port 1 VLAN 10 verlassen hat', () => {
+    expect(vlanChallengeDone(with5({ vlan: 10, mode: 'access' }), null)).toBe(false)
+    expect(vlanChallengeDone(with5({ vlan: 10, mode: 'access' }), 1)).toBe(false)
+    expect(vlanChallengeDone(base(), 0)).toBe(false)
+    const moved = with5({ vlan: 10, mode: 'access' })
+    moved[0] = { vlan: 20, mode: 'access' }
+    expect(vlanChallengeDone(moved, 0)).toBe(false)
   })
 })

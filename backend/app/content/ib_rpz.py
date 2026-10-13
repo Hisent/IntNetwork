@@ -76,7 +76,7 @@ RPZ_MODULE = {
                    'die kein einzelnes Unternehmen allein erkennen könnte.',
              'en': '## Local Rules vs. Feeds\n\n'
                    'RPZ rules come from two sources:\n\n'
-                   '- **Local rules** — self-maintained entries, e.g. for domains known to be '
+                   '- **Local rules** — self-maintained entries, e.g., for domains known to be '
                    'problematic within the company, or that should be blocked for organizational '
                    'reasons.\n'
                    '- **Subscribed feeds** — continuously updated threat lists from external threat '
@@ -93,7 +93,7 @@ RPZ_MODULE = {
             "payload": {
                 "kind": "flow",
                 "title_de": "Wie eine Anfrage durch die RPZs läuft",
-                "title_en": "How a query passes through the RPZs",
+                "title_en": "How a Query Passes Through the RPZs",
                 "caption_de": "Die RPZs werden in ihrer Reihenfolge geprüft; der erste Treffer entscheidet.",
                 "caption_en": "The RPZs are checked in order; the first hit decides.",
                 "nodes": [
@@ -300,7 +300,7 @@ RPZ_MODULE = {
             "note": "Aus Client-Sicht ist ein RPZ-NXDOMAIN nicht von einer wirklich nicht existierenden Domain zu unterscheiden — Gewissheit bringen erst die RPZ-Treffer im Log bzw. Reporting. dig-Ausgaben im Standardformat von BIND 9, gekürzt.",
             "payload": {
                 "title_de": "Was sieht der Client? Drei Namen, drei Ergebnisse",
-                "title_en": "What does the client see? Three names, three results",
+                "title_en": "What Does the Client See? Three Names, Three Results",
                 "intro_de": "Admin-PC, rekursiver Member 10.20.30.53 mit lokaler RPZ und Feed-RPZ. Ausgaben gekürzt.",
                 "intro_en": "Admin PC, recursive member 10.20.30.53 with a local RPZ and a feed RPZ. Output shortened.",
                 "prompt": "admin@pc17:~$",
@@ -365,7 +365,7 @@ RPZ_MODULE = {
              ],
              'lines_en': [
                  'Conflicting rules for the same domain require a clear, documented prioritization '
-                 '(e.g. local exception before feed)',
+                 '(e.g., local exception before feed)',
                  'Which rule applies is decided by the order of the RPZs: zones sorted higher '
                  'override those below',
                  'A feed entry automatically always takes precedence over any local rule',
@@ -390,7 +390,7 @@ RPZ_MODULE = {
             "id": "scenario-rpz-fehlalarm",
             "payload": {
                 "title_de": "Montag, 8:10 Uhr: Das Partnerportal ist „weg“",
-                "title_en": "Monday, 8:10 a.m.: the partner portal is \"gone\"",
+                "title_en": "Monday, 8:10 a.m.: the Partner Portal Is “Gone”",
                 "start": "start",
                 "nodes": [
                     {
@@ -479,7 +479,7 @@ RPZ_MODULE = {
                          'hier idealerweise greifen? Erst selbst überlegen.',
              'teaser_en': 'Log analysis: within a short time, a client requests a conspicuously '
                          'large number of random-looking domain names, most of which do not '
-                         'exist at all (e.g. `xj3ka9qplw.net`, '
+                         'exist at all (e.g., `xj3ka9qplw.net`, '
                          '`q0pz71mvdt.com`, …). What does this pattern suggest, and which '
                          'protection mechanism would ideally catch it? Think it over yourself first.',
          },
@@ -520,7 +520,7 @@ RPZ_MODULE = {
                    'früher, gut instrumentierbarer Punkt, um Angriffe zu stoppen, bevor sie '
                    'überhaupt Wirkung entfalten.',
              'en': '## Infoblox Threat Defense\n\n'
-                   '**Infoblox Threat Defense** (a rebranding of "BloxOne Threat Defense", '
+                   '**Infoblox Threat Defense** (a rebranding of “BloxOne Threat Defense,” '
                    'functionally largely unchanged) builds on the RPZ concept and extends it with '
                    'analysis of the DNS queries themselves: behavioral detection for DGA and '
                    'zero-day domains, detection of lookalike domains (domains that closely resemble '
@@ -651,7 +651,7 @@ RPZ_MODULE = {
         {'id': 'dt5',
          "explanation": {
              "de": "Threat Defense baut auf dem RPZ-Gedanken auf und ergänzt Verhaltenserkennung und laufend gepflegte Bedrohungsdaten. Es blockiert also durchaus — „reines Reporting“ unterschätzt es, „ohne Bezug zu RPZ“ verkennt die Grundlage.",
-             "en": "Threat Defense builds on the RPZ idea and adds behavioral detection and continuously maintained threat data. So it does block — \"pure reporting\" underestimates it, \"unrelated to RPZ\" misses its foundation.",
+             "en": "Threat Defense builds on the RPZ idea and adds behavioral detection and continuously maintained threat data. So it does block — “pure reporting” underestimates it, “unrelated to RPZ” misses its foundation.",
          },
          'type': 'single',
          'prompt': {'de': 'Was ist Infoblox Threat Defense im Verhältnis zu RPZ?',
@@ -705,7 +705,7 @@ RPZ_MODULE = {
             "type": "single",
             "prompt": {
                 "de": "dig liefert für gewinnspiel.example die Antwort „gewinnspiel.example. 5 IN CNAME sperrseite.nordwind-intern.de.“, gefolgt von einer internen Adresse. Welcher RPZ-Regeltyp hat gegriffen?",
-                "en": "For gewinnspiel.example, dig returns the answer \"gewinnspiel.example. 5 IN CNAME sperrseite.nordwind-intern.de.\", followed by an internal address. Which RPZ rule type applied?",
+                "en": "For gewinnspiel.example, dig returns the answer “gewinnspiel.example. 5 IN CNAME sperrseite.nordwind-intern.de.”, followed by an internal address. Which RPZ rule type applied?",
             },
             "answer": 2,
             "options": {
@@ -721,8 +721,8 @@ RPZ_MODULE = {
             "id": "dt8",
             "type": "multi",
             "prompt": {
-                "de": "Wo endet der Schutz einer DNS Firewall? Welche Fälle sieht sie nicht (mehrere richtig)?",
-                "en": "Where does the protection of a DNS firewall end? Which cases does it not see (multiple)?",
+                "de": "Wo endet der Schutz einer DNS Firewall? Welche Fälle sieht sie nicht? Mehrere Antworten sind richtig.",
+                "en": "Where does the protection of a DNS firewall end? Which cases does it not see? Select all that apply.",
             },
             "answer": [1, 2],
             "options": {

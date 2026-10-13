@@ -17,7 +17,7 @@ VARIABLEN_MODULE = {
               'Jinja2-Variablenreferenzen korrekt lesen'],
     'goals_en': ['Name variable sources (inventory, vars, vars_files, role defaults, extra vars, '
                  '…)',
-                 'Apply the rough precedence rule "more specific/explicit beats more general"',
+                 'Apply the rough precedence rule “more specific/explicit beats more general”',
                  'Determine the effective value in a simple conflict example',
                  'Read Jinja2 variable references correctly'],
     'scenario': {'de': 'Eine Variable lässt sich in Ansible an sehr vielen Stellen setzen — im '
@@ -29,8 +29,8 @@ VARIABLEN_MODULE = {
                  'en': 'A variable can be set in Ansible in a great many places — in the '
                        'inventory, in the playbook, in a role, even directly on the command line '
                        'at invocation time. When several of these sources disagree, one of them '
-                       'wins — and that is exactly what regularly causes the question "why isn’t '
-                       'my change taking effect?" This module covers the rules worth keeping '
+                       'wins — and that is exactly what regularly causes the question “why isn’t '
+                       'my change taking effect?” This module covers the rules worth keeping '
                        'in your head, and where the complete list lives.'},
     'blocks': [
         {'type': 'text', 'id': 'text-1',
@@ -51,7 +51,7 @@ VARIABLEN_MODULE = {
                          '\n'
                          'Alle diese Quellen können denselben Variablennamen setzen — welche '
                          'davon am Ende „gewinnt“, regelt die Vorrangordnung.',
-                   'en': '## Variable sources at a glance\n'
+                   'en': '## Variable Sources at a Glance\n'
                          '\n'
                          'Variables can come from, among others, these sources:\n'
                          '\n'
@@ -66,7 +66,7 @@ VARIABLEN_MODULE = {
                          '- **Extra vars** — passed at invocation with `-e`/`--extra-vars`\n'
                          '\n'
                          'All of these sources can set the same variable name — which one '
-                         '"wins" in the end is governed by the precedence order.'}},
+                         '“wins” in the end is governed by the precedence order.'}},
         {'type': 'text', 'id': 'text-2',
          'value': {'de': '## Die grobe Vorrangregel\n'
                          '\n'
@@ -92,14 +92,14 @@ VARIABLEN_MODULE = {
                          'gewinnen immer, Rollen-Defaults verlieren immer, Host schlägt Gruppe, '
                          'Playbook schlägt Inventar — und den Rest schlägt man in der Doku '
                          'nach.',
-                   'en': '## The broad precedence rule\n'
+                   'en': '## The Broad Precedence Rule\n'
                          '\n'
                          'The official Ansible documentation names five broad categories, in '
                          'this order from lowest to highest priority: **Configuration '
                          'settings**, **Command-line options**, **Playbook keywords**, '
                          '**Variables**, **Direct Assignment**.\n'
                          '\n'
-                         'Within the "Variables" category, two fixed end points apply:\n'
+                         'Within the “Variables” category, two fixed end points apply:\n'
                          '\n'
                          '- **Extra vars** (`-e`/`--extra-vars`) have the **highest** priority of '
                          'all variable sources — they override virtually everything else.\n'
@@ -107,8 +107,8 @@ VARIABLEN_MODULE = {
                          'priority — they are deliberately meant as an easily overridable '
                          'starting value.\n'
                          '\n'
-                         'In between, the official documentation ("Understanding variable '
-                         'precedence") lists 22 levels in total. The most important ones, from '
+                         'In between, the official documentation (“Understanding variable '
+                         'precedence”) lists 22 levels in total. The most important ones, from '
                          'weak to strong: inventory `group_vars` → inventory `host_vars` → host '
                          'facts → play `vars` → `vars_files` → role `vars` → block/task `vars` → '
                          '`include_vars` → `set_fact`/`register` → role params. Nobody needs to '
@@ -126,7 +126,7 @@ VARIABLEN_MODULE = {
                  'Beispiel.',
          'payload': {'kind': 'layers',
                      'title_de': 'Variablen-Vorrang: oben gewinnt',
-                     'title_en': 'Variable precedence: top wins',
+                     'title_en': 'Variable Precedence: Top Wins',
                      'caption_de': 'Acht der 22 Stufen — die, denen man im Alltag begegnet.',
                      'caption_en': 'Eight of the 22 levels — the ones you meet day to day.',
                      'layers': [{'name': 'Extra-Vars',
@@ -163,7 +163,7 @@ VARIABLEN_MODULE = {
                                  'name_en': 'Play vars',
                                  'content_de': 'vars: im Play', 'content_en': 'vars: in the play',
                                  'detail_de': 'Schlagen das Inventar: „Playbook schlägt Inventar“.',
-                                 'detail_en': 'Beat the inventory: "playbook beats inventory".'},
+                                 'detail_en': 'Beat the inventory: “playbook beats inventory.”'},
                                 {'name_de': 'Inventar',
                                  'name_en': 'Inventory',
                                  'content': 'host_vars > group_vars > group_vars/all',
@@ -204,11 +204,11 @@ VARIABLEN_MODULE = {
                          'welcher Wert sich tatsächlich durchsetzt — passt das Ergebnis zur Regel '
                          'oben? Ist das Lab bei euch nicht aktiv, beantworte die Frage anhand des '
                          '`paket_name`-Beispiels oben, statt sie praktisch nachzuvollziehen.',
-                   'en': '## Hands-on: triggering precedence yourself\n'
+                   'en': '## Hands-on: Triggering Precedence Yourself\n'
                          '\n'
                          'Choose the **Variable precedence** template in the lab. It sets a '
                          'variable (`umgebung`) in the play `vars`. Run the playbook as is first, '
-                         'then enter a different value in the "Extra vars" field '
+                         'then enter a different value in the “Extra vars” field '
                          '(`umgebung=produktion`), run it again and check which value '
                          'actually wins — does the result match the rule above? If the lab is '
                          'not enabled for you, answer the question using the `paket_name` '
@@ -231,7 +231,7 @@ VARIABLEN_MODULE = {
                          'Beide sind Laufzeit-Mechanismen und stehen erst zur Verfügung, sobald '
                          'der entsprechende Task gelaufen ist — anders als die klassischen, vor '
                          'dem Lauf feststehenden Quellen (Inventory, group_vars, Rollen-Defaults).',
-                   'en': '## Runtime variables: `set_fact` and `register`\n'
+                   'en': '## Runtime Variables: `set_fact` and `register`\n'
                          '\n'
                          'Not every variable is fixed before the run starts — some only come '
                          'into being during execution:\n'
@@ -266,12 +266,12 @@ VARIABLEN_MODULE = {
                          '`| upper` wandelt den Wert in Großbuchstaben um. Filter werden mit '
                          'einem senkrechten Strich an die Variable angehängt und können auch '
                          'verkettet werden.',
-                   'en': '## Jinja2 basics\n'
+                   'en': '## Jinja2 Basics\n'
                          '\n'
                          'Variables are referenced with double curly braces:\n'
                          '\n'
                          '```yaml\n'
-                         '- name: "{{ paket_name }} installieren"\n'
+                         '- name: "Install {{ paket_name }}"\n'
                          '  ansible.builtin.package:\n'
                          '    name: "{{ paket_name }}"\n'
                          '    state: present\n'
@@ -302,7 +302,7 @@ VARIABLEN_MODULE = {
                                   'Which line contains the Jinja2 error?\n'
                                   '\n'
                                   '```yaml\n'
-                                  '- name: "{{ paket_name } installieren"\n'
+                                  '- name: "Install {{ paket_name }"\n'
                                   '  ansible.builtin.package:\n'
                                   '    name: "{{ paket_name }}"\n'
                                   '    state: present\n'
@@ -310,7 +310,7 @@ VARIABLEN_MODULE = {
                      'lines_de': ['- name: "{{ paket_name } installieren"',
                                   '  ansible.builtin.package:', '    name: "{{ paket_name }}"',
                                   '    state: present'],
-                     'lines_en': ['- name: "{{ paket_name } installieren"',
+                     'lines_en': ['- name: "Install {{ paket_name }"',
                                   '  ansible.builtin.package:', '    name: "{{ paket_name }}"',
                                   '    state: present'],
                      'wrong': [0],
@@ -343,7 +343,7 @@ VARIABLEN_MODULE = {
                          'Rollen-Default oder Extra-Vars — entscheidet exakt dieselbe '
                          'Vorrangregel wie in einem normalen Task; Templates sind darin keine '
                          'Ausnahme.',
-                   'en': '## Variables in templates\n'
+                   'en': '## Variables in Templates\n'
                          '\n'
                          'The same variables can also be used inside `.j2` template files, which '
                          'the `template` module renders before copying (unlike `copy`, which '
@@ -362,7 +362,7 @@ VARIABLEN_MODULE = {
         {'type': 'scenario',
          'id': 'scenario-wirkt-nicht',
          'payload': {'title_de': '„Meine Änderung wirkt nicht“',
-                     'title_en': '"My change has no effect"',
+                     'title_en': '“My Change Has No Effect”',
                      'start': 'start',
                      'nodes': [{'id': 'start',
                                 'text_de': 'Du setzt http_port: 8080 in group_vars/webservers.yml. '
@@ -450,7 +450,7 @@ VARIABLEN_MODULE = {
                                   'wirkte“, weil eine andere Quelle Vorrang hatte. Was hättest du '
                                   'mit dem Wissen aus diesem Modul schneller gefunden?',
                      'prompt_en': 'Recall a situation (in this or another automation tool) where '
-                                  'a change "did not take effect" because another source took '
+                                  'a change “did not take effect” because another source took '
                                   'precedence. What would you have found faster with the '
                                   'knowledge from this module?'}},
     ],
@@ -499,7 +499,7 @@ VARIABLEN_MODULE = {
          'prompt': {'de': 'In der offiziellen Reihenfolge der fünf großen Kategorien — welche '
                           'steht VOR „Playbook keywords“?',
                     'en': 'In the official order of the five broad categories — which one comes '
-                          'BEFORE "Playbook keywords"?'},
+                          'BEFORE “Playbook keywords”?'},
          'answer': 0,
          'options': {'de': ['Command-line options', 'Variables', 'Direct Assignment',
                             'Keine, Playbook keywords steht an erster Stelle'],
@@ -549,8 +549,8 @@ VARIABLEN_MODULE = {
                                'warum rollen-interne Werte in `vars/` und anpassbare in '
                                '`defaults/` gehören.',
                          'en': 'Role vars rank above play vars in the precedence list, so 443 — '
-                               'verified in a real run with ansible-core 2.21. The intuition "the '
-                               'playbook is closer" leads to 8080 and is exactly why role-internal '
+                               'verified in a real run with ansible-core 2.21. The intuition “the '
+                               'playbook is closer” leads to 8080 and is exactly why role-internal '
                                'values belong in `vars/` and adjustable ones in `defaults/`.'}},
         {'id': 'va7',
          'type': 'single',
@@ -595,8 +595,8 @@ VARIABLEN_MODULE = {
                                'gewinnt schlicht die stärkere Quelle.',
                          'en': '`set_fact` ranks above task vars in the precedence list, so `fact` '
                                '— verified in a real run. `task` seems obvious because it is set '
-                               'directly on the task; but "closer" does not automatically mean '
-                               '"stronger" in Ansible. Multiple definitions are not an error; the '
+                               'directly on the task; but “closer” does not automatically mean '
+                               '“stronger” in Ansible. Multiple definitions are not an error; the '
                                'stronger source simply wins.'}},
         {'id': 'va8',
          'type': 'single',

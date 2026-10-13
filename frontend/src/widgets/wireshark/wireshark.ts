@@ -144,17 +144,17 @@ export const CAPTURE: Packet[] = [
   },
   {
     no: 3, time: '1.104', src: PC, dst: DNSRV, protocol: 'DNS',
-    info: 'Standard query A intranet.nordwind.example',
+    info: 'Standard query A intranet.nordwind-intern.de',
     protocols: ['eth', 'ip', 'udp', 'dns'], ports: [55201, 53],
     layers: [eth(MAC_PC, MAC_GW), ip(PC, DNSRV), udp(55201, 53),
-      { name: 'Domain Name System (query)', fields: [{ label: 'Name', value: 'intranet.nordwind.example' }, { label: 'Type', value: 'A' }] }],
+      { name: 'Domain Name System (query)', fields: [{ label: 'Name', value: 'intranet.nordwind-intern.de' }, { label: 'Type', value: 'A' }] }],
   },
   {
     no: 4, time: '1.106', src: DNSRV, dst: PC, protocol: 'DNS',
     info: 'Standard query response A 192.168.10.80',
     protocols: ['eth', 'ip', 'udp', 'dns'], ports: [53, 55201],
     layers: [eth(MAC_GW, MAC_PC), ip(DNSRV, PC), udp(53, 55201),
-      { name: 'Domain Name System (response)', fields: [{ label: 'Name', value: 'intranet.nordwind.example' }, { label: 'Address', value: WEB }] }],
+      { name: 'Domain Name System (response)', fields: [{ label: 'Name', value: 'intranet.nordwind-intern.de' }, { label: 'Address', value: WEB }] }],
   },
   {
     no: 5, time: '1.110', src: PC, dst: WEB, protocol: 'TCP',
@@ -181,7 +181,7 @@ export const CAPTURE: Packet[] = [
     layers: [eth(MAC_PC, MAC_GW), ip(PC, WEB), tcp(52100, 80, 'PSH, ACK'),
       { name: 'Hypertext Transfer Protocol', fields: [
         { label: 'Request', value: 'GET /login HTTP/1.1' },
-        { label: 'Host', value: 'intranet.nordwind.example' }] }],
+        { label: 'Host', value: 'intranet.nordwind-intern.de' }] }],
   },
   {
     no: 9, time: '1.135', src: WEB, dst: PC, protocol: 'HTTP',
@@ -200,7 +200,7 @@ export const CAPTURE: Packet[] = [
     layers: [eth(MAC_PC, MAC_GW), ip(PC, WEB), tcp(52100, 80, 'PSH, ACK'),
       { name: 'Hypertext Transfer Protocol', fields: [
         { label: 'Request', value: 'POST /login HTTP/1.1' },
-        { label: 'Host', value: 'intranet.nordwind.example' },
+        { label: 'Host', value: 'intranet.nordwind-intern.de' },
         { label: 'Content-Type', value: 'application/x-www-form-urlencoded' }] },
       { name: 'HTML Form URL Encoded', fields: [
         { label: 'username', value: 'b.berg' },

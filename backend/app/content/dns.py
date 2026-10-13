@@ -102,9 +102,9 @@ DNS_MODULE = {
                  "Typischer Fall: AAAA-Abfrage für einen Namen, der nur einen A-Record hat.",
          "payload": {
              "kind": "compare",
-             "title_de": "Drei Antworten auf eine DNS-Abfrage", "title_en": "Three answers to a DNS query",
+             "title_de": "Drei Antworten auf eine DNS-Abfrage", "title_en": "Three Answers to a DNS Query",
              "columns": [
-                 {"title_de": "Antwort mit Daten", "title_en": "Answer with data"},
+                 {"title_de": "Antwort mit Daten", "title_en": "Answer With Data"},
                  {"title": "NODATA"},
                  {"title": "NXDOMAIN"},
              ],
@@ -130,7 +130,8 @@ DNS_MODULE = {
          "value": {
              "de": "## Rückwärts: PTR (Reverse DNS)\n\nManchmal hast du nur eine "
                    "**IP** und willst den **Namen** dazu — z.B. wenn in einem Log nur "
-                   "`10.20.0.9` steht. Dafür gibt es den **PTR-Record** (Pointer): die "
+                   "`10.20.0.9` steht (bei Nordwind der Dateiserver im Rechenzentrums-Netz "
+                   "10.20.0.0/16). Dafür gibt es den **PTR-Record** (Pointer): die "
                    "Umkehrung von A.\n\nTechnisch wird die IP dafür **umgedreht** und in "
                    "eine Spezial-Zone gehängt: `10.20.0.9` → `9.0.20.10.in-addr.arpa` "
                    "(IPv6: `ip6.arpa`). Abfragen kannst du das mit `nslookup 10.20.0.9` "
@@ -139,8 +140,9 @@ DNS_MODULE = {
                    "er, landet die Mail im Spam. Und A- und PTR-Records werden **getrennt "
                    "gepflegt** — sie können sich widersprechen.",
              "en": "## Backwards: PTR (Reverse DNS)\n\nSometimes you only have an "
-                   "**IP** and want the **name** for it — e.g. when a log only shows "
-                   "`10.20.0.9`. That's what the **PTR record** (pointer) is for: the "
+                   "**IP** and want the **name** for it — e.g., when a log only shows "
+                   "`10.20.0.9` (at Nordwind the file server on the data center network "
+                   "10.20.0.0/16). That's what the **PTR record** (pointer) is for: the "
                    "reverse of A.\n\nTechnically the IP is **reversed** and placed in a "
                    "special zone: `10.20.0.9` → `9.0.20.10.in-addr.arpa` "
                    "(IPv6: `ip6.arpa`). You can query it with `nslookup 10.20.0.9` "
@@ -163,7 +165,7 @@ DNS_MODULE = {
                  "Flags-Zeile endet im Original mit AUTHORITY/ADDITIONAL-Zählern. Zone wie im "
                  "DNS-Widget (www, mail, Alias shop).",
          "payload": {
-             "title_de": "Die Nordwind-Zone mit dig abfragen", "title_en": "Querying the Nordwind zone with dig",
+             "title_de": "Die Nordwind-Zone mit dig abfragen", "title_en": "Querying the Nordwind Zone With dig",
              "intro_de": "dig <Name> <Typ> fragt den Resolver; +short zeigt nur die Antwort. ? listet die Befehle.",
              "intro_en": "dig <name> <type> asks the resolver; +short prints only the answer. ? lists the commands.",
              "prompt": "user@pc:~$",
@@ -342,9 +344,9 @@ DNS_MODULE = {
                    "would come back at all."}},
         {"id": "d8", "type": "multi",
          "prompt": {"de": "Mails an @nordwind-logistik.de kommen nicht an, die Website läuft. Du prüfst die "
-                          "MX-Records. Welche Aussagen über MX stimmen? (mehrere)",
+                          "MX-Records. Welche Aussagen über MX stimmen? Mehrere Antworten sind richtig.",
                     "en": "Mail to @nordwind-logistik.de does not arrive, but the website is up. You check the "
-                          "MX records. Which statements about MX are true? (multiple)"},
+                          "MX records. Which statements about MX are true? Select all that apply."},
          "options": {
              "de": ["Ein MX-Record nennt einen Hostnamen, keine IP-Adresse",
                     "Bei mehreren MX-Records wird der mit der kleinsten Zahl bevorzugt",

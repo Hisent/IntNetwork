@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { decidingRule, subnetSlices } from './networkVisualsLogic'
+import { decidingRule, rules, subnetSlices } from './networkVisualsLogic'
 
 describe('network visualizations', () => {
   it('splits a /24 into correctly aligned /26 networks', () => {
@@ -33,5 +33,15 @@ describe('subnetSlices — whole slider range /24–/28', () => {
     expect(decidingRule({ source: 'guest', target: 'internet', port: 80 })).toBe(3)
     expect(decidingRule({ source: 'office', target: 'erp', port: 22 })).toBe(3)
     expect(decidingRule({ source: 'guest', target: 'erp', port: 22 })).toBe(0)
+  })
+})
+
+describe('firewall rule labels', () => {
+  it('are bilingual: the German flow shows no English zone names', () => {
+    for (const rule of rules) {
+      expect(rule.label.de).not.toBe(rule.label.en)
+      expect(rule.label.de).not.toMatch(/Guest|Office/)
+    }
+    expect(new Set(rules.map(rule => rule.label.en)).size).toBe(rules.length)
   })
 })

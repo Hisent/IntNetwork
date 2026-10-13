@@ -48,12 +48,12 @@ ORCHESTRATION_MODULE = {'key': 'orchestration',
                              'session*, each in its own context, returning summaries. Ideal for '
                              'keeping the main conversation clean and parallelizing independent '
                              'subtasks.\n'
-                             '- **Background sessions** (informally also "background agents") — run '
+                             '- **Background sessions** (informally also “background agents”) — run '
                              'multiple *full* sessions side by side '
                              'and monitor them from one view (agent view, `claude agents`; research preview). Ideal when several '
                              'large, self-contained tasks need to run at the same time.\n'
                              '- **Agent teams** — multiple sessions that **communicate with each '
-                             'other** (e.g. a lead delegates, others contribute). Ideal for '
+                             'other** (e.g., a lead delegates, others contribute). Ideal for '
                              'coordinated collaboration on a larger goal. Experimental and '
                              'disabled by default.\n'
                              '\n'
@@ -91,12 +91,12 @@ ORCHESTRATION_MODULE = {'key': 'orchestration',
                              'Für eine kleine, klar umrissene Änderung ist **ein** Agent richtig. '
                              'Skaliere die Zahl der Agenten an der tatsächlichen Größe der '
                              'Aufgabe.',
-                       'en': '## When should you orchestrate at all?\n'
+                       'en': '## When Should You Orchestrate at All?\n'
                              '\n'
                              "More agents aren't automatically better — they cost more tokens and "
                              'coordination overhead. Orchestration pays off when:\n'
                              '\n'
-                             '- the work is **too large for one context window** (e.g. a migration '
+                             '- the work is **too large for one context window** (e.g., a migration '
                              'spanning hundreds of files);\n'
                              '- you need **breadth** (checking the same task from multiple '
                              'perspectives);\n'
@@ -125,19 +125,19 @@ ORCHESTRATION_MODULE = {'key': 'orchestration',
                              'Das Fan-out kannst du im Modul 9 (Subagents) am interaktiven '
                              'Orchestrator-Widget ausprobieren; hier geht es darum, *wann* welches '
                              'Muster trägt.',
-                       'en': '## Patterns: Fan-out and Pipeline\n'
+                       'en': '## Patterns: Fan-Out and Pipeline\n'
                              '\n'
                              'Two fundamental orchestration patterns:\n'
                              '\n'
                              '- **Fan-out (parallel)** — a task is split into N independent parts, '
                              'all run at the same time, and the results are merged at the end. '
                              'Example: one agent per module/directory.\n'
-                             '- **Pipeline** — each item passes through several stages (e.g. *find '
+                             '- **Pipeline** — each item passes through several stages (e.g., *find '
                              '→ verify → summarize*), without all items having to wait for each '
                              'other at every stage.\n'
                              '\n'
                              'A recurring quality pattern is **adversarial verification**: a '
-                             'finding (e.g. a suspected bug) is challenged by multiple independent '
+                             'finding (e.g., a suspected bug) is challenged by multiple independent '
                              "reviewers trying to disprove it — if it still stands, it's more "
                              'trustworthy.\n'
                              '\n'
@@ -149,7 +149,7 @@ ORCHESTRATION_MODULE = {'key': 'orchestration',
                      'Prüfer-Schleife (unten), Fan-in (rechts). Schrittweise durchklicken.',
              'payload': {'kind': 'flow',
                          'title_de': 'Fan-out, Pipeline und Prüfer-Schleife',
-                         'title_en': 'Fan-out, pipeline, and reviewer loop',
+                         'title_en': 'Fan-Out, Pipeline, and Reviewer Loop',
                          'caption_de': 'Ein Orchestrator verteilt, Worker arbeiten parallel, ein '
                                        'Prüfer filtert, am Ende wird zusammengeführt.',
                          'caption_en': 'An orchestrator distributes, workers run in parallel, a '
@@ -281,7 +281,7 @@ ORCHESTRATION_MODULE = {'key': 'orchestration',
                              'runs in parallel, what gets verified, and what gets merged, while '
                              'individual subagents do the actual work.\n'
                              '\n'
-                             'The difference from simply "letting the agent decide for itself": '
+                             'The difference from simply “letting the agent decide for itself”: '
                              'the **control structure** (which steps, how often, in what order) is '
                              'fixed, while the **substantive work** stays with the agents. This '
                              'makes large runs reproducible — for example, a review across many '
@@ -304,7 +304,7 @@ ORCHESTRATION_MODULE = {'key': 'orchestration',
                              'missing auth checks and have every finding cross-checked” — the same '
                              'step across many files, too large for one context, and an unverified '
                              'finding would be expensive. Likewise: a migration across hundreds of '
-                             'files, or “keep fixing until the type check passes”.\n'
+                             'files, or “keep fixing until the type check passes.”\n'
                              '\n'
                              '**Not worth it:** a bug fix in two files (one agent in the main '
                              'conversation is faster and cheaper), or work where you want to '
@@ -373,7 +373,7 @@ ORCHESTRATION_MODULE = {'key': 'orchestration',
                                       'Pro Dimension einen Finder-Subagent parallel starten',
                                       'Jeden Fund von unabhängigen Prüfern verifizieren lassen',
                                       'Bestätigte Funde zusammenführen und zusammenfassen'],
-                         'items_en': ['Break the task down into dimensions (e.g. bugs, security, '
+                         'items_en': ['Break the task down into dimensions (e.g., bugs, security, '
                                       'performance)',
                                       'Start one finder subagent per dimension in parallel',
                                       'Have each finding verified by independent reviewers',
@@ -407,7 +407,7 @@ ORCHESTRATION_MODULE = {'key': 'orchestration',
              'note': 'Drei Entscheidungen: Muster wählen, Auftrag zuschneiden, Funde behandeln. '
                      'Danach das Fan-out im Widget von Modul 9 zeigen.',
              'payload': {'title_de': '60 Route-Handler prüfen: Wie schneidest du die Arbeit?',
-                         'title_en': 'Auditing 60 route handlers: how do you slice the work?',
+                         'title_en': 'Auditing 60 Route Handlers: How Do You Slice the Work?',
                          'start': 'muster',
                          'nodes': [{'id': 'muster',
                                     'text_de': 'In einer API mit 60 Route-Handlern sollen fehlende '
@@ -701,8 +701,8 @@ ORCHESTRATION_MODULE = {'key': 'orchestration',
                         {'id': 'or7',
                          'type': 'multi',
                          'prompt': {'de': 'Für welche Aufgaben ist ein dynamischer Workflow eher '
-                                          'die falsche Wahl? (mehrere)',
-                                    'en': 'For which tasks is a dynamic workflow probably the wrong choice? (multiple)'},
+                                          'die falsche Wahl? Mehrere Antworten sind richtig.',
+                                    'en': 'For which tasks is a dynamic workflow probably the wrong choice? Select all that apply.'},
                          'answer': [1, 3],
                          'options': {'de': ['Alle 200 Komponenten eines Verzeichnisses nach '
                                             'demselben Schema migrieren',

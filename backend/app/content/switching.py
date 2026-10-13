@@ -10,7 +10,7 @@ SWITCHING_MODULE = {
         "Broadcast-Domäne als Motivation für VLANs einordnen",
     ],
     "goals_en": [
-        "Understand MAC addresses as the layer-2 identifier",
+        "Understand MAC addresses as the Layer 2 identifier",
         "Explain learning, forwarding and flooding on a switch",
         "See the broadcast domain as the motivation for VLANs",
     ],
@@ -30,7 +30,7 @@ SWITCHING_MODULE = {
                    "sein; Virtualisierung, Zufalls-MACs und Spoofing können Ausnahmen erzeugen. "
                    "Ein Switch arbeitet mit diesen Adressen — nicht mit IPs.",
              "en": "## MAC Addresses\n\nA network card has a **MAC address** "
-                   "(layer 2). Within one layer-2 domain it should be unique; virtualization, "
+                   "(Layer 2). Within one Layer 2 domain it should be unique; virtualization, "
                    "randomized MACs and spoofing can create exceptions. A switch works with these "
                    "addresses, not with IPs.",
          },
@@ -60,7 +60,7 @@ SWITCHING_MODULE = {
                  "ein weiterer Switch.",
          "payload": {
              "title_de": "Die MAC-Tabelle am echten Switch lesen",
-             "title_en": "Reading the MAC table on a real switch",
+             "title_en": "Reading the MAC Table on a Real Switch",
              "intro_de": "Nordwind-SW1, der flache Switch im Lager. Tippe ? für die Befehle.",
              "intro_en": "Nordwind-SW1, the flat switch in the warehouse. Type ? for the commands.",
              "prompt": "Nordwind-SW1#", "abbreviations": True,
@@ -140,9 +140,7 @@ SWITCHING_MODULE = {
                    "Protocol), which detects loops and blocks ports.",
          }},
         {"type": "widget", "id": "visual-broadcast-storm",
-         "note": "DE: Den Broadcast-Sturm eskalieren lassen (Frames verdoppeln sich pro "
-                 "Tick) und dann den Loop trennen. EN: Let the broadcast storm escalate "
-                 "(frames double each tick), then disconnect the loop."},
+         "note": "Den Broadcast-Sturm eskalieren lassen (Frames verdoppeln sich pro Tick) und dann den Loop trennen."},
         {"type": "reveal", "id": "reveal-2",
          "payload": {
              "teaser_de": "Was würde eigentlich passieren, wenn zwei Geräte dieselbe MAC-Adresse hätten?",
@@ -174,12 +172,12 @@ SWITCHING_MODULE = {
                  "ist nur, wohin der Frame geht.",
          "payload": {
              "kind": "compare",
-             "title_de": "Drei Fälle am Switch", "title_en": "Three cases on the switch",
+             "title_de": "Drei Fälle am Switch", "title_en": "Three Cases on the Switch",
              "caption_de": "Was der Switch mit einem ankommenden Frame macht",
              "caption_en": "What the switch does with an incoming frame",
              "columns": [
-                 {"title_de": "Bekannter Unicast", "title_en": "Known unicast"},
-                 {"title_de": "Unbekannter Unicast", "title_en": "Unknown unicast"},
+                 {"title_de": "Bekannter Unicast", "title_en": "Known Unicast"},
+                 {"title_de": "Unbekannter Unicast", "title_en": "Unknown Unicast"},
                  {"title": "Broadcast"},
              ],
              "rows": [
@@ -219,7 +217,7 @@ SWITCHING_MODULE = {
                    "gerade nicht, wo das Ziel sitzt. IP-Adressen sieht ein Schicht-2-Switch gar nicht an.",
              "en": "The switch reads the source MAC and remembers which port it arrived on. It uses the "
                    "destination MAC only for the lookup — it cannot learn anything from it, because it does "
-                   "not know where the destination sits. A layer-2 switch does not look at IP addresses at "
+                   "not know where the destination sits. A Layer 2 switch does not look at IP addresses at "
                    "all."}},
         {"id": "s2", "type": "single",
          "prompt": {"de": "Was macht der Switch, wenn die Ziel-MAC unbekannt ist?",
@@ -250,8 +248,8 @@ SWITCHING_MODULE = {
              "de": "Ein klassischer Switch entscheidet allein anhand der MAC-Adressen im Ethernet-Header, "
                    "also auf Schicht 2. Schicht 3 (IP) ist Sache des Routers; ein „Layer-3-Switch“ ist ein "
                    "Switch mit zusätzlicher Routing-Funktion.",
-             "en": "A classic switch decides solely on the MAC addresses in the Ethernet header, i.e. at "
-                   "layer 2. Layer 3 (IP) is the router's job; a “layer-3 switch” is a switch with an added "
+             "en": "A classic switch decides solely on the MAC addresses in the Ethernet header, i.e., at "
+                   "Layer 2. Layer 3 (IP) is the router's job; a “Layer 3 switch” is a switch with an added "
                    "routing function."}},
         {"id": "s4", "type": "single",
          "prompt": {"de": "Wohin geht ein Broadcast (FF:FF:FF:FF:FF:FF)?",

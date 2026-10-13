@@ -79,7 +79,7 @@ export function CertErrors({ lang }: { lang: Lang }) {
 
       <div className="mb-4">
         <p className="mb-1 text-xs font-semibold text-slate-500">{s.progress(index + 1, n)}</p>
-        <div className="flex gap-1.5" aria-label={s.progress(index + 1, n)}>
+        <div className="flex gap-1.5" aria-hidden="true">
           {CASES.map((_, i) => (
             <div
               key={i}

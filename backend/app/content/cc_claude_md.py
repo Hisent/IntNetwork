@@ -20,7 +20,7 @@ CLAUDE_MD_MODULE = {'key': 'claude-md',
                     'und **Auto-Memory** (was *Claude* sich selbst notiert). Beide werden zu '
                     'Beginn jeder Session geladen. Dieses Modul macht dein Projektwissen '
                     'dauerhaft.',
-              'en': 'Every session starts with a fresh context window — the model "forgets" '
+              'en': 'Every session starts with a fresh context window — the model “forgets” '
                     "between sessions. So you don't have to keep re-explaining project knowledge, "
                     'there are two memory mechanisms: **CLAUDE.md** (what *you* write down) and '
                     '**auto memory** (what *Claude* notes for itself). Both are loaded at the '
@@ -39,11 +39,11 @@ CLAUDE_MD_MODULE = {'key': 'claude-md',
                              'knapper die Regel, desto zuverlässiger. Muss etwas *garantiert* '
                              'passieren (z.B. vor jedem Commit), gehört es in einen **Hook** '
                              '(Modul 11), nicht in CLAUDE.md.',
-                       'en': '## What is CLAUDE.md?\n'
+                       'en': '## What Is CLAUDE.md?\n'
                              '\n'
                              '`CLAUDE.md` is a Markdown file with **persistent instructions** that '
                              'Claude Code reads at the start of every session: build/test '
-                             'commands, conventions, architecture decisions, "always do X" rules.\n'
+                             'commands, conventions, architecture decisions, “always do X” rules.\n'
                              '\n'
                              'Important for the mental model: CLAUDE.md is **context, not enforced '
                              "configuration**. Claude reads it and tries to follow it, but there's "
@@ -74,11 +74,11 @@ CLAUDE_MD_MODULE = {'key': 'claude-md',
                              'werden beim Start vollständig geladen; Dateien in '
                              'Unterverzeichnissen laden **bei Bedarf**, sobald Claude dort '
                              'arbeitet.',
-                       'en': '## Where CLAUDE.md lives — the scopes\n'
+                       'en': '## Where CLAUDE.md Lives — the Scopes\n'
                              '\n'
                              'CLAUDE.md can live in several places, each with a different scope. '
                              "It's loaded **from broad to specific**, so project-level rules come "
-                             'last (and are thus "closest"):\n'
+                             'last (and are thus “closest”):\n'
                              '\n'
                              '\n'
                              '- **Managed / Policy** — Location: system path (rolled out by IT); '
@@ -97,7 +97,7 @@ CLAUDE_MD_MODULE = {'key': 'claude-md',
              'id': 'diagram-claude-md-scopes',
              'payload': {'kind': 'layers',
                          'title_de': 'CLAUDE.md: vier Scopes in Ladereihenfolge',
-                         'title_en': 'CLAUDE.md: four scopes in load order',
+                         'title_en': 'CLAUDE.md: Four Scopes in Load Order',
                          'caption_de': 'Oben wird zuerst geladen, unten zuletzt gelesen. Alle '
                                        'Dateien werden aneinandergehängt, keine ersetzt die '
                                        'andere.',
@@ -181,7 +181,7 @@ CLAUDE_MD_MODULE = {'key': 'claude-md',
                              '\n'
                              'Und: **Widersprüche vermeiden** — geben zwei Regeln Gegensätzliches '
                              'vor, wählt Claude womöglich willkürlich.',
-                       'en': '## Writing effective instructions\n'
+                       'en': '## Writing Effective Instructions\n'
                              '\n'
                              'CLAUDE.md lands in the context window at every startup and costs '
                              'tokens. So: **keep it short, structured, and concrete.**\n'
@@ -194,12 +194,12 @@ CLAUDE_MD_MODULE = {'key': 'claude-md',
                              'Examples:\n'
                              '\n'
                              '\n'
-                             '- "Format code properly" — better, concrete: "Use 2-space '
-                             'indentation"\n'
-                             '- "Test your changes" — better, concrete: "Run `npm test` before '
-                             'committing"\n'
-                             '- "Keep files organized" — better, concrete: "API handlers live in '
-                             '`src/api/handlers/`"\n'
+                             '- “Format code properly” — better, concrete: “Use 2-space '
+                             'indentation”\n'
+                             '- “Test your changes” — better, concrete: “Run `npm test` before '
+                             'committing”\n'
+                             '- “Keep files organized” — better, concrete: “API handlers live in '
+                             '`src/api/handlers/`”\n'
                              '\n'
                              'And: **avoid contradictions** — if two rules say opposing things, '
                              'Claude may pick one arbitrarily.'}},
@@ -218,7 +218,7 @@ CLAUDE_MD_MODULE = {'key': 'claude-md',
                              'für einen Teil des Codes, gehört er in einen **Skill** (Modul 6) '
                              'oder eine **pfad-spezifische Rule** — nicht in die allgemeine '
                              'CLAUDE.md.',
-                       'en': '## When something belongs in CLAUDE.md\n'
+                       'en': '## When Something Belongs in CLAUDE.md\n'
                              '\n'
                              'A good heuristic — add it when …\n'
                              '\n'
@@ -253,7 +253,7 @@ CLAUDE_MD_MODULE = {'key': 'claude-md',
                              'Rules **ohne** `paths` laden immer (wie `.claude/CLAUDE.md`); Rules '
                              '**mit** `paths` laden nur beim Zugriff auf passende Dateien und '
                              'sparen so Kontext.',
-                       'en': '## Modularizing rules: .claude/rules/\n'
+                       'en': '## Modularizing Rules: .claude/rules/\n'
                              '\n'
                              'For larger projects, instructions can be split into individual files '
                              'under `.claude/rules/` — one per topic (`testing.md`, '
@@ -291,7 +291,7 @@ CLAUDE_MD_MODULE = {'key': 'claude-md',
                              'Imports sparen **keinen** Kontext (die Datei wird trotzdem geladen), '
                              'helfen aber der Organisation. Ein Pfad in Backticks wie `` `@README` '
                              '`` wird *nicht* importiert, sondern bleibt wörtlich.',
-                       'en': '## Imports with @path\n'
+                       'en': '## Imports With @path\n'
                              '\n'
                              "CLAUDE.md can pull in other files — they're loaded along with it at "
                              'startup:\n'
@@ -342,7 +342,7 @@ CLAUDE_MD_MODULE = {'key': 'claude-md',
                              'liest Claude die `AGENTS.md` bei dir nicht mehr. Ob sie geladen ist, '
                              'zeigt `/memory`; das Verhalten stellst du unter `/config` → '
                              '**Project instructions** um.',
-                       'en': '## AGENTS.md: one file for several tools\n'
+                       'en': '## AGENTS.md: One File for Several Tools\n'
                              '\n'
                              'Many repos already have an `AGENTS.md` for other coding agents. '
                              'Current versions of Claude Code read it directly as project '
@@ -443,7 +443,7 @@ CLAUDE_MD_MODULE = {'key': 'claude-md',
                              'du die geladenen CLAUDE.md- und Memory-Dateien; mit `/context` siehst '
                              'du die Kontextfensternutzung — wie viele Tokens Systemprompt, Dateien, '
                              'Tools und Verlauf gerade belegen.',
-                       'en': '## CLAUDE.md vs. auto memory\n'
+                       'en': '## CLAUDE.md vs. Auto Memory\n'
                              '\n'
                              "Besides CLAUDE.md, there's **auto memory**: notes Claude writes for "
                              '*itself* (your preferences and corrections, project context that '
@@ -457,9 +457,9 @@ CLAUDE_MD_MODULE = {'key': 'claude-md',
                              '- Control — CLAUDE.md: manually maintained; auto memory: automatic, '
                              'per repo\n'
                              '\n'
-                             'If you say "remember: we use pnpm, not npm", that goes into '
+                             'If you say “remember: we use pnpm, not npm”, that goes into '
                              'auto memory. If you want it *team-shared*, instead explicitly say '
-                             '"add this to CLAUDE.md". Use `/memory` to view and edit the loaded '
+                             '“add this to CLAUDE.md”. Use `/memory` to view and edit the loaded '
                              'CLAUDE.md and memory files; use `/context` to see context-window usage '
                              '— how many tokens the system prompt, files, tools and history currently '
                              'take up.'}},
@@ -642,7 +642,7 @@ CLAUDE_MD_MODULE = {'key': 'claude-md',
                                          'en': 'You maintain CLAUDE.md with rules and standards, '
                                                'while Claude fills auto memory with its own notes. '
                                                'Both are loaded at the start of every session – so '
-                                               '"never loaded" is wrong.'}},
+                                               '“never loaded” is wrong.'}},
                         {'id': 'cm5',
                          'type': 'single',
                          'prompt': {'de': 'Wozu dient das `paths`-Frontmatter in einer Rule?',
@@ -705,10 +705,10 @@ CLAUDE_MD_MODULE = {'key': 'claude-md',
                          'type': 'multi',
                          'prompt': {'de': 'Eine Rule hat das Frontmatter `paths: '
                                           '["src/api/**/*.ts"]`. Welche Aussagen stimmen? '
-                                          '(mehrere)',
+                                          'Mehrere Antworten sind richtig.',
                                     'en': 'A rule has the frontmatter `paths: '
                                           '["src/api/**/*.ts"]`. Which statements are correct? '
-                                          '(multiple)'},
+                                          'Select all that apply.'},
                          'answer': [0, 1],
                          'options': {'de': ['Sie lädt erst, wenn Claude eine passende Datei liest '
                                             'oder bearbeitet',
@@ -743,7 +743,7 @@ CLAUDE_MD_MODULE = {'key': 'claude-md',
                                           'zu sparen“. Wie beurteilst du das?',
                                     'en': 'Your CLAUDE.md has grown to 600 lines and Claude '
                                           'overlooks rules. Someone suggests moving everything '
-                                          'into subfiles via `@` imports "to save context". How do '
+                                          'into subfiles via `@` imports “to save context.” How do '
                                           'you assess that?'},
                          'answer': 0,
                          'options': {'de': ['Hilft nicht: Importierte Dateien laden trotzdem beim '

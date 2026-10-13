@@ -24,7 +24,7 @@ HOOKS_MODULE = {'key': 'hooks',
                     '(or an HTTP/MCP-tool/prompt/agent call) that Claude Code executes '
                     '**automatically** at fixed points in the lifecycle: formatting after every '
                     'edit, linting before every commit, blocking dangerous commands. Because hooks '
-                    'run independently of what the model "decides", they are the tool of choice '
+                    'run independently of what the model “decides,” they are the tool of choice '
                     'for enforced rules.'},
  'blocks': [{'type': 'text',
              'id': 'text-1',
@@ -101,7 +101,7 @@ HOOKS_MODULE = {'key': 'hooks',
                      'Gezeigt ist nur eine Auswahl der Events.',
              'payload': {'kind': 'sequence',
                          'title_de': 'Ein Turn aus Sicht der Hooks',
-                         'title_en': "One turn from the hooks' point of view",
+                         'title_en': "One Turn From the Hooks' Point of View",
                          'caption_de': 'Auswahl der wichtigsten Events; die Schritte 4–6 '
                                        'wiederholen sich je Tool-Aufruf.',
                          'caption_en': 'A selection of the key events; steps 4–6 repeat for every '
@@ -355,7 +355,7 @@ HOOKS_MODULE = {'key': 'hooks',
                              'A command hook controls what happens via its **exit code**:\n'
                              '\n'
                              '- **0** — Success. If the hook prints a JSON object to stdout, '
-                             'Claude Code applies its fields (e.g. to attach context or to deny '
+                             'Claude Code applies its fields (e.g., to attach context or to deny '
                              'the call); otherwise the action goes ahead.\n'
                              '- **2** — **blocking** error: on events that can block, Claude Code '
                              'stops the action; stderr is the reason. `PreToolUse` prevents the '
@@ -363,7 +363,7 @@ HOOKS_MODULE = {'key': 'hooks',
                              '`PostToolUse` the tool has already run — Claude only gets to see '
                              'stderr.\n'
                              '- **other** — non-blocking error; execution continues. That includes '
-                             '**exit 1** and a hook that does not start at all (e.g. a typo in the '
+                             '**exit 1** and a hook that does not start at all (e.g., a typo in the '
                              'path). To enforce a policy, use `exit 2`; in current versions '
                              '`"onFailure": "block"` on the handler makes a failed hook block as '
                              'well.\n'
@@ -449,7 +449,7 @@ HOOKS_MODULE = {'key': 'hooks',
                              'blindly.\n'
                              '- **Always quote shell variables** — `"$VAR"`, not `$VAR`.\n'
                              '- **Block path traversal** — check file paths for `..`.\n'
-                             '- **Absolute paths for scripts** — e.g. via '
+                             '- **Absolute paths for scripts** — e.g., via '
                              '`${CLAUDE_PROJECT_DIR}`.\n'
                              '- **Skip sensitive files** — `.env`, `.git/`, keys.\n'
                              '\n'
@@ -509,7 +509,7 @@ HOOKS_MODULE = {'key': 'hooks',
                          'items_en': ['Write a script that checks the command',
                                       'End with exit code 2 on violation (blocks)',
                                       'Register it in settings.json under PreToolUse with matcher '
-                                      '"Bash"',
+                                      '“Bash”',
                                       'Test a risky command in a session']}},
             {'type': 'debug',
              'id': 'debug-1',
@@ -521,7 +521,7 @@ HOOKS_MODULE = {'key': 'hooks',
                                       'Hooks können nur beim SessionEnd feuern.'],
                          'lines_en': ['Hooks run independently of what the model decides.',
                                       'Exit code 2 in a PreToolUse hook blocks the action.',
-                                      'The matcher "Write|Edit" matches write and edit tools.',
+                                      'The matcher “Write|Edit” matches write and edit tools.',
                                       'Hooks can only fire on SessionEnd.'],
                          'wrong': [3],
                          'explanation_de': 'Hooks feuern an vielen Lebenszyklus-Ereignissen: '
@@ -614,7 +614,7 @@ HOOKS_MODULE = {'key': 'hooks',
                              'project) and opens them for **editing**; this is also where you '
                              'toggle auto memory on or off.\n'
                              '- **`/context`** — shows the **context-window usage** (how many '
-                             'tokens are taken up by what) and, under “Memory files”, which '
+                             'tokens are taken up by what) and, under “Memory files,” which '
                              'CLAUDE.md files were actually **loaded** at launch. `/memory` is '
                              'for editing, `/context` answers “what is loaded, how full?” — '
                              'the two are easily confused.\n'
@@ -630,8 +630,8 @@ HOOKS_MODULE = {'key': 'hooks',
              'payload': {'prompt_de': 'Welche Regel in deinem Team wird heute nur „hoffentlich“ '
                                       'eingehalten und wäre als Hook (z.B. '
                                       'Lint/Format/Testschranke) besser aufgehoben?',
-                         'prompt_en': 'Which rule on your team is only "hopefully" followed today '
-                                      'and would be better enforced as a hook (e.g. '
+                         'prompt_en': 'Which rule on your team is only “hopefully” followed today '
+                                      'and would be better enforced as a hook (e.g., '
                                       'lint/format/test gate)?'}}],
  'quiz': {'questions': [{'id': 'hk1',
                          'type': 'single',
@@ -772,9 +772,9 @@ HOOKS_MODULE = {'key': 'hooks',
                         {'id': 'hk7',
                          'type': 'multi',
                          'prompt': {'de': 'Ein PreToolUse-Hook soll einen Tool-Aufruf verweigern. '
-                                          'Welche Wege funktionieren? (mehrere)',
+                                          'Welche Wege funktionieren? Mehrere Antworten sind richtig.',
                                     'en': 'A PreToolUse hook should refuse a tool call. Which approaches '
-                                          'work? (multiple)'},
+                                          'work? Select all that apply.'},
                          'answer': [0, 1],
                          'options': {'de': ['Mit Exit-Code 2 enden und die Begründung auf stderr '
                                             'schreiben',
@@ -786,7 +786,7 @@ HOOKS_MODULE = {'key': 'hooks',
                                             'schreiben (ohne `onFailure`-Einstellung)'],
                                      'en': ['Exit with code 2 and write the reason to stderr',
                                             'Exit 0 and print JSON with '
-                                            'hookSpecificOutput.permissionDecision "deny"',
+                                            'hookSpecificOutput.permissionDecision “deny”',
                                             'Write the reason as plain text to stdout and exit 0',
                                             'Exit 1 and write the reason to stderr (without an '
                                             '`onFailure` setting)']},
@@ -798,7 +798,7 @@ HOOKS_MODULE = {'key': 'hooks',
                                                'Hinweis, der Aufruf läuft weiter – blockieren '
                                                'würde er erst mit `"onFailure": "block"`.',
                                          'en': 'Exit 2 with stderr and exit 0 with '
-                                               'permissionDecision "deny" both refuse the call. '
+                                               'permissionDecision “deny” both refuse the call. '
                                                'Plain text on stdout with exit 0 is simply a '
                                                'success. Exit 1 with stderr is a non-blocking '
                                                'error: only a notice appears and the call goes '

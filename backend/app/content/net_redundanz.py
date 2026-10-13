@@ -40,7 +40,7 @@ REDUNDANZ_MODULE = {
         {"type": "text", "id": "text-1",
          "note": "Zwei Ebenen unterscheiden: Schicht 2 (STP, LACP) sichert das Switch-Netz, "
                  "Schicht 3 (VRRP/HSRP) sichert das Gateway. Diese Trennung als roten Faden "
-                 "fuers ganze Modul nutzen.",
+                 "fürs ganze Modul nutzen.",
          "value": {
              "de": "## Redundanz auf zwei Ebenen\n\nWer ein Netz gegen Ausfälle absichern "
                    "will, braucht Redundanz an zwei Stellen: **Schicht 2** — mehrere Kabel "
@@ -112,9 +112,9 @@ REDUNDANZ_MODULE = {
                    "accidentally or maliciously.",
          }},
         {"type": "widget", "id": "redundancy-demo",
-         "note": "Tab 1: Prioritaet eines Switches aendern und die Root-Wahl kippen lassen "
-                 "(Gleichstand -> niedrigste MAC). Tab 2: Leitungen buendeln, eine ausfallen "
-                 "lassen und auf 'eine einzelne grosse Uebertragung' umschalten. Der "
+         "note": "Tab 1: Priorität eines Switches ändern und die Root-Wahl kippen lassen "
+                 "(Gleichstand -> niedrigste MAC). Tab 2: Leitungen bündeln, eine ausfallen "
+                 "lassen und auf 'eine einzelne große Übertragung' umschalten. Der "
                  "Broadcast-Sturm selbst ist in Modul 2 visualisiert; VRRP/HSRP wird nicht "
                  "simuliert."},
         {"type": "text", "id": "text-5",
@@ -235,7 +235,7 @@ REDUNDANZ_MODULE = {
                  "suspendiert — derselbe Fehlertyp wie in der Debug-Aufgabe oben.",
          "payload": {
              "title_de": "Redundanz am Switch sw-lager1 prüfen",
-             "title_en": "Checking redundancy on switch sw-lager1",
+             "title_en": "Checking Redundancy on Switch sw-lager1",
              "intro_de": "sw-lager1 hat zwei Uplinks: das Bündel Po1 zum Kernswitch 1 und Gi1/0/50 zum "
                          "Kernswitch 2. Tippe ? für Hilfe.",
              "intro_en": "sw-lager1 has two uplinks: the bundle Po1 to core switch 1 and Gi1/0/50 to core "
@@ -330,7 +330,7 @@ REDUNDANZ_MODULE = {
                  "(Hello 3 s, Hold 10 s).",
          "payload": {
              "kind": "flow",
-             "title_de": "VRRP: der Master fällt aus", "title_en": "VRRP: the master fails",
+             "title_de": "VRRP: der Master fällt aus", "title_en": "VRRP: the Master Fails",
              "caption_de": "Virtuelles Gateway 192.168.20.1 · virtuelle MAC 0000.5e00.0114 (Gruppe 20)",
              "caption_en": "Virtual gateway 192.168.20.1 · virtual MAC 0000.5e00.0114 (group 20)",
              "nodes": [
@@ -384,7 +384,7 @@ REDUNDANZ_MODULE = {
                  "drei Verfahren ersetzen einander nicht.",
          "payload": {
              "kind": "compare",
-             "title_de": "Drei Verfahren, drei Probleme", "title_en": "Three mechanisms, three problems",
+             "title_de": "Drei Verfahren, drei Probleme", "title_en": "Three Mechanisms, Three Problems",
              "columns": [{"title": "STP / RSTP"}, {"title": "LACP"}, {"title": "VRRP / HSRP"}],
              "rows": [
                  {"label_de": "Schicht", "label_en": "Layer",
@@ -583,9 +583,9 @@ REDUNDANZ_MODULE = {
                    "someone intervenes (or auto-recovery kicks in)."}},
         {"id": "rd8", "type": "multi",
          "prompt": {"de": "Der VRRP-Master fällt aus, der Backup-Router übernimmt. Was bleibt aus Sicht "
-                          "eines Clients unverändert? (mehrere)",
+                          "eines Clients unverändert? Mehrere Antworten sind richtig.",
                     "en": "The VRRP master fails and the backup router takes over. What stays unchanged "
-                          "from a client's point of view? (multiple)"},
+                          "from a client's point of view? Select all that apply."},
          "options": {
              "de": ["Die eingetragene Gateway-IP-Adresse",
                     "Die MAC-Adresse des Gateways im ARP-Cache",

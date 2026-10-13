@@ -10,7 +10,7 @@ ARP_MODULE = {
         "Verstehen, warum ARP am Router endet (Gateway-MAC)",
     ],
     "goals_en": [
-        "Name the gap between IP (layer 3) and MAC (layer 2)",
+        "Name the gap between IP (Layer 3) and MAC (Layer 2)",
         "Explain the ARP sequence broadcast → reply → cache",
         "Understand why ARP ends at the router (gateway MAC)",
     ],
@@ -30,8 +30,8 @@ ARP_MODULE = {
                    "(Schicht 2). Bevor ein Frame rausgeht, muss zur Ziel-**IP** die passende "
                    "Ziel-**MAC** her. Das löst **ARP** (Address Resolution Protocol).",
              "en": "## The Gap Between Layer 3 and 2\n\nApplications "
-                   "work with **IP addresses** (layer 3), the switch only with **MAC addresses** "
-                   "(layer 2). Before a frame goes out, the destination **IP** needs a matching "
+                   "work with **IP addresses** (Layer 3), the switch only with **MAC addresses** "
+                   "(Layer 2). Before a frame goes out, the destination **IP** needs a matching "
                    "destination **MAC**. That's what **ARP** (Address Resolution Protocol) solves.",
          }},
         {"type": "text", "id": "text-2",
@@ -106,10 +106,7 @@ ARP_MODULE = {
                               "switching.",
         }},
         {"type": "widget", "id": "visual-arp-resolution",
-         "note": "DE: Die Auflösung der Gateway-MAC (192.168.10.1) Schritt für Schritt "
-                 "durchgehen: Broadcast-Request, Unicast-Reply, Cache-Eintrag. EN: Step through "
-                 "resolving the gateway MAC (192.168.10.1): broadcast request, unicast reply, "
-                 "cache entry."},
+         "note": "Die Auflösung der Gateway-MAC (192.168.10.1) Schritt für Schritt durchgehen: Broadcast-Request, Unicast-Reply, Cache-Eintrag."},
         {"type": "text", "id": "text-3",
          "value": {
              "de": "## ARP nur im eigenen Netz\n\nARP funktioniert **nur "
@@ -129,7 +126,7 @@ ARP_MODULE = {
          "payload": {
              "kind": "flow",
              "title_de": "Nach wessen MAC fragt der Host?",
-             "title_en": "Whose MAC does the host ask for?",
+             "title_en": "Whose MAC Does the Host Ask for?",
              "caption_de": "PC-A 192.168.10.10/24 will ein Paket senden",
              "caption_en": "PC-A 192.168.10.10/24 wants to send a packet",
              "nodes": [
@@ -174,7 +171,7 @@ ARP_MODULE = {
                   "KEINEN Cache-Eintrag — nur für das Gateway. Zustand: Vor dem Ping fehlt der Gateway-Eintrag im "
                   "Cache, danach steht er drin (Vereinfachung – in der Praxis ist er fast immer schon vorhanden)."),
          "payload": {
-             "title_de": "Den ARP-Cache von PC-A lesen", "title_en": "Reading PC-A's ARP cache",
+             "title_de": "Den ARP-Cache von PC-A lesen", "title_en": "Reading PC-A's ARP Cache",
              "intro_de": "PC-A (192.168.10.10) hat eben PC-B im eigenen Netz angepingt.",
              "intro_en": "PC-A (192.168.10.10) has just pinged PC-B on its own network.",
              "prompt": "C:\\>",
@@ -286,7 +283,7 @@ ARP_MODULE = {
                    "weiter; er hat (als Schicht-2-Gerät) keine eigene Rolle im ARP.",
              "en": "Every host on the segment receives the broadcast, but only the owner of the requested IP "
                    "replies — by unicast straight to the requester. The switch merely forwards the frames; as a "
-                   "layer-2 device it has no role of its own in ARP."}},
+                   "Layer 2 device it has no role of its own in ARP."}},
         {"id": "a4", "type": "single",
          "prompt": {"de": "Das Ziel liegt in einem anderen Netz. Nach wessen MAC fragt der Host per ARP?",
                     "en": "The destination is on a different network. Whose MAC does the host ARP for?"},
@@ -325,7 +322,7 @@ ARP_MODULE = {
                    "gehört dem Gateway, die Ziel-IP bleibt 192.168.20.80. Stünde die Gateway-IP im Paket, "
                    "wüsste der Router nicht, wohin er es weiterleiten soll — und die MAC des Servers kann "
                    "PC-A über die Netzgrenze hinweg gar nicht erfragen.",
-             "en": "Layer 2 addresses only the next step, layer 3 the final destination: the destination "
+             "en": "Layer 2 addresses only the next step, Layer 3 the final destination: the destination "
                    "MAC belongs to the gateway, the destination IP stays 192.168.20.80. If the gateway's "
                    "IP were in the packet, the router would not know where to forward it — and PC-A "
                    "cannot ask for the server's MAC across the network boundary at all."}},

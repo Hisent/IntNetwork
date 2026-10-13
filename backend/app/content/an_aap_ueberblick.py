@@ -47,7 +47,7 @@ AAP_UEBERBLICK_MODULE = {'key': 'automation-platform-ueberblick',
                              'kuratiertes Repository für Collections — ohne dass sich am '
                              'zugrundeliegenden Ansible-Kern (Module, Playbooks, YAML) etwas '
                              'ändert.',
-                       'en': '## Why a platform on top of the core?\n'
+                       'en': '## Why a Platform on Top of the Core?\n'
                              '\n'
                              '`ansible-core` plus collections is enough to write playbooks and run '
                              'them locally. Once several people, recurring schedules, centrally '
@@ -90,7 +90,7 @@ AAP_UEBERBLICK_MODULE = {'key': 'automation-platform-ueberblick',
                              '**Automation Controller**, **Automation Hub**, **Execution '
                              'Environments**, **Automation Mesh** und **Event-Driven Ansible '
                              '(EDA)**.',
-                       'en': '## Control plane and execution plane\n'
+                       'en': '## Control Plane and Execution Plane\n'
                              '\n'
                              'A central architectural idea is the separation of two layers:\n'
                              '\n'
@@ -157,7 +157,7 @@ AAP_UEBERBLICK_MODULE = {'key': 'automation-platform-ueberblick',
                              'through which job templates are launched, credentials are managed, '
                              'and results are reviewed (details in the next module).\n'
                              '\n'
-                             '**Historical note**: Automation Controller is the newer name '
+                             '**Historical note**: Automation controller is the newer name '
                              'for “Ansible Tower” — anyone reading older documentation, forum '
                              'posts, or training material will still often find the old name; '
                              'functionally, it plays the same role in the architecture. Since AAP 2.5 '
@@ -168,7 +168,7 @@ AAP_UEBERBLICK_MODULE = {'key': 'automation-platform-ueberblick',
                              '\n'
                              '**Automation Hub** is the counterpart for content rather than '
                              'execution: a repository for collections, optionally run as a '
-                             '“Private Automation Hub” for offline/on-prem operation. It '
+                             '“private automation hub” for offline/on-prem operation. It '
                              'complements the public Ansible Galaxy with curated or certified '
                              'collections in a controlled, internal source.'}},
             {'type': 'diagram',
@@ -178,7 +178,7 @@ AAP_UEBERBLICK_MODULE = {'key': 'automation-platform-ueberblick',
                      'Container-Registry bereitstellt.',
              'payload': {'kind': 'flow',
                          'title_de': 'Ein Job durch die Plattform',
-                         'title_en': 'A job through the platform',
+                         'title_en': 'A Job Through the Platform',
                          'caption_de': 'Oben die Control Plane, rechts unten die Execution Plane.',
                          'caption_en': 'Control plane at the top, execution plane at the bottom '
                                        'right.',
@@ -320,12 +320,12 @@ AAP_UEBERBLICK_MODULE = {'key': 'automation-platform-ueberblick',
                              'site.yml`), statt sie direkt mit den lokal installierten Versionen '
                              'auf dem Control Node laufen zu lassen. Der Controller nutzt '
                              'dieselben Images für seine Jobs.',
-                       'en': '## Execution Environments: containers instead of a hand-grown '
-                             'control node\n'
+                       'en': '## Execution Environments: Containers Instead of a Hand-Grown '
+                             'Control Node\n'
                              '\n'
                              'Traditionally, `ansible-core`, Python dependencies, and collections '
                              'are installed directly on the control node — over time this '
-                             'becomes a “hand-grown”, hard-to-reproduce system: version A of '
+                             'becomes a “hand-grown,” hard-to-reproduce system: version A of '
                              'collection X runs here, version B there, and nobody quite '
                              'remembers why.\n'
                              '\n'
@@ -353,7 +353,7 @@ AAP_UEBERBLICK_MODULE = {'key': 'automation-platform-ueberblick',
                      'ansible-navigator); Image-IDs, Größen und der Build-Verlauf sind gekürzt '
                      'bzw. erfunden. Im Kurs-Lab gibt es weder podman noch diese Werkzeuge.',
              'payload': {'title_de': 'Ein Execution Environment bauen und benutzen (Simulation)',
-                         'title_en': 'Build and use an execution environment (simulation)',
+                         'title_en': 'Build and Use an Execution Environment (Simulation)',
                          'intro_de': 'Reihenfolge: Definition ansehen → bauen → Image prüfen → '
                                      'Playbook darin ausführen. Vorgriff: cisco.ios und netz_ee '
                                      'gehören zur Netzwerk-Automatisierung (übernächstes Modul).',
@@ -433,7 +433,7 @@ AAP_UEBERBLICK_MODULE = {'key': 'automation-platform-ueberblick',
                                    {'text_de': 'Welches Programm baut das Image tatsächlich (laut '
                                                '„Running command“)?',
                                     'text_en': 'Which program actually builds the image (according '
-                                               'to "Running command")?',
+                                               'to “Running command”)?',
                                     'answers': ['podman', 'podman build']},
                                    {'text_de': 'Führe site.yml im neuen EE aus.',
                                     'text_en': 'Run site.yml inside the new EE.',
@@ -452,7 +452,7 @@ AAP_UEBERBLICK_MODULE = {'key': 'automation-platform-ueberblick',
                                       'löst genau dieses Problem? Erst selbst überlegen.',
                          'teaser_en': 'Exercise: two teams complain that “the playbook behaves '
                                       'differently for us than for the other team, even though '
-                                      'the code is identical”. Which of the components covered '
+                                      'the code is identical.” Which of the components covered '
                                       'so far solves exactly this problem? Think it through '
                                       'yourself first.'},
              'value': {'de': 'Execution Environments. Läuft das Playbook bei beiden Teams in '
@@ -464,7 +464,7 @@ AAP_UEBERBLICK_MODULE = {'key': 'automation-platform-ueberblick',
                              'gemeinsames, reproduzierbares Image gelöst statt durch manuellen '
                              'Versionsabgleich.',
                        'en': 'Execution Environments. If the playbook runs for both teams inside '
-                             'the same execution environment (i.e. the same container image with '
+                             'the same execution environment (i.e., the same container image with '
                              'fixed `ansible-core` and collection versions), different versions '
                              'installed locally on each control node can no longer make '
                              'execution behave differently. The “it ran differently for me” '
@@ -511,15 +511,15 @@ AAP_UEBERBLICK_MODULE = {'key': 'automation-platform-ueberblick',
                              'playbook, a **rulebook** defines three parts:\n'
                              '\n'
                              '\n'
-                             '- **Sources** — event sources (e.g. a monitoring system reports an '
+                             '- **Sources** — event sources (e.g., a monitoring system reports an '
                              'alert)\n'
                              '- **Rules** — conditions checked against incoming events\n'
-                             '- **Actions** — reactions triggered once a condition is met (e.g. '
+                             '- **Actions** — reactions triggered once a condition is met (e.g., '
                              'launching a job template)\n'
                              '\n'
                              'Instead of “I start a playbook because it happens to be Monday, 3 '
                              'a.m.”, the logic here is “I trigger an action because a specific '
-                             'event just occurred”. Rulebooks are executed by the '
+                             'event just occurred.” Rulebooks are executed by the '
                              '`ansible-rulebook` tool or, in the platform, by the Event-Driven '
                              'Ansible controller.'},
              'note': 'AAP 2.7 enthält den Event-Driven Ansible Controller 1.3 (Release Notes 2.7, Stand '
@@ -532,7 +532,7 @@ AAP_UEBERBLICK_MODULE = {'key': 'automation-platform-ueberblick',
                                       'ausgefallenen Dienst, soll das Job-Template „Webdienst neu '
                                       'starten“ laufen. Ergänze das Rulebook.',
                          'prompt_en': 'A monitoring system sends webhooks. When it reports a '
-                                      'failed service, the job template "Webdienst neu starten" '
+                                      'failed service, the job template “Webdienst neu starten” '
                                       'should run. Complete the rulebook.',
                          'mono': True,
                          'text_de': '- name: Auf Monitoring-Alarme reagieren\n'
@@ -641,12 +641,12 @@ AAP_UEBERBLICK_MODULE = {'key': 'automation-platform-ueberblick',
                          'explanation': {'de': 'Aus „Ansible Tower“ wurde mit AAP 2 der Automation '
                                                'Controller. Hub und Mesh sind eigene Komponenten '
                                                'und waren nie Namen für den Controller.',
-                                         'en': 'With AAP 2, "Ansible Tower" became the Automation '
-                                               'Controller. Hub and mesh are components of their '
+                                         'en': 'With AAP 2, “Ansible Tower” became the automation '
+                                               'controller. Hub and mesh are components of their '
                                                'own and were never names for the controller.'},
                          'type': 'single',
                          'prompt': {'de': 'Wie hieß der Automation Controller früher?',
-                                    'en': 'What was the Automation Controller formerly called?'},
+                                    'en': 'What was the automation controller formerly called?'},
                          'answer': 2,
                          'options': {'de': ['Ansible Hub', 'Ansible Mesh', 'Ansible Tower'],
                                      'en': ['Ansible Hub', 'Ansible Mesh', 'Ansible Tower']}},
@@ -711,8 +711,8 @@ AAP_UEBERBLICK_MODULE = {'key': 'automation-platform-ueberblick',
                          'type': 'single',
                          'prompt': {'de': 'Wofür stehen „Hop-Nodes“ im Kontext von Automation '
                                           'Mesh?',
-                                    'en': 'What are “hop nodes” for in the context of Automation '
-                                          'Mesh?'},
+                                    'en': 'What are “hop nodes” for in the context of automation '
+                                          'mesh?'},
                          'answer': 1,
                          'options': {'de': ['Sie verschlüsseln Vault-Passwörter',
                                             'Sie leiten die Verbindung zu Ausführungsknoten in '
@@ -721,7 +721,7 @@ AAP_UEBERBLICK_MODULE = {'key': 'automation-platform-ueberblick',
                                      'en': ['They encrypt vault passwords',
                                             'They route the connection to execution nodes in '
                                             'segmented network zones',
-                                            'They fully replace the Automation Controller']}},
+                                            'They fully replace the automation controller']}},
                         {'id': 'ap6',
                          'type': 'single',
                          'prompt': {'de': 'Ein Rulebook hat die Regel `condition: '
@@ -732,7 +732,7 @@ AAP_UEBERBLICK_MODULE = {'key': 'automation-platform-ueberblick',
                                     'en': 'A rulebook has the rule `condition: '
                                           'event.payload.status == "down"` with the action '
                                           '`run_job_template`. Three webhooks arrive one after another: '
-                                          'status "up", status "down", status "degraded". How many '
+                                          'status “up”, status “down”, status “degraded”. How many '
                                           'times is the job template launched?'},
                          'answer': 1,
                          'options': {'de': ['Gar nicht — Rulebooks starten nur nach Zeitplan',
@@ -758,7 +758,7 @@ AAP_UEBERBLICK_MODULE = {'key': 'automation-platform-ueberblick',
                                           'Automation Hub. Unter welchem Bereich findest du sie?',
                                     'en': 'In the unified interface of the Automation Platform '
                                           '(since 2.5) you are looking for the collections of your '
-                                          'Private Automation Hub. Under which area do you find '
+                                          'private automation hub. Under which area do you find '
                                           'them?'},
                          'answer': 2,
                          'options': {'de': ['Automation Execution',

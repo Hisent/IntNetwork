@@ -90,3 +90,10 @@ export function runSwitchCommand(ports: Port[], raw: string, lang: 'de' | 'en' =
   if (cmd === 'show mac address-table' || cmd === 'show mac add') return showMacTable(ports)
   return `% Invalid input detected\n${lang === 'de' ? 'Tippe ? für die Befehlsliste.' : 'Type ? for the command list.'}`
 }
+
+// Aufgabe des Switch-Simulators: "Port 5 ins VLAN 10, Frame von Port 1 erreicht
+// Port 5". Port 5 muss dafür ACCESS-Port in VLAN 10 sein — ein Trunk mit
+// Native VLAN 10 leitet zwar auch weiter, ist aber nicht "im VLAN 10".
+export function vlanChallengeDone(ports: Port[], source: number | null): boolean {
+  return source === 0 && ports[4].mode === 'access' && ports[4].vlan === 10 && ports[0].vlan === 10
+}

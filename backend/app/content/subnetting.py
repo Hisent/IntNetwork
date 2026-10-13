@@ -34,7 +34,7 @@ SUBNETTING_MODULE = {
                    "- **Hostanteil** — rechts, individuell je Gerät.\n\n"
                    "`/24` heißt: die ersten **24 Bit** sind Netz, die restlichen **8 Bit** Host.",
              "en": "## IP Address & Subnet Mask\n\nAn **IPv4 address** "
-                   "(e.g. `192.168.10.37`) has 32 bits. The **subnet mask** (or the "
+                   "(e.g., `192.168.10.37`) has 32 bits. The **subnet mask** (or the "
                    "**CIDR prefix** `/24`) splits it into two parts:\n\n"
                    "- **Network part** — on the left, identical for every device in the same network.\n"
                    "- **Host part** — on the right, individual per device.\n\n"
@@ -99,7 +99,7 @@ SUBNETTING_MODULE = {
                    "3. **Broadcast**: eine Adresse vor dem nächsten Block (32 + 16 = 48) → "
                    "`172.16.47.255`.\n"
                    "4. **Hosts**: 32 − 20 = 12 Host-Bits → `2^12 − 2 = 4094`.",
-             "en": "## Beyond /24: The Boundary Moves into the Third Octet\n\nFor prefixes "
+             "en": "## Beyond /24: The Boundary Moves Into the Third Octet\n\nFor prefixes "
                    "shorter than `/24`, the boundary between network and host no longer sits at "
                    "the dot but in the middle of the third octet. The calculation stays the same — "
                    "just one position further left:\n\n"
@@ -117,13 +117,13 @@ SUBNETTING_MODULE = {
         {"type": "diagram", "id": "diagram-praefixe-gross",
          "payload": {
              "kind": "compare",
-             "title_de": "Präfixe jenseits von /24", "title_en": "Prefixes beyond /24",
+             "title_de": "Präfixe jenseits von /24", "title_en": "Prefixes Beyond /24",
              "caption_de": "Jedes Bit weniger im Präfix verdoppelt das Netz",
              "caption_en": "Each bit less in the prefix doubles the network",
              "columns": [
                  {"title_de": "Maske", "title_en": "Mask"},
-                 {"title_de": "Schrittweite im 3. Oktett", "title_en": "Block size in 3rd octet"},
-                 {"title_de": "Nutzbare Hosts", "title_en": "Usable hosts"},
+                 {"title_de": "Schrittweite im 3. Oktett", "title_en": "Block Size in 3rd Octet"},
+                 {"title_de": "Nutzbare Hosts", "title_en": "Usable Hosts"},
              ],
              "rows": [
                  {"label": "/23", "values": ["255.255.254.0", "2", "510"]},
@@ -166,9 +166,7 @@ SUBNETTING_MODULE = {
                                "host bits give 2^11 − 2 = 2046 usable addresses.",
          }},
         {"type": "widget", "id": "visual-bitmask",
-         "note": "DE: Präfix-Slider /8–/30 durchgehen und Binärform, Dezimalform und "
-                 "nutzbare Hosts synchron vergleichen. EN: Step through the /8–/30 prefix "
-                 "slider and compare binary form, decimal form and usable hosts in sync."},
+         "note": "Präfix-Slider /8–/30 durchgehen und Binärform, Dezimalform und nutzbare Hosts synchron vergleichen."},
         {"type": "widget", "id": "visual-subnet-map",
          "note": "Ein /24 visuell bis /28 teilen und die entstehenden Netze vergleichen."},
         {"type": "widget", "id": "learning-subnet", "note": "Kleinste passende Subnetze für Abteilungen planen."},
@@ -197,7 +195,7 @@ SUBNETTING_MODULE = {
                    "this by calculating the network part for **its own IP** and the **destination IP** "
                    "(IP address AND mask).\n\n"
                    "- **Same result:** Both devices are in the same subnet. The packet goes directly "
-                   "to the destination host; the switch forwards it at layer 2.\n"
+                   "to the destination host; the switch forwards it at Layer 2.\n"
                    "- **Different result:** The destination is in another subnet. The packet first "
                    "goes to the **default gateway** (the router), which forwards it.\n\n"
                    "Example: `192.168.10.37/24` reaches `192.168.10.80` directly. For "
@@ -268,7 +266,7 @@ SUBNETTING_MODULE = {
              "de": "32 − 22 = 10 Host-Bits, also 2^10 = 1024 Adressen, minus Netzadresse und Broadcast = "
                    "1022. Ein /22 fasst damit vier /24 zusammen — aber nicht 4 × 254 = 1016, denn die "
                    "inneren Netz- und Broadcast-Adressen werden zu normalen Hosts.",
-             "en": "32 − 22 = 10 host bits, i.e. 2^10 = 1024 addresses, minus network address and "
+             "en": "32 − 22 = 10 host bits, i.e., 2^10 = 1024 addresses, minus network address and "
                    "broadcast = 1022. A /22 thus combines four /24s — but not 4 × 254 = 1016, because the "
                    "inner network and broadcast addresses become ordinary hosts."}},
         {"id": "n6", "type": "single",
@@ -296,9 +294,9 @@ SUBNETTING_MODULE = {
                    "are misleading — they are only decisive for /24."}},
         {"id": "n7", "type": "multi",
          "prompt": {"de": "Welche dieser Adressen kann man im Netz 192.168.10.64/27 an ein Gerät "
-                          "vergeben? (mehrere)",
+                          "vergeben? Mehrere Antworten sind richtig.",
                     "en": "Which of these addresses can be assigned to a device in the network "
-                          "192.168.10.64/27? (multiple)"},
+                          "192.168.10.64/27? Select all that apply."},
          "options": {
              "de": ["192.168.10.64", "192.168.10.65", "192.168.10.94", "192.168.10.95", "192.168.10.96"],
              "en": ["192.168.10.64", "192.168.10.65", "192.168.10.94", "192.168.10.95", "192.168.10.96"],

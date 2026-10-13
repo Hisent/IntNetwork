@@ -56,7 +56,7 @@ ROLLEN_MODULE = {
                              'Ansible findet diese Dateien automatisch anhand des '
                              'Verzeichnisnamens — ohne diese Konvention müsste jeder Pfad '
                              'einzeln im Playbook angegeben werden.',
-                       'en': '## The standard directory layout\n'
+                       'en': '## The Standard Directory Layout\n'
                              '\n'
                              '```text\n'
                              'roles/webserver/\n'
@@ -86,7 +86,7 @@ ROLLEN_MODULE = {
              'id': 'diagram-rollen-struktur',
              'payload': {'kind': 'layers',
                          'title_de': 'Eine Rolle: sieben Verzeichnisse, sieben Aufgaben',
-                         'title_en': 'A role: seven directories, seven jobs',
+                         'title_en': 'A Role: Seven Directories, Seven Jobs',
                          'caption_de': 'Anklicken für Details. Ansible lädt jeweils main.yml '
                                        'automatisch.',
                          'caption_en': 'Click for details. Ansible loads main.yml in each '
@@ -140,7 +140,7 @@ ROLLEN_MODULE = {
                                      'detail_en': 'dependencies: lists roles that run before this '
                                                   'role.'}]}},
             {'type': 'text', 'id': 'text-2',
-             'note': 'Gute Stelle fuer die Frage, ab wann sich eine Rolle lohnt. Faustregel im Kurs: sobald dieselbe Aufgabe in einem zweiten Playbook auftaucht.',
+             'note': 'Gute Stelle für die Frage, ab wann sich eine Rolle lohnt. Faustregel im Kurs: sobald dieselbe Aufgabe in einem zweiten Playbook auftaucht.',
              'value': {'de': '## defaults vs. vars — die Priorität entscheidet\n'
                              '\n'
                              '- `defaults/main.yml` — **niedrigste** Priorität aller '
@@ -157,11 +157,11 @@ ROLLEN_MODULE = {
                              '`meta/main.yml` kann zusätzlich Abhängigkeiten zu anderen Rollen '
                              'deklarieren (`dependencies:`) — diese werden vor der eigenen Rolle '
                              'ausgeführt.',
-                       'en': '## defaults vs. vars — precedence decides\n'
+                       'en': '## defaults vs. vars — Precedence Decides\n'
                              '\n'
                              '- `defaults/main.yml` — the **lowest** precedence of all variable '
                              'sources. Meant for default values that role users are expected to '
-                             'deliberately override (e.g. `http_port: 80`).\n'
+                             'deliberately override (e.g., `http_port: 80`).\n'
                              '- `vars/main.yml` — much **higher** precedence, meant for '
                              'role-internal values that should not be accidentally overridden '
                              'from the outside.\n'
@@ -204,7 +204,7 @@ ROLLEN_MODULE = {
                      'die Kommentarzeilen des Gerüsts weggelassen. Im Lab nicht ausführbar — es '
                      'startet nur ansible-playbook.',
              'payload': {'title_de': 'Ein Rollen-Gerüst erzeugen',
-                         'title_en': 'Generate a role skeleton',
+                         'title_en': 'Generate a Role Skeleton',
                          'intro_de': 'Du stehst im Verzeichnis roles/ eines Projekts. Beginne mit '
                                      'ansible-galaxy role init webserver.',
                          'intro_en': 'You are in the roles/ directory of a project. Start with '
@@ -301,7 +301,7 @@ ROLLEN_MODULE = {
                              'die Rolle nur bedingt (`when`) oder wiederholt (`loop`) laufen '
                              'soll. `import_role` unterstützt dafür kein `loop`, `include_role` '
                              'schon.',
-                       'en': '## Including roles\n'
+                       'en': '## Including Roles\n'
                              '\n'
                              'Two common approaches:\n'
                              '\n'
@@ -333,7 +333,7 @@ ROLLEN_MODULE = {
              'id': 'diagram-include-import',
              'payload': {'kind': 'compare',
                          'title_de': 'Drei Wege, eine Rolle einzubinden',
-                         'title_en': 'Three ways to use a role',
+                         'title_en': 'Three Ways to Use a Role',
                          'columns': [{'title': 'roles:'},
                                      {'title': 'import_role'},
                                      {'title': 'include_role'}],
@@ -434,7 +434,7 @@ ROLLEN_MODULE = {
                                     '    - name: Monitoring in production only\n'
                                     '      ansible.builtin.[[include]]:\n'
                                     '        [[name]]: monitoring\n'
-                                    '      when: umgebung == "produktion"',
+                                    '      when: environment == "production"',
                          'gaps': [{'id': 'roles', 'accept': ['roles']},
                                   {'id': 'role', 'accept': ['role', 'name']},
                                   {'id': 'include',
@@ -467,7 +467,7 @@ ROLLEN_MODULE = {
                              'Für ein einmaliges, kurzes Playbook ohne Wiederverwendungsbedarf '
                              'lohnt sich der zusätzliche Strukturaufwand einer Rolle dagegen '
                              'meist nicht.',
-                       'en': '## Reusability, and when a role pays off\n'
+                       'en': '## Reusability, and when a Role Pays Off\n'
                              '\n'
                              'Roles pay off especially when at least one of these applies:\n'
                              '\n'
@@ -513,8 +513,8 @@ ROLLEN_MODULE = {
                                       'für eine eigene Rolle — und welche Werte würdest du dafür '
                                       'unter defaults ablegen?',
                          'prompt_en': 'Think of a playbook from your environment: which task '
-                                      'block in it (e.g. "database setup" or "install '
-                                      'monitoring agent") would be a good candidate for its own '
+                                      'block in it (e.g., “database setup” or “install '
+                                      'monitoring agent”) would be a good candidate for its own '
                                       'role — and which values would you put under defaults for '
                                       'it?'}}],
  'quiz': {'questions': [{'id': 'ro1',
@@ -574,7 +574,7 @@ ROLLEN_MODULE = {
                                      'en': ['A fully populated production-ready role',
                                             'The role\'s standard directory scaffold with empty '
                                             'main.yml files',
-                                            'A connection to Ansible Galaxy on the internet',
+                                            'A connection to Ansible Galaxy on the Internet',
                                             'An executable playbook file']}},
                         {'id': 'ro4',
                          'explanation': {'de': '`include_role` wird erst zur Laufzeit ausgewertet '
@@ -671,10 +671,10 @@ ROLLEN_MODULE = {
                                     'en': 'What happens with this task?\n'
                                           '\n'
                                           '```yaml\n'
-                                          '- name: Rolle je Instanz anwenden\n'
+                                          '- name: Apply role per instance\n'
                                           '  ansible.builtin.import_role:\n'
                                           '    name: app\n'
-                                          '  loop: [blau, gruen]\n'
+                                          '  loop: [blue, green]\n'
                                           '```'},
                          'answer': 2,
                          'options': {'de': ['Die Rolle läuft zweimal, einmal je Element',
@@ -693,9 +693,9 @@ ROLLEN_MODULE = {
                                                'Import wird beim Einlesen fest eingebaut — zu '
                                                'diesem Zeitpunkt gibt es noch keine Schleife, die '
                                                'ihn vervielfachen könnte.',
-                                         'en': 'Ansible aborts with "You cannot use loops on '
+                                         'en': 'Ansible aborts with “You cannot use loops on '
                                                "'import_role' statements. You should use "
-                                               '\'include_role\' instead." (verified in a real run). '
+                                               '\'include_role\' instead.” (verified in a real run). '
                                                'An import is inserted at parse time — at that '
                                                'point there is no loop yet that could multiply '
                                                'it.'}},
@@ -704,7 +704,7 @@ ROLLEN_MODULE = {
                          'prompt': {'de': 'In einem Play steht zuerst `tasks:` mit einem Task „A“ '
                                           'und darunter `roles:` mit der Rolle `basis`. In welcher '
                                           'Reihenfolge läuft das Play?',
-                                    'en': 'In a play, `tasks:` with a task "A" comes first and '
+                                    'en': 'In a play, `tasks:` with a task “A” comes first and '
                                           '`roles:` with the role `basis` below it. In which order '
                                           'does the play run?'},
                          'answer': 1,

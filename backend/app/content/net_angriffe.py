@@ -34,7 +34,7 @@ NETZ_ANGRIFFE_MODULE = {
               "sind — und wie man sich dagegen wehrt.",
         "en": "Nordwind's IT team notices strange network traffic: a laptop on the office VLAN "
               "keeps briefly losing its Internet connection, and the login of an internal tool "
-              "shows a password that should never have been visible in plain text. Time to "
+              "shows a password that should never have been visible in cleartext. Time to "
               "look at what attacks are even possible inside your own network — and how to "
               "defend against them.",
     },
@@ -50,9 +50,9 @@ NETZ_ANGRIFFE_MODULE = {
                    "oft schon **hinter** dieser Grenze. Die folgenden Angriffe funktionieren "
                    "deshalb rein lokal, ganz ohne Zugriff von außen.",
              "en": "## Attacks Don't Need Access From Outside\n\nA firewall (module 12) mainly "
-                   "protects the **border** to the Internet. Inside your own network, "
+                   "protects the **edge** to the Internet. Inside your own network, "
                    "different rules apply — anyone who connects via Wi-Fi or cable often "
-                   "already sits **behind** that border. The following attacks therefore work "
+                   "already sits **behind** that edge. The following attacks therefore work "
                    "purely locally, with no access from outside at all.",
          }},
         {"type": "text", "id": "text-2",
@@ -82,7 +82,7 @@ NETZ_ANGRIFFE_MODULE = {
          "payload": {
              "kind": "flow",
              "title_de": "ARP-Spoofing: Schritt für Schritt in die Mitte",
-             "title_en": "ARP spoofing: step by step into the middle",
+             "title_en": "ARP Spoofing: Step by Step Into the Middle",
              "caption_de": "Büro-VLAN 192.168.20.0/24",
              "caption_en": "Office VLAN 192.168.20.0/24",
              "nodes": [
@@ -228,7 +228,7 @@ NETZ_ANGRIFFE_MODULE = {
                  "Zum Ende nachfragen: Was ist mit den Passwörtern, die schon mitgelesen wurden?",
          "payload": {
              "title_de": "Verdacht auf ARP-Spoofing im Büro-VLAN",
-             "title_en": "Suspected ARP spoofing on the office VLAN",
+             "title_en": "Suspected ARP Spoofing on the Office VLAN",
              "start": "start",
              "nodes": [
                  {"id": "start",
@@ -339,7 +339,7 @@ NETZ_ANGRIFFE_MODULE = {
                   "192.168.20.1 aus. Gi1/0/48 ist der Uplink zum Kernswitch."),
          "payload": {
              "title_de": "DHCP Snooping und DAI am Switch sw-buero1",
-             "title_en": "DHCP snooping and DAI on switch sw-buero1",
+             "title_en": "DHCP Snooping and DAI on Switch sw-buero1",
              "intro_de": "Nach dem Vorfall: Auf sw-buero1 sind DHCP Snooping und DAI für VLAN 20 jetzt aktiv. Tippe ? für Hilfe.",
              "intro_en": "After the incident: DHCP snooping and DAI are now active for VLAN 20 on sw-buero1. Type ? for help.",
              "prompt": "sw-buero1#", "abbreviations": True,
@@ -588,8 +588,8 @@ NETZ_ANGRIFFE_MODULE = {
                    "table there is no valid pair — and whatever is not backed by a binding gets dropped on untrusted "
                    "ports. DAI does not learn on its own. So introduce DHCP snooping first, then DAI."}},
         {"id": "na7", "type": "multi",
-         "prompt": {"de": "Welche Beobachtungen deuten auf ARP-Spoofing hin? (mehrere)",
-                    "en": "Which observations point to ARP spoofing? (multiple)"},
+         "prompt": {"de": "Welche Beobachtungen deuten auf ARP-Spoofing hin? Mehrere Antworten sind richtig.",
+                    "en": "Which observations point to ARP spoofing? Select all that apply."},
          "options": {
              "de": ["Die Gateway-IP steht im ARP-Cache plötzlich mit einer anderen MAC",
                     "Im ARP-Cache haben das Gateway und ein Client dieselbe MAC-Adresse",

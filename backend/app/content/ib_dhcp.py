@@ -53,8 +53,8 @@ DHCP_INFOBLOX_MODULE = {
                     'DHCP objects in NIOS are structured hierarchically, from the broad framework '
                     'down to the individual address:\n'
                     '\n'
-                    '- **Network container** — groups several networks into a parent address block (e.g. 10.20.0.0/16 for one site). No addresses are assigned from the container itself — that happens in the networks and ranges below it.\n'
-                    '- **Network** — the actual address space (e.g. 10.20.30.0/24), assigned '
+                    '- **Network container** — groups several networks into a parent address block (e.g., 10.20.0.0/16 for one site). No addresses are assigned from the container itself — that happens in the networks and ranges below it.\n'
+                    '- **Network** — the actual address space (e.g., 10.20.30.0/24), assigned '
                     'to one or more Grid members, carrying the basic DHCP properties.\n'
                     '- **Range** — a sub-section of the network from which addresses are '
                     'assigned dynamically to clients.\n'
@@ -85,7 +85,7 @@ DHCP_INFOBLOX_MODULE = {
                     'getrennte Netzwerke anlegen zu müssen.'),
              'en': ('## Ranges, Exclusion Ranges and Fixed Addresses\n'
                     '\n'
-                    '- **Range** — e.g. 10.20.30.100–10.20.30.200: the part of the network '
+                    '- **Range** — e.g., 10.20.30.100–10.20.30.200: the part of the network '
                     'the server assigns addresses from dynamically.\n'
                     '- **Exclusion range** — a sub-section *within* a range that is excluded '
                     'from dynamic assignment, for example because devices there are '
@@ -151,7 +151,7 @@ DHCP_INFOBLOX_MODULE = {
             "payload": {
                 "kind": "layers",
                 "title_de": "Vererbung am Beispiel der Lease-Zeit",
-                "title_en": "Inheritance, using the lease time as an example",
+                "title_en": "Inheritance, Using the Lease Time as an Example",
                 "caption_de": "Rechts steht der Wert, der auf der jeweiligen Ebene wirksam ist.",
                 "caption_en": "The value effective at each level is shown on the right.",
                 "layers": [
@@ -247,7 +247,7 @@ DHCP_INFOBLOX_MODULE = {
                     'properties. Choosing it is a trade-off:\n'
                     '\n'
                     '- **Short lease time** — addresses free up faster, useful under high '
-                    'turnover (e.g. guest Wi-Fi), but more renewal traffic.\n'
+                    'turnover (e.g., guest Wi-Fi), but more renewal traffic.\n'
                     '- **Long lease time** — less overhead, but an address stays assigned to '
                     'a client for longer, even once that client is long gone from the '
                     'network.\n'
@@ -326,7 +326,7 @@ DHCP_INFOBLOX_MODULE = {
                      "und beide dig-Befehle leere Antworten, danach Lease, PTR und A-Eintrag."),
             "payload": {
                 "title_de": "Einer Lease folgen: Client, WAPI, DNS",
-                "title_en": "Following a lease: client, WAPI, DNS",
+                "title_en": "Following a Lease: Client, WAPI, DNS",
                 "intro_de": "Linux-Notebook nb-keller im Netz 10.20.30.0/24. Ausgaben gekürzt.",
                 "intro_en": "Linux laptop nb-keller on the network 10.20.30.0/24. Output shortened.",
                 "prompt": "keller@nb-keller:~$",
@@ -453,7 +453,7 @@ DHCP_INFOBLOX_MODULE = {
         {'id': 'dg3',
          "explanation": {
              "de": "Die speziellste Ebene mit eigener Einstellung gewinnt: hier der Bereich. Geerbt wird nur, wo nichts Eigenes gesetzt ist — „immer der Grid-Wert“ verkennt, dass der Grid-Wert nur der Ausgangspunkt ist.",
-             "en": "The most specific level with its own setting wins: here the range. Inheritance only applies where nothing is set locally — \"always the Grid value\" overlooks that the Grid value is merely the starting point.",
+             "en": "The most specific level with its own setting wins: here the range. Inheritance only applies where nothing is set locally — “always the Grid value” overlooks that the Grid value is merely the starting point.",
          },
          'type': 'single',
          'prompt': {'de': ('Ein Bereich hat eine eigene, explizite Lease-Zeit-Einstellung, '
@@ -471,8 +471,8 @@ DHCP_INFOBLOX_MODULE = {
              "en": "DDNS maintains A/AAAA and PTR records to match the lease so that nobody has to update the zone by hand. It complements DHCP rather than replacing it, and is meant precisely for dynamically assigned addresses.",
          },
          'type': 'multi',
-         'prompt': {'de': 'Welche Aussagen zu DDNS treffen zu? (mehrere)',
-                    'en': 'Which statements about DDNS are true? (multiple)'},
+         'prompt': {'de': 'Welche Aussagen zu DDNS treffen zu? Mehrere Antworten sind richtig.',
+                    'en': 'Which statements about DDNS are true? Select all that apply.'},
          'answer': [0, 2],
          'options': {'de': ['DDNS aktualisiert automatisch A/AAAA- und PTR-Einträge bei neuer Lease-Vergabe',
                             'DDNS ersetzt die Notwendigkeit von DHCP vollständig',

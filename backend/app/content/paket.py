@@ -11,7 +11,7 @@ PAKET_MODULE = {
     ],
     "goals_en": [
         "Understand the structure of an Ethernet frame and the role of its headers",
-        "Follow the OSI layer model and encapsulation",
+        "Follow the OSI model and encapsulation",
         "Know where the VLAN information (802.1Q) sits in the frame",
     ],
     "scenario": {
@@ -54,8 +54,8 @@ PAKET_MODULE = {
                    "structure. The most important fields:\n\n"
                    "- **Destination MAC** (6 B): who the frame is going to.\n"
                    "- **Source MAC** (6 B): who it's from.\n"
-                   "- **EtherType** (2 B): what's inside the payload (e.g. 0x0800 = IPv4).\n"
-                   "- **Payload** (46–1500 B): the actual data (e.g. an IP packet).\n"
+                   "- **EtherType** (2 B): what's inside the payload (e.g., 0x0800 = IPv4).\n"
+                   "- **Payload** (46–1500 B): the actual data (e.g., an IP packet).\n"
                    "- **FCS** (4 B): checksum for error detection.",
          }},
         {"type": "widget", "id": "frame-builder"},
@@ -81,9 +81,9 @@ PAKET_MODULE = {
              "explanation_de": "Jede Schicht hat ihre eigene Adresse: Der Switch liest die MAC (Schicht 2), "
                                "der Router die IP (Schicht 3), das Betriebssystem des Ziels den Port "
                                "(Schicht 4). Die HTTP-Anfrage selbst steckt ganz innen als Nutzlast.",
-             "explanation_en": "Every layer has its own address: the switch reads the MAC (layer 2), the "
-                               "router the IP (layer 3), the destination's operating system the port "
-                               "(layer 4). The HTTP request itself sits innermost as the payload.",
+             "explanation_en": "Every layer has its own address: the switch reads the MAC (Layer 2), the "
+                               "router the IP (Layer 3), the destination's operating system the port "
+                               "(Layer 4). The HTTP request itself sits innermost as the payload.",
          }},
         {"type": "check", "id": "check-1", "payload": {
             "prompt_de": "Wofür ist die FCS am Ende des Frames da?",
@@ -111,7 +111,7 @@ PAKET_MODULE = {
          "payload": {
              "kind": "layers",
              "title_de": "Ethernet-Frame mit 802.1Q-Tag: Felder in Sendereihenfolge",
-             "title_en": "Ethernet frame with 802.1Q tag: fields in transmission order",
+             "title_en": "Ethernet Frame With 802.1Q Tag: Fields in Transmission Order",
              "caption_de": "Von oben (zuerst auf dem Kabel) nach unten (zuletzt). Anklicken für Details.",
              "caption_en": "From top (first on the wire) to bottom (last). Click for details.",
              "layers": [
@@ -131,7 +131,7 @@ PAKET_MODULE = {
                                "values; 0 and 4095 are reserved, VLANs 1–4094 are usable."},
                  {"name": "EtherType", "pdu": "2 B",
                   "content_de": "Protokoll im Payload, z. B. 0x0800 = IPv4",
-                  "content_en": "Protocol in the payload, e.g. 0x0800 = IPv4"},
+                  "content_en": "Protocol in the payload, e.g., 0x0800 = IPv4"},
                  {"name": "Payload", "pdu": "42–1500 B",
                   "content_de": "Nutzdaten, typisch ein IP-Paket",
                   "content_en": "The data, typically an IP packet",
@@ -166,7 +166,7 @@ PAKET_MODULE = {
                    "Reihenfolge ist also „an wen, von wem“, nicht umgekehrt.",
              "en": "The destination MAC comes first: a switch can decide which port the frame goes to after "
                    "just the first 6 bytes. The source MAC only follows after that — the order is “to whom, "
-                   "from whom”, not the other way around."}},
+                   "from whom,” not the other way around."}},
         {"id": "p2", "type": "single",
          "prompt": {"de": "Wie groß ist eine MAC-Adresse?", "en": "How large is a MAC address?"},
          "options": {
@@ -178,7 +178,7 @@ PAKET_MODULE = {
              "de": "Eine MAC-Adresse hat 48 Bit, also 6 Byte — geschrieben als sechs Hex-Paare wie "
                    "00:11:22:33:44:55. 4 Byte ist die Länge einer IPv4-Adresse; das ist die häufigste "
                    "Verwechslung.",
-             "en": "A MAC address has 48 bits, i.e. 6 bytes — written as six hex pairs such as "
+             "en": "A MAC address has 48 bits, i.e., 6 bytes — written as six hex pairs such as "
                    "00:11:22:33:44:55. 4 bytes is the length of an IPv4 address; that is the most common "
                    "mix-up."}},
         {"id": "p3", "type": "single",
@@ -197,7 +197,7 @@ PAKET_MODULE = {
                    "sichtbar.",
              "en": "The tag sits after the two MAC addresses, right before the original EtherType. Where a "
                    "switch would otherwise read the EtherType it finds 0x8100 and recognizes the tag. Inside "
-                   "the payload, the VLAN information would not be visible in the header for layer-2 "
+                   "the payload, the VLAN information would not be visible in the header for Layer 2 "
                    "forwarding."}},
         {"id": "p4", "type": "number",
          "prompt": {"de": "Wie viele Byte ist der 802.1Q-Tag groß?",
@@ -222,8 +222,8 @@ PAKET_MODULE = {
                    "1518 bytes. Answering 1500 forgets the 18 bytes of framing: 1500 is only the payload "
                    "(MTU). With an 802.1Q tag it would be 1522."}},
         {"id": "p7", "type": "multi",
-         "prompt": {"de": "Welche Aussagen zur Kapselung stimmen? (mehrere)",
-                    "en": "Which statements about encapsulation are true? (multiple)"},
+         "prompt": {"de": "Welche Aussagen zur Kapselung stimmen? Mehrere Antworten sind richtig.",
+                    "en": "Which statements about encapsulation are true? Select all that apply."},
          "options": {
              "de": ["Ein TCP-Segment wird als Nutzlast in ein IP-Paket gepackt",
                     "Ein IP-Paket ist die Payload eines Ethernet-Frames",

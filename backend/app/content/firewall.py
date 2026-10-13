@@ -10,7 +10,7 @@ FIREWALL_MODULE = {
         "Das Stateful-Prinzip einordnen: Antworten auf erlaubte Verbindungen brauchen keine eigene Regel",
     ],
     "goals_en": [
-        "Name the job of a firewall at the network border",
+        "Name the job of a firewall at the network perimeter",
         "Explain rule order and default deny",
         "Understand the stateful principle: replies to allowed connections need no rule of their own",
     ],
@@ -21,7 +21,7 @@ FIREWALL_MODULE = {
               "und raus darf?",
         "en": "Nordwind is connected to the Internet. The web server should be "
               "reachable, remote administration only for admins, and outdated insecure "
-              "services not at all. Who decides at the border which traffic gets "
+              "services not at all. Who decides at the perimeter which traffic gets "
               "in and out?",
     },
     "blocks": [
@@ -68,11 +68,7 @@ FIREWALL_MODULE = {
         {"type": "widget", "id": "visual-firewall-flow",
          "note": "Pakete Regel für Regel bis zum ersten Treffer verfolgen."},
         {"type": "widget", "id": "visual-stateful-firewall",
-         "note": "DE: Erlaubte ausgehende Verbindung erzeugt einen State-Eintrag, die "
-                 "Antwort passiert ohne eigene Regel; externes SYN ohne State fällt unter "
-                 "Default-Deny. EN: An allowed outbound connection creates a state entry, "
-                 "the reply passes without its own rule; external SYN without state falls "
-                 "under default deny."},
+         "note": "Erlaubte ausgehende Verbindung erzeugt einen State-Eintrag, die Antwort passiert ohne eigene Regel; externes SYN ohne State fällt unter Default-Deny."},
         {"type": "widget", "id": "learning-policy", "note": "Eine minimale Policy für Gäste und Büro bauen."},
         {"type": "text", "id": "text-4",
          "value": {
@@ -92,7 +88,10 @@ FIREWALL_MODULE = {
              "de": "## Zonen und DMZ\n\nEine Firewall trennt selten nur „innen“ von „außen“. Üblich sind "
                    "mindestens drei **Zonen**: das **Internet** (nicht vertrauenswürdig), das **interne "
                    "LAN** und eine **DMZ** (demilitarisierte Zone) für Server, die von außen erreichbar "
-                   "sein müssen — bei Nordwind der Webserver des Kundenportals (`192.168.30.80`).\n\n"
+                   "sein müssen — bei Nordwind der Webserver des Kundenportals (`192.168.30.80` im DMZ-Netz "
+                   "192.168.30.0/24, VLAN 30). Von außen heißt er `portal.nordwind-logistik.de` und ist über "
+                   "die NAT-Adresse `203.0.113.10` des Routers erreichbar; die Firmen-Website `www` läuft "
+                   "getrennt davon auf einem eigenen Server (`203.0.113.11`).\n\n"
                    "Der Gedanke dahinter: Ein aus dem Internet erreichbarer Server ist das wahrscheinlichste "
                    "Einfallstor. Steht er in einer eigenen Zone, entscheidet die Firewall auch über den Weg "
                    "**DMZ → LAN** — und der bleibt bis auf gezielt freigegebene Ports gesperrt. Regeln "
@@ -100,7 +99,10 @@ FIREWALL_MODULE = {
              "en": "## Zones and DMZ\n\nA firewall rarely separates just “inside” from “outside”. At least "
                    "three **zones** are common: the **Internet** (untrusted), the **internal LAN** and a "
                    "**DMZ** (demilitarized zone) for servers that must be reachable from outside — at "
-                   "Nordwind the web server of the customer portal (`192.168.30.80`).\n\n"
+                   "Nordwind the web server of the customer portal (`192.168.30.80` on the DMZ network "
+                   "192.168.30.0/24, VLAN 30). From outside it is called `portal.nordwind-logistik.de` and is "
+                   "reached via the router's NAT address `203.0.113.10`; the company website `www` runs "
+                   "separately on a server of its own (`203.0.113.11`).\n\n"
                    "The idea behind it: a server reachable from the Internet is the most likely way in. If "
                    "it sits in a zone of its own, the firewall also controls the path **DMZ → LAN** — "
                    "and that stays closed except for specifically opened ports. Rules therefore always "
@@ -111,7 +113,7 @@ FIREWALL_MODULE = {
                  "der Webserver gehackt wird, er aber nicht frei ins LAN darf?",
          "payload": {
              "kind": "flow",
-             "title_de": "Drei Zonen, vier Richtungen", "title_en": "Three zones, four directions",
+             "title_de": "Drei Zonen, vier Richtungen", "title_en": "Three Zones, Four Directions",
              "nodes": [
                  {"id": "inet", "shape": "cloud", "row": 0, "col": 0, "label": "Internet"},
                  {"id": "fw", "shape": "firewall", "row": 0, "col": 1, "label": "Firewall"},
@@ -195,7 +197,7 @@ FIREWALL_MODULE = {
                  "eingrenzen statt Verbote davorzusetzen.",
          "payload": {
              "title_de": "Telnet kommt durch — trotz deny-Regel",
-             "title_en": "Telnet gets through — despite a deny rule",
+             "title_en": "Telnet Gets Through — Despite a Deny Rule",
              "start": "start",
              "nodes": [
                  {"id": "start",
@@ -265,7 +267,7 @@ FIREWALL_MODULE = {
          "answer": 1,
          "explanation": {
              "de": "Klassische Paketfilter entscheiden anhand von IP-Adressen, Protokoll (TCP/UDP) und Port. Die MAC-Adresse taugt an der Netzgrenze nicht: Sie wird an jedem Router ersetzt und sagt nichts über den eigentlichen Absender aus.",
-             "en": "Classic packet filters decide based on IP addresses, protocol (TCP/UDP) and port. The MAC address is useless at the network border: it is replaced at every router and says nothing about the actual sender."}},
+             "en": "Classic packet filters decide based on IP addresses, protocol (TCP/UDP) and port. The MAC address is useless at the network perimeter: it is replaced at every router and says nothing about the actual sender."}},
         {"id": "f2", "type": "single",
          "prompt": {"de": "Welche Regel entscheidet bei mehreren passenden in diesem Simulator?",
                     "en": "Which rule decides when several match in this simulator?"},
@@ -322,14 +324,14 @@ FIREWALL_MODULE = {
              "de": "Bei „erste passende Regel“ zählt die Position, nicht die Genauigkeit: Regel 1 passt auf "
                    "jedes TCP-Paket, also auch auf Port 23. Eine speziellere Regel muss deshalb VOR der "
                    "allgemeineren stehen — oder die allgemeine wird eingegrenzt.",
-             "en": "With “first matching rule”, position counts, not specificity: rule 1 matches every TCP "
+             "en": "With “first matching rule,” position counts, not specificity: rule 1 matches every TCP "
                    "packet, including port 23. A more specific rule therefore has to come BEFORE the more "
                    "general one — or the general one gets narrowed down."}},
         {"id": "f6", "type": "multi",
          "prompt": {"de": "Eine stateful Firewall erlaubt ausgehend LAN → Internet TCP 443; eingehend gibt es "
-                          "keine Regel (Default Deny). Was kommt durch? (mehrere)",
+                          "keine Regel (Default Deny). Was kommt durch? Mehrere Antworten sind richtig.",
                     "en": "A stateful firewall allows outbound LAN → Internet TCP 443; there is no inbound "
-                          "rule (default deny). What gets through? (multiple)"},
+                          "rule (default deny). What gets through? Select all that apply."},
          "options": {
              "de": ["Die Antwortpakete eines Webservers auf eine vom PC aufgebaute Verbindung",
                     "Ein neues SYN aus dem Internet an den PC, Zielport 443",

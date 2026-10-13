@@ -71,8 +71,8 @@ ROLLEN_BERECHTIGUNGEN_MODULE = {
                       '\n'
                       'In addition to direct group permissions, there are roles: '
                       'reusable bundles of permissions that can be assigned to '
-                      'multiple admin groups. A role such as "Branch zone '
-                      'administration" can be defined once and then applied to '
+                      'multiple admin groups. A role such as “Branch zone '
+                      'administration” can be defined once and then applied to '
                       'several groups, instead of setting the same permissions '
                       'again in every single group.',
             },
@@ -151,7 +151,7 @@ ROLLEN_BERECHTIGUNGEN_MODULE = {
             "payload": {
                 "kind": "flow",
                 "title_de": "Vom Konto zum Objekt: zwei Wege zur Berechtigung",
-                "title_en": "From account to object: two paths to a permission",
+                "title_en": "From Account to Object: Two Paths to a Permission",
                 "nodes": [
                     {
                         "id": "konto",
@@ -177,7 +177,7 @@ ROLLEN_BERECHTIGUNGEN_MODULE = {
                         "row": 0,
                         "col": 2,
                         "label_de": "Rolle „Zonenpflege“",
-                        "label_en": "Role \"zone upkeep\"",
+                        "label_en": "Role “zone upkeep”",
                         "detail_de": "Ein wiederverwendbares Bündel. Dieselbe Rolle kann auch der Gruppe NetOps zugewiesen sein.",
                         "detail_en": "A reusable bundle. The same role can also be assigned to the NetOps group.",
                     },
@@ -442,13 +442,13 @@ ROLLEN_BERECHTIGUNGEN_MODULE = {
             "id": "scenario-servicedesk-rechte",
             "payload": {
                 "title_de": "Der Service Desk braucht „mal eben“ mehr Rechte",
-                "title_en": "The service desk needs more rights \"real quick\"",
+                "title_en": "The Service Desk Needs More Rights “Real Quick”",
                 "start": "start",
                 "nodes": [
                     {
                         "id": "start",
                         "text_de": "Der Service Desk (Tier 1) soll ab Montag feste Adressen für Drucker im Netz 10.20.30.0/24 selbst eintragen. Bisher hat die Gruppe nur Read-Only auf dieses Netz. Der Teamleiter bittet: „Gebt uns einfach Superuser, dann müssen wir nie wieder fragen.“",
-                        "text_en": "From Monday the service desk (tier 1) is to enter fixed addresses for printers in the network 10.20.30.0/24 themselves. So far the group only has Read-Only on that network. The team lead asks: \"Just make us superusers, then we never have to ask again.\"",
+                        "text_en": "From Monday the service desk (tier 1) is to enter fixed addresses for printers in the network 10.20.30.0/24 themselves. So far the group only has Read-Only on that network. The team lead asks: “Just make us superusers, then we never have to ask again.”",
                         "options": [
                             {
                                 "label_de": "Der Gruppe Superuser-Rechte geben — das spart allen Zeit.",
@@ -491,7 +491,7 @@ ROLLEN_BERECHTIGUNGEN_MODULE = {
                             },
                             {
                                 "label_de": "Eine Rolle „Druckeradressen“ mit Read/Write auf die fünf Netze, zugewiesen an die Gruppe.",
-                                "label_en": "A role \"printer addresses\" with Read/Write on the five networks, assigned to the group.",
+                                "label_en": "A role “printer addresses” with Read/Write on the five networks, assigned to the group.",
                                 "to": "rolle",
                             },
                             {
@@ -505,7 +505,7 @@ ROLLEN_BERECHTIGUNGEN_MODULE = {
                         "id": "alle",
                         "outcome": "bad",
                         "text_de": "Zu breit: Tier 1 könnte damit auch Server- und Managementnetze verändern. „Passt auch künftig“ ist kein Argument für Rechte, die heute niemand braucht.",
-                        "text_en": "Too broad: tier 1 could then also change server and management networks. \"Fits in the future\" is no argument for rights nobody needs today.",
+                        "text_en": "Too broad: tier 1 could then also change server and management networks. “Fits in the future” is no argument for rights nobody needs today.",
                     },
                     {
                         "id": "direkt",
@@ -652,9 +652,9 @@ ROLLEN_BERECHTIGUNGEN_MODULE = {
                 'type': 'multi',
                 'prompt': {
                     'de': 'Welche Aussagen zur Objekt-Granularität von '
-                          'Berechtigungen treffen zu (mehrere richtig)?',
+                          'Berechtigungen treffen zu? Mehrere Antworten sind richtig.',
                     'en': 'Which statements about the object granularity of '
-                          'permissions are correct (multiple)?',
+                          'permissions are correct? Select all that apply.',
                 },
                 'answer': [0, 1, 2],
                 'options': {
@@ -718,7 +718,7 @@ ROLLEN_BERECHTIGUNGEN_MODULE = {
                 "type": "single",
                 "prompt": {
                     "de": "Die Gruppe „DNS-Team-Nord“ hat Read/Write auf die Zone nord.nordwind.example. Für die Zone sued.nordwind.example wurde nichts konfiguriert. Was sieht ein Mitglied der Gruppe nach der Anmeldung?",
-                    "en": "The group \"DNS-Team-Nord\" has Read/Write on the zone nord.nordwind.example. Nothing was configured for the zone sued.nordwind.example. What does a member of the group see after logging in?",
+                    "en": "The group “DNS-Team-Nord” has Read/Write on the zone nord.nordwind.example. Nothing was configured for the zone sued.nordwind.example. What does a member of the group see after logging in?",
                 },
                 "answer": 3,
                 "options": {
@@ -737,15 +737,15 @@ ROLLEN_BERECHTIGUNGEN_MODULE = {
                 },
                 "explanation": {
                     "de": "Was nicht freigegeben ist, steht auf Deny — und Deny heißt unsichtbar, nicht „nur lesbar“. Das Recht wurde auf ein einzelnes Objekt erteilt, nicht auf den Objekttyp; die zweite Zone taucht für die Gruppe deshalb gar nicht auf.",
-                    "en": "Whatever is not granted is Deny — and Deny means invisible, not \"read-only\". The right was granted on a single object, not on the object type; the second zone therefore does not show up for the group at all.",
+                    "en": "Whatever is not granted is Deny — and Deny means invisible, not “read-only”. The right was granted on a single object, not on the object type; the second zone therefore does not show up for the group at all.",
                 },
             },
             {
                 "id": "rb7",
                 "type": "multi",
                 "prompt": {
-                    "de": "Ein Skript soll per API regelmäßig neue Filialnetze anlegen. Welche Maßnahmen passen zum Prinzip der geringsten Rechte (mehrere richtig)?",
-                    "en": "A script is to create new branch networks via the API on a regular basis. Which measures fit the principle of least privilege (multiple)?",
+                    "de": "Ein Skript soll per API regelmäßig neue Filialnetze anlegen. Welche Maßnahmen passen zum Prinzip der geringsten Rechte? Mehrere Antworten sind richtig.",
+                    "en": "A script is to create new branch networks via the API on a regular basis. Which measures fit the principle of least privilege? Select all that apply.",
                 },
                 "answer": [0, 2, 3],
                 "options": {

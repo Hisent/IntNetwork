@@ -44,7 +44,7 @@ ENTERPRISE_WLAN_MODULE = {
         {"type": "text", "id": "text-1",
          "note": "Anschluss Modul 14 (WLAN): dort ging es um ein geteiltes Passwort "
                  "(Personal). Hier wird die Anmeldung individuell. Den "
-                 "Nordwind-Kuendigungsfall als Aufhaenger fuers ganze Modul nutzen.",
+                 "Nordwind-Kündigungsfall als Aufhänger fürs ganze Modul nutzen.",
          "value": {
              "de": "## Vom geteilten Passwort zur individuellen Anmeldung\n\nBeim heimischen "
                    "WLAN (Modul 14) reicht ein einziges, geteiltes Passwort "
@@ -141,7 +141,7 @@ ENTERPRISE_WLAN_MODULE = {
          "payload": {
              "kind": "sequence",
              "title_de": "802.1X im WLAN: eine Anmeldung mit PEAP",
-             "title_en": "802.1X on Wi-Fi: a login with PEAP",
+             "title_en": "802.1X on Wi-Fi: a Login With PEAP",
              "caption_de": "Laptop ↔ Access Point: EAP über Funk (EAPOL) · Access Point ↔ Server: RADIUS",
              "caption_en": "Laptop ↔ access point: EAP over the air (EAPOL) · access point ↔ server: RADIUS",
              "actors": [
@@ -347,7 +347,7 @@ ENTERPRISE_WLAN_MODULE = {
                  "wurde: nachvollziehbare, individuelle Zugänge.",
          "payload": {
              "title_de": "Die neue Kollegin kommt nicht ins Firmen-WLAN",
-             "title_en": "The new colleague cannot get onto the company Wi-Fi",
+             "title_en": "The New Colleague Cannot Get Onto the Company Wi-Fi",
              "start": "start",
              "nodes": [
                  {"id": "start",
@@ -563,8 +563,8 @@ ENTERPRISE_WLAN_MODULE = {
                    "rejects the next login. There is no shared Wi-Fi passphrase in enterprise mode at "
                    "all — which is exactly why all other devices remain untouched."}},
         {"id": "ew8", "type": "multi",
-         "prompt": {"de": "Welche Aussagen zum schnellen Roaming stimmen? (mehrere)",
-                    "en": "Which statements about fast roaming are true? (multiple)"},
+         "prompt": {"de": "Welche Aussagen zum schnellen Roaming stimmen? Mehrere Antworten sind richtig.",
+                    "en": "Which statements about fast roaming are true? Select all that apply."},
          "options": {
              "de": ["802.11r verkürzt die Schlüsselaushandlung beim Wechsel des Access Points",
                     "802.11k liefert dem Endgerät eine Liste geeigneter Nachbar-APs",

@@ -7,7 +7,7 @@ const STR = {
   de: {
     title: 'VPN — Remote-Access-Tunnel',
     subtitle: 'Laptop im offenen Hotel-WLAN (außen 198.51.100.23) ↔ VPN-Gateway der Zentrale (203.0.113.10). '
-      + 'Im Tunnel: VPN-Adresse 10.20.99.5 → Dateiserver 10.20.0.9 im Netz 10.20.0.0/16. '
+      + 'Im Tunnel: VPN-Adresse 10.20.99.5 → Dateiserver 10.20.0.9 im Rechenzentrums-Netz 10.20.0.0/16. '
       + 'Vereinfacht: Das Hotel-WLAN vergibt hier direkt eine öffentliche Adresse (real meist privat + NAT).',
     step1: '1. Internes Paket (auf dem Laptop, vor dem Tunnel)',
     step2: '2. Im Tunnel durch WLAN und Internet (verschlüsselt gekapselt)',
@@ -26,7 +26,7 @@ const STR = {
   en: {
     title: 'VPN — Remote-Access Tunnel',
     subtitle: 'Laptop on open hotel Wi-Fi (outer address 198.51.100.23) ↔ headquarters VPN gateway (203.0.113.10). '
-      + 'Inside the tunnel: VPN address 10.20.99.5 → file server 10.20.0.9 in network 10.20.0.0/16. '
+      + 'Inside the tunnel: VPN address 10.20.99.5 → file server 10.20.0.9 on the data center network 10.20.0.0/16. '
       + 'Simplified: the hotel Wi-Fi hands out a public address directly here (in reality usually private + NAT).',
     step1: '1. Internal packet (on the laptop, before the tunnel)',
     step2: '2. In the tunnel across Wi-Fi and the Internet (encrypted and encapsulated)',
@@ -51,7 +51,7 @@ export function Vpn({ lang }: { lang: Lang }) {
   const INNER = SCENARIO.inner
   const t = encapsulate(INNER, SCENARIO.clientOuter, SCENARIO.gateway)
   const s = STR[lang]
-  const view = attackerView(SCENARIO.direct, t, attackerVpnOn)
+  const view = attackerView(SCENARIO.direct, t, attackerVpnOn, undefined, undefined, lang)
 
   return (
     <div className="rounded-2xl border bg-white p-5">
