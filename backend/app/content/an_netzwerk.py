@@ -5,7 +5,7 @@ NETZWERK_MODULE = {'key': 'netzwerk-automatisierung',
  'title': 'Netzwerk-Automatisierung mit Ansible',
  'title_en': 'Network Automation With Ansible',
  'order': 315,
- 'prerequisites': ['automation-platform-ueberblick'],
+ 'prerequisites': ['module-collections', 'fakten-bedingungen', 'fehlerbehandlung-idempotenz'],
  'goals': ['Erklären, warum Netzwerkmodule auf dem Control Node statt auf dem Gerät laufen',
            'Die Verbindungsarten network_cli, netconf und httpapi den passenden Szenarien '
            'zuordnen',

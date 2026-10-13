@@ -6,7 +6,7 @@ NAC_PROFILING_MODULE = {
     'title': 'Profiling: Geräte erkennen, bevor du ihnen vertraust',
     'title_en': 'Profiling: Recognizing Devices Before Trusting Them',
     'order': 509,
-    'prerequisites': ['nac-grundlagen'],
+    'prerequisites': ['nac-grundlagen', 'nac-mab'],
     'goals': [
         'Erklären können, warum Sichtbarkeit die Voraussetzung für jede durchsetzbare NAC-Policy ist',
         'Die wichtigsten Profiling-Techniken (DHCP-Fingerprinting, MAC-OUI, CDP/LLDP, SNMP, HTTP-User-Agent) benennen und einordnen können',
