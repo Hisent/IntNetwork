@@ -172,10 +172,17 @@ Plattform ihre Netze zusammensteckt.
 - `cap_drop: ALL` plus genau `CHOWN`, `DAC_OVERRIDE`, `SETUID`, `SETGID`,
   `KILL` für den Worker, `no-new-privileges`, `read_only` für das
   Wurzeldateisystem.
-- Einziger Schreibort ist ein `tmpfs` mit `noexec` (64 MB) — ein Playbook kann
-  dort keine eigene Binärdatei ablegen und ausführen. Dass Ansible auf einem
-  `noexec`-Dateisystem trotzdem läuft, wurde geprüft (Module laufen über den
-  Python-Interpreter, nicht als eigenständige Programme).
+- Schreiborte sind zwei `tmpfs`: `/tmp` (64 MB, mit den Arbeitsverzeichnissen)
+  und `/dev/shm` (16 MB, Ansible braucht es für Semaphoren). Beide mit
+  `noexec`, `nosuid`, `nodev` — ein Playbook kann dort keine eigene Binärdatei
+  ausführen, und setuid-Bits oder Gerätedateien sind wirkungslos. Dass Ansible
+  auf einem `noexec`-Dateisystem trotzdem läuft, wurde geprüft (Module laufen
+  über den Python-Interpreter, nicht als eigenständige Programme).
+- Die Ausgabe eines Laufs wird bereinigt, bevor sie ins Ergebnis geht
+  (`_bereinigen`): ANSI-Sequenzen fallen weg, alle übrigen Steuerzeichen außer
+  Zeilenumbruch und Tabulator (NUL, Rücklauf, ESC, C1 …) werden durch `�`
+  ersetzt, `\r` wird zu `\n`. Ansible läuft zusätzlich mit `ANSIBLE_NOCOLOR=1`.
+  Das Frontend zeigt die Ausgabe als reinen Text (`<pre>`, kein HTML).
 - Zeitgrenze je Lauf (`RUNNER_TIMEOUT`, Standard 30 s), Obergrenze für die
   Ergebnis-Ausgabe und begrenzte Parallelität (`RUNNER_MAX_PARALLEL`, Standard
   2). Die Kindprozess-Ausgabe wird zuerst in einer temporären Datei im ohnehin
@@ -211,6 +218,17 @@ Plattform ihre Netze zusammensteckt.
     Zusatzvariablen (`extra_vars`) des fremden Laufs. Umgebung, Speicher,
     Arbeitsverzeichnis und offene Dateien des fremden Laufs sieht er nicht.
     **Deshalb: keine Geheimnisse in `extra_vars`.**
+  - *Kernel-Schalter des Hosts.* `fs.protected_hardlinks` und
+    `fs.protected_symlinks` (Standard 1 auf Debian/Ubuntu) sind eine zweite
+    Schicht hinter den Maßnahmen oben. Der Worker verlässt sich nicht auf sie,
+    meldet beim Start aber `WARNUNG: fs.protected_…=0`, wenn sie fehlen. Kein
+    Sperrgrund: Ohne sie kann ein Lauf zwar einen Hardlink auf eine fremde, für
+    ihn lesbare Datei in `/tmp` anlegen, der Worker übergibt ihm die Datei aber
+    nicht (siehe „Was nach einem Lauf im Arbeitsverzeichnis bleibt“).
+  - *Erfolgskriterien im Kurs.* Ob eine Lab-Aufgabe als gelöst gilt, liest das
+    Frontend aus Rückgabewert und Ausgabe des eigenen Laufs. Wer die Ausgabe
+    passend präpariert, täuscht nur die eigene Anzeige — das ist Selbstbetrug,
+    kein Zugriff auf Fremdes, und wird nicht verhindert.
   - *`/tmp` und `/dev/shm`.* Beide sind für alle beschreibbar. Was ein Lauf
     dort ablegt, können gleichzeitig laufende Läufe lesen, wenn die Datei für
     alle lesbar ist (Standard-`umask` der Läufe ist `077`, also nein — außer das
@@ -263,16 +281,40 @@ Worker beenden und dessen Speicher lesen.
   uid bekommt. Das übergeordnete Verzeichnis ist `0711`: nicht auflistbar. Ein
   Arbeitsverzeichnis hat höchstens einen Lauf gleichzeitig; ein zweiter Auftrag
   derselben Person wartet.
-- **Umgebung.** Ansible: `HOME`, `TMPDIR`, `ANSIBLE_LOCAL_TEMP` und
-  `ANSIBLE_REMOTE_TEMP` liegen im Laufverzeichnis, das dem Lauf gehört und
-  danach gelöscht wird. `openssl`/`git`: `HOME` ist das Arbeitsverzeichnis,
-  `GIT_CONFIG_GLOBAL`/`GIT_CONFIG_SYSTEM` zeigen auf `/dev/null`. Nichts davon
-  zeigt nach `/queue`. Das Ergebnis-Token steht nie in einer Umgebung oder
-  Kommandozeile, nur im Speicher des Workers.
+- **Umgebung.** Jeder Lauf bekommt ein frisches Laufverzeichnis, das ihm
+  gehört und danach gelöscht wird. Ansible: `HOME`, `TMPDIR`,
+  `ANSIBLE_LOCAL_TEMP` und `ANSIBLE_REMOTE_TEMP` liegen dort. `openssl`/`git`:
+  `TMPDIR` liegt dort (nicht im gemeinsamen `/tmp`), `HOME` ist das
+  Arbeitsverzeichnis, `GIT_CONFIG_GLOBAL`/`GIT_CONFIG_SYSTEM` zeigen auf
+  `/dev/null`. Nichts davon zeigt nach `/queue`. Die Standardeingabe ist
+  `/dev/null`, nicht die des Workers. Das Ergebnis-Token steht nie in einer
+  Umgebung oder Kommandozeile, nur im Speicher des Workers.
+- **Der Worker folgt keinem Symlink eines Laufs.** Er ist root und fasst
+  Dateien an, die Läufe angelegt haben. Überall dort arbeitet er über
+  Deskriptoren (`O_NOFOLLOW`, `os.fwalk`, `dir_fd`) statt über Pfade:
+  beim Übergeben und Zurücknehmen (`_uebergeben`), beim Anlegen mitgeschickter
+  Dateien und der Ergebnisdatei (`_exklusiv_schreiben`: alten Eintrag
+  entfernen, dann `O_EXCL|O_NOFOLLOW`), beim Lesen eines Auftrags
+  (`_regulaer_lesen`: nur reguläre Dateien, ein FIFO hält ihn nicht an) und
+  beim Setzen der Rechte von `/queue` (`_verzeichnis_sichern`). Ist `in/` oder
+  `out/` in einem Bestands-Volume ein Symlink, wird er entfernt und durch ein
+  echtes Verzeichnis ersetzt — das Ziel bleibt unberührt.
+- **Was nach einem Lauf im Arbeitsverzeichnis bleibt.** Bei der Rücknahme
+  entfernt der Worker FIFOs, Sockets und Gerätedateien, löscht
+  setuid/setgid/sticky und entfernt Dateien mit mehr als einem Hardlink
+  (ein Hardlink kann auf eine fremde Datei desselben Dateisystems zeigen; ein
+  `chown` gäbe sie dem Lauf — **Hardlinks überleben einen Lauf deshalb nicht**).
+  In Ruhe gehört das Verzeichnis selbst root (`0700`), sein Inhalt weiter der
+  letzten Job-uid; root gehört darin nichts. Der nächste Lauf bekommt alles an
+  seine uid. Zu setuid-Bits im Besonderen: Linux löscht sie bei jedem `chown`
+  auf eine Datei, auch für root (seit 2.2.13); der Worker verlässt sich nicht
+  darauf und löscht sie selbst, und `/tmp` ist `nosuid` eingehängt.
 - **Zeitgrenze und Aufräumen.** Bei Zeitüberschreitung beendet der Worker
   die Prozessgruppe (`CAP_KILL`). Nach **jedem** Lauf beendet er zusätzlich
   alle Prozesse der Job-uid (`_job_prozesse_beenden`: erst `SIGSTOP`, dann
-  `SIGKILL`, bis keiner mehr da ist) — das erfasst auch Prozesse, die die
+  `SIGKILL`, bis keiner mehr da ist; gesendet über ein `pidfd` nach erneuter
+  Prüfung der uid, damit eine inzwischen neu vergebene pid nicht den Falschen
+  trifft) — das erfasst auch Prozesse, die die
   Prozessgruppe mit `setsid()` verlassen haben. Diese frühere Lücke ist damit
   geschlossen. Danach löscht er, was der Lauf in `/tmp` und `/dev/shm`
   hinterlassen hat. Gelingt das Beenden nicht, bleiben uid und
@@ -365,11 +407,34 @@ Das belegt für etwa eine Minute zwei Läufe und hinterlässt Arbeitsverzeichnis
 - (d) Kursvorlagen für `openssl` (darunter die Post-Quanten-Vorlage, die
   OpenSSL ≥ 3.5 braucht) und `git` laufen, `openssl version` ist ≥ 3.5;
 - (e) zwei gleichzeitige Läufe haben verschiedene uids und kommen nicht
-  aneinander heran.
+  aneinander heran;
+- (1) ein Lauf hinterlegt Symlinks nach `/queue/in/evil.json` und
+  `/etc/passwd`, der nächste schreibt Lab-Dateien gleichen Namens: die Ziele
+  bleiben unberührt;
+- (2) ein Hardlink auf eine fremde Datei ist abgelehnt oder folgenlos;
+- (3) setuid/setgid/sticky sind nach dem Lauf weg, nichts gehört root;
+- (4) FIFO und Socket im Arbeitsverzeichnis halten den nächsten Lauf nicht an;
+- (5) eine Ausgabeflut mit ANSI-Sequenzen, NUL und ungültigem UTF-8 kommt
+  gekürzt und ohne Steuerzeichen an;
+- (6) was ein Lauf in `/tmp` und `/dev/shm` ablegt (auch Symlinks nach
+  `/queue`), ist danach weg.
 
-`ops/lab-isolation-test.sh` prüft zusätzlich per `docker inspect`, dass der
-Container wirklich mit `network none`, `read_only`, `cap_drop ALL`, genau fünf
-Capabilities, `no-new-privileges`, `noexec`-`tmpfs` und Prozessgrenze läuft.
+`ops/lab-isolation-test.sh` prüft zusätzlich von außen:
+
+- per `docker inspect` und `/proc/mounts`, dass der Container wirklich mit
+  `network none`, `read_only`, `cap_drop ALL`, genau fünf Capabilities,
+  `no-new-privileges`, Prozessgrenze und beiden `tmpfs` mit
+  `noexec,nosuid,nodev` läuft;
+- (7) dass `/queue/in` und `/queue/out` nach allen Läufen echte Verzeichnisse
+  mit `root:10001`, `0770` sind, und dass ein Start gegen ein präpariertes
+  Bestands-Volume (`0777`, `out/` als Symlink, FIFO/Symlink/Verzeichnis als
+  „Aufträge“) sauber endet, ohne das Symlink-Ziel umzuhängen;
+- (8) fail-closed: derselbe Container ohne root
+  (`ops/lab-isolation-failclosed.override.yml`) meldet `ANSIBLE-LAB
+  DEAKTIVIERT`, lehnt einen Ansible-Auftrag mit Klartext ab und führt einen
+  OpenSSL-Auftrag aus.
+
+Gegen das laufende System laufen nur (a) bis (e) und (1) bis (6).
 
 ## Ergebnis-Token (zweite Schicht gegen gefälschte Ergebnisse)
 
@@ -483,5 +548,5 @@ aufrufen — die Antwort ist `{"enabled": false}`.
 - **Dauerlast:** `RUNNER_MAX_PARALLEL` senken oder das Lab abschalten. Läufe,
   die regelmäßig in die Zeitgrenze laufen, deuten eher auf zu ambitionierte
   Übungs-Playbooks hin als auf Missbrauch.
-- **Speicher:** Das `tmpfs` ist auf 64 MB begrenzt und nach einem Neustart des
+- **Speicher:** Das `tmpfs` `/tmp` ist auf 64 MB begrenzt (`/dev/shm`: 16 MB) und nach einem Neustart des
   Containers leer. Arbeitsverzeichnisse sind Übungsstände, kein Speicher.

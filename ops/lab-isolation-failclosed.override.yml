@@ -1,0 +1,7 @@
+# NUR fuer ops/lab-isolation-test.sh (Schritt 7): derselbe Runner, aber ohne
+# root - so sieht ein Rollout aus, bei dem `user: "0:0"` fehlt. Der Worker kann
+# dann keine uid wechseln (cap_add wirkt nur fuer uid 0) und MUSS Playbooks
+# ablehnen. Nie auf einem Server verwenden.
+services:
+  runner:
+    user: "10001:10001"

@@ -138,9 +138,13 @@ services:
       - no-new-privileges:true
     read_only: true  # Root-Dateisystem nur lesbar; das Image bleibt unveraendert
     tmpfs:
-      # Einziger Schreibort. Hier liegen die Arbeitsverzeichnisse der
-      # Teilnehmenden; "noexec" verhindert eigene Binaerdateien.
-      - /tmp:size=64m,mode=1777,noexec
+      # Schreibort der Laeufe. Hier liegen die Arbeitsverzeichnisse der
+      # Teilnehmenden; "noexec" verhindert eigene Binaerdateien, "nosuid" und
+      # "nodev" machen setuid-Bits und Geraetedateien dort wirkungslos.
+      - /tmp:size=64m,mode=1777,noexec,nosuid,nodev
+      # Ausdruecklich statt des Docker-Standards (64 MB): Ansible braucht
+      # /dev/shm nur fuer Semaphoren seiner Arbeitsprozesse.
+      - /dev/shm:size=16m,mode=1777,noexec,nosuid,nodev
     deploy:
       resources:
         limits:

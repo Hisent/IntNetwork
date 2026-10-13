@@ -1,4 +1,4 @@
-Stand: v1.43.0 + Trennung der Läufe per uid (2026-10-13) · Quelle: docs/lab-sicherheit.md, runner/worker.py, runner/Dockerfile, docker-compose.yml, backend/app/routers/lab.py, runner/tests/isolation_check.py
+Stand: v1.43.0 + Trennung der Läufe per uid, nach Sicherheitsprüfung gehärtet (2026-10-13) · Quelle: docs/lab-sicherheit.md, runner/worker.py, runner/Dockerfile, docker-compose.yml, backend/app/routers/lab.py, runner/tests/isolation_check.py
 
 # IntLab: Sicherheit des Labs
 
@@ -32,7 +32,7 @@ Bewertung: `ansible` erlaubt beliebige Codeausführung, `openssl` und `git` nur 
 - **Der Runner hat kein Netzwerk:** `network_mode: "none"`, also keine Adresse, keine Namensauflösung, kein Socket.
 - **Austausch über ein gemeinsames Volume:** Das Backend schreibt `/queue/in/<id>.json`, der Runner antwortet mit `/queue/out/<id>.json`. Beide Seiten schreiben zuerst eine temporäre Datei und benennen sie atomar um.
 - Jeder Lauf unter einer eigenen, unprivilegierten uid (10002 bis 10009, ohne Gruppen, ohne Capabilities), getrennt vom Worker und von gleichzeitig laufenden Läufen (Abschnitt „Trennung der Läufe per uid“). Worker: uid 0 mit `cap_drop: ALL` plus genau `CHOWN`, `DAC_OVERRIDE`, `SETUID`, `SETGID`, `KILL`; dazu `no-new-privileges` und `read_only` für das Wurzeldateisystem.
-- Einziger Schreibort ist ein `tmpfs` mit `noexec` (64 MB). Dass Ansible auf einem `noexec`-Dateisystem läuft, wurde geprüft (Module laufen über den Python-Interpreter).
+- Schreiborte sind zwei `tmpfs`: `/tmp` (64 MB, Arbeitsverzeichnisse) und `/dev/shm` (16 MB, Semaphoren für Ansible), beide mit `noexec`, `nosuid`, `nodev`. Die Ausgabe eines Laufs wird bereinigt, bevor sie ins Ergebnis geht: ANSI-Sequenzen fallen weg, übrige Steuerzeichen außer Zeilenumbruch und Tabulator werden durch `�` ersetzt; das Frontend zeigt sie als reinen Text. Dass Ansible auf einem `noexec`-Dateisystem läuft, wurde geprüft (Module laufen über den Python-Interpreter).
 - Zeitgrenze je Lauf (`RUNNER_TIMEOUT`, Standard 30 s), Obergrenze für die Ergebnis-Ausgabe, begrenzte Parallelität (`RUNNER_MAX_PARALLEL`, Standard 2). Die Ausgabe des Kindprozesses wird zuerst in einer temporären Datei im `tmpfs` gesammelt; unbegrenzte Ausgabe kann den RAM des Workers nicht füllen.
 - CPU-, Speicher- und Prozessgrenzen am Container.
 - Jeder Lauf in einem frischen Verzeichnis, das danach gelöscht wird.
@@ -95,8 +95,10 @@ Umgesetzt am 13.10.2026. Vorher lief ein Playbook unter der uid des Workers und 
 - **Eine uid je gleichzeitigem Lauf.** Der Worker vergibt die uids exklusiv und reihum. Mit einer gemeinsamen Job-uid könnten gleichzeitige Läufe einander lesen und beenden; so sind auch Teilnehmer untereinander getrennt. Acht uids sind die Obergrenze gleichzeitiger Läufe.
 - **`/queue`** gehört `root:10001`, Modus `0750`, `in/` und `out/` `0770`: Worker und Backend ja, Läufe nein. Der Worker setzt das bei jedem Start.
 - **Arbeitsverzeichnis.** Vor dem Lauf gibt der Worker es samt Inhalt der uid des Laufs (`0700`), danach nimmt er es zurück (`root`, `0700`). In Ruhe kommt keine Job-uid hinein, auch nicht der nächste Lauf mit derselben uid. Das übergeordnete Verzeichnis ist nicht auflistbar (`0711`). Ein Arbeitsverzeichnis hat höchstens einen Lauf gleichzeitig.
-- **Umgebung.** `HOME`, `TMPDIR` und die Ansible-Temp-Verzeichnisse liegen im Laufverzeichnis des Laufs, bei `openssl`/`git` ist `HOME` das Arbeitsverzeichnis. Nichts zeigt nach `/queue`. Das Ergebnis-Token steht nie in einer Umgebung oder Kommandozeile.
-- **Zeitgrenze und Aufräumen.** Bei Zeitüberschreitung beendet der Worker die Prozessgruppe. Nach jedem Lauf beendet er zusätzlich alle Prozesse der Job-uid, auch solche, die die Prozessgruppe mit `setsid()` verlassen haben, und löscht, was der Lauf in `/tmp` und `/dev/shm` hinterlassen hat. Gelingt das Beenden nicht, bleiben uid und Arbeitsverzeichnis bis zum Neustart gesperrt (`Job-Slot uid … GESPERRT` im Log).
+- **Umgebung.** Jeder Lauf bekommt ein frisches Laufverzeichnis, das ihm gehört und danach gelöscht wird. Dort liegen `TMPDIR` (alle Arten) sowie `HOME` und die Ansible-Temp-Verzeichnisse (Ansible); bei `openssl`/`git` ist `HOME` das Arbeitsverzeichnis. Nichts zeigt nach `/queue`, die Standardeingabe ist `/dev/null`. Das Ergebnis-Token steht nie in einer Umgebung oder Kommandozeile.
+- **Der Worker folgt keinem Symlink eines Laufs.** Wo er als root Dateien anfasst, die Läufe angelegt haben, arbeitet er über Deskriptoren (`O_NOFOLLOW`, `dir_fd`) statt über Pfade: beim Übergeben und Zurücknehmen, beim Anlegen mitgeschickter Dateien und der Ergebnisdatei, beim Lesen eines Auftrags (nur reguläre Dateien, ein FIFO hält ihn nicht an) und beim Setzen der Rechte von `/queue`. Ist `in/` oder `out/` in einem Bestands-Volume ein Symlink, wird er durch ein echtes Verzeichnis ersetzt; das Ziel bleibt unberührt.
+- **Was nach einem Lauf im Arbeitsverzeichnis bleibt.** Bei der Rücknahme entfernt der Worker FIFOs, Sockets und Gerätedateien, löscht setuid/setgid/sticky und entfernt Dateien mit mehr als einem Hardlink (Hardlinks überleben einen Lauf nicht). In Ruhe gehört das Verzeichnis selbst root (`0700`), sein Inhalt weiter der letzten Job-uid; root gehört darin nichts.
+- **Zeitgrenze und Aufräumen.** Bei Zeitüberschreitung beendet der Worker die Prozessgruppe. Nach jedem Lauf beendet er zusätzlich alle Prozesse der Job-uid (über ein `pidfd` nach erneuter Prüfung der uid), auch solche, die die Prozessgruppe mit `setsid()` verlassen haben, und löscht, was der Lauf in `/tmp` und `/dev/shm` hinterlassen hat. Gelingt das Beenden nicht, bleiben uid und Arbeitsverzeichnis bis zum Neustart gesperrt (`Job-Slot uid … GESPERRT` im Log).
 
 ### Verworfene Alternativen
 
@@ -153,12 +155,22 @@ Das belegt für etwa eine Minute zwei Läufe. Jede Prüfung erscheint als Zeile 
 | (c) | Endlos-Playbook mit `setsid()`-Kindern wird an der Zeitgrenze beendet, danach läuft keiner seiner Prozesse mehr |
 | (d) | Kursvorlagen für `openssl` (darunter die Post-Quanten-Vorlage) und `git` laufen, `openssl version` ist mindestens 3.5 |
 | (e) | Zwei gleichzeitige Läufe haben verschiedene uids und kommen nicht aneinander heran |
+| (1) | Ein Lauf hinterlegt Symlinks nach `/queue/in/evil.json` und `/etc/passwd`, der nächste schreibt Lab-Dateien gleichen Namens: die Ziele bleiben unberührt |
+| (2) | Ein Hardlink auf eine fremde Datei ist abgelehnt oder folgenlos |
+| (3) | setuid/setgid/sticky sind nach dem Lauf weg, nichts im Arbeitsverzeichnis gehört root |
+| (4) | FIFO und Socket im Arbeitsverzeichnis halten den nächsten Lauf nicht an |
+| (5) | Eine Ausgabeflut mit ANSI-Sequenzen, NUL und ungültigem UTF-8 kommt gekürzt und ohne Steuerzeichen an |
+| (6) | Was ein Lauf in `/tmp` und `/dev/shm` ablegt, ist danach weg |
+| (7) | Nur `ops/lab-isolation-test.sh`: `/queue/in` und `/queue/out` bleiben echte Verzeichnisse (`root:10001`, `0770`); Start gegen ein präpariertes Bestands-Volume hängt das Symlink-Ziel nicht um |
+| (8) | Nur `ops/lab-isolation-test.sh`: derselbe Container ohne root meldet `ANSIBLE-LAB DEAKTIVIERT`, lehnt Ansible mit Klartext ab, OpenSSL läuft |
 
 ## Bekannte Restrisiken (nicht abgedeckt)
 
 - **Ausbruch aus dem Container.** Eine Lücke im Kernel oder in der Container-Laufzeit hebelt die Isolierung aus. Wer das im Bedrohungsmodell braucht, muss auf VM-Isolierung wechseln (eigene Maschine, Firecracker, gVisor).
 - **Rechenzeit.** Angemeldete Teilnehmer können den Runner beschäftigen. Zeitgrenze, Parallelitätsgrenze und CPU-Limit bremsen das, verhindern es aber nicht vollständig.
 - **Was Läufe trotz Trennung gemeinsam haben.** Alle Läufe teilen sich Kernel, Image, Rechenzeit, das 64-MB-`tmpfs` und die Prozessgrenze (128). Die Prozessliste ist nicht verborgen: Ein Lauf sieht die Kommandozeilen anderer Läufe, darin den Pfad des fremden Arbeitsverzeichnisses und dessen `extra_vars` (deshalb keine Geheimnisse in `extra_vars`), nicht aber Umgebung, Speicher oder Dateien. `/tmp` und `/dev/shm` sind für alle beschreibbar; der Worker räumt sie nach jedem Lauf auf. Ein Lauf kann das `tmpfs` füllen oder die Prozessgrenze ausschöpfen und damit andere Läufe scheitern lassen, solange er läuft (höchstens `RUNNER_TIMEOUT`).
+- **Kernel-Schalter des Hosts.** `fs.protected_hardlinks` und `fs.protected_symlinks` (Standard 1 auf Debian/Ubuntu) sind eine zweite Schicht. Der Worker verlässt sich nicht auf sie, meldet beim Start aber `WARNUNG: fs.protected_…=0`, wenn sie fehlen.
+- **Erfolgskriterien im Kurs.** Ob eine Lab-Aufgabe als gelöst gilt, liest das Frontend aus Rückgabewert und Ausgabe des eigenen Laufs. Wer die Ausgabe präpariert, täuscht nur die eigene Anzeige (Selbstbetrug, kein Zugriff auf Fremdes).
 - **Der Worker ist root im Container.** Mit `SETUID`, `CHOWN` und `DAC_OVERRIDE` hat er vollen Zugriff auf `/queue` und alle Arbeitsverzeichnisse (wie vorher unter uid 10001). Neu ist: Ein ausnutzbarer Fehler im Worker selbst hätte diese Capabilities. Das Netz bleibt aus, das Wurzeldateisystem nur lesbar, nach außen führt nur `/queue`.
 - **Missbrauch durch Berechtigte.** Wer sich anmelden darf, darf Code ausführen. Der Teilnehmerkreis ist die eigentliche Zugangskontrolle.
 
