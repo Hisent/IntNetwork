@@ -24,6 +24,21 @@ describe('osiModel', () => {
     expect(s.pieces).toEqual(['ETH', 'IP', 'TCP', 'Daten', 'FCS'])
   })
 
+  it('Header werden vorangestellt, nur die FCS wird angehängt', () => {
+    const tx = (nr: number) => buildSteps().find((x) => x.side === 'tx' && x.layer === nr)!.caption
+    for (const nr of [4, 3]) {
+      expect(tx(nr).de).toContain('voran')
+      expect(tx(nr).de).not.toContain('hängt')
+      expect(tx(nr).en).toContain('prepends')
+    }
+    expect(tx(2).de).toMatch(/voran.*hängt die FCS an/)
+    expect(tx(2).en).toMatch(/prepends.*appends the FCS/)
+  })
+
+  it('Schicht 5 nennt konkrete Beispiele', () => {
+    expect(LAYERS.find((l) => l.nr === 5)!.example).toBe('RPC, NetBIOS')
+  })
+
   it('Empfänger Schicht 7 hat wieder nur Daten', () => {
     const s = buildSteps().at(-1)!
     expect(s.side).toBe('rx')

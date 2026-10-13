@@ -15,9 +15,16 @@ NAC_RESILIENZ_MODULE = {
         'Begründen können, warum die Wahl zwischen Fail-Open und Fail-Closed eine bewusste '
         'Risikoentscheidung ist und kein Automatismus',
         'RADIUS-Redundanz als Maßnahme gegen einen Single Point of Failure einordnen können',
-        'Die groben Rollen von Cisco ISE, Aruba ClearPass, Forescout, Microsoft NPS und '
+        'Die groben Rollen von Cisco ISE, Aruba ClearPass, Forescout, FortiNAC, Microsoft NPS und '
         'FreeRADIUS/PacketFence im NAC-Ökosystem unterscheiden können, ohne Versionsdetails',
         'Ein Fail-Open/Fail-Closed-Fehlbild anhand eines Betriebsberichts diagnostizieren können',
+    ],
+    'goals_en': [
+        'Distinguish fail-open and fail-closed as an operational decision for a RADIUS outage',
+        'Justify why the choice between fail-open and fail-closed is a deliberate risk decision and not an automatism',
+        'Place RADIUS redundancy as a measure against a single point of failure',
+        'Distinguish the rough roles of Cisco ISE, Aruba ClearPass, Forescout, FortiNAC, Microsoft NPS, and FreeRADIUS/PacketFence in the NAC ecosystem, without version details',
+        'Diagnose a fail-open/fail-closed fault pattern from an operations report',
     ],
     'scenario': {
         'de': 'Der stufenweise Rollout bei Nordwind Logistik läuft, die Zentrale ist inzwischen '
@@ -135,6 +142,172 @@ NAC_RESILIENZ_MODULE = {
                    'access level in advance. Already-running, authenticated sessions are not '
                    'immediately disconnected by a RADIUS outage in this setup.',
          }},
+        {
+            'type': 'diagram',
+            'id': 'diagram-radius-ausfall',
+            'note': 'Wichtig beim Durchklicken: Der Switch merkt den Ausfall nicht sofort, sondern erst nach Timeout × Wiederholungen je Server. Bereits angemeldete Geräte sind von alldem nicht betroffen.',
+            'payload': {
+                'kind': 'flow',
+                'title_de': 'RADIUS-Ausfall: was passiert mit einem neuen Gerät?',
+                'title_en': 'RADIUS outage: what happens to a new device?',
+                'nodes': [
+                    {
+                        'id': 'dev',
+                        'shape': 'host',
+                        'row': 0,
+                        'col': 0,
+                        'label_de': 'Neues Gerät',
+                        'label_en': 'New device',
+                    },
+                    {
+                        'id': 'sw',
+                        'shape': 'switch',
+                        'row': 0,
+                        'col': 1,
+                        'label': 'Switch',
+                    },
+                    {
+                        'id': 'r1',
+                        'shape': 'server',
+                        'row': 0,
+                        'col': 2,
+                        'label': 'RADIUS 1',
+                    },
+                    {
+                        'id': 'r2',
+                        'shape': 'server',
+                        'row': 1,
+                        'col': 2,
+                        'label': 'RADIUS 2',
+                    },
+                    {
+                        'id': 'dec',
+                        'shape': 'decision',
+                        'row': 1,
+                        'col': 1,
+                        'label_de': 'Alle Server tot?',
+                        'label_en': 'All servers dead?',
+                    },
+                    {
+                        'id': 'closed',
+                        'row': 2,
+                        'col': 0,
+                        'label_de': 'Fail-Closed: kein Zugang',
+                        'label_en': 'Fail-closed: no access',
+                    },
+                    {
+                        'id': 'crit',
+                        'row': 2,
+                        'col': 1,
+                        'label_de': 'Critical VLAN 90',
+                        'label_en': 'Critical VLAN 90',
+                        'detail_de': 'Kontrolliertes Fail-Open: eingeschränkter Notbetrieb, z. B. nur die für die Arbeit unverzichtbaren Systeme.',
+                        'detail_en': 'Controlled fail-open: restricted emergency operation, e.g. only the systems indispensable for work.',
+                    },
+                    {
+                        'id': 'open',
+                        'row': 2,
+                        'col': 2,
+                        'label_de': 'Fail-Open: voller Zugang',
+                        'label_en': 'Fail-open: full access',
+                    },
+                ],
+                'edges': [
+                    {
+                        'id': 'e1',
+                        'from': 'dev',
+                        'to': 'sw',
+                    },
+                    {
+                        'id': 'e2',
+                        'from': 'sw',
+                        'to': 'r1',
+                        'label': 'Access-\nRequest',
+                    },
+                    {
+                        'id': 'e3',
+                        'from': 'sw',
+                        'to': 'r2',
+                        'style': 'dashed',
+                    },
+                    {
+                        'id': 'e4',
+                        'from': 'sw',
+                        'to': 'dec',
+                    },
+                    {
+                        'id': 'e5',
+                        'from': 'dec',
+                        'to': 'crit',
+                    },
+                    {
+                        'id': 'e6',
+                        'from': 'dec',
+                        'to': 'closed',
+                    },
+                    {
+                        'id': 'e7',
+                        'from': 'dec',
+                        'to': 'open',
+                    },
+                ],
+                'steps': [
+                    {
+                        'highlight': ['dev', 'e1', 'sw', 'e2', 'r1'],
+                        'text_de': 'Ein neues Gerät meldet sich an. Der Switch fragt den ersten RADIUS-Server — keine Antwort. Er wiederholt die Anfrage mehrfach.',
+                        'text_en': 'A new device logs in. The switch asks the first RADIUS server — no reply. It repeats the request several times.',
+                    },
+                    {
+                        'highlight': ['sw', 'e3', 'r2'],
+                        'text_de': 'Der Server gilt als „dead“. Der Switch versucht den zweiten — Redundanz fängt den Ausfall hier normalerweise ab.',
+                        'text_en': 'The server is marked "dead". The switch tries the second one — redundancy normally absorbs the outage at this point.',
+                    },
+                    {
+                        'highlight': ['sw', 'e4', 'dec'],
+                        'text_de': 'Antwortet auch der zweite nicht, gibt es keine Entscheidung mehr. Jetzt zählt, was am Port vorab konfiguriert wurde.',
+                        'text_en': 'If the second does not answer either, there is no decision anymore. Now what was configured on the port in advance is what counts.',
+                    },
+                    {
+                        'highlight': ['dec', 'e6', 'closed', 'e5', 'crit', 'e7', 'open'],
+                        'text_de': 'Drei mögliche Antworten: aussperren, begrenzt zulassen oder voll zulassen. Ohne eigene Konfiguration sperrt ein Port im Closed Mode aus.',
+                        'text_en': 'Three possible answers: lock out, admit with limits, or admit fully. Without specific configuration a port in Closed Mode locks out.',
+                    },
+                ],
+            },
+        },
+        {
+            'type': 'cloze',
+            'id': 'cloze-critical-vlan',
+            'note': 'Cisco IOS/IOS-XE, klassische Syntax. „authorize“ legt neu anfragende Geräte ins Critical VLAN; für Multi-Auth-Ports sieht Cisco die Variante „reinitialize vlan“ vor. Das VLAN muss auf dem Switch existieren und aktiv sein.',
+            'payload': {
+                'prompt_de': 'Lege fest, wann ein RADIUS-Server als ausgefallen gilt, und schicke neue Geräte an Gi1/0/9 dann ins Critical VLAN 90.',
+                'prompt_en': 'Define when a RADIUS server counts as failed, and then send new devices on Gi1/0/9 into critical VLAN 90.',
+                'mono': True,
+                'text': 'radius-server dead-criteria time 5 tries 3\nradius-server [[deadtime]] 15\n!\ninterface GigabitEthernet1/0/9\n authentication event server [[dead]] action authorize vlan [[vlan]]\n authentication event server [[alive]] action reinitialize',
+                'gaps': [
+                    {
+                        'id': 'deadtime',
+                        'accept': ['deadtime'],
+                    },
+                    {
+                        'id': 'dead',
+                        'options': ['dead', 'alive', 'timeout'],
+                        'answer': 0,
+                    },
+                    {
+                        'id': 'vlan',
+                        'accept': ['90'],
+                    },
+                    {
+                        'id': 'alive',
+                        'options': ['alive', 'dead', 'up'],
+                        'answer': 0,
+                    },
+                ],
+                'explanation_de': '„dead-criteria“ bestimmt, ab wann ein Server als tot gilt; „deadtime“ (in Minuten), wie lange er danach übersprungen wird. Die zweite Port-Zeile wird gern vergessen: Ohne „alive … reinitialize“ bleiben Geräte im Critical VLAN, obwohl der Server längst wieder antwortet.',
+                'explanation_en': '"dead-criteria" determines when a server counts as dead; "deadtime" (in minutes) how long it is skipped afterwards. The second port line is often forgotten: without "alive … reinitialize" devices stay in the critical VLAN although the server has long been answering again.',
+            },
+        },
         {'type': 'text', 'id': 'text-4',
          'note': 'RADIUS-Redundanz kompakt halten: Kernpunkt ist Vermeidung eines Single Point '
                  'of Failure, keine Konfigurationsdetails zu Primary/Secondary-Setups.',
@@ -184,6 +357,86 @@ NAC_RESILIENZ_MODULE = {
                  'Because a secondary RADIUS server automatically rejects all devices',
              ],
          }},
+        {
+            'type': 'terminal',
+            'id': 'terminal-radius-ausfall',
+            'note': ('Ausgaben im IOS-XE-Format, gekürzt und teils umbrochen. Die Darstellung einer Critical-Auth-Sitzung '
+                     'unterscheidet sich je nach Release; maßgeblich sind „Authorized“ trotz fehlgeschlagener Methode und '
+                     'das lokal (nicht vom Server) zugewiesene VLAN.'),
+            'payload': {
+                'title_de': 'Montag, 07:40 Uhr: Neue Geräte landen im falschen Netz',
+                'title_en': 'Monday, 07:40: new devices end up on the wrong network',
+                'prompt': 'nw-acc1#',
+                'abbreviations': True,
+                'unknown': '% Invalid input detected: {cmd}',
+                'commands': [
+                    {
+                        'cmd': 'show aaa servers',
+                        'desc_de': 'Zustand der RADIUS-Server',
+                        'desc_en': 'state of the RADIUS servers',
+                        'output': ('RADIUS: id 1, priority 1, host 10.10.0.11,\n'
+                                   '  auth-port 1812, acct-port 1813, hostname ISE-1\n'
+                                   '  State: current DEAD, duration 612s, previous duration 86212s\n'
+                                   '  Dead: total time 612s, count 1\n'
+                                   'RADIUS: id 2, priority 2, host 10.10.0.12,\n'
+                                   '  auth-port 1812, acct-port 1813, hostname ISE-2\n'
+                                   '  State: current DEAD, duration 598s, previous duration 86220s\n'
+                                   '  Dead: total time 598s, count 1'),
+                    },
+                    {
+                        'cmd': 'show logging | include RADIUS',
+                        'desc_de': 'RADIUS-Meldungen im Log',
+                        'desc_en': 'RADIUS messages in the log',
+                        'output': ('Oct 12 07:30:04: %RADIUS-4-RADIUS_DEAD: RADIUS server\n'
+                                   '  10.10.0.11:1812,1813 is not responding.\n'
+                                   'Oct 12 07:30:18: %RADIUS-4-RADIUS_DEAD: RADIUS server\n'
+                                   '  10.10.0.12:1812,1813 is not responding.\n'
+                                   'Oct 12 07:30:18: %RADIUS-3-ALLDEADSERVER: Group NAC:\n'
+                                   '  No active radius servers found. Id 112.'),
+                    },
+                    {
+                        'cmd': 'show access-session interface Gi1/0/9 details',
+                        'aliases': ['show authentication sessions interface Gi1/0/9 details'],
+                        'desc_de': 'Sitzung eines neu angeschlossenen Geräts',
+                        'desc_en': 'session of a newly connected device',
+                        'output': '            Interface:  GigabitEthernet1/0/9\n          MAC Address:  0050.56a1.77e0\n         IPv4 Address:  10.90.0.14\n               Status:  Authorized\n               Domain:  DATA\n    Common Session ID:  0A0A00FE000000473B2C1D0E\n\nLocal Policies:\n     Service Template:  CRITICAL_AUTH_VLAN_Gi1/0/9\n           Vlan Group:  Vlan: 90\n\nMethod status list:\n       Method           State\n        dot1x           Authc Failed',
+                    },
+                    {
+                        'cmd': 'test aaa group NAC probe Probe123 new-code',
+                        'desc_de': 'Test-Anmeldung gegen die Servergruppe',
+                        'desc_en': 'test login against the group',
+                        'output': ('Attempting authentication test to server-group NAC\n'
+                                   'using radius\n'
+                                   'No authoritative response from any server.'),
+                    },
+                    {
+                        'cmd': 'ping 10.10.0.11',
+                        'desc_de': 'Erreichbarkeit von ISE-1',
+                        'desc_en': 'reachability of ISE-1',
+                        'output': 'Type escape sequence to abort.\nSending 5, 100-byte ICMP Echos to 10.10.0.11:\n.....\nSuccess rate is 0 percent (0/5)',
+                    },
+                ],
+                'tasks': [
+                    {'text_de': 'Prüfe den Zustand der RADIUS-Server.',
+                     'text_en': 'Check the state of the RADIUS servers.',
+                     'command': 'show aaa servers'},
+                    {'text_de': 'In welchem Zustand sind beide Server (ein Wort)?',
+                     'text_en': 'Which state are both servers in (one word)?',
+                     'answers': ['DEAD', 'dead', 'tot']},
+                    {'text_de': 'Sieh dir die Sitzung des neu angeschlossenen Geräts an Gi1/0/9 an.',
+                     'text_en': 'Look at the session of the newly connected device on Gi1/0/9.',
+                     'command': 'show access-session interface Gi1/0/9 details'},
+                    {'text_de': 'In welchem VLAN ist das Gerät gelandet (nur die Nummer)?',
+                     'text_en': 'Which VLAN did the device end up in (number only)?',
+                     'answers': ['90', 'VLAN 90', 'vlan 90']},
+                    {'text_de': 'Kam dieses VLAN vom RADIUS-Server oder aus der lokalen Konfiguration (server/lokal)?',
+                     'text_en': 'Did this VLAN come from the RADIUS server or from local configuration (server/local)?',
+                     'answers': ['lokal', 'local', 'lokale Konfiguration', 'local policies', 'Local Policies'],
+                     'explanation_de': 'Critical Auth: Der Port ist „Authorized“, obwohl die Methode fehlgeschlagen ist – das VLAN stammt aus der lokalen Konfiguration des Switches, nicht vom Server.',
+                     'explanation_en': 'Critical auth: the port is "Authorized" although the method failed – the VLAN comes from the switch\'s local configuration, not from the server.'},
+                ],
+            },
+        },
         {'type': 'text', 'id': 'text-5',
          'value': {
              'de': '## Das NAC-Ökosystem im Überblick (herstellerneutral)\n\n'
@@ -199,7 +452,10 @@ NAC_RESILIENZ_MODULE = {
                    'Umgebungen.\n'
                    '- **Forescout** — agentenlose Device-Intelligence-Plattform, die Sichtbarkeit '
                    'und Segmentierung über bestehende Switches/Firewalls legt, ohne die '
-                   'vorhandene AAA-Infrastruktur zu ersetzen.',
+                   'vorhandene AAA-Infrastruktur zu ersetzen.\n'
+                   '- **FortiNAC (Fortinet)** — NAC-Plattform mit Schwerpunkt auf Sichtbarkeit und '
+                   'Profiling, die Switches und WLAN vieler Hersteller steuert (u. a. per SNMP, CLI '
+                   'und RADIUS) und sich in die Fortinet Security Fabric einfügt.',
              'en': '## The NAC Ecosystem at a Glance (Vendor-Neutral)\n\n'
                    'Once you understand RADIUS redundancy and fail-open/fail-closed, product '
                    'selection opens onto a wide field. Roughly categorized, without version '
@@ -212,7 +468,10 @@ NAC_RESILIENZ_MODULE = {
                    'itself as a vendor-independent policy engine for multi-vendor environments.\n'
                    '- **Forescout** — agentless device intelligence platform that layers '
                    'visibility and segmentation on top of existing switches/firewalls, without '
-                   'replacing the existing AAA infrastructure.',
+                   'replacing the existing AAA infrastructure.\n'
+                   '- **FortiNAC (Fortinet)** — NAC platform focused on visibility and profiling that '
+                   'controls switches and Wi-Fi from many vendors (via SNMP, CLI, and RADIUS, among '
+                   'others) and fits into the Fortinet Security Fabric.',
          }},
         {'type': 'text', 'id': 'text-6',
          'value': {
@@ -222,7 +481,7 @@ NAC_RESILIENZ_MODULE = {
                    'Bestandteil von Windows Server, geeignet als einfacher, grundlegender '
                    'RADIUS-Server für den Einstieg. NPS bringt aber nicht die Posture-, '
                    'Profiling- und Guest-Feature-Tiefe der dedizierten NAC-Suiten (ISE, '
-                   'ClearPass, Forescout) mit.\n'
+                   'ClearPass, Forescout, FortiNAC) mit.\n'
                    '- **FreeRADIUS / PacketFence (Open Source)** — FreeRADIUS ist ein '
                    'quelloffener RADIUS-Server; PacketFence baut darauf eine vollständige, '
                    'frei verfügbare NAC-Lösung mit Captive Portal, 802.1X-Support, '
@@ -236,7 +495,7 @@ NAC_RESILIENZ_MODULE = {
                    '- **Microsoft NPS (Network Policy Server)** — a RADIUS server role built '
                    'into Windows Server, suitable as a simple, basic RADIUS server to get '
                    'started. NPS, however, does not bring the posture, profiling, and guest '
-                   'feature depth of the dedicated NAC suites (ISE, ClearPass, Forescout).\n'
+                   'feature depth of the dedicated NAC suites (ISE, ClearPass, Forescout, FortiNAC).\n'
                    '- **FreeRADIUS / PacketFence (open source)** — FreeRADIUS is an open-source '
                    'RADIUS server; PacketFence builds a complete, freely available NAC solution '
                    'on top of it, with a captive portal, 802.1X support, compliance-based device '
@@ -318,6 +577,91 @@ NAC_RESILIENZ_MODULE = {
                                'correctly describe the behavior of Closed Mode with and without '
                                'a critical authentication configuration.',
          }},
+        {
+            'type': 'scenario',
+            'id': 'scenario-radius-ausfall',
+            'payload': {
+                'title_de': 'Der einzige RADIUS-Server fällt aus',
+                'title_en': 'The only RADIUS server goes down',
+                'start': 'start',
+                'nodes': [
+                    {
+                        'id': 'start',
+                        'text_de': 'Montag, 07:30 Uhr: Nordwinds einziger RADIUS-Server ist ausgefallen. Die Zentrale läuft im Closed Mode, ein Critical VLAN ist nicht konfiguriert. Wer schon angemeldet war, arbeitet weiter; die Frühschicht kommt nicht ins Netz. Was tust du zuerst?',
+                        'text_en': "Monday, 07:30: Nordwind's only RADIUS server has failed. Headquarters runs in Closed Mode, no critical VLAN is configured. Whoever was already logged in keeps working; the early shift cannot get onto the network. What do you do first?",
+                        'options': [
+                            {
+                                'label_de': 'Die Access-Switches neu starten',
+                                'label_en': 'Reboot the access switches',
+                                'to': 'reboot',
+                            },
+                            {
+                                'label_de': 'Den Server wiederherstellen; bis dahin gezielt einzelne Ports freigeben',
+                                'label_en': 'Restore the server; until then open individual ports selectively',
+                                'to': 'server',
+                            },
+                            {
+                                'label_de': 'Per Skript alle Ports auf „force-authorized“ stellen',
+                                'label_en': 'Set all ports to "force-authorized" by script',
+                                'to': 'force',
+                            },
+                        ],
+                    },
+                    {
+                        'id': 'reboot',
+                        'outcome': 'bad',
+                        'text_de': 'Jetzt verlieren auch die bisher angemeldeten Geräte ihre Sitzung — und kommen ohne RADIUS nicht wieder hinein. Aus einem Teilausfall wird ein Totalausfall.',
+                        'text_en': 'Now the devices that were logged in lose their sessions too — and cannot get back in without RADIUS. A partial outage becomes a total one.',
+                    },
+                    {
+                        'id': 'force',
+                        'outcome': 'ok',
+                        'text_de': 'Der Betrieb läuft, aber das ganze Netz ist ungeprüft offen — und jemand muss später jede Änderung sicher zurücknehmen. Als dokumentierter Notfallplan vertretbar, als spontane Aktion riskant.',
+                        'text_en': 'Operations continue, but the whole network is open and unchecked — and someone has to roll back every change safely later. Acceptable as a documented emergency plan, risky as a spontaneous action.',
+                    },
+                    {
+                        'id': 'server',
+                        'text_de': 'Um 09:10 Uhr läuft der Server wieder. In der Nachbesprechung geht es um die Lehre daraus. Was empfiehlst du?',
+                        'text_en': 'At 09:10 the server is running again. The review is about the lesson learned. What do you recommend?',
+                        'options': [
+                            {
+                                'label_de': 'Zweiten RADIUS-Server plus Critical VLAN mit eingeschränktem Zugriff',
+                                'label_en': 'A second RADIUS server plus a critical VLAN with restricted access',
+                                'to': 'beides',
+                            },
+                            {
+                                'label_de': 'Nur einen zweiten RADIUS-Server — dann fällt nie mehr alles aus',
+                                'label_en': 'Only a second RADIUS server — then never everything fails again',
+                                'to': 'nur_red',
+                            },
+                            {
+                                'label_de': 'Bei Ausfall künftig überall vollen Zugriff gewähren',
+                                'label_en': 'Grant full access everywhere on outage from now on',
+                                'to': 'failopen',
+                            },
+                        ],
+                    },
+                    {
+                        'id': 'nur_red',
+                        'outcome': 'ok',
+                        'text_de': 'Der wichtigste Schritt — aber auch zwei Server können gemeinsam ausfallen (Strom, Netzsegment, fehlerhaftes Update). Für diesen Fall fehlt weiterhin eine Antwort.',
+                        'text_en': 'The most important step — but two servers can fail together as well (power, network segment, faulty update). For that case an answer is still missing.',
+                    },
+                    {
+                        'id': 'failopen',
+                        'outcome': 'bad',
+                        'text_de': 'Dann genügt es, den RADIUS-Server zu stören, um die Zugangskontrolle abzuschalten. Volles Fail-Open ist nur dort vertretbar, wo Verfügbarkeit bewusst über alles geht.',
+                        'text_en': 'Then disrupting the RADIUS server is enough to switch off access control. Full fail-open is only defensible where availability deliberately trumps everything.',
+                    },
+                    {
+                        'id': 'beides',
+                        'outcome': 'good',
+                        'text_de': 'Redundanz macht den Ausfall selten, das Critical VLAN macht ihn beherrschbar: Neue Geräte bekommen einen begrenzten Notbetrieb und werden neu geprüft, sobald ein Server wieder antwortet. Welche Bereiche stattdessen Fail-Closed bleiben, legt Nordwind je Netzbereich fest.',
+                        'text_en': 'Redundancy makes the outage rare, the critical VLAN makes it manageable: new devices get limited emergency operation and are re-checked as soon as a server answers again. Which areas remain fail-closed instead is decided by Nordwind per network area.',
+                    },
+                ],
+            },
+        },
         {'type': 'reflect', 'id': 'reflect-1',
          'payload': {
              'prompt_de': 'Nordwind hat aktuell weder RADIUS-Redundanz noch eine dokumentierte '
@@ -348,6 +692,10 @@ NAC_RESILIENZ_MODULE = {
                  'Only already authenticated devices are disconnected',
                  'The switch automatically switches back to Monitor Mode',
              ],
+         },
+         'explanation': {
+             'de': 'Fail-Open lässt neue Geräte ungeprüft zu, damit der Betrieb weiterläuft. Bereits angemeldete Geräte sind vom Ausfall ohnehin nicht sofort betroffen — getrennt wird niemand.',
+             'en': 'Fail-open admits new devices unchecked so that operations continue. Devices already logged in are not immediately affected by the outage anyway — nobody gets disconnected.',
          }},
         {'id': 'rs2', 'type': 'single',
          'prompt': {'de': 'Was bedeutet Fail-Closed bei einem RADIUS-Ausfall?',
@@ -366,6 +714,10 @@ NAC_RESILIENZ_MODULE = {
                  'New devices are rejected — security over availability',
                  'Only guest devices continue to be admitted',
              ],
+         },
+         'explanation': {
+             'de': 'Fail-Closed weist neue Geräte ab, solange keine Prüfung möglich ist. Das gilt für alle gleichermaßen — eine Ausnahme für Gäste wäre gerade die falsche Gruppe.',
+             'en': 'Fail-closed rejects new devices as long as no check is possible. This applies to everyone alike — an exception for guests would be precisely the wrong group.',
          }},
         {'id': 'rs3', 'type': 'single',
          'prompt': {'de': 'Was ist eine Critical-Authentication-Regel (Critical VLAN)?',
@@ -386,6 +738,10 @@ NAC_RESILIENZ_MODULE = {
                  'A VLAN exclusively for critical servers in the data center',
                  'A rule that automatically forces fail-closed during a RADIUS outage',
              ],
+         },
+         'explanation': {
+             'de': 'Das Critical VLAN ist ein vorab definierter, eingeschränkter Notzugang für neue Sitzungen. Es verhindert keinen Ausfall und ist das Gegenteil von erzwungenem Fail-Closed.',
+             'en': 'The critical VLAN is a predefined, restricted emergency access for new sessions. It prevents no outage and is the opposite of enforced fail-closed.',
          }},
         {'id': 'rs4', 'type': 'single',
          'prompt': {'de': 'Warum ist ein einzelner RADIUS-Server ohne Backup riskant?',
@@ -406,6 +762,10 @@ NAC_RESILIENZ_MODULE = {
                  'Because it represents a single point of failure: its outage immediately '
                  'triggers the fail-open/fail-closed decision',
              ],
+         },
+         'explanation': {
+             'de': 'Fällt der einzige Server aus, greift sofort das Ausfallverhalten. Welches das ist, erzwingt nicht der Server — und RADIUS läuft klassisch über UDP, nicht TCP.',
+             'en': 'If the only server fails, the outage behavior kicks in immediately. Which behavior that is, is not forced by the server — and classic RADIUS runs over UDP, not TCP.',
          }},
         {'id': 'rs5', 'type': 'single',
          'prompt': {'de': 'Wie ordnet sich Microsoft NPS zutreffend im NAC-Ökosystem ein?',
@@ -427,6 +787,64 @@ NAC_RESILIENZ_MODULE = {
                  'As an agentless device intelligence platform like Forescout',
                  'As an open-source NAC solution with a captive portal like PacketFence',
              ],
+         },
+         'explanation': {
+             'de': 'NPS ist eine RADIUS-Rolle in Windows Server: solide für Authentifizierung, aber ohne die Posture-, Profiling- und Gastfunktionen einer NAC-Suite. Open Source ist NPS nicht.',
+             'en': 'NPS is a RADIUS role in Windows Server: solid for authentication, but without the posture, profiling, and guest functions of a NAC suite. NPS is not open source.',
          }},
+        {
+            'id': 'rs6',
+            'type': 'single',
+            'prompt': {
+                'de': '„show aaa servers“ zeigt: ISE-1 „State: current DEAD“, ISE-2 „State: current UP“. Am Port ist ein Critical VLAN konfiguriert. Was passiert mit einem Gerät, das sich jetzt neu anmeldet?',
+                'en': '"show aaa servers" shows: ISE-1 "State: current DEAD", ISE-2 "State: current UP". A critical VLAN is configured on the port. What happens to a device that logs in now?',
+            },
+            'options': {
+                'de': [
+                    'Es landet im Critical VLAN, weil ein Server tot ist',
+                    'Es wird ganz normal über ISE-2 authentifiziert und autorisiert',
+                    'Es wird abgewiesen, bis ISE-1 wieder antwortet',
+                    'Es erhält ohne Prüfung vollen Zugriff',
+                ],
+                'en': [
+                    'It ends up in the critical VLAN because one server is dead',
+                    'It is authenticated and authorized normally via ISE-2',
+                    'It is rejected until ISE-1 answers again',
+                    'It gets full access without any check',
+                ],
+            },
+            'answer': 1,
+            'explanation': {
+                'de': 'Das Critical VLAN greift erst, wenn ALLE Server der Gruppe als tot gelten. Solange einer antwortet, läuft die Anmeldung normal — genau dafür gibt es die Redundanz.',
+                'en': 'The critical VLAN only kicks in when ALL servers of the group are considered dead. As long as one answers, the login runs normally — that is exactly what redundancy is for.',
+            },
+        },
+        {
+            'id': 'rs7',
+            'type': 'multi',
+            'prompt': {
+                'de': 'Beide RADIUS-Server sind ausgefallen; an den Ports ist ein Critical VLAN samt „server alive action reinitialize“ konfiguriert. Welche Aussagen treffen zu? (Mehrere richtig)',
+                'en': 'Both RADIUS servers have failed; a critical VLAN including "server alive action reinitialize" is configured on the ports. Which statements are true? (Several correct)',
+            },
+            'options': {
+                'de': [
+                    'Bereits angemeldete Geräte arbeiten zunächst weiter',
+                    'Neu angeschlossene Geräte landen im Critical VLAN',
+                    'Die Identität der Geräte im Critical VLAN wurde geprüft',
+                    'Antwortet ein Server wieder, werden die Geräte im Critical VLAN neu authentifiziert',
+                ],
+                'en': [
+                    'Devices already logged in keep working for the time being',
+                    'Newly connected devices end up in the critical VLAN',
+                    'The identity of the devices in the critical VLAN has been verified',
+                    'Once a server answers again, the devices in the critical VLAN are re-authenticated',
+                ],
+            },
+            'answer': [0, 1, 3],
+            'explanation': {
+                'de': 'Im Critical VLAN sitzt, wer NICHT geprüft werden konnte — deshalb muss es eng begrenzt sein. Der Irrtum „Authorized heißt authentifiziert“ liegt nahe, weil der Switch den Port als autorisiert anzeigt.',
+                'en': 'The critical VLAN holds whoever could NOT be checked — which is why it must be tightly limited. The misconception "authorized means authenticated" is tempting, because the switch shows the port as authorized.',
+            },
+        },
     ]},
 }

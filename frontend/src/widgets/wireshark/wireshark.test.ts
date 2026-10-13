@@ -70,4 +70,16 @@ describe('CAPTURE data consistency', () => {
       expect(p.protocols).toContain('ip')
     }
   })
+
+  it('TLS flow is complete: handshake both ways, server packets, no .local zone', () => {
+    const tls = CAPTURE.filter((p) => p.ports?.includes(443))
+    const flags = tls.map((p) => p.layers.find((l) => l.name === 'Transmission Control Protocol')!.fields[2].value)
+    expect(flags.slice(0, 3)).toEqual(['SYN', 'SYN, ACK', 'ACK'])
+    const server = tls.filter((p) => p.ports![0] === 443)
+    expect(server.length).toBeGreaterThanOrEqual(3)
+    expect(server.some((p) => p.info.startsWith('Server Hello'))).toBe(true)
+    expect(server.some((p) => p.info === 'Application Data')).toBe(true)
+    // .local ist für mDNS reserviert (RFC 6762) -> nicht als interne DNS-Zone zeigen
+    expect(JSON.stringify(CAPTURE)).not.toContain('.local')
+  })
 })

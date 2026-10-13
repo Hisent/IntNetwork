@@ -1,7 +1,8 @@
+import { useParams } from 'react-router-dom'
 import { useWidgetScope } from '@/lib/widgetScope'
 import { FileCommandLabConsole } from '@/widgets/lab/FileCommandLabConsole'
 import { useFileCommandLab } from '@/widgets/lab/useFileCommandLab'
-import { DEFAULT_TEMPLATE, OPENSSL_TEMPLATES, templateById } from '@/widgets/opensslab/templates'
+import { DEFAULT_TEMPLATE, MODULE_TEMPLATES, OPENSSL_TEMPLATES, templateById } from '@/widgets/opensslab/templates'
 import type { Lang } from '@/lib/i18n'
 
 const STR = {
@@ -50,8 +51,13 @@ export function OpensslLab({ lang }: { lang: Lang }) {
   const scope = useWidgetScope()
   const storageKey = scope ? `intnetwork-opensslab-${scope}` : null
 
+  // Vorwahl über den Routen-Parameter des Moduls (/lernen/:key), wie im Ansible-Lab.
+  const { key: moduleKey } = useParams()
+  const moduleTemplateIds = moduleKey ? MODULE_TEMPLATES[moduleKey] : undefined
+
   const state = useFileCommandLab({
-    kind: 'openssl', lang, storageKey, defaultTemplate: DEFAULT_TEMPLATE, templateById,
+    kind: 'openssl', lang, storageKey, templateById, moduleTemplateIds,
+    defaultTemplate: moduleTemplateIds ? templateById(moduleTemplateIds[0]) : DEFAULT_TEMPLATE,
   })
 
   const activeTemplate = templateById(state.templateId)

@@ -13,13 +13,17 @@ export interface Lease {
   steps: DhcpStep[]
 }
 
-const POOL_BASE = 100 // 192.168.10.100 aufwärts
+// Pool wie im Modultext: 192.168.10.100–199
+const POOL_BASE = 100
+export const POOL_SIZE = 100
 const GATEWAY = '192.168.10.1'
 const DNS = '192.168.10.1'
 const MASK = '255.255.255.0'
 
-/** DORA für den index-ten Client (0-basiert): vergibt die nächste Pool-Adresse. */
-export function lease(index: number): Lease {
+/** DORA für den index-ten Client (0-basiert): vergibt die nächste Pool-Adresse —
+ *  oder `null`, wenn der Pool erschöpft ist (der Server sendet dann kein Offer). */
+export function lease(index: number): Lease | null {
+  if (index < 0 || index >= POOL_SIZE) return null
   const ip = `192.168.10.${POOL_BASE + index}`
   const steps: DhcpStep[] = [
     { phase: 'Discover', text: {

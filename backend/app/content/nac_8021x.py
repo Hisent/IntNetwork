@@ -15,6 +15,13 @@ NAC_8021X_MODULE = {
         'Controlled und uncontrolled Port erklären können',
         'Den Bezug zum Modul enterprise-wlan herstellen können',
     ],
+    'goals_en': [
+        'Correctly map the three 802.1X roles (supplicant, authenticator, authentication server) to client, switch/AP, and RADIUS server',
+        'Distinguish EAPOL and RADIUS as separate transport legs within the flow',
+        'Follow the complete 802.1X flow from EAPOL-Start to EAP-Success',
+        'Explain the controlled and the uncontrolled port',
+        'Relate this module to the enterprise-wlan module',
+    ],
     'scenario': {
         'de': 'Nordwind Logistik will die freien Ports in der Zentrale nicht mehr offen lassen. '
               'Die Entscheidung fällt auf 802.1X als Kernmechanismus für portbasierte '
@@ -60,6 +67,64 @@ NAC_8021X_MODULE = {
                    'Rule of thumb: supplicant = client, authenticator = switch/AP, '
                    'authentication server = RADIUS.',
          }},
+        {
+            'type': 'diagram',
+            'id': 'diagram-8021x-rollen',
+            'payload': {
+                'kind': 'flow',
+                'title_de': '802.1X: drei Rollen, zwei Strecken',
+                'title_en': '802.1X: three roles, two legs',
+                'nodes': [
+                    {
+                        'id': 'pc',
+                        'shape': 'host',
+                        'row': 0,
+                        'col': 0,
+                        'label': 'Supplicant',
+                        'detail_de': 'Software auf dem Endgerät (Windows: Dienst „Automatische Konfiguration (verkabelt)“, Linux: wpa_supplicant). Spricht EAPOL, kennt RADIUS nicht.',
+                        'detail_en': 'Software on the endpoint (Windows: "Wired AutoConfig" service, Linux: wpa_supplicant). Speaks EAPOL, knows nothing about RADIUS.',
+                    },
+                    {
+                        'id': 'sw',
+                        'shape': 'switch',
+                        'row': 0,
+                        'col': 1,
+                        'label': 'Authenticator',
+                        'detail_de': 'Switch oder AP. Steuert den Port und packt EAP von EAPOL in RADIUS um — die EAP-Methode selbst versteht er nicht.',
+                        'detail_en': 'Switch or AP. Controls the port and re-wraps EAP from EAPOL into RADIUS — it does not understand the EAP method itself.',
+                    },
+                    {
+                        'id': 'srv',
+                        'shape': 'server',
+                        'row': 0,
+                        'col': 2,
+                        'label': 'Authentication Server',
+                        'detail_de': 'RADIUS-Server. Führt die EAP-Methode mit dem Supplicant durch und trifft die Entscheidung.',
+                        'detail_en': 'RADIUS server. Runs the EAP method with the supplicant and makes the decision.',
+                    },
+                ],
+                'edges': [
+                    {
+                        'id': 'eapol',
+                        'from': 'pc',
+                        'to': 'sw',
+                        'label': 'EAPOL (Layer 2)',
+                        'arrow': 'both',
+                        'detail_de': 'EAP over LAN: EtherType 0x888E, kommt ohne IP-Adresse aus.',
+                        'detail_en': 'EAP over LAN: EtherType 0x888E, works without an IP address.',
+                    },
+                    {
+                        'id': 'radius',
+                        'from': 'sw',
+                        'to': 'srv',
+                        'label': 'RADIUS (UDP 1812)',
+                        'arrow': 'both',
+                        'detail_de': 'EAP reist im RADIUS-Attribut EAP-Message; der Switch braucht dafür eine IP-Verbindung zum Server.',
+                        'detail_en': 'EAP travels in the RADIUS EAP-Message attribute; the switch needs IP connectivity to the server for this.',
+                    },
+                ],
+            },
+        },
         {'type': 'check', 'id': 'check-1',
          'payload': {
              'kind': 'choice',
@@ -121,7 +186,9 @@ NAC_8021X_MODULE = {
                    'ggf. mit einer VLAN-Zuweisung im Access-Accept. Darauf basierend sendet der '
                    'Authenticator **EAP-Success** oder **EAP-Failure** an den Supplicant.\n\n'
                    'Das folgende Widget zeigt diesen Ablauf noch einmal grafisch als Sequenz '
-                   'zwischen Supplicant, Authenticator und Authentication Server.',
+                   'zwischen Supplicant, Authenticator und Authentication Server — und daneben die '
+                   'Abzweigungen, die spätere Module vertiefen: Ablehnung, MAB-Fallback, Gast-VLAN '
+                   'und Critical VLAN bei RADIUS-Ausfall.',
              'en': '## The Flow: from EAPOL-Start to EAP-Success\n\n'
                    'A typical 802.1X flow runs in this order:\n\n'
                    '1. **EAPOL-Start** — the supplicant initiates authentication.\n'
@@ -137,11 +204,54 @@ NAC_8021X_MODULE = {
                    'with a VLAN assignment in the Access-Accept. Based on this, the '
                    'authenticator sends **EAP-Success** or **EAP-Failure** to the supplicant.\n\n'
                    'The widget below shows this flow again graphically as a sequence between '
-                   'supplicant, authenticator, and authentication server.',
+                   'supplicant, authenticator, and authentication server — along with the branches '
+                   'that later modules explore: rejection, MAB fallback, guest VLAN, and the critical '
+                   'VLAN on a RADIUS outage.',
          }},
         {'type': 'widget', 'id': 'dot1x-flow',
          'note': 'Kernvisualisierung des Moduls — der Text davor liefert die Begriffe, das '
-                 'Widget macht die Sequenz zwischen den drei Rollen fuer die Lernenden greifbar.'},
+                 'Widget macht die Sequenz zwischen den drei Rollen fuer die Lernenden greifbar. '
+                 'Erst den Erfolgsfall (EAP-TLS) komplett, dann einen Fehlerpfad waehlen lassen; die '
+                 'Pfade MAB, Gast-VLAN und Critical VLAN sind hier nur Vorschau auf spaetere Module.'},
+        {
+            'type': 'cloze',
+            'id': 'cloze-port-8021x',
+            'note': 'Erste echte Konfiguration des Lehrgangs. Klassische (Legacy-)Syntax von Cisco IOS/IOS-XE; die neuere IBNS-2.0-Schreibweise wird im Modul nac-deployment gegenübergestellt.',
+            'payload': {
+                'prompt_de': 'Schalte 802.1X auf dem Switch ein und mache Gi1/0/5 zum 802.1X-Port (Cisco IOS/IOS-XE, klassische Syntax).',
+                'prompt_en': 'Enable 802.1X on the switch and turn Gi1/0/5 into an 802.1X port (Cisco IOS/IOS-XE, classic syntax).',
+                'mono': True,
+                'text': 'aaa new-model\naaa authentication dot1x default group [[group]]\ndot1x [[global]]\n!\ninterface GigabitEthernet1/0/5\n switchport mode [[mode]]\n authentication port-control [[pc]]\n dot1x pae [[pae]]',
+                'gaps': [
+                    {
+                        'id': 'group',
+                        'options': ['radius', 'tacacs+', 'local'],
+                        'answer': 0,
+                    },
+                    {
+                        'id': 'global',
+                        'accept': ['system-auth-control'],
+                    },
+                    {
+                        'id': 'mode',
+                        'options': ['access', 'trunk', 'dynamic auto'],
+                        'answer': 0,
+                    },
+                    {
+                        'id': 'pc',
+                        'options': ['auto', 'force-authorized', 'force-unauthorized'],
+                        'answer': 0,
+                    },
+                    {
+                        'id': 'pae',
+                        'options': ['authenticator', 'supplicant', 'both'],
+                        'answer': 0,
+                    },
+                ],
+                'explanation_de': '„dot1x system-auth-control“ schaltet 802.1X global ein. „port-control auto“ macht den Port abhängig vom Ergebnis der Authentifizierung; „force-authorized“ (Standard) ließe jeden durch, „force-unauthorized“ niemanden. Der Switch ist am Port der Authenticator.',
+                'explanation_en': '"dot1x system-auth-control" enables 802.1X globally. "port-control auto" makes the port depend on the authentication result; "force-authorized" (the default) would let everyone through, "force-unauthorized" nobody. The switch is the authenticator on the port.',
+            },
+        },
         {'type': 'order', 'id': 'order-1',
          'payload': {
              'prompt_de': 'Bringe die folgenden Schritte des 802.1X-Handshakes in die richtige '
@@ -208,6 +318,75 @@ NAC_8021X_MODULE = {
                  'Only ICMP ping for reachability checks',
              ],
          }},
+        {
+            'type': 'terminal',
+            'id': 'terminal-dot1x-session',
+            'note': 'Ausgaben im Format von IOS-XE 16/17, gekürzt (u. a. ohne IIF-ID, Handle, Local Policies). Auf älteren Plattformen heißt der Befehl „show authentication sessions interface … details“.',
+            'payload': {
+                'title_de': 'Sitzung am Port prüfen',
+                'title_en': 'Inspect the session on the port',
+                'intro_de': 'Access-Switch der Nordwind-Zentrale. „?“ zeigt die Befehle.',
+                'intro_en': 'Access switch at Nordwind headquarters. "?" lists the commands.',
+                'prompt': 'nw-acc1#',
+                'abbreviations': True,
+                'unknown': '% Invalid input detected: {cmd}',
+                'commands': [
+                    {
+                        'cmd': 'show access-session interface Gi1/0/5 details',
+                        'aliases': ['show authentication sessions interface Gi1/0/5 details'],
+                        'desc_de': 'Sitzung an Gi1/0/5 im Detail',
+                        'desc_en': 'session on Gi1/0/5 in detail',
+                        'output': '            Interface:  GigabitEthernet1/0/5\n          MAC Address:  0050.56a1.2b3c\n         IPv4 Address:  10.20.0.57\n            User-Name:  k.kaya@nordwind.example\n               Status:  Authorized\n               Domain:  DATA\n       Oper host mode:  single-host\n     Oper control dir:  both\n      Session timeout:  N/A\n    Common Session ID:  0A0A00FE0000002B1C3D5E7F\n       Current Policy:  POLICY_Gi1/0/5\n\nServer Policies:\n           Vlan Group:  Vlan: 20\n\nMethod status list:\n       Method           State\n        dot1x           Authc Success',
+                    },
+                    {
+                        'cmd': 'show access-session',
+                        'aliases': ['show authentication sessions'],
+                        'desc_de': 'alle Sitzungen',
+                        'desc_en': 'all sessions',
+                        'output': 'Interface  MAC Address     Method  Domain  Status Fg\nGi1/0/5    0050.56a1.2b3c  dot1x   DATA    Auth\nGi1/0/7    0018.f809.cfd7  mab     DATA    Auth\n\nSession count = 2',
+                    },
+                    {
+                        'cmd': 'show dot1x all',
+                        'desc_de': '802.1X-Status und Timer',
+                        'desc_en': '802.1X status and timers',
+                        'output': 'Sysauthcontrol              Enabled\nDot1x Protocol Version            3\n\nDot1x Info for GigabitEthernet1/0/5\n-----------------------------------\nPAE                       = AUTHENTICATOR\nQuietPeriod               = 60\nServerTimeout             = 0\nSuppTimeout               = 30\nReAuthMax                 = 2\nMaxReq                    = 2\nTxPeriod                  = 30',
+                    },
+                    {
+                        'cmd': 'show running-config interface Gi1/0/5',
+                        'desc_de': 'Port-Konfiguration',
+                        'desc_en': 'port configuration',
+                        'output': 'interface GigabitEthernet1/0/5\n switchport access vlan 99\n switchport mode access\n authentication port-control auto\n dot1x pae authenticator\n spanning-tree portfast\nend',
+                    },
+                ],
+                'tasks': [
+                    {
+                        'text_de': 'Zeige die Sitzung an Gi1/0/5 im Detail.',
+                        'text_en': 'Show the session on Gi1/0/5 in detail.',
+                        'command': 'show access-session interface Gi1/0/5 details',
+                    },
+                    {
+                        'text_de': 'Mit welcher Methode wurde der Port autorisiert?',
+                        'text_en': 'Which method authorized the port?',
+                        'answers': ['dot1x', '802.1X', '802.1x'],
+                    },
+                    {
+                        'text_de': 'Welches VLAN hat der RADIUS-Server zugewiesen (nur die Nummer)?',
+                        'text_en': 'Which VLAN did the RADIUS server assign (number only)?',
+                        'answers': ['20', 'VLAN 20', 'vlan 20'],
+                    },
+                    {
+                        'text_de': 'Am Port ist statisch VLAN 99 konfiguriert. Prüfe das in der Port-Konfiguration.',
+                        'text_en': 'VLAN 99 is statically configured on the port. Verify this in the port configuration.',
+                        'command': 'show running-config interface Gi1/0/5',
+                    },
+                    {
+                        'text_de': 'Welcher Wert steht bei TxPeriod (Sekunden)?',
+                        'text_en': 'Which value is shown for TxPeriod (seconds)?',
+                        'answers': ['30', '30s', '30 s'],
+                    },
+                ],
+            },
+        },
         {'type': 'text', 'id': 'text-5',
          'value': {
              'de': '## Verweis: enterprise-wlan\n\n'
@@ -224,6 +403,15 @@ NAC_8021X_MODULE = {
                    'authorization outcomes covered in detail in the following modules of this '
                    'block.',
          }},
+        {
+            'type': 'text',
+            'id': 'text-macsec',
+            'note': 'Bewusst kompakt: Einordnung, nicht Konfiguration. Kernbotschaft: 802.1X prüft nur beim Verbindungsaufbau, MACsec schützt danach jeden Frame.',
+            'value': {
+                'de': '## Ausblick: MACsec (802.1AE) und MKA\n\n802.1X prüft, **wer** sich am Port anmeldet — danach fließen die Frames aber unverschlüsselt und ungeschützt. Wer zwischen Endgerät und Switch einen kleinen Hub oder ein Gerät im Durchleitungsmodus setzt, kann die bereits autorisierte Sitzung mitbenutzen. Genau diese Lücke schließt **MACsec** (IEEE 802.1AE): Es verschlüsselt und authentifiziert jeden einzelnen Ethernet-Frame auf Layer 2.\n\n- **Hop-by-Hop, nicht Ende-zu-Ende**: MACsec schützt jeweils eine Punkt-zu-Punkt-Strecke — Endgerät↔Switch oder Switch↔Switch. Im Switch selbst liegen die Daten im Klartext vor.\n- **MKA** (MACsec Key Agreement, seit IEEE 802.1X-2010 Teil des Standards) handelt die Schlüssel aus: Aus der EAP-Authentifizierung entsteht ein Master Session Key, daraus der langlebige **CAK**; der Key Server erzeugt daraus die kurzlebigen **SAK**, mit denen die Frames tatsächlich verschlüsselt werden (Standard-Cipher GCM-AES-128).\n- **should-secure vs. must-secure**: Bei „should-secure“ wird verschlüsselt, wenn die Gegenstelle MACsec kann, sonst im Klartext gesendet; bei „must-secure“ werden unverschlüsselte Frames verworfen.\n\nVoraussetzung sind MACsec-fähige Hardware auf beiden Seiten und ein Supplicant, der MKA beherrscht. Für Nordwind ist MACsec deshalb kein erster Schritt, sondern eine Härtung für besonders schützenswerte Ports und Uplinks.',
+                'en': '## Outlook: MACsec (802.1AE) and MKA\n\n802.1X checks **who** logs in on the port — but afterwards the frames flow unencrypted and unprotected. Anyone who places a small hub or a pass-through device between endpoint and switch can piggyback on the already authorized session. This is exactly the gap **MACsec** (IEEE 802.1AE) closes: it encrypts and authenticates every single Ethernet frame at Layer 2.\n\n- **Hop by hop, not end to end**: MACsec protects one point-to-point link at a time — endpoint↔switch or switch↔switch. Inside the switch the data is in clear text.\n- **MKA** (MACsec Key Agreement, part of the standard since IEEE 802.1X-2010) negotiates the keys: EAP authentication yields a master session key, from which the long-lived **CAK** is derived; the key server generates the short-lived **SAKs** from it, which actually encrypt the frames (default cipher GCM-AES-128).\n- **should-secure vs. must-secure**: with "should-secure", traffic is encrypted if the peer supports MACsec and sent in clear text otherwise; with "must-secure", unencrypted frames are dropped.\n\nIt requires MACsec-capable hardware on both sides and a supplicant that speaks MKA. For Nordwind, MACsec is therefore not a first step but a hardening measure for particularly sensitive ports and uplinks.',
+            },
+        },
         {'type': 'reflect', 'id': 'reflect-1',
          'payload': {
              'prompt_de': 'Ein Kollege bei Nordwind fragt: „Reicht 802.1X nicht allein aus, '
@@ -254,6 +442,10 @@ NAC_8021X_MODULE = {
                  'The RADIUS server',
                  'The DNS server on the network',
              ],
+         },
+         'explanation': {
+             'de': 'Der Authenticator ist das Gerät, das den Port kontrolliert — Switch oder Access Point. Der RADIUS-Server entscheidet zwar, sitzt aber als Authentication Server hinter dem Authenticator.',
+             'en': 'The authenticator is the device that controls the port — switch or access point. The RADIUS server does decide, but sits behind the authenticator as the authentication server.',
          }},
         {'id': 'ax2', 'type': 'single',
          'prompt': {'de': 'Welches Protokoll läuft zwischen Supplicant und Authenticator?',
@@ -272,6 +464,10 @@ NAC_8021X_MODULE = {
                  'TACACS+',
                  'RadSec (RADIUS over TLS)',
              ],
+         },
+         'explanation': {
+             'de': 'Zwischen Client und Switch läuft EAPOL auf Layer 2, weil der Client noch keine IP-Adresse hat. RADIUS beginnt erst am Switch und reicht bis zum Server.',
+             'en': 'EAPOL runs at Layer 2 between client and switch, because the client has no IP address yet. RADIUS only starts at the switch and reaches to the server.',
          }},
         {'id': 'ax3', 'type': 'single',
          'prompt': {'de': 'Was passiert als Erstes, nachdem ein Gerät physisch mit einem '
@@ -292,6 +488,10 @@ NAC_8021X_MODULE = {
                  'The port is set to unauthorized, only EAPOL is allowed through',
                  'The device immediately receives an IP address via DHCP',
              ],
+         },
+         'explanation': {
+             'de': 'Der Port startet unauthorized und lässt nur EAPOL passieren. DHCP ist normaler Datenverkehr und kommt erst nach erfolgreicher Authentifizierung durch — deshalb hat das Gerät vorher keine Adresse.',
+             'en': 'The port starts unauthorized and lets only EAPOL pass. DHCP is ordinary data traffic and only gets through after successful authentication — which is why the device has no address before that.',
          }},
         {'id': 'ax4', 'type': 'single',
          'prompt': {'de': 'Was sendet der Authenticator dem Supplicant nach einem RADIUS '
@@ -312,26 +512,95 @@ NAC_8021X_MODULE = {
                  'EAP-Failure',
                  'EAP-Success',
              ],
+         },
+         'explanation': {
+             'de': 'Der Access-Accept geht an den Switch; der übersetzt ihn für den Client in EAP-Success. EAP-Failure wäre die Entsprechung zu einem Access-Reject.',
+             'en': 'The Access-Accept goes to the switch, which translates it into EAP-Success for the client. EAP-Failure would be the counterpart of an Access-Reject.',
          }},
-        {'id': 'ax5', 'type': 'single',
-         'prompt': {'de': 'In welchem Modul wird 802.1X bereits grundlegend eingeführt, bevor '
-                          'es hier für NAC vertieft wird?',
-                    'en': 'In which module is 802.1X already introduced at a foundational '
-                         'level, before being deepened here for NAC?'},
+        # ax5 (bis v1.42.0: Verweisfrage auf enterprise-wlan) ist entfallen; die id wird nicht neu vergeben
+        {'id': 'ax8', 'type': 'single',
+         'prompt': {'de': 'Im Modul enterprise-wlan meldet sich ein Notebook per WPA2/WPA3-Enterprise '
+                          'am Firmen-WLAN an. Wie verteilen sich dort die drei 802.1X-Rollen?',
+                    'en': 'In the enterprise-wlan module, a notebook joins the corporate Wi-Fi with '
+                          'WPA2/WPA3-Enterprise. How are the three 802.1X roles distributed there?'},
          'answer': 0,
          'options': {
              'de': [
-                 'enterprise-wlan',
-                 'dns-sicherheit-dnssec',
-                 'nac-radius',
-                 'vlan-grundlagen',
+                 'Notebook = Supplicant, Access Point bzw. WLAN-Controller = Authenticator, '
+                 'RADIUS-Server = Authentication Server',
+                 'Access Point = Supplicant, Notebook = Authenticator, RADIUS-Server = '
+                 'Authentication Server',
+                 'Notebook = Supplicant, RADIUS-Server = Authenticator, Access Point = '
+                 'Authentication Server',
+                 'Im WLAN gibt es keinen Authenticator, das Notebook spricht direkt RADIUS',
              ],
              'en': [
-                 'enterprise-wlan',
-                 'dns-sicherheit-dnssec',
-                 'nac-radius',
-                 'vlan-grundlagen',
+                 'Notebook = supplicant, access point or WLAN controller = authenticator, '
+                 'RADIUS server = authentication server',
+                 'Access point = supplicant, notebook = authenticator, RADIUS server = '
+                 'authentication server',
+                 'Notebook = supplicant, RADIUS server = authenticator, access point = '
+                 'authentication server',
+                 'On Wi-Fi there is no authenticator, the notebook speaks RADIUS directly',
              ],
+         },
+         'explanation': {
+             'de': 'Die Rollen sind im WLAN dieselben wie am Switch-Port: Der Access Point (bzw. der Controller) kontrolliert den Zugang und ist damit Authenticator. Das Endgerät spricht nie selbst RADIUS — das übernimmt immer der Authenticator.',
+             'en': 'The roles on Wi-Fi are the same as on a switch port: the access point (or the controller) controls access and is therefore the authenticator. The endpoint never speaks RADIUS itself — the authenticator always does that.',
          }},
+        {
+            'id': 'ax6',
+            'type': 'single',
+            'prompt': {
+                'de': 'Auf einem Port steht „authentication port-control force-authorized“. Ein Notebook ohne Supplicant wird angeschlossen. Was passiert?',
+                'en': 'A port is configured with "authentication port-control force-authorized". A notebook without a supplicant is connected. What happens?',
+            },
+            'options': {
+                'de': [
+                    'Der Port bleibt gesperrt, weil kein Supplicant antwortet',
+                    'Der Port ist ohne jede Authentifizierung autorisiert — das Notebook kommt ins Netz',
+                    'Der Switch fällt automatisch auf MAB zurück',
+                    'Der Switch fragt den RADIUS-Server mit der MAC-Adresse als Benutzername',
+                ],
+                'en': [
+                    'The port stays blocked because no supplicant answers',
+                    'The port is authorized without any authentication — the notebook gets onto the network',
+                    'The switch automatically falls back to MAB',
+                    'The switch asks the RADIUS server with the MAC address as username',
+                ],
+            },
+            'answer': 1,
+            'explanation': {
+                'de': '„force-authorized“ schaltet den Port fest auf autorisiert, 802.1X findet nicht statt. Erst „port-control auto“ macht den Portzustand vom Ergebnis der Authentifizierung abhängig — wer das vergisst, hat 802.1X nur scheinbar eingeschaltet.',
+                'en': '"force-authorized" pins the port to authorized, no 802.1X takes place. Only "port-control auto" makes the port state depend on the authentication result — forgetting it means 802.1X is only seemingly enabled.',
+            },
+        },
+        {
+            'id': 'ax7',
+            'type': 'multi',
+            'prompt': {
+                'de': 'Ein Notebook bekommt am 802.1X-Port keinen Zugang. Ein Mitschnitt am Port zeigt EAPOL-Start und EAP-Response/Identity vom Notebook, danach nichts mehr. Welche Schlüsse sind zulässig? (Mehrere richtig)',
+                'en': 'A notebook gets no access on the 802.1X port. A capture on the port shows EAPOL-Start and EAP-Response/Identity from the notebook, then nothing more. Which conclusions are valid? (Several correct)',
+            },
+            'options': {
+                'de': [
+                    'Der Supplicant auf dem Notebook ist aktiv',
+                    'Die Strecke Switch ↔ RADIUS-Server ist als Nächstes zu prüfen',
+                    'Das Client-Zertifikat ist abgelaufen',
+                    'Das Notebook hat bereits eine IP-Adresse per DHCP erhalten',
+                ],
+                'en': [
+                    'The supplicant on the notebook is active',
+                    'The leg switch ↔ RADIUS server is the next thing to check',
+                    'The client certificate has expired',
+                    'The notebook has already obtained an IP address via DHCP',
+                ],
+            },
+            'answer': [0, 1],
+            'explanation': {
+                'de': 'Wer EAPOL sendet, hat einen laufenden Supplicant. Bleibt nach der Identität jede Challenge aus, kommt vom Server nichts zurück — also RADIUS-Strecke prüfen. Ein abgelaufenes Zertifikat würde erst später im TLS-Handshake auffallen, und DHCP gibt es vor der Autorisierung nicht.',
+                'en': 'Whoever sends EAPOL has a running supplicant. If no challenge follows the identity, nothing comes back from the server — so check the RADIUS leg. An expired certificate would only surface later in the TLS handshake, and there is no DHCP before authorization.',
+            },
+        },
     ]},
 }

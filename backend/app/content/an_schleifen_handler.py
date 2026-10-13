@@ -1,5 +1,5 @@
 # Ansible-Lehrgang: Modul 307 - Schleifen & Handler (bilingual DE/EN).
-# EN von Fach-Uebersetzung; note/goals bleiben DE (Trainer-Bereich).
+# EN von Fach-Uebersetzung; note bleibt DE (Trainer-Bereich), Lernziele in goals + goals_en.
 
 SCHLEIFEN_HANDLER_MODULE = {
  'key': 'schleifen-handler',
@@ -12,6 +12,11 @@ SCHLEIFEN_HANDLER_MODULE = {
            'Schleifen über Listen von Dicts anwenden',
            'until und retries für wiederholte Prüfungen einordnen',
            'Handler von normalen Tasks unterscheiden und erklären, wann sie tatsächlich laufen'],
+ 'goals_en': ['Read loop with a list and determine the number of iterations',
+              'Place with_items as the older loop syntax that still works',
+              'Apply loops over lists of dicts',
+              'Place until and retries for repeated checks',
+              'Tell handlers apart from normal tasks and explain when they actually run'],
  'scenario': {'de': 'Ein Rollout betrifft mehrere Pakete und mehrere Konfigurationsdateien '
                     'gleichzeitig. Statt für jedes Paket einen eigenen Task zu schreiben, '
                     'nutzt du **Schleifen**. Und egal wie viele Config-Dateien sich ändern — '
@@ -91,6 +96,34 @@ SCHLEIFEN_HANDLER_MODULE = {
                              'often — when reading someone else\'s code, it helps to recognize '
                              '`loop` and `with_items` as functionally equivalent for simple '
                              'lists.'}},
+            {'type': 'diagram',
+             'id': 'diagram-loop-with',
+             'payload': {'kind': 'compare',
+                         'title': 'loop vs. with_*',
+                         'columns': [{'title': 'loop'}, {'title': 'with_*'}],
+                         'rows': [{'label': 'Status',
+                                   'values_de': ['empfohlen für neue Playbooks',
+                                                 'ältere Syntax, weiterhin gültig'],
+                                   'values_en': ['recommended for new playbooks',
+                                                 'older syntax, still valid']},
+                                  {'mono': True, 'label_de': 'Einfache Liste',
+                                   'label_en': 'Simple list',
+                                   'values': ['loop: "{{ pakete }}"',
+                                              'with_items: "{{ pakete }}"']},
+                                  {'label_de': 'Verschachtelte Liste',
+                                   'label_en': 'Nested list',
+                                   'values_de': ['bleibt verschachtelt (sonst | flatten(1))',
+                                                 'with_items glättet eine Ebene'],
+                                   'values_en': ['stays nested (else | flatten(1))',
+                                                 'with_items flattens one level']},
+                                  {'mono': True, 'label': 'Dict',
+                                   'values': ['loop: "{{ d | dict2items }}"',
+                                              'with_dict: "{{ d }}"']},
+                                  {'mono': True, 'label_de': 'Dateien per Muster',
+                                   'label_en': 'Files by pattern',
+                                   'values': ['loop: "{{ query(\'ansible.builtin.fileglob\', '
+                                              '\'*.conf\') }}"',
+                                              'with_fileglob: "*.conf"']}]}},
             {'type': 'check', 'id': 'check-1',
              'payload': {'kind': 'number',
                          'prompt_de': 'Ein Task nutzt loop: [nginx, git, curl, htop]. Wie oft '
@@ -217,6 +250,57 @@ SCHLEIFEN_HANDLER_MODULE = {
                              'A typical pattern: several config tasks notify the same "restart '
                              'service" handler, so the service ends up restarting exactly once, '
                              'no matter how many config files changed.'}},
+            {'type': 'diagram',
+             'id': 'diagram-handler-ablauf',
+             'payload': {'kind': 'sequence',
+                         'title_de': 'notify merkt vor, der Handler läuft später',
+                         'title_en': 'notify queues, the handler runs later',
+                         'actors': [{'id': 'tasks', 'label': 'Tasks'},
+                                    {'id': 'liste',
+                                     'label_de': 'Handler-Liste',
+                                     'label_en': 'Handler list'},
+                                    {'id': 'nginx', 'label': 'nginx'}],
+                         'messages': [{'from': 'tasks',
+                                       'to': 'liste',
+                                       'label_de': 'Task 1 changed → notify',
+                                       'label_en': 'Task 1 changed → notify',
+                                       'detail_de': 'Der Handler wird nur vorgemerkt. nginx läuft '
+                                                    'unverändert weiter.',
+                                       'detail_en': 'The handler is only queued. nginx keeps '
+                                                    'running unchanged.'},
+                                      {'from': 'tasks',
+                                       'to': 'liste',
+                                       'label_de': 'Task 2 changed → notify',
+                                       'label_en': 'Task 2 changed → notify',
+                                       'detail_de': 'Derselbe Handler ist schon vorgemerkt — ein '
+                                                    'zweiter Eintrag entsteht nicht.',
+                                       'detail_en': 'The same handler is already queued — no '
+                                                    'second entry is created.'},
+                                      {'from': 'tasks',
+                                       'to': 'tasks',
+                                       'label_de': 'Task 3 ok → kein notify',
+                                       'label_en': 'Task 3 ok → no notify',
+                                       'detail_de': 'Ohne changed bleibt notify wirkungslos.',
+                                       'detail_en': 'Without changed, notify has no effect.'},
+                                      {'from': 'tasks',
+                                       'to': 'liste',
+                                       'label_de': 'Ende der Tasks',
+                                       'label_en': 'End of tasks',
+                                       'detail_de': 'Erst jetzt werden die vorgemerkten Handler '
+                                                    'abgearbeitet — in der Reihenfolge, in der sie '
+                                                    'unter handlers: stehen. meta: flush_handlers '
+                                                    'zieht diesen Moment vor.',
+                                       'detail_en': 'Only now are the queued handlers processed — '
+                                                    'in the order in which they are listed under '
+                                                    'handlers:. meta: flush_handlers brings this '
+                                                    'moment forward.'},
+                                      {'from': 'liste',
+                                       'to': 'nginx',
+                                       'label': 'RUNNING HANDLER: restart',
+                                       'detail_de': 'Genau ein Neustart, obwohl zwei Tasks '
+                                                    'notifiziert haben.',
+                                       'detail_en': 'Exactly one restart although two tasks '
+                                                    'notified.'}]}},
             {'type': 'debug', 'id': 'debug-1',
              'payload': {'prompt_de': 'Der Nginx-Dienst soll nach jeder '
                                       'Konfigurationsänderung neu gestartet werden. In der '
@@ -288,6 +372,65 @@ SCHLEIFEN_HANDLER_MODULE = {
                                       'Task 3 runs, reports ok (no change), and does not notify',
                                       'All regular tasks of the play have finished',
                                       'The "Restart nginx" handler runs exactly once']}},
+            {'type': 'cloze',
+             'id': 'cloze-loop-notify',
+             'payload': {'prompt_de': 'Zwei Vorlagen sollen ausgerollt werden; ändert sich eine, '
+                                      'lädt nginx am Ende des Plays einmal neu. Ergänze die '
+                                      'Lücken.',
+                         'prompt_en': 'Two templates are to be rolled out; if one changes, nginx '
+                                      'reloads once at the end of the play. Fill the gaps.',
+                         'mono': True,
+                         'text_de': 'tasks:\n'
+                                    '  - name: Konfigurationsdateien ausrollen\n'
+                                    '    ansible.builtin.template:\n'
+                                    '      src: "{{ [[item]].src }}"\n'
+                                    '      dest: "{{ item.dest }}"\n'
+                                    '      mode: "0644"\n'
+                                    '    [[loop]]:\n'
+                                    '      - { src: nginx.conf.j2, dest: /etc/nginx/nginx.conf }\n'
+                                    '      - { src: site.conf.j2, dest: '
+                                    '/etc/nginx/conf.d/site.conf }\n'
+                                    '    [[notify]]: Nginx neu laden\n'
+                                    '\n'
+                                    '[[handlers]]:\n'
+                                    '  - name: Nginx neu laden\n'
+                                    '    ansible.builtin.service:\n'
+                                    '      name: nginx\n'
+                                    '      state: [[state]]',
+                         'text_en': 'tasks:\n'
+                                    '  - name: Roll out configuration files\n'
+                                    '    ansible.builtin.template:\n'
+                                    '      src: "{{ [[item]].src }}"\n'
+                                    '      dest: "{{ item.dest }}"\n'
+                                    '      mode: "0644"\n'
+                                    '    [[loop]]:\n'
+                                    '      - { src: nginx.conf.j2, dest: /etc/nginx/nginx.conf }\n'
+                                    '      - { src: site.conf.j2, dest: '
+                                    '/etc/nginx/conf.d/site.conf }\n'
+                                    '    [[notify]]: Reload nginx\n'
+                                    '\n'
+                                    '[[handlers]]:\n'
+                                    '  - name: Reload nginx\n'
+                                    '    ansible.builtin.service:\n'
+                                    '      name: nginx\n'
+                                    '      state: [[state]]',
+                         'gaps': [{'id': 'item', 'accept': ['item']},
+                                  {'id': 'loop', 'accept': ['loop', 'with_items']},
+                                  {'id': 'notify', 'accept': ['notify']},
+                                  {'id': 'handlers', 'accept': ['handlers']},
+                                  {'id': 'state',
+                                   'options': ['reloaded', 'present', 'changed'],
+                                   'answer': 0}],
+                         'explanation_de': 'item ist das aktuelle Listenelement, hier ein Dict mit '
+                                           'src und dest. notify nennt den Handler beim Namen; er '
+                                           'steht unter handlers: und läuft einmal am Ende — auch '
+                                           'wenn beide Dateien sich geändert haben. present und '
+                                           'changed sind keine Zustände des Moduls service.',
+                         'explanation_en': 'item is the current list element, here a dict with src '
+                                           'and dest. notify names the handler; it sits under '
+                                           'handlers: and runs once at the end — even if both '
+                                           'files changed. present and changed are not states of '
+                                           'the service module.'}},
             {'type': 'text', 'id': 'text-6',
              'value': {'de': '## force_handlers (Ausblick)\n'
                              '\n'
@@ -311,6 +454,128 @@ SCHLEIFEN_HANDLER_MODULE = {
                              'for example, when an already rolled-out configuration state needs '
                              'to be reloaded consistently, even if a later, unrelated task '
                              'fails.'}},
+            {'type': 'text',
+             'id': 'text-flush-listen',
+             'value': {'de': '## Handler früher auslösen und bündeln: flush_handlers und listen\n'
+                             '\n'
+                             '**`meta: flush_handlers`** — Manchmal darf der Neustart nicht bis '
+                             'zum Ende des Plays warten, etwa weil der nächste Task den Dienst '
+                             'bereits mit der neuen Konfiguration braucht. Dieser Task lässt alle '
+                             'bis dahin vorgemerkten Handler sofort laufen:\n'
+                             '\n'
+                             '```yaml\n'
+                             'tasks:\n'
+                             '  - name: Konfiguration ausrollen\n'
+                             '    ansible.builtin.template:\n'
+                             '      src: app.conf.j2\n'
+                             '      dest: /etc/app/app.conf\n'
+                             '      mode: "0644"\n'
+                             '    notify: App neu starten\n'
+                             '\n'
+                             '  - name: Vorgemerkte Handler jetzt ausführen\n'
+                             '    ansible.builtin.meta: flush_handlers\n'
+                             '\n'
+                             '  - name: Erreichbarkeit prüfen\n'
+                             '    ansible.builtin.uri:\n'
+                             '      url: http://localhost:8080/health\n'
+                             '```\n'
+                             '\n'
+                             'Handler, die danach erneut notifiziert werden, laufen am Ende des '
+                             'Plays noch einmal.\n'
+                             '\n'
+                             '**`listen`** — Ein Handler kann zusätzlich zu seinem Namen auf ein '
+                             'Thema hören. Ein einziges `notify` mit diesem Thema löst dann alle '
+                             'Handler aus, die darauf hören — in der Reihenfolge, in der sie unter '
+                             '`handlers:` stehen:\n'
+                             '\n'
+                             '```yaml\n'
+                             'tasks:\n'
+                             '  - name: Zertifikat erneuern\n'
+                             '    ansible.builtin.copy:\n'
+                             '      src: site.pem\n'
+                             '      dest: /etc/ssl/site.pem\n'
+                             '      mode: "0600"\n'
+                             '    notify: zertifikat geaendert\n'
+                             '\n'
+                             'handlers:\n'
+                             '  - name: Nginx neu laden\n'
+                             '    ansible.builtin.service:\n'
+                             '      name: nginx\n'
+                             '      state: reloaded\n'
+                             '    listen: zertifikat geaendert\n'
+                             '\n'
+                             '  - name: Postfix neu laden\n'
+                             '    ansible.builtin.service:\n'
+                             '      name: postfix\n'
+                             '      state: reloaded\n'
+                             '    listen: zertifikat geaendert\n'
+                             '```\n'
+                             '\n'
+                             'Der Vorteil: Der Task muss nicht wissen, welche Dienste betroffen '
+                             'sind. Kommt ein dritter Dienst dazu, bekommt er einen Handler mit '
+                             'demselben `listen` — der Task bleibt unverändert.',
+                       'en': '## Triggering handlers earlier and bundling them: flush_handlers and '
+                             'listen\n'
+                             '\n'
+                             '**`meta: flush_handlers`** — Sometimes the restart cannot wait until '
+                             'the end of the play, for example because the next task already needs '
+                             'the service with the new configuration. This task runs all handlers '
+                             'queued so far immediately:\n'
+                             '\n'
+                             '```yaml\n'
+                             'tasks:\n'
+                             '  - name: Konfiguration ausrollen\n'
+                             '    ansible.builtin.template:\n'
+                             '      src: app.conf.j2\n'
+                             '      dest: /etc/app/app.conf\n'
+                             '      mode: "0644"\n'
+                             '    notify: App neu starten\n'
+                             '\n'
+                             '  - name: Vorgemerkte Handler jetzt ausführen\n'
+                             '    ansible.builtin.meta: flush_handlers\n'
+                             '\n'
+                             '  - name: Erreichbarkeit prüfen\n'
+                             '    ansible.builtin.uri:\n'
+                             '      url: http://localhost:8080/health\n'
+                             '```\n'
+                             '\n'
+                             'Handlers that are notified again afterwards run once more at the end '
+                             'of the play.\n'
+                             '\n'
+                             '**`listen`** — In addition to its name, a handler can listen to a '
+                             'topic. A single `notify` with that topic then triggers all handlers '
+                             'listening to it — in the order in which they are listed under '
+                             '`handlers:`:\n'
+                             '\n'
+                             '```yaml\n'
+                             'tasks:\n'
+                             '  - name: Zertifikat erneuern\n'
+                             '    ansible.builtin.copy:\n'
+                             '      src: site.pem\n'
+                             '      dest: /etc/ssl/site.pem\n'
+                             '      mode: "0600"\n'
+                             '    notify: zertifikat geaendert\n'
+                             '\n'
+                             'handlers:\n'
+                             '  - name: Nginx neu laden\n'
+                             '    ansible.builtin.service:\n'
+                             '      name: nginx\n'
+                             '      state: reloaded\n'
+                             '    listen: zertifikat geaendert\n'
+                             '\n'
+                             '  - name: Postfix neu laden\n'
+                             '    ansible.builtin.service:\n'
+                             '      name: postfix\n'
+                             '      state: reloaded\n'
+                             '    listen: zertifikat geaendert\n'
+                             '```\n'
+                             '\n'
+                             'The benefit: the task does not need to know which services are '
+                             'affected. If a third service is added, it gets a handler with the '
+                             'same `listen` — the task stays unchanged.'},
+             'note': 'Beide Mechanismen mit ansible-core 2.21 real nachgestellt (Reihenfolge der '
+                     'listen-Handler = Reihenfolge unter handlers:). Im Lab lässt sich das in der '
+                     'Vorlage „Kontrollfluss“ selbst einbauen.'},
             {'type': 'text', 'id': 'text-lab-kontrollfluss',
              'value': {'de': '## Praxis: Kontrollfluss im Lab testen\n'
                              '\n'
@@ -336,6 +601,14 @@ SCHLEIFEN_HANDLER_MODULE = {
                      'beschreibt: skipped-Zeilen durch when und der genaue Zeitpunkt des '
                      'Handler-Laufs.'}],
  'quiz': {'questions': [{'id': 'sh1',
+                         'explanation': {'de': '`loop` führt den Task je Listenelement einmal aus, '
+                                               'hier also dreimal — jeweils mit einem anderen '
+                                               '`item`. Die Liste wird nicht als Ganzes an einen '
+                                               'einzigen Aufruf übergeben.',
+                                         'en': '`loop` runs the task once per list element, so '
+                                               'three times here — each with a different `item`. '
+                                               'The list is not passed as a whole to a single '
+                                               'call.'},
                          'type': 'single',
                          'prompt': {'de': 'Ein Task nutzt loop: [a, b, c]. Wie oft läuft der '
                                           'Task auf einem Host?',
@@ -351,6 +624,15 @@ SCHLEIFEN_HANDLER_MODULE = {
                                             'Three times, once per list element',
                                             'Not at all without with_items']}},
                         {'id': 'sh2',
+                         'explanation': {'de': 'Bei einer einfachen Liste verhalten sich beide '
+                                               'gleich; `with_items` ist die ältere Schreibweise. '
+                                               'Schneller ist keine von beiden, und `until` ist '
+                                               'ein anderer Mechanismus (Wiederholen bis zur '
+                                               'Bedingung).',
+                                         'en': 'For a simple list both behave the same; '
+                                               '`with_items` is the older notation. Neither is '
+                                               'faster, and `until` is a different mechanism '
+                                               '(retry until a condition holds).'},
                          'type': 'single',
                          'prompt': {'de': 'Wie verhält sich with_items im Vergleich zu loop bei '
                                           'einer einfachen Liste?',
@@ -368,6 +650,14 @@ SCHLEIFEN_HANDLER_MODULE = {
                                             'loop only works with dicts',
                                             'with_items was replaced by until']}},
                         {'id': 'sh3',
+                         'explanation': {'de': 'Ein Handler braucht beides: ein `notify` und einen '
+                                               'notifizierenden Task mit `changed`. Dann läuft er '
+                                               'am Ende des Plays — nicht sofort, es sei denn, '
+                                               '`meta: flush_handlers` zieht den Zeitpunkt vor.',
+                                         'en': 'A handler needs both: a `notify` and a notifying '
+                                               'task with `changed`. Then it runs at the end of '
+                                               'the play — not immediately, unless `meta: '
+                                               'flush_handlers` brings the moment forward.'},
                          'type': 'single',
                          'prompt': {'de': 'Wann läuft ein Handler tatsächlich?',
                                     'en': 'When does a handler actually run?'},
@@ -385,6 +675,14 @@ SCHLEIFEN_HANDLER_MODULE = {
                                             'Automatically on every playbook run, regardless of '
                                             'notify']}},
                         {'id': 'sh4',
+                         'explanation': {'de': 'Mehrere `notify` auf denselben Handler merken ihn '
+                                               'nur einmal vor; er läuft genau einmal. Das ist der '
+                                               'Zweck: ein Neustart am Ende statt einer je '
+                                               'geänderter Datei.',
+                                         'en': 'Several `notify` calls for the same handler queue '
+                                               'it only once; it runs exactly once. That is the '
+                                               'point: one restart at the end instead of one per '
+                                               'changed file.'},
                          'type': 'single',
                          'prompt': {'de': 'Drei Tasks melden changed und notifizieren '
                                           'denselben Handler. Wie oft läuft der Handler '
@@ -396,6 +694,14 @@ SCHLEIFEN_HANDLER_MODULE = {
                          'options': {'de': ['Einmal', 'Zweimal', 'Dreimal', 'Gar nicht'],
                                      'en': ['Once', 'Twice', 'Three times', 'Not at all']}},
                         {'id': 'sh5',
+                         'explanation': {'de': '`until` wiederholt denselben Task, bis die '
+                                               'Bedingung auf sein `register`-Ergebnis zutrifft; '
+                                               '`retries` und `delay` begrenzen das. Mit Handlern, '
+                                               'Facts oder Vorrang hat das nichts zu tun.',
+                                         'en': '`until` repeats the same task until the condition '
+                                               'on its `register` result holds; `retries` and '
+                                               '`delay` limit this. It has nothing to do with '
+                                               'handlers, facts or precedence.'},
                          'type': 'single',
                          'prompt': {'de': 'Wofür wird until zusammen mit retries und delay '
                                           'genutzt?',
@@ -411,4 +717,102 @@ SCHLEIFEN_HANDLER_MODULE = {
                                             'To re-gather facts',
                                             'To repeat a task until a condition is true or the '
                                             'attempts are exhausted',
-                                            'To control variable precedence']}}]}}
+                                            'To control variable precedence']}},
+                        {'id': 'sh6',
+                         'type': 'number',
+                         'prompt': {'de': 'Ein Task mit `loop: [alpha, beta, gamma]` und `when: '
+                                          "item != 'beta'` läuft auf einem Host. In der Ausgabe "
+                                          'steht für beta `skipping: [host] => (item=beta)`. '
+                                          'Welche Zahl zeigt der PLAY RECAP danach bei `skipped=`?',
+                                    'en': 'A task with `loop: [alpha, beta, gamma]` and `when: '
+                                          "item != 'beta'` runs on one host. The output shows "
+                                          '`skipping: [host] => (item=beta)` for beta. Which '
+                                          'number does the PLAY RECAP then show for `skipped=`?'},
+                         'answer': 0,
+                         'explanation': {'de': 'Der Recap zählt Tasks, nicht Schleifenelemente: '
+                                               'Der Task gilt nur dann als `skipped`, wenn alle '
+                                               'Elemente übersprungen wurden. Hier liefen zwei von '
+                                               'drei, also `skipped=0` — nachprüfbar im Lab mit '
+                                               'der Vorlage „Kontrollfluss“.',
+                                         'en': 'The recap counts tasks, not loop items: the task '
+                                               'only counts as `skipped` if all items were '
+                                               'skipped. Here two of three ran, so `skipped=0` — '
+                                               'you can verify this in the lab with the "Control '
+                                               'flow" template.'}},
+                        {'id': 'sh7',
+                         'type': 'number',
+                         'prompt': {'de': 'Wie oft läuft der Handler „Dienst neu laden“ in diesem '
+                                          'Play?\n'
+                                          '\n'
+                                          '```yaml\n'
+                                          'tasks:\n'
+                                          '  - name: Config A\n'
+                                          '    ansible.builtin.copy: {src: a.conf, dest: '
+                                          '/etc/app/a.conf}\n'
+                                          '    notify: Dienst neu laden   # meldet changed\n'
+                                          '  - ansible.builtin.meta: flush_handlers\n'
+                                          '  - name: Config B\n'
+                                          '    ansible.builtin.copy: {src: b.conf, dest: '
+                                          '/etc/app/b.conf}\n'
+                                          '    notify: Dienst neu laden   # meldet ok\n'
+                                          '```',
+                                    'en': 'How many times does the handler "Dienst neu laden" run '
+                                          'in this play?\n'
+                                          '\n'
+                                          '```yaml\n'
+                                          'tasks:\n'
+                                          '  - name: Config A\n'
+                                          '    ansible.builtin.copy: {src: a.conf, dest: '
+                                          '/etc/app/a.conf}\n'
+                                          '    notify: Dienst neu laden   # reports changed\n'
+                                          '  - ansible.builtin.meta: flush_handlers\n'
+                                          '  - name: Config B\n'
+                                          '    ansible.builtin.copy: {src: b.conf, dest: '
+                                          '/etc/app/b.conf}\n'
+                                          '    notify: Dienst neu laden   # reports ok\n'
+                                          '```'},
+                         'answer': 1,
+                         'explanation': {'de': 'Config A meldet `changed` und merkt den Handler '
+                                               'vor; `flush_handlers` lässt ihn sofort laufen (1). '
+                                               'Config B meldet nur `ok` — ein `notify` ohne '
+                                               '`changed` bewirkt nichts, am Ende des Plays läuft '
+                                               'der Handler also nicht noch einmal. Hätte B auch '
+                                               'geändert, wären es zwei Läufe.',
+                                         'en': 'Config A reports `changed` and queues the handler; '
+                                               '`flush_handlers` runs it immediately (1). Config B '
+                                               'only reports `ok` — a `notify` without `changed` '
+                                               'does nothing, so the handler does not run again at '
+                                               'the end of the play. Had B changed as well, there '
+                                               'would be two runs.'}},
+                        {'id': 'sh8',
+                         'type': 'single',
+                         'prompt': {'de': 'Unter `handlers:` stehen in dieser Reihenfolge „Cache '
+                                          'leeren“ und „Dienst neu starten“, beide mit `listen: '
+                                          'konfig geaendert`. Ein Task meldet `changed` und hat '
+                                          '`notify: konfig geaendert`. Was passiert?',
+                                    'en': 'Under `handlers:` there are, in this order, "Cache '
+                                          'leeren" and "Dienst neu starten", both with `listen: '
+                                          'konfig geaendert`. A task reports `changed` and has '
+                                          '`notify: konfig geaendert`. What happens?'},
+                         'answer': 2,
+                         'options': {'de': ['Fehler: Es gibt keinen Handler mit dem Namen „konfig '
+                                            'geaendert“',
+                                            'Nur der zuerst definierte Handler läuft',
+                                            'Beide Handler laufen, in der Reihenfolge ihrer '
+                                            'Definition',
+                                            'Beide Handler laufen, aber in zufälliger Reihenfolge'],
+                                     'en': ['Error: there is no handler named "konfig geaendert"',
+                                            'Only the handler defined first runs',
+                                            'Both handlers run, in the order of their definition',
+                                            'Both handlers run, but in random order']},
+                         'explanation': {'de': '`notify` trifft nicht nur Handler-Namen, sondern '
+                                               'auch `listen`-Themen — alle Handler, die darauf '
+                                               'hören, werden vorgemerkt. Abgearbeitet werden '
+                                               'Handler immer in der Reihenfolge unter '
+                                               '`handlers:`, nicht in der Reihenfolge der '
+                                               '`notify`-Aufrufe (real nachgestellt).',
+                                         'en': '`notify` matches not only handler names but also '
+                                               '`listen` topics — all handlers listening are '
+                                               'queued. Handlers are always processed in the order '
+                                               'under `handlers:`, not in the order of the '
+                                               '`notify` calls (reproduced for real).'}}]}}

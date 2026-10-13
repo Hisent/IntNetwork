@@ -1,5 +1,5 @@
-# Ansible-Lehrgang, Modul 3/5: Playbooks schreiben.
-# Quelle der Fakten: research-ansible.md (Abschnitt 1, Modul 3, und Abschnitt 2.3 Playbook-Beispiel).
+# Ansible-Lehrgang, Modul 303 (3 von 15): Playbooks schreiben.
+# Fakten gegen docs.ansible.com geprüft; Ausgabeformate mit ansible-core 2.21 nachgestellt.
 
 PLAYBOOKS_MODULE = {
     'key': 'playbooks-grundlagen',
@@ -11,6 +11,10 @@ PLAYBOOKS_MODULE = {
               'Ein einfaches Playbook lesen und den Ablauf in Reihenfolge nachvollziehen',
               'YAML-Syntaxfehler in einem Playbook erkennen',
               'Modul-Parameter von Task-Keywords unterscheiden'],
+    'goals_en': ['Explain the structure of a playbook (plays, tasks, module calls)',
+                 'Read a simple playbook and follow its flow in order',
+                 'Spot YAML syntax errors in a playbook',
+                 'Tell module parameters apart from task keywords'],
     'scenario': {'de': 'Das Inventar steht — jetzt braucht es eine Beschreibung dessen, was auf '
                        'diesen Hosts passieren soll. Genau das ist ein Playbook: eine YAML-Datei, '
                        'die festlegt, welche Hosts betroffen sind und welche Schritte dort '
@@ -296,7 +300,15 @@ PLAYBOOKS_MODULE = {
                          '- **skipped** — Task wurde übersprungen (z. B. durch eine Bedingung).\n'
                          '\n'
                          'Der `PLAY RECAP` am Ende fasst diese Zähler pro Host zusammen — der '
-                         'schnellste Blick, um zu sehen, ob und wo etwas fehlgeschlagen ist.',
+                         'schnellste Blick, um zu sehen, ob und wo etwas fehlgeschlagen ist.\n'
+                         '\n'
+                         'Zwei Feinheiten zum Zählen: Das Play im Beispiel läuft mit '
+                         '`gather_facts: false` — sonst stünde vor dem ersten Task ein '
+                         '`TASK [Gathering Facts]`, der je Host als weiteres `ok` mitzählt. '
+                         'Und im Recap zählt `ok` **alle** erfolgreich gelaufenen Tasks, auch '
+                         'die mit `changed` (web01: ein Task, und der hat geändert → '
+                         '`ok=1 changed=1`). Echte Recap-Zeilen enden außerdem mit '
+                         '`rescued=` und `ignored=`; sie sind hier weggelassen.',
                    'en': '## Reading the output\n'
                          '\n'
                          'Every task reports one result per host:\n'
@@ -325,7 +337,82 @@ PLAYBOOKS_MODULE = {
                          '- **skipped** — the task was skipped (e.g., by a condition).\n'
                          '\n'
                          'The `PLAY RECAP` at the end summarizes these counters per host — the '
-                         'quickest way to see whether, and where, something failed.'}},
+                         'quickest way to see whether, and where, something failed.\n'
+                         '\n'
+                         'Two subtleties about counting: the play in the example runs with '
+                         '`gather_facts: false` — otherwise a `TASK [Gathering Facts]` would '
+                         'precede the first task and count as one more `ok` per host. And '
+                         'in the recap, `ok` counts **all** tasks that ran successfully, '
+                         'including those with `changed` (web01: one task, and it changed '
+                         'something → `ok=1 changed=1`). Real recap lines also end with '
+                         '`rescued=` and `ignored=`; they are omitted here.'}},
+        {'type': 'diagram',
+         'id': 'diagram-playbook-lauf',
+         'note': 'Passt zur Beispielausgabe darüber: gleiche Hosts, gleiche Ergebnisse. '
+                 'Parallelität nur ansagen — das Diagramm zeigt die Reihenfolge der Tasks, nicht '
+                 'die der Hosts.',
+         'payload': {'kind': 'sequence',
+                     'title_de': 'Ein Play, zwei Tasks, zwei Hosts',
+                     'title_en': 'One play, two tasks, two hosts',
+                     'caption_de': 'Task für Task; je Task laufen die Hosts parallel (forks).',
+                     'caption_en': 'Task by task; within a task the hosts run in parallel (forks).',
+                     'actors': [{'id': 'cn', 'label': 'Control Node'},
+                                {'id': 'w1', 'label': 'web01'},
+                                {'id': 'w2', 'label': 'web02'}],
+                     'messages': [{'from': 'cn',
+                                   'to': 'w1',
+                                   'label_de': 'Task 1: nginx installieren',
+                                   'label_en': 'Task 1: install nginx',
+                                   'detail_de': 'Vorher hat der Control Node Inventar und Playbook '
+                                                'gelesen. Task 1 geht an alle Hosts des Plays — '
+                                                'erst wenn alle fertig sind, folgt Task 2.',
+                                   'detail_en': 'Before this the control node read the inventory '
+                                                'and the playbook. Task 1 goes to all hosts of the '
+                                                'play — only when all are done does task 2 '
+                                                'follow.'},
+                                  {'from': 'w1',
+                                   'to': 'cn',
+                                   'label': 'changed',
+                                   'style': 'reply',
+                                   'detail_de': 'Das Paket fehlte und wurde installiert.',
+                                   'detail_en': 'The package was missing and got installed.'},
+                                  {'from': 'cn',
+                                   'to': 'w2',
+                                   'label_de': 'Task 1: nginx installieren',
+                                   'label_en': 'Task 1: install nginx'},
+                                  {'from': 'w2',
+                                   'to': 'cn',
+                                   'label': 'ok',
+                                   'style': 'reply',
+                                   'detail_de': 'Das Paket war schon da: Zielzustand erreicht, '
+                                                'nichts geändert.',
+                                   'detail_en': 'The package was already there: target state met, '
+                                                'nothing changed.'},
+                                  {'from': 'cn',
+                                   'to': 'w1',
+                                   'label_de': 'Task 2: Service starten',
+                                   'label_en': 'Task 2: start service'},
+                                  {'from': 'w1',
+                                   'to': 'cn',
+                                   'label': 'failed',
+                                   'style': 'reply',
+                                   'detail_de': 'web01 scheidet für den Rest des Plays aus. web02 '
+                                                'läuft unbeeinflusst weiter.',
+                                   'detail_en': 'web01 drops out for the rest of the play. web02 '
+                                                'continues unaffected.'},
+                                  {'from': 'cn',
+                                   'to': 'w2',
+                                   'label_de': 'Task 2: Service starten',
+                                   'label_en': 'Task 2: start service'},
+                                  {'from': 'cn',
+                                   'to': 'cn',
+                                   'label': 'PLAY RECAP',
+                                   'detail_de': 'web02 hat inzwischen ok gemeldet. Der Recap '
+                                                'summiert je Host: web01 ok=1 changed=1 failed=1, '
+                                                'web02 ok=2.',
+                                   'detail_en': 'web02 has reported ok in the meantime. The recap '
+                                                'sums up per host: web01 ok=1 changed=1 failed=1, '
+                                                'web02 ok=2.'}]}},
         {'type': 'order', 'id': 'order-1',
          'payload': {'prompt_de': 'Bring die Schritte eines `ansible-playbook`-Laufs in die '
                                   'richtige Reihenfolge:',
@@ -360,6 +447,92 @@ PLAYBOOKS_MODULE = {
                          '(`ok=2`, `failed=0`). Overall, three task executions completed '
                          'without error (one on `web01`, two on `web02`), but only one host '
                          'made it through the playbook completely without error.'}},
+        {'type': 'terminal',
+         'id': 'terminal-playbook-cli',
+         'note': 'Das Lab kann nur ausführen und --check; --syntax-check, --list-tasks und '
+                 '--list-hosts gibt es dort nicht. Ausgabeformat von ansible-core 2.21 (der '
+                 'Tabulator vor TAGS ist durch Leerzeichen ersetzt), der Diff ist gekürzt.',
+         'payload': {'title_de': 'Vor dem Lauf nachsehen',
+                     'title_en': 'Look before you run',
+                     'intro_de': 'site.yml ist das Play aus dem Abschnitt „Aufbau“. help zeigt '
+                                 'alle Befehle.',
+                     'intro_en': 'site.yml is the play from the "Structure" section. help lists '
+                                 'all commands.',
+                     'prompt': 'admin@control:~/projekt$',
+                     'unknown': 'bash: {cmd}: command not found',
+                     'commands': [{'cmd': 'ansible-playbook site.yml --syntax-check',
+                                   'desc_de': 'nur Syntax und Struktur prüfen',
+                                   'desc_en': 'check syntax and structure only',
+                                   'output': '\nplaybook: site.yml'},
+                                  {'cmd': 'ansible-playbook site.yml --list-hosts',
+                                   'desc_de': 'welche Hosts wären betroffen?',
+                                   'desc_en': 'which hosts would be affected?',
+                                   'output': '\n'
+                                             'playbook: site.yml\n'
+                                             '\n'
+                                             '  play #1 (webservers): Webserver-Paket '
+                                             'installieren\n'
+                                             '  und Service starten  TAGS: []\n'
+                                             "    pattern: ['webservers']\n"
+                                             '    hosts (2):\n'
+                                             '      web01\n'
+                                             '      web02'},
+                                  {'cmd': 'ansible-playbook site.yml --list-tasks',
+                                   'desc_de': 'welche Tasks würden laufen?',
+                                   'desc_en': 'which tasks would run?',
+                                   'output': '\n'
+                                             'playbook: site.yml\n'
+                                             '\n'
+                                             '  play #1 (webservers): Webserver-Paket '
+                                             'installieren\n'
+                                             '  und Service starten  TAGS: []\n'
+                                             '    tasks:\n'
+                                             '      nginx installieren  TAGS: []\n'
+                                             '      Service aktivieren und starten  TAGS: []'},
+                                  {'cmd': 'ansible-playbook site.yml --check',
+                                   'desc_de': 'Trockenlauf auf den Hosts',
+                                   'desc_en': 'dry run on the hosts',
+                                   'output': '\n'
+                                             'PLAY [Webserver-Paket installieren und Service '
+                                             'starten] ****\n'
+                                             '\n'
+                                             'TASK [Gathering Facts] '
+                                             '*********************************\n'
+                                             'ok: [web01]\n'
+                                             'ok: [web02]\n'
+                                             '\n'
+                                             'TASK [nginx installieren] '
+                                             '******************************\n'
+                                             'changed: [web01]\n'
+                                             'ok: [web02]\n'
+                                             '\n'
+                                             'TASK [Service aktivieren und starten] '
+                                             '******************\n'
+                                             'changed: [web01]\n'
+                                             'ok: [web02]\n'
+                                             '\n'
+                                             'PLAY RECAP '
+                                             '*********************************************\n'
+                                             'web01 : ok=3 changed=2 unreachable=0 failed=0 '
+                                             'skipped=0\n'
+                                             '        rescued=0 ignored=0\n'
+                                             'web02 : ok=3 changed=0 unreachable=0 failed=0 '
+                                             'skipped=0\n'
+                                             '        rescued=0 ignored=0'}],
+                     'tasks': [{'text_de': 'Prüfe nur die Syntax von site.yml.',
+                                'text_en': 'Check only the syntax of site.yml.',
+                                'command': 'ansible-playbook site.yml --syntax-check'},
+                               {'text_de': 'Wie viele Tasks enthält das Play (ohne Gathering '
+                                           'Facts)?',
+                                'text_en': 'How many tasks does the play contain (without '
+                                           'Gathering Facts)?',
+                                'answers': ['2', 'zwei', 'two']},
+                               {'text_de': 'Starte den Trockenlauf.',
+                                'text_en': 'Start the dry run.',
+                                'command': 'ansible-playbook site.yml --check'},
+                               {'text_de': 'Auf welchem Host würde sich etwas ändern?',
+                                'text_en': 'On which host would something change?',
+                                'answers': ['web01']}]}},
         {'type': 'text', 'id': 'text-lab-fehler',
          'value': {'de': '## Praxis: Das Ansible-Lab ausprobieren\n'
                          '\n'
@@ -397,6 +570,13 @@ PLAYBOOKS_MODULE = {
     ],
     'quiz': {'questions': [
         {'id': 'pb1',
+         'explanation': {'de': 'Ein Play ist ein Eintrag der obersten Liste: Es verbindet eine '
+                               'Hostauswahl mit Einstellungen und einer Task-Liste. Der einzelne '
+                               'Modul-Aufruf ist die Ebene darunter (Task), ein Playbook kann '
+                               'mehrere Plays enthalten.',
+                         'en': 'A play is one entry of the top-level list: it ties a host '
+                               'selection to settings and a task list. The single module call is '
+                               'the level below (task), and a playbook can contain several plays.'},
          'type': 'single',
          'prompt': {'de': 'Was ist ein Play?',
                     'en': 'What is a play?'},
@@ -408,6 +588,14 @@ PLAYBOOKS_MODULE = {
                             'that bundles hosts, settings, and a task list',
                             'A file containing variables', 'An ad-hoc command']}},
         {'id': 'pb2',
+         'explanation': {'de': 'Ohne Leerzeichen ist `name:nginx` für YAML ein einziger String und '
+                               'kein Schlüssel mit Wert. Ansible ergänzt nichts — der Fehler fällt '
+                               'schon beim Einlesen auf dem Control Node auf, lange bevor ein '
+                               'Managed Node beteiligt ist.',
+                         'en': 'Without the space, `name:nginx` is a single string for YAML and '
+                               'not a key with a value. Ansible adds nothing — the error shows up '
+                               'while parsing on the control node, long before any managed node is '
+                               'involved.'},
          'type': 'single',
          'prompt': {'de': 'Was ist an `name:nginx` (ohne Leerzeichen nach dem Doppelpunkt) '
                           'problematisch?',
@@ -422,6 +610,13 @@ PLAYBOOKS_MODULE = {
                             'Ansible automatically inserts the missing space',
                             'The error is only noticed at runtime on the managed node']}},
         {'id': 'pb3',
+         'explanation': {'de': '`--check` verbindet sich mit den Hosts und lässt die Module '
+                               'melden, was sie ändern würden, ohne es zu tun. Die reine '
+                               'Syntaxprüfung ohne Verbindung ist ein anderer Schalter: '
+                               '`--syntax-check`.',
+                         'en': '`--check` connects to the hosts and lets the modules report what '
+                               'they would change, without doing it. The pure syntax check without '
+                               'any connection is a different switch: `--syntax-check`.'},
          'type': 'single',
          'prompt': {'de': 'Was macht `ansible-playbook site.yml --check`?',
                     'en': 'What does `ansible-playbook site.yml --check` do?'},
@@ -437,6 +632,13 @@ PLAYBOOKS_MODULE = {
                             'on the hosts',
                             'Encrypts the playbook']}},
         {'id': 'pb4',
+         'explanation': {'de': '`skipped` heißt: Der Task wurde für diesen Host gar nicht '
+                               'ausgeführt, meist weil eine `when`-Bedingung nicht zutraf. Das ist '
+                               'kein Fehler (`failed`) und kein Verbindungsproblem '
+                               '(`unreachable`).',
+                         'en': '`skipped` means the task was not executed for this host at all, '
+                               'usually because a `when` condition did not hold. It is neither an '
+                               'error (`failed`) nor a connection problem (`unreachable`).'},
          'type': 'single',
          'prompt': {'de': 'Ein Task meldet `skipped`. Was bedeutet das?',
                     'en': 'A task reports `skipped`. What does that mean?'},
@@ -448,6 +650,13 @@ PLAYBOOKS_MODULE = {
                             'The host was unreachable',
                             'The task was skipped, e.g. due to a condition']}},
         {'id': 'pb5',
+         'explanation': {'de': 'Innerhalb eines Hosts laufen die Tasks strikt von oben nach unten. '
+                               'Parallel ist nur die Abarbeitung über mehrere Hosts hinweg '
+                               '(begrenzt durch `forks`) — daher der Eindruck, „alles liefe '
+                               'gleichzeitig“.',
+                         'en': 'Within one host the tasks run strictly top to bottom. Only the '
+                               'processing across several hosts is parallel (limited by `forks`) — '
+                               'hence the impression that "everything runs at once".'},
          'type': 'single',
          'prompt': {'de': 'In welcher Reihenfolge laufen Tasks innerhalb eines Hosts ab?',
                     'en': 'In what order do tasks run within a single host?'},
@@ -457,5 +666,83 @@ PLAYBOOKS_MODULE = {
                             'Von unten nach oben'],
                      'en': ['Sequentially, top to bottom', 'In random order',
                             'All at the same time', 'Bottom to top']}},
+        {'id': 'pb6',
+         'type': 'number',
+         'prompt': {'de': 'Ein Play mit `gather_facts: true` hat drei Tasks. Auf web01 melden zwei '
+                          'Tasks `changed` und einer `ok`. Welche Zahl steht im PLAY RECAP von '
+                          'web01 hinter `ok=`?',
+                    'en': 'A play with `gather_facts: true` has three tasks. On web01 two tasks '
+                          "report `changed` and one `ok`. Which number follows `ok=` in web01's "
+                          'PLAY RECAP?'},
+         'answer': 4,
+         'explanation': {'de': 'Im Recap zählt `ok` alle erfolgreich gelaufenen Tasks: drei eigene '
+                               'plus `Gathering Facts` ergibt 4. `changed=2` ist darin enthalten, '
+                               'nicht zusätzlich — wer nur die Zeilen mit „ok:“ zählt, kommt '
+                               'fälschlich auf 2.',
+                         'en': 'In the recap, `ok` counts all tasks that ran successfully: three '
+                               'of your own plus `Gathering Facts` makes 4. `changed=2` is '
+                               'included in it, not on top — counting only the lines starting with '
+                               '"ok:" wrongly gives 2.'}},
+        {'id': 'pb7',
+         'type': 'single',
+         'prompt': {'de': 'Dieses Play bricht mit einem Fehler ab. Warum?\n'
+                          '\n'
+                          '```yaml\n'
+                          '- name: Zeitdienst\n'
+                          '  hosts: dbservers\n'
+                          '  tasks:\n'
+                          '    - name: chrony installieren\n'
+                          '      ansible.builtin.package:\n'
+                          '        name: chrony\n'
+                          '        state: present\n'
+                          '        become: true\n'
+                          '```',
+                    'en': 'This play aborts with an error. Why?\n'
+                          '\n'
+                          '```yaml\n'
+                          '- name: Zeitdienst\n'
+                          '  hosts: dbservers\n'
+                          '  tasks:\n'
+                          '    - name: chrony installieren\n'
+                          '      ansible.builtin.package:\n'
+                          '        name: chrony\n'
+                          '        state: present\n'
+                          '        become: true\n'
+                          '```'},
+         'answer': 2,
+         'options': {'de': ['`hosts` darf nicht `dbservers` heißen',
+                            '`state: present` gibt es beim Modul package nicht',
+                            '`become` ist ein Task-Keyword und steht hier fälschlich als '
+                            'Modul-Parameter',
+                            'Dem Play fehlt `vars:`'],
+                     'en': ['`hosts` must not be called `dbservers`',
+                            'The package module has no `state: present`',
+                            '`become` is a task keyword and is wrongly placed here as a module '
+                            'parameter',
+                            'The play lacks `vars:`']},
+         'explanation': {'de': '`become` steht eine Ebene zu tief: Unter dem Modulnamen stehen nur '
+                               'dessen Parameter, und `package` kennt kein `become`. Richtig ist '
+                               'die Einrückung auf Höhe von `name:` des Tasks (oder auf '
+                               'Play-Ebene). YAML-Syntax ist hier in Ordnung — der Fehler ist die '
+                               'falsche Ebene.',
+                         'en': "`become` is one level too deep: only the module's parameters go "
+                               'below the module name, and `package` has no `become`. The right '
+                               "indentation is level with the task's `name:` (or at play level). "
+                               'The YAML syntax is fine here — the error is the wrong level.'}},
+        {'id': 'pb8',
+         'type': 'multi',
+         'prompt': {'de': 'Welche dieser Schlüssel gehören auf die Play-Ebene? (drei Antworten)',
+                    'en': 'Which of these keys belong at play level? (three answers)'},
+         'answer': [0, 1, 3],
+         'options': {'de': ['hosts', 'gather_facts', 'state', 'tasks', 'dest'],
+                     'en': ['hosts', 'gather_facts', 'state', 'tasks', 'dest']},
+         'explanation': {'de': '`hosts`, `gather_facts` und `tasks` beschreiben das Play: wen es '
+                               'trifft, ob Fakten gesammelt werden und welche Schritte folgen. '
+                               '`state` und `dest` sind Parameter einzelner Module und stehen '
+                               'deshalb unter dem Modulnamen eines Tasks.',
+                         'en': '`hosts`, `gather_facts` and `tasks` describe the play: whom it '
+                               'targets, whether facts are gathered and which steps follow. '
+                               '`state` and `dest` are parameters of individual modules and '
+                               'therefore go below the module name of a task.'}},
     ]},
 }

@@ -15,6 +15,15 @@ HASHFUNKTIONEN_MODULE = {
         'Begründen können, warum SHA-256 für Passwort-Hashing das falsche Werkzeug ist',
         'Aktuelle Passwort-Hashing-Verfahren und deren empfohlene Parameter benennen können',
     ],
+    'goals_en': [
+        ('Name the properties of a cryptographic hash function (one-way function, collision resistance, '
+         'avalanche effect, fixed output length)'),
+        'Explain why a PKI signs the hash rather than the document itself',
+        'Put collision attacks on MD5/SHA-1 into context and explain their impact on certificates',
+        'Distinguish HMAC from a plain hash',
+        'Justify why SHA-256 is the wrong tool for password hashing',
+        'Name current password-hashing schemes and their recommended parameters',
+    ],
     'scenario': {
         'de': 'Nordwind Logistik GmbH betreibt ein internes Software-Repository. Beim letzten '
               'Audit fiel auf: Downloads werden mit SHA-256-Prüfsummen versehen, aber die '
@@ -187,6 +196,199 @@ HASHFUNKTIONEN_MODULE = {
                    'delivers not just integrity (like a plain hash) but also authenticity: the '
                    'receiver knows the message comes from someone who knows the secret key.',
          }},
+        {'type': 'diagram', 'id': 'diagram-hash-hmac-signatur',
+         'note': 'Kernfrage je Zeile: Wer kann den Wert erzeugen, wer kann ihn pruefen? Daraus folgt alles andere.',
+         'payload': {
+             'kind': 'compare',
+             'title_de': 'Hash, HMAC und Signatur im Vergleich',
+             'title_en': 'Hash, HMAC, and signature compared',
+             'columns': [
+                    {'title_de': 'Hash (SHA-256)', 'title_en': 'Hash (SHA-256)'},
+                    {'title': 'HMAC-SHA-256'},
+                    {'title_de': 'Signatur (ECDSA/RSA)', 'title_en': 'Signature (ECDSA/RSA)'},
+                ],
+             'rows': [
+                    {
+                     'label_de': 'Schlüssel',
+                     'label_en': 'Key',
+                     'values_de': ['keiner', 'ein gemeinsamer, geheimer', 'Schlüsselpaar: privat + öffentlich'],
+                     'values_en': ['none', 'one shared, secret', 'key pair: private + public'],
+                    },
+                    {
+                     'label_de': 'Erzeugen kann',
+                     'label_en': 'Can create',
+                     'values_de': ['jeder', 'wer den Schlüssel kennt', 'nur der Inhaber des privaten Schlüssels'],
+                     'values_en': ['anyone', 'whoever knows the key', 'only the holder of the private key'],
+                    },
+                    {
+                     'label_de': 'Prüfen kann',
+                     'label_en': 'Can verify',
+                     'values_de': ['jeder', 'wer den Schlüssel kennt', 'jeder mit dem öffentlichen Schlüssel'],
+                     'values_en': ['anyone', 'whoever knows the key', 'anyone with the public key'],
+                    },
+                    {
+                     'label_de': 'Erkennt Manipulation',
+                     'label_en': 'Detects tampering',
+                     'values_de': ['nur bei getrennt gesichertem Sollwert', 'ja', 'ja'],
+                     'values_en': ['only with a separately protected reference', 'yes', 'yes'],
+                    },
+                    {
+                     'label_de': 'Belegt Herkunft',
+                     'label_en': 'Proves origin',
+                     'values_de': ['nein', 'ja, aber nur zwischen den Schlüsselinhabern', 'ja, auch vor Dritten'],
+                     'values_en': ['no', 'yes, but only between the key holders', 'yes, even to third parties'],
+                    },
+                    {
+                     'label_de': 'Typischer Einsatz',
+                     'label_en': 'Typical use',
+                     'values_de': [
+                            'Prüfsumme, Fingerprint',
+                            'API-Anfragen, TLS-Schlüsselableitung',
+                            'Zertifikate, Software-Signatur',
+                        ],
+                     'values_en': [
+                            'checksum, fingerprint',
+                            'API requests, TLS key derivation',
+                            'certificates, software signing',
+                        ],
+                    },
+                    {
+                     'label': 'openssl dgst -sha256 …',
+                     'values': ['datei', '-hmac <key> datei', '-sign key.pem datei'],
+                    },
+                ],
+            },
+        },
+        {'type': 'terminal', 'id': 'terminal-dgst',
+         'note': ('Ausgaben real mit OpenSSL 3.6 erzeugt (Datei: eine Zeile "Lieferschein 4711: 12 Paletten nach '
+                  'Hamburg", manipuliert: 13 Paletten). Dieselben Befehle laufen im Openssl-Lab ueber die Vorlage "Hash'
+                  ' und HMAC" (Modul "TLS pruefen" bzw. "Digitale Signaturen"). Fuer die Anzeige steht jeder Hash-Wert '
+                  'auf einer eigenen Zeile unter dem Dateinamen (echt: eine Zeile "NAME(datei)= wert"), der '
+                  'SHA-512-Wert auf zwei Zeilen zu je 64 Hex-Zeichen; so stehen die Werte zum Vergleich untereinander. '
+                  'wrap ist aus, damit auch auf dem Tablet nichts umbricht.'),
+         'payload': {
+             'title_de': 'Hash und HMAC mit openssl dgst',
+             'title_en': 'Hash and HMAC with openssl dgst',
+             'wrap': False,
+             'prompt': 'nordwind$',
+             'intro_de': ('Zwei Dateien: lieferschein.txt (12 Paletten) und eine\n'
+                          'manipulierte Kopie (13 Paletten).'),
+             'intro_en': ('Two files: lieferschein.txt (12 pallets) and a tampered copy\n'
+                          '(13 pallets).'),
+             'unknown_de': 'Befehl nicht in dieser Übung: {cmd} (Tipp: help)',
+             'unknown_en': 'Command not part of this exercise: {cmd} (hint: help)',
+             'commands': [
+                    {
+                     'cmd': 'openssl dgst -sha256 lieferschein.txt',
+                     'desc_de': 'SHA-256 des Originals',
+                     'desc_en': 'SHA-256 of the original',
+                     'output': ('SHA2-256(lieferschein.txt)=\n'
+                                '1a4ababb5cd7931dd06d7e6a04529296c685c01015b4a13f332e54586695e2ce'),
+                    },
+                    {
+                     'cmd': 'openssl dgst -sha256 lieferschein-manipuliert.txt',
+                     'desc_de': 'SHA-256 der manipulierten Kopie',
+                     'desc_en': 'SHA-256 of the tampered copy',
+                     'output': ('SHA2-256(lieferschein-manipuliert.txt)=\n'
+                                '4b2e5720ab8f86098a0689cd7199b03efb495f9cf4b83f28f3c3debec1ef9757'),
+                    },
+                    {
+                     'cmd': 'openssl dgst -sha512 lieferschein.txt',
+                     'desc_de': 'SHA-512 des Originals',
+                     'desc_en': 'SHA-512 of the original',
+                     'output': ('SHA2-512(lieferschein.txt)=\n'
+                                'c5bdb0444017e95c8ef4b1515d87adc3adb8ffbb75cd21ea1fc692c01861b666\n'
+                                '91f0a4ee02c97138a44056079e9fff3cb12ec7ef10c15cb437ecd8869f22fa5b'),
+                    },
+                    {
+                     'cmd': 'openssl dgst -sha256 -hmac nordwind-geheim lieferschein.txt',
+                     'desc_de': 'HMAC mit dem richtigen Schlüssel',
+                     'desc_en': 'HMAC with the correct key',
+                     'output': ('HMAC-SHA2-256(lieferschein.txt)=\n'
+                                '0af9b197c13918ad0c4e21dafaf5b6514a51c70ebb0f5e2a426f85b8e8009278'),
+                    },
+                    {
+                     'cmd': 'openssl dgst -sha256 -hmac falscher-schluessel lieferschein.txt',
+                     'desc_de': 'HMAC mit einem geratenen Schlüssel',
+                     'desc_en': 'HMAC with a guessed key',
+                     'output': ('HMAC-SHA2-256(lieferschein.txt)=\n'
+                                '8305d2763f830a110b258e3323d1d006d33b0e5ffd3aec8866138a230b4388b2'),
+                    },
+                ],
+             'tasks': [
+                    {
+                     'text_de': 'Berechne den SHA-256 des Originals und der manipulierten Kopie und vergleiche.',
+                     'text_en': 'Compute the SHA-256 of the original and of the tampered copy and compare.',
+                     'command': 'openssl dgst -sha256 lieferschein-manipuliert.txt',
+                    },
+                    {
+                     'text_de': 'Aus wie vielen Hex-Zeichen besteht ein SHA-256-Wert?',
+                     'text_en': 'How many hex characters does a SHA-256 value have?',
+                     'answers': ['64'],
+                    },
+                    {
+                     'text_de': 'Und ein SHA-512-Wert? (Die Eingabe war dieselbe eine Zeile.)',
+                     'text_en': 'And a SHA-512 value? (The input was the same single line.)',
+                     'answers': ['128'],
+                    },
+                    {
+                     'text_de': 'Berechne den HMAC mit dem Schlüssel nordwind-geheim.',
+                     'text_en': 'Compute the HMAC with the key nordwind-geheim.',
+                     'command': 'openssl dgst -sha256 -hmac nordwind-geheim lieferschein.txt',
+                    },
+                    {
+                     'text_de': ('Ein Angreifer ändert die Datei und kennt den Schlüssel nicht. Kann er einen passenden '
+                         'HMAC mitliefern? (ja/nein)'),
+                     'text_en': ('An attacker changes the file and does not know the key. Can they supply a matching '
+                         'HMAC? (yes/no)'),
+                     'answers': ['nein', 'no'],
+                    },
+                ],
+            },
+        },
+        {'type': 'cloze', 'id': 'cloze-dgst-befehle',
+         'payload': {
+             'prompt_de': 'Vervollständige die vier openssl-Befehle.',
+             'prompt_en': 'Complete the four openssl commands.',
+             'mono': True,
+             'text_de': ('# Fingerabdruck einer Datei\nopenssl [[cmd]] -sha256 lieferschein.txt\n# Prüfcode mit '
+                 'gemeinsamem Schlüssel\nopenssl dgst -sha256 -[[mac]] nordwind-geheim lieferschein.txt\n# '
+                 'Signatur erzeugen\nopenssl dgst -sha256 -sign [[signkey]] -out lieferschein.sig '
+                 'lieferschein.txt\n# Signatur prüfen\nopenssl dgst -sha256 -verify [[verifykey]] -signature '
+                 'lieferschein.sig lieferschein.txt'),
+             'text_en': ('# fingerprint of a file\nopenssl [[cmd]] -sha256 lieferschein.txt\n# check code with a shared '
+                 'key\nopenssl dgst -sha256 -[[mac]] nordwind-geheim lieferschein.txt\n# create a '
+                 'signature\nopenssl dgst -sha256 -sign [[signkey]] -out lieferschein.sig lieferschein.txt\n# '
+                 'verify a signature\nopenssl dgst -sha256 -verify [[verifykey]] -signature lieferschein.sig '
+                 'lieferschein.txt'),
+             'gaps': [
+                    {
+                     'id': 'cmd',
+                     'accept': ['dgst'],
+                    },
+                    {
+                     'id': 'mac',
+                     'accept': ['hmac'],
+                    },
+                    {
+                     'id': 'signkey',
+                     'options_de': ['sign.key (privat)', 'sign.pub (öffentlich)', 'nordwind-geheim'],
+                     'options_en': ['sign.key (private)', 'sign.pub (public)', 'nordwind-geheim'],
+                     'answer': 0,
+                    },
+                    {
+                     'id': 'verifykey',
+                     'options_de': ['sign.key (privat)', 'sign.pub (öffentlich)', 'nordwind-geheim'],
+                     'options_en': ['sign.key (private)', 'sign.pub (public)', 'nordwind-geheim'],
+                     'answer': 1,
+                    },
+                ],
+             'explanation_de': ('Hash: kein Schlüssel. HMAC: ein gemeinsamer Schlüssel. Signatur: erzeugen mit dem privaten, '
+                 'prüfen mit dem öffentlichen Schlüssel — das nächste Modul vertieft das.'),
+             'explanation_en': ('Hash: no key. HMAC: one shared key. Signature: create with the private key, verify with the '
+                 'public key — the next module goes deeper.'),
+            },
+        },
         {'type': 'text', 'id': 'text-5',
          'note': 'Dieser Abschnitt ist erfahrungsgemaess der Aha-Moment des Moduls: Teilnehmende kennen SHA-256 aus dem vorigen Abschnitt und erwarten, dass es auch fuer Passwoerter die richtige Wahl ist.',
          'value': {
@@ -270,6 +472,94 @@ HASHFUNKTIONEN_MODULE = {
                  'Because SHA-256 has been considered collision-prone since 2016, like MD5',
              ],
          }},
+        {'type': 'scenario', 'id': 'scenario-passwort-migration',
+         'payload': {
+             'title_de': 'Die Login-Datenbank mit blankem SHA-256',
+             'title_en': 'The login database with plain SHA-256',
+             'start': 'start',
+             'nodes': [
+                    {
+                     'id': 'start',
+                     'text_de': ('Das Audit hat ergeben: 4.000 Mitarbeiter-Passwörter liegen als SHA-256 ohne Salt in '
+                         'der Datenbank. Die Klartext-Passwörter kennt niemand. Wie stellst du auf Argon2id um?'),
+                     'text_en': ('The audit found: 4,000 employee passwords are stored as SHA-256 without a salt. '
+                         'Nobody knows the plaintext passwords. How do you migrate to Argon2id?'),
+                     'options': [
+                            {
+                             'label_de': 'Alle Hashes zurückrechnen und die Klartexte neu mit Argon2id hashen',
+                             'label_en': 'Reverse all hashes and re-hash the plaintexts with Argon2id',
+                             'to': 'zurueck',
+                            },
+                            {
+                             'label_de': 'Beim nächsten erfolgreichen Login prüfen und dabei neu mit Argon2id speichern',
+                             'label_en': 'Verify at the next successful login and re-store with Argon2id then',
+                             'to': 'login',
+                            },
+                            {
+                             'label_de': 'Die Umstellung vertagen — SHA-256 gilt ja als ungebrochen',
+                             'label_en': 'Postpone the migration — SHA-256 is considered unbroken after all',
+                             'to': 'vertagen',
+                            },
+                        ],
+                    },
+                    {
+                     'id': 'zurueck',
+                     'outcome': 'bad',
+                     'text_de': ('Ein Hash ist eine Einwegfunktion — „zurückrechnen“ heißt hier Passwörter raten. Genau '
+                         'das wäre der Angriff, vor dem die Umstellung schützen soll.'),
+                     'text_en': ('A hash is a one-way function — "reversing" here means guessing passwords. That is '
+                         'precisely the attack the migration is meant to protect against.'),
+                    },
+                    {
+                     'id': 'vertagen',
+                     'outcome': 'bad',
+                     'text_de': ('Ungebrochen heißt kollisionsresistent, nicht „für Passwörter geeignet“. SHA-256 ist '
+                         'schnell: Wer die Tabelle stiehlt, probiert Milliarden Kandidaten pro Sekunde — und '
+                         'ohne Salt verraten gleiche Hashes gleiche Passwörter.'),
+                     'text_en': ('Unbroken means collision resistant, not "suitable for passwords". SHA-256 is fast: '
+                         'whoever steals the table tries billions of candidates per second — and without a '
+                         'salt, equal hashes reveal equal passwords.'),
+                    },
+                    {
+                     'id': 'login',
+                     'text_de': ('Gut: Nur beim Login liegt das Klartext-Passwort kurz vor. Nach drei Monaten haben '
+                         'sich 600 Konten nie angemeldet — ihre Hashes sind weiter blankes SHA-256. Was tust du?'),
+                     'text_en': ('Good: the plaintext password is only briefly available at login. After three months, '
+                         '600 accounts have never logged in — their hashes are still plain SHA-256. What now?'),
+                     'options': [
+                            {
+                             'label_de': ('Die alten SHA-256-Werte zusätzlich mit Argon2id „umhüllen“ oder '
+                                 'Passwort-Reset erzwingen'),
+                             'label_en': 'Additionally wrap the old SHA-256 values in Argon2id, or force a password reset',
+                             'to': 'wrap',
+                            },
+                            {
+                             'label_de': 'Nichts — inaktive Konten sind kein Risiko',
+                             'label_en': 'Nothing — inactive accounts are not a risk',
+                             'to': 'nichts',
+                            },
+                        ],
+                    },
+                    {
+                     'id': 'nichts',
+                     'outcome': 'ok',
+                     'text_de': ('Die aktiven Konten sind geschützt, aber 600 schnelle Hashes bleiben im Bestand — und '
+                         'gerade vergessene Konten haben oft schwache, anderswo wiederverwendete Passwörter.'),
+                     'text_en': ('The active accounts are protected, but 600 fast hashes remain — and forgotten '
+                         'accounts in particular often have weak passwords reused elsewhere.'),
+                    },
+                    {
+                     'id': 'wrap',
+                     'outcome': 'good',
+                     'text_de': ('So bleibt kein schneller Hash zurück: Entweder wird der alte Wert als Eingabe für '
+                         'Argon2id verwendet (und beim nächsten Login sauber ersetzt), oder das Konto bekommt '
+                         'ein neues Passwort.'),
+                     'text_en': ('This leaves no fast hash behind: either the old value is used as input to Argon2id '
+                         '(and cleanly replaced at the next login), or the account gets a new password.'),
+                    },
+                ],
+            },
+        },
         {'type': 'reflect', 'id': 'reflect-1',
          'payload': {
              'prompt_de': 'Ein Entwickler bei Nordwind Logistik schlägt vor, Passwörter künftig '
@@ -293,6 +583,14 @@ HASHFUNKTIONEN_MODULE = {
              'de': ['Kollisionsresistenz', 'Feste Ausgabelänge', 'Lawineneffekt', 'Einwegfunktion'],
              'en': ['Collision resistance', 'Fixed output length', 'Avalanche effect',
                     'One-way function'],
+         },
+         'explanation': {
+          'de': ('Der Lawineneffekt beschreibt, dass sich bei einem geänderten Bit im Mittel die Hälfte der '
+              'Ausgabebits ändert. Kollisionsresistenz ist etwas anderes: Sie sagt, dass sich zwei verschiedene '
+              'Eingaben mit gleichem Hash praktisch nicht finden lassen.'),
+          'en': ('The avalanche effect means that flipping one input bit changes about half of the output bits. '
+              'Collision resistance is something else: it says two different inputs with the same hash '
+              'practically cannot be found.'),
          }},
         {'id': 'hf2', 'type': 'single',
          'prompt': {'de': 'Warum wird bei digitalen Signaturen der Hash des Dokuments signiert '
@@ -305,16 +603,24 @@ HASHFUNKTIONEN_MODULE = {
                  'Weil Hashes vertraulich sind, Dokumente aber nicht',
                  'Weil asymmetrische Signaturoperationen langsam sind und ein kurzer, fester '
                  'Hash-Wert das effizient macht',
-                 'Weil Dokumente ohne Hash nicht signierbar wären',
+                 'Weil der Hash das Dokument zusätzlich verschlüsselt und so vor Mitlesern schützt',
                  'Weil das CA/Browser Forum das Signieren ganzer Dokumente verbietet',
              ],
              'en': [
                  'Because hashes are confidential but documents are not',
                  'Because asymmetric signature operations are slow, and a short, fixed hash value '
                  'makes that efficient',
-                 'Because documents cannot be signed without a hash at all',
+                 'Because the hash additionally encrypts the document and so protects it from eavesdroppers',
                  'Because the CA/Browser Forum forbids signing whole documents',
              ],
+         },
+         'explanation': {
+          'de': ('Asymmetrische Operationen sind teuer und arbeiten nur auf kurzen Eingaben; der Hash liefert '
+              'einen kurzen Stellvertreter fester Länge für beliebig große Dokumente. Ein Hash verschlüsselt '
+              'dabei nichts — Dokument und Hash bleiben für jeden lesbar.'),
+          'en': ('Asymmetric operations are expensive and only work on short inputs; the hash provides a short, '
+              'fixed-length stand-in for documents of any size. A hash encrypts nothing — document and hash '
+              'stay readable for everyone.'),
          }},
         {'id': 'hf3', 'type': 'single',
          'prompt': {'de': 'Was unterscheidet HMAC von einem blanken Hash?',
@@ -335,6 +641,13 @@ HASHFUNKTIONEN_MODULE = {
                  'HMAC does not have a fixed output length',
                  'HMAC only works together with asymmetric signatures',
              ],
+         },
+         'explanation': {
+          'de': ('In den HMAC geht ein geheimer Schlüssel ein, deshalb kann ihn nur berechnen, wer den Schlüssel '
+              'kennt (RFC 2104). Einen blanken Hash kann dagegen jeder neu berechnen — auch der Angreifer nach '
+              'einer Manipulation.'),
+          'en': ('An HMAC incorporates a secret key, so only someone who knows the key can compute it (RFC 2104). '
+              'A plain hash, in contrast, can be recomputed by anyone — including the attacker after tampering.'),
          }},
         {'id': 'hf4', 'type': 'single',
          'prompt': {'de': 'Welches Verfahren nennt OWASP als bevorzugte Wahl für '
@@ -345,6 +658,14 @@ HASHFUNKTIONEN_MODULE = {
          'options': {
              'de': ['Argon2id', 'SHA-256', 'MD5 mit Salt', 'RC4'],
              'en': ['Argon2id', 'SHA-256', 'MD5 with salt', 'RC4'],
+         },
+         'explanation': {
+          'de': ('Argon2id ist bewusst langsam und speicherhungrig, was massenhaftes Raten auf GPUs teuer macht. '
+              'SHA-256 oder MD5 mit Salt bleiben schnelle Hashes: Das Salt verhindert Rainbow Tables, bremst '
+              'aber keinen einzigen Rateversuch.'),
+          'en': ('Argon2id is deliberately slow and memory-hungry, which makes mass guessing on GPUs expensive. '
+              'SHA-256 or MD5 with a salt remain fast hashes: the salt defeats rainbow tables but does not slow '
+              'down a single guess.'),
          }},
         {'id': 'hf5', 'type': 'single',
          'prompt': {'de': 'Warum verbot das CA/Browser Forum die Neuausstellung '
@@ -367,6 +688,106 @@ HASHFUNKTIONEN_MODULE = {
                  'documents/certificates with a valid signature',
                  'SHA-1 does not support HMAC construction',
              ],
+         },
+         'explanation': {
+          'de': ('Eine CA signiert den Hash des Zertifikats. Lassen sich zwei Zertifikate mit gleichem Hash '
+              'konstruieren, gilt die Signatur für beide — auch für das, das die CA nie gesehen hat. Mit der '
+              'Dateigröße oder mit HMAC hat das Verbot nichts zu tun.'),
+          'en': ('A CA signs the hash of the certificate. If two certificates with the same hash can be '
+              'constructed, the signature is valid for both — including the one the CA never saw. The ban has '
+              'nothing to do with file size or HMAC.'),
          }},
+        {'id': 'hf6', 'type': 'single',
+         'prompt': {
+             'de': ('Die Download-Seite nennt für ein Installationspaket den SHA-256-Wert 1a4ababb…e2ce. Lokal '
+                 'liefert `openssl dgst -sha256 paket.bin` den Wert 4b2e5720…9757. Was folgt daraus?'),
+             'en': ('The download page lists the SHA-256 value 1a4ababb…e2ce for an installation package. Locally, '
+                 '`openssl dgst -sha256 paket.bin` returns 4b2e5720…9757. What follows?'),
+            },
+         'options': {
+             'de': [
+                    'Die Datei ist nicht die veröffentlichte — nicht installieren, Quelle und Download prüfen',
+                    'Kleine Abweichungen im Hash sind normal, die Datei ist im Wesentlichen identisch',
+                    'Der Unterschied zeigt nur, dass lokal eine andere OpenSSL-Version rechnet',
+                    'Die Datei ist echt, aber mit einem anderen Schlüssel gehasht worden',
+                ],
+             'en': [
+                    'The file is not the published one — do not install, check source and download',
+                    'Small deviations in the hash are normal, the file is essentially identical',
+                    'The difference only shows that a different OpenSSL version computed it locally',
+                    'The file is genuine but was hashed with a different key',
+                ],
+            },
+         'answer': 0,
+         'explanation': {
+             'de': ('Ein Hash ist deterministisch: Gleiche Eingabe ergibt überall denselben Wert, unabhängig von '
+                 'Werkzeug und Version. „Fast gleich“ gibt es wegen des Lawineneffekts nicht, und ein blanker '
+                 'SHA-256 kennt keinen Schlüssel. Achtung: Der Vergleich schützt nur, wenn der Sollwert aus '
+                 'vertrauenswürdiger Quelle stammt.'),
+             'en': ('A hash is deterministic: the same input yields the same value everywhere, regardless of tool '
+                 'and version. There is no "almost equal" because of the avalanche effect, and a plain SHA-256 '
+                 'has no key. Note: the comparison only protects you if the reference value comes from a '
+                 'trustworthy source.'),
+            },
+        },
+        {'id': 'hf7', 'type': 'multi',
+         'prompt': {
+             'de': 'Für welche dieser Prüfwerte braucht derjenige, der sie ERZEUGT, ein Geheimnis?',
+             'en': 'For which of these check values does the party that CREATES them need a secret?',
+            },
+         'options': {
+             'de': [
+                    'HMAC-SHA-256 über eine Nachricht',
+                    'ECDSA-Signatur über eine Nachricht',
+                    'SHA-256-Prüfsumme einer Datei',
+                    'SHA-256-Fingerprint eines Zertifikats',
+                ],
+             'en': [
+                    'HMAC-SHA-256 over a message',
+                    'ECDSA signature over a message',
+                    'SHA-256 checksum of a file',
+                    'SHA-256 fingerprint of a certificate',
+                ],
+            },
+         'answer': [0, 1],
+         'explanation': {
+             'de': ('HMAC braucht den gemeinsamen geheimen Schlüssel, die Signatur den privaten Schlüssel. '
+                 'Prüfsumme und Fingerprint sind blanke Hashes — jeder kann sie berechnen, deshalb beweisen sie '
+                 'allein keine Herkunft.'),
+             'en': ('HMAC needs the shared secret key, the signature needs the private key. Checksum and '
+                 'fingerprint are plain hashes — anyone can compute them, so on their own they prove no origin.'),
+            },
+        },
+        {'id': 'hf8', 'type': 'single',
+         'prompt': {
+             'de': ('Vier Vorschläge für die Passwortspeicherung eines neuen Portals. Welcher erfüllt die im Modul '
+                 'genannte OWASP-Mindestempfehlung?'),
+             'en': ('Four proposals for password storage in a new portal. Which one meets the OWASP minimum '
+                 'recommendation cited in this module?'),
+            },
+         'options': {
+             'de': [
+                    'Argon2id mit m=19456, t=2, p=1 und Salt je Passwort',
+                    'SHA-256 mit 32 Byte Salt je Passwort',
+                    'PBKDF2-HMAC-SHA256 mit 1.000 Iterationen',
+                    'bcrypt mit Work-Faktor 4',
+                ],
+             'en': [
+                    'Argon2id with m=19456, t=2, p=1 and a per-password salt',
+                    'SHA-256 with a 32-byte salt per password',
+                    'PBKDF2-HMAC-SHA256 with 1,000 iterations',
+                    'bcrypt with work factor 4',
+                ],
+            },
+         'answer': 0,
+         'explanation': {
+             'de': ('Nur die Argon2id-Konfiguration erreicht die Mindestwerte. Die anderen nutzen zwar teils '
+                 'richtige Verfahren, aber viel zu schwache Parameter (PBKDF2 braucht 600.000 Iterationen, '
+                 'bcrypt mindestens Faktor 10) — und SHA-256 bleibt trotz großem Salt ein schneller Hash.'),
+             'en': ('Only the Argon2id configuration reaches the minimum values. The others partly use the right '
+                 'schemes but with far too weak parameters (PBKDF2 needs 600,000 iterations, bcrypt at least '
+                 'factor 10) — and SHA-256 remains a fast hash despite a large salt.'),
+            },
+        },
     ]},
 }

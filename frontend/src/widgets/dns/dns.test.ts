@@ -10,6 +10,13 @@ describe('resolve', () => {
     expect(r.steps[2].answer.en).toContain('203.0.113.11')
   })
 
+  it('Alias (CNAME) -> Zielname und dessen IP', () => {
+    const r = resolve('shop.nordwind-logistik.de')
+    expect(r.ip).toBe('203.0.113.11')
+    expect(r.steps[2].answer.de).toContain('CNAME → www.nordwind-logistik.de')
+    expect(r.steps[2].answer.en).toContain('A record: 203.0.113.11')
+  })
+
   it('unbekannter .de-Name -> NXDOMAIN', () => {
     const r = resolve('gibtsnicht.nordwind-logistik.de')
     expect(r.ip).toBeNull()

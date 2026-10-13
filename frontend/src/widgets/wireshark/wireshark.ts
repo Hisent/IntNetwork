@@ -96,17 +96,17 @@ export const CAPTURE: Packet[] = [
   },
   {
     no: 3, time: '1.104', src: PC, dst: DNSRV, protocol: 'DNS',
-    info: 'Standard query A intranet.nordwind.local',
+    info: 'Standard query A intranet.nordwind.example',
     protocols: ['eth', 'ip', 'udp', 'dns'], ports: [55201, 53],
     layers: [eth(MAC_PC, MAC_GW), ip(PC, DNSRV), udp(55201, 53),
-      { name: 'Domain Name System (query)', fields: [{ label: 'Name', value: 'intranet.nordwind.local' }, { label: 'Type', value: 'A' }] }],
+      { name: 'Domain Name System (query)', fields: [{ label: 'Name', value: 'intranet.nordwind.example' }, { label: 'Type', value: 'A' }] }],
   },
   {
     no: 4, time: '1.106', src: DNSRV, dst: PC, protocol: 'DNS',
     info: 'Standard query response A 192.168.10.80',
     protocols: ['eth', 'ip', 'udp', 'dns'], ports: [53, 55201],
     layers: [eth(MAC_GW, MAC_PC), ip(DNSRV, PC), udp(53, 55201),
-      { name: 'Domain Name System (response)', fields: [{ label: 'Name', value: 'intranet.nordwind.local' }, { label: 'Address', value: WEB }] }],
+      { name: 'Domain Name System (response)', fields: [{ label: 'Name', value: 'intranet.nordwind.example' }, { label: 'Address', value: WEB }] }],
   },
   {
     no: 5, time: '1.110', src: PC, dst: WEB, protocol: 'TCP',
@@ -133,7 +133,7 @@ export const CAPTURE: Packet[] = [
     layers: [eth(MAC_PC, MAC_GW), ip(PC, WEB), tcp(52100, 80, 'PSH, ACK'),
       { name: 'Hypertext Transfer Protocol', fields: [
         { label: 'Request', value: 'GET /login HTTP/1.1' },
-        { label: 'Host', value: 'intranet.nordwind.local' }] }],
+        { label: 'Host', value: 'intranet.nordwind.example' }] }],
   },
   {
     no: 9, time: '1.135', src: WEB, dst: PC, protocol: 'HTTP',
@@ -152,7 +152,7 @@ export const CAPTURE: Packet[] = [
     layers: [eth(MAC_PC, MAC_GW), ip(PC, WEB), tcp(52100, 80, 'PSH, ACK'),
       { name: 'Hypertext Transfer Protocol', fields: [
         { label: 'Request', value: 'POST /login HTTP/1.1' },
-        { label: 'Host', value: 'intranet.nordwind.local' },
+        { label: 'Host', value: 'intranet.nordwind.example' },
         { label: 'Content-Type', value: 'application/x-www-form-urlencoded' }] },
       { name: 'HTML Form URL Encoded', fields: [
         { label: 'username', value: 'b.berg' },
@@ -174,7 +174,19 @@ export const CAPTURE: Packet[] = [
     layers: [eth(MAC_PC, MAC_GW), ip(PC, BANK), tcp(52101, 443, 'SYN')],
   },
   {
-    no: 13, time: '15.230', src: PC, dst: BANK, protocol: 'TLS',
+    no: 13, time: '15.228', src: BANK, dst: PC, protocol: 'TCP',
+    info: '443 → 52101 [SYN, ACK] Seq=0 Ack=1',
+    protocols: ['eth', 'ip', 'tcp'], ports: [443, 52101],
+    layers: [eth(MAC_GW, MAC_PC), ip(BANK, PC), tcp(443, 52101, 'SYN, ACK')],
+  },
+  {
+    no: 14, time: '15.229', src: PC, dst: BANK, protocol: 'TCP',
+    info: '52101 → 443 [ACK] Seq=1 Ack=1',
+    protocols: ['eth', 'ip', 'tcp'], ports: [52101, 443],
+    layers: [eth(MAC_PC, MAC_GW), ip(PC, BANK), tcp(52101, 443, 'ACK')],
+  },
+  {
+    no: 15, time: '15.230', src: PC, dst: BANK, protocol: 'TLS',
     info: 'Client Hello  (SNI=bank.example.com)',
     protocols: ['eth', 'ip', 'tcp', 'tls'], ports: [52101, 443],
     layers: [eth(MAC_PC, MAC_GW), ip(PC, BANK), tcp(52101, 443, 'PSH, ACK'),
@@ -183,12 +195,42 @@ export const CAPTURE: Packet[] = [
         { label: 'Server Name (SNI)', value: 'bank.example.com' }] }],
   },
   {
-    no: 14, time: '15.290', src: PC, dst: BANK, protocol: 'TLS',
+    // TLS 1.3: ab dem Server Hello ist der Rest des Handshakes (Zertifikat, Finished)
+    // bereits verschlüsselt und erscheint in Wireshark als "Application Data".
+    no: 16, time: '15.258', src: BANK, dst: PC, protocol: 'TLS',
+    info: 'Server Hello, Change Cipher Spec, Application Data',
+    protocols: ['eth', 'ip', 'tcp', 'tls'], ports: [443, 52101],
+    layers: [eth(MAC_GW, MAC_PC), ip(BANK, PC), tcp(443, 52101, 'PSH, ACK'),
+      { name: 'Transport Layer Security', fields: [
+        { label: 'Handshake', value: 'Server Hello' },
+        { label: 'Supported Version', value: 'TLS 1.3 (0x0304)' },
+        { label: 'Encrypted Data', value: '17 03 03 09 c4 5b e0 1d …  (unlesbar)' }] }],
+  },
+  {
+    no: 17, time: '15.262', src: PC, dst: BANK, protocol: 'TLS',
+    info: 'Change Cipher Spec, Application Data',
+    protocols: ['eth', 'ip', 'tcp', 'tls'], ports: [52101, 443],
+    layers: [eth(MAC_PC, MAC_GW), ip(PC, BANK), tcp(52101, 443, 'PSH, ACK'),
+      { name: 'Transport Layer Security', fields: [
+        { label: 'Content Type', value: 'Change Cipher Spec (20)' },
+        { label: 'Encrypted Data', value: '17 03 03 00 45 7a 0c 93 …  (unlesbar)' }] }],
+  },
+  {
+    no: 18, time: '15.290', src: PC, dst: BANK, protocol: 'TLS',
     info: 'Application Data',
     protocols: ['eth', 'ip', 'tcp', 'tls'], ports: [52101, 443],
     layers: [eth(MAC_PC, MAC_GW), ip(PC, BANK), tcp(52101, 443, 'PSH, ACK'),
       { name: 'Transport Layer Security', fields: [
         { label: 'Content Type', value: 'Application Data (23)' },
         { label: 'Encrypted Data', value: '17 03 03 00 8a f2 9c 41 …  (unlesbar)' }] }],
+  },
+  {
+    no: 19, time: '15.331', src: BANK, dst: PC, protocol: 'TLS',
+    info: 'Application Data',
+    protocols: ['eth', 'ip', 'tcp', 'tls'], ports: [443, 52101],
+    layers: [eth(MAC_GW, MAC_PC), ip(BANK, PC), tcp(443, 52101, 'PSH, ACK'),
+      { name: 'Transport Layer Security', fields: [
+        { label: 'Content Type', value: 'Application Data (23)' },
+        { label: 'Encrypted Data', value: '17 03 03 04 1e 6d b8 27 …  (unlesbar)' }] }],
   },
 ]

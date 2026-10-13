@@ -21,6 +21,12 @@ GRID_ARCHITEKTUR_MODULE = {
         'Eine einfache Grid-Topologie mit zentralem Standort und '
         'Zweigstellen-Mitgliedern bewerten können.',
     ],
+    "goals_en": [
+        "Distinguish the roles Grid Master, Grid Master Candidate and Grid Member.",
+        "Explain why configuration runs centrally through the Grid Master while services run decentrally on the members.",
+        "Tell an HA pair, as one logical unit, apart from a simple single-node setup.",
+        "Assess a simple Grid topology with a central site and branch-office members.",
+    ],
     'scenario': {
         'de': 'Ein Unternehmen mit einem Hauptsitz und drei Zweigstellen plant den '
               'Aufbau eines Infoblox-Grid. Bevor irgendetwas konfiguriert wird, muss '
@@ -86,7 +92,9 @@ GRID_ARCHITEKTUR_MODULE = {
                       'Grid-Konfiguration zu übernehmen und die Rolle des Grid '
                       'Master zu übernehmen. Ein GMC ist also eine Art '
                       'Bereitschaftsposition für den Fall, dass der bisherige Grid '
-                      'Master ausfällt oder abgelöst werden soll.',
+                      'Master ausfällt oder abgelöst werden soll. Wichtig: Die '
+                      'Übernahme geschieht nicht von selbst — ein Admin stuft den '
+                      'GMC bewusst zum Grid Master hoch (Promotion).',
                 'en': '## Grid Master and Grid Master Candidate\n'
                       '\n'
                       'At any point in time, the Grid Master is exactly one Grid '
@@ -100,7 +108,9 @@ GRID_ARCHITEKTUR_MODULE = {
                       'capable of taking over the complete Grid configuration and '
                       'assuming the Grid Master role if needed. A GMC is therefore '
                       'a kind of standby position for the case where the current '
-                      'Grid Master fails or needs to be replaced.',
+                      'Grid Master fails or needs to be replaced. Important: the '
+                      'takeover does not happen by itself — an admin deliberately '
+                      'promotes the GMC to Grid Master.',
             },
         },
         {
@@ -245,10 +255,95 @@ GRID_ARCHITEKTUR_MODULE = {
                      'text_en': 'Services run locally: each member answers DNS and hands out DHCP leases at '
                                 'its site — even while the Grid Master is briefly unreachable.'},
                     {'highlight': ['b'],
-                     'text_de': 'Fällt der Grid Master aus oder soll er abgelöst werden, kann der Grid Master '
-                                'Candidate seine Rolle übernehmen.',
-                     'text_en': 'If the Grid Master fails or is to be replaced, the Grid Master Candidate can '
-                                'take over its role.'},
+                     'text_de': 'Fällt der Grid Master aus oder soll er abgelöst werden, kann ein Admin den Grid '
+                                'Master Candidate zum neuen Grid Master hochstufen — automatisch geschieht das nicht.',
+                     'text_en': 'If the Grid Master fails or is to be replaced, an admin can promote the Grid '
+                                'Master Candidate to Grid Master — this does not happen automatically.'},
+                ],
+            },
+        },
+        {
+            "type": "text",
+            "id": "text-grid-kommunikation",
+            "note": "Die Ports stehen in der NIOS-Doku unter „Grid Communications“; die Promotion unter „Promoting a Master Candidate“. Guter Moment für die Frage: Wer im Raum hat SSH-Zugang zur Konsole des eigenen GMC — und ist er überhaupt aktiviert?",
+            "value": {
+                "de": "## Wie das Grid kommuniziert — und wer den Master wechselt\n\nGrid Master und Member tauschen ihre Daten nicht offen aus, sondern durch **verschlüsselte VPN-Tunnel**. Zwei Ports solltest du kennen, sobald eine Firewall zwischen den Standorten liegt:\n\n- **UDP 2114** — Schlüsselaustausch: Member und Master authentifizieren sich gegenseitig, bevor der Tunnel entsteht.\n- **UDP 1194** — der eigentliche VPN-Tunnel für die laufende Grid-Kommunikation (Standardwert, in den Grid-Eigenschaften änderbar).\n\nFehlt eine der beiden Freigaben, kann ein Member dem Grid nicht beitreten oder verliert die Verbindung — seine Dienste laufen dann zwar lokal weiter, Konfigurationsänderungen kommen aber nicht mehr an.\n\n**Die GMC-Promotion ist ein manueller Schritt.** Fällt der Grid Master aus, übernimmt kein Candidate von selbst. Ein Admin meldet sich an der Konsole (CLI) des Candidates an und führt dort `set promote_master` aus; mit `set test_promote_master` lässt sich vorher prüfen, ob die Member den Candidate erreichen. Die Promotion verschiebt nur die Master-Rolle — DNS- und DHCP-Dienste des alten Masters ziehen dabei nicht um. Kommt der frühere Grid Master zurück, reiht er sich als Candidate wieder ins Grid ein.",
+                "en": "## How the Grid Communicates — and Who Switches the Master\n\nGrid Master and members do not exchange their data in the clear but through **encrypted VPN tunnels**. Two ports matter as soon as a firewall sits between sites:\n\n- **UDP 2114** — key exchange: member and master authenticate each other before the tunnel is built.\n- **UDP 1194** — the actual VPN tunnel for ongoing Grid communication (default value, can be changed in the Grid properties).\n\nIf either rule is missing, a member cannot join the Grid or loses its connection — its services keep running locally, but configuration changes no longer arrive.\n\n**GMC promotion is a manual step.** If the Grid Master fails, no candidate takes over on its own. An admin logs in to the console (CLI) of the candidate and runs `set promote_master` there; `set test_promote_master` lets you check beforehand whether the members can reach the candidate. Promotion only moves the master role — DNS and DHCP services of the old master do not move with it. When the former Grid Master returns, it rejoins the Grid as a candidate.",
+            },
+        },
+        {
+            "type": "diagram",
+            "id": "diagram-gmc-promotion",
+            "payload": {
+                "kind": "sequence",
+                "title_de": "Grid Master fällt aus: die manuelle Promotion",
+                "title_en": "Grid Master fails: the manual promotion",
+                "caption_de": "Nichts davon passiert von selbst — Schritt 2 löst ein Mensch aus.",
+                "caption_en": "None of this happens by itself — step 2 is triggered by a person.",
+                "actors": [
+                    {"id": "admin", "label": "Admin"},
+                    {"id": "gmc", "label_de": "GM Candidate (Standort B)", "label_en": "GM Candidate (site B)"},
+                    {"id": "mem", "label_de": "Member (Standort A, C)", "label_en": "Members (sites A, C)"},
+                    {"id": "gm", "label_de": "alter Grid Master", "label_en": "old Grid Master"},
+                ],
+                "messages": [
+                    {
+                        "from": "gm",
+                        "to": "gm",
+                        "label_de": "fällt aus",
+                        "label_en": "fails",
+                        "detail_de": "Der Grid Master am Hauptsitz ist nicht mehr erreichbar. Die Member arbeiten mit der zuletzt bekannten Konfiguration weiter; Änderungen sind bis zur Promotion nicht möglich.",
+                        "detail_en": "The Grid Master at headquarters is unreachable. The members keep working with the last known configuration; changes are impossible until the promotion.",
+                    },
+                    {
+                        "from": "admin",
+                        "to": "gmc",
+                        "label": "set promote_master",
+                        "detail_de": "Der Admin meldet sich an der Konsole des Candidates an und stuft ihn hoch. Aus der Oberfläche des ausgefallenen Masters ginge das naturgemäß nicht.",
+                        "detail_en": "The admin logs in to the candidate's console and promotes it. Doing this from the failed master's UI is obviously not possible.",
+                    },
+                    {
+                        "from": "gmc",
+                        "to": "gmc",
+                        "label_de": "wird Grid Master",
+                        "label_en": "becomes Grid Master",
+                        "detail_de": "Der Candidate hält die vollständige Grid-Datenbank bereits vor — deshalb kann er die Rolle ohne Restore übernehmen.",
+                        "detail_en": "The candidate already holds the complete Grid database — that is why it can take the role without a restore.",
+                    },
+                    {
+                        "from": "gmc",
+                        "to": "mem",
+                        "label_de": "meldet sich als neuer Master",
+                        "label_en": "announces itself as master",
+                        "detail_de": "Die Member erfahren, wer ab jetzt Grid Master ist.",
+                        "detail_en": "The members learn who the Grid Master is from now on.",
+                    },
+                    {
+                        "from": "mem",
+                        "to": "gmc",
+                        "label_de": "Schlüsselaustausch (UDP 2114)",
+                        "label_en": "key exchange (UDP 2114)",
+                        "detail_de": "Member und neuer Master authentifizieren sich gegenseitig.",
+                        "detail_en": "Members and the new master authenticate each other.",
+                    },
+                    {
+                        "from": "mem",
+                        "to": "gmc",
+                        "style": "encrypted",
+                        "label_de": "VPN-Tunnel (UDP 1194)",
+                        "label_en": "VPN tunnel (UDP 1194)",
+                        "detail_de": "Über den Tunnel läuft die Grid-Replikation wieder — jetzt mit dem neuen Master.",
+                        "detail_en": "Grid replication runs through the tunnel again — now with the new master.",
+                    },
+                    {
+                        "from": "gm",
+                        "to": "gmc",
+                        "style": "reply",
+                        "label_de": "kehrt als Candidate zurück",
+                        "label_en": "returns as a candidate",
+                        "detail_de": "Ist der alte Master repariert, tritt er dem Grid als Master Candidate wieder bei. Für ein Zurückschwenken wäre erneut eine Promotion nötig.",
+                        "detail_en": "Once repaired, the old master rejoins the Grid as a master candidate. Switching back would require another promotion.",
+                    },
                 ],
             },
         },
@@ -295,21 +390,21 @@ GRID_ARCHITEKTUR_MODULE = {
                 'items_de': [
                     'Der bisherige Grid Master wird planmäßig abgelöst oder fällt '
                     'aus.',
-                    'Ein zuvor bestimmter Grid Master Candidate übernimmt die '
-                    'Rolle des neuen Grid Master.',
+                    'Ein Admin stuft einen zuvor bestimmten Grid Master Candidate '
+                    'manuell zum neuen Grid Master hoch.',
                     'Die übrigen Grid Member erkennen den neuen Grid Master und '
                     'synchronisieren sich mit dessen Konfiguration.',
-                    'DNS-, DHCP- und IPAM-Dienste laufen auf den Grid Membern '
-                    'während des gesamten Vorgangs lokal weiter.',
+                    'Der Admin prüft am neuen Grid Master, dass alle Member wieder '
+                    'verbunden und synchron sind.',
                 ],
                 'items_en': [
                     'The current Grid Master is replaced as planned, or fails.',
-                    'A previously designated Grid Master Candidate takes on the '
-                    'role of the new Grid Master.',
+                    'An admin manually promotes a previously designated Grid Master '
+                    'Candidate to be the new Grid Master.',
                     'The remaining Grid Members recognize the new Grid Master and '
                     'synchronize with its configuration.',
-                    'DNS, DHCP, and IPAM services keep running locally on the '
-                    'Grid Members throughout the whole process.',
+                    'The admin checks on the new Grid Master that all members are '
+                    'connected and in sync again.',
                 ],
             },
         },
@@ -360,6 +455,143 @@ GRID_ARCHITEKTUR_MODULE = {
             },
         },
         {
+            "type": "terminal",
+            "id": "terminal-grid-rolle",
+            "note": "Format von show status, show network und show version nach dem NIOS CLI Guide; Ausgabe von show network gekürzt (ohne VLAN-, DSCP- und IPv6-Zeilen), Versions- und Seriennummer sind Beispielwerte.",
+            "payload": {
+                "title_de": "Auf welchem Knoten bin ich? (NIOS-CLI an Standort B)",
+                "title_en": "Which node am I on? (NIOS CLI at site B)",
+                "intro_de": "Konsole eines Grid-Knotens. Tippe einen Befehl oder klicke ihn an; help zeigt die Liste.",
+                "intro_en": "Console of a Grid node. Type a command or click one; help lists them.",
+                "prompt": "Infoblox >",
+                "unknown_de": "Unbekannter Befehl: {cmd}",
+                "unknown_en": "Unknown command: {cmd}",
+                "commands": [
+                    {
+                        "cmd": "show status",
+                        "desc_de": "Grid- und HA-Status dieses Knotens",
+                        "desc_en": "Grid and HA status of this node",
+                        "output": "Grid Status: ID Grid Member\nHA Status: Not Configured\nHostname: ns-b.nordwind.example\nGrid Master IP: 192.0.2.10",
+                    },
+                    {
+                        "cmd": "show network",
+                        "desc_de": "Netzwerkeinstellungen und Grid-Zugehörigkeit",
+                        "desc_en": "network settings and Grid membership",
+                        "output": "Current LAN1 network settings:\n  IP Address: 198.51.100.20\n  Network Mask: 255.255.255.0\n  Gateway Address: 198.51.100.1\n\n  HA enabled: false\n  Grid Status: Member of Infoblox Grid",
+                    },
+                    {
+                        "cmd": "show version",
+                        "desc_de": "installierte NIOS-Version",
+                        "desc_en": "installed NIOS version",
+                        "output": "Version : 9.0.5-52001\nSN      : 564D2A9B41C07F3E\nHotfix  : N/A",
+                    },
+                ],
+                "tasks": [
+                    {
+                        "text_de": "Finde heraus, welche Rolle dieser Knoten im Grid hat.",
+                        "text_en": "Find out which role this node has in the Grid.",
+                        "command": "show status",
+                    },
+                    {
+                        "text_de": "Unter welcher IP-Adresse erreicht dieser Knoten seinen Grid Master?",
+                        "text_en": "At which IP address does this node reach its Grid Master?",
+                        "answers": ["192.0.2.10"],
+                    },
+                    {
+                        "text_de": "Ist dieser Knoten Teil eines HA-Paars? (ja/nein)",
+                        "text_en": "Is this node part of an HA pair? (yes/no)",
+                        "answers": ["nein", "no"],
+                    },
+                ],
+            },
+        },
+        {
+            "type": "scenario",
+            "id": "scenario-gm-ausfall",
+            "note": "Im Plenum an der ersten Verzweigung abstimmen lassen: Die Mehrheit erwartet meist eine automatische Übernahme.",
+            "payload": {
+                "title_de": "Der Grid Master am Hauptsitz antwortet nicht mehr",
+                "title_en": "The Grid Master at headquarters stops responding",
+                "start": "start",
+                "nodes": [
+                    {
+                        "id": "start",
+                        "text_de": "Seit 20 Minuten ist der Grid Master nicht erreichbar. Die Zweigstellen melden: DNS und DHCP laufen normal. Ein Kollege drängt: „Wir müssen sofort etwas tun!“ Was machst du zuerst?",
+                        "text_en": "The Grid Master has been unreachable for 20 minutes. The branches report: DNS and DHCP work normally. A colleague urges: \"We have to do something right now!\" What do you do first?",
+                        "options": [
+                            {
+                                "label_de": "Abwarten — der Grid Master Candidate übernimmt gleich automatisch.",
+                                "label_en": "Wait — the Grid Master Candidate will take over automatically in a moment.",
+                                "to": "warten",
+                            },
+                            {
+                                "label_de": "Klären, warum der Master weg ist und wie lange das dauern wird.",
+                                "label_en": "Find out why the master is gone and how long that will last.",
+                                "to": "ursache",
+                            },
+                            {
+                                "label_de": "Sofort den Candidate an Standort B hochstufen.",
+                                "label_en": "Promote the candidate at site B immediately.",
+                                "to": "sofort",
+                            },
+                        ],
+                    },
+                    {
+                        "id": "warten",
+                        "outcome": "bad",
+                        "text_de": "Es gibt keine automatische Übernahme. Ohne Promotion bleibt das Grid ohne Master — die Dienste laufen weiter, aber niemand kann mehr eine Zone, ein Netz oder eine Berechtigung ändern.",
+                        "text_en": "There is no automatic takeover. Without a promotion the Grid stays without a master — services keep running, but nobody can change a zone, a network or a permission any more.",
+                    },
+                    {
+                        "id": "sofort",
+                        "outcome": "ok",
+                        "text_de": "Technisch funktioniert das. Aber du hast nicht geprüft, ob nur die WAN-Strecke zum Hauptsitz gestört ist: Dann kommt der alte Master in wenigen Minuten zurück und du hast den Master-Standort ohne Not gewechselt. Die Dienste liefen ohnehin weiter — die Minuten für die Diagnose waren da.",
+                        "text_en": "Technically this works. But you did not check whether only the WAN link to headquarters is down: in that case the old master is back within minutes and you moved the master site for no reason. Services were running anyway — there was time for a diagnosis.",
+                    },
+                    {
+                        "id": "ursache",
+                        "text_de": "Der Hauptsitz meldet: Netzteil und Datenträger der Appliance sind defekt, Ersatz kommt frühestens in drei Tagen. Heute stehen aber noch DNS-Änderungen für einen Go-live an. Wie stufst du den Candidate hoch?",
+                        "text_en": "Headquarters reports: the appliance's power supply and disk are broken, a replacement arrives in three days at the earliest. DNS changes for a go-live are due today. How do you promote the candidate?",
+                        "options": [
+                            {
+                                "label_de": "Im Grid Manager des alten Masters die Rolle umhängen.",
+                                "label_en": "Reassign the role in the old master's Grid Manager.",
+                                "to": "gui",
+                            },
+                            {
+                                "label_de": "An der Konsole des Candidates: erst set test_promote_master, dann set promote_master.",
+                                "label_en": "On the candidate's console: first set test_promote_master, then set promote_master.",
+                                "to": "cli",
+                            },
+                            {
+                                "label_de": "Das letzte Backup auf einem Member der Zweigstelle A einspielen.",
+                                "label_en": "Restore the latest backup onto a member at branch A.",
+                                "to": "restore",
+                            },
+                        ],
+                    },
+                    {
+                        "id": "gui",
+                        "outcome": "bad",
+                        "text_de": "Der alte Master ist aus — seine Oberfläche gibt es gerade nicht. Genau deshalb wird die Promotion an der Konsole des Candidates ausgelöst.",
+                        "text_en": "The old master is down — its UI does not exist right now. That is exactly why promotion is triggered on the candidate's console.",
+                    },
+                    {
+                        "id": "restore",
+                        "outcome": "bad",
+                        "text_de": "Ein Restore ist für diesen Fall weder nötig noch vorgesehen: Der Candidate hält die aktuelle Grid-Datenbank bereits vor. Ein Backup wäre älter als sein Stand — du würdest Änderungen verlieren.",
+                        "text_en": "A restore is neither needed nor intended for this case: the candidate already holds the current Grid database. A backup would be older than its state — you would lose changes.",
+                    },
+                    {
+                        "id": "cli",
+                        "outcome": "good",
+                        "text_de": "Richtig: Ursache geklärt, Ausfall dauert lang, also Promotion — und zwar dort, wo sie ausgelöst wird. Danach prüfst du, ob alle Member am neuen Master hängen, und denkst daran, dass die Dienste des alten Masters nicht mit umgezogen sind.",
+                        "text_en": "Correct: cause known, the outage will last, so promote — and do it where promotion is triggered. Afterwards you check that all members are attached to the new master, and remember that the old master's services did not move with the role.",
+                    },
+                ],
+            },
+        },
+        {
             'type': 'reflect', 'id': 'reflect-1',
             'payload': {
                 'prompt_de': 'Überlege für das Szenario mit Hauptsitz und drei '
@@ -399,6 +631,10 @@ GRID_ARCHITEKTUR_MODULE = {
         'questions': [
             {
                 'id': 'ga1',
+                "explanation": {
+                    "de": "Der Grid Master hält die maßgebliche Konfiguration und verteilt sie. Der naheliegende Irrtum ist, er beantworte auch alle Anfragen: DNS und DHCP erbringen die Member lokal — sonst würde ein Ausfall des Masters jeden Standort lahmlegen.",
+                    "en": "The Grid Master holds the authoritative configuration and distributes it. The tempting mistake is to think it also answers every query: DNS and DHCP are served locally by the members — otherwise a master outage would take down every site.",
+                },
                 'type': 'single',
                 'prompt': {
                     'de': 'Welche Rolle hat der Grid Master?',
@@ -428,6 +664,10 @@ GRID_ARCHITEKTUR_MODULE = {
             },
             {
                 'id': 'ga2',
+                "explanation": {
+                    "de": "Ein GMC hält die vollständige Grid-Datenbank bereit und kann deshalb Grid Master werden. „Nur Lesezugriff“ klingt plausibel, verfehlt aber den Zweck: Entscheidend ist die Fähigkeit zur Übernahme — die allerdings ein Admin auslöst, nicht das Grid selbst.",
+                    "en": "A GMC keeps the complete Grid database ready and can therefore become Grid Master. \"Read access only\" sounds plausible but misses the point: what matters is the ability to take over — which an admin triggers, not the Grid itself.",
+                },
                 'type': 'single',
                 'prompt': {
                     'de': 'Was ist ein Grid Master Candidate?',
@@ -456,6 +696,10 @@ GRID_ARCHITEKTUR_MODULE = {
             },
             {
                 'id': 'ga3',
+                "explanation": {
+                    "de": "Das HA-Paar sichert einen einzelnen Knoten ab (aktiv/passiv, gemeinsame virtuelle IP). DHCP-Failover verbindet zwei eigenständige Member, die beide Leases vergeben. Wer beides gleichsetzt, plant Wartungsfenster und Ausfälle falsch.",
+                    "en": "The HA pair protects a single node (active/passive, shared virtual IP). DHCP failover connects two independent members that both hand out leases. Treating them as the same thing leads to wrong plans for maintenance windows and outages.",
+                },
                 'type': 'single',
                 'prompt': {
                     'de': 'Was unterscheidet ein Grid-Master-HA-Paar grundsätzlich '
@@ -488,6 +732,10 @@ GRID_ARCHITEKTUR_MODULE = {
             },
             {
                 'id': 'ga4',
+                "explanation": {
+                    "de": "Zentral verwaltet wird die Konfiguration einschließlich der EA-Definitionen; die Dienste selbst laufen lokal. Falsch ist nur die Aussage, ein Member ohne Verbindung stelle den Dienst ein — er arbeitet mit dem zuletzt bekannten Stand weiter.",
+                    "en": "Configuration, including the EA definitions, is managed centrally; the services themselves run locally. The only false statement is that a member without a connection stops serving — it carries on with the last known state.",
+                },
                 'type': 'multi',
                 'prompt': {
                     'de': 'Welche Aussagen zur Verteilung von Diensten im Grid '
@@ -521,6 +769,10 @@ GRID_ARCHITEKTUR_MODULE = {
             },
             {
                 'id': 'ga5',
+                "explanation": {
+                    "de": "Replikation und zeitabhängige Abläufe im Grid setzen eine gemeinsame Zeitbasis voraus. NTP verschlüsselt nichts, und Adressen ließen sich auch mit falscher Uhr vergeben — die Folgen falscher Zeit sind subtiler: Inkonsistenzen, die schwer zu finden sind.",
+                    "en": "Replication and time-dependent processes in the Grid rely on a shared time base. NTP encrypts nothing, and addresses could still be handed out with a wrong clock — the consequences of wrong time are subtler: inconsistencies that are hard to track down.",
+                },
                 'type': 'single',
                 'prompt': {
                     'de': 'Warum ist eine funktionierende Zeitsynchronisation '
@@ -549,6 +801,87 @@ GRID_ARCHITEKTUR_MODULE = {
                     ],
                 },
             },
+        {
+            "id": "ga6",
+            "type": "single",
+            "prompt": {
+                "de": "Der Grid Master fällt nachts aus. Ein Grid Master Candidate ist konfiguriert und erreichbar. Was geschieht ohne Eingriff eines Admins?",
+                "en": "The Grid Master fails at night. A Grid Master Candidate is configured and reachable. What happens without any admin action?",
+            },
+            "answer": 2,
+            "options": {
+                "de": [
+                    "Der Candidate übernimmt nach Ablauf eines Timers die Master-Rolle.",
+                    "Die Member wählen untereinander den Knoten mit der neuesten Datenbank zum Master.",
+                    "Die Member erbringen ihre Dienste weiter, das Grid bleibt aber ohne Master, bis jemand den Candidate hochstuft.",
+                    "Die Member stellen DNS und DHCP ein, bis wieder ein Master erreichbar ist.",
+                ],
+                "en": [
+                    "The candidate takes over the master role once a timer expires.",
+                    "The members elect the node with the newest database as master.",
+                    "The members keep serving, but the Grid stays without a master until someone promotes the candidate.",
+                    "The members stop DNS and DHCP until a master is reachable again.",
+                ],
+            },
+            "explanation": {
+                "de": "Die Promotion ist manuell: Sie wird an der Konsole des Candidates mit set promote_master ausgelöst. Ein Timer oder eine Wahl wie bei manchen Cluster-Systemen existiert hier nicht — und die Dienste der Member hängen ohnehin nicht am Master.",
+                "en": "Promotion is manual: it is triggered on the candidate's console with set promote_master. There is no timer or election as in some cluster systems — and the members' services do not depend on the master anyway.",
+            },
+        },
+        {
+            "id": "ga7",
+            "type": "multi",
+            "prompt": {
+                "de": "Zwischen einer neuen Zweigstelle und dem Grid Master liegt eine Firewall. Der Member kann dem Grid nicht beitreten. Welche Freigaben braucht die Grid-Kommunikation in der Standardkonfiguration (mehrere richtig)?",
+                "en": "A firewall sits between a new branch and the Grid Master. The member cannot join the Grid. Which rules does Grid communication need in the default configuration (multiple)?",
+            },
+            "answer": [0, 2],
+            "options": {
+                "de": [
+                    "UDP 2114 für den Schlüsselaustausch",
+                    "TCP 647 für den Abgleich der Leases",
+                    "UDP 1194 für den VPN-Tunnel",
+                    "TCP 53 für Zonentransfers zum Member",
+                ],
+                "en": [
+                    "UDP 2114 for the key exchange",
+                    "TCP 647 for lease synchronization",
+                    "UDP 1194 for the VPN tunnel",
+                    "TCP 53 for zone transfers to the member",
+                ],
+            },
+            "explanation": {
+                "de": "Erst der Schlüsselaustausch (UDP 2114), dann der VPN-Tunnel (UDP 1194, Standardwert). TCP 647 gehört zum DHCP-Failover zwischen zwei Peers, und Zonendaten erreichen Grid-Member über die Grid-Replikation im Tunnel, nicht per Zonentransfer.",
+                "en": "First the key exchange (UDP 2114), then the VPN tunnel (UDP 1194, the default). TCP 647 belongs to DHCP failover between two peers, and zone data reaches Grid members through Grid replication inside the tunnel, not by zone transfer.",
+            },
+        },
+        {
+            "id": "ga8",
+            "type": "single",
+            "prompt": {
+                "de": "Die NIOS-CLI zeigt nach „show status“: „Grid Status: ID Grid Member“, „HA Status: Active“ und „Grid Master IP: 192.0.2.10“. Was folgt daraus?",
+                "en": "After \"show status\" the NIOS CLI shows: \"Grid Status: ID Grid Member\", \"HA Status: Active\" and \"Grid Master IP: 192.0.2.10\". What follows?",
+            },
+            "answer": 1,
+            "options": {
+                "de": [
+                    "Der Knoten ist der aktive Knoten des Grid-Master-HA-Paars.",
+                    "Der Knoten ist ein Grid Member und der aktive Knoten eines HA-Paars; sein Grid Master hat die 192.0.2.10.",
+                    "Der Knoten ist ein Grid Master Candidate, der gerade hochgestuft wird.",
+                    "Der Knoten ist Teil eines DHCP-Failover-Paars im Zustand Normal.",
+                ],
+                "en": [
+                    "The node is the active node of the Grid Master HA pair.",
+                    "The node is a Grid member and the active node of an HA pair; its Grid Master is 192.0.2.10.",
+                    "The node is a Grid Master Candidate that is currently being promoted.",
+                    "The node is part of a DHCP failover pair in the Normal state.",
+                ],
+            },
+            "explanation": {
+                "de": "„Grid Member“ nennt die Rolle, „HA Status: Active“ den Zustand im HA-Paar — HA gibt es nicht nur für den Grid Master. Über DHCP-Failover sagt show status nichts: Das ist ein Zustand der Failover-Zuordnung, nicht des Knotens.",
+                "en": "\"Grid Member\" names the role, \"HA Status: Active\" the state within the HA pair — HA is not limited to the Grid Master. show status says nothing about DHCP failover: that is a state of the failover association, not of the node.",
+            },
+        },
         ],
     },
 }

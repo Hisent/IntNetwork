@@ -1,5 +1,5 @@
 # Ansible-Lehrgang, Modul 314: Betrieb im Automation Controller.
-# EN von Fach-Übersetzung; note/goals bleiben DE (Trainer-Bereich).
+# EN von Fach-Übersetzung; note bleibt DE (Trainer-Bereich), Lernziele in goals + goals_en.
 
 CONTROLLER_MODULE = {'key': 'automation-controller-betrieb',
  'title': 'Betrieb im Controller: Templates, Surveys, RBAC, Workflows',
@@ -11,6 +11,11 @@ CONTROLLER_MODULE = {'key': 'automation-controller-betrieb',
            'Das RBAC-Grundprinzip (Organisation/Team/Nutzer) einordnen',
            'Workflow-Templates von einzelnen Job-Templates abgrenzen',
            'Eine Job-Ausgabe (ok/changed/failed) im Controller-Kontext interpretieren'],
+ 'goals_en': ['Name the parts of a job template',
+              'Explain the purpose of surveys (prompting for extra vars with validation)',
+              'Place the basic RBAC principle (organization/team/user)',
+              'Tell workflow templates apart from single job templates',
+              'Interpret a job output (ok/changed/failed) in the controller context'],
  'scenario': {'de': 'Der Automation Controller steht bereit — jetzt braucht es konkrete '
                     'Objekte darin: Wie wird aus einem Playbook im Git-Repo ein Button, den '
                     'ein Kollege aus dem Support-Team ohne CLI-Kenntnisse gefahrlos drücken '
@@ -61,6 +66,92 @@ CONTROLLER_MODULE = {'key': 'automation-controller-betrieb',
                              'system, the connection fails or the launch is refused.'},
              'note': 'Job-Template = die zentrale Analogie fürs ganze Modul; alle folgenden '
                      'Blöcke bauen darauf auf.'},
+            {'type': 'diagram',
+             'id': 'diagram-job-template',
+             'payload': {'kind': 'flow',
+                         'title_de': 'Woraus ein Job entsteht',
+                         'title_en': 'What a job is made of',
+                         'caption_de': 'Das Job-Template bündelt; jeder Start erzeugt daraus einen '
+                                       'Job mit eigener Historie.',
+                         'caption_en': 'The job template bundles; every launch creates a job with '
+                                       'its own history from it.',
+                         'nodes': [{'id': 'git',
+                                    'shape': 'cloud',
+                                    'row': 0,
+                                    'col': 0,
+                                    'label': 'Git-Repo'},
+                                   {'id': 'proj',
+                                    'row': 0,
+                                    'col': 1,
+                                    'label': 'Project',
+                                    'detail_de': 'Synchronisierter Stand des Repos: Playbooks und '
+                                                 'Rollen.',
+                                    'detail_en': 'Synchronised state of the repo: playbooks and '
+                                                 'roles.'},
+                                   {'id': 'survey',
+                                    'row': 0,
+                                    'col': 2,
+                                    'label': 'Survey',
+                                    'detail_de': 'Optionales Formular; die Antworten werden zu '
+                                                 'extra_vars.',
+                                    'detail_en': 'Optional form; the answers become extra_vars.'},
+                                   {'id': 'inv',
+                                    'shape': 'database',
+                                    'row': 1,
+                                    'col': 0,
+                                    'label': 'Inventory',
+                                    'detail_de': 'Zielhosts und Gruppen — statisch gepflegt oder '
+                                                 'aus einer Quelle synchronisiert.',
+                                    'detail_en': 'Target hosts and groups — maintained statically '
+                                                 'or synchronised from a source.'},
+                                   {'id': 'jt',
+                                    'row': 1,
+                                    'col': 1,
+                                    'label': 'Job Template',
+                                    'detail_de': 'Legt fest: welches Playbook, gegen welches '
+                                                 'Inventar, mit welchem Credential, in welchem EE.',
+                                    'detail_en': 'Defines: which playbook, against which '
+                                                 'inventory, with which credential, in which EE.'},
+                                   {'id': 'job',
+                                    'row': 1,
+                                    'col': 2,
+                                    'label': 'Job',
+                                    'detail_de': 'Ein konkreter Lauf mit Ausgabe, Status und '
+                                                 'Zeitstempel — dauerhaft nachvollziehbar.',
+                                    'detail_en': 'One concrete run with output, status and '
+                                                 'timestamp — permanently traceable.'},
+                                   {'id': 'ziel',
+                                    'shape': 'host',
+                                    'row': 2,
+                                    'col': 2,
+                                    'label': 'Managed Nodes'},
+                                   {'id': 'cred',
+                                    'row': 2,
+                                    'col': 0,
+                                    'label': 'Credential',
+                                    'detail_de': 'Verschlüsselt gespeichert; nutzbar, ohne '
+                                                 'einsehbar zu sein.',
+                                    'detail_en': 'Stored encrypted; usable without being '
+                                                 'viewable.'},
+                                   {'id': 'ee',
+                                    'row': 2,
+                                    'col': 1,
+                                    'label': 'Execution Environment',
+                                    'detail_de': 'Container-Image, in dem ansible-playbook für '
+                                                 'diesen Job läuft.',
+                                    'detail_en': 'Container image in which ansible-playbook runs '
+                                                 'for this job.'}],
+                         'edges': [{'from': 'git', 'to': 'proj', 'label': 'Sync'},
+                                   {'from': 'proj', 'to': 'jt', 'label': 'Playbook'},
+                                   {'from': 'inv', 'to': 'jt'},
+                                   {'from': 'cred', 'to': 'jt'},
+                                   {'from': 'survey',
+                                    'to': 'job',
+                                    'label': 'extra_vars',
+                                    'style': 'dashed'},
+                                   {'from': 'ee', 'to': 'job', 'style': 'dashed'},
+                                   {'from': 'jt', 'to': 'job', 'label': 'Launch'},
+                                   {'from': 'job', 'to': 'ziel', 'label': 'SSH / WinRM'}]}},
             {'type': 'text', 'id': 'text-2',
              'value': {'de': '## Projects und Credentials\n'
                              '\n'
@@ -179,6 +270,33 @@ CONTROLLER_MODULE = {'key': 'automation-controller-betrieb',
                                            'target system. A credential is still required for '
                                            'the connection to the target system, regardless of '
                                            "whether or how a survey is configured."}},
+            {'type': 'match',
+             'id': 'match-controller-objekte',
+             'payload': {'prompt_de': 'Ordne jedem Controller-Objekt seine Aufgabe zu.',
+                         'prompt_en': 'Match each controller object to its job.',
+                         'pairs': [{'left': 'Project',
+                                    'right_de': 'holt Playbooks und Rollen aus einem Git-Repo',
+                                    'right_en': 'fetches playbooks and roles from a Git repo'},
+                                   {'left': 'Inventory',
+                                    'right_de': 'beschreibt Zielhosts und Gruppen für einen Lauf',
+                                    'right_en': 'describes target hosts and groups for a run'},
+                                   {'left': 'Credential',
+                                    'right_de': 'hält Zugangsdaten verschlüsselt und nicht '
+                                                'einsehbar',
+                                    'right_en': 'keeps access data encrypted and not viewable'},
+                                   {'left': 'Survey',
+                                    'right_de': 'fragt beim Start Werte ab und prüft die Eingaben',
+                                    'right_en': 'asks for values at launch and validates the '
+                                                'input'},
+                                   {'left': 'Schedule',
+                                    'right_de': 'startet ein Template wiederkehrend zu festen '
+                                                'Zeiten',
+                                    'right_en': 'launches a template repeatedly at fixed times'},
+                                   {'left': 'Workflow Template',
+                                    'right_de': 'verkettet mehrere Jobs mit Erfolgs- und '
+                                                'Fehlerpfaden',
+                                    'right_en': 'chains several jobs with success and failure '
+                                                'paths'}]}},
             {'type': 'text', 'id': 'text-4',
              'value': {'de': '## RBAC: Organisationen, Teams, Nutzer\n'
                              '\n'
@@ -235,6 +353,129 @@ CONTROLLER_MODULE = {'key': 'automation-controller-betrieb',
                                       'succeeds',
                                       'Job D launches, since it always runs regardless of the '
                                       'outcome']}},
+            {'type': 'scenario',
+             'id': 'scenario-self-service',
+             'payload': {'title_de': 'Der Support soll Dienste selbst neu starten',
+                         'title_en': 'Support should restart services itself',
+                         'start': 'start',
+                         'nodes': [{'id': 'start',
+                                    'text_de': 'Bei Störungen ruft der Support dich an, damit du '
+                                               'per Playbook einen Dienst neu startest. Das soll '
+                                               'er künftig selbst können. Womit beginnst du?',
+                                    'text_en': 'During incidents support calls you so that you '
+                                               'restart a service by playbook. In future they '
+                                               'should be able to do it themselves. Where do you '
+                                               'start?',
+                                    'options': [{'label_de': 'Dem Support den SSH-Schlüssel und '
+                                                             'das Playbook-Repo geben',
+                                                 'label_en': 'Give support the SSH key and the '
+                                                             'playbook repo',
+                                                 'to': 'ssh'},
+                                                {'label_de': 'Ein Job-Template „Dienst neu '
+                                                             'starten“ im Controller anlegen',
+                                                 'label_en': 'Create a job template "Restart '
+                                                             'service" in the controller',
+                                                 'to': 'rechte'}]},
+                                   {'id': 'ssh',
+                                    'outcome': 'bad',
+                                    'text_de': 'Jetzt kann der Support alles, was der Schlüssel '
+                                               'kann — nicht nur neu starten. Und niemand kann '
+                                               'später nachvollziehen, wer wann was ausgeführt '
+                                               'hat.',
+                                    'text_en': 'Now support can do everything the key can — not '
+                                               'just restart. And nobody can later trace who ran '
+                                               'what and when.'},
+                                   {'id': 'rechte',
+                                    'text_de': 'Das Template steht, mit Inventar und '
+                                               'Maschinen-Credential. Welche Rechte bekommt das '
+                                               'Support-Team?',
+                                    'text_en': 'The template is in place, with inventory and '
+                                               'machine credential. Which permissions does the '
+                                               'support team get?',
+                                    'options': [{'label_de': 'Admin der Organisation — dann klappt '
+                                                             'es sicher',
+                                                 'label_en': 'Admin of the organization — then it '
+                                                             'will surely work',
+                                                 'to': 'admin'},
+                                                {'label_de': 'Nur „Execute“ auf genau diesem '
+                                                             'Job-Template',
+                                                 'label_en': 'Only "Execute" on exactly this job '
+                                                             'template',
+                                                 'to': 'auswahl'},
+                                                {'label_de': '„Execute“ auf dem Template und '
+                                                             'zusätzlich „Use“ auf dem Credential',
+                                                 'label_en': '"Execute" on the template plus "Use" '
+                                                             'on the credential',
+                                                 'to': 'use'}]},
+                                   {'id': 'admin',
+                                    'outcome': 'bad',
+                                    'text_de': 'Ein Organisations-Admin darf Templates ändern, '
+                                               'Credentials zuweisen und neue Jobs bauen — das '
+                                               'Gegenteil von „nur neu starten“.',
+                                    'text_en': 'An organization admin may change templates, assign '
+                                               'credentials and build new jobs — the opposite of '
+                                               '"restart only".'},
+                                   {'id': 'use',
+                                    'outcome': 'ok',
+                                    'text_de': 'Funktioniert, ist aber weiter als nötig: „Use“ ist '
+                                               'das Recht, ein Credential in Job-Templates '
+                                               'einzubauen. Zum Starten eines fertigen Templates '
+                                               'reicht „Execute“ — das Credential nutzt der Job '
+                                               'dann, ohne dass das Team es je anfasst.',
+                                    'text_en': 'Works, but is broader than necessary: "Use" is the '
+                                               'right to build a credential into job templates. To '
+                                               'launch a finished template "Execute" is enough — '
+                                               'the job then uses the credential without the team '
+                                               'ever touching it.'},
+                                   {'id': 'auswahl',
+                                    'text_de': 'Passt. Nun soll der Support wählen können, welcher '
+                                               'der drei Dienste (nginx, php-fpm, redis) neu '
+                                               'startet. Wie?',
+                                    'text_en': 'Fits. Now support should be able to choose which '
+                                               'of the three services (nginx, php-fpm, redis) '
+                                               'restarts. How?',
+                                    'options': [{'label_de': 'Survey mit einer Auswahlliste der '
+                                                             'drei Dienste',
+                                                 'label_en': 'A survey with a choice list of the '
+                                                             'three services',
+                                                 'to': 'survey'},
+                                                {'label_de': '„Prompt on Launch“ für freie '
+                                                             'Extra-Variablen',
+                                                 'label_en': '"Prompt on launch" for free-form '
+                                                             'extra variables',
+                                                 'to': 'prompt'},
+                                                {'label_de': 'Drei Job-Templates, eines je Dienst',
+                                                 'label_en': 'Three job templates, one per service',
+                                                 'to': 'drei'}]},
+                                   {'id': 'survey',
+                                    'outcome': 'good',
+                                    'text_de': 'Der Support sieht ein Formular mit genau drei '
+                                               'erlaubten Werten. Die Antwort landet als '
+                                               'extra_vars im Lauf — ohne YAML, ohne Tippfehler, '
+                                               'mit vollständiger Historie.',
+                                    'text_en': 'Support sees a form with exactly three allowed '
+                                               'values. The answer ends up as extra_vars in the '
+                                               'run — no YAML, no typos, with a complete history.'},
+                                   {'id': 'prompt',
+                                    'outcome': 'bad',
+                                    'text_de': 'Freie Extra-Variablen haben den höchsten Vorrang: '
+                                               'Der Support könnte jede Variable des Playbooks '
+                                               'überschreiben, auch den Dienstnamen auf etwas ganz '
+                                               'anderes.',
+                                    'text_en': 'Free-form extra variables have the highest '
+                                               'precedence: support could override any variable of '
+                                               'the playbook, including setting the service name '
+                                               'to something entirely different.'},
+                                   {'id': 'drei',
+                                    'outcome': 'ok',
+                                    'text_de': 'Sicher und verständlich, aber dreifache Pflege: '
+                                               'Jede Änderung an Inventar, Credential oder EE '
+                                               'fällt dreimal an. Ab dem vierten Dienst wird der '
+                                               'Survey klar besser.',
+                                    'text_en': 'Safe and understandable, but triple maintenance: '
+                                               'every change to inventory, credential or EE has to '
+                                               'be made three times. From the fourth service on '
+                                               'the survey is clearly better.'}]}},
             {'type': 'text', 'id': 'text-5',
              'value': {'de': '## Workflow-Templates, Zeitpläne, Ausgabe lesen\n'
                              '\n'
@@ -292,6 +533,15 @@ CONTROLLER_MODULE = {'key': 'automation-controller-betrieb',
                                       'in bullet points, how job template, survey, schedule, and '
                                       'RBAC would need to work together for it.'}}],
  'quiz': {'questions': [{'id': 'ct1',
+                         'explanation': {'de': 'Ein Job-Template verbindet Project (Code), '
+                                               'Inventory (Ziele), Credential (Zugang) und das '
+                                               'Playbook. Zeitplan und Survey sind optionale '
+                                               'Zusätze, und ein Rulebook gehört zu Event-Driven '
+                                               'Ansible.',
+                                         'en': 'A job template ties together project (code), '
+                                               'inventory (targets), credential (access) and the '
+                                               'playbook. Schedule and survey are optional extras, '
+                                               'and a rulebook belongs to Event-Driven Ansible.'},
                          'type': 'single',
                          'prompt': {'de': 'Welche Elemente kombiniert ein Job-Template '
                                           'typischerweise?',
@@ -305,6 +555,15 @@ CONTROLLER_MODULE = {'key': 'automation-controller-betrieb',
                                             'Project, inventory, credential and playbook',
                                             'Only a survey and a rulebook']}},
                         {'id': 'ct2',
+                         'explanation': {'de': 'Credentials sind so gebaut, dass man sie verwenden '
+                                               'kann, ohne sie zu sehen: Das Geheimnis wird '
+                                               'verschlüsselt gespeichert und nur dem Job zur '
+                                               'Laufzeit übergeben. Auch Teile davon zeigt die '
+                                               'Oberfläche nicht an.',
+                                         'en': 'Credentials are built so that you can use them '
+                                               'without seeing them: the secret is stored '
+                                               'encrypted and handed only to the job at runtime. '
+                                               'The interface does not show parts of it either.'},
                          'type': 'single',
                          'prompt': {'de': 'Was sieht eine Person, die einen Job über ein '
                                           'Credential starten darf, vom zugrunde liegenden '
@@ -321,6 +580,14 @@ CONTROLLER_MODULE = {'key': 'automation-controller-betrieb',
                                             'Nothing — they only get the right to use it, not '
                                             'to view it']}},
                         {'id': 'ct3',
+                         'explanation': {'de': 'Survey-Antworten werden als `extra_vars` an den '
+                                               'Lauf übergeben — im Playbook sind es ganz normale '
+                                               'Variablen. Ein Survey erzeugt weder Credentials '
+                                               'noch Inventare.',
+                                         'en': 'Survey answers are passed to the run as '
+                                               '`extra_vars` — in the playbook they are ordinary '
+                                               'variables. A survey creates neither credentials '
+                                               'nor inventories.'},
                          'type': 'single',
                          'prompt': {'de': 'Wozu wird eine Survey-Antwort im Playbook-Lauf?',
                                     'en': 'What does a survey answer become in the playbook '
@@ -331,6 +598,16 @@ CONTROLLER_MODULE = {'key': 'automation-controller-betrieb',
                                      'en': ['`extra_vars`', 'A new credential',
                                             'A new inventory']}},
                         {'id': 'ct4',
+                         'explanation': {'de': 'Die Hierarchie verläuft von der Organisation über '
+                                               'Teams zu einzelnen Nutzern; Rechte hängen dann an '
+                                               'einzelnen Objekten. Credentials, Inventare und '
+                                               'Playbooks sind solche Objekte, keine Ebenen der '
+                                               'Hierarchie.',
+                                         'en': 'The hierarchy runs from the organization through '
+                                               'teams to individual users; permissions then attach '
+                                               'to individual objects. Credentials, inventories '
+                                               'and playbooks are such objects, not levels of the '
+                                               'hierarchy.'},
                          'type': 'single',
                          'prompt': {'de': 'Welche RBAC-Hierarchie beschreibt den Controller am '
                                           'besten?',
@@ -343,6 +620,14 @@ CONTROLLER_MODULE = {'key': 'automation-controller-betrieb',
                                             'Credential → inventory → organization',
                                             'Organization → team → user']}},
                         {'id': 'ct5',
+                         'explanation': {'de': 'Ein Zeitplan darf nur Werte mitgeben, die das '
+                                               'Template beim Start abfragt — per Survey oder '
+                                               '„Prompt on Launch“. Ohne das läuft jeder geplante '
+                                               'Start mit den festen Werten des Templates.',
+                                         'en': 'A schedule may only pass values the template '
+                                               'prompts for at launch — via survey or "prompt on '
+                                               'launch". Without that, every scheduled launch runs '
+                                               "with the template's fixed values."},
                          'type': 'single',
                          'prompt': {'de': 'Ein Zeitplan soll einen Job jede Nacht mit '
                                           'eigenen, vom Template abweichenden `extra_vars` '
@@ -360,4 +645,84 @@ CONTROLLER_MODULE = {'key': 'automation-controller-betrieb',
                                             'input',
                                             'A second job template per night',
                                             "Nothing — schedules may always set `extra_vars` "
-                                            'freely']}}]}}
+                                            'freely']}},
+                        {'id': 'ct6',
+                         'type': 'number',
+                         'prompt': {'de': 'Ein Workflow: Job A → bei Erfolg Job B, bei Fehler Job '
+                                          'C; nach B und nach C folgt jeweils „immer“ Job D. Job A '
+                                          'schlägt fehl, Job C läuft erfolgreich. Wie viele Jobs '
+                                          'laufen insgesamt (A mitgezählt)?',
+                                    'en': 'A workflow: job A → on success job B, on failure job C; '
+                                          'after B and after C job D follows as "always". Job A '
+                                          'fails, job C succeeds. How many jobs run in total '
+                                          '(counting A)?'},
+                         'answer': 3,
+                         'explanation': {'de': 'A läuft und scheitert, deshalb startet C; B hängt '
+                                               'am Erfolgspfad und wird übersprungen. D folgt auf '
+                                               'C mit „immer“ — macht A, C und D. Ein Workflow '
+                                               'bricht bei einem Fehler nicht ab, sondern folgt '
+                                               'dem Fehlerpfad.',
+                                         'en': 'A runs and fails, so C starts; B hangs on the '
+                                               'success path and is skipped. D follows C with '
+                                               '"always" — that makes A, C and D. A workflow does '
+                                               'not abort on a failure, it follows the failure '
+                                               'path.'}},
+                        {'id': 'ct7',
+                         'type': 'single',
+                         'prompt': {'de': 'Ein Kollege hat vor zehn Minuten eine Korrektur ins '
+                                          'Git-Repo gepusht. Der Job im Controller läuft trotzdem '
+                                          'noch mit dem alten Playbook. Was ist die '
+                                          'wahrscheinlichste Ursache?',
+                                    'en': 'A colleague pushed a fix to the Git repo ten minutes '
+                                          'ago. The job in the controller still runs with the old '
+                                          'playbook. What is the most likely cause?'},
+                         'answer': 1,
+                         'options': {'de': ['Das Credential ist abgelaufen',
+                                            'Das Project wurde seit dem Push nicht synchronisiert',
+                                            'Der Survey überschreibt das Playbook',
+                                            'Das Inventory ist veraltet'],
+                                     'en': ['The credential has expired',
+                                            'The project has not been synchronised since the push',
+                                            'The survey overrides the playbook',
+                                            'The inventory is outdated']},
+                         'explanation': {'de': 'Der Controller führt den Stand aus, den das '
+                                               'Project zuletzt aus dem Repo geholt hat. Abhilfe: '
+                                               'Project synchronisieren — oder am Project „Update '
+                                               'Revision on Launch“ einschalten, dann geschieht '
+                                               'das vor jedem Job. Ein abgelaufenes Credential '
+                                               'würde den Job scheitern lassen, nicht alten Code '
+                                               'ausführen.',
+                                         'en': 'The controller runs the state the project last '
+                                               'fetched from the repo. Fix: synchronise the '
+                                               'project — or enable "Update Revision on Launch" on '
+                                               'the project, then it happens before every job. An '
+                                               'expired credential would make the job fail, not '
+                                               'run old code.'}},
+                        {'id': 'ct8',
+                         'type': 'single',
+                         'prompt': {'de': 'Die Ausgabe eines Jobs endet mit `web01 : ok=5 '
+                                          'changed=2 unreachable=0 failed=0` und `web03 : ok=0 '
+                                          'changed=0 unreachable=1 failed=0`. Welchen Status zeigt '
+                                          'der Controller für den Job?',
+                                    'en': "A job's output ends with `web01 : ok=5 changed=2 "
+                                          'unreachable=0 failed=0` and `web03 : ok=0 changed=0 '
+                                          'unreachable=1 failed=0`. Which status does the '
+                                          'controller show for the job?'},
+                         'answer': 2,
+                         'options': {'de': ['Successful — kein Task ist fehlgeschlagen',
+                                            'Successful — web03 wird nur übersprungen',
+                                            'Failed — ein Host war nicht erreichbar'],
+                                     'en': ['Successful — no task failed',
+                                            'Successful — web03 is merely skipped',
+                                            'Failed — one host was unreachable']},
+                         'explanation': {'de': 'Ein nicht erreichbarer Host lässt '
+                                               '`ansible-playbook` mit einem Rückgabewert ungleich '
+                                               '0 enden, und der Controller wertet das als '
+                                               'fehlgeschlagenen Job — obwohl `failed=0` dasteht. '
+                                               'Deshalb den Recap immer ganz lesen: `unreachable` '
+                                               'ist ein eigener Zähler.',
+                                         'en': 'An unreachable host makes `ansible-playbook` end '
+                                               'with a non-zero return code, and the controller '
+                                               'treats that as a failed job — even though it says '
+                                               '`failed=0`. So always read the whole recap: '
+                                               '`unreachable` is a counter of its own.'}}]}}

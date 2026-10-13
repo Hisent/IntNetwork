@@ -4,11 +4,15 @@ import { ChallengeBox } from '@/components/ChallengeBox'
 import type { Lang } from '@/lib/i18n'
 
 const STR = {
-  de: { title: 'traceroute 198.51.100.10', hint: 'Jeder Probe erhöht die TTL um 1 — so meldet sich der nächste Router auf dem Weg.',
+  de: { title: 'tracert 198.51.100.10', hint: 'Jeder Probe erhöht die TTL um 1 — so meldet sich der nächste Router auf dem Weg. '
+      + 'Das Widget bildet Windows-tracert nach (ICMP Echo Request, das Ziel antwortet mit Echo Reply); '
+      + 'Unix-traceroute sendet standardmäßig UDP, dort antwortet das Ziel mit Port Unreachable.',
     nextHop: (ttl: number) => `Nächster Hop (TTL ${ttl})`, restart: 'Neu starten', noProbe: 'noch kein Probe gesendet',
     reply: 'Echo Reply', exceeded: 'Time Exceeded', reached: 'Ziel erreicht — der komplette Pfad ist sichtbar.',
     challenge: 'Sende Probes mit steigender TTL, bis das Ziel mit Echo Reply antwortet.' },
-  en: { title: 'traceroute 198.51.100.10', hint: "Each probe increases the TTL by 1 — that's how the next router on the path responds.",
+  en: { title: 'tracert 198.51.100.10', hint: "Each probe increases the TTL by 1 — that's how the next router on the path responds. "
+      + 'The widget models Windows tracert (ICMP echo request, the destination answers with an echo reply); '
+      + 'Unix traceroute sends UDP by default, where the destination answers with port unreachable.',
     nextHop: (ttl: number) => `Next hop (TTL ${ttl})`, restart: 'Restart', noProbe: 'no probe sent yet',
     reply: 'Echo Reply', exceeded: 'Time Exceeded', reached: 'Destination reached — the full path is visible.',
     challenge: 'Send probes with increasing TTL until the destination answers with an echo reply.' },

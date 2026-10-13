@@ -123,8 +123,8 @@ export const CASES: ErrorCase[] = [
     ],
     answer: 2,
     explanation: {
-      de: 'curl (bzw. die zugrundeliegende TLS-Bibliothek) verifiziert gegen das lokale CA-Bundle des Systems — meist `/etc/ssl/certs/ca-certificates.crt`. Der Admin-Browser hat den internen Root vermutlich längst importiert; dieser frische oder minimal installierte Server-Host aber nicht. Ohne den passenden Root/Intermediate im lokalen Bundle kann curl keinen Vertrauensanker finden, selbst wenn Server und Kette technisch korrekt sind.',
-      en: 'curl (and the underlying TLS library) verifies against the system’s local CA bundle — usually `/etc/ssl/certs/ca-certificates.crt`. The admin’s browser likely imported the internal root long ago; this fresh or minimally installed server host has not. Without the matching root/intermediate in the local bundle, curl can’t find a trust anchor, even if the server and chain are technically correct.',
+      de: 'Wichtig vorweg: Diese Meldung hat zwei mögliche Ursachen. Sie sagt nur, dass curl zu einem Zertifikat der Kette lokal keinen Aussteller findet — entweder, weil der SERVER das Intermediate nicht mitschickt (dann scheitern alle strikten Clients, siehe den Fall „unable to verify the first certificate“), oder weil dem CLIENT die Root im lokalen CA-Bundle fehlt. Hier trifft das Zweite zu: Derselbe Aufruf klappt von anderen Systemen, und es geht um eine interne CA. Unterscheiden lässt sich beides mit `openssl s_client -showcerts`: Sendet der Server Endzertifikat und Intermediate, liegt es am Trust Store. curl (bzw. die zugrundeliegende TLS-Bibliothek) verifiziert gegen das lokale CA-Bundle des Systems — meist `/etc/ssl/certs/ca-certificates.crt`. Der Admin-Browser hat den internen Root vermutlich längst importiert; dieser frische oder minimal installierte Server-Host aber nicht. Ohne den passenden Root/Intermediate im lokalen Bundle kann curl keinen Vertrauensanker finden, selbst wenn Server und Kette technisch korrekt sind.',
+      en: 'Important up front: this message has two possible causes. It only says that curl cannot find a local issuer for some certificate in the chain — either because the SERVER does not send the intermediate (then all strict clients fail, see the “unable to verify the first certificate” case), or because the CLIENT lacks the root in its local CA bundle. Here it is the latter: the same call works from other systems, and an internal CA is involved. You can tell the two apart with `openssl s_client -showcerts`: if the server sends end-entity certificate and intermediate, the trust store is the problem. curl (and the underlying TLS library) verifies against the system’s local CA bundle — usually `/etc/ssl/certs/ca-certificates.crt`. The admin’s browser likely imported the internal root long ago; this fresh or minimally installed server host has not. Without the matching root/intermediate in the local bundle, curl can’t find a trust anchor, even if the server and chain are technically correct.',
     },
     nextStep: {
       de: 'curl -v --cacert /pfad/zu/nordwind-root-ca.crt https://api-intern.nordwind-logistik.de  zum Gegentest, danach den Root ins Systembundle einspielen und `update-ca-certificates` ausführen.',
@@ -152,6 +152,52 @@ export const CASES: ErrorCase[] = [
     nextStep: {
       de: 'date -u  (Systemzeit prüfen) und mit einer verlässlichen Quelle vergleichen; danach timedatectl status / NTP-Synchronisation aktivieren, statt am Zertifikat zu schrauben.',
       en: 'date -u  (check system time) and compare against a trusted source; then check timedatectl status / enable NTP sync instead of touching the certificate.',
+    },
+  },
+  {
+    id: 'revoked',
+    context: {
+      de: 'Nach einem Sicherheitsvorfall wurde das Zertifikat von https://portal.nordwind-logistik.de gesperrt, der Server liefert es aber noch aus. Chrome zeigt diesen Code — ein `curl` vom selben Rechner verbindet sich dagegen ohne Fehler.',
+      en: 'After a security incident the certificate of https://portal.nordwind-logistik.de was revoked, but the server still serves it. Chrome shows this code — a `curl` from the same machine, however, connects without error.',
+    },
+    message: 'NET::ERR_CERT_REVOKED',
+    options: [
+      { de: 'Das Zertifikat ist abgelaufen', en: 'The certificate has expired' },
+      { de: 'Der Hostname steht nicht im SAN', en: 'The hostname is not in the SAN' },
+      { de: 'Die CA hat das Zertifikat widerrufen; curl prüft den Sperrstatus standardmäßig nicht', en: 'The CA revoked the certificate; curl does not check revocation status by default' },
+      { de: 'Die Root-CA fehlt im Trust Store des Browsers', en: 'The root CA is missing from the browser’s trust store' },
+    ],
+    answer: 2,
+    explanation: {
+      de: 'Kette, Name und Laufzeit sind in Ordnung — deshalb ist curl zufrieden. Den Widerruf bemerkt nur, wer ihn prüft: Chrome über seine vorverteilten Sperrdaten, openssl erst mit eingeschalteter Sperrprüfung (`-crl_check`, dann Fehler 23 „certificate revoked“). Ein Widerruf lässt sich nicht zurücknehmen; der Server braucht ein neues Zertifikat mit neuem Schlüssel.',
+      en: 'Chain, name, and validity are fine — which is why curl is satisfied. Revocation is only noticed by those who check it: Chrome via its pre-distributed revocation data, openssl only with revocation checking switched on (`-crl_check`, then error 23 “certificate revoked”). A revocation cannot be undone; the server needs a new certificate with a new key.',
+    },
+    nextStep: {
+      de: 'openssl x509 -in portal.pem -noout -serial -ext crlDistributionPoints  → Sperrliste laden und mit  openssl verify -crl_check -CRLfile ca.crl -CAfile root.pem -untrusted issuing.pem portal.pem  gegenprüfen; danach neues Schlüsselpaar und neues Zertifikat einspielen.',
+      en: 'openssl x509 -in portal.pem -noout -serial -ext crlDistributionPoints  → fetch the CRL and cross-check with  openssl verify -crl_check -CRLfile ca.crl -CAfile root.pem -untrusted issuing.pem portal.pem ; then deploy a new key pair and a new certificate.',
+    },
+  },
+  {
+    id: 'wrong-eku',
+    context: {
+      de: 'Für den Lager-Webserver wurde bei der internen CA ein neues Zertifikat beantragt — versehentlich aus der Vorlage für Client-Zertifikate. Kette, Name und Laufzeit stimmen, openssl meldet trotzdem diesen Fehler.',
+      en: 'A new certificate for the warehouse web server was requested from the internal CA — accidentally from the template for client certificates. Chain, name, and validity are correct, yet openssl reports this error.',
+    },
+    message: 'Verify return code: 26 (unsuitable certificate purpose)',
+    options: [
+      { de: 'Dem Zertifikat fehlt die Extended Key Usage serverAuth', en: 'The certificate lacks the Extended Key Usage serverAuth' },
+      { de: 'Der Server sendet das Intermediate nicht mit', en: 'The server does not send the intermediate' },
+      { de: 'Die Uhr des Clients geht falsch', en: 'The client’s clock is wrong' },
+      { de: 'Der private Schlüssel ist zu kurz', en: 'The private key is too short' },
+    ],
+    answer: 0,
+    explanation: {
+      de: '„Purpose“ meint den Verwendungszweck aus der Extended Key Usage. Ein Zertifikat, das nur clientAuth trägt, darf sich nicht als TLS-Server ausweisen — unabhängig davon, dass Aussteller, Name und Laufzeit passen. Dasselbe Fehlerbild entsteht umgekehrt, wenn ein reines Server-Zertifikat als Client-Zertifikat für mTLS vorgelegt wird; öffentliche CAs nehmen clientAuth inzwischen nicht mehr in TLS-Zertifikate auf.',
+      en: '“Purpose” refers to the intended use from the Extended Key Usage. A certificate carrying only clientAuth must not identify itself as a TLS server — regardless of issuer, name, and validity being right. The same fault pattern arises the other way round when a pure server certificate is presented as a client certificate for mTLS; public CAs no longer put clientAuth into TLS certificates.',
+    },
+    nextStep: {
+      de: 'openssl x509 -in lager.pem -noout -purpose  (Zeile „SSL server : No“) bzw.  -ext extendedKeyUsage ; danach aus der richtigen Vorlage neu ausstellen — ein signiertes Zertifikat lässt sich nicht nachträglich ändern.',
+      en: 'openssl x509 -in lager.pem -noout -purpose  (line “SSL server : No”) or  -ext extendedKeyUsage ; then re-issue from the correct template — a signed certificate cannot be changed afterwards.',
     },
   },
 ]

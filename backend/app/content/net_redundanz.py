@@ -16,6 +16,15 @@ REDUNDANZ_MODULE = {
         "VRRP/HSRP als Ausfallschutz für das Standard-Gateway erklären",
         "STP, LACP und VRRP/HSRP als Verfahren für unterschiedliche Probleme auseinanderhalten",
     ],
+    "goals_en": [
+        "Explain why a loop in a switched network leads to a broadcast storm without protection",
+        "Name the role of STP/RSTP: root bridge election, blocked ports, faster convergence with RSTP",
+        "Place PortFast/edge ports and BPDU guard as terms",
+        "Distinguish link aggregation (LACP/EtherChannel) from the common misconception that it "
+        "makes a single transfer faster",
+        "Explain VRRP/HSRP as failover protection for the default gateway",
+        "Keep STP, LACP and VRRP/HSRP apart as mechanisms for different problems",
+    ],
     "scenario": {
         "de": "Nordwind hat seine zwei Kernswitches und den Standard-Gateway-Router redundant "
               "verkabelt, damit ein einzelnes defektes Kabel niemanden vom Netz trennt. Kurz "
@@ -184,6 +193,111 @@ REDUNDANZ_MODULE = {
                               "disrupts the bundle. Te1/2 on switch B must run at "
                               "10 Gbit/s like every other member port.",
         }},
+        {"type": "cloze", "id": "cloze-stp-lacp",
+         "note": "Cisco-IOS-Syntax. Merkhilfe zu den Kanal-Modi: active/passive = LACP, "
+                 "desirable/auto = PAgP (Cisco-eigen), on = fest gebündelt ohne Aushandlung.",
+         "payload": {
+             "prompt_de": "Ergänze die Konfiguration: Gi1/0/5 ist ein Arbeitsplatz-Port (sofort aktiv, "
+                          "aber geschützt gegen angesteckte Switches). Gi1/0/49 und Gi1/0/51 sollen per "
+                          "LACP ein Bündel zum Kernswitch aushandeln.",
+             "prompt_en": "Complete the configuration: Gi1/0/5 is a workstation port (active immediately, "
+                          "but protected against plugged-in switches). Gi1/0/49 and Gi1/0/51 are to "
+                          "negotiate a bundle to the core switch via LACP.",
+             "mono": True,
+             "text": "interface Gi1/0/5\n"
+                     " switchport mode access\n"
+                     " spanning-tree [[edge]]\n"
+                     " spanning-tree [[guard]] enable\n"
+                     "!\n"
+                     "interface range Gi1/0/49 , Gi1/0/51\n"
+                     " channel-group 1 mode [[lacp]]",
+             "gaps": [
+                 {"id": "edge", "accept": ["portfast"]},
+                 {"id": "guard", "options": ["bpduguard", "bpdufilter", "portfast"], "answer": 0},
+                 {"id": "lacp", "options": ["active", "desirable", "on", "auto"], "answer": 0},
+             ],
+             "explanation_de": "PortFast überspringt die STP-Wartezeit, BPDU-Guard schaltet den Port ab, "
+                               "sobald dort doch ein Switch auftaucht — die beiden gehören zusammen. "
+                               "„bpdufilter“ wäre das Gegenteil von Schutz: Der Port ignoriert dann BPDUs "
+                               "und kann eine Schleife nicht mehr erkennen. Beim Kanal handelt nur "
+                               "„active“ (oder „passive“) per LACP aus; „on“ bündelt ungeprüft.",
+             "explanation_en": "PortFast skips the STP wait time, BPDU guard shuts the port down as soon "
+                               "as a switch does show up there — the two belong together. “bpdufilter” "
+                               "would be the opposite of protection: the port then ignores BPDUs and can "
+                               "no longer detect a loop. For the channel, only “active” (or “passive”) "
+                               "negotiates via LACP; “on” bundles without any check.",
+         }},
+        {"type": "terminal", "id": "terminal-redundanz-status",
+         "note": "Cisco-IOS-Ausgaben vom Etagenswitch sw-lager1, gekürzt (Flag-Legende und Spalte „Type“ "
+                 "von show interfaces status verkürzt). Aufbau: Po1 (Gi1/0/49 + Gi1/0/51) geht zum "
+                 "Kernswitch 1 = Root, Gi1/0/50 zum Kernswitch 2 und ist blockiert. Eingebaute Störung: "
+                 "Gi1/0/51 hat nur 100 Mbit/s ausgehandelt (schlechtes Kabel) und wird von LACP "
+                 "suspendiert — derselbe Fehlertyp wie in der Debug-Aufgabe oben.",
+         "payload": {
+             "title_de": "Redundanz am Switch sw-lager1 prüfen",
+             "title_en": "Checking redundancy on switch sw-lager1",
+             "intro_de": "sw-lager1 hat zwei Uplinks: das Bündel Po1 zum Kernswitch 1 und Gi1/0/50 zum "
+                         "Kernswitch 2. Tippe ? für Hilfe.",
+             "intro_en": "sw-lager1 has two uplinks: the bundle Po1 to core switch 1 and Gi1/0/50 to core "
+                         "switch 2. Type ? for help.",
+             "prompt": "sw-lager1#", "abbreviations": True,
+             "unknown": "% Invalid input detected: {cmd}",
+             "commands": [
+                 {"cmd": "show spanning-tree vlan 20",
+                  "desc_de": "Spanning Tree für VLAN 20", "desc_en": "spanning tree for VLAN 20",
+                  "output": "VLAN0020\n"
+                            "  Spanning tree enabled protocol rstp\n"
+                            "  Root ID    Priority    24596\n"
+                            "             Address     0019.e7a1.2c00\n"
+                            "             Cost        4\n"
+                            "             Port        65 (Port-channel1)\n"
+                            "  Bridge ID  Priority    32788  (priority 32768 sys-id-ext 20)\n"
+                            "             Address     0019.e7b4.5d80\n\n"
+                            "Interface        Role Sts Cost      Prio.Nbr Type\n"
+                            "---------------- ---- --- --------- -------- ---------------\n"
+                            "Gi1/0/5          Desg FWD 4         128.5    P2p Edge\n"
+                            "Gi1/0/50         Altn BLK 4         128.50   P2p\n"
+                            "Po1              Root FWD 4         128.65   P2p"},
+                 {"cmd": "show etherchannel summary",
+                  "desc_de": "Zustand der Port-Bündel", "desc_en": "state of the port bundles",
+                  "output": "Flags:  D - down        P - bundled in port-channel\n"
+                            "        I - stand-alone s - suspended\n"
+                            "        S - Layer2      U - in use\n\n"
+                            "Group  Port-channel  Protocol    Ports\n"
+                            "------+-------------+-----------+--------------------------\n"
+                            "1      Po1(SU)       LACP        Gi1/0/49(P)  Gi1/0/51(s)"},
+                 {"cmd": "show interfaces Gi1/0/49 status", "chip": False,
+                  "desc_de": "Status des ersten Bündel-Ports", "desc_en": "status of the first bundle port",
+                  "output": "Port      Name     Status     Vlan   Duplex  Speed\n"
+                            "Gi1/0/49  core1-a  connected  trunk  a-full  a-1000"},
+                 {"cmd": "show interfaces Gi1/0/51 status",
+                  "desc_de": "Status des zweiten Bündel-Ports", "desc_en": "status of the second bundle port",
+                  "output": "Port      Name     Status     Vlan   Duplex  Speed\n"
+                            "Gi1/0/51  core1-b  suspended  trunk  a-full  a-100"},
+             ],
+             "tasks": [
+                 {"text_de": "Zeige den Spanning Tree für VLAN 20.",
+                  "text_en": "Show the spanning tree for VLAN 20.",
+                  "command": "show spanning-tree vlan 20"},
+                 {"text_de": "Welcher Port ist blockiert (BLK)?",
+                  "text_en": "Which port is blocked (BLK)?",
+                  "answers": ["Gi1/0/50", "GigabitEthernet1/0/50"]},
+                 {"text_de": "Ist sw-lager1 selbst die Root-Bridge? (ja/nein)",
+                  "text_en": "Is sw-lager1 itself the root bridge? (yes/no)",
+                  "answers": ["nein", "no"]},
+                 {"text_de": "Zeige den Zustand der Port-Bündel.",
+                  "text_en": "Show the state of the port bundles.",
+                  "command": "show etherchannel summary"},
+                 {"text_de": "Welcher Port des Bündels ist suspendiert (s)?",
+                  "text_en": "Which port of the bundle is suspended (s)?",
+                  "answers": ["Gi1/0/51", "GigabitEthernet1/0/51"]},
+                 {"text_de": "Mit wie viel Mbit/s läuft dieser Port? (show interfaces Gi1/0/51 status)",
+                  "text_en": "At how many Mbit/s does this port run? (show interfaces Gi1/0/51 status)",
+                  "answers": ["100", "a-100", "100 mbit/s"],
+                  "explanation_de": "Gi1/0/51 hat nur 100 Mbit/s ausgehandelt (schlechtes Kabel) und wird deshalb von LACP suspendiert – derselbe Fehlertyp wie in der Debug-Aufgabe oben.",
+                  "explanation_en": "Gi1/0/51 negotiated only 100 Mbit/s (bad cable) and is therefore suspended by LACP – the same kind of fault as in the debug exercise above."},
+             ],
+         }},
         {"type": "text", "id": "text-6",
          "value": {
              "de": "## Layer 3: VRRP/HSRP — das virtuelle Standard-Gateway\n\nSTP und LACP "
@@ -206,6 +320,99 @@ REDUNDANZ_MODULE = {
                    "moment. If the active router fails, another router in the group takes "
                    "over the virtual address — without anything needing to change on the "
                    "clients.",
+         }},
+        {"type": "diagram", "id": "diagram-vrrp-failover",
+         "note": "VRRP-Standardwerte (RFC 9568, löst RFC 5798 ab): Advertisement jede Sekunde an "
+                 "224.0.0.18, virtuelle MAC 00-00-5E-00-01-<Gruppennummer hex> — Gruppe 20 ergibt …01-14. "
+                 "Umschaltzeit = 3 × Intervall + Skew, bei Priorität 100 gut 3,6 s. RFC 9568 nennt die "
+                 "aktive Rolle inzwischen „Active“; viele Geräte zeigen weiterhin „Master“. HSRP "
+                 "funktioniert gleich, nutzt aber andere Adressen und standardmäßig längere Timer "
+                 "(Hello 3 s, Hold 10 s).",
+         "payload": {
+             "kind": "flow",
+             "title_de": "VRRP: der Master fällt aus", "title_en": "VRRP: the master fails",
+             "caption_de": "Virtuelles Gateway 192.168.20.1 · virtuelle MAC 0000.5e00.0114 (Gruppe 20)",
+             "caption_en": "Virtual gateway 192.168.20.1 · virtual MAC 0000.5e00.0114 (group 20)",
+             "nodes": [
+                 {"id": "pc", "shape": "host", "row": 1, "col": 0,
+                  "label_de": "PC · Gateway .20.1", "label_en": "PC · gateway .20.1"},
+                 {"id": "sw", "shape": "switch", "row": 1, "col": 1, "label": "Switch"},
+                 {"id": "r1", "shape": "router", "row": 0, "col": 2,
+                  "label_de": "R1 · .20.2 · Prio 110", "label_en": "R1 · .20.2 · prio 110"},
+                 {"id": "r2", "shape": "router", "row": 2, "col": 2,
+                  "label_de": "R2 · .20.3 · Prio 100", "label_en": "R2 · .20.3 · prio 100"},
+                 {"id": "net", "shape": "cloud", "row": 1, "col": 3,
+                  "label_de": "übriges Netz", "label_en": "rest of the network"},
+             ],
+             "edges": [
+                 {"id": "e-pc", "from": "pc", "to": "sw", "arrow": "both"},
+                 {"id": "e-r1", "from": "sw", "to": "r1", "arrow": "both"},
+                 {"id": "e-r2", "from": "sw", "to": "r2", "arrow": "both"},
+                 {"id": "e-r1n", "from": "r1", "to": "net", "arrow": "both"},
+                 {"id": "e-r2n", "from": "r2", "to": "net", "arrow": "both"},
+             ],
+             "steps": [
+                 {"highlight": ["pc", "e-pc", "sw", "e-r1", "r1", "e-r1n", "net"],
+                  "text_de": "Normalbetrieb: R1 hat die höhere Priorität und ist Master. Er beantwortet "
+                             "ARP-Anfragen für 192.168.20.1 mit der virtuellen MAC und leitet weiter.",
+                  "text_en": "Normal operation: R1 has the higher priority and is master. It answers ARP "
+                             "requests for 192.168.20.1 with the virtual MAC and forwards traffic."},
+                 {"highlight": ["r1", "e-r1", "sw", "e-r2", "r2"],
+                  "text_de": "Lebenszeichen: R1 sendet jede Sekunde ein Advertisement. R2 hört nur zu — "
+                             "solange sie eintreffen, bleibt er Backup.",
+                  "text_en": "Sign of life: R1 sends an advertisement every second. R2 just listens — as "
+                             "long as they arrive, it stays backup."},
+                 {"highlight": ["r2"],
+                  "text_de": "R1 fällt aus, die Advertisements bleiben weg. Nach gut drei Sekunden erklärt "
+                             "sich R2 zum Master.",
+                  "text_en": "R1 fails, the advertisements stop. After a good three seconds R2 declares "
+                             "itself master."},
+                 {"highlight": ["r2", "e-r2", "sw"],
+                  "text_de": "R2 meldet sich mit der virtuellen MAC (Gratuitous ARP): Der Switch lernt, "
+                             "dass diese MAC jetzt an einem anderen Port hängt.",
+                  "text_en": "R2 announces itself with the virtual MAC (gratuitous ARP): the switch learns "
+                             "that this MAC now sits on a different port."},
+                 {"highlight": ["pc", "e-pc", "sw", "e-r2", "r2", "e-r2n", "net"],
+                  "text_de": "Für den PC hat sich nichts geändert: dieselbe Gateway-IP, dieselbe MAC im "
+                             "ARP-Cache — nur ein anderer Router dahinter.",
+                  "text_en": "Nothing has changed for the PC: the same gateway IP, the same MAC in its ARP "
+                             "cache — just a different router behind it."},
+             ],
+         }},
+        {"type": "diagram", "id": "diagram-redundanz-vergleich",
+         "note": "Zusammenfassung des Moduls. Die Zeile „Löst welches Problem“ ist die wichtigste: Die "
+                 "drei Verfahren ersetzen einander nicht.",
+         "payload": {
+             "kind": "compare",
+             "title_de": "Drei Verfahren, drei Probleme", "title_en": "Three mechanisms, three problems",
+             "columns": [{"title": "STP / RSTP"}, {"title": "LACP"}, {"title": "VRRP / HSRP"}],
+             "rows": [
+                 {"label_de": "Schicht", "label_en": "Layer",
+                  "values_de": ["2 (Switching)", "2 (Switching)", "3 (Routing)"],
+                  "values_en": ["2 (switching)", "2 (switching)", "3 (routing)"]},
+                 {"label_de": "Löst welches Problem", "label_en": "Solves which problem",
+                  "values_de": ["Schleifen durch redundante Wege", "Ausfall oder Engpass einer einzelnen Leitung",
+                                "Ausfall des Standard-Gateways"],
+                  "values_en": ["loops caused by redundant paths", "failure or bottleneck of a single link",
+                                "failure of the default gateway"]},
+                 {"label_de": "Prinzip", "label_en": "Principle",
+                  "values_de": ["blockiert überzählige Ports", "bündelt parallele Leitungen zu einer logischen",
+                                "mehrere Router teilen sich eine virtuelle IP und MAC"],
+                  "values_en": ["blocks surplus ports", "bundles parallel links into one logical link",
+                                "several routers share one virtual IP and MAC"]},
+                 {"label_de": "Reserve im Normalbetrieb", "label_en": "Spare in normal operation",
+                  "values_de": ["liegt brach (blockiert)", "wird mitgenutzt (alle Leitungen aktiv)",
+                                "wartet als Backup/Standby"],
+                  "values_en": ["sits idle (blocked)", "is used as well (all links active)",
+                                "waits as backup/standby"]},
+                 {"label_de": "Umschaltzeit (Richtwert)", "label_en": "Failover time (rule of thumb)",
+                  "values_de": ["RSTP: meist unter wenigen Sekunden · altes STP: 30–50 s",
+                                "bei Link-Ausfall praktisch sofort",
+                                "VRRP-Standard: gut 3 s · HSRP-Standard: 10 s"],
+                  "values_en": ["RSTP: usually within a few seconds · legacy STP: 30–50 s",
+                                "practically immediate on link failure",
+                                "VRRP default: a good 3 s · HSRP default: 10 s"]},
+             ],
          }},
         {"type": "check", "id": "check-1", "payload": {
             "kind": "choice",
@@ -246,7 +453,10 @@ REDUNDANZ_MODULE = {
                     "The connection automatically slows down",
                     "Both switches automatically swap VLANs"],
          },
-         "answer": 1},
+         "answer": 1,
+         "explanation": {
+             "de": "Ein Broadcast wird an alle Ports geflutet, kommt über das zweite Kabel zurück und wird erneut geflutet. Ethernet-Frames haben keine TTL, die das beendet — die Zahl der Frames wächst, bis das Netz steht. „Nur langsamer“ wird es nicht: Ein Sturm legt das VLAN komplett lahm.",
+             "en": "A broadcast is flooded to all ports, returns via the second cable and is flooded again. Ethernet frames have no TTL to end this — the number of frames grows until the network stalls. It does not merely get “slower”: a storm takes the whole VLAN down."}},
         {"id": "rd2", "type": "single",
          "prompt": {"de": "Was macht STP mit einer redundanten Verbindung, die eine Schleife "
                          "erzeugen würde?",
@@ -260,7 +470,10 @@ REDUNDANZ_MODULE = {
                     "It gets set to a blocked port and remains as a backup",
                     "It gets prioritized more strongly", "It gets made the root bridge"],
          },
-         "answer": 1},
+         "answer": 1,
+         "explanation": {
+             "de": "STP blockiert den Port nur für Nutzdaten; BPDUs empfängt er weiter. Deshalb kann er sofort einspringen, wenn der aktive Weg ausfällt. „Komplett deaktiviert“ wäre ein abgeschalteter Port ohne diese Reservefunktion.",
+             "en": "STP blocks the port for user data only; it keeps receiving BPDUs. That is why it can step in immediately when the active path fails. “Completely disabled” would be a shut-down port without this standby function."}},
         {"id": "rd3", "type": "single",
          "prompt": {"de": "Vier 1-Gbit-Leitungen sind per LACP gebündelt. Was passiert mit "
                          "einer einzelnen großen Dateiübertragung?",
@@ -276,7 +489,10 @@ REDUNDANZ_MODULE = {
                     "It gets automatically split across all four links",
                     "It fails, because LACP doesn't allow that"],
          },
-         "answer": 1},
+         "answer": 1,
+         "explanation": {
+             "de": "Der Hash ordnet alle Pakete eines Datenflusses derselben Leitung zu, damit ihre Reihenfolge erhalten bleibt. Eine einzelne Übertragung nutzt also genau eine Leitung; die Summenbandbreite kommt erst vielen gleichzeitigen Flüssen zugute.",
+             "en": "The hash assigns all packets of one flow to the same link so that their order is preserved. A single transfer therefore uses exactly one link; the aggregate bandwidth only benefits many simultaneous flows."}},
         {"id": "rd4", "type": "single",
          "prompt": {"de": "Wofür sorgen VRRP/HSRP?", "en": "What do VRRP/HSRP provide?"},
          "options": {
@@ -288,7 +504,10 @@ REDUNDANZ_MODULE = {
                     "A virtual default gateway whose failure clients don't notice",
                     "The distribution of IP addresses via DHCP"],
          },
-         "answer": 2},
+         "answer": 2,
+         "explanation": {
+             "de": "VRRP und HSRP lassen mehrere Router eine gemeinsame virtuelle Gateway-Adresse bedienen. Mehr Bandbreite (LACP) oder Schleifenschutz (STP) liefern sie nicht — sie sichern ausschließlich das Gateway auf Schicht 3 ab.",
+             "en": "VRRP and HSRP let several routers serve one shared virtual gateway address. They provide neither more bandwidth (LACP) nor loop protection (STP) — they exclusively safeguard the gateway at layer 3."}},
         {"id": "rd5", "type": "single",
          "prompt": {"de": "Auf welcher Ebene setzen STP und LACP jeweils an, im Vergleich zu "
                          "VRRP/HSRP?",
@@ -304,6 +523,87 @@ REDUNDANZ_MODULE = {
                     "STP and LACP at Layer 3, VRRP/HSRP at Layer 2",
                     "That's arbitrary and vendor-dependent"],
          },
-         "answer": 0},
+         "answer": 0,
+         "explanation": {
+             "de": "STP und LACP arbeiten mit Frames, Ports und MAC-Adressen zwischen Switches — Schicht 2. VRRP/HSRP sichern eine IP-Adresse, das Gateway — Schicht 3. Die Zuordnung ist nicht herstellerabhängig, sondern folgt aus dem jeweiligen Problem.",
+             "en": "STP and LACP work with frames, ports and MAC addresses between switches — layer 2. VRRP/HSRP safeguard an IP address, the gateway — layer 3. The assignment is not vendor-dependent; it follows from the respective problem."}},
+        {"id": "rd6", "type": "single",
+         "prompt": {"de": "Ein Techniker schließt einen alten Switch aus dem Lagerbestand ans Netz an. Kurz "
+                          "darauf läuft der Verkehr über Umwege: Der alte Switch ist Root-Bridge geworden. "
+                          "Alle Switches stehen auf der Standardpriorität 32768. Warum er?",
+                    "en": "A technician connects an old switch from stock to the network. Shortly "
+                          "afterwards traffic takes detours: the old switch has become the root bridge. All "
+                          "switches are at the default priority 32768. Why this one?"},
+         "options": {
+             "de": ["Der zuletzt angeschlossene Switch wird immer Root",
+                    "Bei gleicher Priorität gewinnt die niedrigste MAC-Adresse — und die hat der alte Switch",
+                    "Der Switch mit den meisten Ports wird Root",
+                    "Der langsamste Switch wird Root, damit er nicht überlastet wird"],
+             "en": ["The switch connected last always becomes root",
+                    "With equal priority the lowest MAC address wins — and the old switch has it",
+                    "The switch with the most ports becomes root",
+                    "The slowest switch becomes root so that it is not overloaded"],
+         },
+         "answer": 1,
+         "explanation": {
+             "de": "Root wird die niedrigste Bridge-ID aus Priorität und MAC-Adresse. Lässt man die "
+                   "Priorität überall auf dem Standardwert, entscheidet allein die MAC — also der Zufall, "
+                   "oft zugunsten alter Geräte. Deshalb setzt man die Priorität der Kernswitches bewusst "
+                   "niedrig. Leistung oder Portzahl spielen bei der Wahl keine Rolle.",
+             "en": "The root is the lowest bridge ID made of priority and MAC address. If the priority is "
+                   "left at the default everywhere, the MAC alone decides — in other words chance, often in "
+                   "favor of old devices. That is why the core switches' priority is deliberately set low. "
+                   "Performance or port count play no role in the election."}},
+        {"id": "rd7", "type": "single",
+         "prompt": {"de": "An einem Arbeitsplatz-Port mit PortFast und BPDU-Guard steckt ein Mitarbeiter "
+                          "einen kleinen Switch an. Der Port geht sofort in den Zustand „err-disabled“, "
+                          "nichts funktioniert mehr. Wie ist das einzuordnen?",
+                    "en": "On a workstation port with PortFast and BPDU guard an employee plugs in a small "
+                          "switch. The port immediately goes into the “err-disabled” state and nothing "
+                          "works anymore. How should this be assessed?"},
+         "options": {
+             "de": ["Der Port ist defekt und muss getauscht werden",
+                    "BPDU-Guard hat wie vorgesehen ausgelöst: Ursache entfernen, Port wieder aktivieren",
+                    "STP hat den Port als redundanten Weg blockiert und gibt ihn bei Bedarf frei",
+                    "VRRP hat auf den Backup-Router umgeschaltet"],
+             "en": ["The port is faulty and must be replaced",
+                    "BPDU guard triggered as intended: remove the cause, re-enable the port",
+                    "STP blocked the port as a redundant path and will release it when needed",
+                    "VRRP switched over to the backup router"],
+         },
+         "answer": 1,
+         "explanation": {
+             "de": "Der kleine Switch sendet BPDUs — genau darauf reagiert BPDU-Guard und schaltet den Port "
+                   "ab, bevor eine Schleife entstehen kann. Das ist kein blockierter STP-Port: Ein "
+                   "blockierter Port bleibt in Reserve und wird automatisch wieder aktiv, ein "
+                   "err-disabled-Port bleibt aus, bis jemand eingreift (oder eine Auto-Recovery greift).",
+             "en": "The small switch sends BPDUs — exactly what BPDU guard reacts to, shutting the port "
+                   "down before a loop can form. This is not a blocked STP port: a blocked port stays in "
+                   "reserve and becomes active again automatically, an err-disabled port stays off until "
+                   "someone intervenes (or auto-recovery kicks in)."}},
+        {"id": "rd8", "type": "multi",
+         "prompt": {"de": "Der VRRP-Master fällt aus, der Backup-Router übernimmt. Was bleibt aus Sicht "
+                          "eines Clients unverändert? (mehrere)",
+                    "en": "The VRRP master fails and the backup router takes over. What stays unchanged "
+                          "from a client's point of view? (multiple)"},
+         "options": {
+             "de": ["Die eingetragene Gateway-IP-Adresse",
+                    "Die MAC-Adresse des Gateways im ARP-Cache",
+                    "Der physische Router, der die Pakete weiterleitet",
+                    "Die eigene IP-Adresse des Clients"],
+             "en": ["The configured gateway IP address",
+                    "The gateway's MAC address in the ARP cache",
+                    "The physical router that forwards the packets",
+                    "The client's own IP address"],
+         },
+         "answer": [0, 1, 3],
+         "explanation": {
+             "de": "Der neue Master übernimmt virtuelle IP UND virtuelle MAC. Deshalb muss der Client "
+                   "nicht einmal seinen ARP-Cache erneuern — nur der Switch lernt, dass die MAC jetzt an "
+                   "einem anderen Port hängt. Geändert hat sich allein das Gerät hinter der Adresse.",
+             "en": "The new master takes over the virtual IP AND the virtual MAC. That is why the client "
+                   "does not even have to refresh its ARP cache — only the switch learns that the MAC now "
+                   "sits on a different port. The only thing that changed is the device behind the "
+                   "address."}},
     ]},
 }

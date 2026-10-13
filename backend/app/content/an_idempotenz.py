@@ -1,5 +1,5 @@
 # Ansible-Lehrgang: Modul 309 - Fehlerbehandlung & Idempotenz (bilingual DE/EN).
-# EN von Fach-Uebersetzung; note/goals bleiben DE (Trainer-Bereich).
+# EN von Fach-Uebersetzung; note bleibt DE (Trainer-Bereich), Lernziele in goals + goals_en.
 
 IDEMPOTENZ_MODULE = {
  'key': 'fehlerbehandlung-idempotenz',
@@ -12,6 +12,11 @@ IDEMPOTENZ_MODULE = {
            'Die Task-Status ok, changed, failed, skipped, unreachable und rescued lesen',
            'ignore_errors, failed_when und changed_when mit Bedacht einsetzen',
            'block/rescue/always als Fehlerbehandlungsstruktur lesen'],
+ 'goals_en': ['Define idempotency and recognise from an example whether a task is idempotent',
+              'Tell declarative modules apart from command/shell and place creates/removes',
+              'Read the task statuses ok, changed, failed, skipped, unreachable and rescued',
+              'Use ignore_errors, failed_when and changed_when with care',
+              'Read block/rescue/always as an error-handling structure'],
  'scenario': {'de': 'Ein Playbook soll jederzeit gefahrlos erneut laufen können — auch wenn '
                     'beim letzten Mal ein Task fehlgeschlagen ist oder sich seither nichts am '
                     'Zielsystem geändert hat. Das verlangt zwei Dinge: Tasks, die bei '
@@ -105,6 +110,40 @@ IDEMPOTENZ_MODULE = {
                              '`removes: <path>` help: the task only runs if the given path does '
                              '**not yet** exist (`creates`) or **still** exists (`removes`) — a '
                              'simple idempotency crutch for imperative commands.'}},
+            {'type': 'diagram',
+             'id': 'diagram-modul-vs-command',
+             'payload': {'kind': 'compare',
+                         'title_de': 'Deklaratives Modul vs. command/shell',
+                         'title_en': 'Declarative module vs. command/shell',
+                         'columns': [{'title_de': 'Modul (z. B. user, file)',
+                                      'title_en': 'Module (e.g. user, file)'},
+                                     {'title': 'command / shell'}],
+                         'rows': [{'label_de': 'Du beschreibst',
+                                   'label_en': 'You describe',
+                                   'values_de': ['den Zielzustand', 'einen Befehl'],
+                                   'values_en': ['the target state', 'a command']},
+                                  {'label_de': 'Prüft vorher den Ist-Zustand',
+                                   'label_en': 'Checks current state first',
+                                   'values_de': ['ja, selbst', 'nein — nur mit creates/removes'],
+                                   'values_en': ['yes, by itself',
+                                                 'no — only with creates/removes']},
+                                  {'label_de': 'Zweiter Lauf',
+                                   'label_en': 'Second run',
+                                   'values_de': ['ok', 'wieder changed (oder Fehler)'],
+                                   'values_en': ['ok', 'changed again (or an error)']},
+                                  {'label_de': 'changed stimmt',
+                                   'label_en': 'changed is accurate',
+                                   'values_de': ['automatisch', 'nur mit changed_when'],
+                                   'values_en': ['automatically', 'only with changed_when']},
+                                  {'label': '--check',
+                                   'values_de': ['sagt die Änderung vorher',
+                                                 'Task wird übersprungen'],
+                                   'values_en': ['predicts the change', 'task is skipped']},
+                                  {'label_de': 'Sinnvoll, wenn',
+                                   'label_en': 'Makes sense when',
+                                   'values_de': ['ein passendes Modul existiert',
+                                                 'es kein Modul gibt'],
+                                   'values_en': ['a fitting module exists', 'no module exists']}]}},
             {'type': 'check', 'id': 'check-1',
              'payload': {'kind': 'choice',
                          'prompt_de': 'Ein Task lautet: ansible.builtin.command: rm -f '
@@ -231,6 +270,75 @@ IDEMPOTENZ_MODULE = {
                                       'whether block or rescue succeeded',
                                       'The host counts as rescued, provided rescue itself did '
                                       'not fail']}},
+            {'type': 'cloze',
+             'id': 'cloze-block-rescue',
+             'payload': {'prompt_de': 'Die neue Konfiguration wird geschrieben und geprüft; '
+                                      'schlägt etwas fehl, kommt die Sicherung zurück. Das '
+                                      'Protokoll läuft in jedem Fall. Ergänze die Lücken.',
+                         'prompt_en': 'The new configuration is written and checked; if anything '
+                                      'fails, the backup is restored. The log entry runs in any '
+                                      'case. Fill the gaps.',
+                         'mono': True,
+                         'text_de': '- name: Konfiguration mit Rückfall ausrollen\n'
+                                    '  [[block]]:\n'
+                                    '    - name: Neue Konfiguration schreiben\n'
+                                    '      ansible.builtin.copy:\n'
+                                    '        src: app.conf\n'
+                                    '        dest: /etc/app/app.conf\n'
+                                    '        mode: "0644"\n'
+                                    '    - name: Konfiguration prüfen (nur lesen)\n'
+                                    '      ansible.builtin.command: app --check-config\n'
+                                    '      [[cw]]: false\n'
+                                    '  [[rescue]]:\n'
+                                    '    - name: Sicherung zurückspielen\n'
+                                    '      ansible.builtin.copy:\n'
+                                    '        src: /etc/app/app.conf.bak\n'
+                                    '        dest: /etc/app/app.conf\n'
+                                    '        [[remote]]: true\n'
+                                    '  [[always]]:\n'
+                                    '    - name: Ergebnis protokollieren\n'
+                                    '      ansible.builtin.debug:\n'
+                                    '        msg: Rollout beendet',
+                         'text_en': '- name: Roll out configuration with fallback\n'
+                                    '  [[block]]:\n'
+                                    '    - name: Write the new configuration\n'
+                                    '      ansible.builtin.copy:\n'
+                                    '        src: app.conf\n'
+                                    '        dest: /etc/app/app.conf\n'
+                                    '        mode: "0644"\n'
+                                    '    - name: Check the configuration (read only)\n'
+                                    '      ansible.builtin.command: app --check-config\n'
+                                    '      [[cw]]: false\n'
+                                    '  [[rescue]]:\n'
+                                    '    - name: Restore the backup\n'
+                                    '      ansible.builtin.copy:\n'
+                                    '        src: /etc/app/app.conf.bak\n'
+                                    '        dest: /etc/app/app.conf\n'
+                                    '        [[remote]]: true\n'
+                                    '  [[always]]:\n'
+                                    '    - name: Log the result\n'
+                                    '      ansible.builtin.debug:\n'
+                                    '        msg: Rollout finished',
+                         'gaps': [{'id': 'block', 'accept': ['block']},
+                                  {'id': 'cw',
+                                   'options': ['changed_when', 'failed_when', 'ignore_errors'],
+                                   'answer': 0},
+                                  {'id': 'rescue', 'accept': ['rescue']},
+                                  {'id': 'remote',
+                                   'options': ['remote_src', 'backup', 'force'],
+                                   'answer': 0},
+                                  {'id': 'always', 'accept': ['always']}],
+                         'explanation_de': 'changed_when: false gehört an reine Lesebefehle, sonst '
+                                           'meldet command bei jedem Lauf changed. failed_when: '
+                                           'false wäre hier fatal — der Prüfbefehl könnte dann nie '
+                                           'fehlschlagen und rescue liefe nie. remote_src: true '
+                                           'sagt copy, dass die Quelle auf dem Zielhost liegt.',
+                         'explanation_en': 'changed_when: false belongs on read-only commands, '
+                                           'otherwise command reports changed on every run. '
+                                           'failed_when: false would be fatal here — the check '
+                                           'command could never fail and rescue would never run. '
+                                           'remote_src: true tells copy that the source is on the '
+                                           'target host.'}},
             {'type': 'text', 'id': 'text-4',
              'value': {'de': '## ignore_errors, failed_when, changed_when — mit Bedacht\n'
                              '\n'
@@ -267,6 +375,104 @@ IDEMPOTENZ_MODULE = {
                              'liberally they are used, the less meaningful the play summary '
                              'becomes. Rule of thumb: as targeted as possible, never applied '
                              'blanket-style across a whole playbook.'}},
+            {'type': 'scenario',
+             'id': 'scenario-fehlerbehandlung',
+             'payload': {'title_de': 'Ein Befehl, der beim zweiten Lauf scheitert',
+                         'title_en': 'A command that fails on the second run',
+                         'start': 'start',
+                         'nodes': [{'id': 'start',
+                                    'text_de': 'Ein Play bricht beim zweiten Lauf ab: Der Task '
+                                               '„command: rm /var/cache/app/index.db“ scheitert, '
+                                               'weil die Datei schon weg ist. Wie reparierst du '
+                                               'das?',
+                                    'text_en': 'A play aborts on the second run: the task '
+                                               '"command: rm /var/cache/app/index.db" fails '
+                                               'because the file is already gone. How do you '
+                                               'repair it?',
+                                    'options': [{'label_de': 'ignore_errors: true an den Task '
+                                                             'hängen',
+                                                 'label_en': 'Add ignore_errors: true to the task',
+                                                 'to': 'ignore'},
+                                                {'label_de': 'Durch ansible.builtin.file mit '
+                                                             'state: absent ersetzen',
+                                                 'label_en': 'Replace it with ansible.builtin.file '
+                                                             'and state: absent',
+                                                 'to': 'migration'},
+                                                {'label_de': 'failed_when: false setzen',
+                                                 'label_en': 'Set failed_when: false',
+                                                 'to': 'failedwhen'}]},
+                                   {'id': 'ignore',
+                                    'outcome': 'bad',
+                                    'text_de': 'Das Play läuft weiter — aber auch dann, wenn rm '
+                                               'aus einem echten Grund scheitert (Rechte, '
+                                               'Dateisystem schreibgeschützt). Und der Task meldet '
+                                               'bei jedem erfolgreichen Lauf changed.',
+                                    'text_en': 'The play continues — but also when rm fails for a '
+                                               'real reason (permissions, read-only file system). '
+                                               'And the task reports changed on every successful '
+                                               'run.'},
+                                   {'id': 'failedwhen',
+                                    'outcome': 'bad',
+                                    'text_de': 'Damit kann der Task gar nicht mehr fehlschlagen. '
+                                               'Das ist ignore_errors ohne die rote Warnzeile in '
+                                               'der Ausgabe — echte Fehler verschwinden '
+                                               'vollständig.',
+                                    'text_en': 'Now the task cannot fail at all. That is '
+                                               'ignore_errors without the red warning line in the '
+                                               'output — real errors vanish completely.'},
+                                   {'id': 'migration',
+                                    'text_de': 'Gut: Das Modul beschreibt den Zielzustand und '
+                                               'meldet beim zweiten Lauf ok. Nächster Task: '
+                                               '„command: /opt/app/bin/migrate“ darf nur einmal '
+                                               'laufen; das Programm legt danach '
+                                               '/var/lib/app/.migrated an. Ein Modul dafür gibt es '
+                                               'nicht.',
+                                    'text_en': 'Good: the module describes the target state and '
+                                               'reports ok on the second run. Next task: "command: '
+                                               '/opt/app/bin/migrate" must run only once; the '
+                                               'program then creates /var/lib/app/.migrated. There '
+                                               'is no module for it.',
+                                    'options': [{'label_de': 'creates: /var/lib/app/.migrated am '
+                                                             'command-Task',
+                                                 'label_en': 'creates: /var/lib/app/.migrated on '
+                                                             'the command task',
+                                                 'to': 'creates'},
+                                                {'label_de': 'changed_when: false am command-Task',
+                                                 'label_en': 'changed_when: false on the command '
+                                                             'task',
+                                                 'to': 'changedwhen'},
+                                                {'label_de': 'Vorher stat + register, dann when: '
+                                                             'not marker.stat.exists',
+                                                 'label_en': 'stat + register first, then when: '
+                                                             'not marker.stat.exists',
+                                                 'to': 'stat'}]},
+                                   {'id': 'creates',
+                                    'outcome': 'good',
+                                    'text_de': 'Genau dafür ist creates da: Existiert der Pfad, '
+                                               'läuft der Befehl nicht und der Task meldet ok. '
+                                               'Eine Zeile, und sogar --check kann die '
+                                               'Entscheidung treffen.',
+                                    'text_en': 'That is exactly what creates is for: if the path '
+                                               'exists, the command does not run and the task '
+                                               'reports ok. One line, and even --check can make '
+                                               'the decision.'},
+                                   {'id': 'changedwhen',
+                                    'outcome': 'bad',
+                                    'text_de': 'Die Migration liefe weiter bei jedem Lauf — nur '
+                                               'die Anzeige wäre geschönt. changed_when ändert, '
+                                               'was gemeldet wird, nicht, was passiert.',
+                                    'text_en': 'The migration would still run on every run — only '
+                                               'the display would be polished. changed_when '
+                                               'changes what is reported, not what happens.'},
+                                   {'id': 'stat',
+                                    'outcome': 'ok',
+                                    'text_de': 'Funktioniert, braucht aber zwei Tasks und eine '
+                                               'Variable für das, was creates in einer Zeile '
+                                               'erledigt. Sinnvoll erst, wenn die Bedingung mehr '
+                                               'ist als „Datei existiert“.',
+                                    'text_en': 'Works, but needs two tasks and a variable for what '
+                                               'creates does in one line. Worth it only when the '
+                                               'condition is more than "file exists".'}]}},
             {'type': 'text', 'id': 'text-5',
              'value': {'de': '## Grenzen des Check-Modus\n'
                              '\n'
@@ -311,6 +517,15 @@ IDEMPOTENZ_MODULE = {
                      'des Check-Modus oben ankündigt: der doppelte echte Lauf als verlässlicher '
                      'Idempotenz-Test.'}],
  'quiz': {'questions': [{'id': 'fi1',
+                         'explanation': {'de': 'Idempotenz zeigt sich erst im zweiten echten Lauf: '
+                                               'Er darf nichts mehr ändern. `--check` sagt nur '
+                                               'vorher und ist bei `command`/`shell` blind; '
+                                               '`ansible-lint` findet Hinweise, beweist aber '
+                                               'nichts.',
+                                         'en': 'Idempotency only shows in the second real run: it '
+                                               'must not change anything any more. `--check` only '
+                                               'predicts and is blind for `command`/`shell`; '
+                                               '`ansible-lint` finds hints but proves nothing.'},
                          'type': 'single',
                          'prompt': {'de': 'Wie testest du praktisch, ob ein Playbook idempotent '
                                           'ist?',
@@ -328,6 +543,14 @@ IDEMPOTENZ_MODULE = {
                                             'Read the module source code',
                                             'Run ansible-lint']}},
                         {'id': 'fi2',
+                         'explanation': {'de': '`creates` macht den Befehl bedingt: Existiert der '
+                                               'Pfad, wird er nicht ausgeführt und der Task meldet '
+                                               '`ok`. Der Pfad wird weder angelegt noch gelöscht — '
+                                               'das muss der Befehl selbst tun.',
+                                         'en': '`creates` makes the command conditional: if the '
+                                               'path exists, it is not executed and the task '
+                                               'reports `ok`. The path is neither created nor '
+                                               'deleted — the command itself has to do that.'},
                          'type': 'single',
                          'prompt': {'de': 'Wofür dient creates: <pfad> bei einem command/shell-'
                                           'Task?',
@@ -346,6 +569,14 @@ IDEMPOTENZ_MODULE = {
                                             'It enables check mode for this task',
                                             'It is equivalent to register']}},
                         {'id': 'fi3',
+                         'explanation': {'de': '`skipped` steht für „Bedingung nicht erfüllt, '
+                                               'nicht ausgeführt“. `ok` hieße: ausgeführt, aber '
+                                               'nichts zu ändern; `unreachable`: Der Host war gar '
+                                               'nicht erreichbar.',
+                                         'en': '`skipped` stands for "condition not met, not '
+                                               'executed". `ok` would mean: executed, but nothing '
+                                               'to change; `unreachable`: the host could not be '
+                                               'reached at all.'},
                          'type': 'single',
                          'prompt': {'de': 'Welcher Task-Status bedeutet: durch when '
                                           'übersprungen?',
@@ -354,6 +585,15 @@ IDEMPOTENZ_MODULE = {
                          'options': {'de': ['ok', 'changed', 'skipped', 'unreachable'],
                                      'en': ['ok', 'changed', 'skipped', 'unreachable']}},
                         {'id': 'fi4',
+                         'explanation': {'de': 'Schlägt ein Task im `block` fehl, überspringt '
+                                               'Ansible den Rest des Blocks und führt `rescue` '
+                                               'aus; `always` läuft danach in jedem Fall. '
+                                               'Wiederholt wird nichts — dafür wäre `until` '
+                                               'zuständig.',
+                                         'en': 'If a task in the `block` fails, Ansible skips the '
+                                               'rest of the block and runs `rescue`; `always` runs '
+                                               'afterwards in any case. Nothing is retried — that '
+                                               'would be the job of `until`.'},
                          'type': 'single',
                          'prompt': {'de': 'Was passiert, wenn ein Task innerhalb eines block '
                                           'fehlschlägt und ein rescue definiert ist?',
@@ -371,6 +611,15 @@ IDEMPOTENZ_MODULE = {
                                             'The failed task is automatically retried',
                                             'always only runs if rescue is not defined']}},
                         {'id': 'fi5',
+                         'explanation': {'de': '`ignore_errors` lässt das Play nach jedem Fehler '
+                                               'weiterlaufen, auch nach solchen, die niemand '
+                                               'vorhergesehen hat. Auf Tempo oder Check-Modus hat '
+                                               'es keinen Einfluss — das Risiko ist allein die '
+                                               'verdeckte Ursache.',
+                                         'en': '`ignore_errors` lets the play continue after any '
+                                               'error, including ones nobody anticipated. It has '
+                                               'no effect on speed or check mode — the risk is '
+                                               'purely the hidden cause.'},
                          'type': 'single',
                          'prompt': {'de': 'Warum sollte ignore_errors: true nicht unreflektiert '
                                           'auf viele Tasks angewendet werden?',
@@ -387,4 +636,93 @@ IDEMPOTENZ_MODULE = {
                                             'actually stop the play',
                                             'Because it significantly slows down execution',
                                             'Because it is only allowed on handlers',
-                                            'Because it automatically forces --check']}}]}}
+                                            'Because it automatically forces --check']}},
+                        {'id': 'fi6',
+                         'type': 'number',
+                         'prompt': {'de': 'Ein `block` enthält einen Task, der fehlschlägt. '
+                                          '`rescue` läuft erfolgreich durch, `always` ebenfalls; '
+                                          'alle übrigen Tasks des Plays sind erfolgreich. Welche '
+                                          'Zahl steht im PLAY RECAP hinter `failed=`?',
+                                    'en': 'A `block` contains a task that fails. `rescue` '
+                                          'completes successfully, and so does `always`; all other '
+                                          'tasks of the play succeed. Which number follows '
+                                          '`failed=` in the PLAY RECAP?'},
+                         'answer': 0,
+                         'explanation': {'de': 'Ein aufgefangener Fehler zählt nicht als `failed`, '
+                                               'sondern als `rescued=1` — der Host bleibt im Play '
+                                               'und der Lauf endet mit Rückgabewert 0 (real '
+                                               'nachgestellt). Die `fatal:`-Zeile steht trotzdem '
+                                               'in der Ausgabe; wer nur sie sieht, erwartet '
+                                               'fälschlich `failed=1`.',
+                                         'en': 'A caught error does not count as `failed` but as '
+                                               '`rescued=1` — the host stays in the play and the '
+                                               'run ends with return code 0 (reproduced for real). '
+                                               'The `fatal:` line still appears in the output; '
+                                               'seeing only that, you would wrongly expect '
+                                               '`failed=1`.'}},
+                        {'id': 'fi7',
+                         'type': 'single',
+                         'prompt': {'de': 'Welchen Status meldet dieser Task beim zweiten Lauf?\n'
+                                          '\n'
+                                          '```yaml\n'
+                                          '- name: Datenbank initialisieren\n'
+                                          '  ansible.builtin.command: /opt/app/bin/init-db\n'
+                                          '  args:\n'
+                                          '    creates: /var/lib/app/db.sqlite\n'
+                                          '```',
+                                    'en': 'Which status does this task report on the second run?\n'
+                                          '\n'
+                                          '```yaml\n'
+                                          '- name: Datenbank initialisieren\n'
+                                          '  ansible.builtin.command: /opt/app/bin/init-db\n'
+                                          '  args:\n'
+                                          '    creates: /var/lib/app/db.sqlite\n'
+                                          '```'},
+                         'answer': 1,
+                         'options': {'de': ['changed — command meldet immer changed',
+                                            'ok — der Befehl wird nicht ausgeführt, weil die Datei '
+                                            'existiert',
+                                            'skipped — wie bei einer nicht erfüllten '
+                                            'when-Bedingung',
+                                            'failed — die Datei existiert bereits'],
+                                     'en': ['changed — command always reports changed',
+                                            'ok — the command is not executed because the file '
+                                            'exists',
+                                            'skipped — as with an unmet when condition',
+                                            'failed — the file already exists']},
+                         'explanation': {'de': 'Mit `creates` prüft das Modul zuerst den Pfad und '
+                                               'führt den Befehl nicht aus, wenn er existiert; '
+                                               'gemeldet wird `ok`, nicht `skipped` (real '
+                                               'nachgestellt). Vorausgesetzt ist, dass der erste '
+                                               'Lauf die Datei wirklich angelegt hat — sonst läuft '
+                                               'der Befehl jedes Mal.',
+                                         'en': 'With `creates` the module first checks the path '
+                                               'and does not run the command if it exists; it '
+                                               'reports `ok`, not `skipped` (reproduced for real). '
+                                               'This assumes the first run really created the file '
+                                               '— otherwise the command runs every time.'}},
+                        {'id': 'fi8',
+                         'type': 'single',
+                         'prompt': {'de': 'Ein Task mit `ignore_errors: true` schlägt fehl; alle '
+                                          'anderen Tasks laufen durch. Was zeigt der PLAY RECAP?',
+                                    'en': 'A task with `ignore_errors: true` fails; all other '
+                                          'tasks complete. What does the PLAY RECAP show?'},
+                         'answer': 2,
+                         'options': {'de': ['failed=1, das Play bricht ab',
+                                            'skipped=1, der Task gilt als übersprungen',
+                                            'failed=0 und ignored=1, das Play läuft weiter',
+                                            'rescued=1, wie bei block/rescue'],
+                                     'en': ['failed=1, the play aborts',
+                                            'skipped=1, the task counts as skipped',
+                                            'failed=0 and ignored=1, the play continues',
+                                            'rescued=1, as with block/rescue']},
+                         'explanation': {'de': 'Ignorierte Fehler haben einen eigenen Zähler: '
+                                               '`ignored`. Der Lauf endet mit `failed=0` und '
+                                               'Rückgabewert 0 — in einer Pipeline sähe er also '
+                                               'grün aus. Genau deshalb lohnt der Blick auf '
+                                               '`ignored=` im Recap.',
+                                         'en': 'Ignored errors have their own counter: `ignored`. '
+                                               'The run ends with `failed=0` and return code 0 — '
+                                               'so in a pipeline it would look green. That is '
+                                               'exactly why `ignored=` in the recap is worth a '
+                                               'look.'}}]}}

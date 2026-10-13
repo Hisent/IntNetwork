@@ -1,5 +1,5 @@
 # Ansible-Lehrgang, Modul 311: Secrets mit ansible-vault.
-# EN von Fach-Übersetzung; note/goals bleiben DE (Trainer-Bereich).
+# EN von Fach-Übersetzung; note bleibt DE (Trainer-Bereich), Lernziele in goals + goals_en.
 
 VAULT_MODULE = {'key': 'ansible-vault',
  'title': 'Secrets verwalten mit ansible-vault',
@@ -11,6 +11,11 @@ VAULT_MODULE = {'key': 'ansible-vault',
            'Die passenden ansible-vault-Subkommandos für eine gegebene Aufgabe auswählen',
            'Vault-IDs und Passwortdateien als Konzept einordnen',
            'Beurteilen, welche Geheimnisse niemals im Klartext ins Repo gehören'],
+ 'goals_en': ['Explain what ansible-vault is meant for and what it does NOT replace',
+              'Recognise encrypted values (`!vault` tag) in YAML',
+              'Choose the fitting ansible-vault subcommands for a given job',
+              'Place vault IDs and password files as a concept',
+              'Judge which secrets never belong in the repo in plain text'],
  'scenario': {'de': 'Ein Rollen-Repo für die Webserver-Automatisierung wächst: Neben '
                     'Paketnamen und Portnummern tauchen jetzt auch ein Datenbank-Passwort und '
                     'ein API-Key auf. Beides muss ins Git-Repo, damit die Rolle vollständig '
@@ -128,6 +133,74 @@ VAULT_MODULE = {'key': 'ansible-vault',
                              '\n'
                              'A fully encrypted file starts directly with this header, with no '
                              'YAML structure before it.'}},
+            {'type': 'diagram',
+             'id': 'diagram-vault-ablauf',
+             'payload': {'kind': 'sequence',
+                         'title_de': 'Vom Klartext zum Lauf',
+                         'title_en': 'From plain text to the run',
+                         'caption_de': 'Das Passwort verlässt nie den Kopf bzw. die Passwortdatei '
+                                       '— ins Repo geht nur Chiffrat.',
+                         'caption_en': 'The password never leaves your head or the password file — '
+                                       'only ciphertext goes into the repo.',
+                         'actors': [{'id': 'admin', 'label': 'Admin'},
+                                    {'id': 'vault', 'label': 'ansible-vault'},
+                                    {'id': 'git', 'label': 'Git-Repo'},
+                                    {'id': 'play', 'label': 'ansible-playbook'}],
+                         'messages': [{'from': 'admin',
+                                       'to': 'vault',
+                                       'label': 'encrypt vars/secrets.yml',
+                                       'detail_de': 'ansible-vault fragt das Vault-Passwort ab '
+                                                    '(oder liest es aus einer Passwortdatei).',
+                                       'detail_en': 'ansible-vault asks for the vault password (or '
+                                                    'reads it from a password file).'},
+                                      {'from': 'vault',
+                                       'to': 'vault',
+                                       'label_de': 'AES256 mit dem Passwort',
+                                       'label_en': 'AES256 with the password',
+                                       'detail_de': 'Die Datei wird an Ort und Stelle ersetzt und '
+                                                    'beginnt danach mit $ANSIBLE_VAULT;1.1;AES256.',
+                                       'detail_en': 'The file is replaced in place and afterwards '
+                                                    'starts with $ANSIBLE_VAULT;1.1;AES256.'},
+                                      {'from': 'admin',
+                                       'to': 'git',
+                                       'label_de': 'git commit: nur Chiffrat',
+                                       'label_en': 'git commit: ciphertext only',
+                                       'style': 'encrypted',
+                                       'detail_de': 'Das Passwort selbst wird nie eingecheckt.',
+                                       'detail_en': 'The password itself is never checked in.'},
+                                      {'from': 'admin',
+                                       'to': 'play',
+                                       'label': 'site.yml --ask-vault-pass',
+                                       'detail_de': 'Beim Lauf muss das Passwort wieder her: '
+                                                    'interaktiv, per Passwortdatei oder per '
+                                                    '--vault-id.',
+                                       'detail_en': 'For the run the password is needed again: '
+                                                    'interactively, via password file or via '
+                                                    '--vault-id.'},
+                                      {'from': 'play',
+                                       'to': 'git',
+                                       'label_de': 'liest vars/secrets.yml',
+                                       'label_en': 'reads vars/secrets.yml'},
+                                      {'from': 'play',
+                                       'to': 'play',
+                                       'label_de': 'entschlüsselt im Arbeitsspeicher',
+                                       'label_en': 'decrypts in memory',
+                                       'detail_de': 'Auf der Platte bleibt die Datei '
+                                                    'verschlüsselt. Die Werte stehen den Tasks als '
+                                                    'normale Variablen zur Verfügung.',
+                                       'detail_en': 'On disk the file stays encrypted. The values '
+                                                    'are available to the tasks as normal '
+                                                    'variables.'},
+                                      {'from': 'play',
+                                       'to': 'admin',
+                                       'label': 'PLAY RECAP',
+                                       'style': 'reply',
+                                       'detail_de': 'Vorsicht mit -v und debug: Entschlüsselte '
+                                                    'Werte können in der Ausgabe landen — dagegen '
+                                                    'hilft no_log: true am Task.',
+                                       'detail_en': 'Careful with -v and debug: decrypted values '
+                                                    'can end up in the output — no_log: true on '
+                                                    'the task prevents that.'}]}},
             {'type': 'check', 'id': 'check-1',
              'payload': {'kind': 'choice',
                          'prompt_de': 'Eine YAML-Datei beginnt direkt mit '
@@ -223,6 +296,113 @@ VAULT_MODULE = {'key': 'ansible-vault',
                              'which leaves the file permanently in plain text (so `encrypt` must '
                              'run again before any commit), and from `edit`, which additionally '
                              'opens an editor to change the content.'}},
+            {'type': 'terminal',
+             'id': 'terminal-vault',
+             'note': ('Ausgaben mit ansible-core 2.21 erzeugt; Hex-Blöcke auf wenige Zeilen gekürzt, Pfade vereinfacht, '
+                      'Passworteingaben unsichtbar. Das Lab kann ansible-vault nicht ausführen. cat und head zeigen den '
+                      'Zustand der Datei: Klartext vor „ansible-vault encrypt“, danach den Vault-Text; die übrigen Befehle '
+                      'setzen die verschlüsselte Datei voraus.'),
+             'payload': {'title_de': 'Eine Datei unter Vault stellen',
+                         'title_en': 'Putting a file under Vault',
+                         'intro_de': 'vars/secrets.yml liegt noch im Klartext vor. help zeigt alle '
+                                     'Befehle.',
+                         'intro_en': 'vars/secrets.yml is still in plain text. help lists all '
+                                     'commands.',
+                         'prompt': 'admin@control:~/projekt$',
+                         'unknown': 'bash: {cmd}: command not found',
+                         'commands': [{'variants': [
+                                                       {'when': 'enc',
+                                                        'output': ('$ANSIBLE_VAULT;1.1;AES256\n'
+                                                                   '38396435663130633433373632613339623665623139303664333238373061\n'
+                                                                   '3663363466326534363062633732303566323233343766660a383963366166\n'
+                                                                   '[...]')},
+                                                   ], 'cmd': 'cat vars/secrets.yml',
+                                       'desc_de': 'Datei ausgeben (vor und nach dem Verschlüsseln)',
+                                       'desc_en': 'print the file (before and after encrypting)',
+                                       'output': 'db_password: S3cr3t\napi_key: abc123'},
+                                      {'sets': ['enc'], 'cmd': 'ansible-vault encrypt vars/secrets.yml',
+                                       'desc_de': 'ganze Datei verschlüsseln',
+                                       'desc_en': 'encrypt the whole file',
+                                       'output': 'New Vault password: \n'
+                                                 'Confirm New Vault password: \n'
+                                                 'Encryption successful'},
+                                      {'variants': [
+                                                       {'when': 'enc',
+                                                        'output': ('$ANSIBLE_VAULT;1.1;AES256\n'
+                                                                   '38396435663130633433373632613339623665623139303664333238373061\n'
+                                                                   '3663363466326534363062633732303566323233343766660a383963366166')},
+                                                   ], 'cmd': 'head -3 vars/secrets.yml',
+                                       'desc_de': 'die ersten drei Zeilen der Datei',
+                                       'desc_en': 'the first three lines of the file',
+                                       'output': ('db_password: S3cr3t\n'
+                                                  'api_key: abc123')},
+                                      {'cmd': 'ansible-vault view vars/secrets.yml',
+                                       'desc_de': 'ansehen, ohne zu entschlüsseln',
+                                       'desc_en': 'look at it without decrypting',
+                                       'output': 'Vault password: \n'
+                                                 'db_password: S3cr3t\n'
+                                                 'api_key: abc123'},
+                                      {'cmd': 'ansible-playbook site.yml',
+                                       'desc_de': 'Lauf ohne Passwort',
+                                       'desc_en': 'run without a password',
+                                       'output': '[ERROR]: Invalid vars_files file '
+                                                 "'vars/secrets.yml':\n"
+                                                 'Attempting to decrypt but no vault secrets '
+                                                 'found.'},
+                                      {'cmd': 'ansible-playbook site.yml --ask-vault-pass',
+                                       'desc_de': 'Lauf mit Passwortabfrage',
+                                       'desc_en': 'run with password prompt',
+                                       'output': 'Vault password: \n'
+                                                 '\n'
+                                                 'PLAY [Datenbank einrichten] '
+                                                 '****************************\n'
+                                                 '…\n'
+                                                 'PLAY RECAP '
+                                                 '*********************************************\n'
+                                                 'db01 : ok=3 changed=1 unreachable=0 failed=0 '
+                                                 'skipped=0\n'
+                                                 '       rescued=0 ignored=0'},
+                                      {'cmd': 'ansible-vault rekey vars/secrets.yml',
+                                       'desc_de': 'Passwort wechseln',
+                                       'desc_en': 'change the password',
+                                       'output': 'Vault password: \n'
+                                                 'New Vault password: \n'
+                                                 'Confirm New Vault password: \n'
+                                                 'Rekey successful'},
+                                      {'cmd': 'ansible-vault encrypt_string --stdin-name '
+                                              'db_password',
+                                       'desc_de': 'nur einen Wert verschlüsseln',
+                                       'desc_en': 'encrypt just one value',
+                                       'output': 'New Vault password: \n'
+                                                 'Confirm New Vault password: \n'
+                                                 'Reading plaintext input from stdin. (ctrl-d to '
+                                                 'end input,\n'
+                                                 'twice if your content does not already have a '
+                                                 'newline)\n'
+                                                 '\n'
+                                                 'db_password: !vault |\n'
+                                                 '          $ANSIBLE_VAULT;1.1;AES256\n'
+                                                 '          '
+                                                 '3539356338646539393032356233393735663938356164383063\n'
+                                                 '          '
+                                                 '3838613834303932386662363663383832326439613164340a64\n'
+                                                 '          3638'}],
+                         'tasks': [{'text_de': 'Verschlüssele vars/secrets.yml.',
+                                    'text_en': 'Encrypt vars/secrets.yml.',
+                                    'command': 'ansible-vault encrypt vars/secrets.yml'},
+                                   {'text_de': 'Mit welchem Verfahren ist die Datei laut Kopfzeile '
+                                               'verschlüsselt?',
+                                    'text_en': 'According to the header line, which cipher '
+                                               'encrypts the file?',
+                                    'answers': ['AES256', 'AES-256', 'AES 256']},
+                                   {'text_de': 'Starte das Playbook so, dass es nach dem Passwort '
+                                               'fragt.',
+                                    'text_en': 'Start the playbook so that it asks for the '
+                                               'password.',
+                                    'command': 'ansible-playbook site.yml --ask-vault-pass'},
+                                   {'text_de': 'Wechsle das Vault-Passwort der Datei.',
+                                    'text_en': "Change the file's vault password.",
+                                    'command': 'ansible-vault rekey vars/secrets.yml'}]}},
             {'type': 'text', 'id': 'text-4',
              'value': {'de': '## Vault-IDs und mehrere Passwörter\n'
                              '\n'
@@ -272,6 +452,39 @@ VAULT_MODULE = {'key': 'ansible-vault',
                              'A default path to the password file can be set in `ansible.cfg` '
                              '(`vault_password_file = ~/.vault_pass.txt`), so it does not have to '
                              'be repeated on every call.'}},
+            {'type': 'cloze',
+             'id': 'cloze-vault-aufrufe',
+             'payload': {'prompt_de': 'Ergänze die drei Aufrufe: bestehende Datei mit Label prod '
+                                      'verschlüsseln (Passwort abfragen), Inhalt nur ansehen, '
+                                      'Playbook mit Passwortdatei starten.',
+                         'prompt_en': 'Complete the three calls: encrypt an existing file with the '
+                                      'label prod (prompt for the password), only look at the '
+                                      'content, start the playbook with a password file.',
+                         'mono': True,
+                         'text': 'ansible-vault [[encrypt]] --vault-id prod@[[prompt]] '
+                                 'vars/prod_secrets.yml\n'
+                                 '\n'
+                                 'ansible-vault [[view]] vars/prod_secrets.yml\n'
+                                 '\n'
+                                 'ansible-playbook site.yml --[[pwfile]] ~/.vault_pass.txt',
+                         'gaps': [{'id': 'encrypt',
+                                   'options': ['encrypt', 'create', 'encrypt_string'],
+                                   'answer': 0},
+                                  {'id': 'prompt', 'accept': ['prompt']},
+                                  {'id': 'view',
+                                   'options': ['view', 'decrypt', 'edit'],
+                                   'answer': 0},
+                                  {'id': 'pwfile',
+                                   'accept': ['vault-password-file', 'vault-pass-file']}],
+                         'explanation_de': 'encrypt verschlüsselt eine vorhandene Datei (create '
+                                           'legt eine neue an, encrypt_string nur einen Wert). '
+                                           'Hinter dem @ steht die Passwortquelle: prompt oder ein '
+                                           'Dateipfad. view lässt die Datei verschlüsselt — '
+                                           'decrypt nicht.',
+                         'explanation_en': 'encrypt encrypts an existing file (create makes a new '
+                                           'one, encrypt_string only a value). After the @ comes '
+                                           'the password source: prompt or a file path. view '
+                                           'leaves the file encrypted — decrypt does not.'}},
             {'type': 'debug', 'id': 'debug-1',
              'payload': {'prompt_de': 'Ein Kollege beschreibt sein Vault-Vorgehen für ein neues '
                                       'Projekt in vier Schritten. Einer davon ist ein '
@@ -359,6 +572,14 @@ VAULT_MODULE = {'key': 'ansible-vault',
                                       'note, chat) — and what would need to change for them to '
                                       'move under Vault.'}}],
  'quiz': {'questions': [{'id': 'vt1',
+                         'explanation': {'de': '`encrypt` ersetzt die ganze Datei durch Chiffrat — '
+                                               'danach ist auch die YAML-Struktur nicht mehr '
+                                               'lesbar. Einzelne Werte verschlüsselt '
+                                               '`encrypt_string`; nur anzeigen würde `view`.',
+                                         'en': '`encrypt` replaces the whole file with ciphertext '
+                                               '— afterwards not even the YAML structure is '
+                                               'readable. Single values are encrypted by '
+                                               '`encrypt_string`; `view` would only display.'},
                          'type': 'single',
                          'prompt': {'de': 'Was verschlüsselt der Befehl '
                                           '`ansible-vault encrypt vars/secrets.yml`?',
@@ -370,6 +591,14 @@ VAULT_MODULE = {'key': 'ansible-vault',
                                      'en': ['The entire file', 'Only the first value in the file',
                                             'Nothing — the command only displays the file']}},
                         {'id': 'vt2',
+                         'explanation': {'de': 'Der `!vault`-Tag vor einem Hex-Block mit dem '
+                                               'Header `$ANSIBLE_VAULT;1.1;AES256` kennzeichnet '
+                                               'den Wert. Ein Kommentar oder eine Dateiendung '
+                                               'hätte für Ansible keinerlei Bedeutung.',
+                                         'en': 'The `!vault` tag in front of a hex block with the '
+                                               'header `$ANSIBLE_VAULT;1.1;AES256` marks the '
+                                               'value. A comment or a file extension would mean '
+                                               'nothing to Ansible.'},
                          'type': 'single',
                          'prompt': {'de': 'Woran erkennst du im YAML einen einzelnen '
                                           'vault-verschlüsselten Wert?',
@@ -385,6 +614,13 @@ VAULT_MODULE = {'key': 'ansible-vault',
                                             'The `!vault` tag with a hex block and header '
                                             '`$ANSIBLE_VAULT;1.1;AES256`']}},
                         {'id': 'vt3',
+                         'explanation': {'de': '`view` entschlüsselt nur für die Anzeige. '
+                                               '`decrypt` schreibt die Datei dauerhaft im Klartext '
+                                               'zurück — die klassische Quelle versehentlich '
+                                               'eingecheckter Geheimnisse.',
+                                         'en': '`view` decrypts only for display. `decrypt` writes '
+                                               'the file back permanently in plain text — the '
+                                               'classic source of accidentally committed secrets.'},
                          'type': 'single',
                          'prompt': {'de': 'Welches Subkommando zeigt den Inhalt einer '
                                           'verschlüsselten Datei an, ohne sie dauerhaft zu '
@@ -397,6 +633,15 @@ VAULT_MODULE = {'key': 'ansible-vault',
                                      'en': ['`ansible-vault decrypt`', '`ansible-vault view`',
                                             '`ansible-vault create`']}},
                         {'id': 'vt4',
+                         'explanation': {'de': 'Eine Vault-ID ist ein Label samt Passwortquelle; '
+                                               'damit lassen sich mehrere Passwörter (dev, prod) '
+                                               'im selben Lauf auseinanderhalten. Ein verlorenes '
+                                               'Passwort stellt nichts wieder her — die Daten '
+                                               'wären dann weg.',
+                                         'en': 'A vault ID is a label plus a password source; it '
+                                               'lets you keep several passwords (dev, prod) apart '
+                                               'in the same run. Nothing restores a lost password '
+                                               '— the data would then be gone.'},
                          'type': 'single',
                          'prompt': {'de': 'Wofür sind Vault-IDs (`--vault-id label@quelle`) '
                                           'gedacht?',
@@ -412,6 +657,14 @@ VAULT_MODULE = {'key': 'ansible-vault',
                                             'To recover a forgotten vault password',
                                             'To automatically commit files']}},
                         {'id': 'vt5',
+                         'explanation': {'de': 'Vault verschlüsselt Inhalte im Repo, mehr nicht: '
+                                               'keine Rotation, kein Audit-Trail, keine Rechte je '
+                                               'Geheimnis. Dateien und einzelne Werte zu '
+                                               'verschlüsseln ist dagegen genau seine Aufgabe.',
+                                         'en': 'Vault encrypts content in the repo, nothing more: '
+                                               'no rotation, no audit trail, no permissions per '
+                                               'secret. Encrypting files and single values, by '
+                                               'contrast, is exactly its job.'},
                          'type': 'single',
                          'prompt': {'de': 'Was ersetzt Ansible Vault ausdrücklich NICHT?',
                                     'en': 'What does Ansible Vault explicitly NOT replace?'},
@@ -423,4 +676,94 @@ VAULT_MODULE = {'key': 'ansible-vault',
                                      'en': ['Encryption of files in the repo',
                                             'A central secret-management system with rotation '
                                             'and an audit trail',
-                                            'Encrypting/decrypting individual YAML values']}}]}}
+                                            'Encrypting/decrypting individual YAML values']}},
+                        {'id': 'vt6',
+                         'type': 'single',
+                         'prompt': {'de': 'Eine Datei beginnt mit '
+                                          '`$ANSIBLE_VAULT;1.2;AES256;prod`. Was verrät das letzte '
+                                          'Feld?',
+                                    'en': 'A file starts with `$ANSIBLE_VAULT;1.2;AES256;prod`. '
+                                          'What does the last field tell you?'},
+                         'answer': 1,
+                         'options': {'de': ['Den Namen des Hosts, für den die Datei gilt',
+                                            'Das Vault-ID-Label, mit dem verschlüsselt wurde',
+                                            'Das Passwort in gekürzter Form'],
+                                     'en': ['The name of the host the file applies to',
+                                            'The vault ID label that was used for encryption',
+                                            'The password in abbreviated form']},
+                         'explanation': {'de': 'Wird mit `--vault-id prod@…` verschlüsselt, '
+                                               'schreibt Ansible das Label in den Header (Format '
+                                               '1.2 statt 1.1). Beim Entschlüsseln probiert es '
+                                               'dann zuerst das Passwort mit diesem Label. Das '
+                                               'Label ist kein Geheimnis — das Passwort steht '
+                                               'nirgends in der Datei.',
+                                         'en': 'When encrypting with `--vault-id prod@…`, Ansible '
+                                               'writes the label into the header (format 1.2 '
+                                               'instead of 1.1). When decrypting it then tries the '
+                                               'password with this label first. The label is not a '
+                                               'secret — the password is nowhere in the file.'}},
+                        {'id': 'vt7',
+                         'type': 'single',
+                         'prompt': {'de': '`ansible-playbook site.yml` bricht ab mit „Attempting '
+                                          'to decrypt but no vault secrets found“. Was fehlt?',
+                                    'en': '`ansible-playbook site.yml` aborts with "Attempting to '
+                                          'decrypt but no vault secrets found". What is missing?'},
+                         'answer': 0,
+                         'options': {'de': ['Beim Aufruf wurde kein Vault-Passwort angegeben '
+                                            '(`--ask-vault-pass`, `--vault-password-file` oder '
+                                            '`--vault-id`)',
+                                            'Die Datei muss vor dem Lauf mit `ansible-vault '
+                                            'decrypt` entschlüsselt werden',
+                                            'Auf dem Managed Node ist ansible-vault nicht '
+                                            'installiert'],
+                                     'en': ['No vault password was given on the command line '
+                                            '(`--ask-vault-pass`, `--vault-password-file` or '
+                                            '`--vault-id`)',
+                                            'The file must be decrypted with `ansible-vault '
+                                            'decrypt` before the run',
+                                            'ansible-vault is not installed on the managed node']},
+                         'explanation': {'de': 'Ansible hat verschlüsselten Inhalt gefunden, aber '
+                                               'kein einziges Passwort zum Probieren bekommen. Es '
+                                               'genügt, eine Passwortquelle anzugeben — '
+                                               'entschlüsselt wird dann im Arbeitsspeicher auf dem '
+                                               'Control Node. Die Datei vorher dauerhaft zu '
+                                               'entschlüsseln, wäre genau der Fehler, den Vault '
+                                               'verhindern soll.',
+                                         'en': 'Ansible found encrypted content but was given not '
+                                               'a single password to try. Supplying a password '
+                                               'source is enough — decryption then happens in '
+                                               'memory on the control node. Decrypting the file '
+                                               'permanently beforehand would be exactly the '
+                                               'mistake Vault is meant to prevent.'}},
+                        {'id': 'vt8',
+                         'type': 'multi',
+                         'prompt': {'de': 'Welche zwei Vorgehensweisen hinterlassen ein Geheimnis '
+                                          'im Klartext an einer Stelle, an der es nicht liegen '
+                                          'sollte?',
+                                    'en': 'Which two practices leave a secret in plain text '
+                                          'somewhere it should not be?'},
+                         'answer': [0, 2],
+                         'options': {'de': ['`ansible-vault decrypt vars/secrets.yml` und danach '
+                                            '`git commit -a`',
+                                            '`ansible-vault edit vars/secrets.yml`',
+                                            "`ansible-vault encrypt_string 'S3cr3t!' --name "
+                                            'db_password` in der Shell eintippen',
+                                            '`ansible-vault view vars/secrets.yml`'],
+                                     'en': ['`ansible-vault decrypt vars/secrets.yml` followed by '
+                                            '`git commit -a`',
+                                            '`ansible-vault edit vars/secrets.yml`',
+                                            "Typing `ansible-vault encrypt_string 'S3cr3t!' --name "
+                                            'db_password` into the shell',
+                                            '`ansible-vault view vars/secrets.yml`']},
+                         'explanation': {'de': '`decrypt` schreibt die Datei im Klartext zurück — '
+                                               'der Commit trägt sie ins Repo. Und ein Geheimnis '
+                                               'als Kommandozeilen-Argument steht danach in der '
+                                               'Shell-Historie; dafür gibt es `--stdin-name`. '
+                                               '`edit` und `view` lassen die Datei auf der Platte '
+                                               'verschlüsselt.',
+                                         'en': '`decrypt` writes the file back in plain text — the '
+                                               'commit carries it into the repo. And a secret '
+                                               'given as a command-line argument ends up in the '
+                                               'shell history; `--stdin-name` exists for that. '
+                                               '`edit` and `view` leave the file encrypted on '
+                                               'disk.'}}]}}

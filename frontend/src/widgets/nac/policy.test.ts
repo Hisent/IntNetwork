@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
-import { evaluatePolicy, type PolicyInput } from './policy'
+import { certRelevant, evaluatePolicy, type DeviceType, type PolicyInput } from './policy'
+import { VLAN } from './vlans'
 
 describe('evaluatePolicy — Kernpfade', () => {
   it('verwaltet + 802.1X + Zertifikat + konform → Vollzugriff', () => {
@@ -64,6 +65,55 @@ describe('evaluatePolicy — Zusatzpfade', () => {
       const result = evaluatePolicy(input)
       expect(result.reason.de.length).toBeGreaterThan(0)
       expect(result.reason.en.length).toBeGreaterThan(0)
+    }
+  })
+})
+
+describe('evaluatePolicy — Schalter "Zertifikat"', () => {
+  it('verwaltet + 802.1X + compliant OHNE Zertifikat → nur eingeschränkt, nicht Vollzugriff', () => {
+    const result = evaluatePolicy({ deviceType: 'managed', dot1xCapable: true, hasCert: false, compliant: true })
+    expect(result.outcome).toBe('restricted')
+    expect(result.vlan).toEqual(VLAN.employee)
+    expect(result.reason.de).toContain('PEAP')
+  })
+
+  it('IoT mit Supplicant, aber ohne Zertifikat → eingeschränkt im IoT-VLAN', () => {
+    const result = evaluatePolicy({ deviceType: 'iot', dot1xCapable: true, hasCert: false, compliant: true })
+    expect(result.outcome).toBe('restricted')
+    expect(result.vlan).toEqual(VLAN.iot)
+  })
+
+  it('mit Supplicant ändert der Schalter bei JEDEM Gerätetyp das Ergebnis (compliant)', () => {
+    for (const deviceType of ['managed', 'iot', 'byod'] as DeviceType[]) {
+      const withCert = evaluatePolicy({ deviceType, dot1xCapable: true, hasCert: true, compliant: true })
+      const without = evaluatePolicy({ deviceType, dot1xCapable: true, hasCert: false, compliant: true })
+      expect(without.outcome).not.toBe(withCert.outcome)
+    }
+  })
+
+  it('ohne Supplicant ist der Schalter wirkungslos — und wird als solcher gemeldet', () => {
+    expect(certRelevant({ dot1xCapable: false })).toBe(false)
+    expect(certRelevant({ dot1xCapable: true })).toBe(true)
+    for (const deviceType of ['managed', 'iot', 'byod'] as DeviceType[]) {
+      const a = evaluatePolicy({ deviceType, dot1xCapable: false, hasCert: true, compliant: true })
+      const b = evaluatePolicy({ deviceType, dot1xCapable: false, hasCert: false, compliant: true })
+      expect(a).toEqual(b)
+    }
+  })
+
+  it('nicht compliant schlägt fehlendes Zertifikat: Quarantäne', () => {
+    const result = evaluatePolicy({ deviceType: 'managed', dot1xCapable: true, hasCert: false, compliant: false })
+    expect(result.outcome).toBe('quarantine')
+    expect(result.vlan).toEqual(VLAN.quarantine)
+  })
+})
+
+describe('VLAN-Labels', () => {
+  it('sind zweisprachig und nutzen in allen Widgets dieselben Nummern (20/30/40/50/90/99)', () => {
+    expect(Object.values(VLAN).map((v) => v.de.match(/\d+/)?.[0])).toEqual(['20', '30', '40', '50', '90', '99'])
+    for (const v of Object.values(VLAN)) {
+      expect(v.en.match(/\d+/)?.[0]).toBe(v.de.match(/\d+/)?.[0])
+      expect(v.en).not.toMatch(/Mitarbeiter|Gast|Quarantäne|Notbetrieb/)
     }
   })
 })

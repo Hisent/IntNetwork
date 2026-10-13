@@ -1,4 +1,15 @@
+/** Access-Port: `vlan` = sein VLAN. Trunk-Port: `vlan` = Native VLAN (läuft ungetaggt). */
 export interface Port { vlan: number; mode: 'access' | 'trunk' }
+
+/** Gültige 802.1Q-VLAN-IDs sind 1–4094 (0 und 4095 sind reserviert). */
+export function clampVlan(n: number): number {
+  return Number.isFinite(n) ? Math.min(4094, Math.max(1, Math.trunc(n))) : 1
+}
+
+/** Tag, den ein Trunk für einen Frame aus `vlan` setzt — `null` = ungetaggt (Native VLAN). */
+export function trunkTag(trunk: Port, vlan: number): number | null {
+  return vlan === trunk.vlan ? null : vlan
+}
 
 const iface = (i: number) => `Gi0/${i + 1}`
 
@@ -27,6 +38,8 @@ function showRunningConfig(ports: Port[]): string {
     lines.push(`interface ${iface(i)}`)
     if (p.mode === 'trunk') {
       lines.push(' switchport mode trunk')
+      // wie echtes IOS: die Zeile erscheint nur, wenn das Native VLAN nicht der Standard (1) ist
+      if (p.vlan !== 1) lines.push(` switchport trunk native vlan ${p.vlan}`)
     } else {
       lines.push(' switchport mode access', ` switchport access vlan ${p.vlan}`)
     }

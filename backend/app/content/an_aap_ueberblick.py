@@ -1,5 +1,5 @@
 # Ansible-Lehrgang, Modul 313: Automation Platform im Überblick.
-# EN von Fach-Übersetzung; note/goals bleiben DE (Trainer-Bereich).
+# EN von Fach-Übersetzung; note bleibt DE (Trainer-Bereich), Lernziele in goals + goals_en.
 
 AAP_UEBERBLICK_MODULE = {'key': 'automation-platform-ueberblick',
  'title': 'Automation Platform im Überblick',
@@ -11,6 +11,11 @@ AAP_UEBERBLICK_MODULE = {'key': 'automation-platform-ueberblick',
            'Die Kernkomponenten (Controller, Hub, Execution Environments, Mesh, EDA) benennen',
            'Erklären, was eine Execution Environment ist und welches Problem sie löst',
            'Event-Driven Ansible mit Rulebooks (Sources/Rules/Actions) grob einordnen'],
+ 'goals_en': ['Explain why a platform emerges on top of the plain command line',
+              'Tell control plane and execution plane apart',
+              'Name the core components (controller, hub, execution environments, mesh, EDA)',
+              'Explain what an execution environment is and which problem it solves',
+              'Roughly place Event-Driven Ansible with rulebooks (sources/rules/actions)'],
  'scenario': {'de': 'Bislang lief jedes Playbook von der eigenen Kommandozeile aus, mit lokal '
                     'installierten Collections und einem selbst gepflegten Passwort für Vault. '
                     'Das funktioniert für eine Person — aber ein Team mit zehn Kolleg:innen, '
@@ -57,8 +62,13 @@ AAP_UEBERBLICK_MODULE = {'key': 'automation-platform-ueberblick',
                              'centralized credentials, permission management, scheduling, and a '
                              'curated repository for collections — without changing anything '
                              'about the underlying Ansible core (modules, playbooks, YAML).'},
-             'note': 'Bewusst „eine Automatisierungsplattform” statt konkreter Versionsnummer '
-                     '(2.5/2.6/2.7 lt. Recherche unklar) — siehe Hinweis weiter unten.'},
+             'note': 'Stand Oktober 2026 (Red-Hat-Doku): aktuell ist AAP 2.7 — GA Anfang Juni 2026, '
+                     'Patch 2.7-11 vom 5.10.2026. Komponenten laut Release Notes: Platform Gateway, '
+                     'Automation Controller 4.8, Automation Hub 4.12, Event-Driven Ansible Controller '
+                     '1.3; die mitgelieferten Execution Environments nutzen standardmäßig ansible-core '
+                     '2.16 (das Kurs-Lab: 2.21). Der Teilnehmertext nennt bewusst keine Versionsnummer: '
+                     'Das Architekturbild gilt seit 2.5 (gemeinsame Oberfläche über das Platform Gateway) '
+                     'unverändert für 2.5, 2.6 und 2.7.'},
             {'type': 'text', 'id': 'text-2',
              'value': {'de': '## Control Plane und Execution Plane\n'
                              '\n'
@@ -161,6 +171,105 @@ AAP_UEBERBLICK_MODULE = {'key': 'automation-platform-ueberblick',
                              '“Private Automation Hub” for offline/on-prem operation. It '
                              'complements the public Ansible Galaxy with curated or certified '
                              'collections in a controlled, internal source.'}},
+            {'type': 'diagram',
+             'id': 'diagram-aap-komponenten',
+             'note': 'Vereinfachung: Collections kommen aus dem Hub entweder beim Projekt-Sync '
+                     'oder — üblicher — fertig eingebaut im EE-Image, das der Hub als '
+                     'Container-Registry bereitstellt.',
+             'payload': {'kind': 'flow',
+                         'title_de': 'Ein Job durch die Plattform',
+                         'title_en': 'A job through the platform',
+                         'caption_de': 'Oben die Control Plane, rechts unten die Execution Plane.',
+                         'caption_en': 'Control plane at the top, execution plane at the bottom '
+                                       'right.',
+                         'nodes': [{'id': 'hub',
+                                    'shape': 'database',
+                                    'row': 0,
+                                    'col': 0,
+                                    'label': 'Automation Hub',
+                                    'detail_de': 'Collections und EE-Images aus kontrollierter '
+                                                 'Quelle. In der Oberfläche: Automation Content.',
+                                    'detail_en': 'Collections and EE images from a controlled '
+                                                 'source. In the UI: Automation Content.'},
+                                   {'id': 'ctrl',
+                                    'shape': 'server',
+                                    'row': 0,
+                                    'col': 1,
+                                    'label': 'Automation Controller',
+                                    'detail_de': 'Job-Templates, Credentials, RBAC, Zeitpläne. In '
+                                                 'der Oberfläche: Automation Execution.',
+                                    'detail_en': 'Job templates, credentials, RBAC, schedules. In '
+                                                 'the UI: Automation Execution.'},
+                                   {'id': 'eda',
+                                    'row': 1,
+                                    'col': 1,
+                                    'label': 'Event-Driven Ansible',
+                                    'detail_de': 'Rulebooks warten auf Ereignisse und stoßen '
+                                                 'Job-Templates an. In der Oberfläche: Automation '
+                                                 'Decisions.',
+                                    'detail_en': 'Rulebooks wait for events and trigger job '
+                                                 'templates. In the UI: Automation Decisions.'},
+                                   {'id': 'hop',
+                                    'shape': 'router',
+                                    'row': 0,
+                                    'col': 2,
+                                    'label': 'Hop Node (Mesh)',
+                                    'detail_de': 'Leitet nur weiter — führt selbst keine Playbooks '
+                                                 'aus.',
+                                    'detail_en': 'Only relays — runs no playbooks itself.'},
+                                   {'id': 'exec',
+                                    'shape': 'server',
+                                    'row': 1,
+                                    'col': 2,
+                                    'label': 'Execution Node + EE',
+                                    'detail_de': 'Startet das EE-Image als Container; darin läuft '
+                                                 'ansible-playbook.',
+                                    'detail_en': 'Starts the EE image as a container; '
+                                                 'ansible-playbook runs inside it.'},
+                                   {'id': 'ziel',
+                                    'shape': 'host',
+                                    'row': 2,
+                                    'col': 2,
+                                    'label': 'Managed Nodes'}],
+                         'edges': [{'id': 'e1',
+                                    'from': 'hub',
+                                    'to': 'ctrl',
+                                    'label_de': 'Collections, EE',
+                                    'label_en': 'collections, EE'},
+                                   {'id': 'e2',
+                                    'from': 'eda',
+                                    'to': 'ctrl',
+                                    'label': 'run_job_\ntemplate',
+                                    'style': 'dashed'},
+                                   {'id': 'e3', 'from': 'ctrl', 'to': 'hop', 'label': 'Mesh'},
+                                   {'id': 'e4', 'from': 'hop', 'to': 'exec'},
+                                   {'id': 'e5',
+                                    'from': 'exec',
+                                    'to': 'ziel',
+                                    'label': 'SSH / WinRM'}],
+                         'steps': [{'highlight': ['hub', 'e1', 'ctrl'],
+                                    'text_de': 'Inhalte: Der Hub liefert geprüfte Collections und '
+                                               'die Execution-Environment-Images.',
+                                    'text_en': 'Content: the hub delivers vetted collections and '
+                                               'the execution environment images.'},
+                                   {'highlight': ['ctrl', 'eda', 'e2'],
+                                    'text_de': 'Start: Ein Mensch, ein Zeitplan oder ein Rulebook '
+                                               '(EDA) startet ein Job-Template im Controller.',
+                                    'text_en': 'Start: a person, a schedule or a rulebook (EDA) '
+                                               'launches a job template in the controller.'},
+                                   {'highlight': ['ctrl', 'e3', 'hop', 'e4', 'exec'],
+                                    'text_de': 'Weg: Über das Mesh — notfalls über Hop Nodes — '
+                                               'gelangt der Job zu einem Ausführungsknoten im '
+                                               'Zielnetz.',
+                                    'text_en': 'Path: through the mesh — via hop nodes if '
+                                               'necessary — the job reaches an execution node in '
+                                               'the target network.'},
+                                   {'highlight': ['exec', 'e5', 'ziel'],
+                                    'text_de': 'Ausführung: Im EE-Container läuft ganz normales '
+                                               'ansible-playbook gegen die Managed Nodes.',
+                                    'text_en': 'Execution: inside the EE container plain '
+                                               'ansible-playbook runs against the managed '
+                                               'nodes.'}]}},
             {'type': 'order', 'id': 'order-1',
              'payload': {'prompt_de': 'Ein Playbook soll über die Plattform ausgeführt werden. '
                                       'Bring die Stationen in die Reihenfolge, in der sie '
@@ -234,8 +343,106 @@ AAP_UEBERBLICK_MODULE = {'key': 'automation-platform-ueberblick',
                              'of running them directly with the versions locally installed on '
                              'the control node. The controller uses the same images for its '
                              'jobs.'},
-             'note': 'ansible-navigator und ansible-builder nur benennen; Bedienung ist '
-                     'nicht Teil dieses Überblicksmoduls.'},
+             'note': 'ansible-navigator und ansible-builder hier nur einordnen; das Terminal darunter '
+                     'spielt einen Bau und einen Lauf einmal durch, Detailbedienung ist nicht Teil '
+                     'dieses Überblicksmoduls.'},
+            {'type': 'terminal',
+             'id': 'terminal-builder-navigator',
+             'note': 'Nach der Ansible-Doku „Getting started with Execution Environments“ '
+                     'nachgestellt (Definition v3, Meldungen von ansible-builder, Aufruf von '
+                     'ansible-navigator); Image-IDs, Größen und der Build-Verlauf sind gekürzt '
+                     'bzw. erfunden. Im Kurs-Lab gibt es weder podman noch diese Werkzeuge.',
+             'payload': {'title_de': 'Ein Execution Environment bauen und benutzen (Simulation)',
+                         'title_en': 'Build and use an execution environment (simulation)',
+                         'intro_de': 'Reihenfolge: Definition ansehen → bauen → Image prüfen → '
+                                     'Playbook darin ausführen.',
+                         'intro_en': 'Order: look at the definition → build → check the image → '
+                                     'run a playbook inside it.',
+                         'prompt': 'admin@control:~/ee$',
+                         'unknown': 'bash: {cmd}: command not found',
+                         'commands': [{'cmd': 'cat execution-environment.yml',
+                                       'desc_de': 'die Definitionsdatei',
+                                       'desc_en': 'the definition file',
+                                       'output': 'version: 3\n'
+                                                 '\n'
+                                                 'images:\n'
+                                                 '  base_image:\n'
+                                                 '    name: quay.io/fedora/fedora:latest\n'
+                                                 '\n'
+                                                 'dependencies:\n'
+                                                 '  ansible_core:\n'
+                                                 '    package_pip: ansible-core\n'
+                                                 '  ansible_runner:\n'
+                                                 '    package_pip: ansible-runner\n'
+                                                 '  system:\n'
+                                                 '    - openssh-clients\n'
+                                                 '    - sshpass\n'
+                                                 '  galaxy:\n'
+                                                 '    collections:\n'
+                                                 '      - name: ansible.posix\n'
+                                                 '      - name: cisco.ios'},
+                                      {'cmd': 'ansible-builder build --tag netz_ee:1.0',
+                                       'aliases': ['ansible-builder build -t netz_ee:1.0'],
+                                       'desc_de': 'Image bauen',
+                                       'desc_en': 'build the image',
+                                       'output': 'Running command:\n'
+                                                 '  podman build -f context/Containerfile -t '
+                                                 'netz_ee:1.0 context\n'
+                                                 'Complete! The build context can be found at:\n'
+                                                 '  /home/admin/ee/context'},
+                                      {'cmd': 'podman images',
+                                       'desc_de': 'lokale Images',
+                                       'desc_en': 'local images',
+                                       'output': 'REPOSITORY          TAG     IMAGE ID      SIZE\n'
+                                                 'localhost/netz_ee   1.0     4c1f0e9a7b21  742 '
+                                                 'MB\n'
+                                                 'quay.io/fedora/fedora latest 9e2b5c3d1f08  184 '
+                                                 'MB'},
+                                      {'label': 'ansible-navigator run site.yml', 'cmd': 'ansible-navigator run site.yml '
+                                              '--execution-environment-image netz_ee:1.0 --mode '
+                                              'stdout --pull-policy missing',
+                                       'aliases': ['ansible-navigator run site.yml --eei '
+                                                   'netz_ee:1.0 -m stdout --pp missing',
+                                                   'ansible-navigator run site.yml --eei '
+                                                   'netz_ee:1.0 --mode stdout --pull-policy '
+                                                   'missing'],
+                                       'desc_de': 'Playbook im EE ausführen',
+                                       'desc_en': 'run the playbook inside the EE',
+                                       'output': '\n'
+                                                 'PLAY [Webserver einrichten] '
+                                                 '****************************\n'
+                                                 '\n'
+                                                 'TASK [Gathering Facts] '
+                                                 '*********************************\n'
+                                                 'ok: [web01]\n'
+                                                 '\n'
+                                                 'TASK [Einhängepunkt sicherstellen] '
+                                                 '*********************\n'
+                                                 'changed: [web01]\n'
+                                                 '\n'
+                                                 'PLAY RECAP '
+                                                 '*********************************************\n'
+                                                 'web01 : ok=2 changed=1 unreachable=0 failed=0 '
+                                                 'skipped=0\n'
+                                                 '        rescued=0 ignored=0'}],
+                         'tasks': [{'text_de': 'Baue das Image mit dem Tag netz_ee:1.0.',
+                                    'text_en': 'Build the image with the tag netz_ee:1.0.',
+                                    'command': 'ansible-builder build --tag netz_ee:1.0'},
+                                   {'text_de': 'Welches Programm baut das Image tatsächlich (laut '
+                                               '„Running command“)?',
+                                    'text_en': 'Which program actually builds the image (according '
+                                               'to "Running command")?',
+                                    'answers': ['podman', 'podman build']},
+                                   {'text_de': 'Führe site.yml im neuen EE aus.',
+                                    'text_en': 'Run site.yml inside the new EE.',
+                                    'command': 'ansible-navigator run site.yml '
+                                               '--execution-environment-image netz_ee:1.0 --mode '
+                                               'stdout --pull-policy missing'},
+                                   {'text_de': 'Welche beiden Collections stecken im Image? Nenne '
+                                               'eine.',
+                                    'text_en': 'Which two collections are inside the image? Name '
+                                               'one.',
+                                    'answers': ['ansible.posix', 'cisco.ios']}]}},
             {'type': 'reveal', 'id': 'reveal-1',
              'payload': {'teaser_de': 'Übung: Zwei Teams beschweren sich, dass „das Playbook bei '
                                       'uns anders läuft als beim anderen Team, obwohl der Code '
@@ -313,9 +520,95 @@ AAP_UEBERBLICK_MODULE = {'key': 'automation-platform-ueberblick',
                              'event just occurred”. Rulebooks are executed by the '
                              '`ansible-rulebook` tool or, in the platform, by the Event-Driven '
                              'Ansible controller.'},
-             'note': 'Versionsnummern zu ansible-rulebook/ansible.eda bewusst weggelassen — '
-                     'Recherche stützt sich nur auf einzelne Fundstellen, nicht auf eine '
-                     'verifizierte Versionsmatrix.'},
+             'note': 'AAP 2.7 enthält den Event-Driven Ansible Controller 1.3 (Release Notes 2.7, Stand '
+                     'Oktober 2026); in der Oberfläche heißt der Bereich „Automation Decisions“. '
+                     'Versionsnummern von ansible-rulebook und der Collection ansible.eda stehen bewusst '
+                     'nicht im Teilnehmertext — sie ändern sich mit jedem Patch-Release.'},
+            {'type': 'cloze',
+             'id': 'cloze-rulebook',
+             'payload': {'prompt_de': 'Ein Monitoring schickt Webhooks. Meldet es einen '
+                                      'ausgefallenen Dienst, soll das Job-Template „Webdienst neu '
+                                      'starten“ laufen. Ergänze das Rulebook.',
+                         'prompt_en': 'A monitoring system sends webhooks. When it reports a '
+                                      'failed service, the job template "Webdienst neu starten" '
+                                      'should run. Complete the rulebook.',
+                         'mono': True,
+                         'text_de': '- name: Auf Monitoring-Alarme reagieren\n'
+                                    '  hosts: all\n'
+                                    '  [[sources]]:\n'
+                                    '    - ansible.eda.webhook:\n'
+                                    '        host: 0.0.0.0\n'
+                                    '        port: 5000\n'
+                                    '  [[rules]]:\n'
+                                    '    - name: Dienst ausgefallen\n'
+                                    '      [[condition]]: event.payload.status == "down"\n'
+                                    '      [[action]]:\n'
+                                    '        run_job_template:\n'
+                                    '          name: Webdienst neu starten\n'
+                                    '          organization: Default',
+                         'text_en': '- name: React to monitoring alerts\n'
+                                    '  hosts: all\n'
+                                    '  [[sources]]:\n'
+                                    '    - ansible.eda.webhook:\n'
+                                    '        host: 0.0.0.0\n'
+                                    '        port: 5000\n'
+                                    '  [[rules]]:\n'
+                                    '    - name: Service down\n'
+                                    '      [[condition]]: event.payload.status == "down"\n'
+                                    '      [[action]]:\n'
+                                    '        run_job_template:\n'
+                                    '          name: Webdienst neu starten\n'
+                                    '          organization: Default',
+                         'gaps': [{'id': 'sources', 'accept': ['sources']},
+                                  {'id': 'rules', 'accept': ['rules']},
+                                  {'id': 'condition',
+                                   'options': ['condition', 'when', 'until'],
+                                   'answer': 0},
+                                  {'id': 'action', 'accept': ['action', 'actions']}],
+                         'explanation_de': 'Ein Rulebook sieht aus wie ein Playbook, hat aber '
+                                           'sources und rules statt tasks. Die Bedingung heißt '
+                                           'condition (nicht when) und prüft das eingehende '
+                                           'Ereignis über event. run_job_template startet ein '
+                                           'Template im Controller und braucht dessen Namen und '
+                                           'Organisation.',
+                         'explanation_en': 'A rulebook looks like a playbook but has sources and '
+                                           'rules instead of tasks. The condition is called '
+                                           'condition (not when) and checks the incoming event via '
+                                           'event. run_job_template launches a template in the '
+                                           'controller and needs its name and organization.'}},
+            {'type': 'match',
+             'id': 'match-aap-komponenten',
+             'payload': {'prompt_de': 'Welche Komponente löst welches Problem?',
+                         'prompt_en': 'Which component solves which problem?',
+                         'pairs': [{'left': 'Automation Controller',
+                                    'right_de': 'Wer darf welchen Job mit welchen Zugangsdaten '
+                                                'starten?',
+                                    'right_en': 'Who may launch which job with which credentials?'},
+                                   {'left': 'Automation Hub',
+                                    'right_de': 'Woher kommen geprüfte Collections in '
+                                                'einheitlicher Version?',
+                                    'right_en': 'Where do vetted collections in a uniform version '
+                                                'come from?'},
+                                   {'left': 'Execution Environment',
+                                    'right_de': 'Warum läuft das Playbook überall mit denselben '
+                                                'Abhängigkeiten?',
+                                    'right_en': 'Why does the playbook run with the same '
+                                                'dependencies everywhere?'},
+                                   {'left': 'Automation Mesh',
+                                    'right_de': 'Wie erreicht ein Job Zielsysteme in abgetrennten '
+                                                'Netzsegmenten?',
+                                    'right_en': 'How does a job reach targets in separated network '
+                                                'segments?'},
+                                   {'left': 'Event-Driven Ansible',
+                                    'right_de': 'Wie startet Automatisierung von selbst, sobald '
+                                                'ein Alarm eintrifft?',
+                                    'right_en': 'How does automation start by itself as soon as an '
+                                                'alert arrives?'},
+                                   {'left': 'Platform Gateway',
+                                    'right_de': 'Wo melden sich alle an, um die Dienste in einer '
+                                                'Oberfläche zu nutzen?',
+                                    'right_en': 'Where does everyone log in to use the services in '
+                                                'one interface?'}]}},
             {'type': 'reflect', 'id': 'reflect-1',
              'payload': {'prompt_de': 'Stell dir ein Team mit fünf Personen vor, das aktuell nur '
                                       'per CLI automatisiert. Welche der hier vorgestellten '
@@ -327,6 +620,13 @@ AAP_UEBERBLICK_MODULE = {'key': 'automation-platform-ueberblick',
                                       '(Controller, Hub, Execution Environment, Mesh, EDA) would '
                                       'benefit that team the most first — and why?'}}],
  'quiz': {'questions': [{'id': 'ap1',
+                         'explanation': {'de': 'Die Execution Plane führt aus, die Control Plane '
+                                               'koordiniert nur. Der Hub ist weder das eine noch '
+                                               'das andere im engeren Sinn: Er hält Inhalte '
+                                               'bereit, führt aber nichts aus.',
+                                         'en': 'The execution plane executes, the control plane '
+                                               'only coordinates. The hub is neither in the strict '
+                                               'sense: it holds content but executes nothing.'},
                          'type': 'single',
                          'prompt': {'de': 'Welche Ebene führt Playbooks tatsächlich aus?',
                                     'en': 'Which layer actually runs playbooks?'},
@@ -336,6 +636,12 @@ AAP_UEBERBLICK_MODULE = {'key': 'automation-platform-ueberblick',
                                      'en': ['Control plane', 'Execution plane',
                                             'Automation Hub']}},
                         {'id': 'ap2',
+                         'explanation': {'de': 'Aus „Ansible Tower“ wurde mit AAP 2 der Automation '
+                                               'Controller. Hub und Mesh sind eigene Komponenten '
+                                               'und waren nie Namen für den Controller.',
+                                         'en': 'With AAP 2, "Ansible Tower" became automation '
+                                               'controller. Hub and mesh are components of their '
+                                               'own and were never names for the controller.'},
                          'type': 'single',
                          'prompt': {'de': 'Wie hieß der Automation Controller früher?',
                                     'en': 'What was the Automation Controller formerly called?'},
@@ -343,6 +649,14 @@ AAP_UEBERBLICK_MODULE = {'key': 'automation-platform-ueberblick',
                          'options': {'de': ['Ansible Hub', 'Ansible Mesh', 'Ansible Tower'],
                                      'en': ['Ansible Hub', 'Ansible Mesh', 'Ansible Tower']}},
                         {'id': 'ap3',
+                         'explanation': {'de': 'Ein Execution Environment friert ansible-core, '
+                                               'Collections und Abhängigkeiten in einem Image ein '
+                                               '— überall dasselbe. Netzlaufzeiten oder '
+                                               'Vault-Verschlüsselung löst es nicht.',
+                                         'en': 'An execution environment freezes ansible-core, '
+                                               'collections and dependencies in one image — the '
+                                               'same everywhere. It does not solve network latency '
+                                               'or Vault encryption.'},
                          'type': 'single',
                          'prompt': {'de': 'Welches Problem lösen Execution Environments in '
                                           'erster Linie?',
@@ -361,6 +675,14 @@ AAP_UEBERBLICK_MODULE = {'key': 'automation-platform-ueberblick',
                                             'slow',
                                             'Missing encryption of vault files']}},
                         {'id': 'ap4',
+                         'explanation': {'de': 'Ein Rulebook besteht aus Quellen, Regeln und '
+                                               'Aktionen: Woher kommen Ereignisse, worauf wird '
+                                               'geprüft, was passiert dann. Tasks, Handler und '
+                                               'Rollen gehören zum Playbook.',
+                                         'en': 'A rulebook consists of sources, rules and actions: '
+                                               'where do events come from, what is checked, what '
+                                               'happens then. Tasks, handlers and roles belong to '
+                                               'the playbook.'},
                          'type': 'single',
                          'prompt': {'de': 'Aus welchen drei Bestandteilen besteht ein '
                                           'Event-Driven-Ansible-Rulebook?',
@@ -374,6 +696,16 @@ AAP_UEBERBLICK_MODULE = {'key': 'automation-platform-ueberblick',
                                             'Tasks, Handlers, Roles',
                                             'Inventory, Vars, Facts']}},
                         {'id': 'ap5',
+                         'explanation': {'de': 'Hop Nodes sind reine Vermittler im Mesh: Sie '
+                                               'reichen die Verbindung zu Ausführungsknoten '
+                                               'weiter, die der Controller nicht direkt erreicht. '
+                                               'Sie führen selbst nichts aus und ersetzen den '
+                                               'Controller nicht.',
+                                         'en': 'Hop nodes are pure relays in the mesh: they pass '
+                                               'the connection on to execution nodes the '
+                                               'controller cannot reach directly. They execute '
+                                               'nothing themselves and do not replace the '
+                                               'controller.'},
                          'type': 'single',
                          'prompt': {'de': 'Wofür stehen „Hop-Nodes” im Kontext von Automation '
                                           'Mesh?',
@@ -387,4 +719,91 @@ AAP_UEBERBLICK_MODULE = {'key': 'automation-platform-ueberblick',
                                      'en': ['They encrypt vault passwords',
                                             'They route the connection to execution nodes in '
                                             'segmented network zones',
-                                            'They fully replace the Automation Controller']}}]}}
+                                            'They fully replace the Automation Controller']}},
+                        {'id': 'ap6',
+                         'type': 'single',
+                         'prompt': {'de': 'Ein Rulebook hat die Regel `condition: '
+                                          'event.payload.status == "down"` mit der Aktion '
+                                          '`run_job_template`. Es treffen nacheinander drei '
+                                          'Webhooks ein: status "up", status "down", status '
+                                          '"degraded". Wie oft startet das Job-Template?',
+                                    'en': 'A rulebook has the rule `condition: '
+                                          'event.payload.status == "down"` with the action '
+                                          '`run_job_template`. Three webhooks arrive in turn: '
+                                          'status "up", status "down", status "degraded". How '
+                                          'often is the job template launched?'},
+                         'answer': 1,
+                         'options': {'de': ['Gar nicht — Rulebooks starten nur nach Zeitplan',
+                                            'Einmal',
+                                            'Dreimal — bei jedem Ereignis'],
+                                     'en': ['Not at all — rulebooks only start on a schedule',
+                                            'Once',
+                                            'Three times — on every event']},
+                         'explanation': {'de': 'Jedes eingehende Ereignis wird gegen die Bedingung '
+                                               'geprüft; nur das zweite erfüllt sie. Genau das '
+                                               'unterscheidet ereignisgesteuerte Automatisierung '
+                                               'von einem Zeitplan: Auslöser ist der Inhalt des '
+                                               'Ereignisses, nicht die Uhr.',
+                                         'en': 'Every incoming event is checked against the '
+                                               'condition; only the second one meets it. That is '
+                                               'exactly what distinguishes event-driven automation '
+                                               'from a schedule: the trigger is the content of the '
+                                               'event, not the clock.'}},
+                        {'id': 'ap7',
+                         'type': 'single',
+                         'prompt': {'de': 'In der gemeinsamen Oberfläche der Automation Platform '
+                                          '(seit 2.5) suchst du die Collections eures Private '
+                                          'Automation Hub. Unter welchem Bereich findest du sie?',
+                                    'en': 'In the unified interface of the automation platform '
+                                          '(since 2.5) you are looking for the collections of your '
+                                          'private automation hub. Under which area do you find '
+                                          'them?'},
+                         'answer': 2,
+                         'options': {'de': ['Automation Execution',
+                                            'Automation Decisions',
+                                            'Automation Content'],
+                                     'en': ['Automation Execution',
+                                            'Automation Decisions',
+                                            'Automation Content']},
+                         'explanation': {'de': 'Die Oberfläche benennt nach Aufgabe: Automation '
+                                               'Content ist der Hub (Inhalte), Automation '
+                                               'Execution der Controller (Ausführung), Automation '
+                                               'Decisions Event-Driven Ansible (Entscheidungen). '
+                                               'Die Komponentennamen gelten weiter — auch die '
+                                               'Release Notes zu 2.7 führen beide Bezeichnungen '
+                                               'nebeneinander.',
+                                         'en': 'The interface names things by job: Automation '
+                                               'Content is the hub (content), Automation Execution '
+                                               'the controller (execution), Automation Decisions '
+                                               'Event-Driven Ansible (decisions). The component '
+                                               'names still apply — the 2.7 release notes list '
+                                               'both names side by side too.'}},
+                        {'id': 'ap8',
+                         'type': 'multi',
+                         'prompt': {'de': 'Was steckt in einem Execution-Environment-Image? (drei '
+                                          'Antworten)',
+                                    'en': 'What is inside an execution environment image? (three '
+                                          'answers)'},
+                         'answer': [0, 2, 3],
+                         'options': {'de': ['ansible-core',
+                                            'Das Inventar der Zielsysteme',
+                                            'Die benötigten Collections',
+                                            'Python- und Systemabhängigkeiten der Collections',
+                                            'Die Credentials für die Zielsysteme'],
+                                     'en': ['ansible-core',
+                                            'The inventory of the target systems',
+                                            'The required collections',
+                                            'Python and system dependencies of the collections',
+                                            'The credentials for the target systems']},
+                         'explanation': {'de': 'Ein EE enthält die Laufzeit: ansible-core, '
+                                               'Collections und deren Abhängigkeiten. Inventar und '
+                                               'Credentials gehören nicht ins Image — der '
+                                               'Controller reicht sie erst beim Start des Jobs '
+                                               'hinein. Ein Image mit eingebauten Zugangsdaten '
+                                               'wäre ein Geheimnis, das in jeder Registry liegt.',
+                                         'en': 'An EE contains the runtime: ansible-core, '
+                                               'collections and their dependencies. Inventory and '
+                                               'credentials do not belong in the image — the '
+                                               'controller passes them in only when the job '
+                                               'starts. An image with built-in credentials would '
+                                               'be a secret sitting in every registry.'}}]}}

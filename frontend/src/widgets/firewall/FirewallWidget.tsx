@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { evaluate, RULES, type Action, type Packet, type Proto, type Rule } from '@/widgets/firewall/firewall'
+import { evaluate, isValidPort, RULES, type Action, type Packet, type Proto, type Rule } from '@/widgets/firewall/firewall'
 import { ChallengeBox } from '@/components/ChallengeBox'
 import type { Lang } from '@/lib/i18n'
 
@@ -35,7 +35,7 @@ const STR = {
     testTab: 'Regeln testen', buildTab: 'Regeln bauen',
     yourRules: 'Dein Regelwerk', noRules: 'noch keine Regeln — alles läuft ins Default-Deny',
     addRule: 'Regel hinzufügen', anyPort: 'leer = beliebiger Port', traffic: 'Live-Traffic',
-    expected: 'Soll', actual: 'Ist', ruleAction: 'Aktion', newRulePort: 'Port für neue Regel',
+    badPort: 'Gültige Ports: 1–65535.', expected: 'Soll', actual: 'Ist', ruleAction: 'Aktion', newRulePort: 'Port für neue Regel',
     buildChallenge: 'Baue ein Regelwerk, das genau HTTPS und DNS erlaubt — alles andere blockt das Default-Deny. Schaffst du es mit höchstens 2 Regeln?',
   },
   en: {
@@ -46,7 +46,7 @@ const STR = {
     testTab: 'Test rules', buildTab: 'Build rules',
     yourRules: 'Your ruleset', noRules: 'no rules yet — everything hits the default deny',
     addRule: 'Add rule', anyPort: 'empty = any port', traffic: 'Live traffic',
-    expected: 'Goal', actual: 'Now', ruleAction: 'Action', newRulePort: 'Port for new rule',
+    badPort: 'Valid ports: 1–65535.', expected: 'Goal', actual: 'Now', ruleAction: 'Action', newRulePort: 'Port for new rule',
     buildChallenge: 'Build a ruleset that allows exactly HTTPS and DNS — the default deny blocks the rest. Can you do it with at most 2 rules?',
   },
 } as const
@@ -61,8 +61,11 @@ function RuleLab({ lang }: { lang: Lang }) {
   const results = SAMPLES.map((smp) => ({ ...smp, got: evaluate(rules, smp.pkt).action }))
   const done = results.every((r) => r.got === r.expected) && rules.length <= 2 && rules.length > 0
 
+  const portOk = port.trim() === '' || isValidPort(Number(port))
+
   const add = () => {
-    setRules((rs) => [...rs, { action, proto, port: port.trim() === '' ? 'any' : Number(port) || 0 }])
+    if (!portOk) return
+    setRules((rs) => [...rs, { action, proto, port: port.trim() === '' ? 'any' : Number(port) }])
     setPort('')
   }
 
@@ -96,10 +99,11 @@ function RuleLab({ lang }: { lang: Lang }) {
           <option>UDP</option>
           <option value="any">any</option>
         </select>
-        <input type="number" value={port} onChange={(e) => setPort(e.target.value)} placeholder={s.port}
-          aria-label={s.newRulePort}
+        <input type="number" min={1} max={65535} value={port} onChange={(e) => setPort(e.target.value)} placeholder={s.port}
+          aria-label={s.newRulePort} aria-invalid={!portOk}
           title={s.anyPort} className="w-20 border rounded px-1 py-0.5 font-mono" />
-        <button onClick={add} className="rounded-lg border px-2 py-1 hover:bg-slate-50">{s.addRule}</button>
+        <button onClick={add} disabled={!portOk} className="rounded-lg border px-2 py-1 hover:bg-slate-50 disabled:opacity-50">{s.addRule}</button>
+        {!portOk && <span role="alert" className="text-rose-700">{s.badPort}</span>}
         <span className="text-slate-400">{s.anyPort}</span>
       </div>
 
@@ -126,6 +130,7 @@ function RuleLab({ lang }: { lang: Lang }) {
 export function Firewall({ lang }: { lang: Lang }) {
   const [pkt, setPkt] = useState<Packet>({ proto: 'TCP', port: 443 })
   const [mode, setMode] = useState<'test' | 'build'>('test')
+  const portOk = isValidPort(pkt.port)
   const decision = evaluate(RULES, pkt)
   const s = STR[lang]
   const reason = decision.ruleIndex !== null ? RULE_DESC[decision.ruleIndex][lang] : s.defaultDenyReason
@@ -173,7 +178,10 @@ export function Firewall({ lang }: { lang: Lang }) {
           {s.port}
           <input
             type="number"
-            value={pkt.port}
+            min={1}
+            max={65535}
+            value={pkt.port || ''}
+            aria-invalid={!portOk}
             onChange={(e) => setPkt((p) => ({ ...p, port: Number(e.target.value) || 0 }))}
             className="ml-1 w-20 border rounded px-1 py-0.5 font-mono"
           />
@@ -192,22 +200,26 @@ export function Firewall({ lang }: { lang: Lang }) {
         ))}
       </div>
 
-      <div
-        className={`rounded-lg px-3 py-2 text-sm mb-4 ${
-          decision.action === 'allow' ? 'bg-teal-50 text-teal-800' : 'bg-rose-50 text-rose-800'
-        }`}
-      >
-        <span className="font-semibold">{decision.action === 'allow' ? s.allowed : s.blocked}</span>
-        {' — '}
-        {reason}
-      </div>
+      {portOk ? (
+        <div
+          className={`rounded-lg px-3 py-2 text-sm mb-4 ${
+            decision.action === 'allow' ? 'bg-teal-50 text-teal-800' : 'bg-rose-50 text-rose-800'
+          }`}
+        >
+          <span className="font-semibold">{decision.action === 'allow' ? s.allowed : s.blocked}</span>
+          {' — '}
+          {reason}
+        </div>
+      ) : (
+        <div role="alert" className="rounded-lg px-3 py-2 text-sm mb-4 bg-amber-50 text-amber-800">{s.badPort}</div>
+      )}
 
       <p className="text-xs font-semibold text-slate-500 mb-1">{s.rules}</p>
       <div className="rounded-lg border divide-y text-xs font-mono">
         {RULES.map((r, i) => (
           <div
             key={i}
-            className={`flex items-center gap-3 px-3 py-1.5 ${i === decision.ruleIndex ? 'bg-amber-50' : ''}`}
+            className={`flex items-center gap-3 px-3 py-1.5 ${portOk && i === decision.ruleIndex ? 'bg-amber-50' : ''}`}
           >
             <span className={r.action === 'allow' ? 'text-teal-700' : 'text-rose-700'}>
               {r.action.padEnd(5)}
@@ -218,12 +230,12 @@ export function Firewall({ lang }: { lang: Lang }) {
             <span className="text-slate-600">{RULE_DESC[i][lang]}</span>
           </div>
         ))}
-        <div className={`px-3 py-1.5 ${decision.ruleIndex === null ? 'bg-amber-50 text-amber-800' : 'text-slate-500'}`}>
+        <div className={`px-3 py-1.5 ${portOk && decision.ruleIndex === null ? 'bg-amber-50 text-amber-800' : 'text-slate-500'}`}>
           {s.defaultDeny}
         </div>
       </div>
 
-      <ChallengeBox lang={lang} task={s.challenge} done={decision.ruleIndex === null} />
+      <ChallengeBox lang={lang} task={s.challenge} done={portOk && decision.ruleIndex === null} />
     </div>
   )
 }

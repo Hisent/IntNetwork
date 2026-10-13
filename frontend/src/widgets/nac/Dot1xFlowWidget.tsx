@@ -1,5 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
-import { DOT1X_STEPS, finalVlan, isAccessAccepted, isPortAuthorized, type Dot1xRole } from '@/widgets/nac/dot1x'
+import {
+  DOT1X_PATHS, DOT1X_PATH_IDS, isDecided, isPortAuthorized,
+  type Dot1xLayer, type Dot1xPathId, type Dot1xRole,
+} from '@/widgets/nac/dot1x'
 import { ChallengeBox } from '@/components/ChallengeBox'
 import type { Lang } from '@/lib/i18n'
 
@@ -37,11 +40,14 @@ const STR = {
     play: 'Abspielen', pause: 'Pause',
     prev: 'Zurück', next: 'Nächster Schritt', reset: 'Von vorn',
     step: 'Schritt', of: 'von',
-    eapol: 'EAPOL', radius: 'RADIUS',
+    pathLabel: 'Was passiert am Port?',
+    layers: { eapol: 'EAPOL', radius: 'RADIUS', data: 'Datenframe', local: 'lokal im Switch' },
     portUnauthorized: 'Port: unauthorized',
     portAuthorized: 'Port: authorized',
-    vlanAssigned: 'zugewiesenes VLAN',
-    challenge: 'Spiele den Ablauf einmal komplett ab oder klicke dich bis zum RADIUS Access-Accept durch.',
+    portDenied: 'Port bleibt unauthorized — kein Zugang',
+    notAuthenticated: 'Identität NICHT geprüft',
+    vlanAssigned: 'VLAN',
+    challenge: 'Spiele den Erfolgsfall und mindestens einen weiteren Pfad bis zur Entscheidung durch.',
     reducedMotionNote: 'Bewegungsreduzierte Darstellung aktiv: Schritte erscheinen ohne Gleitbewegung.',
   },
   en: {
@@ -54,31 +60,55 @@ const STR = {
     play: 'Play', pause: 'Pause',
     prev: 'Back', next: 'Next step', reset: 'Restart',
     step: 'Step', of: 'of',
-    eapol: 'EAPOL', radius: 'RADIUS',
+    pathLabel: 'What happens on the port?',
+    layers: { eapol: 'EAPOL', radius: 'RADIUS', data: 'data frame', local: 'local on the switch' },
     portUnauthorized: 'Port: unauthorized',
     portAuthorized: 'Port: authorized',
-    vlanAssigned: 'assigned VLAN',
-    challenge: 'Play through the whole flow once, or click through it up to the RADIUS Access-Accept.',
+    portDenied: 'Port stays unauthorized — no access',
+    notAuthenticated: 'identity NOT verified',
+    vlanAssigned: 'VLAN',
+    challenge: 'Play the success case and at least one other path through to the decision.',
     reducedMotionNote: 'Reduced-motion display active: steps appear without a gliding animation.',
   },
 } as const
 
+const LAYER_MARKER: Record<Dot1xLayer, string> = {
+  eapol: 'bg-teal-600 text-white',
+  radius: 'bg-slate-100 text-slate-700 border border-slate-300',
+  data: 'bg-white text-slate-700 border border-slate-300',
+  local: 'bg-amber-100 text-amber-800 border border-amber-300',
+}
+const LAYER_BADGE: Record<Dot1xLayer, string> = {
+  eapol: 'bg-teal-100 text-teal-800', radius: 'bg-slate-100 text-slate-700',
+  data: 'bg-slate-100 text-slate-700', local: 'bg-amber-100 text-amber-800',
+}
+
 export function Dot1xFlow({ lang }: { lang: Lang }) {
   const s = STR[lang]
   const reducedMotion = useReducedMotion()
+  const [pathId, setPathId] = useState<Dot1xPathId>('eap-tls')
   const [idx, setIdx] = useState(0)
   const [maxReached, setMaxReached] = useState(0)
+  const [decidedPaths, setDecidedPaths] = useState<Set<Dot1xPathId>>(new Set())
   const [playing, setPlaying] = useState(false)
-  const [markerLeft, setMarkerLeft] = useState(ROLE_X[DOT1X_STEPS[0].from])
+  const path = DOT1X_PATHS[pathId]
+  const steps = path.steps
+  const [markerLeft, setMarkerLeft] = useState(ROLE_X[steps[0].from])
   const [transitioning, setTransitioning] = useState(false)
   const rafRef = useRef<number[]>([])
 
-  const step = DOT1X_STEPS[idx]
-  const atEnd = idx === DOT1X_STEPS.length - 1
-  const authorized = isPortAuthorized(maxReached)
-  const done = isAccessAccepted(maxReached)
+  const step = steps[idx]
+  const atEnd = idx === steps.length - 1
+  const finished = maxReached >= steps.length - 1
+  const authorized = isPortAuthorized(maxReached, pathId)
+  const done = decidedPaths.has('eap-tls') && decidedPaths.size >= 2
 
   useEffect(() => setMaxReached((m) => Math.max(m, idx)), [idx])
+  useEffect(() => {
+    if (isDecided(maxReached, pathId)) setDecidedPaths((prev) => (prev.has(pathId) ? prev : new Set(prev).add(pathId)))
+  }, [maxReached, pathId])
+
+  const pickPath = (id: Dot1xPathId) => { setPlaying(false); setPathId(id); setIdx(0); setMaxReached(0) }
 
   // Marker entlang der Spur bewegen: instant zur Quelle springen, dann (ohne
   // reduced motion) im nächsten Frame per CSS-Transition zum Ziel gleiten.
@@ -104,7 +134,7 @@ export function Dot1xFlow({ lang }: { lang: Lang }) {
     rafRef.current.push(raf1)
     return () => rafRef.current.forEach(cancelAnimationFrame)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [idx, reducedMotion])
+  }, [idx, pathId, reducedMotion])
 
   // Autoplay: schreitet Schritt für Schritt fort, bis der letzte Schritt
   // erreicht ist.
@@ -112,11 +142,11 @@ export function Dot1xFlow({ lang }: { lang: Lang }) {
     if (!playing) return undefined
     if (atEnd) { setPlaying(false); return undefined }
     const delay = reducedMotion ? PLAY_DELAY_REDUCED_MS : PLAY_DELAY_MS
-    const timer = setTimeout(() => setIdx((i) => Math.min(i + 1, DOT1X_STEPS.length - 1)), delay)
+    const timer = setTimeout(() => setIdx((i) => Math.min(i + 1, steps.length - 1)), delay)
     return () => clearTimeout(timer)
-  }, [playing, idx, atEnd, reducedMotion])
+  }, [playing, idx, atEnd, reducedMotion, steps.length])
 
-  const goNext = () => { setPlaying(false); setIdx((i) => Math.min(i + 1, DOT1X_STEPS.length - 1)) }
+  const goNext = () => { setPlaying(false); setIdx((i) => Math.min(i + 1, steps.length - 1)) }
   const goPrev = () => { setPlaying(false); setIdx((i) => Math.max(i - 1, 0)) }
   const restart = () => { setPlaying(false); setIdx(0) }
   const togglePlay = () => { if (atEnd) setIdx(0); setPlaying((p) => !p) }
@@ -130,6 +160,25 @@ export function Dot1xFlow({ lang }: { lang: Lang }) {
     <div className="rounded-2xl border bg-white p-5">
       <p className="text-sm font-semibold text-slate-700 mb-1">{s.title}</p>
       <p className="text-xs text-slate-500 mb-4">{s.subtitle}</p>
+
+      <fieldset className="mb-4">
+        <legend className="text-xs font-semibold text-slate-500 mb-1">{s.pathLabel}</legend>
+        <div className="flex flex-wrap gap-2">
+          {DOT1X_PATH_IDS.map((id) => (
+            <button
+              key={id}
+              type="button"
+              aria-pressed={pathId === id}
+              onClick={() => pickPath(id)}
+              className={`rounded-lg border px-3 py-1.5 text-xs font-medium ${
+                pathId === id ? 'border-teal-600 bg-teal-50/60 text-teal-800' : 'border-slate-200 text-slate-600 hover:bg-slate-50'
+              }`}
+            >
+              {DOT1X_PATHS[id].label[lang]}
+            </button>
+          ))}
+        </div>
+      </fieldset>
 
       <div className="grid grid-cols-3 gap-2 mb-1">
         {(['supplicant', 'authenticator', 'server'] as Dot1xRole[]).map((role) => (
@@ -150,9 +199,7 @@ export function Dot1xFlow({ lang }: { lang: Lang }) {
       <div className="relative h-8 mb-3" aria-hidden="true">
         <div className="absolute left-[12%] right-[12%] top-1/2 h-px bg-slate-200" />
         <div
-          className={`absolute top-1/2 -translate-y-1/2 -translate-x-1/2 rounded-full px-2 py-1 text-[10px] font-semibold whitespace-nowrap shadow ${
-            step.layer === 'eapol' ? 'bg-teal-600 text-white' : 'bg-slate-700 text-white'
-          }`}
+          className={`absolute top-1/2 -translate-y-1/2 -translate-x-1/2 rounded-full px-2 py-1 text-[10px] font-semibold whitespace-nowrap shadow ${LAYER_MARKER[step.layer]}`}
           style={{
             left: `${markerLeft}%`,
             transition: transitioning ? 'left 650ms ease-in-out' : 'none',
@@ -163,17 +210,15 @@ export function Dot1xFlow({ lang }: { lang: Lang }) {
       </div>
 
       <p className="text-xs text-slate-500 mb-2">
-        {s.step} {idx + 1} {s.of} {DOT1X_STEPS.length}
-        <span className={`ml-3 rounded px-2 py-0.5 font-medium ${
-          step.layer === 'eapol' ? 'bg-teal-100 text-teal-800' : 'bg-slate-100 text-slate-700'
-        }`}>
-          {step.layer === 'eapol' ? s.eapol : s.radius}
+        {s.step} {idx + 1} {s.of} {steps.length}
+        <span className={`ml-3 rounded px-2 py-0.5 font-medium ${LAYER_BADGE[step.layer]}`}>
+          {s.layers[step.layer]}
         </span>
       </p>
 
       <div className="rounded-lg border-2 border-teal-300 bg-teal-50/60 p-3 mb-3" aria-live="polite">
         <p className="text-xs font-semibold text-slate-600 mb-1">
-          {roleLabel(step.from)} → {roleLabel(step.to)}
+          {step.from === step.to ? roleLabel(step.from) : `${roleLabel(step.from)} → ${roleLabel(step.to)}`}
         </p>
         <p className="font-mono text-sm text-slate-800 mb-1">{step.name}</p>
         <p className="text-xs text-slate-600">{step.detail[lang]}</p>
@@ -214,12 +259,19 @@ export function Dot1xFlow({ lang }: { lang: Lang }) {
 
       <div
         className={`rounded-lg border p-3 mb-1 text-sm font-medium ${
-          authorized ? 'border-green-200 bg-green-50 text-green-800' : 'border-slate-200 bg-slate-50 text-slate-500'
+          !finished ? 'border-slate-200 bg-slate-50 text-slate-500'
+            : !authorized ? 'border-rose-300 bg-rose-50 text-rose-800'
+              : path.result.authenticated ? 'border-green-200 bg-green-50 text-green-800'
+                : 'border-amber-300 bg-amber-50 text-amber-800'
         }`}
         aria-live="polite"
       >
-        {authorized ? s.portAuthorized : s.portUnauthorized}
-        {authorized && <span className="ml-2">· {s.vlanAssigned}: <strong>{finalVlan()}</strong></span>}
+        {!finished ? s.portUnauthorized : authorized ? s.portAuthorized : s.portDenied}
+        {authorized && path.result.vlan && (
+          <span className="ml-2">· {s.vlanAssigned}: <strong>{path.result.vlan[lang]}</strong></span>
+        )}
+        {authorized && !path.result.authenticated && <span className="ml-2">· {s.notAuthenticated}</span>}
+        {finished && <p className="mt-1 text-xs font-normal">{path.result.note[lang]}</p>}
       </div>
 
       <ChallengeBox lang={lang} task={s.challenge} done={done} />

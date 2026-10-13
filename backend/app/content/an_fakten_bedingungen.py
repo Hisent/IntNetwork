@@ -1,5 +1,5 @@
 # Ansible-Lehrgang: Modul 306 - Fakten & Bedingungen (bilingual DE/EN).
-# EN von Fach-Uebersetzung; note/goals bleiben DE (Trainer-Bereich).
+# EN von Fach-Uebersetzung; note bleibt DE (Trainer-Bereich), Lernziele in goals + goals_en.
 
 FAKTEN_BEDINGUNGEN_MODULE = {
  'key': 'fakten-bedingungen',
@@ -12,6 +12,11 @@ FAKTEN_BEDINGUNGEN_MODULE = {
            'when-Bedingungen lesen und ihr Ergebnis (Task läuft oder wird übersprungen) bestimmen',
            'Mehrere Bedingungen mit and, or und in kombinieren',
            'register nutzen, um das Ergebnis eines Tasks in einer Folge-Bedingung auszuwerten'],
+ 'goals_en': ['Explain what facts are and where they come from (gather_facts, setup module)',
+              'Name and place commonly used fact variables',
+              'Read when conditions and determine their result (task runs or is skipped)',
+              'Combine several conditions with and, or and in',
+              'Use register to evaluate a task result in a follow-up condition'],
  'scenario': {'de': 'Dein Team betreut eine gemischte Serverflotte: ein Teil läuft auf Debian- '
                     'oder Ubuntu-Systemen, ein Teil auf RHEL oder CentOS. Ein einziges Playbook '
                     'soll beide Welten bedienen, ohne dass du zwei getrennte Playbooks pflegst. '
@@ -118,6 +123,66 @@ FAKTEN_BEDINGUNGEN_MODULE = {
                                         'ansible.builtin.stat',
                                         'ansible.builtin.facts',
                                         'ansible.builtin.info']}},
+            {'type': 'diagram',
+             'id': 'diagram-facts-when',
+             'payload': {'kind': 'sequence',
+                         'title_de': 'Erst Fakten, dann Bedingung',
+                         'title_en': 'Facts first, then the condition',
+                         'caption_de': 'Die Bedingung wird je Host auf dem Control Node '
+                                       'ausgewertet.',
+                         'caption_en': 'The condition is evaluated per host on the control node.',
+                         'actors': [{'id': 'cn', 'label': 'Control Node'},
+                                    {'id': 'web', 'label': 'web01 (Ubuntu)'},
+                                    {'id': 'db', 'label': 'db01 (CentOS)'}],
+                         'messages': [{'from': 'cn',
+                                       'to': 'web',
+                                       'label': 'Gathering Facts (setup)',
+                                       'detail_de': 'gather_facts: true lässt vor dem ersten Task '
+                                                    'das Modul ansible.builtin.setup laufen.',
+                                       'detail_en': 'gather_facts: true runs the '
+                                                    'ansible.builtin.setup module before the first '
+                                                    'task.'},
+                                      {'from': 'web',
+                                       'to': 'cn',
+                                       'label': 'os_family: Debian',
+                                       'style': 'reply',
+                                       'detail_de': 'Die Antwort landet auf dem Control Node in '
+                                                    'ansible_facts — getrennt je Host.',
+                                       'detail_en': 'The answer ends up on the control node in '
+                                                    'ansible_facts — separately per host.'},
+                                      {'from': 'cn',
+                                       'to': 'db',
+                                       'label': 'Gathering Facts (setup)'},
+                                      {'from': 'db',
+                                       'to': 'cn',
+                                       'label': 'os_family: RedHat',
+                                       'style': 'reply'},
+                                      {'from': 'cn',
+                                       'to': 'cn',
+                                       'label': 'when: os_family == "Debian"',
+                                       'detail_de': 'Vor jedem Task prüft der Control Node die '
+                                                    'Bedingung mit den Facts des jeweiligen Hosts.',
+                                       'detail_en': 'Before each task the control node checks the '
+                                                    'condition with the facts of the respective '
+                                                    'host.'},
+                                      {'from': 'cn',
+                                       'to': 'web',
+                                       'label': 'Task: apt update_cache',
+                                       'detail_de': 'Bedingung wahr: Das Modul wird übertragen und '
+                                                    'ausgeführt.',
+                                       'detail_en': 'Condition true: the module is transferred and '
+                                                    'executed.'},
+                                      {'from': 'web',
+                                       'to': 'cn',
+                                       'label': 'changed',
+                                       'style': 'reply'},
+                                      {'from': 'cn',
+                                       'to': 'cn',
+                                       'label': 'db01: skipping',
+                                       'detail_de': 'Bedingung falsch: Zu db01 geht für diesen '
+                                                    'Task gar nichts — er zählt als skipped.',
+                                       'detail_en': 'Condition false: nothing at all is sent to '
+                                                    'db01 for this task — it counts as skipped.'}]}},
             {'type': 'text', 'id': 'text-3',
              'value': {'de': '## Bedingungen mit when\n'
                              '\n'
@@ -265,6 +330,57 @@ FAKTEN_BEDINGUNGEN_MODULE = {
                              'plain status check is not wrongly reported as "changed" or '
                              '"failed" — more on that in the "Error Handling & Idempotency" '
                              'module.'}},
+            {'type': 'cloze',
+             'id': 'cloze-when-register',
+             'payload': {'prompt_de': 'Die Konfigurationsdatei soll nur auf Debian-artigen Hosts '
+                                      'angelegt werden, und nur wenn sie noch fehlt. Ergänze die '
+                                      'Lücken.',
+                         'prompt_en': 'The configuration file should only be created on '
+                                      'Debian-like hosts, and only if it is still missing. Fill '
+                                      'the gaps.',
+                         'mono': True,
+                         'text_de': '- name: Prüfen, ob die Datei existiert\n'
+                                    '  ansible.builtin.stat:\n'
+                                    '    path: /etc/app/config.yml\n'
+                                    '  [[register]]: konfig\n'
+                                    '\n'
+                                    '- name: Datei anlegen\n'
+                                    '  ansible.builtin.copy:\n'
+                                    '    src: config.yml\n'
+                                    '    dest: /etc/app/config.yml\n'
+                                    '    mode: "0644"\n'
+                                    '  [[when]]:\n'
+                                    '    - ansible_facts["[[fact]]"] == "Debian"\n'
+                                    '    - not konfig.stat.[[exists]]',
+                         'text_en': '- name: Check whether the file exists\n'
+                                    '  ansible.builtin.stat:\n'
+                                    '    path: /etc/app/config.yml\n'
+                                    '  [[register]]: konfig\n'
+                                    '\n'
+                                    '- name: Create the file\n'
+                                    '  ansible.builtin.copy:\n'
+                                    '    src: config.yml\n'
+                                    '    dest: /etc/app/config.yml\n'
+                                    '    mode: "0644"\n'
+                                    '  [[when]]:\n'
+                                    '    - ansible_facts["[[fact]]"] == "Debian"\n'
+                                    '    - not konfig.stat.[[exists]]',
+                         'gaps': [{'id': 'register', 'accept': ['register']},
+                                  {'id': 'when', 'accept': ['when']},
+                                  {'id': 'fact',
+                                   'options': ['os_family', 'distribution', 'hostname'],
+                                   'answer': 0},
+                                  {'id': 'exists', 'accept': ['exists']}],
+                         'explanation_de': 'register speichert das Ergebnis von stat; '
+                                           'konfig.stat.exists ist danach true oder false. Die '
+                                           'Liste unter when ist ein UND. os_family fasst Debian '
+                                           'und Ubuntu zusammen — distribution wäre bei Ubuntu '
+                                           '„Ubuntu“ und die Bedingung damit falsch.',
+                         'explanation_en': 'register stores the result of stat; konfig.stat.exists '
+                                           'is then true or false. The list under when is an AND. '
+                                           'os_family groups Debian and Ubuntu — distribution '
+                                           'would be "Ubuntu" on Ubuntu, making the condition '
+                                           'false.'}},
             {'type': 'text', 'id': 'text-5',
              'value': {'de': '## Ausblick: failed_when und changed_when\n'
                              '\n'
@@ -307,6 +423,40 @@ FAKTEN_BEDINGUNGEN_MODULE = {
                        'en': 'On **web01, web02, and db02**. Ubuntu and Debian both belong to '
                              'the fact family `Debian` (`ansible_facts.os_family`). Only **db01** '
                              '(CentOS, family `RedHat`) is skipped.'}},
+            {'type': 'text',
+             'id': 'text-lab-fakten',
+             'value': {'de': '## Praxis: Fakten und when im Lab\n'
+                             '\n'
+                             'Im Lab-Widget unten ist die Vorlage **Fakten & when** vorgewählt. '
+                             'Sie zeigt drei Facts des Lab-Hosts an, enthält je einen Task für '
+                             'Debian- und RedHat-artige Systeme und wertet am Ende ein '
+                             '`register`-Ergebnis zusammen mit einem Fact aus. Lass sie laufen und '
+                             'lies in der Ausgabe ab, welcher Task `skipping` meldet. Setze danach '
+                             'im Feld „Extra-Vars“ `min_ram_mb=99999999` und starte erneut — der '
+                             'letzte Task muss jetzt ebenfalls übersprungen werden. Achte im '
+                             'Playbook auf `| int`: Extra-Vars der Form `schlüssel=wert` kommen '
+                             'als Text an.\n'
+                             '\n'
+                             'Ist das Lab bei euch nicht aktiv, sage anhand des Playbook-Texts '
+                             'vorher, welche Tasks auf einem Debian-System laufen und welche '
+                             'übersprungen werden.',
+                       'en': '## Hands-on: facts and when in the lab\n'
+                             '\n'
+                             'In the lab widget below the **Facts & when** template is '
+                             'preselected. It shows three facts of the lab host, contains one task '
+                             'each for Debian-like and RedHat-like systems, and finally evaluates '
+                             'a `register` result together with a fact. Run it and read from the '
+                             'output which task reports `skipping`. Then enter '
+                             '`min_ram_mb=99999999` in the "Extra vars" field and run again — the '
+                             'last task must now be skipped as well. Note the `| int` in the '
+                             'playbook: extra vars of the form `key=value` arrive as text.\n'
+                             '\n'
+                             'If the lab is not enabled for you, predict from the playbook text '
+                             'which tasks run on a Debian system and which are skipped.'}},
+            {'type': 'widget',
+             'id': 'ansible-lab',
+             'note': 'Der Lab-Container ist ein Debian: Der RedHat-Task wird übersprungen, alle '
+                     'anderen laufen. Die Vorlage „Fakten & when“ ist in diesem Modul vorgewählt.'},
             {'type': 'reflect', 'id': 'reflect-1',
              'payload': {'prompt_de': 'Denk an ein Playbook, das du kennst oder dir vorstellen '
                                       'kannst: Welche `when`-Bedingung würde verhindern, dass ein '
@@ -316,11 +466,25 @@ FAKTEN_BEDINGUNGEN_MODULE = {
                                       '`when` condition would prevent a risky task from running '
                                       'on the wrong host type? Put it into your own words.'}}],
  'quiz': {'questions': [{'id': 'fb1',
+                         'explanation': {'de': 'Fakten sammelt immer das Modul '
+                                               '`ansible.builtin.setup` — automatisch bei '
+                                               '`gather_facts: true` oder von Hand als Task. '
+                                               '`stat` liefert nur Informationen zu einer '
+                                               'einzelnen Datei; Module namens `facts` oder `info` '
+                                               'gibt es in `ansible.builtin` nicht.',
+                                         'en': 'Facts are always collected by the '
+                                               '`ansible.builtin.setup` module — automatically '
+                                               'with `gather_facts: true` or manually as a task. '
+                                               '`stat` only returns information about a single '
+                                               'file; modules called `facts` or `info` do not '
+                                               'exist in `ansible.builtin`.'},
                          'type': 'single',
-                         'prompt': {'de': 'Welches Modul führt Ansible standardmäßig aus, um '
-                                          'Facts zu sammeln?',
-                                    'en': 'Which module does Ansible run by default to collect '
-                                          'facts?'},
+                         'prompt': {'de': 'Ein Play läuft mit `gather_facts: false`. Ein späterer '
+                                          'Task braucht trotzdem `ansible_facts`. Welches Modul '
+                                          'rufst du dafür vorher als eigenen Task auf?',
+                                    'en': 'A play runs with `gather_facts: false`. A later task '
+                                          'still needs `ansible_facts`. Which module do you call '
+                                          'as a task of its own beforehand?'},
                          'answer': 0,
                          'options': {'de': ['ansible.builtin.setup',
                                             'ansible.builtin.stat',
@@ -331,6 +495,14 @@ FAKTEN_BEDINGUNGEN_MODULE = {
                                             'ansible.builtin.facts',
                                             'ansible.builtin.info']}},
                         {'id': 'fb2',
+                         'explanation': {'de': '`gather_facts` ist das Play-Keyword für das '
+                                               'automatische Sammeln. `become` regelt Rechte, '
+                                               '`strategy` und `serial` die Abarbeitung über Hosts '
+                                               '— mit Fakten haben sie nichts zu tun.',
+                                         'en': '`gather_facts` is the play keyword for automatic '
+                                               'gathering. `become` governs privileges, `strategy` '
+                                               'and `serial` the processing across hosts — they '
+                                               'have nothing to do with facts.'},
                          'type': 'single',
                          'prompt': {'de': 'Womit steuerst du auf Play-Ebene, ob Facts überhaupt '
                                           'gesammelt werden?',
@@ -346,6 +518,14 @@ FAKTEN_BEDINGUNGEN_MODULE = {
                                             'strategy: linear/free',
                                             'serial: 1']}},
                         {'id': 'fb3',
+                         'explanation': {'de': '`os_family` fasst verwandte Distributionen '
+                                               'zusammen (Ubuntu und Debian → `Debian`). '
+                                               '`distribution` wäre zu genau: Ein Vergleich mit '
+                                               '`"Debian"` träfe Ubuntu-Hosts dann nicht.',
+                                         'en': '`os_family` groups related distributions (Ubuntu '
+                                               'and Debian → `Debian`). `distribution` would be '
+                                               'too precise: a comparison with `"Debian"` would '
+                                               'then miss Ubuntu hosts.'},
                          'type': 'single',
                          'prompt': {'de': 'Welche Fact-Variable liefert die grobe '
                                           'Betriebssystemfamilie (z. B. Debian oder RedHat)?',
@@ -361,6 +541,13 @@ FAKTEN_BEDINGUNGEN_MODULE = {
                                             'ansible_facts.hostname',
                                             'ansible_facts.kernel']}},
                         {'id': 'fb4',
+                         'explanation': {'de': 'Eine YAML-Liste unter `when` ist ein implizites '
+                                               'UND: Der Task läuft nur, wenn alle Einträge wahr '
+                                               'sind. Für ein ODER schreibt man einen einzigen '
+                                               'Ausdruck mit `or`.',
+                                         'en': 'A YAML list under `when` is an implicit AND: the '
+                                               'task runs only if all entries are true. For an OR '
+                                               'you write a single expression with `or`.'},
                          'type': 'single',
                          'prompt': {'de': 'Ein `when` ist als YAML-Liste mit drei Einträgen '
                                           'geschrieben. Wie werden die drei Bedingungen '
@@ -377,6 +564,15 @@ FAKTEN_BEDINGUNGEN_MODULE = {
                                             'Randomly — Ansible picks one',
                                             'Only the first condition counts']}},
                         {'id': 'fb5',
+                         'explanation': {'de': '`register` legt das Ergebnis eines Tasks (rc, '
+                                               'stdout, changed, …) in einer Variablen ab, die '
+                                               'spätere Tasks auswerten können. Einen Handler löst '
+                                               'nur `notify` aus, und mit dem Sammeln von Facts '
+                                               'hat `register` nichts zu tun.',
+                                         'en': "`register` stores a task's result (rc, stdout, "
+                                               'changed, …) in a variable that later tasks can '
+                                               'evaluate. Only `notify` triggers a handler, and '
+                                               '`register` has nothing to do with fact gathering.'},
                          'type': 'single',
                          'prompt': {'de': 'Wozu dient `register` in Kombination mit einer '
                                           'späteren `when`-Bedingung?',
@@ -392,4 +588,140 @@ FAKTEN_BEDINGUNGEN_MODULE = {
                                             'following condition',
                                             'To permanently disable fact gathering',
                                             'To encrypt variable values',
-                                            'To trigger a handler']}}]}}
+                                            'To trigger a handler']}},
+                        {'id': 'fb6',
+                         'type': 'single',
+                         'prompt': {'de': 'web01 ist ein Ubuntu-Server mit genau 2048 MB RAM. '
+                                          'Welchen Status meldet dieser Task dort?\n'
+                                          '\n'
+                                          '```yaml\n'
+                                          '- name: Agent installieren\n'
+                                          '  ansible.builtin.package:\n'
+                                          '    name: monitoring-agent\n'
+                                          '    state: present\n'
+                                          '  when:\n'
+                                          '    - ansible_facts[\'os_family\'] == "Debian"\n'
+                                          "    - ansible_facts['memtotal_mb'] > 2048\n"
+                                          '```',
+                                    'en': 'web01 is an Ubuntu server with exactly 2048 MB of RAM. '
+                                          'Which status does this task report there?\n'
+                                          '\n'
+                                          '```yaml\n'
+                                          '- name: Agent installieren\n'
+                                          '  ansible.builtin.package:\n'
+                                          '    name: monitoring-agent\n'
+                                          '    state: present\n'
+                                          '  when:\n'
+                                          '    - ansible_facts[\'os_family\'] == "Debian"\n'
+                                          "    - ansible_facts['memtotal_mb'] > 2048\n"
+                                          '```'},
+                         'answer': 2,
+                         'options': {'de': ['changed', 'ok', 'skipped', 'failed'],
+                                     'en': ['changed', 'ok', 'skipped', 'failed']},
+                         'explanation': {'de': 'Beide Einträge müssen wahr sein. Der erste stimmt '
+                                               '(Ubuntu gehört zur Familie Debian), der zweite '
+                                               'nicht: 2048 ist nicht größer als 2048. Damit ist '
+                                               'das UND falsch und der Task wird übersprungen — '
+                                               'gemeint war vermutlich `>=`.',
+                                         'en': 'Both entries must be true. The first holds (Ubuntu '
+                                               'belongs to the Debian family), the second does '
+                                               'not: 2048 is not greater than 2048. So the AND is '
+                                               'false and the task is skipped — `>=` was probably '
+                                               'intended.'}},
+                        {'id': 'fb7',
+                         'type': 'single',
+                         'prompt': {'de': 'Der zweite Task bricht auf RedHat-Hosts mit „object of '
+                                          "type 'dict' has no attribute 'rc'“ ab. Warum?\n"
+                                          '\n'
+                                          '```yaml\n'
+                                          '- name: Status prüfen\n'
+                                          '  ansible.builtin.command: systemctl is-active apache2\n'
+                                          '  register: status\n'
+                                          '  changed_when: false\n'
+                                          '  failed_when: false\n'
+                                          '  when: ansible_facts[\'os_family\'] == "Debian"\n'
+                                          '\n'
+                                          '- name: Melden\n'
+                                          '  ansible.builtin.debug:\n'
+                                          '    msg: apache2 läuft nicht\n'
+                                          '  when: status.rc != 0\n'
+                                          '```',
+                                    'en': 'On RedHat hosts the second task aborts with "object of '
+                                          'type \'dict\' has no attribute \'rc\'". Why?\n'
+                                          '\n'
+                                          '```yaml\n'
+                                          '- name: Status prüfen\n'
+                                          '  ansible.builtin.command: systemctl is-active apache2\n'
+                                          '  register: status\n'
+                                          '  changed_when: false\n'
+                                          '  failed_when: false\n'
+                                          '  when: ansible_facts[\'os_family\'] == "Debian"\n'
+                                          '\n'
+                                          '- name: Melden\n'
+                                          '  ansible.builtin.debug:\n'
+                                          '    msg: apache2 läuft nicht\n'
+                                          '  when: status.rc != 0\n'
+                                          '```'},
+                         'answer': 1,
+                         'options': {'de': ['`register` funktioniert nicht zusammen mit `when`',
+                                            'Der erste Task wurde übersprungen: `status` '
+                                            'existiert, enthält aber kein `rc`',
+                                            '`failed_when: false` löscht den Rückgabecode',
+                                            'Auf RedHat heißt das Feld `returncode`'],
+                                     'en': ['`register` does not work together with `when`',
+                                            'The first task was skipped: `status` exists but '
+                                            'contains no `rc`',
+                                            '`failed_when: false` deletes the return code',
+                                            'On RedHat the field is called `returncode`']},
+                         'explanation': {'de': 'Auch ein übersprungener Task füllt seine '
+                                               '`register`-Variable — aber nur mit `skipped: '
+                                               'true`, `changed: false` und dem Grund; `rc` gibt '
+                                               'es nicht, weil kein Befehl lief (real '
+                                               'nachgestellt). Abhilfe: dieselbe Bedingung am '
+                                               'zweiten Task oder `when: status is not skipped and '
+                                               'status.rc != 0`.',
+                                         'en': 'A skipped task fills its `register` variable too — '
+                                               'but only with `skipped: true`, `changed: false` '
+                                               'and the reason; there is no `rc` because no '
+                                               'command ran (reproduced for real). Fix: the same '
+                                               'condition on the second task, or `when: status is '
+                                               'not skipped and status.rc != 0`.'}},
+                        {'id': 'fb8',
+                         'type': 'single',
+                         'prompt': {'de': 'Auf einem Rocky Linux 9 liefert '
+                                          "`ansible_facts['distribution_major_version']` den Wert "
+                                          '`"9"`. Der Task mit `when: '
+                                          "ansible_facts['distribution_major_version'] == 9` wird "
+                                          'trotzdem übersprungen. Was ist die Ursache?',
+                                    'en': 'On Rocky Linux 9 '
+                                          "`ansible_facts['distribution_major_version']` returns "
+                                          'the value `"9"`. The task with `when: '
+                                          "ansible_facts['distribution_major_version'] == 9` is "
+                                          'skipped anyway. What is the cause?'},
+                         'answer': 0,
+                         'options': {'de': ['Der Fact ist ein String; `"9" == 9` ist falsch — '
+                                            'nötig ist `| int` oder der Vergleich mit `"9"`',
+                                            '`when` darf keine Facts in eckigen Klammern verwenden',
+                                            'Rocky Linux meldet seine Version erst nach einem '
+                                            'zweiten Lauf',
+                                            '`==` vergleicht in Jinja2 nur Zeichenketten gleicher '
+                                            'Länge'],
+                                     'en': ['The fact is a string; `"9" == 9` is false — you need '
+                                            '`| int` or the comparison with `"9"`',
+                                            '`when` must not use facts in square brackets',
+                                            'Rocky Linux reports its version only after a second '
+                                            'run',
+                                            '`==` in Jinja2 only compares strings of equal '
+                                            'length']},
+                         'explanation': {'de': 'Versions-Facts sind Text. Jinja2 wandelt beim '
+                                               'Vergleich nichts um: `"9" == 9` ist schlicht '
+                                               'falsch, der Task wird still übersprungen — ohne '
+                                               'Fehlermeldung, was die Suche erschwert. '
+                                               "`ansible_facts['distribution_major_version'] | int "
+                                               '== 9` löst es.',
+                                         'en': 'Version facts are text. Jinja2 converts nothing '
+                                               'when comparing: `"9" == 9` is simply false, and '
+                                               'the task is silently skipped — without an error, '
+                                               'which makes it hard to find. '
+                                               "`ansible_facts['distribution_major_version'] | int "
+                                               '== 9` solves it.'}}]}}

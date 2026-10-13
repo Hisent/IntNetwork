@@ -1,6 +1,6 @@
-# Ansible-Lehrgang, Modul 5/5: Variablen & ihr Vorrang.
-# Quelle der Fakten: research-ansible.md (Abschnitt 1, Modul 5; Abschnitt 2.3 Variablenvorrang;
-# Abschnitt 3). Die 22-Stufen-Liste steht in der offiziellen Doku (playbook_guide/
+# Ansible-Lehrgang, Modul 305 (5 von 15): Variablen & ihr Vorrang.
+# Fakten gegen docs.ansible.com geprüft, Vorrang-Beispiele mit ansible-core 2.21 real ausgeführt.
+# Die 22-Stufen-Liste steht in der offiziellen Doku (playbook_guide/
 # playbooks_variables.html, "Understanding variable precedence"); das Modul nennt die Eckpunkte
 # und die wichtigsten Zwischenstufen, nicht alle 22.
 
@@ -15,6 +15,11 @@ VARIABLEN_MODULE = {
               'Die grobe Vorrangregel „spezifischer/expliziter schlägt allgemeiner” anwenden',
               'Bei einem einfachen Konfliktbeispiel den wirksamen Wert bestimmen',
               'Jinja2-Variablenreferenzen korrekt lesen'],
+    'goals_en': ['Name variable sources (inventory, vars, vars_files, role defaults, extra vars, '
+                 '…)',
+                 'Apply the rough precedence rule "more specific/explicit beats more general"',
+                 'Determine the effective value in a simple conflict example',
+                 'Read Jinja2 variable references correctly'],
     'scenario': {'de': 'Eine Variable lässt sich in Ansible an sehr vielen Stellen setzen — im '
                        'Inventar, im Playbook, in einer Rolle, sogar direkt beim Aufruf auf der '
                        'Kommandozeile. Wenn mehrere dieser Quellen sich widersprechen, gewinnt '
@@ -114,6 +119,67 @@ VARIABLEN_MODULE = {
          'note': 'Vollständige 22-Stufen-Liste: playbook_guide/playbooks_variables.html '
                  '(„Understanding variable precedence”); die fünf Kategorien stehen in '
                  'reference_appendices/general_precedence.html. Bei Detailfragen live zeigen.'},
+        {'type': 'diagram',
+         'id': 'diagram-vorrang',
+         'note': 'Verdichtung der 22 Stufen aus „Understanding variable precedence“ auf acht; '
+                 'Reihenfolge unverändert. Oben gewinnt. Die Schichten anklicken für das jeweilige '
+                 'Beispiel.',
+         'payload': {'kind': 'layers',
+                     'title_de': 'Variablen-Vorrang: oben gewinnt',
+                     'title_en': 'Variable precedence: top wins',
+                     'caption_de': 'Acht der 22 Stufen — die, denen man im Alltag begegnet.',
+                     'caption_en': 'Eight of the 22 levels — the ones you meet day to day.',
+                     'layers': [{'name': 'Extra-Vars',
+                                 'content': '-e / --extra-vars',
+                                 'pdu_de': 'stärkste',
+                                 'pdu_en': 'strongest',
+                                 'detail_de': 'Schlagen alles andere — auch set_fact. Gut für '
+                                              'einmalige Übersteuerung, schlecht als Dauerlösung.',
+                                 'detail_en': 'Beat everything else — even set_fact. Good for a '
+                                              'one-off override, bad as a permanent solution.'},
+                                {'name': 'set_fact / register',
+                                 'content_de': 'zur Laufzeit gesetzt',
+                                 'content_en': 'set at runtime',
+                                 'detail_de': 'Gilt für den Host ab dem Task, der sie setzt, bis '
+                                              'zum Ende des Laufs.',
+                                 'detail_en': 'Applies to the host from the task that sets it '
+                                              'until the end of the run.'},
+                                {'name_de': 'Task- und Block-vars',
+                                 'name_en': 'Task and block vars',
+                                 'content_de': 'vars: am Task/Block', 'content_en': 'vars: on the task/block',
+                                 'detail_de': 'Gilt nur für diesen Task bzw. Block.',
+                                 'detail_en': 'Applies only to this task or block.'},
+                                {'name_de': 'Rollen-vars',
+                                 'name_en': 'Role vars',
+                                 'content': 'roles/x/vars/main.yml',
+                                 'detail_de': 'Bewusst stark: schlagen Play-vars und Inventar. '
+                                              'Deshalb nur für rollen-interne Werte.',
+                                 'detail_en': 'Deliberately strong: beat play vars and inventory. '
+                                              'So only for role-internal values.'},
+                                {'name': 'vars_files',
+                                 'content_de': 'im Play eingebundene Dateien',
+                                 'content_en': 'files included in the play'},
+                                {'name_de': 'Play-vars',
+                                 'name_en': 'Play vars',
+                                 'content_de': 'vars: im Play', 'content_en': 'vars: in the play',
+                                 'detail_de': 'Schlagen das Inventar: „Playbook schlägt Inventar“.',
+                                 'detail_en': 'Beat the inventory: "playbook beats inventory".'},
+                                {'name_de': 'Inventar',
+                                 'name_en': 'Inventory',
+                                 'content': 'host_vars > group_vars > group_vars/all',
+                                 'detail_de': 'Innerhalb des Inventars gewinnt das Speziellere: '
+                                              'Host vor Gruppe vor all.',
+                                 'detail_en': 'Within the inventory the more specific wins: host '
+                                              'over group over all.'},
+                                {'name_de': 'Rollen-Defaults',
+                                 'name_en': 'Role defaults',
+                                 'content': 'roles/x/defaults/main.yml',
+                                 'pdu_de': 'schwächste',
+                                 'pdu_en': 'weakest',
+                                 'detail_de': 'Der Startwert, den jede andere Quelle überschreiben '
+                                              'darf.',
+                                 'detail_en': 'The starting value that any other source may '
+                                              'override.'}]}},
         {'type': 'check', 'id': 'check-1',
          'payload': {'kind': 'choice',
                      'prompt_de': 'Für einen Host ist `paket_name: nginx` als Rollen-Default '
@@ -291,6 +357,82 @@ VARIABLEN_MODULE = {
                          'anywhere. Where `http_port` ultimately comes from — inventory, '
                          'group_vars, a role default, or extra-vars — is decided by exactly the '
                          'same precedence rule as in a regular task; templates are no exception.'}},
+        {'type': 'scenario',
+         'id': 'scenario-wirkt-nicht',
+         'payload': {'title_de': '„Meine Änderung wirkt nicht“',
+                     'title_en': '"My change has no effect"',
+                     'start': 'start',
+                     'nodes': [{'id': 'start',
+                                'text_de': 'Du setzt http_port: 8080 in group_vars/webservers.yml. '
+                                           'Nach dem Lauf lauscht nginx weiter auf 443. Die Rolle '
+                                           'webserver wird im Play verwendet. Was tust du zuerst?',
+                                'text_en': 'You set http_port: 8080 in group_vars/webservers.yml. '
+                                           'After the run nginx still listens on 443. The '
+                                           'webserver role is used in the play. What do you do '
+                                           'first?',
+                                'options': [{'label_de': 'Den Wert zusätzlich in '
+                                                         'group_vars/all.yml eintragen',
+                                             'label_en': 'Also enter the value in '
+                                                         'group_vars/all.yml',
+                                             'to': 'all'},
+                                            {'label_de': 'Nachsehen, wo http_port noch gesetzt '
+                                                         'wird (grep im Projekt)',
+                                             'label_en': 'Check where else http_port is set (grep '
+                                                         'the project)',
+                                             'to': 'grep'},
+                                            {'label_de': 'Den Lauf mit -e http_port=8080 '
+                                                         'wiederholen',
+                                             'label_en': 'Repeat the run with -e http_port=8080',
+                                             'to': 'extra'}]},
+                               {'id': 'all',
+                                'outcome': 'bad',
+                                'text_de': 'group_vars/all ist noch schwächer als '
+                                           'group_vars/webservers. Eine zweite schwache Quelle '
+                                           'ändert nichts daran, dass eine stärkere gewinnt.',
+                                'text_en': 'group_vars/all is even weaker than '
+                                           'group_vars/webservers. A second weak source does not '
+                                           'change the fact that a stronger one wins.'},
+                               {'id': 'extra',
+                                'outcome': 'ok',
+                                'text_de': 'Es wirkt — Extra-Vars schlagen alles. Aber die Ursache '
+                                           'bleibt, und beim nächsten Lauf ohne -e steht wieder '
+                                           '443 da. Als Diagnose brauchbar, als Lösung nicht.',
+                                'text_en': 'It works — extra vars beat everything. But the cause '
+                                           'remains, and the next run without -e shows 443 again. '
+                                           'Useful as a diagnosis, not as a solution.'},
+                               {'id': 'grep',
+                                'text_de': 'Treffer: roles/webserver/vars/main.yml enthält '
+                                           'http_port: 443. Rollen-vars schlagen das Inventar. Wie '
+                                           'löst du es sauber?',
+                                'text_en': 'Hit: roles/webserver/vars/main.yml contains http_port: '
+                                           '443. Role vars beat the inventory. How do you solve it '
+                                           'cleanly?',
+                                'options': [{'label_de': 'Den Wert in der Rolle nach '
+                                                         'defaults/main.yml verschieben',
+                                             'label_en': 'Move the value inside the role to '
+                                                         'defaults/main.yml',
+                                             'to': 'defaults'},
+                                            {'label_de': 'In group_vars zusätzlich set_fact '
+                                                         'verwenden',
+                                             'label_en': 'Additionally use set_fact in group_vars',
+                                             'to': 'setfact'}]},
+                               {'id': 'defaults',
+                                'outcome': 'good',
+                                'text_de': 'Richtig: Ein Wert, den Nutzer der Rolle anpassen '
+                                           'sollen, gehört in die Defaults — die schwächste '
+                                           'Quelle. Danach gewinnt group_vars wie erwartet.',
+                                'text_en': 'Right: a value that users of the role should adjust '
+                                           'belongs in the defaults — the weakest source. After '
+                                           'that group_vars wins as expected.'},
+                               {'id': 'setfact',
+                                'outcome': 'bad',
+                                'text_de': 'set_fact ist ein Modul und läuft als Task, nicht in '
+                                           'einer Variablendatei. Und es würde den Konflikt nur '
+                                           'mit noch mehr Gewicht überdecken, statt ihn '
+                                           'aufzulösen.',
+                                'text_en': 'set_fact is a module and runs as a task, not in a '
+                                           'variables file. And it would only cover the conflict '
+                                           'with even more weight instead of resolving it.'}]}},
         {'type': 'order', 'id': 'order-1',
          'payload': {'prompt_de': 'Die fünf großen, offiziell belegten Kategorien — von '
                                   'niedrigster zu höchster Priorität:',
@@ -312,6 +454,12 @@ VARIABLEN_MODULE = {
     ],
     'quiz': {'questions': [
         {'id': 'va1',
+         'explanation': {'de': 'Extra-Vars stehen ganz oben in der Vorrangliste und überschreiben '
+                               'jede andere Quelle. host_vars sind zwar spezifischer als '
+                               'group_vars, liegen aber weit darunter.',
+                         'en': 'Extra vars sit at the very top of the precedence list and override '
+                               'every other source. host_vars are more specific than group_vars, '
+                               'but sit far below.'},
          'type': 'single',
          'prompt': {'de': 'Welche Variablenquelle hat die höchste Priorität?',
                     'en': 'Which variable source has the highest priority?'},
@@ -321,6 +469,13 @@ VARIABLEN_MODULE = {
                      'en': ['Role defaults', 'Extra-vars (-e/--extra-vars)', 'group_vars',
                             'host_vars']}},
         {'id': 'va2',
+         'explanation': {'de': 'Rollen-Defaults sind als überschreibbarer Startwert gedacht und '
+                               'verlieren deshalb gegen alles. Nicht verwechseln mit '
+                               '`vars/main.yml` derselben Rolle — die ist im Gegenteil sehr stark.',
+                         'en': 'Role defaults are meant as an overridable starting value and '
+                               'therefore lose against everything. Do not confuse them with the '
+                               "same role's `vars/main.yml` — that one is, on the contrary, very "
+                               'strong.'},
          'type': 'single',
          'prompt': {'de': 'Welche Variablenquelle hat die niedrigste Priorität?',
                     'en': 'Which variable source has the lowest priority?'},
@@ -330,6 +485,14 @@ VARIABLEN_MODULE = {
                      'en': ['Extra-vars', 'Playbook vars', 'Role defaults (defaults/main.yml)',
                             'Direct Assignment']}},
         {'id': 'va3',
+         'explanation': {'de': 'Die Reihenfolge der fünf Kategorien lautet Configuration settings '
+                               '→ Command-line options → Playbook keywords → Variables → Direct '
+                               'Assignment. Vor den Playbook keywords stehen also die '
+                               'Kommandozeilen-Optionen.',
+                         'en': 'The order of the five categories is configuration settings → '
+                               'command-line options → playbook keywords → variables → direct '
+                               'assignment. So command-line options come right before playbook '
+                               'keywords.'},
          'type': 'single',
          'prompt': {'de': 'In der offiziellen Reihenfolge der fünf großen Kategorien — welche '
                           'steht VOR „Playbook keywords”?',
@@ -341,6 +504,12 @@ VARIABLEN_MODULE = {
                      'en': ['Command-line options', 'Variables', 'Direct Assignment',
                             'None, Playbook keywords comes first']}},
         {'id': 'va4',
+         'explanation': {'de': 'Jinja2 setzt Werte mit doppelten geschweiften Klammern ein. '
+                               '`$variable` ist Shell-Syntax, `%variable%` Windows-Batch — beide '
+                               'blieben in Ansible unverändert als Text stehen.',
+                         'en': 'Jinja2 inserts values with double curly braces. `$variable` is '
+                               'shell syntax, `%variable%` Windows batch — in Ansible both would '
+                               'simply stay as literal text.'},
          'type': 'single',
          'prompt': {'de': 'Wie referenziert man eine Variable korrekt in Jinja2?',
                     'en': 'How is a variable correctly referenced in Jinja2?'},
@@ -348,6 +517,12 @@ VARIABLEN_MODULE = {
          'options': {'de': ['$variable', '{variable}', '{{ variable }}', '%variable%'],
                      'en': ['$variable', '{variable}', '{{ variable }}', '%variable%']}},
         {'id': 'va5',
+         'explanation': {'de': '`register` und `set_fact` entstehen erst, wenn ihr Task läuft. '
+                               '`group_vars` und Rollen-Defaults sind Dateien, die schon vor dem '
+                               'ersten Task eingelesen werden.',
+                         'en': '`register` and `set_fact` only come into existence when their task '
+                               'runs. `group_vars` and role defaults are files that are read '
+                               'before the first task.'},
          'type': 'multi',
          'prompt': {'de': 'Welche zwei Mechanismen erzeugen Variablen erst zur Laufzeit (während '
                           'des Plays), statt vor dem Lauf festzustehen?',
@@ -356,5 +531,87 @@ VARIABLEN_MODULE = {
          'answer': [0, 1],
          'options': {'de': ['register', 'set_fact', 'group_vars/all.yml', 'defaults/main.yml'],
                      'en': ['register', 'set_fact', 'group_vars/all.yml', 'defaults/main.yml']}},
+        {'id': 'va6',
+         'type': 'number',
+         'prompt': {'de': 'Eine Rolle setzt `listen_port: 80` in `defaults/main.yml` und '
+                          '`listen_port: 443` in `vars/main.yml`. Das Play, das die Rolle nutzt, '
+                          'setzt unter `vars:` `listen_port: 8080`. Welchen Wert sieht ein Task '
+                          'der Rolle?',
+                    'en': 'A role sets `listen_port: 80` in `defaults/main.yml` and `listen_port: '
+                          '443` in `vars/main.yml`. The play using the role sets `listen_port: '
+                          '8080` under `vars:`. Which value does a task of the role see?'},
+         'answer': 443,
+         'explanation': {'de': 'Rollen-vars stehen in der Vorrangliste über den Play-vars, also '
+                               '443 — real nachgestellt mit ansible-core 2.21. Die Intuition „das '
+                               'Playbook ist näher dran“ führt zu 8080 und ist genau der Grund, '
+                               'warum rollen-interne Werte in `vars/` und anpassbare in '
+                               '`defaults/` gehören.',
+                         'en': 'Role vars rank above play vars in the precedence list, so 443 — '
+                               'reproduced for real with ansible-core 2.21. The intuition "the '
+                               'playbook is closer" leads to 8080 and is exactly why role-internal '
+                               'values belong in `vars/` and adjustable ones in `defaults/`.'}},
+        {'id': 'va7',
+         'type': 'single',
+         'prompt': {'de': 'Was gibt der letzte Task aus?\n'
+                          '\n'
+                          '```yaml\n'
+                          '- hosts: all\n'
+                          '  vars:\n'
+                          '    farbe: play\n'
+                          '  tasks:\n'
+                          '    - ansible.builtin.set_fact:\n'
+                          '        farbe: fact\n'
+                          '    - ansible.builtin.debug:\n'
+                          '        msg: "{{ farbe }}"\n'
+                          '      vars:\n'
+                          '        farbe: task\n'
+                          '```',
+                    'en': 'What does the last task print?\n'
+                          '\n'
+                          '```yaml\n'
+                          '- hosts: all\n'
+                          '  vars:\n'
+                          '    farbe: play\n'
+                          '  tasks:\n'
+                          '    - ansible.builtin.set_fact:\n'
+                          '        farbe: fact\n'
+                          '    - ansible.builtin.debug:\n'
+                          '        msg: "{{ farbe }}"\n'
+                          '      vars:\n'
+                          '        farbe: task\n'
+                          '```'},
+         'answer': 1,
+         'options': {'de': ['play', 'fact', 'task', 'Einen Fehler wegen doppelter Definition'],
+                     'en': ['play',
+                            'fact',
+                            'task',
+                            'An error because of the duplicate definition']},
+         'explanation': {'de': '`set_fact` steht in der Vorrangliste über den Task-vars, also '
+                               '`fact` — real nachgestellt. Naheliegend wäre `task`, weil die '
+                               'Angabe direkt am Task steht; „näher“ heißt in Ansible aber nicht '
+                               'automatisch „stärker“. Mehrfachdefinitionen sind kein Fehler, es '
+                               'gewinnt schlicht die stärkere Quelle.',
+                         'en': '`set_fact` ranks above task vars in the precedence list, so `fact` '
+                               '— reproduced for real. `task` seems obvious because it is written '
+                               'right at the task; but "closer" does not automatically mean '
+                               '"stronger" in Ansible. Multiple definitions are not an error, the '
+                               'stronger source simply wins.'}},
+        {'id': 'va8',
+         'type': 'single',
+         'prompt': {'de': '`paket` ist nirgends definiert. Was ergibt `"{{ paket | '
+                          'default(\'nginx\') | upper }}"`?',
+                    'en': '`paket` is defined nowhere. What does `"{{ paket | default(\'nginx\') | '
+                          'upper }}"` yield?'},
+         'answer': 2,
+         'options': {'de': ['nginx', 'Einen Fehler: paket ist undefiniert', 'NGINX', 'PAKET'],
+                     'en': ['nginx', 'An error: paket is undefined', 'NGINX', 'PAKET']},
+         'explanation': {'de': 'Filter laufen von links nach rechts: `default` liefert für die '
+                               'undefinierte Variable `nginx`, `upper` macht daraus `NGINX`. Ohne '
+                               '`default` gäbe es tatsächlich einen Fehler — Ansible bricht bei '
+                               'undefinierten Variablen ab, statt leer einzusetzen.',
+                         'en': 'Filters run left to right: `default` supplies `nginx` for the '
+                               'undefined variable, `upper` turns it into `NGINX`. Without '
+                               '`default` there would indeed be an error — Ansible aborts on '
+                               'undefined variables instead of inserting an empty value.'}},
     ]},
 }

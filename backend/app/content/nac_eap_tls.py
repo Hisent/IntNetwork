@@ -18,6 +18,13 @@ NAC_EAP_TLS_MODULE = {
         'Abgelaufene oder nicht vertraute Zertifikate als häufigste Fehlerquelle bei EAP-TLS '
         'im Betrieb erkennen können',
     ],
+    'goals_en': [
+        'Place EAP-TLS as mutual, certificate-based authentication of client and server',
+        'Justify why EAP-TLS is considered the strongest widely used EAP path (no password, phishing-resistant)',
+        'Name the dependency of EAP-TLS on a working PKI and delimit it from the PKI course',
+        'Explain the role of autoenrollment in distributing certificates to endpoints',
+        'Recognize expired or untrusted certificates as the most common failure source of EAP-TLS in operation',
+    ],
     'scenario': {
         'de': 'Nordwind Logistik will für die Notebooks der Disponenten den stärksten '
               'verfügbaren WLAN-Schutz — PEAP mit Passwort reicht dem Sicherheitsteam nicht '
@@ -171,6 +178,98 @@ NAC_EAP_TLS_MODULE = {
                  'RADIUS sends Access-Accept, the port switches to the authorized state',
              ],
          }},
+        {
+            'type': 'diagram',
+            'id': 'diagram-eap-tls-ablauf',
+            'note': 'Vereinfacht nach RFC 5216: Die TLS-Nachrichten sind zu Gruppen zusammengefasst, große Zertifikate werden in der Praxis über mehrere EAP-Runden fragmentiert. Mit TLS 1.3 (RFC 9190) ist das Client-Zertifikat bereits verschlüsselt. Den TLS-Handshake selbst vertieft das PKI-Modul zum TLS-Handshake.',
+            'payload': {
+                'kind': 'sequence',
+                'title_de': 'EAP-TLS: gegenseitige Prüfung per Zertifikat',
+                'title_en': 'EAP-TLS: mutual verification by certificate',
+                'caption_de': 'Der Switch reicht nur durch; die Prüfung läuft zwischen Client und Server.',
+                'caption_en': 'The switch merely relays; verification runs between client and server.',
+                'actors': [
+                    {
+                        'id': 'c',
+                        'label': 'Supplicant',
+                    },
+                    {
+                        'id': 'sw',
+                        'label': 'Switch',
+                    },
+                    {
+                        'id': 's',
+                        'label_de': 'RADIUS-Server',
+                        'label_en': 'RADIUS server',
+                    },
+                ],
+                'messages': [
+                    {
+                        'from': 'c',
+                        'to': 's',
+                        'label': 'EAP-Response/Identity',
+                        'detail_de': 'Über den Switch an den Server. Der Server schlägt daraufhin EAP-TLS vor.',
+                        'detail_en': 'Via the switch to the server. The server then proposes EAP-TLS.',
+                    },
+                    {
+                        'from': 'c',
+                        'to': 's',
+                        'label': 'TLS ClientHello',
+                        'detail_de': 'Der Client nennt unterstützte TLS-Versionen und Cipher Suites.',
+                        'detail_en': 'The client lists supported TLS versions and cipher suites.',
+                    },
+                    {
+                        'from': 's',
+                        'to': 'c',
+                        'label_de': 'ServerHello + Server-Zertifikat',
+                        'label_en': 'ServerHello + server certificate',
+                        'style': 'reply',
+                        'detail_de': 'Dazu die Aufforderung „CertificateRequest“: Der Server verlangt ein Client-Zertifikat — das unterscheidet EAP-TLS von PEAP.',
+                        'detail_en': 'Plus a "CertificateRequest": the server demands a client certificate — this is what distinguishes EAP-TLS from PEAP.',
+                    },
+                    {
+                        'from': 'c',
+                        'to': 'c',
+                        'label_de': 'prüft Server-Zertifikat',
+                        'label_en': 'verifies server cert',
+                        'detail_de': 'Kette bis zur vertrauten Root-CA, Gültigkeitszeitraum (Uhrzeit!), erwarteter Servername.',
+                        'detail_en': 'Chain up to the trusted root CA, validity period (clock!), expected server name.',
+                    },
+                    {
+                        'from': 'c',
+                        'to': 's',
+                        'label_de': 'Client-Zertifikat + Signatur',
+                        'label_en': 'Client certificate + signature',
+                        'detail_de': 'Mit „CertificateVerify“ beweist der Client den Besitz des privaten Schlüssels — das Zertifikat allein wäre kein Nachweis.',
+                        'detail_en': 'With "CertificateVerify" the client proves possession of the private key — the certificate alone would be no proof.',
+                    },
+                    {
+                        'from': 's',
+                        'to': 's',
+                        'label_de': 'prüft Client-Zertifikat',
+                        'label_en': 'verifies client cert',
+                        'detail_de': 'Kette, Gültigkeit, Sperrstatus (CRL/OCSP) — danach Abgleich mit Verzeichnis und Autorisierungsregeln.',
+                        'detail_en': 'Chain, validity, revocation status (CRL/OCSP) — then matching against directory and authorization rules.',
+                    },
+                    {
+                        'from': 's',
+                        'to': 'sw',
+                        'label': 'Access-Accept',
+                        'style': 'reply',
+                        'detail_de': 'Enthält VLAN/ACL und das aus dem Handshake abgeleitete Schlüsselmaterial (Grundlage für WLAN-Verschlüsselung bzw. MACsec).',
+                        'detail_en': 'Contains VLAN/ACL and the key material derived from the handshake (the basis for Wi-Fi encryption or MACsec).',
+                    },
+                    {
+                        'from': 'sw',
+                        'to': 'c',
+                        'label': 'EAP-Success',
+                        'style': 'reply',
+                        'detail_de': 'Der Port wird autorisiert.',
+                        'detail_en': 'The port is authorized.',
+                    },
+                ],
+            },
+        },
         {'type': 'text', 'id': 'text-5',
          'value': {
              'de': '## Häufigste Fehlerquelle im Betrieb: Zertifikatsprobleme\n\n'
@@ -216,6 +315,100 @@ NAC_EAP_TLS_MODULE = {
                  'Whether the VLAN assignment in the Access-Accept is formatted correctly',
              ],
          }},
+        {
+            'type': 'text',
+            'id': 'text-byod-onboarding',
+            'note': 'Nur der Ablauf — Produktdetails (Portalnamen, Protokolle wie SCEP/EST) bewusst weggelassen.',
+            'value': {
+                'de': '## BYOD-Onboarding: vom Portal zum Zertifikat\n\nAutoenrollment setzt verwaltete Geräte voraus. Für private Geräte (BYOD), die trotzdem per EAP-TLS ins Netz sollen, bieten NAC-Plattformen ein **Onboarding** an (z. B. das BYOD-Portal von Cisco ISE oder ClearPass Onboard). Der Ablauf ist herstellerübergreifend ähnlich:\n\n1. **Erstanmeldung mit Benutzerkonto** — das Gerät verbindet sich mit Benutzername und Passwort (PEAP) an der Firmen-SSID oder über eine offene Onboarding-SSID und erhält nur stark eingeschränkten Zugriff.\n2. **Umleitung ins Onboarding-Portal** — der Nutzer registriert das Gerät; es wird ihm namentlich zugeordnet.\n3. **Zertifikats-Enrollment** — ein Assistent bzw. ein Konfigurationsprofil erzeugt auf dem Gerät ein Schlüsselpaar, lässt ein Client-Zertifikat ausstellen und richtet den Supplicant für EAP-TLS ein (samt vertrauter CA und Servername).\n4. **Neuanmeldung per EAP-TLS** — die NAC-Plattform löst per CoA eine erneute Authentifizierung aus; das Gerät meldet sich nun mit Zertifikat an und landet im BYOD-VLAN (bei Nordwind: VLAN 30).\n\nDer Gewinn: Das Passwort wird genau einmal gebraucht, danach nie wieder übertragen. Und geht das Gerät verloren, wird ein einzelnes Zertifikat gesperrt — das Benutzerkonto bleibt unberührt.',
+                'en': '## BYOD Onboarding: From Portal to Certificate\n\nAutoenrollment presupposes managed devices. For personal devices (BYOD) that should still join via EAP-TLS, NAC platforms offer **onboarding** (e.g. the BYOD portal of Cisco ISE or ClearPass Onboard). The flow is similar across vendors:\n\n1. **First login with a user account** — the device connects with username and password (PEAP) to the corporate SSID or via an open onboarding SSID and only gets heavily restricted access.\n2. **Redirect to the onboarding portal** — the user registers the device; it is assigned to them by name.\n3. **Certificate enrollment** — an assistant or configuration profile generates a key pair on the device, has a client certificate issued, and configures the supplicant for EAP-TLS (including trusted CA and server name).\n4. **Re-login via EAP-TLS** — the NAC platform triggers a re-authentication via CoA; the device now logs in with its certificate and lands in the BYOD VLAN (at Nordwind: VLAN 30).\n\nThe gain: the password is needed exactly once and never transmitted again. And if the device is lost, a single certificate is revoked — the user account remains untouched.',
+            },
+        },
+        {
+            'type': 'scenario',
+            'id': 'scenario-eap-tls-fehler',
+            'payload': {
+                'title_de': 'EAP-TLS schlägt fehl — wo suchst du?',
+                'title_en': 'EAP-TLS fails — where do you look?',
+                'start': 'start',
+                'nodes': [
+                    {
+                        'id': 'start',
+                        'text_de': 'Montagmorgen: Das Notebook von Herrn Demir kommt nicht ins WLAN. Alle anderen Notebooks funktionieren. Das RADIUS-Log zeigt für sein Gerät: „EAP-TLS failed — certificate expired“. Was tust du zuerst?',
+                        'text_en': 'Monday morning: Mr. Demir\'s notebook cannot join the Wi-Fi. All other notebooks work. The RADIUS log shows for his device: "EAP-TLS failed — certificate expired". What do you do first?',
+                        'options': [
+                            {
+                                'label_de': 'RADIUS-Server neu starten',
+                                'label_en': 'Restart the RADIUS server',
+                                'to': 'neustart',
+                            },
+                            {
+                                'label_de': 'Gültigkeit des Client-Zertifikats auf dem Notebook ansehen',
+                                'label_en': 'Look at the validity of the client certificate on the notebook',
+                                'to': 'cert',
+                            },
+                            {
+                                'label_de': 'Das Notebook vorübergehend per MAB ins Mitarbeiter-VLAN lassen',
+                                'label_en': 'Temporarily let the notebook into the employee VLAN via MAB',
+                                'to': 'mab',
+                            },
+                        ],
+                    },
+                    {
+                        'id': 'neustart',
+                        'outcome': 'bad',
+                        'text_de': 'Alle anderen Geräte melden sich erfolgreich an — der Server arbeitet. Ein Neustart unterbricht nur die Anmeldungen aller übrigen Nutzer.',
+                        'text_en': 'All other devices log in successfully — the server works. A restart only interrupts the logins of every other user.',
+                    },
+                    {
+                        'id': 'mab',
+                        'outcome': 'bad',
+                        'text_de': 'Damit ersetzt du einen kryptografischen Nachweis durch eine fälschbare MAC-Adresse — und zwar für das Produktivnetz. Wenn überhaupt, dann in ein eingeschränktes Segment.',
+                        'text_en': 'This replaces a cryptographic proof with a spoofable MAC address — for the production network at that. If at all, then into a restricted segment.',
+                    },
+                    {
+                        'id': 'cert',
+                        'text_de': 'Das Zertifikat ist laut Anzeige noch vier Monate gültig. Die Uhr des Notebooks stimmt. Trotzdem meldet der Server „expired“. Was prüfst du jetzt?',
+                        'text_en': 'According to the display the certificate is valid for another four months. The notebook\'s clock is correct. Yet the server reports "expired". What do you check now?',
+                        'options': [
+                            {
+                                'label_de': 'Ob im Zertifikatsspeicher ein zweites, älteres Zertifikat liegt, das der Supplicant auswählt',
+                                'label_en': 'Whether the certificate store holds a second, older certificate that the supplicant selects',
+                                'to': 'zweites',
+                            },
+                            {
+                                'label_de': 'Uhrzeit und NTP-Status des RADIUS-Servers',
+                                'label_en': 'Clock and NTP status of the RADIUS server',
+                                'to': 'serveruhr',
+                            },
+                            {
+                                'label_de': 'Das Shared Secret zwischen Access Point und RADIUS-Server',
+                                'label_en': 'The shared secret between access point and RADIUS server',
+                                'to': 'secret',
+                            },
+                        ],
+                    },
+                    {
+                        'id': 'secret',
+                        'outcome': 'bad',
+                        'text_de': 'Bei falschem Shared Secret käme gar keine EAP-Aushandlung zustande, und es wären alle Clients dieses Access Points betroffen — nicht ein einzelnes Notebook.',
+                        'text_en': 'With a wrong shared secret no EAP negotiation would take place at all, and all clients of that access point would be affected — not a single notebook.',
+                    },
+                    {
+                        'id': 'serveruhr',
+                        'outcome': 'ok',
+                        'text_de': 'Gute Idee, aber hier unwahrscheinlich: Eine falsche Serveruhr würde alle Clients treffen. Merken für den Fall, dass plötzlich ALLE EAP-TLS-Anmeldungen scheitern.',
+                        'text_en': 'A good idea, but unlikely here: a wrong server clock would hit all clients. Keep it in mind for when ALL EAP-TLS logins suddenly fail.',
+                    },
+                    {
+                        'id': 'zweites',
+                        'outcome': 'good',
+                        'text_de': 'Treffer: Nach der automatischen Erneuerung lag das alte Zertifikat noch im Speicher, und der Supplicant hat es weiter vorgelegt. Altes Zertifikat entfernen (und die Erneuerung so einrichten, dass sie alte Zertifikate aufräumt) — die Anmeldung klappt.',
+                        'text_en': 'Bingo: after the automatic renewal the old certificate was still in the store, and the supplicant kept presenting it. Remove the old certificate (and set up renewal so that it cleans up old certificates) — the login works.',
+                    },
+                ],
+            },
+        },
         {'type': 'reflect', 'id': 'reflect-1',
          'payload': {
              'prompt_de': 'Nordwind Logistik überlegt, Autoenrollment für Client-Zertifikate '
@@ -249,6 +442,10 @@ NAC_EAP_TLS_MODULE = {
                  'It only needs a server certificate, the client stays unauthenticated',
                  'It works exclusively with MAC addresses as proof',
              ],
+         },
+         'explanation': {
+             'de': 'Bei EAP-TLS legen beide Seiten ein Zertifikat vor, ein Passwort gibt es nicht. „Nur ein Server-Zertifikat“ beschreibt PEAP — die häufigste Verwechslung.',
+             'en': 'In EAP-TLS both sides present a certificate, there is no password. "Only a server certificate" describes PEAP — the most common confusion.',
          }},
         {'id': 'et2', 'type': 'single',
          'prompt': {'de': 'Warum gilt EAP-TLS als besonders phishing-resistent?',
@@ -259,7 +456,7 @@ NAC_EAP_TLS_MODULE = {
                  'Weil es kein Passwort gibt, das sich abphishen ließe',
                  'Weil es keine Verbindung zum RADIUS-Server benötigt',
                  'Weil es ausschließlich in verkabelten Netzen eingesetzt wird',
-                 'Weil es automatisch alle Geräte in ein Gäste-VLAN verschiebt',
+                 'Weil es automatisch alle Geräte in ein Gast-VLAN verschiebt',
              ],
              'en': [
                  'Because there is no password that could be phished',
@@ -267,6 +464,10 @@ NAC_EAP_TLS_MODULE = {
                  'Because it is only used in wired networks',
                  'Because it automatically moves all devices into a guest VLAN',
              ],
+         },
+         'explanation': {
+             'de': 'Was nicht existiert, kann nicht abgephisht werden: Der private Schlüssel verlässt das Gerät nicht. Mit WLAN oder Kabel hat das nichts zu tun, EAP-TLS läuft über beide.',
+             'en': 'What does not exist cannot be phished: the private key never leaves the device. This has nothing to do with Wi-Fi or cable; EAP-TLS runs over both.',
          }},
         {'id': 'et3', 'type': 'single',
          'prompt': {'de': 'Was ist zwingende Voraussetzung, um EAP-TLS produktiv zu betreiben?',
@@ -277,7 +478,7 @@ NAC_EAP_TLS_MODULE = {
                  'Eine funktionierende PKI, die Client- und Server-Zertifikate ausstellen, '
                  'verteilen und sperren kann',
                  'Ein zentrales Passwort-Repository für alle Endgeräte',
-                 'Ein Gäste-VLAN mit Captive Portal',
+                 'Ein Gast-VLAN mit Captive Portal',
                  'Eine TACACS+-Anbindung für alle Switches',
              ],
              'en': [
@@ -287,6 +488,10 @@ NAC_EAP_TLS_MODULE = {
                  'A guest VLAN with a captive portal',
                  'A TACACS+ connection for all switches',
              ],
+         },
+         'explanation': {
+             'de': 'Ohne PKI gibt es keine Zertifikate, die ausgestellt, erneuert und gesperrt werden könnten. Ein Passwort-Repository braucht EAP-TLS gerade nicht.',
+             'en': 'Without a PKI there are no certificates that could be issued, renewed, and revoked. A password repository is precisely what EAP-TLS does not need.',
          }},
         {'id': 'et4', 'type': 'single',
          'prompt': {'de': 'Wie lassen sich Client-Zertifikate praktikabel an eine große Zahl '
@@ -309,6 +514,10 @@ NAC_EAP_TLS_MODULE = {
                  'Via MAB, which replaces certificates with MAC addresses',
                  'Certificates are fundamentally never distributed to clients under EAP-TLS',
              ],
+         },
+         'explanation': {
+             'de': 'Autoenrollment automatisiert Anforderung, Ausstellung und Erneuerung. Zertifikate per E-Mail zu verschicken skaliert nicht — und würde private Schlüssel durchs Postfach reichen.',
+             'en': 'Autoenrollment automates request, issuance, and renewal. Sending certificates by email does not scale — and would pass private keys through the mailbox.',
          }},
         {'id': 'et5', 'type': 'single',
          'prompt': {'de': 'Was ist im Betrieb die häufigste Ursache für gescheiterte '
@@ -329,6 +538,64 @@ NAC_EAP_TLS_MODULE = {
                  'A VLAN tag that is too short',
                  'Missing TACACS+ licenses',
              ],
+         },
+         'explanation': {
+             'de': 'Abgelaufene oder nicht vertraute Zertifikate sind der Klassiker. DHCP spielt erst NACH der Authentifizierung eine Rolle und kann sie deshalb nicht scheitern lassen.',
+             'en': 'Expired or untrusted certificates are the classic. DHCP only comes into play AFTER authentication and therefore cannot make it fail.',
          }},
+        {
+            'id': 'et6',
+            'type': 'single',
+            'prompt': {
+                'de': 'Seit heute 03:00 Uhr scheitern ALLE EAP-TLS-Anmeldungen im Unternehmen; die Clients melden, sie vertrauten dem Server nicht mehr. Gestern lief alles. Was ist die wahrscheinlichste Ursache?',
+                'en': 'Since 03:00 today ALL EAP-TLS logins in the company fail; the clients report they no longer trust the server. Yesterday everything worked. What is the most likely cause?',
+            },
+            'options': {
+                'de': [
+                    'Alle Client-Zertifikate sind gleichzeitig abgelaufen',
+                    'Das Server-Zertifikat des RADIUS-Servers ist abgelaufen oder wurde durch eines ersetzt, dem die Clients nicht vertrauen',
+                    'Die Nutzer haben ihre Passwörter geändert',
+                    'Die Switches haben ihre VLAN-Datenbank verloren',
+                ],
+                'en': [
+                    'All client certificates expired at the same time',
+                    "The RADIUS server's certificate has expired or was replaced by one the clients do not trust",
+                    'The users changed their passwords',
+                    'The switches lost their VLAN database',
+                ],
+            },
+            'answer': 1,
+            'explanation': {
+                'de': 'Betrifft es alle Clients gleichzeitig und klagen die CLIENTS über fehlendes Vertrauen, liegt die Ursache am gemeinsamen Gegenüber: dem Server-Zertifikat. Client-Zertifikate laufen gestaffelt ab, und Passwörter spielen bei EAP-TLS keine Rolle.',
+                'en': 'If all clients are affected at once and the CLIENTS complain about missing trust, the cause lies with their common counterpart: the server certificate. Client certificates expire staggered, and passwords play no role in EAP-TLS.',
+            },
+        },
+        {
+            'id': 'et7',
+            'type': 'multi',
+            'prompt': {
+                'de': 'Ein Notebook mit EAP-TLS wird gestohlen. Welche Maßnahmen verhindern, dass es sich weiter am Netz anmelden kann? (Mehrere richtig)',
+                'en': 'A notebook using EAP-TLS is stolen. Which measures prevent it from continuing to log in to the network? (Several correct)',
+            },
+            'options': {
+                'de': [
+                    'Das Client-Zertifikat sperren — sofern der RADIUS-Server den Sperrstatus (CRL/OCSP) prüft',
+                    'Das Computerkonto im Verzeichnis deaktivieren, wenn die Autorisierung es abfragt',
+                    'Das WLAN-Passwort der Firma ändern',
+                    'Abwarten, bis das Zertifikat in zwei Jahren abläuft',
+                ],
+                'en': [
+                    'Revoke the client certificate — provided the RADIUS server checks revocation status (CRL/OCSP)',
+                    'Disable the computer account in the directory, if authorization looks it up',
+                    "Change the company's Wi-Fi password",
+                    'Wait until the certificate expires in two years',
+                ],
+            },
+            'answer': [0, 1],
+            'explanation': {
+                'de': 'Die Sperrung wirkt nur, wenn der Server den Sperrstatus auch tatsächlich prüft — das ist eine Einstellung, kein Automatismus. Ein gemeinsames WLAN-Passwort gibt es bei EAP-TLS nicht, und ein gültiges Zertifikat bleibt ohne Sperrung bis zum Ablauf nutzbar.',
+                'en': 'Revocation only takes effect if the server actually checks revocation status — that is a setting, not an automatism. There is no shared Wi-Fi password in EAP-TLS, and without revocation a valid certificate remains usable until it expires.',
+            },
+        },
     ]},
 }

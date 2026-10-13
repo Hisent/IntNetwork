@@ -1,9 +1,7 @@
 import { useState } from 'react'
-import { overlaps, NON_OVERLAPPING, SECURITY } from '@/widgets/wlan/wlan'
+import { overlaps, CHANNELS, NON_OVERLAPPING, SECURITY } from '@/widgets/wlan/wlan'
 import { ChallengeBox } from '@/components/ChallengeBox'
 import type { Lang } from '@/lib/i18n'
-
-const CHANNELS = Array.from({ length: 11 }, (_, i) => i + 1)
 
 const STR = {
   de: {

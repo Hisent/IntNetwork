@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { attackerView, encapsulate, decapsulate, type Packet } from './vpn'
+import { attackerView, encapsulate, decapsulate, SCENARIO, type Packet } from './vpn'
 
 const inner: Packet = { src: '192.168.10.5', dst: '10.20.0.9', payload: 'Gehaltsliste' }
 
@@ -44,5 +44,28 @@ describe('attackerView', () => {
     const view = attackerView(inner, t, true, 812, '14:32:07')
     expect(view.metadataVisible).toContain('812 Bytes')
     expect(view.metadataVisible).toContain('14:32:07')
+  })
+})
+
+describe('SCENARIO (Remote-Access)', () => {
+  // RFC 5737: 192.0.2.0/24, 198.51.100.0/24, 203.0.113.0/24 · RFC 1918: 10/8, 172.16/12, 192.168/16
+  const doc = (ip: string) => /^(192\.0\.2|198\.51\.100|203\.0\.113)\.\d+$/.test(ip)
+  const priv = (ip: string) => /^(10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.)/.test(ip)
+
+  it('zeigt außen nur öffentliche Dokumentationsadressen, private nur im Tunnel', () => {
+    const t = encapsulate(SCENARIO.inner, SCENARIO.clientOuter, SCENARIO.gateway)
+    for (const vpnOn of [false, true]) {
+      const view = attackerView(SCENARIO.direct, t, vpnOn)
+      const [src, dst] = view.addressLine.split(' → ')
+      expect(doc(src)).toBe(true)
+      expect(doc(dst)).toBe(true)
+    }
+    expect(priv(SCENARIO.inner.src)).toBe(true)
+    expect(priv(SCENARIO.inner.dst)).toBe(true)
+  })
+
+  it('der Laptop bleibt mit und ohne VPN derselbe äußere Absender', () => {
+    expect(SCENARIO.direct.src).toBe(SCENARIO.clientOuter)
+    expect(SCENARIO.direct.dst).not.toBe(SCENARIO.gateway)
   })
 })

@@ -6,12 +6,20 @@ const maskStr = (p: number) => {
 }
 
 function showIpRoute(routes: Route[]): string {
-  const lines = ['Codes: C - connected, S - static', '']
+  // wie echtes IOS: die Default-Route ist der „candidate default“ (S*) und wird als
+  // „Gateway of last resort“ über der Tabelle genannt
+  const def = routes.find((r) => r.via !== null && r.prefix === 0)
+  const lines = [
+    'Codes: C - connected, S - static, * - candidate default',
+    '',
+    def ? `Gateway of last resort is ${def.via} to network 0.0.0.0` : 'Gateway of last resort is not set',
+    '',
+  ]
   for (const r of routes) {
     lines.push(
       r.via === null
         ? `C    ${r.network}/${r.prefix} is directly connected, ${r.iface}`
-        : `S    ${r.network}/${r.prefix} [1/0] via ${r.via}`,
+        : `${r === def ? 'S*  ' : 'S   '} ${r.network}/${r.prefix} [1/0] via ${r.via}`,
     )
   }
   return lines.join('\n')

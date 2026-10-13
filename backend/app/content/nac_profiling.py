@@ -14,6 +14,13 @@ NAC_PROFILING_MODULE = {
         'Die Grenzen von Profiling als Heuristik statt Beweis realistisch einschätzen können',
         'Ein Angriffsszenario mit MAC-Spoofing und passendem Geräteprofil erkennen können',
     ],
+    'goals_en': [
+        'Explain why visibility is the prerequisite for any enforceable NAC policy',
+        'Name and place the most important profiling techniques (DHCP fingerprinting, MAC OUI, CDP/LLDP, SNMP, HTTP user-agent)',
+        'Understand how profiling cushions the structural weakness of MAB (spoofable MAC addresses)',
+        'Realistically assess the limits of profiling as a heuristic rather than proof',
+        'Recognize an attack scenario with MAC spoofing and a matching device profile',
+    ],
     'scenario': {
         'de': 'Bei Nordwind Logistik hängen an den Switchports der Lagerhallen längst nicht nur '
               'Firmenlaptops: Etikettendrucker, Handscanner, IP-Kameras und ein paar IoT-Sensoren '
@@ -109,6 +116,151 @@ NAC_PROFILING_MODULE = {
                    'indexed by MAC address. The more sources agree, the more confident the '
                    'classification.',
          }},
+        {
+            'type': 'diagram',
+            'id': 'diagram-profiling-quellen',
+            'note': 'Wichtig für die Praxis: Das NAC-System sieht die meisten Merkmale nicht selbst — der Switch muss sie liefern (z. B. DHCP-/CDP-/LLDP-Daten per RADIUS-Accounting oder SNMP).',
+            'payload': {
+                'kind': 'flow',
+                'title_de': 'Vom Port zum Geräteprofil',
+                'title_en': 'From port to device profile',
+                'nodes': [
+                    {
+                        'id': 'dev',
+                        'shape': 'host',
+                        'row': 0,
+                        'col': 0,
+                        'label_de': 'Endgerät',
+                        'label_en': 'Endpoint',
+                    },
+                    {
+                        'id': 'sw',
+                        'shape': 'switch',
+                        'row': 0,
+                        'col': 1,
+                        'label': 'Switch',
+                        'detail_de': 'Der Switch ist der Sensor: Er sieht DHCP-Anfragen, CDP/LLDP-Ankündigungen und die MAC-Adresse direkt am Port.',
+                        'detail_en': 'The switch is the sensor: it sees DHCP requests, CDP/LLDP announcements, and the MAC address right at the port.',
+                    },
+                    {
+                        'id': 'nac',
+                        'shape': 'server',
+                        'row': 0,
+                        'col': 2,
+                        'label_de': 'NAC-System',
+                        'label_en': 'NAC system',
+                    },
+                    {
+                        'id': 'prof',
+                        'shape': 'database',
+                        'row': 1,
+                        'col': 2,
+                        'label_de': 'Geräteprofil',
+                        'label_en': 'Device profile',
+                        'detail_de': 'Ein Datensatz je MAC-Adresse. Jedes Merkmal erhöht die Sicherheit der Klassifizierung; widersprechen sich Merkmale, ist das ein Warnsignal.',
+                        'detail_en': 'One record per MAC address. Each trait raises the confidence of the classification; contradicting traits are a warning sign.',
+                    },
+                    {
+                        'id': 'pol',
+                        'row': 1,
+                        'col': 1,
+                        'label_de': 'Autorisierungs-\nregel',
+                        'label_en': 'Authorization rule',
+                    },
+                ],
+                'edges': [
+                    {
+                        'id': 'e1',
+                        'from': 'dev',
+                        'to': 'sw',
+                        'label': 'DHCP, CDP/LLDP, HTTP',
+                    },
+                    {
+                        'id': 'e2',
+                        'from': 'sw',
+                        'to': 'nac',
+                        'label': 'RADIUS, SNMP',
+                    },
+                    {
+                        'id': 'e3',
+                        'from': 'nac',
+                        'to': 'prof',
+                    },
+                    {
+                        'id': 'e4',
+                        'from': 'prof',
+                        'to': 'pol',
+                    },
+                    {
+                        'id': 'e5',
+                        'from': 'pol',
+                        'to': 'sw',
+                        'label': 'VLAN / dACL / CoA',
+                        'style': 'dashed',
+                    },
+                ],
+                'steps': [
+                    {
+                        'highlight': ['dev', 'e1', 'sw'],
+                        'text_de': 'Das Gerät verrät sich durch ganz normalen Verkehr: DHCP-Anfrage, LLDP, erste HTTP-Aufrufe.',
+                        'text_en': 'The device gives itself away through perfectly normal traffic: DHCP request, LLDP, first HTTP calls.',
+                    },
+                    {
+                        'highlight': ['sw', 'e2', 'nac'],
+                        'text_de': 'Der Switch reicht die Beobachtungen weiter; das NAC-System fragt bei Bedarf per SNMP nach.',
+                        'text_en': 'The switch passes the observations on; the NAC system queries via SNMP where needed.',
+                    },
+                    {
+                        'highlight': ['nac', 'e3', 'prof'],
+                        'text_de': 'Alle Merkmale werden zu einem Profil zusammengeführt: „Etikettendrucker, Hersteller X“.',
+                        'text_en': 'All traits are merged into one profile: "label printer, vendor X".',
+                    },
+                    {
+                        'highlight': ['prof', 'e4', 'pol', 'e5', 'sw'],
+                        'text_de': 'Das Profil fließt in die Autorisierung ein. Ändert es sich später, zieht eine CoA die Rechte nach.',
+                        'text_en': 'The profile feeds into authorization. If it changes later, a CoA adjusts the rights.',
+                    },
+                ],
+            },
+        },
+        {
+            'type': 'match',
+            'id': 'match-profiling-quellen',
+            'payload': {
+                'prompt_de': 'Ordne jeder Datenquelle zu, was sie über ein Gerät verrät.',
+                'prompt_en': 'Match each data source to what it reveals about a device.',
+                'pairs': [
+                    {
+                        'left_de': 'DHCP-Fingerprint',
+                        'left_en': 'DHCP fingerprint',
+                        'right_de': 'Betriebssystem-Familie anhand der angefragten Optionen',
+                        'right_en': 'Operating system family based on the requested options',
+                    },
+                    {
+                        'left': 'MAC-OUI',
+                        'right_de': 'Hersteller der Netzwerkkarte anhand der ersten drei Bytes',
+                        'right_en': 'Vendor of the network card based on the first three bytes',
+                    },
+                    {
+                        'left': 'CDP / LLDP',
+                        'right_de': 'Gerätetyp und Plattform, vom Gerät selbst angekündigt',
+                        'right_en': 'Device type and platform, announced by the device itself',
+                    },
+                    {
+                        'left': 'HTTP User-Agent',
+                        'right_de': 'Betriebssystem und Anwendung aus dem Web-Verkehr',
+                        'right_en': 'Operating system and application from web traffic',
+                    },
+                    {
+                        'left': 'SNMP',
+                        'right_de': 'Tabellen und Systemdaten, aktiv vom NAC-System abgefragt',
+                        'right_en': 'Tables and system data, actively queried by the NAC system',
+                    },
+                ],
+                'explanation_de': 'Bis auf SNMP sind alle Quellen passiv: Das Gerät liefert sie von sich aus — und kann sie deshalb auch fälschen.',
+                'explanation_en': 'Except for SNMP all sources are passive: the device supplies them by itself — and can therefore also forge them.',
+            },
+        },
         {'type': 'check', 'id': 'check-1',
          'payload': {
              'kind': 'choice',
@@ -185,6 +337,14 @@ NAC_PROFILING_MODULE = {
                    'remains the stronger choice; profiling is the best available safeguard '
                    'precisely where that is not possible.',
          }},
+        {
+            'type': 'text',
+            'id': 'text-mac-randomisierung',
+            'value': {
+                'de': '## Stolperstein: zufällige MAC-Adressen\n\nProfiling hängt am Schlüssel **MAC-Adresse** — und genau der ist bei modernen Endgeräten im WLAN nicht mehr stabil. iOS (ab Version 14), Android (ab Version 10) und Windows können sich mit einer **zufälligen MAC-Adresse** anmelden; bei iOS und Android ist das die Voreinstellung, und zwar mit einer eigenen Adresse je WLAN. Neuere Versionen wechseln sie in schwach gesicherten Netzen zusätzlich regelmäßig.\n\nDie Folgen für das Profiling:\n\n- **Die OUI sagt nichts mehr aus.** Zufällige Adressen sind als „lokal verwaltet“ markiert — erkennbar am zweiten Hex-Zeichen 2, 6, A oder E (z. B. `da:a1:19:…`). Eine Herstellersuche läuft ins Leere.\n- **Ein Gerät, mehrere Datensätze.** Dasselbe Smartphone erscheint je SSID (und nach einem Adresswechsel erneut) als neues, unbekanntes Gerät.\n- **MAC-basierte Listen altern.** Registrierungen, die an der MAC-Adresse hängen, passen irgendwann nicht mehr.\n\nFür verkabelte Drucker, Kameras und Scanner ändert sich nichts — sie nutzen ihre feste Hardware-Adresse. Für Smartphones und Notebooks gilt: Die Identität gehört an ein **Zertifikat oder Benutzerkonto** (802.1X), nicht an die MAC-Adresse; für verwaltete Geräte lässt sich die Randomisierung für die Firmen-SSID per MDM-Profil abschalten.',
+                'en': '## Pitfall: Randomized MAC Addresses\n\nProfiling hinges on the key **MAC address** — and for modern endpoints on Wi-Fi that key is no longer stable. iOS (from version 14), Android (from version 10), and Windows can join with a **randomized MAC address**; on iOS and Android this is the default, with a separate address per Wi-Fi network. Newer versions additionally rotate it regularly on weakly secured networks.\n\nThe consequences for profiling:\n\n- **The OUI no longer tells you anything.** Random addresses are flagged as "locally administered" — recognizable by the second hex character 2, 6, A, or E (e.g. `da:a1:19:…`). A vendor lookup comes up empty.\n- **One device, several records.** The same smartphone appears per SSID (and again after an address change) as a new, unknown device.\n- **MAC-based lists age.** Registrations tied to the MAC address eventually stop matching.\n\nNothing changes for wired printers, cameras, and scanners — they use their fixed hardware address. For smartphones and notebooks: identity belongs on a **certificate or user account** (802.1X), not on the MAC address; for managed devices randomization can be turned off for the corporate SSID via an MDM profile.',
+            },
+        },
         {'type': 'debug', 'id': 'debug-1',
          'payload': {
              'prompt_de': 'Ein Alarm meldet: „Gerät mit MAC-Adresse eines registrierten '
@@ -246,6 +406,91 @@ NAC_PROFILING_MODULE = {
                  'deviations',
              ],
          }},
+        {
+            'type': 'scenario',
+            'id': 'scenario-profil-alarm',
+            'payload': {
+                'title_de': 'Der Drucker, der sich wie ein Laptop verhält',
+                'title_en': 'The printer that behaves like a laptop',
+                'start': 'start',
+                'nodes': [
+                    {
+                        'id': 'start',
+                        'text_de': 'Alarm: Die MAC-Adresse eines registrierten Etikettendruckers zeigt seit einer Stunde den DHCP-Fingerprint eines Windows-Notebooks. Das Gerät ist per MAB im IoT-VLAN. Was tust du?',
+                        'text_en': 'Alert: the MAC address of a registered label printer has shown the DHCP fingerprint of a Windows notebook for an hour. The device is in the IoT VLAN via MAB. What do you do?',
+                        'options': [
+                            {
+                                'label_de': 'Nichts — MAB hat die MAC-Adresse ja erfolgreich geprüft',
+                                'label_en': 'Nothing — MAB did check the MAC address successfully',
+                                'to': 'nichts',
+                            },
+                            {
+                                'label_de': 'Die Sitzung per CoA in Quarantäne setzen und den Port lokalisieren',
+                                'label_en': 'Quarantine the session via CoA and locate the port',
+                                'to': 'coa',
+                            },
+                            {
+                                'label_de': 'Den gesamten Switch sofort abschalten',
+                                'label_en': 'Shut down the whole switch immediately',
+                                'to': 'switch',
+                            },
+                        ],
+                    },
+                    {
+                        'id': 'nichts',
+                        'outcome': 'bad',
+                        'text_de': 'MAB hat nur eine Adresse wiedererkannt. Genau für den Fall, dass jemand diese Adresse übernimmt, gibt es das Profiling — den Alarm zu ignorieren macht es wertlos.',
+                        'text_en': 'MAB merely recognized an address. Profiling exists precisely for the case that someone takes over that address — ignoring the alert makes it worthless.',
+                    },
+                    {
+                        'id': 'switch',
+                        'outcome': 'bad',
+                        'text_de': 'Das trennt Dutzende unbeteiligte Geräte vom Netz und vernichtet die Spur. Ein Verdacht gegen eine Sitzung rechtfertigt einen Eingriff an dieser einen Sitzung.',
+                        'text_en': 'That cuts dozens of uninvolved devices off the network and destroys the trail. A suspicion against one session justifies intervening on that one session.',
+                    },
+                    {
+                        'id': 'coa',
+                        'text_de': 'Die Sitzung ist eingeschränkt. Der Port liegt im Besprechungsraum 2, der echte Drucker steht ausgeschaltet im Lager. Wie verhinderst du die Wiederholung?',
+                        'text_en': 'The session is restricted. The port is in meeting room 2, the real printer sits switched off in the warehouse. How do you prevent a repeat?',
+                        'options': [
+                            {
+                                'label_de': 'Profiling abschalten, es erzeugt nur Alarme',
+                                'label_en': 'Turn profiling off, it only produces alerts',
+                                'to': 'aus',
+                            },
+                            {
+                                'label_de': 'Regel schärfen: IoT-VLAN nur bei passendem Profil, dazu dACL nur zum Druckserver',
+                                'label_en': 'Tighten the rule: IoT VLAN only with a matching profile, plus dACL to the print server only',
+                                'to': 'regel',
+                            },
+                            {
+                                'label_de': 'Die MAC-Adresse des Druckers geheim halten',
+                                'label_en': "Keep the printer's MAC address secret",
+                                'to': 'geheim',
+                            },
+                        ],
+                    },
+                    {
+                        'id': 'aus',
+                        'outcome': 'bad',
+                        'text_de': 'Der Alarm war berechtigt. Ohne Profiling wäre das Notebook unbemerkt im IoT-VLAN geblieben.',
+                        'text_en': 'The alert was justified. Without profiling the notebook would have stayed in the IoT VLAN unnoticed.',
+                    },
+                    {
+                        'id': 'geheim',
+                        'outcome': 'bad',
+                        'text_de': 'Die MAC-Adresse steht auf dem Typenschild und in jedem Frame. Sie lässt sich nicht geheim halten — deshalb ist sie kein Nachweis.',
+                        'text_en': 'The MAC address is printed on the label and present in every frame. It cannot be kept secret — which is why it is no proof.',
+                    },
+                    {
+                        'id': 'regel',
+                        'outcome': 'good',
+                        'text_de': 'So wird aus dem Alarm eine Durchsetzung: Passt das Profil nicht, gibt es das IoT-VLAN gar nicht erst — und selbst ein perfekt gefälschtes Profil erreicht nur den Druckserver. Den Vorfall außerdem melden: Jemand hat bewusst eine MAC gefälscht.',
+                        'text_en': 'This turns the alert into enforcement: if the profile does not match, there is no IoT VLAN in the first place — and even a perfectly forged profile only reaches the print server. Also report the incident: someone deliberately spoofed a MAC.',
+                    },
+                ],
+            },
+        },
         {'type': 'reflect', 'id': 'reflect-1',
          'payload': {
              'prompt_de': 'Nordwind Logistik will Profiling einführen, hat aber kein Budget für '
@@ -279,6 +524,10 @@ NAC_PROFILING_MODULE = {
                  'Because visibility is legally required for every corporate network',
                  'Because no VLAN can be configured at all without visibility',
              ],
+         },
+         'explanation': {
+             'de': 'Eine Regel wie „Drucker ins Drucker-VLAN“ setzt voraus, dass das System Drucker erkennt. Eine gesetzliche Pflicht oder eine technische Abhängigkeit von RADIUS gibt es dabei nicht.',
+             'en': 'A rule like "printers into the printer VLAN" presupposes that the system recognizes printers. There is neither a legal obligation nor a technical dependency of RADIUS involved.',
          }},
         {'id': 'pf2', 'type': 'single',
          'prompt': {'de': 'Was liefert DHCP-Fingerprinting typischerweise?',
@@ -298,6 +547,10 @@ NAC_PROFILING_MODULE = {
                  'A list of all open TCP ports on the device',
                  'The RADIUS shared secret of the access switch',
              ],
+         },
+         'explanation': {
+             'de': 'Der Fingerprint leitet aus Auswahl und Reihenfolge der DHCP-Optionen die Betriebssystem-Familie ab. Seriennummern oder offene Ports stehen in keiner DHCP-Anfrage.',
+             'en': 'The fingerprint derives the operating system family from the selection and order of DHCP options. Serial numbers or open ports are not part of any DHCP request.',
          }},
         {'id': 'pf3', 'type': 'single',
          'prompt': {'de': 'Wie stärkt Profiling die Absicherung von MAB?',
@@ -318,6 +571,10 @@ NAC_PROFILING_MODULE = {
                  'type behind the MAC address',
                  'By signing RADIUS accounting packets',
              ],
+         },
+         'explanation': {
+             'de': 'Profiling fügt der Adressprüfung eine Plausibilitätsprüfung hinzu: Verhält sich das Gerät wie der behauptete Typ? Die MAC-Adresse bleibt dabei unverschlüsselt, und MAB wird nicht ersetzt.',
+             'en': 'Profiling adds a plausibility check to the address check: does the device behave like the claimed type? The MAC address remains unencrypted, and MAB is not replaced.',
          }},
         {'id': 'pf4', 'type': 'single',
          'prompt': {'de': 'Warum gilt Profiling als Heuristik und nicht als Beweis?',
@@ -338,6 +595,10 @@ NAC_PROFILING_MODULE = {
                  'Because all underlying attributes (MAC, DHCP pattern, user-agent) can be '
                  'imitated by an attacker',
              ],
+         },
+         'explanation': {
+             'de': 'Alle Merkmale stammen vom Gerät selbst und lassen sich nachahmen. Das unterscheidet Profiling von einem Zertifikat, dessen privater Schlüssel sich nicht einfach kopieren lässt.',
+             'en': 'All traits come from the device itself and can be imitated. That is what distinguishes profiling from a certificate, whose private key cannot simply be copied.',
          }},
         {'id': 'pf5', 'type': 'single',
          'prompt': {'de': 'Ein Gerät mit der MAC-Adresse eines Druckers zeigt plötzlich einen '
@@ -364,6 +625,64 @@ NAC_PROFILING_MODULE = {
                  'only option',
                  'A normal occurrence that happens with every printer driver update',
              ],
+         },
+         'explanation': {
+             'de': 'Der Widerspruch zwischen behauptetem Typ und Verhalten ist ein starkes Indiz, aber kein Beweis — ein Gerätetausch ohne Inventarpflege sähe genauso aus. Untersuchen ja, blind trennen oder ignorieren nein.',
+             'en': 'The contradiction between claimed type and behavior is strong evidence, but not proof — a device swap without inventory maintenance would look the same. Investigate yes, blindly disconnect or ignore no.',
          }},
+        {
+            'id': 'pf6',
+            'type': 'single',
+            'prompt': {
+                'de': 'Im Gast-WLAN taucht ein Gerät mit der MAC-Adresse da:a1:19:4c:7e:02 auf. Die OUI-Suche liefert keinen Hersteller. Was ist die wahrscheinlichste Erklärung?',
+                'en': 'A device with the MAC address da:a1:19:4c:7e:02 appears on the guest Wi-Fi. The OUI lookup returns no vendor. What is the most likely explanation?',
+            },
+            'options': {
+                'de': [
+                    'Die OUI-Datenbank des NAC-Systems ist beschädigt',
+                    'Es ist eine zufällige (lokal verwaltete) MAC-Adresse eines Smartphones oder Notebooks',
+                    'Das Gerät hat gar keine Netzwerkkarte',
+                    'Das Gerät ist ein Switch, Switches haben keine OUI',
+                ],
+                'en': [
+                    "The NAC system's OUI database is corrupted",
+                    'It is a randomized (locally administered) MAC address of a smartphone or notebook',
+                    'The device has no network card at all',
+                    'The device is a switch, switches have no OUI',
+                ],
+            },
+            'answer': 1,
+            'explanation': {
+                'de': 'Das zweite Hex-Zeichen „a“ zeigt das gesetzte „lokal verwaltet“-Bit — typisch für die privaten WLAN-Adressen von iOS, Android und Windows. Solche Adressen sind keinem Hersteller zugeordnet; die Datenbank ist in Ordnung.',
+                'en': 'The second hex character "a" shows the "locally administered" bit being set — typical of the private Wi-Fi addresses of iOS, Android, and Windows. Such addresses are not assigned to any vendor; the database is fine.',
+            },
+        },
+        {
+            'id': 'pf7',
+            'type': 'multi',
+            'prompt': {
+                'de': 'Eine IP-Kamera ist mit statischer IP-Adresse konfiguriert und sendet nie eine DHCP-Anfrage. Welche Quellen können trotzdem zum Profil beitragen? (Mehrere richtig)',
+                'en': 'An IP camera is configured with a static IP address and never sends a DHCP request. Which sources can still contribute to the profile? (Several correct)',
+            },
+            'options': {
+                'de': [
+                    'MAC-OUI',
+                    'LLDP, sofern die Kamera es sendet',
+                    'DHCP-Fingerprint',
+                    'SNMP-Abfrage durch das NAC-System',
+                ],
+                'en': [
+                    'MAC OUI',
+                    'LLDP, provided the camera sends it',
+                    'DHCP fingerprint',
+                    'SNMP query by the NAC system',
+                ],
+            },
+            'answer': [0, 1, 3],
+            'explanation': {
+                'de': 'Ohne DHCP-Anfrage gibt es keinen DHCP-Fingerprint — die naheliegendste Quelle fällt also aus. Deshalb stützt sich Profiling nie auf ein einzelnes Merkmal, sondern korreliert mehrere.',
+                'en': 'Without a DHCP request there is no DHCP fingerprint — so the most obvious source drops out. That is why profiling never relies on a single trait but correlates several.',
+            },
+        },
     ]},
 }

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { translate, type NatEntry } from '@/widgets/nat/nat'
+import { isValidPort, translate, type NatEntry } from '@/widgets/nat/nat'
 import { ChallengeBox } from '@/components/ChallengeBox'
 import type { Lang } from '@/lib/i18n'
 
@@ -13,17 +13,17 @@ const HOSTS = [
 const STR = {
   de: {
     title: 'NAT (PAT) — Router Nordwind-R1', publicIp: 'Öffentliche IP', host: 'Host', srcPort: 'Quell-Port',
-    send: 'Ins Internet senden', clear: 'Tabelle leeren', table: 'NAT-Übersetzungstabelle', empty: 'leer',
+    send: 'Ins Internet senden', badPort: 'Gültige Ports: 1–65535.', clear: 'Tabelle leeren', table: 'NAT-Übersetzungstabelle', empty: 'leer',
     reused: (local: string, global: string) => `${local} bereits übersetzt → ${global} (wiederverwendet).`,
     fresh: (local: string, global: string) => `${local} → ${global} (neuer Eintrag).`,
-    challenge: 'Schick mindestens zwei verschiedene Hosts ins Internet — beide teilen sich dieselbe öffentliche IP (PAT).',
+    challenge: 'Schick mindestens zwei verschiedene Hosts ins Internet — beide teilen sich dieselbe öffentliche IP (PAT). Sende danach denselben Host:Port erneut: Der Eintrag wird wiederverwendet.',
   },
   en: {
     title: 'NAT (PAT) — Router Nordwind-R1', publicIp: 'Public IP', host: 'Host', srcPort: 'Source port',
-    send: 'Send to the Internet', clear: 'Clear table', table: 'NAT translation table', empty: 'empty',
+    send: 'Send to the Internet', badPort: 'Valid ports: 1–65535.', clear: 'Clear table', table: 'NAT translation table', empty: 'empty',
     reused: (local: string, global: string) => `${local} already translated → ${global} (reused).`,
     fresh: (local: string, global: string) => `${local} → ${global} (new entry).`,
-    challenge: 'Send at least two different hosts to the Internet — both share the same public IP (PAT).',
+    challenge: 'Send at least two different hosts to the Internet — both share the same public IP (PAT). Then send the same host:port again: the entry is reused.',
   },
 } as const
 
@@ -34,11 +34,13 @@ export function Nat({ lang }: { lang: Lang }) {
   const [last, setLast] = useState<string | null>(null)
   const s = STR[lang]
 
+  const portOk = isValidPort(port)
+
   function send() {
+    if (!portOk) return
     const r = translate(table, host, port, PUBLIC_IP)
     setTable(r.table)
     setLast(r.reused ? s.reused(r.entry.insideLocal, r.entry.insideGlobal) : s.fresh(r.entry.insideLocal, r.entry.insideGlobal))
-    setPort((p) => p + 1)
   }
 
   return (
@@ -67,14 +69,18 @@ export function Nat({ lang }: { lang: Lang }) {
           {s.srcPort}
           <input
             type="number"
-            value={port}
+            min={1}
+            max={65535}
+            value={port || ''}
+            aria-invalid={!portOk}
             onChange={(e) => setPort(Number(e.target.value) || 0)}
             className="ml-1 w-20 border rounded px-1 py-0.5 font-mono"
           />
         </label>
         <button
           onClick={send}
-          className="rounded-lg bg-teal-600 hover:bg-teal-700 text-white px-3 py-1.5 text-sm font-medium"
+          disabled={!portOk}
+          className="rounded-lg bg-teal-600 hover:bg-teal-700 disabled:opacity-50 text-white px-3 py-1.5 text-sm font-medium"
         >
           {s.send}
         </button>
@@ -83,6 +89,7 @@ export function Nat({ lang }: { lang: Lang }) {
         </button>
       </div>
 
+      {!portOk && <p role="alert" className="text-xs text-rose-700 mb-3">{s.badPort}</p>}
       {last && <p className="text-xs text-slate-600 mb-3">{last}</p>}
 
       <p className="text-xs font-semibold text-slate-500 mb-1">{s.table}</p>

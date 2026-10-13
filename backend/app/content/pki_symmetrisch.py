@@ -14,6 +14,13 @@ SYMMETRISCH_MODULE = {
         'AEAD-Verfahren (AES-GCM, ChaCha20-Poly1305) als heutigen Standard einordnen können',
         'Die Folgen von Nonce-/IV-Wiederverwendung bei AEAD-Verfahren beschreiben können',
     ],
+    'goals_en': [
+        'Classify AES as a block cipher and name the common key lengths',
+        'Explain why the mode of operation, not just the algorithm, decides the actual security',
+        'Explain the weakness of ECB (visible patterns) and the requirement for a CBC IV',
+        "Classify AEAD schemes (AES-GCM, ChaCha20-Poly1305) as today's standard",
+        'Describe the consequences of nonce/IV reuse in AEAD schemes',
+    ],
     'scenario': {
         'de': 'Nordwind Logistik GmbH verschlüsselt Sendungsdaten zwischen zwei Standorten mit '
               'AES. Ein Praktikant hat testweise ein Bild mit AES im ECB-Modus verschlüsselt und '
@@ -99,6 +106,81 @@ SYMMETRISCH_MODULE = {
                    'protection CBC provides, because attackers can then recognize certain patterns '
                    'or relationships between messages.',
          }},
+        {'type': 'terminal', 'id': 'terminal-ecb-muster',
+         'note': ('Ausgaben real mit OpenSSL 3.6 erzeugt (fester Demo-Schluessel per -K, -nopad). xxd ist kein '
+             'openssl-Befehl und deshalb nicht im Openssl-Lab verfuegbar - daher hier als Simulation. Das ist '
+             'das Pinguin-Bild in drei Zeilen.'),
+         'payload': {
+             'title_de': 'ECB zeigt Muster, CBC nicht',
+             'title_en': 'ECB shows patterns, CBC does not',
+             'prompt': 'nordwind$',
+             'intro_de': 'muster.txt enthält dreimal denselben 16-Byte-Block „PALETTE-HAMBURG-“.',
+             'intro_en': 'muster.txt contains the same 16-byte block "PALETTE-HAMBURG-" three times.',
+             'unknown_de': 'Befehl nicht in dieser Übung: {cmd} (Tipp: help)',
+             'unknown_en': 'Command not part of this exercise: {cmd} (hint: help)',
+             'commands': [
+                    {
+                     'cmd': 'xxd -p -c 16 muster.txt',
+                     'desc_de': 'Klartext als Hex, 16 Byte je Zeile',
+                     'desc_en': 'plaintext as hex, 16 bytes per line',
+                     'output': '50414c455454452d48414d425552472d\n50414c455454452d48414d425552472d\n50414c455454452d48414d425552472d',
+                    },
+                    {
+                     'label': 'openssl enc -aes-128-ecb | xxd',
+                     'cmd': 'openssl enc -aes-128-ecb -K $KEY -nopad -in muster.txt | xxd -p -c 16',
+                     'aliases': ['ecb'],
+                     'desc_de': 'AES-128 im ECB-Modus (Kurzform: ecb)',
+                     'desc_en': 'AES-128 in ECB mode (short: ecb)',
+                     'output': 'e2e7b934d6249e9da72a8b8cc782e13f\ne2e7b934d6249e9da72a8b8cc782e13f\ne2e7b934d6249e9da72a8b8cc782e13f',
+                    },
+                    {
+                     'label': 'openssl enc -aes-128-cbc | xxd',
+                     'cmd': 'openssl enc -aes-128-cbc -K $KEY -iv $IV -nopad -in muster.txt | xxd -p -c 16',
+                     'aliases': ['cbc'],
+                     'desc_de': 'AES-128 im CBC-Modus (Kurzform: cbc)',
+                     'desc_en': 'AES-128 in CBC mode (short: cbc)',
+                     'output': '9fbd0d93838db32ee757168dae036120\n2aecb125974e9e7ce647110a5e8999ac\n4a5c8983cf0bb9f09dc31d427b7e0a65',
+                    },
+                    {
+                     'label': 'openssl enc -aes-256-gcm',
+                     'cmd': 'openssl enc -aes-256-gcm -pbkdf2 -pass pass:geheim -in muster.txt -out m.enc',
+                     'aliases': ['gcm'],
+                     'desc_de': 'Versuch mit AES-GCM (Kurzform: gcm)',
+                     'desc_en': 'attempt with AES-GCM (short: gcm)',
+                     'output': 'enc: AEAD ciphers not supported\nenc: Use -help for summary.',
+                    },
+                ],
+             'tasks': [
+                    {
+                     'text_de': 'Verschlüssele die Datei im ECB-Modus.',
+                     'text_en': 'Encrypt the file in ECB mode.',
+                     'command': 'ecb',
+                    },
+                    {
+                     'text_de': 'Wie viele der drei Chiffretextblöcke sind bei ECB identisch?',
+                     'text_en': 'How many of the three ciphertext blocks are identical under ECB?',
+                     'answers': ['3', 'drei', 'three', 'alle', 'all'],
+                    },
+                    {
+                     'text_de': 'Verschlüssele dieselbe Datei im CBC-Modus und vergleiche.',
+                     'text_en': 'Encrypt the same file in CBC mode and compare.',
+                     'command': 'cbc',
+                    },
+                    {
+                     'text_de': ('Welcher zusätzliche Parameter macht bei CBC den ersten Block unvorhersehbar? (Option '
+                         'ohne Wert)'),
+                     'text_en': ('Which additional parameter makes the first block unpredictable under CBC? (option '
+                         'without value)'),
+                     'answers': ['-iv', 'iv'],
+                    },
+                    {
+                     'text_de': 'Probiere AES-GCM mit openssl enc. Unterstützt das Kommando AEAD? (ja/nein)',
+                     'text_en': 'Try AES-GCM with openssl enc. Does the command support AEAD? (yes/no)',
+                     'answers': ['nein', 'no'],
+                    },
+                ],
+            },
+        },
         {'type': 'check', 'id': 'check-1',
          'payload': {
              'kind': 'choice',
@@ -216,6 +298,79 @@ SYMMETRISCH_MODULE = {
                    'key — and never reuse a nonce across different connections or sessions with the '
                    'same key.',
          }},
+        {'type': 'diagram', 'id': 'diagram-betriebsarten',
+         'note': ('Zusammenfassung vor der Sortieraufgabe. Wichtig: Die letzte Zeile ist der Grund, warum TLS 1.3 '
+             'nur noch die beiden rechten Spalten kennt.'),
+         'payload': {
+             'kind': 'compare',
+             'title_de': 'Betriebsarten im Vergleich',
+             'title_en': 'Modes of operation compared',
+             'columns': [
+                    {'title': 'ECB'},
+                    {'title': 'CBC'},
+                    {'title': 'AES-GCM'},
+                    {'title': 'ChaCha20-Poly1305'},
+                ],
+             'rows': [
+                    {
+                     'label_de': 'Art',
+                     'label_en': 'Kind',
+                     'values_de': [
+                            'Blockmodus',
+                            'Blockmodus, verkettet',
+                            'AEAD (Zählermodus + Tag)',
+                            'AEAD (Stromchiffre + Tag)',
+                        ],
+                     'values_en': [
+                            'block mode',
+                            'block mode, chained',
+                            'AEAD (counter mode + tag)',
+                            'AEAD (stream cipher + tag)',
+                        ],
+                    },
+                    {
+                     'label_de': 'Muster bleiben sichtbar',
+                     'label_en': 'Patterns stay visible',
+                     'values_de': ['ja', 'nein', 'nein', 'nein'],
+                     'values_en': ['yes', 'no', 'no', 'no'],
+                    },
+                    {
+                     'label_de': 'Zusatzwert je Nachricht',
+                     'label_en': 'Per-message value',
+                     'values_de': [
+                            'keiner',
+                            'IV, unvorhersehbar',
+                            'Nonce, einmalig je Schlüssel',
+                            'Nonce, einmalig je Schlüssel',
+                        ],
+                     'values_en': ['none', 'IV, unpredictable', 'nonce, unique per key', 'nonce, unique per key'],
+                    },
+                    {
+                     'label_de': 'Erkennt Manipulation',
+                     'label_en': 'Detects tampering',
+                     'values_de': ['nein', 'nein (nur mit eigenem MAC)', 'ja', 'ja'],
+                     'values_en': ['no', 'no (only with a separate MAC)', 'yes', 'yes'],
+                    },
+                    {
+                     'label_de': 'Typischer Fehler',
+                     'label_en': 'Typical mistake',
+                     'values_de': [
+                            'überhaupt verwendet',
+                            'fester IV, Padding-Oracle',
+                            'Nonce wiederverwendet',
+                            'Nonce wiederverwendet',
+                        ],
+                     'values_en': ['used at all', 'fixed IV, padding oracle', 'nonce reused', 'nonce reused'],
+                    },
+                    {
+                     'label_de': 'In TLS 1.3 zulässig',
+                     'label_en': 'Allowed in TLS 1.3',
+                     'values_de': ['nein', 'nein', 'ja', 'ja'],
+                     'values_en': ['no', 'no', 'yes', 'yes'],
+                    },
+                ],
+            },
+        },
         {'type': 'order', 'id': 'order-1',
          'payload': {
              'prompt_de': 'Bringe die folgenden Betriebsart-Eigenschaften in eine Reihenfolge '
@@ -262,6 +417,38 @@ SYMMETRISCH_MODULE = {
                  'Both confidentiality and authenticity can be broken',
              ],
          }},
+        {'type': 'cloze', 'id': 'cloze-enc-datei',
+         'payload': {
+             'prompt_de': 'Eine Datei passwortbasiert verschlüsseln und wieder entschlüsseln — ergänze die Befehle.',
+             'prompt_en': 'Encrypt a file with a password and decrypt it again — complete the commands.',
+             'mono': True,
+             'text': ('openssl enc -aes-256-[[mode]] -[[kdf]] -pass pass:geheim -in avis.txt -out avis.enc\nopenssl '
+                 'enc -[[dec]] -aes-256-cbc -pbkdf2 -pass pass:geheim -in avis.enc'),
+             'gaps': [
+                    {
+                     'id': 'mode',
+                     'options': ['cbc', 'ecb', 'gcm'],
+                     'answer': 0,
+                    },
+                    {
+                     'id': 'kdf',
+                     'accept': ['pbkdf2'],
+                    },
+                    {
+                     'id': 'dec',
+                     'accept': ['d'],
+                    },
+                ],
+             'explanation_de': ('ECB scheidet wegen der Muster aus, GCM lehnt `openssl enc` ab („AEAD ciphers not supported“). '
+                 '`-pbkdf2` leitet den Schlüssel aus dem Passwort mit einer langsamen Ableitung ab. Wichtig: '
+                 '`enc` mit CBC liefert nur Vertraulichkeit — ein falsches Passwort fällt meist nur als „bad '
+                 'decrypt“ am Padding auf, gezielte Manipulation nicht zuverlässig.'),
+             'explanation_en': ('ECB is out because of the patterns, and `openssl enc` rejects GCM ("AEAD ciphers not '
+                 'supported"). `-pbkdf2` derives the key from the password using a slow derivation. Important: '
+                 '`enc` with CBC only delivers confidentiality — a wrong password usually only shows up as "bad '
+                 'decrypt" at the padding, deliberate tampering is not detected reliably.'),
+            },
+        },
         {'type': 'reflect', 'id': 'reflect-1',
          'payload': {
              'prompt_de': 'Ein Kollege möchte in einem internen Dienst aus Einfachheit einen '
@@ -284,6 +471,12 @@ SYMMETRISCH_MODULE = {
                     'Die Anzahl der Betriebsarten', 'Die Anzahl der Runden pro Byte'],
              'en': ['The key length in bits', 'The block size in bits',
                     'The number of modes of operation', 'The number of rounds per byte'],
+         },
+         'explanation': {
+          'de': ('Die Zahl nennt die Schlüssellänge. Der häufige Irrtum ist die Blockgröße: Sie beträgt bei allen '
+              'drei AES-Varianten 128 Bit — auch bei AES-256.'),
+          'en': ('The number is the key length. The common mistake is the block size: it is 128 bits for all three '
+              'AES variants — AES-256 included.'),
          }},
         {'id': 'sy2', 'type': 'single',
          'prompt': {'de': 'Warum ist ECB für die meisten praktischen Anwendungen ungeeignet?',
@@ -304,6 +497,14 @@ SYMMETRISCH_MODULE = {
                  'patterns remain visible',
                  'Because ECB is only compatible with ChaCha20',
              ],
+         },
+         'explanation': {
+          'de': ('ECB verschlüsselt jeden Block unabhängig mit demselben Schlüssel, gleiche Klartextblöcke ergeben '
+              'also gleiche Chiffretextblöcke. ECB nutzt sehr wohl einen Schlüssel und ist nicht langsam — das '
+              'Problem ist allein die sichtbare Struktur.'),
+          'en': ('ECB encrypts every block independently with the same key, so equal plaintext blocks yield equal '
+              'ciphertext blocks. ECB does use a key and is not slow — the problem is solely the visible '
+              'structure.'),
          }},
         {'id': 'sy3', 'type': 'single',
          'prompt': {'de': 'Was leistet ein AEAD-Verfahren wie AES-GCM, das reine '
@@ -324,6 +525,13 @@ SYMMETRISCH_MODULE = {
                  'Complete elimination of the need for a nonce',
                  'Automatic key distribution without asymmetric cryptography',
              ],
+         },
+         'explanation': {
+          'de': ('AEAD verschlüsselt und berechnet zugleich ein Authentifizierungs-Tag; eine Manipulation führt '
+              'beim Entschlüsseln zum Abbruch. Eine Nonce braucht AEAD weiterhin — sie muss nur je Schlüssel '
+              'einmalig sein.'),
+          'en': ('AEAD encrypts and computes an authentication tag at the same time; tampering makes decryption '
+              'fail. AEAD still needs a nonce — it just has to be unique per key.'),
          }},
         {'id': 'sy4', 'type': 'single',
          'prompt': {'de': 'Was ist die Konsequenz einer Nonce-Wiederverwendung bei AES-GCM?',
@@ -344,6 +552,14 @@ SYMMETRISCH_MODULE = {
                  'reconstructing the authentication subkey',
                  'Nothing happens as long as the nonce was random',
              ],
+         },
+         'explanation': {
+          'de': ('GCM ist intern ein Zählermodus: Gleiche Nonce heißt gleicher Schlüsselstrom, also XOR der '
+              'Klartexte, und zusätzlich lässt sich der GHASH-Schlüssel rekonstruieren. „Zufällig“ hilft nicht, '
+              'wenn derselbe Wert zweimal verwendet wird.'),
+          'en': ('GCM is a counter mode internally: the same nonce means the same keystream, hence the XOR of the '
+              'plaintexts, and in addition the GHASH key can be reconstructed. "Random" does not help if the '
+              'same value is used twice.'),
          }},
         {'id': 'sy5', 'type': 'single',
          'prompt': {'de': 'Warum muss ein CBC-IV unvorhersehbar sein?',
@@ -364,6 +580,76 @@ SYMMETRISCH_MODULE = {
                  'Because a predictable IV exposes the key',
                  'Because CBC otherwise becomes slower',
              ],
+         },
+         'explanation': {
+          'de': ('Bei CBC wird der IV mit dem ersten Klartextblock verknüpft; ist er vorhersehbar, kann ein '
+              'Angreifer gezielt Klartext-Vermutungen testen (so funktionierte der BEAST-Angriff auf TLS 1.0). '
+              'Den Schlüssel legt ein vorhersehbarer IV nicht offen.'),
+          'en': ('In CBC the IV is combined with the first plaintext block; if it is predictable, an attacker can '
+              'test plaintext guesses (this is how the BEAST attack on TLS 1.0 worked). A predictable IV does '
+              'not expose the key.'),
          }},
+        {'id': 'sy6', 'type': 'single',
+         'prompt': {
+             'de': ('Ein 48 Byte langer Datensatz wird verschlüsselt. Im Hexdump des Chiffretexts lauten alle drei '
+                 '16-Byte-Blöcke gleich: e2e7b934d6249e9da72a8b8cc782e13f. Was verrät das?'),
+             'en': ('A 48-byte record is encrypted. In the hex dump of the ciphertext all three 16-byte blocks are '
+                 'equal: e2e7b934d6249e9da72a8b8cc782e13f. What does that reveal?'),
+            },
+         'options': {
+             'de': [
+                    'Es wurde ECB verwendet, und der Klartext besteht aus drei identischen Blöcken',
+                    'Die Verschlüsselung ist fehlgeschlagen, das ist noch Klartext',
+                    'Es wurde AES-GCM mit dreimal derselben Nonce verwendet',
+                    'Der Schlüssel besteht aus drei identischen Teilen',
+                ],
+             'en': [
+                    'ECB was used, and the plaintext consists of three identical blocks',
+                    'Encryption failed, this is still plaintext',
+                    'AES-GCM was used with the same nonce three times',
+                    'The key consists of three identical parts',
+                ],
+            },
+         'answer': 0,
+         'explanation': {
+             'de': ('Drei gleiche Chiffretextblöcke entstehen nur, wenn gleiche Klartextblöcke unabhängig '
+                 'voneinander verschlüsselt werden — das Kennzeichen von ECB. Ein Mitleser lernt so die '
+                 'Struktur der Daten, ohne den Schlüssel zu kennen. Über den Schlüssel sagt das Muster nichts.'),
+             'en': ('Three equal ciphertext blocks only occur when equal plaintext blocks are encrypted '
+                 'independently — the hallmark of ECB. An eavesdropper learns the structure of the data without '
+                 'knowing the key. The pattern says nothing about the key.'),
+            },
+        },
+        {'id': 'sy7', 'type': 'multi',
+         'prompt': {
+             'de': ('Welche dieser Verfahren sind AEAD-Verfahren, liefern also Vertraulichkeit UND Integrität in '
+                 'einem Schritt?'),
+             'en': 'Which of these are AEAD schemes, i.e. deliver confidentiality AND integrity in one step?',
+            },
+         'options': {
+             'de': ['AES-128-GCM', 'ChaCha20-Poly1305', 'AES-128-CCM', 'AES-256-CBC', 'AES-256-ECB'],
+             'en': ['AES-128-GCM', 'ChaCha20-Poly1305', 'AES-128-CCM', 'AES-256-CBC', 'AES-256-ECB'],
+            },
+         'answer': [0, 1, 2],
+         'explanation': {
+             'de': ('GCM, CCM und ChaCha20-Poly1305 sind genau die AEAD-Verfahren, die TLS 1.3 kennt. CBC und ECB '
+                 'verschlüsseln nur — die längere Schlüssellänge von AES-256 ändert daran nichts.'),
+             'en': ('GCM, CCM, and ChaCha20-Poly1305 are exactly the AEAD schemes TLS 1.3 knows. CBC and ECB only '
+                 'encrypt — the longer key of AES-256 does not change that.'),
+            },
+        },
+        {'id': 'sy8', 'type': 'number',
+         'prompt': {
+             'de': 'Wie viele Bit umfasst ein Block bei AES-256?',
+             'en': 'How many bits does one block have in AES-256?',
+            },
+         'answer': 128,
+         'explanation': {
+             'de': ('128 Bit — die Blockgröße ist bei AES-128, -192 und -256 identisch. Die 256 bezeichnet nur die '
+                 'Schlüssellänge.'),
+             'en': ('128 bits — the block size is identical for AES-128, -192, and -256. The 256 only denotes the '
+                 'key length.'),
+            },
+        },
     ]},
 }

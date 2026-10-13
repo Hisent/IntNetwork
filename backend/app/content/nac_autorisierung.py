@@ -13,11 +13,19 @@ NAC_AUTORISIERUNG_MODULE = {
         'Dynamische VLAN-Zuweisung als häufigstes Autorisierungsergebnis erklären können',
         'Downloadable/named ACLs (dACL) als granulareres Autorisierungsmittel gegenüber '
         'reiner VLAN-Zuweisung einordnen können',
-        'Quarantäne- und Gäste-VLAN als Autorisierungsergebnis für nicht-konforme bzw. nicht '
+        'Quarantäne- und Gast-VLAN als Autorisierungsergebnis für nicht-konforme bzw. nicht '
         'vertrauenswürdige Geräte benennen können',
         'Security Group Tags (SGT/TrustSec) als herstellerspezifische Alternative grob '
         'einordnen können, ohne Konfigurationsdetails',
         'Typischen Geräteklassen ein plausibles Autorisierungsergebnis zuordnen können',
+    ],
+    'goals_en': [
+        'Delimit authorization, as the outcome of a successful authentication, from authentication itself',
+        'Explain dynamic VLAN assignment as the most common authorization outcome',
+        'Place downloadable/named ACLs (dACL) as a more granular means of authorization than plain VLAN assignment',
+        'Name quarantine and guest VLAN as authorization outcomes for non-compliant or untrusted devices',
+        'Roughly place Security Group Tags (SGT/TrustSec) as a vendor-specific alternative, without configuration details',
+        'Assign a plausible authorization outcome to typical device classes',
     ],
     'scenario': {
         'de': 'Nordwind Logistik hat 802.1X, MAB und RADIUS im Griff — Geräte authentifizieren '
@@ -96,7 +104,8 @@ NAC_AUTORISIERUNG_MODULE = {
                    'teilen sich dieselben grundsätzlichen Zugriffsmöglichkeiten. '
                    '**Downloadable ACLs (dACL)** lösen das feiner: '
                    'Der Authentication Server kann eine individuelle Zugriffsliste an den '
-                   'Switch pushen, ohne dass diese ACL dort dauerhaft vorkonfiguriert sein '
+                   'Switch ausliefern (der Switch lädt sie bei Bedarf mit einer zweiten '
+                   'Access-Request nach), ohne dass diese ACL dort dauerhaft vorkonfiguriert sein '
                    'muss. Die verwandte Variante **named ACL** arbeitet umgekehrt: Der Server '
                    'schickt nur den Namen einer ACL (RADIUS-Attribut Filter-Id), die auf dem '
                    'Switch oder Wireless-Controller bereits angelegt sein muss.\n\n'
@@ -108,8 +117,9 @@ NAC_AUTORISIERUNG_MODULE = {
              'en': '## Downloadable/Named ACLs (dACL)\n\n'
                    'A VLAN assignment alone is often too coarse: all devices in the same VLAN '
                    'share the same basic access possibilities. **Downloadable ACLs (dACL)** '
-                   'resolve this more finely: the authentication server can push an individual '
-                   'access list to the switch, without that ACL having to be permanently '
+                   'resolve this more finely: the authentication server can deliver an individual '
+                   'access list to the switch (the switch fetches it with a second '
+                   'Access-Request when needed), without that ACL having to be permanently '
                    'preconfigured there. The related **named ACL** variant works the other way '
                    'round: the server only sends the name of an ACL (RADIUS Filter-Id '
                    'attribute) that must already exist on the switch or wireless controller.\n'
@@ -121,12 +131,12 @@ NAC_AUTORISIERUNG_MODULE = {
          }},
         {'type': 'text', 'id': 'text-4',
          'value': {
-             'de': '## Quarantäne- und Gäste-VLAN\n\n'
+             'de': '## Quarantäne- und Gast-VLAN\n\n'
                    'Für Geräte, die die Authentifizierung nicht bestehen, nicht '
                    'vertrauenswürdig sind oder Compliance-Anforderungen nicht erfüllen, ist ein '
                    'eigenes, stark eingeschränktes Netzsegment das Standardergebnis: das '
                    '**Quarantäne-VLAN** (für nicht-konforme, aber grundsätzlich bekannte '
-                   'Geräte) beziehungsweise das **Gäste-VLAN** (für unbekannte oder externe '
+                   'Geräte) beziehungsweise das **Gast-VLAN** (für unbekannte oder externe '
                    'Geräte). Beide erlauben typischerweise nur eingeschränkten Zugriff — etwa '
                    'auf Internet, aber nicht auf interne Ressourcen, oder nur auf die zur '
                    'Fehlerbehebung nötigen Server.\n\n'
@@ -170,16 +180,135 @@ NAC_AUTORISIERUNG_MODULE = {
                    'place it as an alternative to VLAN/dACL — configuration details are not '
                    'part of this module.',
          }},
+        {
+            'type': 'diagram',
+            'id': 'diagram-autorisierung-ergebnis',
+            'note': 'Die drei Wege schließen sich nicht aus: VLAN + dACL ist die häufigste Kombination. Attributnamen für dACL und SGT sind Cisco-spezifisch.',
+            'payload': {
+                'kind': 'flow',
+                'title_de': 'Ein Access-Accept, drei Arten von Ergebnis',
+                'title_en': 'One Access-Accept, three kinds of outcome',
+                'caption_de': 'Der Server entscheidet, der Switch setzt am Port um.',
+                'caption_en': 'The server decides, the switch enforces on the port.',
+                'nodes': [
+                    {
+                        'id': 'srv',
+                        'shape': 'server',
+                        'row': 1,
+                        'col': 0,
+                        'label_de': 'RADIUS-Server',
+                        'label_en': 'RADIUS server',
+                    },
+                    {
+                        'id': 'sw',
+                        'shape': 'switch',
+                        'row': 1,
+                        'col': 1,
+                        'label': 'Switch',
+                    },
+                    {
+                        'id': 'vlan',
+                        'row': 0,
+                        'col': 2,
+                        'label_de': 'VLAN: welches Segment?',
+                        'label_en': 'VLAN: which segment?',
+                        'detail_de': 'Tunnel-Private-Group-ID (mit Tunnel-Type und Tunnel-Medium-Type). Grob: bestimmt Subnetz und Gateway. Ein Wechsel erfordert eine neue IP-Adresse.',
+                        'detail_en': 'Tunnel-Private-Group-ID (with Tunnel-Type and Tunnel-Medium-Type). Coarse: determines subnet and gateway. A change requires a new IP address.',
+                    },
+                    {
+                        'id': 'dacl',
+                        'row': 1,
+                        'col': 2,
+                        'label_de': 'dACL: welche Ziele?',
+                        'label_en': 'dACL: which destinations?',
+                        'detail_de': 'Der Server nennt die ACL; der Switch lädt ihren Inhalt per RADIUS nach und wendet sie nur auf diese eine Sitzung an. Bei der named ACL (Filter-Id) kommt nur der Name, der Inhalt muss auf dem Switch liegen.',
+                        'detail_en': 'The server names the ACL; the switch downloads its content via RADIUS and applies it to this one session only. With a named ACL (Filter-Id) only the name is sent, the content must exist on the switch.',
+                    },
+                    {
+                        'id': 'sgt',
+                        'row': 2,
+                        'col': 2,
+                        'label_de': 'SGT: welche Rolle?',
+                        'label_en': 'SGT: which role?',
+                        'detail_de': 'Cisco TrustSec: Der Verkehr wird mit einer Gruppen-Kennung markiert; die Regeln (Gruppe → Gruppe) greifen dort, wo der Verkehr das Netz verlässt — unabhängig von VLAN und IP-Adresse.',
+                        'detail_en': 'Cisco TrustSec: traffic is marked with a group tag; the rules (group → group) apply where traffic leaves the network — independent of VLAN and IP address.',
+                    },
+                ],
+                'edges': [
+                    {
+                        'from': 'srv',
+                        'to': 'sw',
+                        'label': 'Access-Accept',
+                    },
+                    {
+                        'from': 'sw',
+                        'to': 'vlan',
+                    },
+                    {
+                        'from': 'sw',
+                        'to': 'dacl',
+                    },
+                    {
+                        'from': 'sw',
+                        'to': 'sgt',
+                    },
+                ],
+            },
+        },
         {'type': 'widget', 'id': 'nac-policy',
          'note': 'Am Widget die Geraetetypen (verwalteter Laptop, Drucker/IoT, unbekannt/BYOD) '
                  'durchspielen lassen und beobachten, wie 802.1X-Faehigkeit, Zertifikat und '
-                 'Compliance-Status zusammen das Ergebnis (VLAN, Quarantaene, Gast, MAB/IoT, '
-                 'Deny) bestimmen - bevor die Zuordnungsaufgabe kommt.'},
+                 'Compliance-Status zusammen das Ergebnis (Vollzugriff, Eingeschraenkt, Quarantaene, '
+                 'Gast, MAB/IoT, Deny) bestimmen - bevor die Zuordnungsaufgabe kommt. Der Schalter '
+                 'Zertifikat ist ohne Supplicant bewusst deaktiviert (kein 802.1X, kein EAP-TLS).'},
+        {
+            'type': 'match',
+            'id': 'match-geraeteklassen',
+            'note': 'Die VLAN-Nummern sind das Nordwind-Schema dieses Lehrgangs (20/30/40/50/99, Critical 90) und entsprechen den Widgets.',
+            'payload': {
+                'prompt_de': 'Nordwind-Schema: Ordne jedem Gerät sein plausibles Autorisierungsergebnis zu.',
+                'prompt_en': 'Nordwind scheme: match each device to its plausible authorization outcome.',
+                'pairs': [
+                    {
+                        'left_de': 'Firmen-Notebook, EAP-TLS, konform',
+                        'left_en': 'Company notebook, EAP-TLS, compliant',
+                        'right_de': 'VLAN 20 (Mitarbeiter) mit vollem Zugriff',
+                        'right_en': 'VLAN 20 (employees) with full access',
+                    },
+                    {
+                        'left_de': 'Firmen-Notebook, nicht konform',
+                        'left_en': 'Company notebook, non-compliant',
+                        'right_de': 'VLAN 99 (Quarantäne), nur Update-Server',
+                        'right_en': 'VLAN 99 (quarantine), update servers only',
+                    },
+                    {
+                        'left_de': 'Etikettendrucker, per MAB erkannt',
+                        'left_en': 'Label printer, recognized via MAB',
+                        'right_de': 'VLAN 40 (IoT) plus dACL zum Druckserver',
+                        'right_en': 'VLAN 40 (IoT) plus dACL to the print server',
+                    },
+                    {
+                        'left_de': 'Besucher-Smartphone am Portal',
+                        'left_en': 'Visitor smartphone at the portal',
+                        'right_de': 'VLAN 50 (Gast), nur Richtung Internet',
+                        'right_en': 'VLAN 50 (guest), toward the internet only',
+                    },
+                    {
+                        'left_de': 'Privates Tablet nach Onboarding',
+                        'left_en': 'Personal tablet after onboarding',
+                        'right_de': 'VLAN 30 (BYOD), ausgewählte Dienste',
+                        'right_en': 'VLAN 30 (BYOD), selected services',
+                    },
+                ],
+                'explanation_de': 'Je schwächer der Nachweis (MAB, Portal) und je unbekannter das Gerät, desto enger das Ergebnis. Beim Drucker engt die dACL zusätzlich innerhalb des VLANs ein.',
+                'explanation_en': 'The weaker the proof (MAB, portal) and the less known the device, the narrower the outcome. For the printer the dACL additionally narrows access within the VLAN.',
+            },
+        },
         {'type': 'check', 'id': 'check-1',
          'payload': {
              'kind': 'choice',
              'prompt_de': 'Ein privates Smartphone eines Besuchers verbindet sich über das '
-                          'Gäste-WLAN von Nordwind Logistik und hat sich nur per '
+                          'Gast-WLAN von Nordwind Logistik und hat sich nur per '
                           'Hotspot-Portal mit Akzeptanz der Nutzungsrichtlinie angemeldet, ohne '
                           'eigene Zugangsdaten. Welches Autorisierungsergebnis passt am besten?',
              'prompt_en': 'A visitor\'s personal smartphone connects via Nordwind Logistik\'s '
@@ -189,7 +318,7 @@ NAC_AUTORISIERUNG_MODULE = {
              'answer': 1,
              'options_de': [
                  'Vollzugriff auf das interne Produktivnetz wie bei einem Mitarbeiter-Notebook',
-                 'Zuweisung in ein Gäste-VLAN mit stark eingeschränktem Zugriff, typischerweise '
+                 'Zuweisung in ein Gast-VLAN mit stark eingeschränktem Zugriff, typischerweise '
                  'nur Richtung Internet',
                  'Zuweisung eines Security Group Tag mit vollem TrustSec-Vertrauensstatus',
                  'Zuweisung in dasselbe VLAN wie die Etikettendrucker in der Lagerhalle',
@@ -245,6 +374,66 @@ NAC_AUTORISIERUNG_MODULE = {
                                'mechanisms complement each other rather than replacing one '
                                'another.',
          }},
+        {
+            'type': 'terminal',
+            'id': 'terminal-dacl-check',
+            'note': 'Ausgaben im IOS-XE-Format, gekürzt. Heruntergeladene ACLs erscheinen auf dem Switch mit dem Präfix „xACSACLx-IP-“ und dem Zusatz „(per-user)“. Die dACL filtert eingehend am Port: Quelle ist immer das Endgerät.',
+            'payload': {
+                'title_de': 'Was darf der Drucker wirklich?',
+                'title_en': 'What may the printer really do?',
+                'prompt': 'nw-acc1#',
+                'abbreviations': True,
+                'unknown': '% Invalid input detected: {cmd}',
+                'commands': [
+                    {
+                        'cmd': 'show access-session interface Gi1/0/7 details',
+                        'aliases': ['show authentication sessions interface Gi1/0/7 details'],
+                        'desc_de': 'Sitzung an Gi1/0/7',
+                        'desc_en': 'session on Gi1/0/7',
+                        'output': '            Interface:  GigabitEthernet1/0/7\n          MAC Address:  0018.f809.cfd7\n         IPv4 Address:  10.40.0.23\n            User-Name:  0018f809cfd7\n               Status:  Authorized\n               Domain:  DATA\n    Common Session ID:  0A0A00FE0000003199A0B1C2\n\nServer Policies:\n           Vlan Group:  Vlan: 40\n              ACS ACL:  xACSACLx-IP-PRN-5f2a91c4\n\nMethod status list:\n       Method           State\n        dot1x           Stopped\n          mab           Authc Success',
+                    },
+                    {
+                        'cmd': 'show ip access-lists',
+                        'desc_de': 'alle ACLs samt heruntergeladener dACL',
+                        'desc_en': 'all ACLs incl. downloaded dACL',
+                        'output': 'Extended IP access list ACL-DEFAULT\n    10 permit udp any eq bootpc any eq bootps\n    20 permit udp any any eq domain\n    30 deny ip any any\nExtended IP access list xACSACLx-IP-PRN-5f2a91c4 (per-user)\n    1 permit udp any eq bootpc any eq bootps\n    2 permit udp any host 10.10.0.53 eq domain\n    3 permit tcp any eq 9100 host 10.20.5.10\n    4 deny ip any any',
+                    },
+                    {
+                        'cmd': 'show vlan id 40',
+                        'desc_de': 'Ports in VLAN 40',
+                        'desc_en': 'ports in VLAN 40',
+                        'output': 'VLAN Name                 Status    Ports\n---- -------------------- --------- ---------------\n40   IOT                  active    Gi1/0/7, Gi1/0/9',
+                    },
+                ],
+                'tasks': [
+                    {
+                        'text_de': 'Zeige die Sitzung des Druckers an Gi1/0/7.',
+                        'text_en': "Show the printer's session on Gi1/0/7.",
+                        'command': 'show access-session interface Gi1/0/7 details',
+                    },
+                    {
+                        'text_de': 'In welches VLAN wurde der Drucker gelegt (nur die Nummer)?',
+                        'text_en': 'Which VLAN was the printer placed in (number only)?',
+                        'answers': ['40', 'VLAN 40', 'vlan 40'],
+                    },
+                    {
+                        'text_de': 'Sieh dir den Inhalt der heruntergeladenen ACL an.',
+                        'text_en': 'Look at the content of the downloaded ACL.',
+                        'command': 'show ip access-lists',
+                    },
+                    {
+                        'text_de': 'Mit welchem Host darf der Drucker über TCP 9100 sprechen (IP-Adresse)?',
+                        'text_en': 'Which host may the printer talk to over TCP 9100 (IP address)?',
+                        'answers': ['10.20.5.10'],
+                    },
+                    {
+                        'text_de': 'An Gi1/0/9 hängt ein zweiter Drucker im selben VLAN. Darf Gi1/0/7 ihn laut dACL erreichen (ja/nein)?',
+                        'text_en': 'A second printer in the same VLAN is on Gi1/0/9. May Gi1/0/7 reach it according to the dACL (yes/no)?',
+                        'answers': ['nein', 'no', 'n'],
+                    },
+                ],
+            },
+        },
         {'type': 'reflect', 'id': 'reflect-1',
          'payload': {
              'prompt_de': 'Nordwind Logistik überlegt, für alle IoT-Geräte pauschal dasselbe '
@@ -279,6 +468,10 @@ NAC_AUTORISIERUNG_MODULE = {
                  'Authorization always happens before authentication',
                  'Authentication only applies to Wi-Fi, authorization only to wired networks',
              ],
+         },
+         'explanation': {
+             'de': 'Authentifizierung klärt das „Wer“, Autorisierung das „Was darf es“. Die Autorisierung baut auf der geklärten Identität auf und kann deshalb nicht vorher stattfinden.',
+             'en': 'Authentication settles the "who", authorization the "what may it do". Authorization builds on the established identity and therefore cannot happen before it.',
          }},
         {'id': 'az2', 'type': 'single',
          'prompt': {'de': 'Über welchen Mechanismus wird dynamische VLAN-Zuweisung typischerweise '
@@ -301,6 +494,10 @@ NAC_AUTORISIERUNG_MODULE = {
                  'Via a fixed assignment based on the port number, regardless of the device',
                  'Via TACACS+ accounting messages',
              ],
+         },
+         'explanation': {
+             'de': 'Das VLAN kommt als Attribut im Access-Accept. Eine feste Zuordnung je Port wäre gerade das statische Modell, das die dynamische Zuweisung ablöst.',
+             'en': 'The VLAN arrives as an attribute in the Access-Accept. A fixed assignment per port would be exactly the static model that dynamic assignment replaces.',
          }},
         {'id': 'az3', 'type': 'single',
          'prompt': {'de': 'Was ist der Vorteil einer downloadable ACL (dACL) gegenüber einer '
@@ -323,9 +520,13 @@ NAC_AUTORISIERUNG_MODULE = {
                  'dACL only works for devices authenticated via MAB',
                  'dACL completely eliminates the need for a VLAN structure',
              ],
+         },
+         'explanation': {
+             'de': 'Die dACL filtert je Sitzung und wird vom Server geliefert, statt auf jedem Switch gepflegt zu werden. Sie ergänzt die VLAN-Struktur, ersetzt sie aber nicht — und funktioniert bei 802.1X genauso wie bei MAB.',
+             'en': 'The dACL filters per session and is delivered by the server instead of being maintained on every switch. It complements the VLAN structure but does not replace it — and works for 802.1X just as for MAB.',
          }},
         {'id': 'az4', 'type': 'single',
-         'prompt': {'de': 'Wofür wird ein Quarantäne- oder Gäste-VLAN typischerweise genutzt?',
+         'prompt': {'de': 'Wofür wird ein Quarantäne- oder Gast-VLAN typischerweise genutzt?',
                     'en': 'What is a quarantine or guest VLAN typically used for?'},
          'answer': 0,
          'options': {
@@ -343,6 +544,10 @@ NAC_AUTORISIERUNG_MODULE = {
                  'Exclusively for devices authenticated via EAP-TLS',
                  'For the management VLAN of the network switches',
              ],
+         },
+         'explanation': {
+             'de': 'Beide Segmente sind Auffangnetze mit eingeschränktem Zugriff: Quarantäne für bekannte, aber nicht konforme Geräte, Gast für unbekannte. Ein per EAP-TLS angemeldetes, konformes Gerät gehört gerade nicht dorthin.',
+             'en': 'Both segments are catch-all networks with restricted access: quarantine for known but non-compliant devices, guest for unknown ones. A compliant device authenticated via EAP-TLS is precisely what does not belong there.',
          }},
         {'id': 'az5', 'type': 'single',
          'prompt': {'de': 'Wie lässt sich Security Group Tagging (SGT/TrustSec) am treffendsten '
@@ -365,6 +570,64 @@ NAC_AUTORISIERUNG_MODULE = {
                  'As a replacement for RADIUS accounting',
                  'As the name for the quarantine VLAN on Cisco devices',
              ],
+         },
+         'explanation': {
+             'de': 'SGT ist ein Cisco-Konzept (TrustSec), kein IEEE-Standard. Es markiert Verkehr mit einer Gruppe und entkoppelt die Regeln damit von VLAN und IP-Adresse — ein eigenes Modell, kein Name für ein VLAN.',
+             'en': 'SGT is a Cisco concept (TrustSec), not an IEEE standard. It marks traffic with a group and thereby decouples the rules from VLAN and IP address — a model of its own, not a name for a VLAN.',
          }},
+        {
+            'id': 'az6',
+            'type': 'single',
+            'prompt': {
+                'de': 'Ein Drucker ist laut „show access-session … details“ autorisiert: „Vlan: 40“ und „ACS ACL: xACSACLx-IP-PRN-5f2a91c4“. Drucken funktioniert, aber das Monitoring-System im selben VLAN erreicht ihn nicht per SNMP. Wo liegt die Ursache am wahrscheinlichsten?',
+                'en': 'According to "show access-session … details" a printer is authorized: "Vlan: 40" and "ACS ACL: xACSACLx-IP-PRN-5f2a91c4". Printing works, but the monitoring system in the same VLAN cannot reach it via SNMP. Where is the cause most likely?',
+            },
+            'options': {
+                'de': [
+                    'Der Drucker liegt im falschen VLAN',
+                    'Die dACL erlaubt die SNMP-Antworten des Druckers nicht',
+                    'Die Authentifizierung ist fehlgeschlagen',
+                    'Der RADIUS-Server ist nicht erreichbar',
+                ],
+                'en': [
+                    'The printer is in the wrong VLAN',
+                    "The dACL does not permit the printer's SNMP replies",
+                    'Authentication failed',
+                    'The RADIUS server is unreachable',
+                ],
+            },
+            'answer': 1,
+            'explanation': {
+                'de': 'VLAN und Anmeldung stimmen — übrig bleibt der feinere Filter: Die dACL gilt am Port für alles, was der Drucker sendet, auch für Antworten an ein Gerät im selben VLAN. Der naheliegende Irrtum ist, im selben VLAN sei automatisch alles erlaubt.',
+                'en': 'VLAN and login are fine — what remains is the finer filter: the dACL applies on the port to everything the printer sends, including replies to a device in the same VLAN. The obvious misconception is that everything is automatically allowed within the same VLAN.',
+            },
+        },
+        {
+            'id': 'az7',
+            'type': 'multi',
+            'prompt': {
+                'de': 'Welche Aussagen zu VLAN-Zuweisung und dACL treffen zu? (Mehrere richtig)',
+                'en': 'Which statements about VLAN assignment and dACL are true? (Several correct)',
+            },
+            'options': {
+                'de': [
+                    'Eine dACL kann den Zugriff auch innerhalb eines VLANs einschränken',
+                    'Wechselt eine laufende Sitzung das VLAN, braucht das Endgerät eine neue IP-Adresse',
+                    'Eine downloadable ACL muss vorab auf jedem Switch angelegt sein',
+                    'VLAN-Zuweisung und dACL lassen sich in einem Access-Accept kombinieren',
+                ],
+                'en': [
+                    'A dACL can restrict access even within a VLAN',
+                    'If a running session changes VLAN, the endpoint needs a new IP address',
+                    'A downloadable ACL must be created on every switch beforehand',
+                    'VLAN assignment and dACL can be combined in one Access-Accept',
+                ],
+            },
+            'answer': [0, 1, 3],
+            'explanation': {
+                'de': 'Vorab auf dem Switch liegen muss nur die named ACL (Filter-Id); die downloadable ACL liefert der Server mit. Dass ein VLAN-Wechsel eine neue Adresse erfordert, ist der Grund, warum für nachträgliche Änderungen oft die dACL getauscht wird.',
+                'en': 'Only the named ACL (Filter-Id) has to exist on the switch beforehand; the downloadable ACL is delivered by the server. That a VLAN change requires a new address is the reason why the dACL is often swapped for later changes.',
+            },
+        },
     ]},
 }

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { lease, type Lease } from '@/widgets/dhcp/dhcp'
+import { lease, POOL_SIZE, type Lease } from '@/widgets/dhcp/dhcp'
 import { ChallengeBox } from '@/components/ChallengeBox'
 import type { Lang } from '@/lib/i18n'
 
@@ -7,10 +7,16 @@ const STR = {
   de: { title: 'DHCP — automatische IP-Vergabe', newClient: 'Neuer Client verbindet sich', reset: 'Zurücksetzen',
     ip: 'IP-Adresse', mask: 'Subnetzmaske', gateway: 'Gateway', dns: 'DNS-Server',
     leases: 'Vergebene Leases', none: 'keine', client: 'Client', nextStep: 'Nächster Schritt',
+    pool: 'Pool 192.168.10.100–199', fill: 'Pool fast füllen',
+    exhausted: 'Pool erschöpft: Der Server hat keine freie Adresse mehr und schickt kein Offer — '
+      + 'der Discover des neuen Clients bleibt unbeantwortet, bis ein Lease abläuft oder freigegeben wird.',
     challenge: 'Verbinde drei Clients und vergleiche ihre Leases — was ist gleich, was unterscheidet sich?' },
   en: { title: 'DHCP — Automatic IP Assignment', newClient: 'New client connects', reset: 'Reset',
     ip: 'IP address', mask: 'Subnet mask', gateway: 'Gateway', dns: 'DNS server',
     leases: 'Assigned leases', none: 'none', client: 'Client', nextStep: 'Next step',
+    pool: 'Pool 192.168.10.100–199', fill: 'Nearly fill the pool',
+    exhausted: 'Pool exhausted: the server has no free address left and sends no offer — '
+      + "the new client's discover stays unanswered until a lease expires or is released.",
     challenge: 'Connect three clients and compare their leases — what is identical, what differs?' },
 } as const
 
@@ -21,7 +27,17 @@ export function Dhcp({ lang }: { lang: Lang }) {
   const [pending, setPending] = useState<{ lease: Lease; step: number } | null>(null)
   const s = STR[lang]
 
-  const add = () => setPending({ lease: lease(leases.length), step: 1 })
+  const [exhausted, setExhausted] = useState(false)
+  const add = () => {
+    const next = lease(leases.length)
+    if (next) setPending({ lease: next, step: 1 })
+    else { setPending(null); setExhausted(true) }
+  }
+  // füllt bis auf zwei freie Adressen, damit die Erschöpfung ohne 100 Klicks erreichbar ist
+  const fill = () => {
+    setPending(null)
+    setLeases(Array.from({ length: POOL_SIZE - 2 }, (_, i) => lease(i)!))
+  }
   const advance = () => {
     if (!pending) return
     const step = pending.step + 1
@@ -42,10 +58,19 @@ export function Dhcp({ lang }: { lang: Lang }) {
         >
           {s.newClient}
         </button>
-        <button onClick={() => { setLeases([]); setPending(null) }} className="rounded-lg border px-3 py-1.5 text-sm">
+        <button onClick={fill} disabled={inProgress || leases.length >= POOL_SIZE - 2}
+          className="rounded-lg border px-3 py-1.5 text-sm disabled:opacity-50">
+          {s.fill}
+        </button>
+        <button onClick={() => { setLeases([]); setPending(null); setExhausted(false) }} className="rounded-lg border px-3 py-1.5 text-sm">
           {s.reset}
         </button>
       </div>
+      {exhausted && (
+        <p role="alert" className="mb-3 rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-xs text-amber-800">
+          {s.exhausted}
+        </p>
+      )}
 
       {pending && (
         <>
@@ -80,8 +105,8 @@ export function Dhcp({ lang }: { lang: Lang }) {
         </>
       )}
 
-      <p className="text-xs font-semibold text-slate-500 mb-1">{s.leases}</p>
-      <div className="rounded-lg border divide-y text-xs font-mono">
+      <p className="text-xs font-semibold text-slate-500 mb-1">{s.leases} — {s.pool}: {leases.length}/{POOL_SIZE}</p>
+      <div className="rounded-lg border divide-y text-xs font-mono max-h-48 overflow-y-auto">
         {leases.length === 0 ? (
           <div className="px-3 py-2 text-slate-400">{s.none}</div>
         ) : (

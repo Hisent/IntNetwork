@@ -16,6 +16,13 @@ RPZ_MODULE = {
         'Erklären, warum DNS ein wirksamer, früher Kontrollpunkt gegen Malware/Phishing ist',
         'Die Rolle von Infoblox Threat Defense als darauf aufbauendes Produkt grob einordnen können',
     ],
+    "goals_en": [
+        "Explain response policy zones (RPZ) as a mechanism for redirecting or blocking harmful DNS answers",
+        "Distinguish local RPZ rules from externally sourced threat intelligence feeds",
+        "Tell RPZ, DNSSEC and a classic firewall apart as different layers of protection",
+        "Explain why DNS is an effective, early control point against malware and phishing",
+        "Roughly place the role of Infoblox Threat Defense as a product building on this",
+    ],
     'scenario': {
         'de': 'Bei Nordwind Logistik hat sich ein Mitarbeiter-Notebook mit Malware infiziert. '
               'Bevor der eigentliche Schadverkehr fließt, muss die Malware fast immer erst einen '
@@ -79,6 +86,109 @@ RPZ_MODULE = {
                    'cases, feeds for breadth and currency against new threats that no single '
                    'company could detect on its own.',
          }},
+        {
+            "type": "diagram",
+            "id": "diagram-rpz-auswertung",
+            "note": "Kontrollfrage: Was passiert, wenn die lokale RPZ unter der Feed-RPZ einsortiert ist? (Der Feed-Treffer gewinnt, die Ausnahme greift nie.)",
+            "payload": {
+                "kind": "flow",
+                "title_de": "Wie eine Anfrage durch die RPZs läuft",
+                "title_en": "How a query passes through the RPZs",
+                "caption_de": "Die RPZs werden in ihrer Reihenfolge geprüft; der erste Treffer entscheidet.",
+                "caption_en": "The RPZs are checked in their order; the first hit decides.",
+                "nodes": [
+                    {
+                        "id": "client",
+                        "shape": "host",
+                        "row": 0,
+                        "col": 0,
+                        "label_de": "Client",
+                        "label_en": "Client",
+                    },
+                    {
+                        "id": "dns",
+                        "shape": "server",
+                        "row": 0,
+                        "col": 1,
+                        "label_de": "Rekursiver Member",
+                        "label_en": "Recursive member",
+                        "detail_de": "RPZ wirkt auf dem Server, der für die Clients rekursiv auflöst — nicht auf dem autoritativen Server der betroffenen Domain.",
+                        "detail_en": "RPZ acts on the server that resolves recursively for the clients — not on the authoritative server of the affected domain.",
+                    },
+                    {
+                        "id": "lokal",
+                        "shape": "decision",
+                        "row": 0,
+                        "col": 2,
+                        "label_de": "1. Lokale RPZ",
+                        "label_en": "1st: local RPZ",
+                        "detail_de": "Selbst gepflegt: eigene Sperren und begründete Ausnahmen (Passthru).",
+                        "detail_en": "Self-maintained: your own blocks and justified exceptions (passthru).",
+                    },
+                    {
+                        "id": "feed",
+                        "shape": "decision",
+                        "row": 1,
+                        "col": 2,
+                        "label_de": "2. Feed-RPZ",
+                        "label_en": "2nd: feed RPZ",
+                        "detail_de": "Vom Anbieter laufend aktualisierte Bedrohungsliste.",
+                        "detail_en": "Threat list continuously updated by the provider.",
+                    },
+                    {"id": "echt", "row": 1, "col": 1, "label_de": "Echte Antwort", "label_en": "Real answer"},
+                    {
+                        "id": "block",
+                        "row": 2,
+                        "col": 2,
+                        "label_de": "Sperre oder Umleitung",
+                        "label_en": "Block or redirect",
+                    },
+                ],
+                "edges": [
+                    {"id": "frage", "from": "client", "to": "dns", "label_de": "Name?", "label_en": "name?"},
+                    {"id": "p1", "from": "dns", "to": "lokal"},
+                    {
+                        "id": "p2",
+                        "from": "lokal",
+                        "to": "feed",
+                        "label_de": "kein Treffer",
+                        "label_en": "no hit",
+                    },
+                    {"id": "pass", "from": "lokal", "to": "echt", "label": "Passthru"},
+                    {"id": "hit", "from": "feed", "to": "block", "label_de": "Treffer", "label_en": "hit"},
+                    {
+                        "id": "frei",
+                        "from": "feed",
+                        "to": "echt",
+                        "style": "dashed",
+                        "label_de": "kein Treffer",
+                        "label_en": "no hit",
+                    },
+                ],
+                "steps": [
+                    {
+                        "highlight": ["client", "frage", "dns", "p1", "lokal"],
+                        "text_de": "Ein Client fragt nach partnerportal.example. Der Member prüft zuerst die lokale RPZ.",
+                        "text_en": "A client asks for partnerportal.example. The member checks the local RPZ first.",
+                    },
+                    {
+                        "highlight": ["lokal", "pass", "echt"],
+                        "text_de": "Dort steht eine Passthru-Regel für genau diesen Namen: Die Auswertung endet, der Client bekommt die echte Antwort — egal, was der Feed weiter unten sagt.",
+                        "text_en": "It contains a passthru rule for exactly this name: evaluation ends, the client gets the real answer — whatever the feed further down says.",
+                    },
+                    {
+                        "highlight": ["lokal", "p2", "feed", "hit", "block"],
+                        "text_de": "Anders bei login-nordwind.example: kein Treffer lokal, aber der Feed kennt die Domain als Phishing. Der Client erhält eine Sperre oder Umleitung.",
+                        "text_en": "Different for login-nordwind.example: no local hit, but the feed knows the domain as phishing. The client receives a block or a redirect.",
+                    },
+                    {
+                        "highlight": ["feed", "frei", "echt"],
+                        "text_de": "Trifft keine RPZ zu, wird ganz normal aufgelöst. Das ist bei fast allen Anfragen der Fall.",
+                        "text_en": "If no RPZ matches, resolution proceeds normally. That is the case for almost all queries.",
+                    },
+                ],
+            },
+        },
         {'type': 'check', 'id': 'check-1',
          'payload': {
              'kind': 'choice',
@@ -102,6 +212,39 @@ RPZ_MODULE = {
                  'RPZ and classic firewalls both filter exclusively by port number',
              ],
          }},
+        {
+            "type": "match",
+            "id": "match-rpz-regeln",
+            "note": "Regeltypen laut NIOS-Doku „Configuring Rules for RPZs“.",
+            "payload": {
+                "prompt_de": "NIOS kennt mehrere Regeltypen für RPZs. Was bekommt der Client jeweils?",
+                "prompt_en": "NIOS knows several rule types for RPZs. What does the client get in each case?",
+                "pairs": [
+                    {
+                        "left": "Passthru",
+                        "right_de": "die unveränderte, echte Antwort",
+                        "right_en": "the unmodified, real answer",
+                    },
+                    {
+                        "left": "Block (No Such Domain)",
+                        "right_de": "die Auskunft, dass die Domain nicht existiert",
+                        "right_en": "the statement that the domain does not exist",
+                    },
+                    {
+                        "left": "Block (No Data)",
+                        "right_de": "eine Antwort ohne Daten zum Namen",
+                        "right_en": "an answer without data for the name",
+                    },
+                    {
+                        "left": "Substitute (Domain Name)",
+                        "right_de": "einen anderen Namen, etwa den einer Hinweisseite",
+                        "right_en": "a different name, such as that of a notice page",
+                    },
+                ],
+                "explanation_de": "Passthru ist der Regeltyp für Ausnahmen. Die beiden Block-Varianten unterscheiden sich im Antwortcode (NXDOMAIN gegenüber einer leeren Antwort); Substitute leitet um, zum Beispiel auf eine interne Seite, die dem Nutzer die Sperre erklärt.",
+                "explanation_en": "Passthru is the rule type for exceptions. The two block variants differ in the response code (NXDOMAIN versus an empty answer); substitute redirects, for example to an internal page that explains the block to the user.",
+            },
+        },
         {'type': 'text', 'id': 'text-3',
          'value': {
              'de': '## RPZ vs. DNSSEC — nicht verwechseln\n\n'
@@ -151,6 +294,56 @@ RPZ_MODULE = {
                    '/reporting of RPZ hits is therefore not just proof of effectiveness, but also '
                    'the tool that first makes such false positives visible.',
          }},
+        {
+            "type": "terminal",
+            "id": "terminal-rpz-dig",
+            "note": "Aus Client-Sicht ist ein RPZ-NXDOMAIN nicht von einer wirklich nicht existierenden Domain zu unterscheiden — Gewissheit bringen erst die RPZ-Treffer im Log bzw. Reporting. dig-Ausgaben im Standardformat von BIND 9, gekürzt.",
+            "payload": {
+                "title_de": "Was sieht der Client? Drei Namen, drei Ergebnisse",
+                "title_en": "What does the client see? Three names, three results",
+                "intro_de": "Admin-PC, rekursiver Member 10.20.30.53 mit lokaler RPZ und Feed-RPZ. Ausgaben gekürzt.",
+                "intro_en": "Admin PC, recursive member 10.20.30.53 with a local RPZ and a feed RPZ. Output shortened.",
+                "prompt": "admin@pc17:~$",
+                "unknown": "bash: {cmd}: command not found",
+                "commands": [
+                    {
+                        "cmd": "dig @10.20.30.53 login-nordwind.example A",
+                        "desc_de": "Phishing-Domain aus dem Feed",
+                        "desc_en": "phishing domain from the feed",
+                        "output": ";; ->>HEADER<<- opcode: QUERY, status: NXDOMAIN, id: 8841\n;; flags: qr rd ra; QUERY: 1, ANSWER: 0\n\n;; QUESTION SECTION:\n;login-nordwind.example.     IN   A",
+                    },
+                    {
+                        "cmd": "dig @10.20.30.53 gewinnspiel.example A",
+                        "desc_de": "lokal gesperrte Domain",
+                        "desc_en": "locally blocked domain",
+                        "output": ";; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 8850\n;; flags: qr rd ra; QUERY: 1, ANSWER: 2\n\n;; ANSWER SECTION:\ngewinnspiel.example. 5 IN CNAME sperrseite.nordwind-intern.de.\nsperrseite.nordwind-intern.de. 3600 IN A 10.20.30.80",
+                    },
+                    {
+                        "cmd": "dig @10.20.30.53 partnerportal.example A +short",
+                        "desc_de": "Domain mit lokaler Ausnahme",
+                        "desc_en": "domain with a local exception",
+                        "output": "198.51.100.90",
+                    },
+                ],
+                "tasks": [
+                    {
+                        "text_de": "Frage die Phishing-Domain login-nordwind.example ab. Welchen Status liefert der Member?",
+                        "text_en": "Query the phishing domain login-nordwind.example. Which status does the member return?",
+                        "answers": ["NXDOMAIN", "nxdomain"],
+                    },
+                    {
+                        "text_de": "Frage gewinnspiel.example ab. Auf welchen Namen wird umgeleitet?",
+                        "text_en": "Query gewinnspiel.example. Which name is it redirected to?",
+                        "answers": ["sperrseite.nordwind-intern.de.", "sperrseite.nordwind-intern.de", "sperrseite"],
+                    },
+                    {
+                        "text_de": "Welcher Regeltyp steckt hinter dieser Umleitung? (ein Wort)",
+                        "text_en": "Which rule type is behind this redirect? (one word)",
+                        "answers": ["Substitute", "substitute", "Substitute (Domain Name)"],
+                    },
+                ],
+            },
+        },
         {'type': 'debug', 'id': 'debug-1',
          'payload': {
              'prompt_de': 'Mehrere RPZ-Regeln existieren für dieselbe Domain: eine lokale Regel '
@@ -192,6 +385,91 @@ RPZ_MODULE = {
                                'of the RPZs decides: the local exception RPZ must be sorted above '
                                'the feed RPZ.',
          }},
+        {
+            "type": "scenario",
+            "id": "scenario-rpz-fehlalarm",
+            "payload": {
+                "title_de": "Montag, 8:10 Uhr: Das Partnerportal ist „weg“",
+                "title_en": "Monday, 8:10 a.m.: the partner portal is \"gone\"",
+                "start": "start",
+                "nodes": [
+                    {
+                        "id": "start",
+                        "text_de": "Der Versand meldet: partnerportal.example ist seit heute früh nicht erreichbar, 40 Leute können keine Sendungen buchen. Von deinem Mobiltelefon im Mobilfunknetz funktioniert die Seite. Was prüfst du zuerst?",
+                        "text_en": "Shipping reports: partnerportal.example has been unreachable since early morning, 40 people cannot book shipments. From your phone on the mobile network the site works. What do you check first?",
+                        "options": [
+                            {
+                                "label_de": "Die Firewall-Regeln für ausgehenden HTTPS-Verkehr.",
+                                "label_en": "The firewall rules for outbound HTTPS traffic.",
+                                "to": "fw",
+                            },
+                            {
+                                "label_de": "Was der interne Resolver für den Namen antwortet und ob es RPZ-Treffer gibt.",
+                                "label_en": "What the internal resolver answers for the name and whether there are RPZ hits.",
+                                "to": "dns",
+                            },
+                            {
+                                "label_de": "Den Feed vorsorglich abschalten, damit der Versand weiterarbeiten kann.",
+                                "label_en": "Switch off the feed as a precaution so shipping can keep working.",
+                                "to": "feedaus",
+                            },
+                        ],
+                    },
+                    {
+                        "id": "fw",
+                        "outcome": "ok",
+                        "text_de": "Nicht abwegig, aber ein Umweg: Die Firewall-Logs zeigen keine einzige Verbindung zum Portal — weil die Clients den Namen gar nicht erst auflösen können. Der schnellere erste Griff wäre die Namensauflösung gewesen.",
+                        "text_en": "Not far-fetched, but a detour: the firewall logs show not a single connection to the portal — because the clients cannot resolve the name in the first place. Name resolution would have been the quicker first check.",
+                    },
+                    {
+                        "id": "feedaus",
+                        "outcome": "bad",
+                        "text_de": "Du hast ohne Befund den Schutz gegen alle anderen Domains des Feeds abgeschaltet — für das ganze Unternehmen. Und du weißt immer noch nicht, ob der Feed überhaupt die Ursache war.",
+                        "text_en": "Without any finding you switched off protection against all other domains in the feed — for the whole company. And you still do not know whether the feed was the cause at all.",
+                    },
+                    {
+                        "id": "dns",
+                        "text_de": "Intern liefert der Resolver NXDOMAIN, und das Reporting zeigt seit 6:02 Uhr RPZ-Treffer der Feed-RPZ für partnerportal.example. Der Partner bestätigt telefonisch: Die Domain ist sauber, der Hoster hatte am Wochenende einen Vorfall auf einem Nachbarsystem. Was jetzt?",
+                        "text_en": "Internally the resolver returns NXDOMAIN, and reporting shows RPZ hits of the feed RPZ for partnerportal.example since 6:02 a.m. The partner confirms by phone: the domain is clean, the hoster had an incident on a neighbouring system over the weekend. What now?",
+                        "options": [
+                            {
+                                "label_de": "Die Feed-RPZ unter alle anderen RPZs sortieren.",
+                                "label_en": "Sort the feed RPZ below all other RPZs.",
+                                "to": "sort",
+                            },
+                            {
+                                "label_de": "Eine Passthru-Regel für die Domain in der lokalen RPZ anlegen, die über der Feed-RPZ steht.",
+                                "label_en": "Create a passthru rule for the domain in the local RPZ that sits above the feed RPZ.",
+                                "to": "passthru",
+                            },
+                            {
+                                "label_de": "Den betroffenen Clients einen öffentlichen Resolver eintragen.",
+                                "label_en": "Configure a public resolver on the affected clients.",
+                                "to": "public",
+                            },
+                        ],
+                    },
+                    {
+                        "id": "sort",
+                        "outcome": "bad",
+                        "text_de": "Die Reihenfolge allein ändert nichts: Solange keine RPZ darüber den Namen ausdrücklich durchlässt, trifft die Feed-Regel weiterhin.",
+                        "text_en": "The order alone changes nothing: as long as no RPZ above explicitly lets the name pass, the feed rule keeps matching.",
+                    },
+                    {
+                        "id": "public",
+                        "outcome": "bad",
+                        "text_de": "40 Clients umgehen jetzt die gesamte DNS-Sicherheit und lösen interne Namen nicht mehr auf. Der Fehlalarm ist damit nicht behoben, sondern umgangen.",
+                        "text_en": "40 clients now bypass all DNS security and can no longer resolve internal names. The false positive is not fixed, just bypassed.",
+                    },
+                    {
+                        "id": "passthru",
+                        "outcome": "good",
+                        "text_de": "Genau: eine gezielte, begründete Ausnahme für eine geprüfte Domain — der Feed schützt weiter vor allem anderen. Du dokumentierst Anlass und Freigabe, meldest den Fehlalarm dem Feed-Anbieter und setzt dir einen Termin, die Ausnahme wieder zu entfernen.",
+                        "text_en": "Exactly: a targeted, justified exception for a verified domain — the feed keeps protecting against everything else. You document the reason and the approval, report the false positive to the feed provider and set a date to remove the exception again.",
+                    },
+                ],
+            },
+        },
         {'type': 'reveal', 'id': 'reveal-1',
          'payload': {
              'teaser_de': 'Log-Auswertung: Ein Client fragt in kurzer Zeit auffällig viele, '
@@ -271,7 +549,12 @@ RPZ_MODULE = {
          }},
     ],
     'quiz': {'questions': [
-        {'id': 'dt1', 'type': 'single',
+        {'id': 'dt1',
+         "explanation": {
+             "de": "Eine RPZ greift in die Antwort ein: blockieren, umleiten oder bewusst durchlassen. Sie verschlüsselt nichts und signiert nichts — und obwohl eine Feed-RPZ per Zonentransfer geladen wird, ist das Replizieren nicht ihr Zweck.",
+             "en": "An RPZ intervenes in the answer: block, redirect or deliberately pass through. It encrypts nothing and signs nothing — and although a feed RPZ is loaded by zone transfer, replication is not its purpose.",
+         },
+         'type': 'single',
          'prompt': {'de': 'Was macht eine Response Policy Zone (RPZ) grundsätzlich?',
                     'en': 'What does a Response Policy Zone (RPZ) fundamentally do?'},
          'answer': 0,
@@ -289,7 +572,12 @@ RPZ_MODULE = {
                  'It automatically replicates zones via AXFR',
              ],
          }},
-        {'id': 'dt2', 'type': 'single',
+        {'id': 'dt2',
+         "explanation": {
+             "de": "Lokale Regeln pflegt das eigene Team, Feeds liefert ein Anbieter laufend nach. Technisch sind beides RPZs; der Unterschied liegt in Herkunft und Pflege — nicht im Zonentyp und nicht in DNSSEC.",
+             "en": "Local rules are maintained by your own team, feeds are continuously supplied by a provider. Technically both are RPZs; the difference lies in origin and upkeep — not in the zone type and not in DNSSEC.",
+         },
+         'type': 'single',
          'prompt': {'de': 'Was ist der Unterschied zwischen lokalen RPZ-Regeln und abonnierten '
                          'Feeds?',
                     'en': 'What is the difference between local RPZ rules and subscribed feeds?'},
@@ -310,7 +598,12 @@ RPZ_MODULE = {
                  'There is no difference, both terms mean the same thing',
              ],
          }},
-        {'id': 'dt3', 'type': 'single',
+        {'id': 'dt3',
+         "explanation": {
+             "de": "DNSSEC beweist, dass eine Antwort unverändert ist; RPZ verändert sie absichtlich. Die beiden ersetzen einander nicht — und sie können sich reiben: Für einen validierenden Client sieht eine umgeschriebene Antwort einer signierten Zone wie eine Fälschung aus.",
+             "en": "DNSSEC proves that an answer is unaltered; RPZ alters it on purpose. Neither replaces the other — and they can clash: to a validating client, a rewritten answer for a signed zone looks like a forgery.",
+         },
+         'type': 'single',
          'prompt': {'de': 'Worin unterscheiden sich RPZ und DNSSEC grundlegend?',
                     'en': 'What is the fundamental difference between RPZ and DNSSEC?'},
          'answer': 1,
@@ -330,7 +623,12 @@ RPZ_MODULE = {
                  'DNSSEC only works together with RPZ',
              ],
          }},
-        {'id': 'dt4', 'type': 'single',
+        {'id': 'dt4',
+         "explanation": {
+             "de": "Viele zufällig wirkende, meist nicht existierende Namen in kurzer Zeit sind das Muster einer DGA: Die Malware probiert errechnete Namen durch, bis einer registriert ist. Ein Transfer- oder Signaturproblem erzeugt keine Flut verschiedener Namen von einem einzelnen Client.",
+             "en": "Many random-looking, mostly non-existent names within a short time are the pattern of a DGA: the malware tries computed names until one is registered. A transfer or signature problem does not produce a flood of different names from a single client.",
+         },
+         'type': 'single',
          'prompt': {'de': 'Was deutet ein Muster aus vielen, kurzlebigen, zufällig aussehenden '
                          'Domainnamen (meist nicht existent) typischerweise an?',
                     'en': 'What does a pattern of many short-lived, random-looking domain names '
@@ -350,7 +648,12 @@ RPZ_MODULE = {
                  'Domain Generation Algorithm (DGA) malware',
              ],
          }},
-        {'id': 'dt5', 'type': 'single',
+        {'id': 'dt5',
+         "explanation": {
+             "de": "Threat Defense baut auf dem RPZ-Gedanken auf und ergänzt Verhaltenserkennung und laufend gepflegte Bedrohungsdaten. Es blockiert also durchaus — „reines Reporting“ unterschätzt es, „ohne Bezug zu RPZ“ verkennt die Grundlage.",
+             "en": "Threat Defense builds on the RPZ idea and adds behavioral detection and continuously maintained threat data. So it does block — \"pure reporting\" underestimates it, \"unrelated to RPZ\" misses its foundation.",
+         },
+         'type': 'single',
          'prompt': {'de': 'Was ist Infoblox Threat Defense im Verhältnis zu RPZ?',
                     'en': 'What is Infoblox Threat Defense in relation to RPZ?'},
          'answer': 2,
@@ -370,5 +673,76 @@ RPZ_MODULE = {
                  'A pure reporting tool with no blocking capability',
              ],
          }},
+        {
+            "id": "dt6",
+            "type": "single",
+            "prompt": {
+                "de": "Die RPZs eines Members sind so sortiert: (1) Feed-RPZ mit einer Block-Regel für partnerportal.example, (2) lokale RPZ mit einer Passthru-Regel für denselben Namen. Was erhält ein Client?",
+                "en": "A member's RPZs are sorted like this: (1) feed RPZ with a block rule for partnerportal.example, (2) local RPZ with a passthru rule for the same name. What does a client receive?",
+            },
+            "answer": 0,
+            "options": {
+                "de": [
+                    "Die Sperre — die Feed-RPZ steht weiter oben und trifft zuerst",
+                    "Die echte Antwort — Passthru hat als Ausnahme stets Vorrang vor Block",
+                    "Die echte Antwort — lokale Regeln überstimmen Feeds unabhängig von der Position",
+                    "Abwechselnd beides, je nachdem, welche RPZ zuletzt aktualisiert wurde",
+                ],
+                "en": [
+                    "The block — the feed RPZ sits higher and matches first",
+                    "The real answer — as an exception, passthru always takes precedence over block",
+                    "The real answer — local rules override feeds regardless of position",
+                    "Both alternately, depending on which RPZ was updated last",
+                ],
+            },
+            "explanation": {
+                "de": "Es entscheidet die Reihenfolge der RPZs, nicht der Regeltyp und nicht die Herkunft. Eine Ausnahme wirkt nur, wenn ihre RPZ oberhalb der sperrenden einsortiert ist — die Passthru-Regel an zweiter Stelle wird nie erreicht.",
+                "en": "What decides is the order of the RPZs, not the rule type and not the origin. An exception only works if its RPZ is sorted above the blocking one — the passthru rule in second place is never reached.",
+            },
+        },
+        {
+            "id": "dt7",
+            "type": "single",
+            "prompt": {
+                "de": "dig liefert für gewinnspiel.example die Antwort „gewinnspiel.example. 5 IN CNAME sperrseite.nordwind-intern.de.“, gefolgt von einer internen Adresse. Welcher RPZ-Regeltyp hat gegriffen?",
+                "en": "dig returns for gewinnspiel.example the answer \"gewinnspiel.example. 5 IN CNAME sperrseite.nordwind-intern.de.\", followed by an internal address. Which RPZ rule type applied?",
+            },
+            "answer": 2,
+            "options": {
+                "de": ["Passthru", "Block (No Such Domain)", "Substitute (Domain Name)", "Block (No Data)"],
+                "en": ["Passthru", "Block (No Such Domain)", "Substitute (Domain Name)", "Block (No Data)"],
+            },
+            "explanation": {
+                "de": "Der Client bekommt einen anderen Namen als den angefragten — das ist Substitute. Die Block-Varianten liefern NXDOMAIN bzw. eine leere Antwort, Passthru die echte Adresse der Domain.",
+                "en": "The client receives a different name than the one requested — that is substitute. The block variants return NXDOMAIN or an empty answer, passthru the real address of the domain.",
+            },
+        },
+        {
+            "id": "dt8",
+            "type": "multi",
+            "prompt": {
+                "de": "Wo endet der Schutz einer DNS Firewall? Welche Fälle sieht sie nicht (mehrere richtig)?",
+                "en": "Where does the protection of a DNS firewall end? Which cases does it not see (multiple)?",
+            },
+            "answer": [1, 2],
+            "options": {
+                "de": [
+                    "Ein infiziertes Notebook, das über den internen Resolver eine bekannte Schad-Domain auflöst",
+                    "Schadsoftware, die ihr Ziel direkt über eine fest einprogrammierte IP-Adresse anspricht",
+                    "Ein Client, der einen fremden Resolver verwendet, etwa per DNS over HTTPS im Browser",
+                    "Ein Phishing-Link, dessen Domain im abonnierten Feed geführt wird",
+                ],
+                "en": [
+                    "An infected laptop that resolves a known malicious domain through the internal resolver",
+                    "Malware that contacts its target directly via a hard-coded IP address",
+                    "A client that uses a foreign resolver, for example via DNS over HTTPS in the browser",
+                    "A phishing link whose domain is listed in the subscribed feed",
+                ],
+            },
+            "explanation": {
+                "de": "RPZ wirkt nur auf Anfragen, die der eigene rekursive Server beantwortet. Ohne Namensauflösung — oder mit einem fremden Resolver — gibt es nichts zu filtern. Deshalb ergänzt die DNS Firewall die klassische Firewall, sie ersetzt sie nicht.",
+                "en": "RPZ only acts on queries answered by your own recursive server. Without name resolution — or with a foreign resolver — there is nothing to filter. That is why the DNS firewall complements the classic firewall and does not replace it.",
+            },
+        },
     ]},
 }

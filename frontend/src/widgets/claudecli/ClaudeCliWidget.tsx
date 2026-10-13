@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { createTerminalState, runCommand, runTerminalCommand, type CliMode, type TerminalState } from '@/widgets/claudecli/claudeCli'
+import { createTerminalState, nextMode, runCommand, runTerminalCommand, type CliMode, type TerminalState } from '@/widgets/claudecli/claudeCli'
 import { loadSnapshot, newSessionId } from '@/widgets/claudecli/cliSnapshot'
 import { ChallengeBox } from '@/components/ChallengeBox'
 import { useWidgetScope } from '@/lib/widgetScope'
@@ -7,14 +7,14 @@ import type { Lang } from '@/lib/i18n'
 
 const STR = {
   de: {
-    title: 'Claude-Code-CLI (Demo)', modeDefault: 'Vor Änderungen fragen', modePlan: 'Plan', modeAccept: 'Edits automatisch akzeptieren',
+    title: 'Claude-Code-CLI (Demo)', modeDefault: 'Manual', modePlan: 'Plan', modeAccept: 'Accept Edits', modeAuto: 'Auto', cycle: 'Shift+Tab: nächster Modus',
     modeLabel: 'Modus', hint: 'Virtuelle Shell: help, ls, cat README.md. Slash-Commands mit /help.',
     intro: 'Browser-Prototyp — keine echte Host-Shell. Tippe help für Befehle.',
     challenge: 'Wechsle in den Plan-Modus und rufe /context auf.',
     session: 'Session', reset: 'Session zurücksetzen', commandLabel: 'Befehlseingabe',
   },
   en: {
-    title: 'Claude Code CLI (demo)', modeDefault: 'Ask before edits', modePlan: 'Plan', modeAccept: 'Auto accept edits',
+    title: 'Claude Code CLI (demo)', modeDefault: 'Manual', modePlan: 'Plan', modeAccept: 'Accept Edits', modeAuto: 'Auto', cycle: 'Shift+Tab: next mode',
     modeLabel: 'Mode', hint: 'Virtual shell: help, ls, cat README.md. Try slash commands with /help.',
     intro: 'Browser prototype — no real host shell. Type help for commands.',
     challenge: 'Switch to plan mode and run /context.',
@@ -67,7 +67,7 @@ export function ClaudeCli({ lang }: { lang: Lang }) {
   }
 
   const modes: [CliMode, string][] = [
-    ['default', s.modeDefault], ['plan', s.modePlan], ['acceptEdits', s.modeAccept],
+    ['auto', s.modeAuto], ['default', s.modeDefault], ['acceptEdits', s.modeAccept], ['plan', s.modePlan],
   ]
 
   return (
@@ -88,6 +88,7 @@ export function ClaudeCli({ lang }: { lang: Lang }) {
             {label}
           </button>
         ))}
+        <span className="ml-1 text-[11px] text-slate-400">{s.cycle}</span>
       </div>
 
       <div className="rounded-lg bg-slate-900 p-3 font-mono text-xs text-slate-100">
@@ -96,7 +97,10 @@ export function ClaudeCli({ lang }: { lang: Lang }) {
           <span className="text-green-400">{mode}&gt;</span>
           <input
             value={input} onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => { if (e.key === 'Enter') submit() }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') submit()
+              else if (e.key === 'Tab' && e.shiftKey) { e.preventDefault(); setMode(nextMode) }
+            }}
             spellCheck={false} autoComplete="off" aria-label={s.commandLabel}
             className="flex-1 bg-transparent text-slate-100 outline-none"
           />

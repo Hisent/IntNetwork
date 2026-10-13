@@ -13,6 +13,13 @@ IPAM_MODULE = {
         'Discovery-Daten und ihren Nutzen für Konfliktprüfung und Rogue-Host-Erkennung einordnen',
         'Das Zusammenspiel von IPAM und Extensible Attributes beschreiben',
     ],
+    "goals_en": [
+        "Understand IPAM as the integrated, authoritative view of DNS and DHCP data",
+        "Place network containers, networks and ranges from the IPAM perspective (utilization, search)",
+        "Explain why spreadsheets typically fail as an IPAM tool",
+        "Place discovery data and its use for conflict checks and rogue host detection",
+        "Describe how IPAM and extensible attributes work together",
+    ],
     'scenario': {
         'de': ('Die IT bei Nordwind hat den Adressraum bisher in einer geteilten '
                'Excel-Tabelle gepflegt — mit allen bekannten Problemen: veraltete '
@@ -125,6 +132,58 @@ IPAM_MODULE = {
                     'tool: it shows early which network will need to be expanded '
                     'soon, before address scarcity actually hits.'),
          }},
+        {
+            "type": "diagram",
+            "id": "diagram-ipam-hierarchie",
+            "payload": {
+                "kind": "layers",
+                "title_de": "Vom Adressblock zur einzelnen Adresse",
+                "title_en": "From address block to single address",
+                "caption_de": "Dieselben Objekte wie im DHCP-Modul — hier mit dem Blick, den IPAM ergänzt.",
+                "caption_en": "The same objects as in the DHCP module — here with the perspective IPAM adds.",
+                "layers": [
+                    {
+                        "name_de": "Netzwerk-Container 10.20.0.0/16",
+                        "name_en": "Network container 10.20.0.0/16",
+                        "content_de": "Standort Hamburg: fasst die Netze darunter zusammen",
+                        "content_en": "Hamburg site: groups the networks below",
+                        "pdu_de": "Überblick",
+                        "pdu_en": "overview",
+                        "detail_de": "Guter Ort für Extensible Attributes wie „Standort“: einmal setzen, darunter erben lassen. Der Container zeigt, wie viel seines Blocks schon in Netze aufgeteilt ist.",
+                        "detail_en": "A good place for extensible attributes such as \"Site\": set once, inherit below. The container shows how much of its block has already been carved into networks.",
+                    },
+                    {
+                        "name_de": "Netzwerk 10.20.30.0/24",
+                        "name_en": "Network 10.20.30.0/24",
+                        "content_de": "Büronetz, 2. OG: der eigentliche Adressraum",
+                        "content_en": "office network, 2nd floor: the actual address space",
+                        "pdu_de": "Auslastung",
+                        "pdu_en": "utilization",
+                        "detail_de": "Hier steht die Kennzahl, auf die der Betrieb täglich schaut: Wie viele Adressen sind belegt?",
+                        "detail_en": "This is where the figure operations checks daily lives: how many addresses are in use?",
+                    },
+                    {
+                        "name_de": "Bereich .100 – .200",
+                        "name_en": "Range .100 – .200",
+                        "content_de": "dynamische Vergabe per DHCP",
+                        "content_en": "dynamic assignment via DHCP",
+                        "pdu_de": "Leases",
+                        "pdu_en": "leases",
+                        "detail_de": "Ein Netz kann zu 40 % belegt sein, während sein Bereich fast voll ist — Engpässe entstehen im Bereich, nicht im Netz.",
+                        "detail_en": "A network can be 40% used while its range is almost full — bottlenecks arise in the range, not in the network.",
+                    },
+                    {
+                        "name_de": "Adresse 10.20.30.117",
+                        "name_en": "Address 10.20.30.117",
+                        "content_de": "Lease, A- und PTR-Record von nb-keller",
+                        "content_en": "lease, A and PTR record of nb-keller",
+                        "pdu": "Status",
+                        "detail_de": "Auf dieser Ebene laufen DHCP- und DNS-Daten zusammen: wer, seit wann, unter welchem Namen — und ob Discovery etwas anderes sieht.",
+                        "detail_en": "At this level DHCP and DNS data come together: who, since when, under which name — and whether discovery sees something different.",
+                    },
+                ],
+            },
+        },
         {'type': 'check', 'id': 'check-1',
          'payload': {
              'kind': 'number',
@@ -161,8 +220,7 @@ IPAM_MODULE = {
          'value': {
              'de': ('## Discovery: Konflikte und Rogue Hosts\n'
                     '\n'
-                    '**Discovery** erkennt aktive Geräte im Netz — aktiv (gezielte '
-                    'Abfrage) oder passiv (Mithören von Netzverkehr) — und gleicht sie '
+                    '**Discovery** erkennt aktive Geräte im Netz — etwa durch Ping-Sweeps und Portabfragen der Adressen oder, mit Network Insight, durch Auslesen von Switches und Routern per SNMP — und gleicht sie '
                     'mit den erwarteten IPAM-Einträgen ab. Daraus ergeben sich zwei '
                     'unterschiedliche Befunde:\n'
                     '\n'
@@ -178,9 +236,7 @@ IPAM_MODULE = {
                     'unbekanntes Gerät.'),
              'en': ('## Discovery: Conflicts and Rogue Hosts\n'
                     '\n'
-                    '**Discovery** detects active devices on the network — actively '
-                    '(targeted queries) or passively (listening to network traffic) — '
-                    'and compares them against the expected IPAM entries. This '
+                    '**Discovery** detects active devices on the network — for example through ping sweeps and port probes of the addresses or, with Network Insight, by reading switches and routers via SNMP — and compares them against the expected IPAM entries. This '
                     'produces two different findings:\n'
                     '\n'
                     '- **Conflict** — an address is used by more than one device, '
@@ -193,6 +249,58 @@ IPAM_MODULE = {
                     'kind: a conflict involves a known address with contradictory '
                     'use, a rogue host is a completely unknown device.'),
          }},
+        {
+            "type": "terminal",
+            "id": "terminal-ipam-adresse",
+            "note": "Objekt ipv4address und Feldnamen nach der WAPI-Doku; die Antworten sind gekürzt (ohne _ref und weitere Felder) und die Werte Beispiele. Lernpunkt: .201 ist „USED“, obwohl niemand sie vergeben hat — ein Gerät antwortet dort, IPAM kennt aber kein Objekt dazu.",
+            "payload": {
+                "title_de": "Was weiß IPAM über eine Adresse? Abfrage per WAPI",
+                "title_en": "What does IPAM know about an address? Querying via WAPI",
+                "intro_de": "Vereinfachte Darstellung der WAPI-Antworten. Kurzformen: ip 117, ip 201, ip 230.",
+                "intro_en": "Simplified rendering of the WAPI responses. Short forms: ip 117, ip 201, ip 230.",
+                "prompt": "admin@pc17:~$",
+                "unknown": "bash: {cmd}: command not found",
+                "commands": [
+                    {
+                        "label": "curl ipv4address …30.117",
+                        "cmd": "curl -k -u api-ro 'https://gm.nordwind.example/wapi/v2.x/ipv4address?ip_address=10.20.30.117'",
+                        "aliases": ["ip 117"],
+                        "desc_de": "verwaltete Adresse (Kurzform: ip 117)",
+                        "desc_en": "managed address (short form: ip 117)",
+                        "output": "[\n  {\n    \"ip_address\": \"10.20.30.117\",\n    \"is_conflict\": false,\n    \"mac_address\": \"00:00:5e:00:53:2a\",\n    \"names\": [\"nb-keller.nordwind-intern.de\"],\n    \"network\": \"10.20.30.0/24\",\n    \"status\": \"USED\",\n    \"types\": [\"LEASE\", \"A\", \"PTR\"],\n    \"usage\": [\"DHCP\", \"DNS\"]\n  }\n]",
+                    },
+                    {
+                        "label": "curl ipv4address …30.201",
+                        "cmd": "curl -k -u api-ro 'https://gm.nordwind.example/wapi/v2.x/ipv4address?ip_address=10.20.30.201'",
+                        "aliases": ["ip 201"],
+                        "desc_de": "von Discovery gemeldete Adresse (Kurzform: ip 201)",
+                        "desc_en": "address reported by discovery (short form: ip 201)",
+                        "output": "[\n  {\n    \"ip_address\": \"10.20.30.201\",\n    \"is_conflict\": false,\n    \"mac_address\": \"\",\n    \"names\": [],\n    \"network\": \"10.20.30.0/24\",\n    \"status\": \"USED\",\n    \"types\": [\"UNMANAGED\"],\n    \"usage\": []\n  }\n]",
+                    },
+                    {
+                        "label": "curl ipv4address …30.230",
+                        "cmd": "curl -k -u api-ro 'https://gm.nordwind.example/wapi/v2.x/ipv4address?ip_address=10.20.30.230'",
+                        "aliases": ["ip 230"],
+                        "desc_de": "eine weitere Adresse (Kurzform: ip 230)",
+                        "desc_en": "another address (short form: ip 230)",
+                        "output": "[\n  {\n    \"ip_address\": \"10.20.30.230\",\n    \"is_conflict\": false,\n    \"mac_address\": \"\",\n    \"names\": [],\n    \"network\": \"10.20.30.0/24\",\n    \"status\": \"UNUSED\",\n    \"types\": [],\n    \"usage\": []\n  }\n]",
+                    },
+                ],
+                "tasks": [
+                    {"text_de": "Frage 10.20.30.117 ab. Aus welchen drei Objekten setzt sich der Eintrag zusammen? Nenne den DHCP-Anteil.",
+                     "text_en": "Query 10.20.30.117. Which three objects make up the entry? Name the DHCP part.",
+                     "answers": ["LEASE", "lease", "Lease"]},
+                    {"text_de": "Frage 10.20.30.201 ab. Welchen Typ trägt die Adresse?",
+                     "text_en": "Query 10.20.30.201. Which type does the address carry?",
+                     "answers": ["UNMANAGED", "unmanaged", "Unmanaged"],
+                     "explanation_de": ".201 ist „USED“, obwohl niemand sie vergeben hat: Ein Gerät antwortet dort, IPAM kennt aber kein Objekt dazu.",
+                     "explanation_en": ".201 is \"USED\" although nobody assigned it: a device answers there, but IPAM has no object for it."},
+                    {"text_de": "Welche der drei Adressen könntest du bedenkenlos neu vergeben? (letztes Oktett)",
+                     "text_en": "Which of the three addresses could you reassign without hesitation? (last octet)",
+                     "answers": ["230", "10.20.30.230", ".230"]},
+                ],
+            },
+        },
         {'type': 'reveal', 'id': 'reveal-1',
          'payload': {
              'teaser_de': ('Discovery meldet ein aktives Gerät auf einer Adresse, die '
@@ -222,6 +330,45 @@ IPAM_MODULE = {
                     'identify the device before it turns into an actual address '
                     'conflict.'),
          }},
+        {
+            "type": "match",
+            "id": "match-ipam-befunde",
+            "payload": {
+                "prompt_de": "Ordne jedem Befund in der IPAM-Ansicht die passende Deutung zu.",
+                "prompt_en": "Match each finding in the IPAM view to the fitting interpretation.",
+                "pairs": [
+                    {
+                        "left_de": "Used, Typ Lease",
+                        "left_en": "Used, type lease",
+                        "right_de": "Adresse ist aktuell per DHCP vergeben",
+                        "right_en": "address is currently assigned via DHCP",
+                    },
+                    {
+                        "left_de": "Used, Typ Unmanaged",
+                        "left_en": "Used, type unmanaged",
+                        "right_de": "Gerät antwortet, IPAM kennt kein Objekt dazu",
+                        "right_en": "a device answers, IPAM knows no object for it",
+                    },
+                    {
+                        "left_de": "Konflikt",
+                        "left_en": "Conflict",
+                        "right_de": "Discovery widerspricht dem verwalteten Eintrag",
+                        "right_en": "discovery contradicts the managed entry",
+                    },
+                    {
+                        "left": "Unused",
+                        "right_de": "Kein Objekt und kein antwortendes Gerät bekannt",
+                        "right_en": "no object and no answering device known",
+                    },
+                    {
+                        "left_de": "Auslastung 95 %",
+                        "left_en": "Utilization 95%",
+                        "right_de": "Netz oder Bereich muss bald erweitert werden",
+                        "right_en": "network or range will soon need expanding",
+                    },
+                ],
+            },
+        },
         {'type': 'text', 'id': 'text-5',
          'value': {
              'de': ('## Zusammenspiel mit Extensible Attributes\n'
@@ -266,7 +413,12 @@ IPAM_MODULE = {
          }},
     ],
     'quiz': {'questions': [
-        {'id': 'ip1', 'type': 'single',
+        {'id': 'ip1',
+         "explanation": {
+             "de": "IPAM ist eine Sicht auf dieselben Objekte, die DHCP und DNS verwenden — keine zweite Datenhaltung, die jemand synchron halten müsste. Genau darin liegt der Unterschied zur Tabelle neben dem System.",
+             "en": "IPAM is a view of the same objects DHCP and DNS use — not a second data store someone would have to keep in sync. That is precisely the difference from the spreadsheet next to the system.",
+         },
+         'type': 'single',
          'prompt': {'de': 'Wie ist IPAM in Bezug auf DHCP- und DNS-Daten am treffendsten beschrieben?',
                     'en': 'What best describes IPAM in relation to DHCP and DNS data?'},
          'answer': 1,
@@ -278,7 +430,12 @@ IPAM_MODULE = {
                             'A consolidated view of the same DHCP and DNS objects',
                             'A pure backup tool for DHCP leases',
                             'A replacement for extensible attributes']}},
-        {'id': 'ip2', 'type': 'single',
+        {'id': 'ip2',
+         "explanation": {
+             "de": "Eine Tabelle zeigt, was zuletzt jemand eingetragen hat, nicht, was im Netz gerade gilt. Kosten oder Formatierung sind Nebensache — das Kernproblem ist der fehlende Abgleich mit der tatsächlichen Vergabe.",
+             "en": "A spreadsheet shows what someone last entered, not what currently holds on the network. Cost or formatting are beside the point — the core problem is the missing reconciliation with actual assignments.",
+         },
+         'type': 'single',
          'prompt': {'de': 'Was ist der Hauptgrund, warum Tabellenkalkulationen als IPAM-Werkzeug scheitern?',
                     'en': 'What is the main reason spreadsheets fail as an IPAM tool?'},
          'answer': 2,
@@ -290,30 +447,112 @@ IPAM_MODULE = {
                             'They do not support bold text for important entries',
                             'They only show the last entered state, not the actual, ongoing assignment',
                             'They do not support colors']}},
-        {'id': 'ip3', 'type': 'multi',
+        {'id': 'ip3',
+         "explanation": {
+             "de": "Discovery fragt Adressen ab und gleicht das Ergebnis mit den IPAM-Einträgen ab; ein unbekanntes Gerät ist ein Rogue Host. Adressen vergibt Discovery nicht — es beobachtet nur, DHCP bleibt nötig.",
+             "en": "Discovery probes addresses and compares the result with the IPAM entries; an unknown device is a rogue host. Discovery does not assign addresses — it only observes, DHCP remains necessary.",
+         },
+         'type': 'multi',
          'prompt': {'de': 'Welche Aussagen zu Discovery treffen zu? (mehrere)',
                     'en': 'Which statements about Discovery are true? (multiple)'},
          'answer': [0, 1, 3],
-         'options': {'de': ['Discovery kann Geräte aktiv oder passiv erkennen',
+         'options': {'de': ['Discovery kann Adressen aktiv abfragen, etwa per Ping-Sweep',
                             'Discovery gleicht gefundene Geräte mit den erwarteten IPAM-Einträgen ab',
                             'Discovery ersetzt die Notwendigkeit von DHCP vollständig',
                             'Ein Rogue Host ist ein in IPAM unbekanntes Gerät'],
-                     'en': ['Discovery can detect devices actively or passively',
+                     'en': ['Discovery can actively probe addresses, for example with a ping sweep',
                             'Discovery compares found devices against the expected IPAM entries',
                             'Discovery fully replaces the need for DHCP',
                             'A rogue host is a device unknown to IPAM']}},
-        {'id': 'ip4', 'type': 'single',
+        {'id': 'ip4',
+         "explanation": {
+             "de": "Zwei Geräte auf einer Adresse, die IPAM nur einmal kennt: ein Konflikt. Ein Rogue Host wäre ein Gerät, zu dem es in IPAM gar keinen Eintrag gibt — der Unterschied entscheidet, wonach du als Nächstes suchst.",
+             "en": "Two devices on one address that IPAM knows only once: a conflict. A rogue host would be a device with no IPAM entry at all — the difference decides what you look for next.",
+         },
+         'type': 'single',
          'prompt': {'de': 'Ein Gerät nutzt dieselbe Adresse wie ein zweites, obwohl IPAM nur eine Zuordnung kennt. Wie heißt dieser Befund?',
                     'en': 'A device uses the same address as another one, even though IPAM only knows one assignment. What is this finding called?'},
          'answer': 1,
          'options': {'de': ['Rogue Host', 'Konflikt', 'Exclusion Range', 'Failover'],
                      'en': ['Rogue host', 'Conflict', 'Exclusion range', 'Failover']}},
-        {'id': 'ip5', 'type': 'number',
+        {'id': 'ip5',
+         "explanation": {
+             "de": "375 von 500 sind 75 %. Entscheidend ist die Bezugsgröße: die bereitgestellten Adressen des Netzes, nicht die theoretische Größe des Präfixes.",
+             "en": "375 out of 500 is 75%. What matters is the base: the addresses the network provides, not the theoretical size of the prefix.",
+         },
+         'type': 'number',
          'prompt': {'de': ('Ein Netzwerk stellt 500 Adressen bereit, 375 sind aktuell '
                            'belegt. Wie viel Prozent Auslastung zeigt IPAM (gerundet)?'),
                     'en': ('A network provides 500 addresses, 375 of which are '
                           'currently occupied. What utilization percentage does IPAM '
                           'show (rounded)?')},
          'answer': 75},
+        {
+            "id": "ip6",
+            "type": "number",
+            "prompt": {
+                "de": "Ein Container enthält vier /24-Netze mit je 254 nutzbaren Adressen. Belegt sind 200, 150, 100 und 58 Adressen. Wie viel Prozent der nutzbaren Adressen aller vier Netze sind insgesamt belegt?",
+                "en": "A container holds four /24 networks with 254 usable addresses each. 200, 150, 100 and 58 addresses are in use. What percentage of the usable addresses of all four networks is in use overall?",
+            },
+            "answer": 50,
+            "explanation": {
+                "de": "200 + 150 + 100 + 58 = 508 von 4 × 254 = 1016 Adressen, also 50 %. Der Durchschnitt verdeckt aber den Engpass: Das erste Netz liegt bei rund 79 % — Kapazität plant man je Netz, nicht über den Container gemittelt.",
+                "en": "200 + 150 + 100 + 58 = 508 out of 4 × 254 = 1016 addresses, i.e. 50%. But the average hides the bottleneck: the first network is at about 79% — capacity is planned per network, not averaged across the container.",
+            },
+        },
+        {
+            "id": "ip7",
+            "type": "single",
+            "prompt": {
+                "de": "Eine WAPI-Abfrage auf ipv4address liefert für 10.20.30.201: status „USED“, types [„UNMANAGED“], names leer. Was bedeutet das?",
+                "en": "A WAPI query on ipv4address returns for 10.20.30.201: status \"USED\", types [\"UNMANAGED\"], names empty. What does that mean?",
+            },
+            "answer": 2,
+            "options": {
+                "de": [
+                    "Die Adresse liegt in einer Exclusion Range und ist deshalb gesperrt",
+                    "Die Adresse ist per DHCP vergeben, der Client hat aber keinen Hostnamen gemeldet",
+                    "Auf der Adresse wurde ein Gerät gefunden, zu dem es in NIOS kein verwaltetes Objekt gibt",
+                    "Zwei Geräte nutzen die Adresse gleichzeitig",
+                ],
+                "en": [
+                    "The address lies in an exclusion range and is therefore blocked",
+                    "The address is assigned via DHCP, but the client reported no host name",
+                    "A device was found on the address for which NIOS has no managed object",
+                    "Two devices use the address at the same time",
+                ],
+            },
+            "explanation": {
+                "de": "Unmanaged heißt: gesehen, aber nicht verwaltet — keine Lease, keine Fixed Address, kein Record. Eine DHCP-Vergabe trüge den Typ LEASE, ein Doppelbelegung stünde als Konflikt da. Nächster Schritt ist, das Gerät zu identifizieren und dann zu verwalten oder zu entfernen.",
+                "en": "Unmanaged means: seen but not managed — no lease, no fixed address, no record. A DHCP assignment would carry the type LEASE, a double use would show up as a conflict. The next step is to identify the device and then manage or remove it.",
+            },
+        },
+        {
+            "id": "ip8",
+            "type": "single",
+            "prompt": {
+                "de": "Ein Netz /24 zeigt 38 % Auslastung, trotzdem melden Clients „keine Adresse erhalten“. Was ist die wahrscheinlichste Erklärung?",
+                "en": "A /24 network shows 38% utilization, yet clients report \"no address received\". What is the most likely explanation?",
+            },
+            "answer": 0,
+            "options": {
+                "de": [
+                    "Der DHCP-Bereich innerhalb des Netzes ist voll, auch wenn das Netz insgesamt noch viele freie Adressen hat",
+                    "IPAM rundet die Auslastung ab; tatsächlich ist das Netz voll",
+                    "Die Auslastung zählt nur Fixed Addresses, keine Leases",
+                    "Discovery hat die freien Adressen als Unmanaged markiert und damit gesperrt",
+                ],
+                "en": [
+                    "The DHCP range inside the network is full, even though the network as a whole still has many free addresses",
+                    "IPAM rounds utilization down; the network is actually full",
+                    "Utilization only counts fixed addresses, not leases",
+                    "Discovery marked the free addresses as unmanaged and thereby blocked them",
+                ],
+            },
+            "explanation": {
+                "de": "Dynamisch vergeben wird nur aus dem Bereich. Umfasst er 60 Adressen, ist er voll, lange bevor das Netz es ist — die Netz-Auslastung allein reicht als Frühwarnung nicht. Discovery sperrt nichts; es meldet nur, was es sieht.",
+                "en": "Dynamic assignment only draws from the range. If it covers 60 addresses, it is full long before the network is — network utilization alone is not enough as an early warning. Discovery blocks nothing; it only reports what it sees.",
+            },
+        },
     ]},
 }

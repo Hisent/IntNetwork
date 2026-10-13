@@ -17,6 +17,13 @@ NAC_COA_MODULE = {
         'CoA von einer normalen, laufenden Session ohne Eingriff abgrenzen können',
         'Disconnect-Messages von Change-of-Authorization-Messages unterscheiden können',
     ],
+    'goals_en': [
+        'Place Change of Authorization (CoA, RFC 5176) as a subsequent change of rights without re-login',
+        'Name typical triggers for CoA (posture deterioration, session termination, VLAN change)',
+        'Explain who typically triggers CoA (policy server) and who applies it (switch/WLC)',
+        'Delimit CoA from a normal, running session without intervention',
+        'Distinguish Disconnect messages from Change-of-Authorization messages',
+    ],
     'scenario': {
         'de': 'Ein Notebook bei Nordwind Logistik hat sich morgens regelkonform '
               'authentifiziert und sitzt seither im Produktiv-VLAN. Am Nachmittag meldet die '
@@ -151,6 +158,92 @@ NAC_COA_MODULE = {
                    'directly. And: on a VLAN change the endpoint needs a new IP address — '
                    'switching the dACL is therefore often the gentler path.',
          }},
+        {
+            'type': 'diagram',
+            'id': 'diagram-coa-ablauf',
+            'note': 'Gezeigt ist die in NAC-Produkten verbreitete Variante „CoA löst Re-Authentifizierung aus“. RFC 5176 erlaubt ebenso, die neuen Attribute direkt im CoA-Request mitzuschicken. Paket-Codes: CoA-Request 43, CoA-ACK 44, CoA-NAK 45; Disconnect 40/41/42.',
+            'payload': {
+                'kind': 'sequence',
+                'title_de': 'CoA: die Richtung kehrt sich um',
+                'title_en': 'CoA: the direction is reversed',
+                'caption_de': 'Hier fragt der Server den Switch — UDP 3799 (Cisco: 1700).',
+                'caption_en': 'Here the server asks the switch — UDP 3799 (Cisco: 1700).',
+                'actors': [
+                    {
+                        'id': 'dev',
+                        'label_de': 'Endgerät',
+                        'label_en': 'Endpoint',
+                    },
+                    {
+                        'id': 'sw',
+                        'label': 'Switch (NAS)',
+                    },
+                    {
+                        'id': 'srv',
+                        'label_de': 'Policy-Server',
+                        'label_en': 'Policy server',
+                    },
+                ],
+                'messages': [
+                    {
+                        'from': 'srv',
+                        'to': 'srv',
+                        'label_de': 'Gerät nicht mehr konform',
+                        'label_en': 'Device no longer compliant',
+                        'detail_de': 'Auslöser: Die Endpoint-Protection meldet deaktivierten Virenschutz.',
+                        'detail_en': 'Trigger: endpoint protection reports disabled antivirus.',
+                    },
+                    {
+                        'from': 'srv',
+                        'to': 'sw',
+                        'label': 'CoA-Request',
+                        'detail_de': 'Der Server wird zum Absender. Die Sitzung wird über Attribute wie Calling-Station-Id oder Acct-Session-Id benannt. Der Switch nimmt die Anfrage nur an, wenn der Server bei ihm als CoA-Client eingetragen ist.',
+                        'detail_en': 'The server becomes the sender. The session is identified via attributes such as Calling-Station-Id or Acct-Session-Id. The switch only accepts the request if the server is configured on it as a CoA client.',
+                    },
+                    {
+                        'from': 'sw',
+                        'to': 'sw',
+                        'label_de': 'sucht die Sitzung',
+                        'label_en': 'looks up the session',
+                        'detail_de': 'Findet er sie nicht, antwortet er mit CoA-NAK und Error-Cause 503 (Session Context Not Found).',
+                        'detail_en': 'If it cannot find it, it answers with a CoA-NAK and Error-Cause 503 (Session Context Not Found).',
+                    },
+                    {
+                        'from': 'sw',
+                        'to': 'srv',
+                        'label': 'CoA-ACK',
+                        'style': 'reply',
+                        'detail_de': 'Der Switch bestätigt und stößt die Re-Authentifizierung der Sitzung an.',
+                        'detail_en': 'The switch acknowledges and triggers re-authentication of the session.',
+                    },
+                    {
+                        'from': 'sw',
+                        'to': 'srv',
+                        'label': 'Access-Request',
+                        'detail_de': 'Ab hier wieder die gewohnte Richtung: Der Switch fragt für die laufende Sitzung neu an.',
+                        'detail_en': 'From here on the usual direction again: the switch asks anew for the running session.',
+                    },
+                    {
+                        'from': 'srv',
+                        'to': 'sw',
+                        'label_de': 'Access-Accept (Quarantäne-dACL)',
+                        'label_en': 'Access-Accept (quarantine dACL)',
+                        'style': 'reply',
+                        'detail_de': 'Dieselbe Sitzung, neue Autorisierung: nur noch Update- und Remediation-Server.',
+                        'detail_en': 'Same session, new authorization: update and remediation servers only.',
+                    },
+                    {
+                        'from': 'sw',
+                        'to': 'dev',
+                        'label_de': 'Zugriff eingeschränkt',
+                        'label_en': 'Access restricted',
+                        'style': 'reply',
+                        'detail_de': 'Kein Link-down, keine neue IP-Adresse — die dACL wirkt sofort.',
+                        'detail_en': 'No link-down, no new IP address — the dACL takes effect immediately.',
+                    },
+                ],
+            },
+        },
         {'type': 'check', 'id': 'check-1',
          'payload': {
              'kind': 'choice',
@@ -177,6 +270,30 @@ NAC_COA_MODULE = {
                  'A manual restart of the switch port by the administrator',
              ],
          }},
+        {
+            'type': 'cloze',
+            'id': 'cloze-coa-switch',
+            'note': 'Cisco IOS/IOS-XE. Ohne diesen Block verwirft der Switch CoA- und Disconnect-Anfragen stillschweigend. Cisco-Geräte lauschen standardmäßig auf UDP 1700, RFC 5176 nennt 3799.',
+            'payload': {
+                'prompt_de': 'Erlaube dem Policy-Server 10.10.0.11, CoA-Anfragen an diesen Switch zu schicken.',
+                'prompt_en': 'Allow the policy server 10.10.0.11 to send CoA requests to this switch.',
+                'mono': True,
+                'text': 'aaa new-model\n!\naaa server radius [[da]]\n [[client]] 10.10.0.11 server-key <shared-secret>',
+                'gaps': [
+                    {
+                        'id': 'da',
+                        'accept': ['dynamic-author'],
+                    },
+                    {
+                        'id': 'client',
+                        'options': ['client', 'server', 'host'],
+                        'answer': 0,
+                    },
+                ],
+                'explanation_de': 'Bei CoA ist der Switch der Server und der Policy-Server der Client — deshalb „client“. Standardmäßig verwirft der Switch CoA-Anfragen von Absendern, die hier nicht eingetragen sind.',
+                'explanation_en': 'For CoA the switch is the server and the policy server the client — hence "client". By default the switch drops CoA requests from senders that are not listed here.',
+            },
+        },
         {'type': 'reveal', 'id': 'reveal-1',
          'payload': {
              'teaser_de': 'Welche Ereignisse lösen in der Praxis typischerweise eine CoA aus? '
@@ -241,6 +358,91 @@ NAC_COA_MODULE = {
                  'The NAS confirms the change back to the policy server',
              ],
          }},
+        {
+            'type': 'scenario',
+            'id': 'scenario-coa-fehler',
+            'payload': {
+                'title_de': 'Die CoA kommt nicht an',
+                'title_en': 'The CoA does not arrive',
+                'start': 'start',
+                'nodes': [
+                    {
+                        'id': 'start',
+                        'text_de': 'Die Endpoint-Protection meldet ein Notebook als nicht konform. Der Policy-Server protokolliert „CoA failed — no response from network device“, das Notebook behält vollen Zugriff. Normale Anmeldungen am selben Switch funktionieren. Was prüfst du zuerst?',
+                        'text_en': 'Endpoint protection reports a notebook as non-compliant. The policy server logs "CoA failed — no response from network device", the notebook keeps full access. Normal logins on the same switch work. What do you check first?',
+                        'options': [
+                            {
+                                'label_de': 'Den Nutzer bitten, das Kabel kurz zu ziehen',
+                                'label_en': 'Ask the user to unplug the cable briefly',
+                                'to': 'kabel',
+                            },
+                            {
+                                'label_de': 'Ob der Policy-Server auf dem Switch als CoA-Client eingetragen ist',
+                                'label_en': 'Whether the policy server is configured as a CoA client on the switch',
+                                'to': 'client',
+                            },
+                            {
+                                'label_de': 'Das Shared Secret des RADIUS-Servers für die Authentifizierung',
+                                'label_en': "The RADIUS server's shared secret for authentication",
+                                'to': 'secret',
+                            },
+                        ],
+                    },
+                    {
+                        'id': 'kabel',
+                        'outcome': 'bad',
+                        'text_de': 'Das erzwingt zwar eine Neuanmeldung für dieses eine Gerät — aber die nächste CoA scheitert genauso. Die Ursache bleibt.',
+                        'text_en': 'That does force a new login for this one device — but the next CoA fails just the same. The cause remains.',
+                    },
+                    {
+                        'id': 'secret',
+                        'outcome': 'ok',
+                        'text_de': 'Nicht falsch gedacht, aber Anmeldungen funktionieren ja: Die Richtung Switch → Server ist in Ordnung. Gestört ist die Gegenrichtung Server → Switch.',
+                        'text_en': 'Not a bad thought, but logins do work: the direction switch → server is fine. What is broken is the opposite direction server → switch.',
+                    },
+                    {
+                        'id': 'client',
+                        'text_de': 'Der Eintrag „aaa server radius dynamic-author“ mit dem richtigen Client und Schlüssel ist vorhanden. Der Zähler für empfangene CoA-Anfragen auf dem Switch steht auf 0. Was nun?',
+                        'text_en': 'The "aaa server radius dynamic-author" entry with the correct client and key exists. The counter for received CoA requests on the switch is at 0. What now?',
+                        'options': [
+                            {
+                                'label_de': 'Firewall und Port prüfen: Erreicht die CoA den Port, auf dem der Switch lauscht (1700 oder 3799)?',
+                                'label_en': 'Check firewall and port: does the CoA reach the port the switch listens on (1700 or 3799)?',
+                                'to': 'fw',
+                            },
+                            {
+                                'label_de': 'Statt CoA künftig Disconnect-Requests senden',
+                                'label_en': 'Send Disconnect-Requests instead of CoA from now on',
+                                'to': 'dm',
+                            },
+                            {
+                                'label_de': 'Alle Sitzungen alle 60 Sekunden neu authentifizieren lassen',
+                                'label_en': 'Have all sessions re-authenticate every 60 seconds',
+                                'to': 'reauth',
+                            },
+                        ],
+                    },
+                    {
+                        'id': 'dm',
+                        'outcome': 'bad',
+                        'text_de': 'Disconnect-Requests nehmen denselben Weg zum selben Port. Kommt die CoA nicht an, kommt auch der Disconnect nicht an.',
+                        'text_en': 'Disconnect-Requests take the same path to the same port. If the CoA does not arrive, neither does the disconnect.',
+                    },
+                    {
+                        'id': 'reauth',
+                        'outcome': 'ok',
+                        'text_de': 'Das würde die Lücke verkleinern, erzeugt aber Dauerlast auf dem RADIUS-Server und umgeht das Problem nur. Die CoA-Strecke muss trotzdem repariert werden.',
+                        'text_en': 'That would shrink the gap, but creates constant load on the RADIUS server and merely works around the problem. The CoA path still has to be fixed.',
+                    },
+                    {
+                        'id': 'fw',
+                        'outcome': 'good',
+                        'text_de': 'Zähler 0 heißt: Es kommt nichts an. Typisch sind eine Firewall, die nur 1812/1813 vom Switch zum Server kennt, oder ein Port-Mismatch (Server sendet an 3799, Switch lauscht auf 1700). Die Gegenrichtung braucht eine eigene Freigabe.',
+                        'text_en': 'A counter of 0 means: nothing arrives. Typical causes are a firewall that only knows 1812/1813 from switch to server, or a port mismatch (server sends to 3799, switch listens on 1700). The reverse direction needs a rule of its own.',
+                    },
+                ],
+            },
+        },
         {'type': 'reflect', 'id': 'reflect-1',
          'payload': {
              'prompt_de': 'Nordwind Logistik überlegt, ob eine erkannte Posture-'
@@ -275,6 +477,10 @@ NAC_COA_MODULE = {
                  'It completely replaces RADIUS as the authentication protocol',
                  'It is used exclusively for billing session durations',
              ],
+         },
+         'explanation': {
+             'de': 'CoA ändert die Autorisierung einer laufenden Sitzung von außen. Eine vollständige Neuanmeldung durch den Nutzer ist gerade das, was CoA überflüssig macht.',
+             'en': 'CoA changes the authorization of a running session from the outside. A complete new login by the user is precisely what CoA makes unnecessary.',
          }},
         {'id': 'co2', 'type': 'single',
          'prompt': {'de': 'Wer löst eine CoA typischerweise aus?',
@@ -293,6 +499,10 @@ NAC_COA_MODULE = {
                  'Exclusively the user via a self-service portal',
                  'The DHCP server on every address assignment',
              ],
+         },
+         'explanation': {
+             'de': 'Die Anfrage geht vom Policy-Server aus, der Switch setzt sie um. Das Endgerät ist an der CoA gar nicht beteiligt — es merkt nur das Ergebnis.',
+             'en': 'The request originates from the policy server, the switch applies it. The endpoint is not involved in the CoA at all — it only notices the result.',
          }},
         {'id': 'co3', 'type': 'single',
          'prompt': {'de': 'Was unterscheidet eine Disconnect-Message von einer '
@@ -316,6 +526,10 @@ NAC_COA_MODULE = {
                  'Disconnect is only used for Wi-Fi, CoA-Request only for wired networks',
                  'CoA-Request can only be sent by the end device itself',
              ],
+         },
+         'explanation': {
+             'de': 'Ein Disconnect beendet die Sitzung, ein CoA-Request verändert sie. Beide gibt es im LAN wie im WLAN, und beide sendet der Server, nie das Endgerät.',
+             'en': 'A disconnect ends the session, a CoA-Request modifies it. Both exist on wired and wireless networks, and both are sent by the server, never by the endpoint.',
          }},
         {'id': 'co4', 'type': 'single',
          'prompt': {'de': 'Was ist ein typischer Auslöser für eine CoA?',
@@ -327,15 +541,19 @@ NAC_COA_MODULE = {
                  'mehr konform ist',
                  'Ein Switch-Port wird physisch neu verkabelt',
                  'Ein Nutzer ändert lediglich sein WLAN-Passwort',
-                 'Der Accounting-Zähler eines Geräts erreicht einen bestimmten Wert',
+                 'Das Endgerät verlängert routinemäßig seine DHCP-Lease',
              ],
              'en': [
                  'A posture reassessment determines that a previously compliant device is no '
                  'longer compliant',
                  'A switch port is physically rewired',
                  'A user merely changes their Wi-Fi password',
-                 'A device\'s accounting counter reaches a certain value',
+                 'The endpoint routinely renews its DHCP lease',
              ],
+         },
+         'explanation': {
+             'de': 'Eine geänderte Posture-Bewertung ist der klassische Auslöser. Eine DHCP-Verlängerung ist Routinebetrieb des Endgeräts und sagt nichts über Identität oder Zustand aus.',
+             'en': 'A changed posture assessment is the classic trigger. A DHCP renewal is routine endpoint operation and says nothing about identity or state.',
          }},
         {'id': 'co5', 'type': 'single',
          'prompt': {'de': 'Warum reicht eine rein statische, einmal autorisierte Session ohne '
@@ -360,6 +578,64 @@ NAC_COA_MODULE = {
                  'all',
                  'Because without CoA, no device can ever be authenticated',
              ],
+         },
+         'explanation': {
+             'de': 'Ohne CoA bleibt die einmal erteilte Autorisierung bis zum Sitzungsende oder zur nächsten Re-Authentifizierung bestehen. RADIUS selbst funktioniert auch ohne CoA vollständig — es fehlt nur der Rückkanal.',
+             'en': 'Without CoA the authorization granted once stays in place until the session ends or the next re-authentication. RADIUS itself works completely without CoA — only the return channel is missing.',
          }},
+        {
+            'id': 'co6',
+            'type': 'single',
+            'prompt': {
+                'de': 'Der Policy-Server schickt einen CoA-Request, der Switch antwortet mit CoA-NAK und „Error-Cause = 503 (Session Context Not Found)“. Was bedeutet das?',
+                'en': 'The policy server sends a CoA-Request, the switch answers with a CoA-NAK and "Error-Cause = 503 (Session Context Not Found)". What does that mean?',
+            },
+            'options': {
+                'de': [
+                    'Das Shared Secret ist falsch',
+                    'Der Switch kennt keine Sitzung, auf die die Angaben im Request passen',
+                    'Der Switch unterstützt grundsätzlich keine CoA',
+                    'Die neue Autorisierung wurde angewendet, aber nicht protokolliert',
+                ],
+                'en': [
+                    'The shared secret is wrong',
+                    'The switch knows no session matching the identifiers in the request',
+                    'The switch fundamentally does not support CoA',
+                    'The new authorization was applied but not logged',
+                ],
+            },
+            'answer': 1,
+            'explanation': {
+                'de': 'Der Switch hat geantwortet — Erreichbarkeit und Schlüssel stimmen also. Er findet nur die benannte Sitzung nicht, etwa weil das Gerät inzwischen getrennt wurde oder an einem anderen Switch hängt. Ein NAK ist nie eine Erfolgsmeldung.',
+                'en': 'The switch did answer — so reachability and key are fine. It just cannot find the named session, for example because the device has since disconnected or is attached to a different switch. A NAK is never a success message.',
+            },
+        },
+        {
+            'id': 'co7',
+            'type': 'multi',
+            'prompt': {
+                'de': 'Welche Aussagen zu CoA nach RFC 5176 treffen zu? (Mehrere richtig)',
+                'en': 'Which statements about CoA per RFC 5176 are true? (Several correct)',
+            },
+            'options': {
+                'de': [
+                    'Der Policy-Server sendet die Anfrage, der NAS antwortet mit ACK oder NAK',
+                    'Der RFC nennt UDP-Port 3799 als Ziel; Cisco-Geräte nutzen standardmäßig 1700',
+                    'CoA-Requests nutzen denselben Port wie Access-Requests (1812)',
+                    'Ein Disconnect-Request beendet die Sitzung, statt sie zu ändern',
+                ],
+                'en': [
+                    'The policy server sends the request, the NAS answers with ACK or NAK',
+                    'The RFC names UDP port 3799 as the destination; Cisco devices default to 1700',
+                    'CoA-Requests use the same port as Access-Requests (1812)',
+                    'A Disconnect-Request terminates the session instead of changing it',
+                ],
+            },
+            'answer': [0, 1, 3],
+            'explanation': {
+                'de': 'CoA hat einen eigenen Port, weil die Rollen vertauscht sind: Der NAS lauscht, der Server sendet. Genau deshalb reicht eine Firewall-Freigabe für 1812/1813 vom Switch zum Server nicht aus.',
+                'en': 'CoA has a port of its own because the roles are swapped: the NAS listens, the server sends. That is exactly why a firewall rule for 1812/1813 from switch to server is not enough.',
+            },
+        },
     ]},
 }

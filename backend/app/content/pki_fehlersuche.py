@@ -16,6 +16,13 @@ ZERT_FEHLERSUCHE_MODULE = {
         'Eine TLS-aufbrechende Firewall/Proxy als mögliche Ursache erkennen und von einem echten '
         'Angriff unterscheiden können',
     ],
+    'goals_en': [
+        'Proceed systematically: first clarify which layer an error message concerns',
+        'Distinguish the most common fault patterns (chain, name, expiry, clock, trust)',
+        'Explain why a certificate error often disappears in the browser but not in curl/Java',
+        'Put trust store differences between operating system, Java, and browser into context',
+        'Recognize a TLS-inspecting firewall/proxy as a possible cause and tell it apart from a real attack',
+    ],
     'scenario': {
         'de': 'Beim Nordwind-Logistik-Helpdesk laufen täglich TLS-Tickets auf: "Die Website meldet '
               'einen Sicherheitsfehler", "Unser Zahlungsdienst kann sich nicht verbinden", "Auf einem '
@@ -58,68 +65,150 @@ ZERT_FEHLERSUCHE_MODULE = {
          }},
         {'type': 'text', 'id': 'text-2',
          'value': {
-             'de': '## Überblick: die häufigsten Fehlerbilder\n\n'
-                   'Sechs Bilder tauchen im Betrieb immer wieder auf:\n\n'
-                   '- **Unvollständige Kette** — der Server sendet nur das Leaf-Zertifikat, ohne die '
-                   'nötigen Zwischenzertifikate.\n'
-                   '- **Name-Mismatch** — der aufgerufene Hostname steht nicht in der SAN-Liste, oder '
-                   'der Zugriff erfolgt über eine IP-Adresse statt über den Hostnamen.\n'
-                   '- **Abgelaufen** — das aktuelle Datum liegt außerhalb der Gültigkeitsspanne.\n'
-                   '- **Uhrzeitversatz am Client** — die Systemzeit des Clients ist falsch, ein an '
-                   'sich gültiges Zertifikat wirkt dadurch noch nicht gültig oder bereits abgelaufen.\n'
-                   '- **Selbstsigniert / unbekannte CA** — kein Aussteller aus dem Trust Store steht '
-                   'in der Kette.\n'
-                   '- **Interne CA nicht im Trust Store des jeweiligen Systems** — die interne Root '
-                   'ist zwar bekannt, aber nicht überall importiert (dazu gleich mehr).\n\n'
-                   'Die nächsten Blöcke vertiefen die wichtigsten davon mit Ursache und Prüfschritt.',
-             'en': '## Overview: The Most Common Fault Patterns\n\n'
-                   'Six patterns recur again and again in operations:\n\n'
-                   '- **Incomplete chain** — the server sends only the leaf certificate, without the '
-                   'necessary intermediate certificates.\n'
-                   '- **Name mismatch** — the requested hostname is not in the SAN list, or access '
-                   'happens via an IP address instead of the hostname.\n'
-                   '- **Expired** — the current date is outside the validity period.\n'
-                   '- **Clock skew on the client** — the client\'s system time is wrong, so an '
-                   'otherwise valid certificate appears not-yet-valid or already expired.\n'
-                   '- **Self-signed / unknown CA** — no issuer from the trust store appears in the '
-                   'chain.\n'
-                   '- **Internal CA missing from a given system\'s trust store** — the internal root '
-                   'is known, but not imported everywhere (more on this shortly).\n\n'
-                   'The next blocks go deeper on the most important of these, with cause and check.',
-         }},
+             'de': ('## Überblick: die häufigsten Fehlerbilder\n\nAcht Bilder tauchen im Betrieb immer wieder '
+                 'auf:\n\n- **Unvollständige Kette** — der Server sendet nur das Leaf-Zertifikat, ohne die '
+                 'nötigen Zwischenzertifikate.\n- **Name-Mismatch** — der aufgerufene Hostname steht nicht in '
+                 'der SAN-Liste, oder der Zugriff erfolgt über eine IP-Adresse statt über den Hostnamen.\n- '
+                 '**Abgelaufen** — das aktuelle Datum liegt außerhalb der Gültigkeitsspanne.\n- '
+                 '**Uhrzeitversatz am Client** — die Systemzeit des Clients ist falsch, ein an sich gültiges '
+                 'Zertifikat wirkt dadurch noch nicht gültig oder bereits abgelaufen.\n- **Selbstsigniert / '
+                 'unbekannte CA** — kein Aussteller aus dem Trust Store steht in der Kette.\n- **Interne CA '
+                 'nicht im Trust Store des jeweiligen Systems** — die interne Root ist zwar bekannt, aber nicht '
+                 'überall importiert (dazu gleich mehr).\n- **Widerrufen** — die CA hat das Zertifikat '
+                 'gesperrt; es fällt nur dort auf, wo der Sperrstatus tatsächlich geprüft wird.\n- **Falscher '
+                 'Verwendungszweck (EKU)** — das Zertifikat ist gültig, aber nicht für diesen Einsatz '
+                 'ausgestellt, etwa ein Client-Zertifikat auf einem Webserver.\n\nDie nächsten Blöcke vertiefen '
+                 'die wichtigsten davon mit Ursache und Prüfschritt.'),
+             'en': ('## Overview: The Most Common Fault Patterns\n\nEight patterns recur again and again in '
+                 'operations:\n\n- **Incomplete chain** — the server sends only the leaf certificate, without '
+                 'the necessary intermediate certificates.\n- **Name mismatch** — the requested hostname is not '
+                 'in the SAN list, or access happens via an IP address instead of the hostname.\n- **Expired** '
+                 '— the current date is outside the validity period.\n- **Clock skew on the client** — the '
+                 "client's system time is wrong, so an otherwise valid certificate appears not-yet-valid or "
+                 'already expired.\n- **Self-signed / unknown CA** — no issuer from the trust store appears in '
+                 "the chain.\n- **Internal CA missing from a given system's trust store** — the internal root "
+                 'is known, but not imported everywhere (more on this shortly).\n- **Revoked** — the CA has '
+                 'revoked the certificate; this only shows where the revocation status is actually checked.\n- '
+                 '**Wrong purpose (EKU)** — the certificate is valid but was not issued for this use, such as a '
+                 'client certificate on a web server.\n\nThe next blocks go deeper on the most important of '
+                 'these, with cause and check.'),
+            },
+        },
         {'type': 'widget', 'id': 'cert-errors',
          'note': 'Widget zeigt typische Zertifikatsfehler interaktiv. Direkt nach dem Ueberblick '
                  'einsetzen, bevor es in die Einzelfaelle geht — gute Gelegenheit, die Teilnehmer '
                  'selbst zuordnen zu lassen.'},
+        {'type': 'diagram', 'id': 'diagram-fehlerbilder',
+         'note': ('Nachschlagetabelle. Die openssl-Codes stammen aus echten Laeufen; Browser-Codes sind die von '
+             'Chrome. Fuer "falscher EKU" ist kein eigener Chrome-Code belegt, deshalb dort nur allgemein.'),
+         'payload': {
+             'kind': 'compare',
+             'title_de': 'Acht Fehlerbilder auf einen Blick',
+             'title_en': 'Eight fault patterns at a glance',
+             'columns': [
+                    {'title_de': 'Chrome zeigt', 'title_en': 'Chrome shows'},
+                    {'title_de': 'openssl / curl melden', 'title_en': 'openssl / curl report'},
+                    {'title_de': 'Erster Prüfschritt', 'title_en': 'First check'},
+                ],
+             'rows': [
+                    {
+                     'label_de': 'Abgelaufen',
+                     'label_en': 'Expired',
+                     'values_de': ['ERR_CERT_DATE_INVALID', '10: certificate has expired', 'x509 -noout -dates'],
+                     'values_en': ['ERR_CERT_DATE_INVALID', '10: certificate has expired', 'x509 -noout -dates'],
+                    },
+                    {
+                     'label_de': 'Uhr des Clients falsch',
+                     'label_en': 'Client clock wrong',
+                     'values_de': ['ERR_CERT_DATE_INVALID', '9 oder 10, nur auf diesem Client', 'Systemzeit prüfen'],
+                     'values_en': ['ERR_CERT_DATE_INVALID', '9 or 10, on this client only', 'check system time'],
+                    },
+                    {
+                     'label_de': 'Name passt nicht',
+                     'label_en': 'Name mismatch',
+                     'values_de': ['ERR_CERT_COMMON_NAME_INVALID', '62: hostname mismatch', 'SAN-Liste lesen'],
+                     'values_en': ['ERR_CERT_COMMON_NAME_INVALID', '62: hostname mismatch', 'read the SAN list'],
+                    },
+                    {
+                     'label_de': 'Kette unvollständig',
+                     'label_en': 'Incomplete chain',
+                     'values_de': ['oft nichts (Cache/AIA)', '20/21: unable to get local issuer …', 's_client -showcerts'],
+                     'values_en': ['often nothing (cache/AIA)', '20/21: unable to get local issuer …', 's_client -showcerts'],
+                    },
+                    {
+                     'label_de': 'Selbstsigniert',
+                     'label_en': 'Self-signed',
+                     'values_de': ['ERR_CERT_AUTHORITY_INVALID', '18: self-signed certificate', 'Issuer = Subject?'],
+                     'values_en': ['ERR_CERT_AUTHORITY_INVALID', '18: self-signed certificate', 'issuer = subject?'],
+                    },
+                    {
+                     'label_de': 'Root fehlt im Trust Store',
+                     'label_en': 'Root missing from trust store',
+                     'values_de': [
+                            'ERR_CERT_AUTHORITY_INVALID',
+                            '20, obwohl der Server die Kette sendet',
+                            'Trust Store des Programms',
+                        ],
+                     'values_en': [
+                            'ERR_CERT_AUTHORITY_INVALID',
+                            '20 although the server sends the chain',
+                            "the program's trust store",
+                        ],
+                    },
+                    {
+                     'label_de': 'Widerrufen',
+                     'label_en': 'Revoked',
+                     'values_de': ['ERR_CERT_REVOKED', '23, aber nur mit -crl_check; curl: nichts', 'CRL bzw. OCSP abfragen'],
+                     'values_en': ['ERR_CERT_REVOKED', '23, but only with -crl_check; curl: nothing', 'query CRL or OCSP'],
+                    },
+                    {
+                     'label_de': 'Falscher Zweck (EKU)',
+                     'label_en': 'Wrong purpose (EKU)',
+                     'values_de': ['Warnseite', '26: unsuitable certificate purpose', 'x509 -noout -purpose'],
+                     'values_en': ['warning page', '26: unsuitable certificate purpose', 'x509 -noout -purpose'],
+                    },
+                ],
+            },
+        },
         {'type': 'text', 'id': 'text-3',
          'value': {
-             'de': '## Unvollständige Kette: geht im Browser, geht nicht in der Anwendung\n\n'
-                   'Das klassische Verwirrspiel: Im Browser öffnet sich die Seite ohne Warnung, aber '
-                   '`curl` oder eine Java-Anwendung melden einen Kettenfehler wie `unable to get local '
-                   'issuer certificate`. Der Unterschied liegt im Verhalten der Clients:\n\n'
-                   '- Browser **reparieren fehlende Zwischenzertifikate oft selbst** — entweder aus '
-                   'zwischengespeicherten Intermediates von früheren Verbindungen, oder über die '
-                   '**AIA-Erweiterung** (Authority Information Access) im Zertifikat, die angibt, wo '
-                   'das fehlende Zwischenzertifikat nachgeladen werden kann.\n'
-                   '- `curl`, viele Programmiersprachen-Bibliotheken und Java **tun das nicht** — sie '
-                   'verlassen sich darauf, dass der Server die vollständige Kette selbst mitschickt.\n\n'
-                   'Deshalb ist "geht im Browser, geht nicht in der Anwendung" fast immer ein Hinweis '
-                   'auf eine **serverseitig unvollständige Zertifikatskette**, nicht auf ein Problem '
-                   'der jeweiligen Anwendung.',
-             'en': '## Incomplete Chain: Works in the Browser, Fails in the Application\n\n'
-                   'The classic point of confusion: the browser opens the page without a warning, but '
-                   '`curl` or a Java application report a chain error such as `unable to get local '
-                   'issuer certificate`. The difference lies in how the clients behave:\n\n'
-                   '- Browsers often **repair a missing intermediate certificate themselves** — '
-                   'either from cached intermediates seen in earlier connections, or via the **AIA '
-                   'extension** (Authority Information Access) in the certificate, which points to '
-                   'where the missing intermediate can be fetched.\n'
-                   '- `curl`, many programming-language libraries, and Java **do not do this** — they '
-                   'rely on the server sending the complete chain itself.\n\n'
-                   'So "works in the browser, fails in the application" is almost always a sign of a '
-                   '**server-side incomplete certificate chain**, not a problem with the particular '
-                   'application.',
-         }},
+             'de': ('## Unvollständige Kette: geht im Browser, geht nicht in der Anwendung\n\nDas klassische '
+                 'Verwirrspiel: Im Browser öffnet sich die Seite ohne Warnung, aber `curl` oder eine '
+                 'Java-Anwendung melden einen Kettenfehler wie `unable to get local issuer certificate`. Der '
+                 'Unterschied liegt im Verhalten der Clients:\n\n- Browser **reparieren fehlende '
+                 'Zwischenzertifikate oft selbst** — entweder aus zwischengespeicherten Intermediates von '
+                 'früheren Verbindungen, oder über die **AIA-Erweiterung** (Authority Information Access) im '
+                 'Zertifikat, die angibt, wo das fehlende Zwischenzertifikat nachgeladen werden kann.\n- '
+                 '`curl`, viele Programmiersprachen-Bibliotheken und Java **tun das nicht** — sie verlassen '
+                 'sich darauf, dass der Server die vollständige Kette selbst mitschickt.\n\nDeshalb ist "geht '
+                 'im Browser, geht nicht in der Anwendung" fast immer ein Hinweis auf eine **serverseitig '
+                 'unvollständige Zertifikatskette**, nicht auf ein Problem der jeweiligen '
+                 'Anwendung.\n\n**Achtung, dieselbe Meldung hat zwei mögliche Ursachen:** `unable to get local '
+                 'issuer certificate` heißt wörtlich nur, dass der Client zu einem Zertifikat der Kette lokal '
+                 'keinen Aussteller findet. Entweder liefert der **Server das Intermediate nicht mit** (dann '
+                 'betrifft es alle strikten Clients), oder dem **Client fehlt die Root im Trust Store** (dann '
+                 'betrifft es nur diesen Client, typisch bei internen CAs). Unterscheiden lässt sich das mit '
+                 '`openssl s_client -showcerts`: Sendet der Server Endzertifikat und Intermediate, liegt es am '
+                 'Trust Store des Clients.'),
+             'en': ('## Incomplete Chain: Works in the Browser, Fails in the Application\n\nThe classic point of '
+                 'confusion: the browser opens the page without a warning, but `curl` or a Java application '
+                 'report a chain error such as `unable to get local issuer certificate`. The difference lies in '
+                 'how the clients behave:\n\n- Browsers often **repair a missing intermediate certificate '
+                 'themselves** — either from cached intermediates seen in earlier connections, or via the **AIA '
+                 'extension** (Authority Information Access) in the certificate, which points to where the '
+                 'missing intermediate can be fetched.\n- `curl`, many programming-language libraries, and Java '
+                 '**do not do this** — they rely on the server sending the complete chain itself.\n\nSo "works '
+                 'in the browser, fails in the application" is almost always a sign of a **server-side '
+                 'incomplete certificate chain**, not a problem with the particular application.\n\n**Note that '
+                 'the same message has two possible causes:** `unable to get local issuer certificate` '
+                 'literally only means that the client cannot find a local issuer for some certificate in the '
+                 'chain. Either the **server does not deliver the intermediate** (then every strict client is '
+                 'affected), or the **client lacks the root in its trust store** (then only this client is '
+                 'affected, typical for internal CAs). You can tell them apart with `openssl s_client '
+                 "-showcerts`: if the server sends end-entity certificate and intermediate, the client's trust "
+                 'store is the problem.'),
+            },
+        },
         {'type': 'check', 'id': 'check-1',
          'payload': {
              'kind': 'choice',
@@ -232,6 +321,138 @@ ZERT_FEHLERSUCHE_MODULE = {
                    'internal root into the `cacerts` store. The problem then is not the certificate '
                    'itself, but **which** trust store the particular program actually uses.',
          }},
+        {'type': 'text', 'id': 'text-widerruf-eku',
+         'note': ('Beide Bilder sind tueckisch, weil Kette, Name und Laufzeit in Ordnung sind - die ueblichen drei '
+             'Pruefungen finden nichts.'),
+         'value': {
+             'de': ('## Widerrufen und falscher Verwendungszweck\n\nZwei Fehlerbilder, bei denen Kette, Name und '
+                 'Laufzeit stimmen und trotzdem etwas faul ist:\n\n**Widerrufen.** Die CA hat das Zertifikat '
+                 'gesperrt, etwa nach einem Schlüsselverlust. Das Tückische: Der Fehler zeigt sich '
+                 '**uneinheitlich**. Chrome meldet `NET::ERR_CERT_REVOKED`, sofern die Sperre in seinen '
+                 'vorverteilten Sperrdaten steht. `openssl verify` und `s_client` melden `certificate revoked` '
+                 '(Code 23) nur, wenn du die Sperrprüfung mit `-crl_check` einschaltest — und `curl` prüft den '
+                 'Sperrstatus standardmäßig gar nicht und verbindet sich klaglos. „In curl geht es, im Browser '
+                 'nicht“ ist also das Spiegelbild der unvollständigen Kette. Abhilfe: neues Zertifikat mit '
+                 'neuem Schlüssel einspielen — ein Widerruf lässt sich nicht zurücknehmen.\n\n**Falscher '
+                 'Verwendungszweck (EKU).** Das Zertifikat ist gültig, aber für einen anderen Zweck '
+                 'ausgestellt: ein Zertifikat mit nur `clientAuth` auf einem Webserver, oder umgekehrt ein '
+                 'reines Server-Zertifikat als Client-Ausweis bei mTLS. openssl meldet `unsuitable certificate '
+                 'purpose` (Code 26). Typische Ursachen sind eine falsche Zertifikatvorlage bei der internen CA '
+                 '— oder, seit öffentliche CAs `clientAuth` nicht mehr in TLS-Zertifikate aufnehmen, ein '
+                 'öffentliches Zertifikat, das bisher nebenbei als Client-Zertifikat diente. Prüfschritt: '
+                 '`openssl x509 -in cert.pem -noout -purpose` oder der Abschnitt „Extended Key Usage“ in der '
+                 'Textausgabe.'),
+             'en': ('## Revoked and wrong purpose\n\nTwo fault patterns where chain, name, and validity are right '
+                 'and something is wrong anyway:\n\n**Revoked.** The CA has revoked the certificate, for '
+                 'example after a key loss. The tricky part: the error shows up **inconsistently**. Chrome '
+                 'reports `NET::ERR_CERT_REVOKED` if the revocation is in its pre-distributed revocation data. '
+                 '`openssl verify` and `s_client` only report `certificate revoked` (code 23) if you switch on '
+                 'revocation checking with `-crl_check` — and `curl` does not check revocation status by '
+                 'default at all and connects without complaint. "Works in curl, fails in the browser" is thus '
+                 'the mirror image of the incomplete chain. Remedy: deploy a new certificate with a new key — a '
+                 'revocation cannot be undone.\n\n**Wrong purpose (EKU).** The certificate is valid but was '
+                 'issued for a different purpose: a certificate with only `clientAuth` on a web server, or '
+                 'conversely a pure server certificate as a client credential in mTLS. openssl reports '
+                 '`unsuitable certificate purpose` (code 26). Typical causes are a wrong certificate template '
+                 'at the internal CA — or, now that public CAs no longer put `clientAuth` into TLS '
+                 'certificates, a public certificate that used to double as a client certificate. Check: '
+                 '`openssl x509 -in cert.pem -noout -purpose` or the "Extended Key Usage" section of the text '
+                 'output.'),
+            },
+        },
+        {'type': 'terminal', 'id': 'terminal-curl-fehler',
+         'note': ('Echte curl-Meldungen (curl 8.21 mit OpenSSL 3.6) gegen fuenf lokale Testserver mit der '
+             'Kurs-Test-PKI; die Hostnamen der Befehle sind erfunden, die Meldungen unveraendert (nur '
+             'umbrochen). Aeltere curl-Versionen formulieren "curl: (60) SSL certificate problem: ..." ohne den '
+             'Zusatz "OpenSSL verify result" und ohne Code in Klammern (geprueft mit curl 8.7).'),
+         'payload': {
+             'title_de': 'Fünf Server, fünf curl-Fehler',
+             'title_en': 'Five servers, five curl errors',
+             'prompt': 'helpdesk$',
+             'intro_de': 'Fünf Tickets, fünf Server. Finde je Server die Ursache.',
+             'intro_en': 'Five tickets, five servers. Find the cause for each server.',
+             'unknown_de': 'Befehl nicht in dieser Übung: {cmd} (Tipp: help)',
+             'unknown_en': 'Command not part of this exercise: {cmd} (hint: help)',
+             'commands': [
+                    {
+                     'cmd': 'curl -sS https://portal.nordwind-logistik.de/',
+                     'aliases': ['portal'],
+                     'desc': 'portal',
+                     'output': ('curl: (60) SSL certificate OpenSSL verify result:\n  certificate has expired '
+                         '(10)\nMore details here: https://curl.se/docs/sslcerts.html\n\ncurl failed to verify '
+                         'the legitimacy of the server and\ntherefore could not establish a secure connection '
+                         'to it.'),
+                    },
+                    {
+                     'cmd': 'curl -sS https://shop.nordwind-logistik.de/',
+                     'aliases': ['shop'],
+                     'desc': 'shop',
+                     'output': ('curl: (60) SSL: no alternative certificate subject name\n  matches target hostname '
+                         "'shop.nordwind-logistik.de'\nMore details here: "
+                         'https://curl.se/docs/sslcerts.html\n\ncurl failed to verify the legitimacy of the '
+                         'server and\ntherefore could not establish a secure connection to it.'),
+                    },
+                    {
+                     'cmd': 'curl -sS https://api.nordwind-logistik.de/',
+                     'aliases': ['api'],
+                     'desc': 'api',
+                     'output': ('curl: (60) SSL certificate OpenSSL verify result:\n  unable to get local issuer '
+                         'certificate (20)\nMore details here: https://curl.se/docs/sslcerts.html\n\ncurl '
+                         'failed to verify the legitimacy of the server and\ntherefore could not establish a '
+                         'secure connection to it.'),
+                    },
+                    {
+                     'cmd': 'curl -sS https://drucker.nordwind-logistik.de/',
+                     'aliases': ['drucker'],
+                     'desc': 'drucker',
+                     'output': ('curl: (60) SSL certificate OpenSSL verify result:\n  self-signed certificate '
+                         '(18)\nMore details here: https://curl.se/docs/sslcerts.html\n\ncurl failed to verify '
+                         'the legitimacy of the server and\ntherefore could not establish a secure connection '
+                         'to it.'),
+                    },
+                    {
+                     'cmd': 'curl -sS https://lager.nordwind-logistik.de/',
+                     'aliases': ['lager'],
+                     'desc': 'lager',
+                     'output': ('curl: (60) SSL certificate OpenSSL verify result:\n  unsuitable certificate purpose '
+                         '(26)\nMore details here: https://curl.se/docs/sslcerts.html\n\ncurl failed to verify '
+                         'the legitimacy of the server and\ntherefore could not establish a secure connection '
+                         'to it.'),
+                    },
+                ],
+             'tasks': [
+                    {
+                     'text_de': ('Rufe alle fünf Server ab (Kurzformen: portal, shop, api, drucker, lager). Welcher '
+                         'Server braucht eine Erneuerung, weil sein Zertifikat abgelaufen ist?'),
+                     'text_en': ('Query all five servers (short forms: portal, shop, api, drucker, lager). Which server '
+                         'needs a renewal because its certificate has expired?'),
+                     'answers': ['portal'],
+                    },
+                    {
+                     'text_de': 'Bei welchem Server fehlt der aufgerufene Name im SAN?',
+                     'text_en': 'For which server is the requested name missing from the SAN?',
+                     'answers': ['shop'],
+                    },
+                    {
+                     'text_de': ('Bei welchem Server musst du mit s_client -showcerts klären, ob das Intermediate oder '
+                         'die lokale Root fehlt?'),
+                     'text_en': ('For which server do you need s_client -showcerts to find out whether the intermediate '
+                         'or the local root is missing?'),
+                     'answers': ['api'],
+                    },
+                    {
+                     'text_de': 'Welcher Server hat sich sein Zertifikat selbst ausgestellt?',
+                     'text_en': 'Which server issued its certificate to itself?',
+                     'answers': ['drucker'],
+                    },
+                    {
+                     'text_de': 'Bei welchem Server wurde ein Zertifikat mit falscher EKU installiert?',
+                     'text_en': 'On which server was a certificate with the wrong EKU installed?',
+                     'answers': ['lager'],
+                    },
+                ],
+            },
+        },
         {'type': 'debug', 'id': 'debug-1',
          'payload': {
              'prompt_de': 'Ein Ticket beschreibt: "Unser Java-Batchjob meldet seit heute '
@@ -275,6 +496,44 @@ ZERT_FEHLERSUCHE_MODULE = {
                                '`cacerts` store, into which the internal root CA must be imported '
                                'separately.',
          }},
+        {'type': 'match', 'id': 'match-fehlermeldung-ursache',
+         'payload': {
+             'prompt_de': 'Ordne jeder Fehlermeldung ihre wahrscheinlichste Ursache zu.',
+             'prompt_en': 'Match each error message to its most likely cause.',
+             'pairs': [
+                    {
+                     'left': 'NET::ERR_CERT_DATE_INVALID',
+                     'right_de': 'Zertifikat abgelaufen oder die Uhr des Clients steht falsch',
+                     'right_en': "certificate expired or the client's clock is wrong",
+                    },
+                    {
+                     'left': 'NET::ERR_CERT_COMMON_NAME_INVALID',
+                     'right_de': 'Der aufgerufene Hostname steht nicht in der SAN-Liste',
+                     'right_en': 'the requested hostname is not in the SAN list',
+                    },
+                    {
+                     'left': 'NET::ERR_CERT_AUTHORITY_INVALID',
+                     'right_de': 'Kein Aussteller der Kette liegt im Trust Store des Browsers',
+                     'right_en': "no issuer in the chain is in the browser's trust store",
+                    },
+                    {
+                     'left': 'PKIX path building failed',
+                     'right_de': 'Java findet in cacerts keinen Pfad zu einer vertrauten Root',
+                     'right_en': 'Java finds no path to a trusted root in cacerts',
+                    },
+                    {
+                     'left': 'NET::ERR_CERT_REVOKED',
+                     'right_de': 'Die CA hat das Zertifikat vor seinem Ablauf gesperrt',
+                     'right_en': 'the CA revoked the certificate before it expired',
+                    },
+                    {
+                     'left': 'unsuitable certificate purpose',
+                     'right_de': 'Die Extended Key Usage passt nicht zum Einsatz des Zertifikats',
+                     'right_en': 'the Extended Key Usage does not fit how the certificate is used',
+                    },
+                ],
+            },
+        },
         {'type': 'text', 'id': 'text-7',
          'value': {
              'de': '## Der Unternehmensfall: die TLS-aufbrechende Firewall\n\n'
@@ -337,6 +596,94 @@ ZERT_FEHLERSUCHE_MODULE = {
                  'The office Wi-Fi fundamentally blocks all TLS connections',
              ],
          }},
+        {'type': 'scenario', 'id': 'scenario-ticket-nach-zertifikatswechsel',
+         'payload': {
+             'title_de': 'Ticket: „Seit dem Zertifikatswechsel geht der Batchjob nicht mehr“',
+             'title_en': 'Ticket: "The batch job has been failing since the certificate change"',
+             'start': 'start',
+             'nodes': [
+                    {
+                     'id': 'start',
+                     'text_de': ('Gestern wurde das Zertifikat von api.nordwind-logistik.de erneuert. Seitdem scheitern '
+                         'ein Python-Skript und ein Java-Batchjob mit Kettenfehlern; im Browser funktioniert '
+                         'die API-Dokumentation unter derselben Adresse. Was tust du zuerst?'),
+                     'text_en': ('Yesterday the certificate of api.nordwind-logistik.de was renewed. Since then a '
+                         'Python script and a Java batch job fail with chain errors; in the browser the API '
+                         'documentation at the same address works. What do you do first?'),
+                     'options': [
+                            {
+                             'label_de': 'In beiden Programmen die Zertifikatsprüfung abschalten, damit der Betrieb läuft',
+                             'label_en': 'Disable certificate verification in both programs to keep things running',
+                             'to': 'aus',
+                            },
+                            {
+                             'label_de': 'Mit openssl s_client -showcerts ansehen, was der Server tatsächlich ausliefert',
+                             'label_en': 'Use openssl s_client -showcerts to see what the server actually delivers',
+                             'to': 'sclient',
+                            },
+                            {
+                             'label_de': 'Das neue Serverzertifikat in den Java-cacerts importieren',
+                             'label_en': "Import the new server certificate into Java's cacerts",
+                             'to': 'import',
+                            },
+                        ],
+                    },
+                    {
+                     'id': 'aus',
+                     'outcome': 'bad',
+                     'text_de': ('Ohne Prüfung akzeptieren die Programme jedes Zertifikat — auch das eines Angreifers. '
+                         'Solche „vorübergehenden“ Schalter bleiben erfahrungsgemäß jahrelang im Code.'),
+                     'text_en': ("Without verification the programs accept any certificate — an attacker's too. Such "
+                         '"temporary" switches tend to stay in the code for years.'),
+                    },
+                    {
+                     'id': 'import',
+                     'outcome': 'bad',
+                     'text_de': ('Das behebt ein Symptom auf einem Client und bricht bei der nächsten Erneuerung wieder '
+                         '— bei kurzen Laufzeiten alle paar Wochen. Die Ursache ist noch gar nicht bekannt.'),
+                     'text_en': ('That fixes a symptom on one client and breaks again at the next renewal — every few '
+                         'weeks with short lifetimes. The cause is not even known yet.'),
+                    },
+                    {
+                     'id': 'sclient',
+                     'text_de': ('Die Ausgabe zeigt unter „Certificate chain“ nur Eintrag 0 und endet mit „Verify '
+                         'return code: 21“. Was ist die richtige Abhilfe?'),
+                     'text_en': ('The output shows only entry 0 under "Certificate chain" and ends with "Verify return '
+                         'code: 21". What is the right fix?'),
+                     'options': [
+                            {
+                             'label_de': 'Am Server die vollständige Kette (Zertifikat + Intermediate) konfigurieren',
+                             'label_en': 'Configure the full chain (certificate + intermediate) on the server',
+                             'to': 'kette',
+                            },
+                            {
+                             'label_de': 'Das Intermediate auf allen Clients in den Trust Store legen',
+                             'label_en': 'Put the intermediate into the trust store on all clients',
+                             'to': 'clients',
+                            },
+                        ],
+                    },
+                    {
+                     'id': 'clients',
+                     'outcome': 'ok',
+                     'text_de': ('Es würde funktionieren, verteilt aber die Reparatur auf jeden einzelnen Client — und '
+                         'der nächste neue Client hat dasselbe Problem. Der Fehler liegt am Server.'),
+                     'text_en': ('It would work, but it spreads the repair across every single client — and the next '
+                         'new client has the same problem. The fault is on the server.'),
+                    },
+                    {
+                     'id': 'kette',
+                     'outcome': 'good',
+                     'text_de': ('Ein Eingriff an der Ursache behebt alle Clients auf einmal. Der Browser hatte das '
+                         'Intermediate nur aus dem Cache oder per AIA ergänzt. Damit es nicht wieder passiert: '
+                         'die Kettenprüfung in den Erneuerungsablauf aufnehmen.'),
+                     'text_en': ('One fix at the root cause repairs all clients at once. The browser had merely '
+                         'supplied the intermediate from its cache or via AIA. To keep it from recurring: add '
+                         'the chain check to the renewal procedure.'),
+                    },
+                ],
+            },
+        },
         {'type': 'reflect', 'id': 'reflect-1',
          'payload': {
              'prompt_de': 'Welches der hier besprochenen Fehlerbilder hättet ihr in eurer Umgebung am '
@@ -366,6 +713,12 @@ ZERT_FEHLERSUCHE_MODULE = {
                     'via cache/AIA itself',
                     'curl fundamentally does not support TLS 1.3',
                     'The certificate is self-signed and the browser ignores that'],
+         },
+         'explanation': {
+          'de': ('Browser gleichen ein fehlendes Intermediate über ihren Cache oder die AIA-Adresse aus, curl '
+              'nicht. Eine falsche Uhr oder ein selbstsigniertes Zertifikat würde auch der Browser bemängeln.'),
+          'en': ('Browsers compensate for a missing intermediate via their cache or the AIA address; curl does '
+              'not. A wrong clock or a self-signed certificate would be flagged by the browser too.'),
          }},
         {'id': 'zf2', 'type': 'single',
          'prompt': {'de': 'Ein Zugriff erfolgt über die IP-Adresse eines Servers statt über seinen '
@@ -382,6 +735,13 @@ ZERT_FEHLERSUCHE_MODULE = {
                     'IP addresses are fundamentally not supported by TLS',
                     'The CN field was filled in incorrectly, regardless of the SAN list',
                     'The server has no valid certificate installed'],
+         },
+         'explanation': {
+          'de': ('Geprüft wird der Name, den der Client aufgerufen hat — hier die IP-Adresse. Sie passt nur, wenn '
+              'das Zertifikat einen SAN-Eintrag vom Typ „IP Address“ enthält. TLS selbst funktioniert mit '
+              'IP-Adressen problemlos.'),
+          'en': ('What gets checked is the name the client used — here the IP address. It only matches if the '
+              'certificate contains a SAN entry of type "IP Address". TLS itself works fine with IP addresses.'),
          }},
         {'id': 'zf3', 'type': 'single',
          'prompt': {'de': 'Warum kann ein an sich gültiges Zertifikat für einen einzelnen Client '
@@ -398,6 +758,14 @@ ZERT_FEHLERSUCHE_MODULE = {
                     'Because the server delivers two different certificates',
                     'Because that client\'s system time is wrong (clock skew)',
                     'Because the certificate has not been signed yet'],
+         },
+         'explanation': {
+          'de': ('Der Client vergleicht notBefore/notAfter mit seiner eigenen Uhr. Steht sie in der Vergangenheit, '
+              'wirkt ein frisch ausgestelltes Zertifikat „noch nicht gültig“. Betrifft der Fehler nur einen '
+              'Client, ist die Uhr der erste Verdächtige.'),
+          'en': ('The client compares notBefore/notAfter with its own clock. If that is set in the past, a freshly '
+              'issued certificate looks "not yet valid". If the error affects only one client, the clock is the '
+              'first suspect.'),
          }},
         {'id': 'zf4', 'type': 'single',
          'prompt': {'de': 'Eine interne CA ist im Windows-Trust-Store vorhanden. Eine Java-Anwendung '
@@ -414,6 +782,14 @@ ZERT_FEHLERSUCHE_MODULE = {
                     'The internal CA is technically invalid',
                     'Windows and Java always use the same trust store, this is a bug',
                     'Java uses its own `cacerts` store, separate from the OS trust store'],
+         },
+         'explanation': {
+          'de': ('Java liest `cacerts`, nicht den Windows-Zertifikatsspeicher. Die interne CA ist deshalb für Java '
+              'unbekannt, obwohl sie für Browser und Betriebssystem vertrauenswürdig ist — ein Konfigurations-, '
+              'kein Zertifikatsproblem.'),
+          'en': ('Java reads `cacerts`, not the Windows certificate store. The internal CA is therefore unknown to '
+              'Java even though browser and operating system trust it — a configuration problem, not a '
+              'certificate problem.'),
          }},
         {'id': 'zf5', 'type': 'single',
          'prompt': {'de': 'Eine App mit Certificate Pinning bricht ab, sobald eine '
@@ -432,6 +808,111 @@ ZERT_FEHLERSUCHE_MODULE = {
                     'which does not match the expected pin',
                     'Because the firewall fundamentally blocks the app\'s connection',
                     'Because pinning only works on desktop systems'],
+         },
+         'explanation': {
+          'de': ('Pinning akzeptiert nur den erwarteten Schlüssel. Das von der Firewall neu ausgestellte '
+              'Zertifikat trägt einen anderen — die App bricht ab, auch wenn das Gerät der Firmen-CA vertraut. '
+              'Ohne Inspection (Mobilfunk) funktioniert es deshalb.'),
+          'en': ('Pinning accepts only the expected key. The certificate re-issued by the firewall carries a '
+              'different one — the app aborts even if the device trusts the corporate CA. Without inspection '
+              '(mobile network) it therefore works.'),
          }},
+        {'id': 'zf6', 'type': 'single',
+         'prompt': {
+             'de': ('Chrome blockiert https://shop.nordwind-logistik.de mit NET::ERR_CERT_REVOKED. Ein `curl -v` '
+                 'vom selben Rechner meldet dagegen „SSL certificate verified“ und bekommt HTTP 200. Wie passt '
+                 'das zusammen?'),
+             'en': ('Chrome blocks https://shop.nordwind-logistik.de with NET::ERR_CERT_REVOKED. A `curl -v` from '
+                 'the same machine, however, reports "SSL certificate verified" and gets HTTP 200. How does '
+                 'that fit together?'),
+            },
+         'options': {
+             'de': [
+                    'Das Zertifikat ist widerrufen; curl prüft den Sperrstatus standardmäßig nicht',
+                    'Chrome irrt sich — curl ist die verlässlichere Prüfung',
+                    'curl verbindet sich mit einem anderen Server',
+                    'Das Zertifikat ist abgelaufen, curl ignoriert Ablaufdaten',
+                ],
+             'en': [
+                    'The certificate is revoked; curl does not check revocation status by default',
+                    'Chrome is mistaken — curl is the more reliable check',
+                    'curl connects to a different server',
+                    'The certificate has expired, curl ignores expiry dates',
+                ],
+            },
+         'answer': 0,
+         'explanation': {
+             'de': ('Kette, Name und Laufzeit sind in Ordnung, deshalb ist curl zufrieden. Den Widerruf kennt nur, '
+                 'wer ihn prüft: der Browser über seine vorverteilten Sperrdaten, openssl erst mit '
+                 '`-crl_check`. Ein „verified“ von curl ist also kein Beweis gegen einen Widerruf.'),
+             'en': ('Chain, name, and validity are fine, so curl is satisfied. Revocation is only known to those '
+                 'who check it: the browser via its pre-distributed revocation data, openssl only with '
+                 '`-crl_check`. A "verified" from curl is therefore no evidence against a revocation.'),
+            },
+        },
+        {'id': 'zf7', 'type': 'multi',
+         'prompt': {
+             'de': 'curl meldet „unable to get local issuer certificate“. Welche Ursachen kommen dafür infrage?',
+             'en': 'curl reports "unable to get local issuer certificate". Which causes are possible?',
+            },
+         'options': {
+             'de': [
+                    'Der Server liefert das Intermediate-Zertifikat nicht mit',
+                    'Die Root der (internen) CA fehlt im CA-Bundle des Clients',
+                    'Das Serverzertifikat ist abgelaufen',
+                    'Der aufgerufene Hostname fehlt im SAN',
+                ],
+             'en': [
+                    'The server does not deliver the intermediate certificate',
+                    "The (internal) CA's root is missing from the client's CA bundle",
+                    'The server certificate has expired',
+                    'The requested hostname is missing from the SAN',
+                ],
+            },
+         'answer': [0, 1],
+         'explanation': {
+             'de': ('Die Meldung sagt nur: Zu einem Zertifikat der Kette fehlt lokal der Aussteller. Das kann am '
+                 'Server liegen (Intermediate fehlt) oder am Client (Root fehlt). Ablauf und Namensfehler haben '
+                 'eigene Meldungen: „certificate has expired“ und „no alternative certificate subject name '
+                 'matches“.'),
+             'en': ('The message only says: for some certificate in the chain the issuer is missing locally. That '
+                 "can be the server's fault (intermediate missing) or the client's (root missing). Expiry and "
+                 'name errors have their own messages: "certificate has expired" and "no alternative '
+                 'certificate subject name matches".'),
+            },
+        },
+        {'id': 'zf8', 'type': 'single',
+         'prompt': {
+             'de': ('Nach einer Zertifikatserneuerung über die interne CA meldet `openssl s_client` für den '
+                 'Webserver: „Verify return code: 26 (unsuitable certificate purpose)“. Kette, Name und '
+                 'Laufzeit stimmen. Was ist passiert?'),
+             'en': ('After renewing a certificate via the internal CA, `openssl s_client` reports for the web '
+                 'server: "Verify return code: 26 (unsuitable certificate purpose)". Chain, name, and validity '
+                 'are correct. What happened?'),
+            },
+         'options': {
+             'de': [
+                    'Das Zertifikat wurde aus der falschen Vorlage ausgestellt — die EKU serverAuth fehlt',
+                    'Der private Schlüssel passt nicht zum Zertifikat',
+                    'Die Root-CA fehlt im Trust Store',
+                    'Der Server unterstützt nur TLS 1.2',
+                ],
+             'en': [
+                    'The certificate was issued from the wrong template — the EKU serverAuth is missing',
+                    'The private key does not match the certificate',
+                    'The root CA is missing from the trust store',
+                    'The server only supports TLS 1.2',
+                ],
+            },
+         'answer': 0,
+         'explanation': {
+             'de': ('„Purpose“ verweist auf die Extended Key Usage: Enthält das Zertifikat nur clientAuth, darf es '
+                 'nicht als TLS-Server auftreten. Abhilfe ist eine Neuausstellung aus der richtigen Vorlage — '
+                 'nachträglich ändern lässt sich ein signiertes Zertifikat nicht.'),
+             'en': ('"Purpose" points to the Extended Key Usage: if the certificate contains only clientAuth, it '
+                 'must not act as a TLS server. The fix is re-issuing from the correct template — a signed '
+                 'certificate cannot be changed afterwards.'),
+            },
+        },
     ]},
 }

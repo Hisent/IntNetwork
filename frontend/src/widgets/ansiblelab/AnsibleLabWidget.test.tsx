@@ -5,7 +5,9 @@
 // Zeitüberschreitung (504) — jeweils über einen gemockten @/lib/api.
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { cleanup, fireEvent, render, screen } from '@testing-library/react'
+import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { AnsibleLab } from './AnsibleLabWidget'
+import { EXERCISES, exerciseForModule } from './templates'
 
 vi.mock('@/lib/api', () => ({
   api: { get: vi.fn(), post: vi.fn() },
@@ -113,5 +115,58 @@ describe('AnsibleLab', () => {
     expect(api.post).toHaveBeenCalledWith('/lab/run', expect.objectContaining({ check: true }))
     // Kein Vergleichswert vorhanden -> keine Idempotenz-Aussage nach einem reinen Check-Lauf.
     expect(screen.queryByText(/Änderungen/)).toBeNull()
+  })
+
+  it('wählt die zum Modul passende Übung vor und zeigt deren eigene Challenge', async () => {
+    vi.mocked(api.get).mockResolvedValue({ data: { enabled: true } })
+
+    render(
+      <MemoryRouter initialEntries={['/lernen/templates-jinja2']}>
+        <Routes><Route path="/lernen/:key" element={<AnsibleLab lang="de" />} /></Routes>
+      </MemoryRouter>,
+    )
+
+    await screen.findByRole('button', { name: 'Ausführen' })
+    const editor = screen.getByLabelText('Playbook') as HTMLTextAreaElement
+    expect(editor.value).toContain('ansible.builtin.template')
+    expect(screen.getByText(/Der Diff zeigt nur noch die geänderten Zeilen/)).toBeTruthy()
+    // Die Idempotenz-Challenge gehört nicht mehr unter jede Übung.
+    expect(screen.queryByText(/zweimal laufen und erkläre/)).toBeNull()
+  })
+})
+
+describe('Übungsvorlagen', () => {
+  const recap = (over: Partial<{ ok: number; changed: number; failed: number; skipped: number }>) =>
+    ({ ok: 3, changed: 0, failed: 0, skipped: 0, hosts: 1, ...over })
+  const byId = (id: string) => EXERCISES.find((e) => e.id === id)!
+
+  it('hat je Modul höchstens eine Übung und nutzt nur FQCN-Module aus ansible.builtin', () => {
+    const modules = EXERCISES.map((e) => e.module)
+    expect(new Set(modules).size).toBe(modules.length)
+    expect(exerciseForModule('fakten-bedingungen')?.id).toBe('fakten')
+    expect(exerciseForModule('rollen')).toBeUndefined()
+    for (const ex of EXERCISES) {
+      const moduleLines = ex.playbook.split('\n').filter((l) => /^ {6}[a-z_.]+:( |$)/.test(l))
+        .filter((l) => !/^ {6}(when|loop|notify|register|changed_when|check_mode|diff|vars):/.test(l))
+      expect(moduleLines.length).toBeGreaterThan(0)
+      for (const line of moduleLines) expect(line.trim().startsWith('ansible.builtin.')).toBe(true)
+    }
+  })
+
+  it('wertet die Challenge je Übung aus dem letzten Lauf aus', () => {
+    const none = { recap: null, output: '', rerun: false }
+    for (const ex of EXERCISES) expect(ex.done(none)).toBe(false)
+
+    expect(byId('idempotenz').done({ recap: recap({ changed: 1 }), output: 'x', rerun: true })).toBe(true)
+    expect(byId('fehler-lesen').done({ recap: recap({ failed: 1 }), output: 'x', rerun: false })).toBe(false)
+    expect(byId('fehler-lesen').done({ recap: recap({}), output: 'x', rerun: false })).toBe(true)
+    expect(byId('kontrollfluss').done({ recap: recap({ changed: 0 }), output: 'x', rerun: true })).toBe(false)
+    expect(byId('kontrollfluss').done({ recap: recap({ changed: 2 }), output: 'x', rerun: true })).toBe(true)
+    expect(byId('variablen-vorrang').done({ recap: recap({}), output: 'Aktive Umgebung: staging', rerun: false })).toBe(false)
+    expect(byId('variablen-vorrang').done({ recap: recap({}), output: 'Aktive Umgebung: produktion', rerun: false })).toBe(true)
+    expect(byId('templates').done({ recap: recap({ changed: 0 }), output: 'x', rerun: true })).toBe(false)
+    expect(byId('templates').done({ recap: recap({ changed: 1 }), output: 'x', rerun: true })).toBe(true)
+    expect(byId('fakten').done({ recap: recap({ skipped: 1 }), output: 'x', rerun: false })).toBe(false)
+    expect(byId('fakten').done({ recap: recap({ skipped: 2 }), output: 'x', rerun: false })).toBe(true)
   })
 })

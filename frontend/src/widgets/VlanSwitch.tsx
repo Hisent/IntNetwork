@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { DeviceCli } from '@/widgets/cli/DeviceCli'
-import { runSwitchCommand, type Port } from '@/widgets/cli/switchCli'
+import { clampVlan, runSwitchCommand, trunkTag, type Port } from '@/widgets/cli/switchCli'
 import { ChallengeBox } from '@/components/ChallengeBox'
 import type { Lang } from '@/lib/i18n'
 
@@ -10,7 +10,7 @@ const INITIAL: Port[] = [
   { vlan: 20, mode: 'access' },
   { vlan: 20, mode: 'access' },
   { vlan: 30, mode: 'access' },
-  { vlan: 10, mode: 'trunk' },
+  { vlan: 1, mode: 'trunk' }, // Trunk: vlan = Native VLAN (Cisco-Standard 1)
 ]
 const VLAN_COLORS: Record<number, string> = {
   10: 'bg-blue-100 border-blue-400 text-blue-700',
@@ -20,7 +20,8 @@ const VLAN_COLORS: Record<number, string> = {
 
 const STR = {
   de: {
-    title: 'Switch-Simulator', port: 'Port', vlan: 'VLAN', mode: 'Modus',
+    title: 'Switch-Simulator', port: 'Port', vlan: 'VLAN', nativeVlan: 'Native VLAN', mode: 'Modus',
+    untagged: 'ungetaggt (Native VLAN)',
     access: 'Access', trunk: 'Trunk', send: 'Frame senden',
     summary: (src: number, vlan: number) =>
       `Frame aus Port ${src} (VLAN ${vlan}) erreicht die hervorgehobenen Ports. `
@@ -28,7 +29,8 @@ const STR = {
     challenge: 'Hole Port 5 ins VLAN 10 und sende dann einen Frame von Port 1 — er soll Port 5 erreichen.',
   },
   en: {
-    title: 'Switch Simulator', port: 'Port', vlan: 'VLAN', mode: 'Mode',
+    title: 'Switch Simulator', port: 'Port', vlan: 'VLAN', nativeVlan: 'Native VLAN', mode: 'Mode',
+    untagged: 'untagged (native VLAN)',
     access: 'Access', trunk: 'Trunk', send: 'Send frame',
     summary: (src: number, vlan: number) =>
       `The frame from port ${src} (VLAN ${vlan}) reaches the highlighted ports. `
@@ -66,9 +68,9 @@ export function VlanSwitch({ lang }: { lang: Lang }) {
             <div key={i}
               className={`rounded-xl border-2 p-3 text-sm ${VLAN_COLORS[p.vlan] ?? 'bg-slate-100 border-slate-300'} ${active ? 'ring-2 ring-teal-500' : ''} ${lit ? 'outline outline-2 outline-amber-400' : ''}`}>
               <div className="font-semibold mb-1">{s.port} {i + 1}</div>
-              <label className="block text-xs">{s.vlan}
-                <input type="number" value={p.vlan} min={1}
-                  onChange={(e) => update(i, { vlan: Number(e.target.value) })}
+              <label className="block text-xs">{p.mode === 'trunk' ? s.nativeVlan : s.vlan}
+                <input type="number" value={p.vlan} min={1} max={4094}
+                  onChange={(e) => update(i, { vlan: clampVlan(Number(e.target.value)) })}
                   className="ml-1 w-14 border rounded px-1" />
               </label>
               <label className="block text-xs mt-1">{s.mode}
@@ -81,7 +83,9 @@ export function VlanSwitch({ lang }: { lang: Lang }) {
               <button onClick={() => setSource(i)}
                 className="mt-2 text-xs rounded bg-teal-600 hover:bg-teal-700 text-white px-2 py-0.5">{s.send}</button>
               {lit && p.mode === 'trunk' && source !== null && (
-                <div className="mt-1 text-[10px] font-mono text-amber-700">802.1Q VLAN {ports[source].vlan}</div>
+                <div className="mt-1 text-[10px] font-mono text-amber-700">
+                  {trunkTag(p, ports[source].vlan) === null ? s.untagged : `802.1Q VLAN ${ports[source].vlan}`}
+                </div>
               )}
             </div>
           )

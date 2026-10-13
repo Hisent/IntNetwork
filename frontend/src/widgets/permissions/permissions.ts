@@ -21,11 +21,35 @@ export function matches(rule: Rule, call: ToolCall): boolean {
   return globToRe(rule.glob).test(call.arg)
 }
 
-// Vereinfachte Claude-Code-Präzedenz: deny überstimmt alles, dann ask, dann
-// allow; ohne Treffer greift der Standard (ask/Rückfrage).
+// Woher die Entscheidung kommt: aus einer Regel, aus dem eingebauten Verhalten
+// für lesende Zugriffe oder aus dem Standard des Manual-Modus (Rückfrage).
+export type Reason = 'rule' | 'readonly' | 'default'
+
+// Eingebaute Read-only-Befehle laut code.claude.com/docs/en/permissions
+// ("Read-only commands"). ponytail: ohne die read-only-Formen von git und ohne
+// Sonderfälle – alles mit Shell-Operatoren/Umleitung fällt auf Rückfrage zurück.
+const READONLY_BASH = new Set([
+  'ls', 'cat', 'echo', 'pwd', 'head', 'tail', 'grep', 'find', 'wc', 'which', 'diff', 'stat', 'du', 'cd',
+])
+
+function isReadOnly(call: ToolCall): boolean {
+  if (call.tool === 'Read') return !/^(\/|~|\.\.(\/|$))|\/\.\.(\/|$)/.test(call.arg) // im Arbeitsverzeichnis
+  if (call.tool === 'Bash') {
+    return !/[;&|<>`$]/.test(call.arg) && READONLY_BASH.has(call.arg.trim().split(/\s+/)[0])
+  }
+  return false
+}
+
+// Vereinfachte Claude-Code-Präzedenz im Manual-Modus: deny überstimmt alles,
+// dann ask, dann allow. Ohne Treffer entscheidet das Werkzeug: Lesen im
+// Arbeitsverzeichnis und Read-only-Bash laufen ohne Rückfrage, alles andere fragt.
+export function explain(rules: Rule[], call: ToolCall): { effect: Effect; reason: Reason } {
+  for (const effect of ['deny', 'ask', 'allow'] as const) {
+    if (rules.some((r) => r.effect === effect && matches(r, call))) return { effect, reason: 'rule' }
+  }
+  return isReadOnly(call) ? { effect: 'allow', reason: 'readonly' } : { effect: 'ask', reason: 'default' }
+}
+
 export function evaluate(rules: Rule[], call: ToolCall): Effect {
-  if (rules.some((r) => r.effect === 'deny' && matches(r, call))) return 'deny'
-  if (rules.some((r) => r.effect === 'ask' && matches(r, call))) return 'ask'
-  if (rules.some((r) => r.effect === 'allow' && matches(r, call))) return 'allow'
-  return 'ask'
+  return explain(rules, call).effect
 }

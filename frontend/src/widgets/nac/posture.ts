@@ -1,12 +1,16 @@
 // Reine Logik für das Posture-Assessment-Widget: bewertet den Zustand eines
 // Endpunkts (Patches, AV/EDR, Host-Firewall, Festplattenverschlüsselung) und
-// entscheidet, ob er vollen Zugriff bekommt oder in ein Quarantäne-VLAN muss.
+// leitet daraus eine ABGESTUFTE Reaktion ab:
 //
-// Alle vier Kriterien sind Pflicht (compliant = alle erfüllt). AV/EDR gilt
-// zusätzlich als "kritisch": Es ist inhaltlich kein weicheres Kriterium als
-// die anderen drei — die Unterscheidung ist rein didaktisch, um zu zeigen,
-// dass ein Prüfpunkt allein (ohne dass irgendein anderer auch nur betroffen
-// wäre) bereits für sich genommen zur Quarantäne führt.
+//   - alles erfüllt                 -> compliant, Vollzugriff
+//   - nur nicht-kritische Verstöße  -> Remediation-Frist (Grace Period): Zugriff
+//                                      bleibt, nach Ablauf der Frist Quarantäne
+//   - kritischer Verstoß            -> sofort Quarantäne
+//
+// Welche Kriterien "kritisch" sind, ist eine Richtlinienentscheidung; hier
+// (wie im Modul nac-posture) ist es AV/EDR.
+
+import { VLAN, type Bilingual } from './vlans'
 
 export interface PostureState {
   osPatched: boolean
@@ -16,19 +20,29 @@ export interface PostureState {
 }
 
 export type PostureViolation = 'os-outdated' | 'av-inactive' | 'firewall-off' | 'disk-not-encrypted'
+export type PostureLevel = 'compliant' | 'grace' | 'quarantine'
 
 export interface PostureResult {
   compliant: boolean
+  level: PostureLevel
   violations: PostureViolation[]
-  vlan: string
-  note: { de: string; en: string }
+  vlan: Bilingual
+  /** Tage bis zur Quarantäne, nur bei level === 'grace'. */
+  graceDays: number | null
+  note: Bilingual
 }
 
-export const PRODUCTION_VLAN = 'VLAN 10 – Produktionsnetz / production network'
-export const QUARANTINE_VLAN = 'VLAN 999 – Quarantäne / quarantine'
+export const PRODUCTION_VLAN = VLAN.employee
+export const QUARANTINE_VLAN = VLAN.quarantine
 
-/** Kriterium, das allein schon zur Quarantäne führt ("kritisch"). */
-export const CRITICAL_VIOLATION: PostureViolation = 'av-inactive'
+/** Verstöße, die allein schon zur sofortigen Quarantäne führen. */
+export const CRITICAL_VIOLATIONS: readonly PostureViolation[] = ['av-inactive']
+/** Frist für nicht-kritische Verstöße, bevor ebenfalls Quarantäne folgt. */
+export const GRACE_DAYS = 7
+
+export function isCritical(v: PostureViolation): boolean {
+  return CRITICAL_VIOLATIONS.includes(v)
+}
 
 export function assessPosture(state: PostureState): PostureResult {
   const violations: PostureViolation[] = []
@@ -37,13 +51,9 @@ export function assessPosture(state: PostureState): PostureResult {
   if (!state.firewallOn) violations.push('firewall-off')
   if (!state.diskEncrypted) violations.push('disk-not-encrypted')
 
-  const compliant = violations.length === 0
-
-  if (compliant) {
+  if (violations.length === 0) {
     return {
-      compliant: true,
-      violations: [],
-      vlan: PRODUCTION_VLAN,
+      compliant: true, level: 'compliant', violations, vlan: PRODUCTION_VLAN, graceDays: null,
       note: {
         de: 'Alle Pflichtkriterien erfüllt — der Endpunkt gilt als compliant und erhält vollen Zugriff auf das Produktivnetz.',
         en: 'All mandatory criteria are met — the endpoint is compliant and gets full access to the production network.',
@@ -51,18 +61,21 @@ export function assessPosture(state: PostureState): PostureResult {
     }
   }
 
-  const hasCritical = violations.includes(CRITICAL_VIOLATION)
+  if (violations.some(isCritical)) {
+    return {
+      compliant: false, level: 'quarantine', violations, vlan: QUARANTINE_VLAN, graceDays: null,
+      note: {
+        de: 'Kritischer Verstoß (AV/EDR inaktiv): sofort Quarantäne — per CoA, ohne Neuanmeldung. Erreichbar bleiben nur die Remediation-Server.',
+        en: 'Critical violation (AV/EDR inactive): immediate quarantine — via CoA, without a new login. Only the remediation servers remain reachable.',
+      },
+    }
+  }
+
   return {
-    compliant: false,
-    violations,
-    vlan: QUARANTINE_VLAN,
+    compliant: false, level: 'grace', violations, vlan: PRODUCTION_VLAN, graceDays: GRACE_DAYS,
     note: {
-      de: hasCritical
-        ? 'AV/EDR ist ein kritisches Kriterium: Fehlt es, landet der Endpunkt allein deswegen in Quarantäne, selbst wenn alle anderen Kriterien erfüllt sind.'
-        : 'Ein oder mehrere Pflichtkriterien sind verletzt — der Endpunkt ist non-compliant und wird ins Quarantäne-VLAN verschoben, bis die Mängel behoben sind.',
-      en: hasCritical
-        ? 'AV/EDR is a critical criterion: if it is missing, the endpoint is quarantined for that reason alone, even if every other criterion is met.'
-        : 'One or more mandatory criteria are violated — the endpoint is non-compliant and is moved to the quarantine VLAN until the issues are remediated.',
+      de: `Nicht konform, aber kein kritischer Verstoß: Der Zugriff bleibt für eine Remediation-Frist von ${GRACE_DAYS} Tagen bestehen. Ist der Mangel danach nicht behoben, folgt die Quarantäne.`,
+      en: `Non-compliant, but no critical violation: access remains for a remediation deadline of ${GRACE_DAYS} days. If the issue is not fixed by then, quarantine follows.`,
     },
   }
 }

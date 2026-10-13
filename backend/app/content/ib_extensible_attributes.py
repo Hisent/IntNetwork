@@ -22,6 +22,12 @@ EXTENSIBLE_ATTRIBUTES_MODULE = {
         'Typische Fehler beim Aufbau eines Extensible-Attribute-Datenmodells '
         'erkennen und vermeiden können.',
     ],
+    "goals_en": [
+        "Explain what extensible attributes are used for as a metadata model.",
+        "Explain the data types of extensible attributes and the purpose of value lists for data quality.",
+        "Understand the inheritance of extensible attribute values and the override options.",
+        "Recognize and avoid typical mistakes when building an extensible attribute data model.",
+    ],
     'scenario': {
         'de': 'Eine Abteilung übergibt eine Liste von zehn Netzwerken, die über '
               'Jahre von verschiedenen Personen angelegt wurden. Der Standort '
@@ -78,7 +84,7 @@ EXTENSIBLE_ATTRIBUTES_MODULE = {
                       'EAs haben einen festgelegten Datentyp, unter anderem '
                       'String (Freitext), List (Auswahl aus vordefinierten '
                       'Werten) oder Integer (Zahl). Der Name eines EA ist '
-                      'case-sensitiv und auf eine begrenzte Länge beschränkt — '
+                      'case-sensitiv und auf 128 Zeichen begrenzt — '
                       '„Standort” und „standort” gelten als zwei unterschiedliche '
                       'EAs.\n'
                       '\n'
@@ -94,7 +100,7 @@ EXTENSIBLE_ATTRIBUTES_MODULE = {
                       'EAs have a fixed data type, among them String (free '
                       'text), List (a choice from predefined values), or Integer '
                       '(a number). The name of an EA is case-sensitive and '
-                      'limited to a bounded length — site and Site count as two '
+                      'limited to 128 characters — site and Site count as two '
                       'different EAs.\n'
                       '\n'
                       'For predefined EAs, the name and the allowed values can '
@@ -165,6 +171,97 @@ EXTENSIBLE_ATTRIBUTES_MODULE = {
                       'entering it again on every single network. If one '
                       'individual network deviates, it can be overridden '
                       'specifically at that point.',
+            },
+        },
+        {
+            "type": "diagram",
+            "id": "diagram-ea-vererbung",
+            "note": "Nach dem Durchklicken fragen: Welches der drei Netze taucht in einer Suche nach Region = Süd auf? (Nur A.)",
+            "payload": {
+                "kind": "flow",
+                "title_de": "EA-Vererbung: ein Wert am Container, drei Fälle darunter",
+                "title_en": "EA inheritance: one value on the container, three cases below",
+                "nodes": [
+                    {
+                        "id": "cont",
+                        "shape": "database",
+                        "row": 0,
+                        "col": 1,
+                        "label_de": "Container: Region = Süd",
+                        "label_en": "Container: Region = South",
+                        "detail_de": "Netzwerk-Container 10.20.0.0/16. Hier wird der Wert einmal gesetzt.",
+                        "detail_en": "Network container 10.20.0.0/16. The value is set here once.",
+                    },
+                    {
+                        "id": "n1",
+                        "row": 1,
+                        "col": 0,
+                        "label_de": "Netz A: erbt „Süd“",
+                        "label_en": "Network A: inherits \"South\"",
+                        "detail_de": "10.20.10.0/24 übernimmt den Wert unverändert und folgt künftigen Änderungen am Container.",
+                        "detail_en": "10.20.10.0/24 takes the value unchanged and follows future changes on the container.",
+                    },
+                    {
+                        "id": "n2",
+                        "row": 1,
+                        "col": 1,
+                        "label_de": "Netz B: Override „West“",
+                        "label_en": "Network B: override \"West\"",
+                        "detail_de": "10.20.20.0/24 gehört organisatorisch zu einer anderen Region und überschreibt den Wert gezielt.",
+                        "detail_en": "10.20.20.0/24 belongs to a different region organizationally and overrides the value on purpose.",
+                    },
+                    {
+                        "id": "n3",
+                        "row": 1,
+                        "col": 2,
+                        "label_de": "Netz C: nicht geerbt",
+                        "label_en": "Network C: not inherited",
+                        "detail_de": "10.20.30.0/24 ist ein Transfernetz ohne Regionsbezug und wurde von der Vererbung dieses EA ausgenommen.",
+                        "detail_en": "10.20.30.0/24 is a transfer network without a region and was excluded from inheriting this EA.",
+                    },
+                ],
+                "edges": [
+                    {"id": "e1", "from": "cont", "to": "n1", "label_de": "erbt", "label_en": "inherits"},
+                    {
+                        "id": "e2",
+                        "from": "cont",
+                        "to": "n2",
+                        "style": "dashed",
+                        "label_de": "überschrieben",
+                        "label_en": "overridden",
+                    },
+                    {
+                        "id": "e3",
+                        "from": "cont",
+                        "to": "n3",
+                        "style": "dashed",
+                        "arrow": "none",
+                        "label_de": "gelöst",
+                        "label_en": "detached",
+                    },
+                ],
+                "steps": [
+                    {
+                        "highlight": ["cont"],
+                        "text_de": "Der EA „Region“ wird einmal am Container gesetzt statt auf jedem Netz einzeln.",
+                        "text_en": "The EA \"Region\" is set once on the container instead of on every network separately.",
+                    },
+                    {
+                        "highlight": ["cont", "e1", "n1"],
+                        "text_de": "Netz A erbt. Ändert jemand den Wert am Container auf „Südost“, steht das auch an Netz A.",
+                        "text_en": "Network A inherits. If someone changes the value on the container to \"South-East\", network A shows that too.",
+                    },
+                    {
+                        "highlight": ["e2", "n2"],
+                        "text_de": "Netz B hat überschrieben. Die Änderung am Container kommt hier nicht an — der eigene Wert „West“ bleibt.",
+                        "text_en": "Network B has overridden. The change on the container does not arrive here — its own value \"West\" stays.",
+                    },
+                    {
+                        "highlight": ["e3", "n3"],
+                        "text_de": "Netz C wurde von der Vererbung ausgenommen und wird für diesen EA unabhängig vom Container gepflegt.",
+                        "text_en": "Network C was excluded from inheritance and is maintained independently of the container for this EA.",
+                    },
+                ],
             },
         },
         {
@@ -279,6 +376,29 @@ EXTENSIBLE_ATTRIBUTES_MODULE = {
             },
         },
         {
+            "type": "cloze",
+            "id": "cloze-ea-suche",
+            "note": "Syntax nach der WAPI-Doku (Abschnitte „Extensible attributes“ und „_return_fields+“). v2.x ist im Lehrgang bewusst ein Platzhalter für die WAPI-Version.",
+            "payload": {
+                "prompt_de": "Die EA-Pflege zahlt sich bei der Suche aus. Vervollständige den WAPI-Aufruf, der alle Netzwerke mit dem EA Standort = Hamburg findet und die EAs in der Antwort mitliefert.",
+                "prompt_en": "EA upkeep pays off in search. Complete the WAPI call that finds all networks with the EA Standort = Hamburg and includes the EAs in the response.",
+                "mono": True,
+                "text": "GET https://gm.nordwind.example/wapi/v2.x/[[objekt]]\n      ?[[praefix]]Standort=Hamburg\n      &[[felder]]=extattrs\n\n[\n  {\n    \"_ref\": \"network/ZG5zLm5ldHdvcmskMTk4:198.51.100.0/24/default\",\n    \"network\": \"198.51.100.0/24\",\n    \"network_view\": \"default\",\n    \"extattrs\": { \"Standort\": { \"[[schluessel]]\": \"Hamburg\" } }\n  }\n]",
+                "gaps": [
+                    {"id": "objekt", "options": ["network", "extattrs", "record:host", "search"], "answer": 0},
+                    {"id": "praefix", "accept": ["*"]},
+                    {
+                        "id": "felder",
+                        "options": ["_return_fields+", "_return_fields", "_max_results", "_function"],
+                        "answer": 0,
+                    },
+                    {"id": "schluessel", "accept": ["value"]},
+                ],
+                "explanation_de": "Gesucht wird auf dem Objekttyp (network); ein EA wird in der Suche durch den vorangestellten Stern gekennzeichnet. _return_fields+ ergänzt die Standardfelder um extattrs — ohne das Plus kämen nur die EAs zurück. Der EA-Name ist case-sensitiv: *standort fände den EA „Standort“ nicht.",
+                "explanation_en": "The search runs on the object type (network); an EA is marked in a search by the leading asterisk. _return_fields+ adds extattrs to the default fields — without the plus only the EAs would come back. The EA name is case-sensitive: *standort would not find the EA \"Standort\".",
+            },
+        },
+        {
             'type': 'text', 'id': 'text-4',
             'value': {
                 'de': '## Typische Fehler beim EA-Datenmodell\n'
@@ -318,6 +438,40 @@ EXTENSIBLE_ATTRIBUTES_MODULE = {
             },
         },
         {
+            "type": "match",
+            "id": "match-ea-vererbung",
+            "payload": {
+                "prompt_de": "Ein EA-Wert steht am Container. Ordne jeder Situation am Kind-Objekt das Ergebnis zu.",
+                "prompt_en": "An EA value is set on the container. Match each situation on the child object to its outcome.",
+                "pairs": [
+                    {
+                        "left_de": "Kind erbt unverändert",
+                        "left_en": "Child inherits unchanged",
+                        "right_de": "Wert folgt jeder Änderung am Container",
+                        "right_en": "value follows every change on the container",
+                    },
+                    {
+                        "left_de": "Kind überschreibt (Override)",
+                        "left_en": "Child overrides",
+                        "right_de": "Eigener Wert bleibt bei Änderung am Container",
+                        "right_en": "own value stays when the container changes",
+                    },
+                    {
+                        "left_de": "Kind ist „nicht geerbt“",
+                        "left_en": "Child is \"not inherited\"",
+                        "right_de": "EA wird am Kind unabhängig gepflegt",
+                        "right_en": "EA is maintained independently on the child",
+                    },
+                    {
+                        "left_de": "EA als List-Typ definiert",
+                        "left_en": "EA defined as List type",
+                        "right_de": "Nur Werte aus der festen Liste sind zulässig",
+                        "right_en": "only values from the fixed list are allowed",
+                    },
+                ],
+            },
+        },
+        {
             'type': 'reflect', 'id': 'reflect-1',
             'payload': {
                 'prompt_de': 'Überlege für dein eigenes Netzwerk oder '
@@ -335,6 +489,10 @@ EXTENSIBLE_ATTRIBUTES_MODULE = {
         'questions': [
             {
                 'id': 'ea1',
+                "explanation": {
+                    "de": "EAs sind frei definierbare Metadatenfelder an fast jedem Objekttyp. Es gibt zwar vordefinierte EAs, aber der Satz ist erweiterbar — genau das unterscheidet sie von einem starren Kommentarfeld.",
+                    "en": "EAs are freely definable metadata fields on almost every object type. There are predefined EAs, but the set is extensible — which is precisely what sets them apart from a rigid comment field.",
+                },
                 'type': 'single',
                 'prompt': {
                     'de': 'Was sind Extensible Attributes?',
@@ -362,6 +520,10 @@ EXTENSIBLE_ATTRIBUTES_MODULE = {
             },
             {
                 'id': 'ea2',
+                "explanation": {
+                    "de": "Eine Werte-Liste lässt nur abgestimmte Werte zu; „Berlin“, „berlin“ und „BER“ können nicht nebeneinander entstehen. Mit Vererbung hat der Datentyp nichts zu tun: Geerbt werden Werte beider Typen.",
+                    "en": "A value list only admits agreed values; \"Berlin\", \"berlin\" and \"BER\" cannot arise side by side. The data type has nothing to do with inheritance: values of both types are inherited.",
+                },
                 'type': 'single',
                 'prompt': {
                     'de': 'Warum ist der List-Typ für ein Feld wie „Standort” '
@@ -393,6 +555,10 @@ EXTENSIBLE_ATTRIBUTES_MODULE = {
             },
             {
                 'id': 'ea3',
+                "explanation": {
+                    "de": "„Nicht geerbt“ löst nur dieses eine Kind-Objekt für diesen einen EA von der Vererbung. Das Elternobjekt und die Geschwister bleiben unberührt — der naheliegende Irrtum ist, die Markierung wirke nach oben oder zur Seite.",
+                    "en": "\"Not inherited\" detaches only this one child object for this one EA from inheritance. The parent and the siblings stay untouched — the tempting mistake is to think the marker works upwards or sideways.",
+                },
                 'type': 'single',
                 'prompt': {
                     'de': 'Was passiert, wenn ein Kind-Objekt einen ererbten '
@@ -425,6 +591,10 @@ EXTENSIBLE_ATTRIBUTES_MODULE = {
             },
             {
                 'id': 'ea4',
+                "explanation": {
+                    "de": "Freitext statt Liste, uneinheitliche Schreibweise der EA-Namen und fehlende Pflege sind die klassischen Fehler. Vererbung vorab zu planen ist dagegen gerade die Lösung, nicht das Problem.",
+                    "en": "Free text instead of a list, inconsistent spelling of EA names and missing upkeep are the classic mistakes. Planning inheritance beforehand, by contrast, is the solution, not the problem.",
+                },
                 'type': 'multi',
                 'prompt': {
                     'de': 'Welche der folgenden Punkte gelten als typische '
@@ -459,6 +629,10 @@ EXTENSIBLE_ATTRIBUTES_MODULE = {
             },
             {
                 'id': 'ea5',
+                "explanation": {
+                    "de": "Suche, Reports und Skripte filtern alle auf dieselben EA-Werte — sind die Werte inkonsistent, sind es auch die Ergebnisse. Zonen lassen sich ohne EAs anlegen; EAs machen sie nur auffindbar und auswertbar.",
+                    "en": "Search, reports and scripts all filter on the same EA values — if the values are inconsistent, so are the results. Zones can be created without EAs; EAs merely make them findable and reportable.",
+                },
                 'type': 'single',
                 'prompt': {
                     'de': 'Warum gelten saubere Extensible Attributes als '
@@ -489,6 +663,87 @@ EXTENSIBLE_ATTRIBUTES_MODULE = {
                         'Because automation is fundamentally unable to use '
                         'EAs.',
                     ],
+                },
+            },
+            {
+                "id": "ea6",
+                "type": "single",
+                "prompt": {
+                    "de": "Am Container 10.20.0.0/16 steht Region = Süd. Netz A erbt, Netz B hat den Wert auf „West“ überschrieben. Nun ändert jemand den Wert am Container auf „Südost“. Was steht danach an den Netzen?",
+                    "en": "The container 10.20.0.0/16 has Region = South. Network A inherits, network B has overridden the value with \"West\". Now someone changes the value on the container to \"South-East\". What do the networks show afterwards?",
+                },
+                "answer": 1,
+                "options": {
+                    "de": [
+                        "A: Süd, B: West — bestehende Kind-Objekte behalten ihren Stand",
+                        "A: Südost, B: West",
+                        "A: Südost, B: Südost — die Änderung am Container setzt Overrides zurück",
+                        "A: Süd, B: Südost",
+                    ],
+                    "en": [
+                        "A: South, B: West — existing child objects keep their state",
+                        "A: South-East, B: West",
+                        "A: South-East, B: South-East — the change on the container resets overrides",
+                        "A: South, B: South-East",
+                    ],
+                },
+                "explanation": {
+                    "de": "Wer erbt, folgt dem Container; wer überschrieben hat, behält seinen eigenen Wert. Vererbung ist kein einmaliges Kopieren beim Anlegen — und eine Änderung am Elternobjekt räumt Overrides nicht stillschweigend ab.",
+                    "en": "Whoever inherits follows the container; whoever has overridden keeps its own value. Inheritance is not a one-time copy at creation — and a change on the parent does not silently clear overrides.",
+                },
+            },
+            {
+                "id": "ea7",
+                "type": "single",
+                "prompt": {
+                    "de": "Ein Skript ruft auf: GET /wapi/v2.x/network?*Standort:=hamburg — was bewirkt der Doppelpunkt vor dem Gleichheitszeichen?",
+                    "en": "A script calls: GET /wapi/v2.x/network?*Standort:=hamburg — what does the colon before the equals sign do?",
+                },
+                "answer": 0,
+                "options": {
+                    "de": [
+                        "Der Wert wird ohne Beachtung der Groß-/Kleinschreibung verglichen",
+                        "Der EA-Name wird ohne Beachtung der Groß-/Kleinschreibung gesucht",
+                        "Der Wert wird als regulärer Ausdruck ausgewertet",
+                        "Die Bedingung wird negiert: alle Netze außer Hamburg",
+                    ],
+                    "en": [
+                        "The value is compared case-insensitively",
+                        "The EA name is looked up case-insensitively",
+                        "The value is evaluated as a regular expression",
+                        "The condition is negated: all networks except Hamburg",
+                    ],
+                },
+                "explanation": {
+                    "de": "Der Modifikator „:“ macht den Wertvergleich case-insensitiv; „~“ wäre die Regex-Suche, „!“ die Negation. Der EA-Name selbst bleibt case-sensitiv — *standort träfe einen EA namens „Standort“ weiterhin nicht.",
+                    "en": "The \":\" modifier makes the value comparison case-insensitive; \"~\" would be the regex search, \"!\" the negation. The EA name itself stays case-sensitive — *standort would still not hit an EA named \"Standort\".",
+                },
+            },
+            {
+                "id": "ea8",
+                "type": "multi",
+                "prompt": {
+                    "de": "Nordwind will künftig Reports „Auslastung je Standort“ fahren. Welche Entscheidungen im EA-Schema machen das belastbar (mehrere richtig)?",
+                    "en": "Nordwind wants to run \"utilization per site\" reports in future. Which decisions in the EA schema make that reliable (multiple)?",
+                },
+                "answer": [0, 3],
+                "options": {
+                    "de": [
+                        "Den EA „Standort“ als List-Typ mit abgestimmter Werte-Liste anlegen",
+                        "Den Standort zusätzlich im Kommentarfeld jedes Netzes wiederholen",
+                        "Für jede Abteilung einen eigenen EA „Standort_<Abteilung>“ anlegen",
+                        "Den Wert am Container setzen und nur begründete Abweichungen überschreiben",
+                    ],
+                    "en": [
+                        "Create the EA \"Standort\" as a List type with an agreed value list",
+                        "Additionally repeat the site in the comment field of every network",
+                        "Create a separate EA \"Standort_<department>\" for every department",
+                        "Set the value on the container and override only justified exceptions",
+                    ],
+                },
+                "explanation": {
+                    "de": "Eine Liste verhindert Schreibvarianten, Vererbung verhindert Lücken. Die Wiederholung im Kommentar schafft eine zweite, driftende Quelle; ein EA je Abteilung zerlegt eine Dimension in viele Felder, über die kein Report mehr gemeinsam filtern kann.",
+                    "en": "A list prevents spelling variants, inheritance prevents gaps. Repeating it in the comment creates a second, drifting source; one EA per department splits one dimension into many fields that no report can filter across.",
                 },
             },
         ],
