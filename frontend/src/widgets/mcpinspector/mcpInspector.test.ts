@@ -19,3 +19,12 @@ describe('mcp inspector', () => {
     expect(issues?.tools.some((t) => t.name === 'create_ticket')).toBe(true)
   })
 })
+
+describe('Widget-Aufgabe (Review 2026-10)', () => {
+  it('die Vorauswahl ist ein existierender Server, aber nicht der gesuchte Ticket-Server', async () => {
+    const { START_SERVER_ID } = await import('./mcpInspector')
+    const start = SERVERS.find((s) => s.id === START_SERVER_ID)
+    expect(start).toBeDefined()
+    expect(start!.tools.some((t) => t.name === 'create_ticket')).toBe(false)
+  })
+})

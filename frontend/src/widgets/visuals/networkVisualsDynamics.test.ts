@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { subnetInfo } from '@/widgets/subnet/subnet'
 import {
   EPHEMERAL_PORTS, STORM_OVERLOAD_TICK, matchResponse, maskFromPrefix, relaySteps,
   stateTableAfter, statefulSteps, stormDisplay, stormFrames,
@@ -10,6 +11,16 @@ describe('subnet bitmask', () => {
     expect(result.binaryOctets).toEqual(['11111111', '11111111', '11111111', '11110000'])
     expect(result.dotted).toBe('255.255.255.240')
     expect(result.hosts).toBe(14)
+  })
+  it('agrees with the subnet calculator for every prefix, incl. /31 and /32 (RFC 3021)', () => {
+    expect(maskFromPrefix(31).hosts).toBe(2)
+    expect(maskFromPrefix(32).hosts).toBe(1)
+    expect(maskFromPrefix(0).dotted).toBe('0.0.0.0')
+    expect(maskFromPrefix(32).dotted).toBe('255.255.255.255')
+    for (let p = 0; p <= 32; p++) {
+      const s = subnetInfo('10.0.0.0', p)
+      expect([maskFromPrefix(p).dotted, maskFromPrefix(p).hosts]).toEqual([s.mask, s.usableHosts])
+    }
   })
   it('handles /8 and /30 edges', () => {
     expect(maskFromPrefix(8).dotted).toBe('255.0.0.0')

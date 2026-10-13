@@ -21,7 +21,7 @@ INFOBLOX_UEBERBLICK_MODULE = {
     "goals_en": [
         "Explain what the umbrella term DDI (DNS, DHCP, IPAM) stands for.",
         "Distinguish NIOS from the Universal DDI product suite.",
-        "Place where Infoblox Threat Defense fits in and what it used to be called.",
+        "Explain where Infoblox Threat Defense fits in and what it used to be called.",
         "Justify why central DDI management is preferable to three separate tools.",
     ],
     'scenario': {
@@ -32,7 +32,7 @@ INFOBLOX_UEBERBLICK_MODULE = {
               'DDI-System. Dieses Modul ordnet ein, was Infoblox als Hersteller '
               'anbietet und welche Begriffe dabei wichtig sind.',
         'en': 'A mid-size company runs DNS on a separate BIND server, DHCP on an '
-              'ISC-DHCP server, and tracks IP address assignments in a spreadsheet. '
+              'ISC DHCP server, and tracks IP address assignments in a spreadsheet. '
               'After several incidents involving duplicate address assignments, the '
               'IT department is evaluating a centralized DDI system. This module maps '
               'out what Infoblox offers as a vendor and which terms matter along the '
@@ -103,7 +103,7 @@ INFOBLOX_UEBERBLICK_MODULE = {
                       'und weniger Drift zwischen Systemen.',
                 'en': '## Three Tools or One System?\n'
                       '\n'
-                      'BIND (DNS) and ISC-DHCP (DHCP) are mature, widely used '
+                      'BIND (DNS) and ISC DHCP (DHCP) are mature, widely used '
                       'open-source services. The problem rarely lies in the software '
                       'itself, but in managing it separately: each service has its own '
                       'configuration, its own access controls, and no built-in check '
@@ -255,8 +255,8 @@ INFOBLOX_UEBERBLICK_MODULE = {
                       'Older documentation occasionally still uses the name BloxOne '
                       'DDI. That was the predecessor term for what is now the '
                       'Universal DDI / NIOS-X area. Whether the BloxOne name '
-                      'continues to be used in edge cases (for example licensing '
-                      'contracts or older third-party sites) is not fully confirmed — '
+                      'continues to be used in edge cases (for example license '
+                      'agreements or older third-party sites) is not fully confirmed — '
                       'when in doubt, check current customer documentation and treat '
                       'the term as a possible legacy name rather than a separate, '
                       'still actively marketed product.',
@@ -367,7 +367,7 @@ INFOBLOX_UEBERBLICK_MODULE = {
                       'Infoblox Threat Defense operates at the DNS layer: before a '
                       'client actually reaches a malicious domain, the request can '
                       'already be detected and blocked at the name resolution step. '
-                      'Details on mechanisms such as Response Policy Zones or '
+                      'Details on mechanisms such as response policy zones or '
                       'threat-intelligence feeds are the subject of a dedicated DNS '
                       'security module and are mentioned here only for context.',
             },
@@ -484,7 +484,7 @@ INFOBLOX_UEBERBLICK_MODULE = {
                     },
                 ],
                 "explanation_de": "Die Trennlinie: NIOS und Grid beschreiben die klassische, selbst betriebene Welt; Universal DDI die SaaS-verwaltete. BloxOne ist der Name, unter dem du den SaaS-Teil in älteren Unterlagen findest.",
-                "explanation_en": "The dividing line: NIOS and Grid describe the classic, self-operated world; Universal DDI the SaaS-managed one. BloxOne is the name under which you find the SaaS part in older material.",
+                "explanation_en": "The dividing line: NIOS and Grid describe the classic, self-hosted world; Universal DDI the SaaS-managed one. BloxOne is the name under which you find the SaaS part in older material.",
             },
         },
         {
@@ -580,7 +580,7 @@ INFOBLOX_UEBERBLICK_MODULE = {
                         'appliances (physical or virtual) and the basis of the '
                         'Grid.',
                         'It is purely a SaaS interface with no local software.',
-                        'It is a pure reporting tool with no DNS/DHCP relation.',
+                        'It is a pure reporting tool unrelated to DNS/DHCP.',
                         'It fully replaces the Universal DDI suite.',
                     ],
                 },
@@ -589,7 +589,7 @@ INFOBLOX_UEBERBLICK_MODULE = {
                 'id': 'iu3',
                 "explanation": {
                     "de": "Die Reihenfolge ist entscheidend: BloxOne Threat Defense ist der alte, Infoblox Threat Defense der aktuelle Name. Wer es umgekehrt abspeichert, hält aktuelle Dokumentation für veraltet — und umgekehrt.",
-                    "en": "The order matters: BloxOne Threat Defense is the old name, Infoblox Threat Defense the current one. If you remember it the other way round, you will take current documentation for outdated — and vice versa.",
+                    "en": "The order matters: BloxOne Threat Defense is the old name, Infoblox Threat Defense the current one. If you remember it the other way around, you will mistake current documentation for outdated — and vice versa.",
                 },
                 'type': 'single',
                 'prompt': {
@@ -691,7 +691,7 @@ INFOBLOX_UEBERBLICK_MODULE = {
                 "type": "single",
                 "prompt": {
                     "de": "Ein Notebook bekommt nach einem Standortwechsel per DHCP eine neue Adresse. In einer getrennten Umgebung zeigt sein DNS-Name noch tagelang auf die alte. Was verhindert das in einer integrierten DDI-Plattform?",
-                    "en": "After moving sites, a laptop gets a new address via DHCP. In a separated environment its DNS name keeps pointing to the old one for days. What prevents this in an integrated DDI platform?",
+                    "en": "After moving sites, a laptop gets a new address via DHCP. In an environment with separate tools, its DNS name keeps pointing to the old one for days. What prevents this in an integrated DDI platform?",
                 },
                 "answer": 1,
                 "options": {
@@ -729,7 +729,7 @@ INFOBLOX_UEBERBLICK_MODULE = {
                         "BloxOne Threat Defense ist ein Modul, das auf jedem der acht Member installiert sein muss.",
                     ],
                     "en": [
-                        "The Grid should be called Universal DDI today, Threat Defense kept its name.",
+                        "The Grid should be called Universal DDI today; Threat Defense kept its name.",
                         "Both names are outdated: the Grid became NIOS-X, Threat Defense became the DNS Firewall.",
                         "The NIOS Grid is still called that; BloxOne Threat Defense refers to today's Infoblox Threat Defense.",
                         "BloxOne Threat Defense is a module that must be installed on each of the eight members.",

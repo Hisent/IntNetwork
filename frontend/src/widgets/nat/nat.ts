@@ -30,3 +30,10 @@ export function translate(
   const entry: NatEntry = { insideLocal, insideGlobal: `${publicIp}:${BASE_PORT + table.length}` }
   return { table: [...table, entry], entry, reused: false }
 }
+
+/** Challenge des Widgets: mindestens zwei VERSCHIEDENE innere Hosts sind übersetzt (zwei Ports
+ *  desselben Hosts zählen nicht) und ein bestehender Eintrag wurde danach wiederverwendet. */
+export function patChallengeDone(table: NatEntry[], reusedSeen: boolean): boolean {
+  const hosts = new Set(table.map((e) => e.insideLocal.split(':')[0]))
+  return hosts.size >= 2 && reusedSeen
+}

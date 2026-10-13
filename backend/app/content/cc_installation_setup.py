@@ -232,7 +232,7 @@ INSTALLATION_SETUP_MODULE = {'key': 'installation-setup',
                                                'response and then exits?',
                                     'answers': ['-p', 'p', '--print', '-p, --print']},
                                    {'text_de': 'Welche Installationsmethode meldet die Diagnose?',
-                                    'text_en': 'Which install method does the diagnosis report?',
+                                    'text_en': 'Which install method do the diagnostics report?',
                                     'answers': ['native', 'nativ']}]}},
             {'type': 'text', 'id': 'text-3',
              'value': {'de': '## Lab 1 — Deine erste Aufgabe\n'
@@ -274,7 +274,7 @@ INSTALLATION_SETUP_MODULE = {'key': 'installation-setup',
             {'type': 'scenario',
              'id': 'scenario-erster-start',
              'payload': {'title_de': 'Der erste Start hakt',
-                         'title_en': 'The first start stumbles',
+                         'title_en': 'The first launch hits a snag',
                          'start': 'start',
                          'nodes': [{'id': 'start',
                                     'text_de': 'Der Installer ist durchgelaufen. Du tippst `claude '
@@ -303,7 +303,7 @@ INSTALLATION_SETUP_MODULE = {'key': 'installation-setup',
                                     'text_en': 'The installation was not the problem. According to '
                                                'the docs, in this case the install directory is '
                                                "missing from the shell's PATH – a new terminal or "
-                                               'a fixed PATH solves it, repeating does not.'},
+                                               'a fixed PATH solves it; repeating the installation does not.'},
                                    {'id': 'diagnose',
                                     'text_de': 'Im neuen Terminal gibt `claude --version` eine '
                                                'Versionsnummer aus. Du willst zusätzlich wissen, '
@@ -311,7 +311,7 @@ INSTALLATION_SETUP_MODULE = {'key': 'installation-setup',
                                                'Womit?',
                                     'text_en': 'In the new terminal, `claude --version` prints a '
                                                'version number. You also want to know whether the '
-                                               'installation and settings are in order. With what?',
+                                               'installation and settings are in order. What do you use?',
                                     'options': [{'label_de': '`claude doctor` im Terminal '
                                                              'ausführen',
                                                  'label_en': 'Run `claude doctor` in the terminal',
@@ -337,12 +337,11 @@ INSTALLATION_SETUP_MODULE = {'key': 'installation-setup',
                                                'du nur den kostenlosen claude.ai-Plan. Wie weiter?',
                                     'text_en': 'The diagnosis is clean. On the first `claude` in '
                                                'the project folder you are asked to sign in. '
-                                               'Privately you only have the free claude.ai plan. '
+                                               'Your personal account only has the free claude.ai plan. '
                                                'What next?',
                                     'options': [{'label_de': 'Mit dem kostenlosen Plan anmelden, '
                                                              'das genügt',
-                                                 'label_en': 'Sign in with the free plan, that is '
-                                                             'enough',
+                                                 'label_en': 'Sign in with the free plan; that is enough',
                                                  'to': 'frei'},
                                                 {'label_de': 'Den Firmen-Account nutzen: Pro, Max, '
                                                              'Team, Enterprise, Console oder '
@@ -643,8 +642,7 @@ INSTALLATION_SETUP_MODULE = {'key': 'installation-setup',
                                             'Bestätigung auch Korrekturen anwendet',
                                             '`/doctor` läuft ohne Login, `claude doctor` nur mit '
                                             'Enterprise-Plan'],
-                                     'en': ['There is no difference, both spellings start the same '
-                                            'thing',
+                                     'en': ['There is no difference, both forms do the same thing',
                                             '`claude doctor` reinstalls Claude Code, `/doctor` '
                                             'only shows the version',
                                             '`claude doctor` prints read-only diagnostics; '

@@ -28,6 +28,8 @@ export function Dhcp({ lang }: { lang: Lang }) {
   const s = STR[lang]
 
   const [exhausted, setExhausted] = useState(false)
+  // Aufgabe: nur selbst durchgespielte DORA-Abläufe zählen, nicht der „Pool fast füllen“-Klick
+  const [completed, setCompleted] = useState(0)
   const add = () => {
     const next = lease(leases.length)
     if (next) setPending({ lease: next, step: 1 })
@@ -42,7 +44,10 @@ export function Dhcp({ lang }: { lang: Lang }) {
     if (!pending) return
     const step = pending.step + 1
     setPending({ ...pending, step })
-    if (step === pending.lease.steps.length) setLeases((ls) => [...ls, pending.lease])
+    if (step === pending.lease.steps.length) {
+      setLeases((ls) => [...ls, pending.lease])
+      setCompleted((n) => n + 1)
+    }
   }
   const inProgress = pending !== null && pending.step < pending.lease.steps.length
 
@@ -62,7 +67,7 @@ export function Dhcp({ lang }: { lang: Lang }) {
           className="rounded-lg border px-3 py-1.5 text-sm disabled:opacity-50">
           {s.fill}
         </button>
-        <button onClick={() => { setLeases([]); setPending(null); setExhausted(false) }} className="rounded-lg border px-3 py-1.5 text-sm">
+        <button onClick={() => { setLeases([]); setPending(null); setExhausted(false); setCompleted(0) }} className="rounded-lg border px-3 py-1.5 text-sm">
           {s.reset}
         </button>
       </div>
@@ -119,7 +124,7 @@ export function Dhcp({ lang }: { lang: Lang }) {
         )}
       </div>
 
-      <ChallengeBox lang={lang} task={s.challenge} done={leases.length >= 3} />
+      <ChallengeBox lang={lang} task={s.challenge} done={completed >= 3} />
     </div>
   )
 }

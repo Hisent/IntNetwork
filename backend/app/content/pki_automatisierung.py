@@ -20,7 +20,7 @@ PKI_AUTOMATISIERUNG_MODULE = {
         'Describe the ACME flow (validation, issuance, renewal) in your own words',
         'Distinguish HTTP-01 and DNS-01 and justify when DNS-01 is mandatory',
         "Compare Let's Encrypt with internal ACME CAs such as smallstep",
-        'Roughly place certificate templates and autoenrollment in Microsoft AD CS',
+        'Describe in broad terms what certificate templates and autoenrollment do in Microsoft AD CS',
         'Name the basic principles of a certificate inventory and of secure key storage',
     ],
     'scenario': {
@@ -34,12 +34,12 @@ PKI_AUTOMATISIERUNG_MODULE = {
               'servers, internal APIs, databases, and gateways between sites. So far, new certificates '
               'were requested manually and distributed via ticket, which already caused occasionally '
               'tight renewal windows at current lifetimes. With the further-shrinking certificate '
-              'lifetimes from the previous module, manual work would finally become unmanageable. Time '
+              'lifetimes from the previous module, manual work would become unmanageable for good. Time '
               'to make automation the default instead of a nice-to-have.',
     },
     'blocks': [
         {'type': 'text', 'id': 'text-1',
-         'note': 'Einstieg bewusst an das Vormodul (zertifikats-lebenszyklus) anschliessen: kuerzere '
+         'note': 'Einstieg bewusst an das Vormodul (zertifikats-lebenszyklus) anschließen: kürzere '
                  'Laufzeiten sind der eigentliche Treiber, nicht Bequemlichkeit. Diesen Zusammenhang '
                  'explizit machen, sonst wirkt Automatisierung wie ein Nice-to-have.',
          'value': {
@@ -89,8 +89,8 @@ PKI_AUTOMATISIERUNG_MODULE = {
                  'issued automatically.\n- The client can trigger **renewal** on its own, in good time before '
                  'expiry — exactly what makes ACME practical at short lifetimes.\n\nThe client no longer has to '
                  'guess when exactly to renew: with **ARI** (ACME Renewal Information, RFC 9773 of June 2025) '
-                 'the CA tells the client a suggested renewal window. This lets it spread the load — and have '
-                 'clients renew early in a targeted way when it has to revoke certificates.'),
+                 'the CA gives the client a suggested renewal window. This lets it spread the load — and deliberately '
+                 'have clients renew early when it has to revoke certificates.'),
             },
         },
         {'type': 'text', 'id': 'text-3',
@@ -223,7 +223,7 @@ PKI_AUTOMATISIERUNG_MODULE = {
                      'label_en': 'certificate + chain',
                      'detail_de': ('Die CA stellt aus; der Client lädt Zertifikat und Intermediate herunter, installiert '
                          'sie und lädt den Dienst neu.'),
-                     'detail_en': ('The CA issues; the client downloads certificate and intermediate, installs them, and '
+                     'detail_en': ('The CA issues; the client downloads the certificate and the intermediate, installs them, and '
                          'reloads the service.'),
                     },
                     {
@@ -338,8 +338,8 @@ PKI_AUTOMATISIERUNG_MODULE = {
                    'bridge/adapter solution in between.',
          }},
         {'type': 'diagram', 'id': 'diagram-interne-pki',
-         'note': ('Zum Nachschlagen: jedes Element anklicken. Schliesst an die Vertrauenskette aus dem '
-             'Architektur-Modul an und ergaenzt die Betriebsbausteine (HSM, Sperrliste, Verteilung).'),
+         'note': ('Zum Nachschlagen: jedes Element anklicken. Schließt an die Vertrauenskette aus dem '
+             'Architektur-Modul an und ergänzt die Betriebsbausteine (HSM, Sperrliste, Verteilung).'),
          'payload': {
              'kind': 'flow',
              'title_de': 'Interne PKI: von der Offline-Root bis zum Dienst',
@@ -375,8 +375,8 @@ PKI_AUTOMATISIERUNG_MODULE = {
                      'label_en': 'ACME / autoenrollment',
                      'detail_de': ('Der Client auf dem Zielsystem erzeugt Schlüssel und CSR, weist seine Berechtigung '
                          'nach und erneuert selbstständig.'),
-                     'detail_en': ('The client on the target system generates key and CSR, proves its authorization, and '
-                         'renews by itself.'),
+                     'detail_en': ('The client on the target system generates the key and CSR, proves its authorization, '
+                         'and renews on its own.'),
                     },
                     {
                      'id': 'svc',
@@ -420,7 +420,7 @@ PKI_AUTOMATISIERUNG_MODULE = {
                      'detail_de': ('Die Issuing-CA veröffentlicht regelmäßig ihre CRL; das Inventar kennt jedes '
                          'ausgestellte Zertifikat samt Ablaufdatum und Zuständigem.'),
                      'detail_en': ('The issuing CA regularly publishes its CRL; the inventory knows every issued '
-                         'certificate with expiry date and owner.'),
+                         'certificate along with its expiry date and owner.'),
                     },
                 ],
              'edges': [
@@ -462,10 +462,10 @@ PKI_AUTOMATISIERUNG_MODULE = {
          }},
         {'type': 'cloze', 'id': 'cloze-certbot',
          'note': ('Syntax nach der certbot-Dokumentation (eff-certbot.readthedocs.io, "User Guide"); die Befehle '
-             'wurden fuer den Kurs nicht gegen eine echte CA ausgefuehrt.'),
+             'wurden für den Kurs nicht gegen eine echte CA ausgeführt.'),
          'payload': {
              'prompt_de': 'Drei typische certbot-Aufrufe — ergänze die Lücken.',
-             'prompt_en': 'Three typical certbot invocations — fill the gaps.',
+             'prompt_en': 'Three typical certbot invocations — fill in the gaps.',
              'mono': True,
              'text_de': ('# Zertifikat per HTTP-01 über das Webroot-Verzeichnis holen\ncertbot certonly --[[plugin]] -w '
                  '/var/www/html -d www.nordwind-logistik.de\n# Wildcard-Zertifikat: nur über das DNS\ncertbot '
@@ -502,9 +502,9 @@ PKI_AUTOMATISIERUNG_MODULE = {
                  'Post-Hook dagegen bei jedem Versuch. Ohne das Neuladen liefert der Webserver weiter das alte '
                  'Zertifikat aus, obwohl das neue längst auf der Platte liegt: einer der häufigsten Gründe für '
                  '„trotz Automatisierung abgelaufen“.'),
-             'explanation_en': ('The deploy hook only runs after an actually successful renewal — pre and post hooks, by '
+             'explanation_en': ('The deploy hook only runs after a renewal that actually succeeded — pre and post hooks, by '
                  'contrast, on every attempt. Without the reload the web server keeps serving the old '
-                 'certificate although the new one has long been on disk: one of the most common reasons for '
+                 'certificate even though the new one has long been on disk: one of the most common reasons for '
                  '"expired despite automation".'),
             },
         },
@@ -537,7 +537,7 @@ PKI_AUTOMATISIERUNG_MODULE = {
                    '- Clear **ownership per certificate** — who gets notified, who is allowed to '
                    'renew, who decides on decommissioning.\n\n'
                    'With lifetimes headed toward just 47 days, such an inventory is no longer '
-                   'optional — it is the only way to keep an overview at all.',
+                   'optional — it is the only way to keep track at all.',
          }},
         {'type': 'text', 'id': 'text-7',
          'value': {
@@ -561,7 +561,7 @@ PKI_AUTOMATISIERUNG_MODULE = {
                    'Instead, a private key belongs in a dedicated **key store** — in the simplest '
                    'case, encrypted with restrictive access permissions on the target system itself; '
                    'in the more sophisticated case, in a central secrets management system. The '
-                   'strongest variant is an **HSM (Hardware Security Module)**: the private key '
+                   'strongest option is an **HSM (Hardware Security Module)**: the private key '
                    'physically never leaves the HSM, all signing/decryption operations happen inside '
                    'the module.',
          }},
@@ -610,8 +610,8 @@ PKI_AUTOMATISIERUNG_MODULE = {
                      'outcome': 'ok',
                      'text_de': ('Das rettet den Shop für dieses Mal, aber die Ursache bleibt — und in wenigen Wochen '
                          'stehst du wieder hier, dann vielleicht ohne Vorwarnung.'),
-                     'text_en': ('That saves the shop this time, but the cause remains — and in a few weeks you are '
-                         'back here, perhaps without advance warning then.'),
+                     'text_en': ('That saves the shop this time, but the cause remains — and in a few weeks you will '
+                         'be back here, next time perhaps without advance warning.'),
                     },
                     {
                      'id': 'log',
@@ -649,8 +649,8 @@ PKI_AUTOMATISIERUNG_MODULE = {
                      'text_de': ('Ursache behoben und die Lücke geschlossen: Eine Überwachung, die nur auf das '
                          'Ablaufdatum schaut, hat drei Wochen Vorwarnzeit verschenkt. Bei 47 Tagen Laufzeit '
                          'wäre das fast die Hälfte der gesamten Laufzeit.'),
-                     'text_en': ('Cause fixed and the gap closed: monitoring that only looks at the expiry date gave '
-                         'away three weeks of warning. With a 47-day lifetime that would be almost half of the '
+                     'text_en': ('Cause fixed and the gap closed: monitoring that only looks at the expiry date wasted '
+                         'three weeks of warning time. With a 47-day lifetime that would be almost half of the '
                          'entire lifetime.'),
                     },
                 ],
@@ -687,7 +687,7 @@ PKI_AUTOMATISIERUNG_MODULE = {
                  'Because the maximum lifetime of publicly trusted TLS certificates has been cut so '
                  'much that manual renewal at scale is no longer practical',
                  'Because ACME is now the only supported issuance path',
-                 'Because browsers fundamentally reject manually issued certificates',
+                 'Because browsers always reject manually issued certificates',
              ],
          },
          'explanation': {
@@ -710,7 +710,7 @@ PKI_AUTOMATISIERUNG_MODULE = {
                  'Er wird zentral im ACME-Protokoll gespeichert und wiederverwendet',
              ],
              'en': [
-                 'The client generates it locally, it never leaves the machine',
+                 'The client generates it locally; it never leaves the machine',
                  'The CA generates it and sends it to the client encrypted',
                  'It is delivered by email again on every renewal',
                  'It is stored centrally in the ACME protocol and reused',
@@ -720,7 +720,7 @@ PKI_AUTOMATISIERUNG_MODULE = {
           'de': ('Der ACME-Client erzeugt Schlüssel und CSR lokal; die CA sieht nur den öffentlichen Schlüssel. '
               'Eine CA, die private Schlüssel erzeugt und verschickt, widerspräche dem Grundprinzip des '
               'gesamten Lehrgangs.'),
-          'en': ('The ACME client generates key and CSR locally; the CA only sees the public key. A CA that '
+          'en': ('The ACME client generates the key and CSR locally; the CA only sees the public key. A CA that '
               'generated and sent private keys would contradict the basic principle of this entire course.'),
          }},
         {'id': 'pa3', 'type': 'single',
@@ -736,7 +736,7 @@ PKI_AUTOMATISIERUNG_MODULE = {
                     'Nur eine manuelle Ausstellung ist in diesem Fall möglich'],
              'en': ['HTTP-01, because the protocol is firewall-independent anyway',
                     'DNS-01, because only the DNS answer needs to be publicly visible for it',
-                    'None — internal servers can never use ACME in principle',
+                    'None — internal servers cannot use ACME at all',
                     'Only manual issuance is possible in this case'],
          },
          'explanation': {
@@ -781,14 +781,14 @@ PKI_AUTOMATISIERUNG_MODULE = {
              'en': ['As an attachment in the ticket documenting the issuance',
                     'In the responsible admin\'s email inbox, easy to find later',
                     'On a shared network drive without access restrictions',
-                    'In a dedicated key store, in the strong case an HSM'],
+                    'In a dedicated key store, or for the strongest protection an HSM'],
          },
          'explanation': {
           'de': ('Ein privater Schlüssel gehört dorthin, wo Zugriffe eng begrenzt sind; im HSM lässt er sich '
               'nutzen, aber nicht auslesen. Ticket, Postfach und Netzlaufwerk sind auf Verteilen und '
               'Aufbewahren ausgelegt — jede Kopie dort ist eine mögliche Kompromittierung.'),
           'en': ('A private key belongs where access is tightly limited; in an HSM it can be used but not '
-              'extracted. Ticket, mailbox, and network share are built for distributing and retaining — every '
+              'extracted. Tickets, mailboxes, and network shares are built for distribution and retention — every '
               'copy there is a potential compromise.'),
          }},
         {'id': 'pa6', 'type': 'single',
@@ -824,7 +824,7 @@ PKI_AUTOMATISIERUNG_MODULE = {
                     'Eine Ablaufüberwachung wird überflüssig',
                 ],
              'en': [
-                    'The CA tells the client a suggested time window for renewal',
+                    'The CA gives the client a suggested time window for renewal',
                     'The CA can get clients to renew early ahead of a planned revocation',
                     'The lifetime of an existing certificate is extended',
                     'Expiry monitoring becomes unnecessary',
@@ -837,7 +837,7 @@ PKI_AUTOMATISIERUNG_MODULE = {
                  'beste Client kann an Firewall, DNS oder Berechtigungen scheitern.'),
              'en': ('ARI is a hint from the CA to the client about when to renew. A certificate can never be '
                  'extended, only replaced — and independent monitoring remains necessary, because even the best '
-                 'client can fail on firewall, DNS, or permissions.'),
+                 'client can fail because of a firewall, DNS, or permissions.'),
             },
         },
         {'id': 'pa8', 'type': 'number',
@@ -852,7 +852,7 @@ PKI_AUTOMATISIERUNG_MODULE = {
              'de': ('Zwei Drittel von 45 Tagen sind 30 Tage; es bleiben 15. Bei 90 Tagen waren es noch 30 — die '
                  'Reaktionszeit schrumpft mit der Laufzeit. Deshalb muss die Überwachung fehlgeschlagene '
                  'Erneuerungen sofort melden, nicht erst kurz vor Ablauf.'),
-             'en': ('Two thirds of 45 days are 30 days; 15 remain. With 90 days it was still 30 — the reaction '
+             'en': ('Two thirds of 45 days is 30 days; 15 remain. With 90 days it was still 30 — the reaction '
                  'time shrinks with the lifetime. That is why monitoring must report failed renewals '
                  'immediately, not just shortly before expiry.'),
             },

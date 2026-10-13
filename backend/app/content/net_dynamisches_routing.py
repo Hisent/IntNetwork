@@ -18,7 +18,7 @@ DYNAMISCHES_ROUTING_MODULE = {
         "Explain why static routes no longer suffice with many networks and failures",
         "Tell the distance-vector and link-state principles apart",
         "Name the core terms of OSPF: neighbor relationship, link-state database, SPF/Dijkstra, cost, areas",
-        "Place RIP as an outdated distance-vector predecessor (hop count, 15 hops)",
+        "Classify RIP as an outdated distance-vector predecessor (hop count, 15 hops)",
         "Clearly distinguish BGP from an internal routing protocol (between autonomous systems on the Internet)",
         "Name situations in which static routing still makes sense",
     ],
@@ -28,14 +28,14 @@ DYNAMISCHES_ROUTING_MODULE = {
               "Leitung ausfällt, merkt das erst der Kunde am nächsten Morgen. Wie bringt man "
               "die Routing-Tabelle dazu, sich selbst zu aktualisieren?",
         "en": "Nordwind Logistik now connects several sites, each with its own router. So far, "
-              "an admin maintains every route by hand — and if a link fails overnight, the "
-              "customer notices before anyone else does the next morning. How do you get the "
+              "an admin maintains every route by hand — and if a link fails overnight, nobody "
+              "notices until the customer does the next morning. How do you get the "
               "routing table to update itself?",
     },
     "blocks": [
         {"type": "text", "id": "text-1",
          "note": "Anschluss an Modul 6 (Routing): dieselbe Routing-Tabelle, nur die Herkunft "
-                 "der Eintraege aendert sich. Das explizit sagen, bevor OSPF eingefuehrt wird.",
+                 "der Einträge ändert sich. Das explizit sagen, bevor OSPF eingeführt wird.",
          "value": {
              "de": "## Warum statische Routen nicht mitwachsen\n\nEine statische Route "
                    "(Modul 6) ist ein manueller Eintrag: „Netz X erreichst du über Y.“ Das "
@@ -66,7 +66,7 @@ DYNAMISCHES_ROUTING_MODULE = {
                    "principles:\n\n"
                    "- **Distance vector**: a router only knows what its direct neighbors tell "
                    "it (“I reach network X in 3 hops”) — it has no picture of the whole "
-                   "network, it just trusts and forwards the numbers.\n"
+                   "network; it just trusts the numbers and passes them on.\n"
                    "- **Link-state**: every router collects information about all links in its "
                    "area and builds a **complete map** of the topology. From that map it "
                    "computes the best path itself.",
@@ -98,7 +98,7 @@ DYNAMISCHES_ROUTING_MODULE = {
              "title_de": "OSPF: von zwei Fremden zur vollen Nachbarschaft",
              "title_en": "OSPF: from two strangers to full adjacency",
              "caption_de": "Transfernetz 10.0.0.0/30 zwischen Zentrale und Lager",
-             "caption_en": "Transfer network 10.0.0.0/30 between headquarters and warehouse",
+             "caption_en": "Transit network 10.0.0.0/30 between headquarters and warehouse",
              "actors": [
                  {"id": "r1", "label_de": "R1 Zentrale (1.1.1.1)", "label_en": "R1 headquarters (1.1.1.1)"},
                  {"id": "r2", "label_de": "R2 Lager (2.2.2.2)", "label_en": "R2 warehouse (2.2.2.2)"},
@@ -183,14 +183,14 @@ DYNAMISCHES_ROUTING_MODULE = {
                    "therefore divides the network into **areas**: within one area, all routers "
                    "share the same LSDB, and changes largely stay local. **Area 0** (the "
                    "backbone area) is special: every other area must be connected to Area 0, "
-                   "directly or via a workaround — it is the central hub through which traffic "
+                   "directly or indirectly — it is the central hub through which traffic "
                    "between the remaining areas passes.",
          }},
         {"type": "widget", "id": "ospf-demo",
          "note": "Zentrale -> Rechenzentrum: direkter 10-Mbit-Link (1 Hop) gegen den "
-                 "Kostenpfad ueber das Lager vergleichen. Dann einen Link auf dem besten Pfad "
+                 "Kostenpfad über das Lager vergleichen. Dann einen Link auf dem besten Pfad "
                  "kappen und die Neuberechnung zeigen; zuletzt die Referenzbandbreite "
-                 "aendern. Hello/Nachbarschaft simuliert das Widget nicht."},
+                 "ändern. Hello/Nachbarschaft simuliert das Widget nicht."},
         {"type": "debug", "id": "debug-1", "payload": {
             "prompt_de": "Zwei Router sollen über ihre gemeinsame Leitung eine "
                          "OSPF-Nachbarschaft aufbauen, es klappt aber nicht. Finde den Fehler:",
@@ -203,8 +203,8 @@ DYNAMISCHES_ROUTING_MODULE = {
                 "Auf beiden Seiten läuft OSPF-Prozess 1",
             ],
             "lines_en": [
-                "Router A: interface Gi0/0 in transfer network 10.0.0.0/30, OSPF area 0",
-                "Router B: interface Gi0/0 in the same transfer network 10.0.0.0/30, OSPF area 1",
+                "Router A: interface Gi0/0 in transit network 10.0.0.0/30, OSPF Area 0",
+                "Router B: interface Gi0/0 in the same transit network 10.0.0.0/30, OSPF Area 1",
                 "Both interfaces are administratively up (no shutdown)",
                 "Both sides run OSPF process 1",
             ],
@@ -215,9 +215,9 @@ DYNAMISCHES_ROUTING_MODULE = {
                               "deshalb nicht zustande. Router B müsste ebenfalls Area 0 "
                               "verwenden.",
             "explanation_en": "Both ends of the same link must be configured in the **same** "
-                              "OSPF area. Router A advertises area 0, router B area 1 for the "
-                              "same transfer network — that's why the neighbor relationship "
-                              "never forms. Router B would need to use area 0 as well.",
+                              "OSPF area. Router A advertises Area 0, router B Area 1 for the "
+                              "same transit network — that's why the neighbor relationship "
+                              "never forms. Router B would need to use Area 0 as well.",
         }},
         {"type": "terminal", "id": "terminal-ospf-nachbarn",
          "note": ("Cisco-IOS-Ausgaben, gekürzt: Spalte „Pri“ fehlt, Spaltenabstände verengt, Interface-Namen abgekürzt "
@@ -228,7 +228,7 @@ DYNAMISCHES_ROUTING_MODULE = {
              "title_de": "OSPF auf R1 prüfen: Nachbarn, Routen, eine Störung",
              "title_en": "Checking OSPF on R1: neighbors, routes, one fault",
              "intro_de": "R1 (Zentrale) hat drei Transferleitungen: Gi1/0 zum Lager, Gi1/1 zum Rechenzentrum, Gi1/2 zur neuen Außenstelle. Tippe ? für Hilfe.",
-             "intro_en": "R1 (headquarters) has three transfer links: Gi1/0 to the warehouse, Gi1/1 to the data center, Gi1/2 to the new branch office. Type ? for help.",
+             "intro_en": "R1 (headquarters) has three transit links: Gi1/0 to the warehouse, Gi1/1 to the data center, Gi1/2 to the new branch office. Type ? for help.",
              "prompt": "r1#", "abbreviations": True,
              "unknown": "% Invalid input detected: {cmd}",
              "commands": [
@@ -272,7 +272,7 @@ DYNAMISCHES_ROUTING_MODULE = {
                   "text_en": "Check the MTU on Gi1/2. Which value is shown?",
                   "answers": ["1400"],
                   "explanation_de": "Gi1/2 hat MTU 1400 statt 1500 – deshalb bleibt die Nachbarschaft zur Außenstelle (4.4.4.4) in EXSTART hängen.",
-                  "explanation_en": "Gi1/2 has MTU 1400 instead of 1500 – that is why the adjacency to the new branch (4.4.4.4) is stuck in EXSTART."},
+                  "explanation_en": "Gi1/2 has MTU 1400 instead of 1500 – that is why the adjacency to the branch office (4.4.4.4) is stuck in EXSTART."},
              ],
          }},
         {"type": "text", "id": "text-6",
@@ -340,7 +340,7 @@ DYNAMISCHES_ROUTING_MODULE = {
                   "left_en": "Five sites, route around failures automatically",
                   "right": "OSPF"},
                  {"left_de": "Zwei Provider, eigene AS-Nummer",
-                  "left_en": "Two providers, own AS number",
+                  "left_en": "Two providers, your own AS number",
                   "right": "BGP"},
                  {"left_de": "Außenstelle mit genau einer Leitung",
                   "left_en": "Branch office with exactly one link",
@@ -354,9 +354,9 @@ DYNAMISCHES_ROUTING_MODULE = {
                                "besseren finden — dann genügt die statische Route. BGP kommt ins Spiel, "
                                "wenn man mit fremden autonomen Systemen Routen austauscht.",
              "explanation_en": "OSPF pays off as soon as there are several paths to choose between "
-                               "automatically. With only one path no protocol can find a better one — "
+                               "automatically. With only one path, no protocol can find a better one — "
                                "then the static route suffices. BGP enters the picture when you exchange "
-                               "routes with foreign autonomous systems.",
+                               "routes with external autonomous systems.",
          }},
         {"type": "order", "id": "order-1", "payload": {
             "prompt_de": "Bringe die Schritte in die richtige Reihenfolge, wie OSPF nach dem "
@@ -390,21 +390,21 @@ DYNAMISCHES_ROUTING_MODULE = {
     "quiz": {"questions": [
         {"id": "dr1", "type": "single",
          "prompt": {"de": "Was unterscheidet Link-State grundsätzlich von Distanzvektor?",
-                    "en": "What fundamentally distinguishes link-state from distance-vector?"},
+                    "en": "What fundamentally distinguishes link-state from distance vector?"},
          "options": {
              "de": ["Link-State ist immer schneller konfiguriert",
                     "Jeder Router baut sich per Link-State eine vollständige Karte der "
                     "Topologie und berechnet selbst den Weg",
                     "Distanzvektor kennt keine Metrik", "Es gibt keinen Unterschied"],
              "en": ["Link-state is always quicker to configure",
-                    "With link-state, every router builds a complete map of the topology "
-                    "itself and computes the path itself",
-                    "Distance-vector has no metric at all", "There is no difference"],
+                    "With link-state, every router builds its own complete map of the topology "
+                    "and computes the path itself",
+                    "Distance vector has no metric at all", "There is no difference"],
          },
          "answer": 1,
          "explanation": {
              "de": "Bei Link-State kennt jeder Router die gesamte Topologie seines Bereichs und rechnet selbst. Bei Distanzvektor kennt er nur die Entfernungsangaben seiner Nachbarn. Eine Metrik haben beide — bei RIP ist es die Hop-Anzahl.",
-             "en": "With link-state every router knows the entire topology of its area and computes for itself. With distance-vector it only knows the distances its neighbors report. Both have a metric — for RIP it is the hop count."}},
+             "en": "With link-state, every router knows the entire topology of its area and computes the paths itself. With distance vector, it only knows the distances its neighbors report. Both have a metric — for RIP it is the hop count."}},
         {"id": "dr2", "type": "single",
          "prompt": {"de": "Wovon leitet OSPF üblicherweise die Kosten (Cost) einer Strecke ab?",
                     "en": "What does OSPF usually derive a link's cost from?"},
@@ -417,7 +417,7 @@ DYNAMISCHES_ROUTING_MODULE = {
          "answer": 1,
          "explanation": {
              "de": "OSPF berechnet die Kosten aus der Bandbreite: Referenzbandbreite ÷ Bandbreite der Leitung. Die Hop-Anzahl ist die Metrik von RIP — bei OSPF kann ein Weg mit mehr Hops durchaus der günstigere sein.",
-             "en": "OSPF computes cost from bandwidth: reference bandwidth ÷ link bandwidth. Hop count is RIP's metric — with OSPF a path with more hops can well be the cheaper one."}},
+             "en": "OSPF computes cost from bandwidth: reference bandwidth ÷ link bandwidth. Hop count is RIP's metric — with OSPF, a path with more hops may well be the cheaper one."}},
         {"id": "dr3", "type": "single",
          "prompt": {"de": "Wozu dient Area 0 bei OSPF?", "en": "What is the purpose of Area 0 in OSPF?"},
          "options": {
@@ -431,7 +431,7 @@ DYNAMISCHES_ROUTING_MODULE = {
          "answer": 1,
          "explanation": {
              "de": "Area 0 ist das Backbone: Verkehr zwischen zwei anderen Areas läuft immer über sie, deshalb muss jede Area an sie angebunden sein. Optional ist sie nicht — auch ein OSPF-Netz mit nur einer Area nutzt üblicherweise Area 0.",
-             "en": "Area 0 is the backbone: traffic between two other areas always passes through it, which is why every area must connect to it. It is not optional — even an OSPF network with a single area normally uses area 0."}},
+             "en": "Area 0 is the backbone: traffic between two other areas always passes through it, which is why every area must connect to it. It is not optional — even an OSPF network with a single area normally uses Area 0."}},
         {"id": "dr4", "type": "single",
          "prompt": {"de": "Ab wie vielen Hops gilt ein Ziel bei RIP als nicht erreichbar?",
                     "en": "At how many hops does a destination count as unreachable in RIP?"},
@@ -442,7 +442,7 @@ DYNAMISCHES_ROUTING_MODULE = {
          "answer": 2,
          "explanation": {
              "de": "15 Hops sind bei RIP das Maximum, das noch erreichbar ist; der Wert 16 bedeutet „unendlich“, also nicht erreichbar. Die naheliegende Antwort 15 ist deshalb knapp daneben.",
-             "en": "15 hops is the maximum that is still reachable in RIP; the value 16 means “infinity”, i.e. unreachable. The obvious answer 15 is therefore just off."}},
+             "en": "15 hops is the maximum that is still reachable in RIP; the value 16 means “infinity”, i.e. unreachable. The obvious answer 15 is therefore a near miss."}},
         {"id": "dr5", "type": "single",
          "prompt": {"de": "Wo kommt BGP typischerweise zum Einsatz?",
                     "en": "Where is BGP typically used?"},
@@ -457,7 +457,7 @@ DYNAMISCHES_ROUTING_MODULE = {
          "answer": 1,
          "explanation": {
              "de": "BGP verbindet autonome Systeme — die Netze verschiedener Organisationen im Internet. Im Firmennetz übernimmt das ein internes Protokoll wie OSPF. (Ausnahmen wie iBGP beim Provider bestätigen die Regel für Netze dieser Größe.)",
-             "en": "BGP connects autonomous systems — the networks of different organizations on the Internet. Inside a company network an interior protocol such as OSPF does the job. (Exceptions like iBGP at providers prove the rule for networks of this size.)"}},
+             "en": "BGP connects autonomous systems — the networks of different organizations on the Internet. Inside a company network, an interior protocol such as OSPF does the job. (Exceptions like iBGP at providers prove the rule for networks of this size.)"}},
         {"id": "dr6", "type": "number",
          "prompt": {"de": "Referenzbandbreite 100 Mbit/s. Zum Ziel führen zwei Wege: Weg A über zwei "
                           "Leitungen mit je 100 Mbit/s, Weg B über eine einzige Leitung mit 10 Mbit/s. "
@@ -488,7 +488,7 @@ DYNAMISCHES_ROUTING_MODULE = {
              "en": ["OSPF actually counts hops",
                     "With a 100 Mbit/s reference bandwidth both links get a cost of 1",
                     "Area 0 is missing",
-                    "The hello timers are too long"],
+                    "The Hello timers are too long"],
          },
          "answer": 1,
          "explanation": {
@@ -510,7 +510,7 @@ DYNAMISCHES_ROUTING_MODULE = {
                     "Verschiedene Hersteller",
                     "Beide haben dieselbe Router-ID"],
              "en": ["Different areas on the shared link",
-                    "Different hello/dead timers",
+                    "Different Hello/dead timers",
                     "Different OSPF process numbers (router ospf 1 and router ospf 7)",
                     "Different vendors",
                     "Both have the same router ID"],
@@ -522,6 +522,6 @@ DYNAMISCHES_ROUTING_MODULE = {
                    "der häufigste Fehlverdacht. Und OSPF ist ein offener Standard, also herstellerneutral.",
              "en": "Area and timers are carried in the Hello and must match; the router ID must be unique. "
                    "The process number, by contrast, is only locally significant and never transmitted — "
-                   "the most common false suspect. And OSPF is an open standard, hence vendor-neutral."}},
+                   "the most common false suspicion. And OSPF is an open standard, hence vendor-neutral."}},
     ]},
 }

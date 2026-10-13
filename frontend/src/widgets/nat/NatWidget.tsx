@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { isValidPort, translate, type NatEntry } from '@/widgets/nat/nat'
+import { isValidPort, patChallengeDone, translate, type NatEntry } from '@/widgets/nat/nat'
 import { ChallengeBox } from '@/components/ChallengeBox'
 import type { Lang } from '@/lib/i18n'
 
@@ -32,6 +32,7 @@ export function Nat({ lang }: { lang: Lang }) {
   const [host, setHost] = useState(HOSTS[0].ip)
   const [port, setPort] = useState(5000)
   const [last, setLast] = useState<string | null>(null)
+  const [reusedSeen, setReusedSeen] = useState(false)
   const s = STR[lang]
 
   const portOk = isValidPort(port)
@@ -40,6 +41,7 @@ export function Nat({ lang }: { lang: Lang }) {
     if (!portOk) return
     const r = translate(table, host, port, PUBLIC_IP)
     setTable(r.table)
+    if (r.reused) setReusedSeen(true)
     setLast(r.reused ? s.reused(r.entry.insideLocal, r.entry.insideGlobal) : s.fresh(r.entry.insideLocal, r.entry.insideGlobal))
   }
 
@@ -84,7 +86,7 @@ export function Nat({ lang }: { lang: Lang }) {
         >
           {s.send}
         </button>
-        <button onClick={() => { setTable([]); setLast(null) }} className="rounded-lg border px-3 py-1.5 text-sm">
+        <button onClick={() => { setTable([]); setLast(null); setReusedSeen(false) }} className="rounded-lg border px-3 py-1.5 text-sm">
           {s.clear}
         </button>
       </div>
@@ -110,7 +112,7 @@ export function Nat({ lang }: { lang: Lang }) {
         )}
       </div>
 
-      <ChallengeBox lang={lang} task={s.challenge} done={table.length >= 2} />
+      <ChallengeBox lang={lang} task={s.challenge} done={patChallengeDone(table, reusedSeen)} />
     </div>
   )
 }

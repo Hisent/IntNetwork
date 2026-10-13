@@ -46,7 +46,7 @@ TEMPLATES_MODULE = {
                              '```',
                        'en': '## The template module vs. copy\n'
                              '\n'
-                             '`ansible.builtin.copy` transfers a file **1:1** to the managed '
+                             '`ansible.builtin.copy` transfers a file **as is** to the managed '
                              'node — no processing, no placeholder substitution.\n'
                              '\n'
                              '`ansible.builtin.template` first renders a `.j2` file **on the '
@@ -85,7 +85,7 @@ TEMPLATES_MODULE = {
                                     'label_en': 'Variables + facts',
                                     'detail_de': 'Alle Variablen des jeweiligen Hosts — nach '
                                                  'derselben Vorrangregel wie in Tasks.',
-                                    'detail_en': 'All variables of the respective host — by the '
+                                    'detail_en': 'All variables of that host — by the '
                                                  'same precedence rule as in tasks.'},
                                    {'id': 'render',
                                     'row': 0,
@@ -103,8 +103,8 @@ TEMPLATES_MODULE = {
                                     'label': '/etc/nginx/\nnginx.conf',
                                     'detail_de': 'Nur wenn sich der Inhalt unterscheidet, wird '
                                                  'geschrieben und changed gemeldet.',
-                                    'detail_en': 'Only if the content differs is it written and '
-                                                 'changed reported.'},
+                                    'detail_en': 'The file is written, and changed reported, '
+                                                 'only if the content differs.'},
                                    {'id': 'handler',
                                     'row': 1,
                                     'col': 2,
@@ -165,7 +165,7 @@ TEMPLATES_MODULE = {
                              'korrekt geschlossen werden (`{% if %}` braucht `{% endif %}`, '
                              '`{% for %}` braucht `{% endfor %}`) — sonst bricht das Rendern '
                              'ab.',
-                       'en': '## Jinja2 basic syntax\n'
+                       'en': '## Basic Jinja2 syntax\n'
                              '\n'
                              '- `{{ variable }}` — insert a variable\'s value\n'
                              '- `{% if condition %} … {% endif %}` — conditional section\n'
@@ -387,8 +387,8 @@ TEMPLATES_MODULE = {
                        'en': '## Hands-on: rendering a template in the lab\n'
                              '\n'
                              'In the lab widget below the **Templates** template is preselected. '
-                             'The lab accepts only a single playbook file, so the playbook stores '
-                             'its `.j2` template itself in the first step (`!unsafe` prevents the '
+                             'The lab accepts only a single playbook file, so the playbook itself '
+                             'writes its `.j2` template to disk in the first step (`!unsafe` prevents the '
                              'content from being rendered at that point) and then renders it with '
                              '`ansible.builtin.template`. `diff: true` on the task shows the '
                              'result right in the output.\n'
@@ -568,7 +568,7 @@ TEMPLATES_MODULE = {
                                          'en': '`loop.index` counts from 1 (`loop.index0` counts '
                                                'from 0), and `loop.last` is true only for the last '
                                                'element — so there is no comma after the second '
-                                               'entry. Rendered for real with ansible-core 2.21.'}},
+                                               'entry. Verified in a real run with ansible-core 2.21.'}},
                         {'id': 'tj7',
                          'type': 'single',
                          'prompt': {'de': 'Ein Template beginnt mit `# Erzeugt am {{ now() }}`. '
@@ -599,7 +599,7 @@ TEMPLATES_MODULE = {
                                          'en': '`template` compares the rendered result with the '
                                                'existing file. A value that changes on every run '
                                                'makes every result new — the module works '
-                                               'correctly, the template is not idempotent. The '
+                                               'correctly; it is the template that is not idempotent. The '
                                                'timestamp does not belong in the file.'}},
                         {'id': 'tj8',
                          'type': 'number',

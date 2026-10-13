@@ -44,3 +44,6 @@ export const SERVERS: McpServer[] = [
     resources: ['file:///docs/spec.md'],
   },
 ]
+
+/** Vorauswahl des Widgets; bewusst nicht der Ticket-Server, den die Aufgabe sucht. */
+export const START_SERVER_ID = 'db'

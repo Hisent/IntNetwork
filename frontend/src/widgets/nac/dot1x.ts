@@ -131,7 +131,8 @@ const acceptSteps = (vlan: Bilingual): Dot1xStep[] => [
   step('authenticator', 'supplicant', 'eapol', 'EAP-Success',
     'Der Authenticator meldet dem Client den Erfolg über EAPOL.',
     'The authenticator reports success to the client over EAPOL.'),
-  step('authenticator', 'supplicant', 'eapol', 'Port authorized',
+  // Lokale Aktion des Switches, kein EAPOL-Frame (wie auf dem MAB-Pfad).
+  step('authenticator', 'authenticator', 'local', 'Port authorized',
     `Der Switch schaltet den Port von "unauthorized" auf "authorized" und legt ihn in das zugewiesene `
     + `VLAN (${vlan.de}) — erst jetzt fließt normaler Datenverkehr.`,
     `The switch moves the port from "unauthorized" to "authorized" and places it into the assigned `
@@ -306,6 +307,23 @@ export const DOT1X_PATHS: Record<Dot1xPathId, Dot1xPath> = {
       },
     },
   },
+}
+
+// Protokollnamen (EAPOL-Start, RADIUS Access-Accept …) sind sprachneutral; nur
+// die frei formulierten Schrittnamen brauchen eine englische Fassung. `name`
+// bleibt der stabile (deutsche) Schlüssel für Tests und decisionIndex.
+const STEP_NAME_EN: Record<string, string> = {
+  'RADIUS Access-Request (Challenge-Antwort)': 'RADIUS Access-Request (challenge response)',
+  'Erster Frame (z. B. DHCP)': 'First frame (e.g. DHCP)',
+  'Port bleibt unauthorized': 'Port stays unauthorized',
+  'Port → Gast-VLAN': 'Port → guest VLAN',
+  'Keine Antwort': 'No response',
+  'Alle Server "dead"': 'All servers "dead"',
+}
+
+/** Anzeigename eines Schritts in der gewählten Sprache. */
+export function stepName(step: Dot1xStep, lang: 'de' | 'en'): string {
+  return lang === 'en' ? STEP_NAME_EN[step.name] ?? step.name : step.name
 }
 
 export const DOT1X_PATH_IDS = Object.keys(DOT1X_PATHS) as Dot1xPathId[]

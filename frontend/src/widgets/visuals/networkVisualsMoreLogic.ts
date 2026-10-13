@@ -1,3 +1,5 @@
+import { compress } from '@/widgets/ipv6/ipv6'
+
 export const vlanHops = [
   { from: 'PC', to: 'Switch A', link: 'Access', action: { de: 'Beim Eingang VLAN 20 zuordnen', en: 'Assign VLAN 20 on ingress' }, tagged: false },
   { from: 'Switch A', to: 'Switch B', link: 'Trunk', action: { de: '802.1Q-Tag VLAN 20 hinzufügen', en: 'Add 802.1Q tag for VLAN 20' }, tagged: true },
@@ -25,13 +27,17 @@ export function matchingRoutes(ip: string) { return routeOptions.filter(route =>
 export function matchingRoute(ip: string) { return matchingRoutes(ip).sort((a, b) => Number(b.prefix.split('/')[1]) - Number(a.prefix.split('/')[1]))[0].prefix }
 
 export function translatedPort(sourcePort: number) { return 40000 + sourcePort % 1000 }
+// Adressen wie im NAT-Modul und im NAT-Widget: öffentliche IP von Nordwind-R1 = 203.0.113.10,
+// externer Webserver = 198.51.100.7 (früher stand hier 198.51.100.8 als „öffentliche" Adresse).
+export const NAT_PUBLIC_IP = '203.0.113.10'
+export const NAT_REMOTE = '198.51.100.7:443'
 export function natJourney(sourcePort: number) {
   const publicPort = translatedPort(sourcePort)
   return [
-    `192.168.10.37:${sourcePort} → 203.0.113.11:443`,
-    `198.51.100.8:${publicPort} → 203.0.113.11:443`,
-    `203.0.113.11:443 → 198.51.100.8:${publicPort}`,
-    `203.0.113.11:443 → 192.168.10.37:${sourcePort}`,
+    `192.168.10.37:${sourcePort} → ${NAT_REMOTE}`,
+    `${NAT_PUBLIC_IP}:${publicPort} → ${NAT_REMOTE}`,
+    `${NAT_REMOTE} → ${NAT_PUBLIC_IP}:${publicPort}`,
+    `${NAT_REMOTE} → 192.168.10.37:${sourcePort}`,
   ]
 }
 
@@ -58,4 +64,8 @@ export const ipv6Stages = {
   de: ['Link-Local-Adresse bilden (fe80::/64)', 'Link-Local-Adresse ist tentative', 'DAD: Neighbor Solicitation für die tentative Link-Local-Adresse', 'Router Solicitation von der Link-Local-Adresse', 'Router Advertisement: Präfix 2001:db8:20::/64', 'Globale SLAAC-Adresse bilden – Status tentative', 'DAD: Neighbor Solicitation für die tentative globale Adresse', 'Globale SLAAC-Adresse ist preferred'],
   en: ['Form a link-local address (fe80::/64)', 'Link-local address is tentative', 'DAD: Neighbor Solicitation for the tentative link-local address', 'Router Solicitation from the link-local address', 'Router Advertisement: prefix 2001:db8:20::/64', 'Form global SLAAC address – status tentative', 'DAD: Neighbor Solicitation for the tentative global address', 'Global SLAAC address is preferred'],
 } as const
-export function slaacAddress(prefix: string, interfaceId: string) { return `${prefix.replace(/::$/, '')}::${interfaceId.replace(/^:/, '')}` }
+/** Präfix (/64) + Interface-ID, ausgegeben in der kanonischen Kurzform nach RFC 5952
+ *  (ein einzelner Null-Block wird ausgeschrieben, nicht zu „::" gekürzt). */
+export function slaacAddress(prefix: string, interfaceId: string) {
+  return compress(`${prefix.replace(/::$/, '')}::${interfaceId.replace(/^:/, '')}`)
+}

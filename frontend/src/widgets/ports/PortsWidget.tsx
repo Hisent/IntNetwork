@@ -1,42 +1,10 @@
 import { useState } from 'react'
-import { serviceFor, HANDSHAKE, WELL_KNOWN } from '@/widgets/ports/ports'
+import { serviceFor, runPortsCommand, HANDSHAKE, WELL_KNOWN } from '@/widgets/ports/ports'
 import { ChallengeBox } from '@/components/ChallengeBox'
 import { DeviceCli } from '@/widgets/cli/DeviceCli'
 import type { Lang } from '@/lib/i18n'
 
 const PRESETS = [80, 443, 22, 53]
-
-// offene TCP-Ports auf dem fiktiven Host "intranet" + Banner wie im echten Leben
-const OPEN_PORTS: Record<number, string> = {
-  22: 'SSH-2.0-OpenSSH_9.6',
-  80: 'HTTP/1.1 200 OK\nServer: nginx',
-  443: '(TLS-Handshake — verschlüsselt, kein Klartext-Banner)',
-}
-
-function runPortsCommand(lang: Lang, cmd: string): string {
-  const c = cmd.trim().toLowerCase()
-  if (c === '?' || c === 'help') {
-    return lang === 'de'
-      ? 'Befehle:\n  telnet intranet <port>   TCP-Verbindung testen\n  scan intranet            offene Ports suchen'
-      : 'Commands:\n  telnet intranet <port>   test a TCP connection\n  scan intranet            look for open ports'
-  }
-  if (c === 'scan intranet') {
-    const list = Object.keys(OPEN_PORTS).map((p) => `  ${p}/tcp  open  ${WELL_KNOWN[Number(p)]}`).join('\n')
-    return `Scanning intranet (192.168.10.20)…\n${list}`
-  }
-  const m = c.match(/^telnet\s+intranet\s+(\d+)$/)
-  if (m) {
-    const port = Number(m[1])
-    if (OPEN_PORTS[port]) return `Trying 192.168.10.20:${port}…\nConnected to intranet.\n${OPEN_PORTS[port]}`
-    if (port === 53) {
-      return lang === 'de'
-        ? 'Trying 192.168.10.20:53…\nConnection refused.\n(Auf diesem Host läuft kein DNS-Server. Merke: DNS nutzt meist UDP 53, telnet testet nur TCP.)'
-        : 'Trying 192.168.10.20:53…\nConnection refused.\n(No DNS server runs on this host. Note: DNS mostly uses UDP 53, telnet only tests TCP.)'
-    }
-    return `Trying 192.168.10.20:${port}…\nConnection refused.`
-  }
-  return lang === 'de' ? `Unbekannter Befehl: ${cmd} — tippe ?` : `Unknown command: ${cmd} — type ?`
-}
 
 const STR = {
   de: {

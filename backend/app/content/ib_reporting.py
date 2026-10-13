@@ -15,7 +15,7 @@ REPORTING_MODULE = {
     ],
     "goals_en": [
         "Name the building blocks of Infoblox Reporting and Analytics (dashboards, reports, alerts, search, datasets)",
-        "Match typical evaluations (DHCP utilization, DNS queries, capacity planning) to the right operational questions",
+        "Match typical analyses (DHCP utilization, DNS queries, capacity planning) to the right operational questions",
         "Explain the difference between preconfigured and individually customized dashboards/reports",
         "Weigh sensible alert thresholds against alert fatigue",
         "Connect good EA upkeep with meaningful reports",
@@ -34,7 +34,7 @@ REPORTING_MODULE = {
     },
     'blocks': [
         {'type': 'text', 'id': 'text-1',
-         'note': 'Reports sind nur so gut wie die Metadaten darunter. Guter Moment, um auf das Modul zu den Extensible Attributes zurueckzuverweisen.',
+         'note': 'Reports sind nur so gut wie die Metadaten darunter. Guter Moment, um auf das Modul zu den Extensible Attributes zurückzuverweisen.',
          'value': {
              'de': ('## Bausteine von Reporting and Analytics\n'
                     '\n'
@@ -62,7 +62,7 @@ REPORTING_MODULE = {
                     'metrics at a glance.\n'
                     '- **Dashboards** — freely composed views built from individual '
                     'widgets.\n'
-                    '- **Reports** — detailed, often tabular evaluations on a '
+                    '- **Reports** — detailed, often tabular analyses on a '
                     'specific topic.\n'
                     '- **Alerts** — threshold-based notifications.\n'
                     '- **Search** — targeted search across the collected '
@@ -91,10 +91,10 @@ REPORTING_MODULE = {
                     '\n'
                     'Diese drei Auswertungen bilden im Betrieb häufig den ersten '
                     'Blick, bevor tiefer in Einzelfälle eingestiegen wird.'),
-             'en': ('## Typical Evaluations in Operations\n'
+             'en': ('## Typical Analyses in Operations\n'
                     '\n'
                     'Day-to-day work is rarely about single values, but about '
-                    'development over time:\n'
+                    'trends over time:\n'
                     '\n'
                     '- **DHCP utilization** per network or range — shows where '
                     'address space is running low before it causes outages.\n'
@@ -105,7 +105,7 @@ REPORTING_MODULE = {
                     'can be planned ahead instead of only reacting once a network '
                     'is already full.\n'
                     '\n'
-                    'These three evaluations are often the first thing operations '
+                    'These three analyses are often the first thing operations '
                     'checks, before digging deeper into individual cases.'),
          }},
         {
@@ -134,7 +134,7 @@ REPORTING_MODULE = {
                         "label_de": "Reporting-\nMember",
                         "label_en": "Reporting member",
                         "detail_de": "Ein eigener Member mit Reporting-Rolle sammelt und indiziert die Daten. Ist er nicht erreichbar, fehlen die Daten dieses Zeitraums in jeder Auswertung.",
-                        "detail_en": "A dedicated member with the reporting role collects and indexes the data. If it is unreachable, the data of that period is missing from every evaluation.",
+                        "detail_en": "A dedicated member with the reporting role collects and indexes the data. If it is unreachable, the data of that period is missing from every analysis.",
                     },
                     {
                         "id": "such",
@@ -143,7 +143,7 @@ REPORTING_MODULE = {
                         "label_de": "Datasets und Search",
                         "label_en": "Datasets and search",
                         "detail_de": "Die Grundlage aller Auswertungen: Jede Kachel und jeder Report ist am Ende eine gespeicherte Suche.",
-                        "detail_en": "The basis of all evaluations: every tile and every report is ultimately a saved search.",
+                        "detail_en": "The basis of all analyses: every tile and every report is ultimately a saved search.",
                     },
                     {
                         "id": "dash",
@@ -199,7 +199,7 @@ REPORTING_MODULE = {
                     {
                         "highlight": ["rep", "e2", "such"],
                         "text_de": "Dort werden sie durchsuchbar. Datasets fassen zusammengehörige Daten für die Auswertung zusammen.",
-                        "text_en": "There they become searchable. Datasets group related data for evaluation.",
+                        "text_en": "There they become searchable. Datasets group related data for analysis.",
                     },
                     {
                         "highlight": ["such", "e3", "dash"],
@@ -228,7 +228,7 @@ REPORTING_MODULE = {
                            'enthalten ist. Was ist der naheliegende nächste '
                            'Schritt?'),
              'prompt_en': ('A team regularly checks the exact same standard '
-                           'evaluation, but also wants to see a metric that is not '
+                           'analysis, but also wants to see a metric that is not '
                            'included in any preconfigured report. What is the '
                            'obvious next step?'),
              'answer': 1,
@@ -238,7 +238,7 @@ REPORTING_MODULE = {
                             'Auf die Kennzahl verzichten, da Anpassungen nicht vorgesehen sind'],
              'options_en': ['Have one of the preconfigured reports rebuilt from scratch',
                             'Customize the existing report or a dashboard to include the additional metric',
-                            'Track the evaluation manually in a separate spreadsheet',
+                            'Track the analysis manually in a separate spreadsheet',
                             'Do without the metric, since customization is not supported'],
          }},
         {
@@ -246,7 +246,7 @@ REPORTING_MODULE = {
             "id": "match-auswertung-frage",
             "payload": {
                 "prompt_de": "Welche Auswertung beantwortet welche Betriebsfrage?",
-                "prompt_en": "Which evaluation answers which operational question?",
+                "prompt_en": "Which analysis answers which operational question?",
                 "pairs": [
                     {
                         "left_de": "DHCP-Auslastung je Bereich",
@@ -294,7 +294,7 @@ REPORTING_MODULE = {
                     '\n'
                     '- **Zu niedrig** — ständige Benachrichtigungen für '
                     'Kleinigkeiten, das Team beginnt Alerts zu ignorieren '
-                    '(„Alarm-Müdigkeit”).\n'
+                    '(„Alarm-Müdigkeit“).\n'
                     '- **Zu hoch** — das Signal kommt erst, wenn das eigentliche '
                     'Problem schon eingetreten ist.\n'
                     '\n'
@@ -302,7 +302,7 @@ REPORTING_MODULE = {
                     'zu können, aber selten genug, um ernst genommen zu werden.'),
              'en': ('## Alerts: Thresholds Instead of Constant Watching\n'
                     '\n'
-                    '**Alerts** automatically notify once a threshold is exceeded '
+                    '**Alerts** send a notification automatically once a threshold is exceeded '
                     '— for example a certain utilization or an error counter — and '
                     'can be linked to external systems or email.\n'
                     '\n'
@@ -338,7 +338,7 @@ REPORTING_MODULE = {
                     {
                         "id": "start",
                         "text_de": "Der Alert „DHCP-Bereich über 70 %“ feuert im Schnitt 37-mal täglich, meist für Gäste-WLANs, die tagsüber voll und nachts leer sind. Das Team hat die Mails per Regel in einen Ordner verschoben. Letzte Woche lief ein Produktionsnetz voll — der Alarm dazu lag ungelesen im Ordner. Was änderst du?",
-                        "text_en": "The alert \"DHCP range above 70%\" fires 37 times a day on average, mostly for guest Wi-Fi networks that are full during the day and empty at night. The team has moved the mails into a folder by rule. Last week a production network filled up — the alert for it sat unread in the folder. What do you change?",
+                        "text_en": "The alert \"DHCP range above 70%\" fires 37 times a day on average, mostly for guest Wi-Fi networks that are full during the day and empty at night. The team has set up a rule that moves the emails into a folder. Last week a production network filled up — the alert for it sat unread in the folder. What do you change?",
                         "options": [
                             {
                                 "label_de": "Die Schwelle für alle Bereiche auf 95 % anheben.",
@@ -352,7 +352,7 @@ REPORTING_MODULE = {
                             },
                             {
                                 "label_de": "Zuerst auswerten, welche Bereiche wie oft und in welchem Muster auslösen.",
-                                "label_en": "First evaluate which ranges trigger how often and in which pattern.",
+                                "label_en": "First analyze which ranges trigger how often and in which pattern.",
                                 "to": "analyse",
                             },
                         ],
@@ -367,12 +367,12 @@ REPORTING_MODULE = {
                         "id": "lesen",
                         "outcome": "bad",
                         "text_de": "Eine Anweisung ändert nichts daran, dass 36 von 37 Alarmen folgenlos sind. In zwei Wochen gibt es eine neue Regel oder die Mails werden überflogen.",
-                        "text_en": "An instruction does not change the fact that 36 out of 37 alerts are inconsequential. In two weeks there will be a new rule, or the mails get skimmed.",
+                        "text_en": "An instruction does not change the fact that 36 out of 37 alerts are inconsequential. In two weeks there will be a new rule, or the emails only get skimmed.",
                     },
                     {
                         "id": "analyse",
                         "text_de": "Die Auswertung zeigt: 34 der 37 Alarme stammen aus sechs Gäste-Bereichen mit Tagesspitzen; Server- und Produktionsnetze lösen selten aus, wachsen aber stetig. Dank des EA „Netztyp“ lassen sich die Gruppen sauber trennen. Wie baust du die Alerts neu?",
-                        "text_en": "The evaluation shows: 34 of the 37 alerts come from six guest ranges with daytime peaks; server and production networks rarely trigger but grow steadily. Thanks to the EA \"network type\" the groups can be separated cleanly. How do you rebuild the alerts?",
+                        "text_en": "The analysis shows: 34 of the 37 alerts come from six guest ranges with daytime peaks; server and production networks rarely trigger but grow steadily. Thanks to the EA \"network type\" the groups can be separated cleanly. How do you rebuild the alerts?",
                         "options": [
                             {
                                 "label_de": "Gäste-Bereiche ganz von der Überwachung ausnehmen.",
@@ -407,7 +407,7 @@ REPORTING_MODULE = {
                         "id": "zwei",
                         "outcome": "good",
                         "text_de": "So trägt jeder Alarm wieder eine Aussage: Produktion früh und selten, Gäste nur bei anhaltender Überlast statt bei jeder Mittagsspitze. Und weil die Trennung am EA hängt, gilt sie automatisch für jeden neuen Bereich mit gepflegtem Netztyp.",
-                        "text_en": "This way every alert carries a message again: production early and rarely, guests only on sustained overload instead of every midday peak. And because the separation hangs on the EA, it automatically applies to every new range with a maintained network type.",
+                        "text_en": "This way every alert means something again: production early and rarely, guests only on sustained overload instead of every midday peak. And because the separation depends on the EA, it automatically applies to every new range with a maintained network type.",
                     },
                 ],
             },
@@ -424,13 +424,13 @@ REPORTING_MODULE = {
                     'Wie aussagekräftig und filterbar ein Report ist, hängt dabei '
                     'direkt an der Datenqualität: Sind Netzwerke, Standorte und '
                     'Geräte sauber mit **Extensible Attributes** versehen (siehe '
-                    'Modul „Extensible Attributes”), lassen sich Reports gezielt nach Standort, '
+                    'Modul „Extensible Attributes“), lassen sich Reports gezielt nach Standort, '
                     'Abteilung oder Umgebung aufschlüsseln. Fehlt diese Pflege, '
                     'bleibt auch der beste vorkonfigurierte Report nur eine grobe '
                     'Gesamtzahl ohne Kontext.'),
              'en': ('## Role-Based Dashboards and the Value of Good EAs\n'
                     '\n'
-                    'Dashboards can be built role-based — network operations sees '
+                    'Dashboards can be built per role — network operations sees '
                     'different metrics than the security team, even though both '
                     'draw on the same underlying data.\n'
                     '\n'
@@ -479,7 +479,7 @@ REPORTING_MODULE = {
                            'Alltag zuerst schauen würdest, um frühzeitig zu '
                            'erkennen, dass ein Standort bald ein '
                            'Adressraum-Problem bekommt, und begründe kurz warum.'),
-             'prompt_en': ('Name two to three evaluations you would check first '
+             'prompt_en': ('Name two to three analyses you would check first '
                            'in daily operations to catch early that a site is '
                            'about to run into an address space problem, and '
                            'briefly explain why.'),
@@ -504,7 +504,7 @@ REPORTING_MODULE = {
         {'id': 'ra2',
          "explanation": {
              "de": "Die mitgelieferten Reports sind ein Startpunkt und lassen sich anpassen oder als Vorlage für eigene verwenden. Sie decken DNS wie DHCP ab und ersetzen Dashboards nicht — ein Dashboard stellt mehrere Auswertungen nebeneinander.",
-             "en": "The supplied reports are a starting point and can be adapted or used as templates for your own. They cover DNS as well as DHCP and do not replace dashboards — a dashboard places several evaluations side by side.",
+             "en": "The supplied reports are a starting point and can be adapted or used as templates for your own. They cover DNS as well as DHCP and do not replace dashboards — a dashboard places several analyses side by side.",
          },
          'type': 'single',
          'prompt': {'de': 'Was gilt für die vorkonfigurierten Reports?',
@@ -515,13 +515,13 @@ REPORTING_MODULE = {
                             'Sie ersetzen die Notwendigkeit von Dashboards',
                             'Sie funktionieren nur für DNS, nicht für DHCP'],
                      'en': ['They cannot be changed',
-                            'They are fully customizable and a starting point for custom evaluations',
+                            'They are fully customizable and a starting point for custom analyses',
                             'They replace the need for dashboards',
                             'They only work for DNS, not DHCP']}},
         {'id': 'ra3',
          "explanation": {
              "de": "Ein zu niedriger Schwellenwert meldet ständig; nach kurzer Zeit liest niemand mehr hin, und der eine wichtige Alarm geht unter. Mehr Alarme bedeuten also nicht schnellere Reaktion, sondern langsamere.",
-             "en": "A threshold set too low fires constantly; before long nobody reads the alerts, and the one that matters gets lost. More alerts therefore do not mean faster reaction but slower.",
+             "en": "A threshold set too low fires constantly; before long nobody reads the alerts, and the one that matters gets lost. More alerts therefore do not mean a faster response but a slower one.",
          },
          'type': 'single',
          'prompt': {'de': 'Ein Alert-Schwellenwert ist deutlich zu niedrig eingestellt. Was ist die wahrscheinliche Folge?',
@@ -538,11 +538,11 @@ REPORTING_MODULE = {
         {'id': 'ra4',
          "explanation": {
              "de": "DHCP-Auslastung, DNS-Abfragevolumen und Trendlinien für die Kapazität sind die drei Auswertungen aus dem Modul. Die Zahl der Master Candidates ist eine Architekturentscheidung, keine Kennzahl, die sich im Betrieb laufend ändert.",
-             "en": "DHCP utilization, DNS query volume and capacity trend lines are the three evaluations from the module. The number of master candidates is an architecture decision, not a metric that keeps changing in operations.",
+             "en": "DHCP utilization, DNS query volume and capacity trend lines are the three analyses from the module. The number of Grid Master Candidates is an architecture decision, not a metric that keeps changing in operations.",
          },
          'type': 'multi',
          'prompt': {'de': 'Welche Auswertungen zählen zu den typischen Betriebs-Kennzahlen aus diesem Modul? (mehrere)',
-                    'en': 'Which evaluations count as typical operational metrics from this module? (multiple)'},
+                    'en': 'Which analyses count as typical operational metrics from this module? (multiple)'},
          'answer': [0, 1, 2],
          'options': {'de': ['DHCP-Auslastung je Netzwerk', 'DNS-Abfragevolumen',
                             'Kapazitätsplanung anhand von Trendlinien',
@@ -568,12 +568,12 @@ REPORTING_MODULE = {
             "type": "number",
             "prompt": {
                 "de": "Ein DHCP-Bereich umfasst 400 Adressen, 300 sind belegt. Pro Woche kommen netto 20 belegte Adressen hinzu. Der Alert ist auf 90 % eingestellt. In wie vielen Wochen löst er aus?",
-                "en": "A DHCP range has 400 addresses, 300 of them in use. Each week a net 20 addresses in use are added. The alert is set to 90%. In how many weeks does it fire?",
+                "en": "A DHCP range has 400 addresses, 300 of them in use. The number of addresses in use grows by a net 20 per week. The alert is set to 90%. In how many weeks does it fire?",
             },
             "answer": 3,
             "explanation": {
                 "de": "90 % von 400 sind 360 Adressen; es fehlen 60, also 3 Wochen. Danach bleiben bei gleichem Wachstum nur noch 2 Wochen bis 100 % — die Schwelle muss zur Zeit passen, die eine Erweiterung im eigenen Haus tatsächlich dauert.",
-                "en": "90% of 400 is 360 addresses; 60 are missing, i.e. 3 weeks. After that, at the same growth, only 2 weeks remain until 100% — the threshold has to match the time an expansion actually takes in your organization.",
+                "en": "90% of 400 is 360 addresses; 60 more are needed, i.e. 3 weeks. After that, at the same growth, only 2 weeks remain until 100% — the threshold has to match the time an expansion actually takes in your organization.",
             },
         },
         {
@@ -600,7 +600,7 @@ REPORTING_MODULE = {
             },
             "explanation": {
                 "de": "Exakt null im ganzen Grid ist kein Betriebsbild — Server, Monitoring und Hintergrunddienste fragen rund um die Uhr. Eine Lücke im Diagramm bedeutet zuerst: Die Messung fehlt. Reporting-Daten sind nur so vollständig, wie der Reporting-Member erreichbar war.",
-                "en": "Exactly zero across the whole Grid is not an operational picture — servers, monitoring and background services query around the clock. A gap in the chart first of all means: the measurement is missing. Reporting data is only as complete as the reporting member was reachable.",
+                "en": "Exactly zero across the whole Grid is not what real operations look like — servers, monitoring and background services query around the clock. A gap in the chart first of all means: the measurement is missing. Reporting data is only complete for the times when the reporting member was reachable.",
             },
         },
         {
@@ -608,7 +608,7 @@ REPORTING_MODULE = {
             "type": "multi",
             "prompt": {
                 "de": "Welche Auswertungen sind nur dann verlässlich, wenn Extensible Attributes konsequent gepflegt sind (mehrere richtig)?",
-                "en": "Which evaluations are only reliable if extensible attributes are maintained consistently (multiple)?",
+                "en": "Which analyses are only reliable if extensible attributes are maintained consistently (multiple)?",
             },
             "answer": [0, 3],
             "options": {
@@ -627,7 +627,7 @@ REPORTING_MODULE = {
             },
             "explanation": {
                 "de": "Standort und Netztyp stehen nicht im Datenverkehr, sondern nur in den Metadaten: Fehlt das EA an einem Netz, fehlt das Netz in der Auswertung — ohne Fehlermeldung. Gesamtzahlen und Top-Listen kommen dagegen ohne EAs aus.",
-                "en": "Site and network type are not in the traffic, only in the metadata: if the EA is missing on a network, the network is missing from the evaluation — without any error. Totals and top lists, by contrast, work without EAs.",
+                "en": "Site and network type are not in the traffic, only in the metadata: if the EA is missing on a network, the network is missing from the analysis — without any error. Totals and top lists, by contrast, work without EAs.",
             },
         },
     ]},

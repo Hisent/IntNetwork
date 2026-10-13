@@ -33,12 +33,12 @@ HASHFUNKTIONEN_MODULE = {
         'en': 'Nordwind Logistik GmbH runs an internal software repository. The latest audit '
               'found that downloads are checksummed with SHA-256, but the employee portal login '
               'database still stores passwords with a plain SHA-256 hash. Your task: explain what '
-              'a cryptographic hash is actually good for — and why "hash" is not just "hash" when '
+              'a cryptographic hash is actually good for — and why not every "hash" is the same when '
               'it comes to passwords.',
     },
     'blocks': [
         {'type': 'text', 'id': 'text-1',
-         'note': 'Alle vier Eigenschaften an der Tafel/im Chat sammeln lassen, bevor die Begriffe genannt werden — meist kennen Teilnehmende die Konzepte schon aus dem Alltag (Pruefsummen), nur nicht die Fachbegriffe.',
+         'note': 'Alle vier Eigenschaften an der Tafel/im Chat sammeln lassen, bevor die Begriffe genannt werden — meist kennen Teilnehmende die Konzepte schon aus dem Alltag (Prüfsummen), nur nicht die Fachbegriffe.',
          'value': {
              'de': '## Eigenschaften einer kryptografischen Hashfunktion\n\n'
                    'Eine kryptografische Hashfunktion bildet beliebig große Eingaben auf eine '
@@ -60,8 +60,7 @@ HASHFUNKTIONEN_MODULE = {
                    'A cryptographic hash function maps inputs of any size to a **fixed output '
                    'length** (e.g. always 256 bits for SHA-256), along with a few additional '
                    'properties that an ordinary checksum (like CRC32) does not have:\n\n'
-                   '- **One-way function** — the original input practically cannot be '
-                   'reconstructed from the hash value.\n'
+                   '- **One-way function** — the original input cannot feasibly be reconstructed from the hash value.\n'
                    '- **Collision resistance** — it should be practically infeasible to find two '
                    'different inputs that produce the same hash value.\n'
                    '- **Avalanche effect** — changing even a single bit of the input changes the '
@@ -74,8 +73,8 @@ HASHFUNKTIONEN_MODULE = {
          }},
         {'type': 'widget', 'id': 'crypto-hash',
          'note': 'Direkt nach dem Lawineneffekt-Text einsetzen: Teilnehmende einen Text minimal '
-                 'aendern lassen (ein Zeichen) und den komplett anderen Hash-Wert selbst sehen. '
-                 'Das macht den Lawineneffekt greifbarer als jede Erklaerung.'},
+                 'ändern lassen (ein Zeichen) und den komplett anderen Hash-Wert selbst sehen. '
+                 'Das macht den Lawineneffekt greifbarer als jede Erklärung.'},
         {'type': 'text', 'id': 'text-2',
          'value': {
              'de': '## Wofür Hashes in der PKI gebraucht werden\n\n'
@@ -90,7 +89,7 @@ HASHFUNKTIONEN_MODULE = {
                    'Signatur über den Hash zugleich die Integrität des gesamten Dokuments. Genau '
                    'deshalb ist Kollisionsresistenz keine akademische Feinheit, sondern die '
                    'Grundlage dafür, dass Signaturen überhaupt etwas beweisen.',
-             'en': '## What Hashes Are Used for in the PKI\n\n'
+             'en': '## What Hashes Are Used for in a PKI\n\n'
                    'Digital signatures (module 5 of this block) are not computed directly over an '
                    'entire document — that would be far too computationally expensive for large '
                    'files, since asymmetric operations are slow. Instead, the **hash value** of the '
@@ -197,7 +196,7 @@ HASHFUNKTIONEN_MODULE = {
                    'receiver knows the message comes from someone who knows the secret key.',
          }},
         {'type': 'diagram', 'id': 'diagram-hash-hmac-signatur',
-         'note': 'Kernfrage je Zeile: Wer kann den Wert erzeugen, wer kann ihn pruefen? Daraus folgt alles andere.',
+         'note': 'Kernfrage je Zeile: Wer kann den Wert erzeugen, wer kann ihn prüfen? Daraus folgt alles andere.',
          'payload': {
              'kind': 'compare',
              'title_de': 'Hash, HMAC und Signatur im Vergleich',
@@ -230,7 +229,7 @@ HASHFUNKTIONEN_MODULE = {
                      'label_de': 'Erkennt Manipulation',
                      'label_en': 'Detects tampering',
                      'values_de': ['nur bei getrennt gesichertem Sollwert', 'ja', 'ja'],
-                     'values_en': ['only with a separately protected reference', 'yes', 'yes'],
+                     'values_en': ['only with a separately protected reference value', 'yes', 'yes'],
                     },
                     {
                      'label_de': 'Belegt Herkunft',
@@ -261,8 +260,8 @@ HASHFUNKTIONEN_MODULE = {
         },
         {'type': 'terminal', 'id': 'terminal-dgst',
          'note': ('Ausgaben real mit OpenSSL 3.6 erzeugt (Datei: eine Zeile "Lieferschein 4711: 12 Paletten nach '
-                  'Hamburg", manipuliert: 13 Paletten). Dieselben Befehle laufen im Openssl-Lab ueber die Vorlage "Hash'
-                  ' und HMAC" (Modul "TLS pruefen" bzw. "Digitale Signaturen"). Fuer die Anzeige steht jeder Hash-Wert '
+                  'Hamburg", manipuliert: 13 Paletten). Dieselben Befehle laufen im Openssl-Lab über die Vorlage "Hash'
+                  ' und HMAC" (Modul "TLS prüfen" bzw. "Digitale Signaturen"). Für die Anzeige steht jeder Hash-Wert '
                   'auf einer eigenen Zeile unter dem Dateinamen (echt: eine Zeile "NAME(datei)= wert"), der '
                   'SHA-512-Wert auf zwei Zeilen zu je 64 Hex-Zeichen; so stehen die Werte zum Vergleich untereinander. '
                   'wrap ist aus, damit auch auf dem Tablet nichts umbricht.'),
@@ -356,8 +355,7 @@ HASHFUNKTIONEN_MODULE = {
                  'Signatur erzeugen\nopenssl dgst -sha256 -sign [[signkey]] -out lieferschein.sig '
                  'lieferschein.txt\n# Signatur prüfen\nopenssl dgst -sha256 -verify [[verifykey]] -signature '
                  'lieferschein.sig lieferschein.txt'),
-             'text_en': ('# fingerprint of a file\nopenssl [[cmd]] -sha256 lieferschein.txt\n# check code with a shared '
-                 'key\nopenssl dgst -sha256 -[[mac]] nordwind-geheim lieferschein.txt\n# create a '
+             'text_en': ('# fingerprint of a file\nopenssl [[cmd]] -sha256 lieferschein.txt\n# authentication code with a shared key\nopenssl dgst -sha256 -[[mac]] nordwind-geheim lieferschein.txt\n# create a '
                  'signature\nopenssl dgst -sha256 -sign [[signkey]] -out lieferschein.sig lieferschein.txt\n# '
                  'verify a signature\nopenssl dgst -sha256 -verify [[verifykey]] -signature lieferschein.sig '
                  'lieferschein.txt'),
@@ -390,7 +388,7 @@ HASHFUNKTIONEN_MODULE = {
             },
         },
         {'type': 'text', 'id': 'text-5',
-         'note': 'Dieser Abschnitt ist erfahrungsgemaess der Aha-Moment des Moduls: Teilnehmende kennen SHA-256 aus dem vorigen Abschnitt und erwarten, dass es auch fuer Passwoerter die richtige Wahl ist.',
+         'note': 'Dieser Abschnitt ist erfahrungsgemäß der Aha-Moment des Moduls: Teilnehmende kennen SHA-256 aus dem vorigen Abschnitt und erwarten, dass es auch für Passwörter die richtige Wahl ist.',
          'value': {
              'de': '## Passwort-Hashing: ein eigenes Problem\n\n'
                    'Passwörter zu hashen ist ein Sonderfall mit einer eigenen Logik — und genau '
@@ -424,10 +422,9 @@ HASHFUNKTIONEN_MODULE = {
                    'sind für Passwörter schlicht zu schnell.',
              'en': '## Password Hashing: A Problem of Its Own\n\n'
                    'Hashing passwords is a special case with its own logic — and this is exactly '
-                   'where the classic mistake of using SHA-256 for it happens.\n\n'
+                   'where the classic mistake happens: using SHA-256 for it.\n\n'
                    '**Why SHA-256 is the wrong tool:** cryptographic hash functions like SHA-256 '
-                   'are deliberately optimized for speed, because they need to be performant for, '
-                   'e.g., checksumming large amounts of data. That exact speed is what makes them '
+                   'are deliberately optimized for speed, because they need to perform well when, for example, checksumming large amounts of data. That exact speed is what makes them '
                    'dangerous for passwords: an attacker with a stolen hash database can try '
                    'billions of password candidates per second (brute-force or dictionary attacks) '
                    'because every single hash comparison is extremely fast.\n\n'
@@ -435,8 +432,7 @@ HASHFUNKTIONEN_MODULE = {
                    'hashing. It prevents identical passwords from producing the same hash value and '
                    'renders precomputed tables (rainbow tables) useless. Modern password-hashing '
                    'libraries generally manage the salt automatically.\n\n'
-                   'Per the OWASP recommendations (Password Storage Cheat Sheet), the following '
-                   'order of suitable password-hashing schemes applies:\n\n'
+                   'Per the OWASP recommendations (Password Storage Cheat Sheet), the following ranking of suitable password-hashing schemes applies:\n\n'
                    '- **Argon2id** — the preferred choice. As a minimum recommendation, a '
                    'configuration such as m=19456 (roughly 19 MiB of memory), t=2 (iterations), '
                    'p=1 (parallelism) is cited there; several equivalent configurations with a '
@@ -482,7 +478,7 @@ HASHFUNKTIONEN_MODULE = {
                      'id': 'start',
                      'text_de': ('Das Audit hat ergeben: 4.000 Mitarbeiter-Passwörter liegen als SHA-256 ohne Salt in '
                          'der Datenbank. Die Klartext-Passwörter kennt niemand. Wie stellst du auf Argon2id um?'),
-                     'text_en': ('The audit found: 4,000 employee passwords are stored as SHA-256 without a salt. '
+                     'text_en': ('The audit found that 4,000 employee passwords are stored in the database as SHA-256 without a salt. '
                          'Nobody knows the plaintext passwords. How do you migrate to Argon2id?'),
                      'options': [
                             {
@@ -492,7 +488,7 @@ HASHFUNKTIONEN_MODULE = {
                             },
                             {
                              'label_de': 'Beim nächsten erfolgreichen Login prüfen und dabei neu mit Argon2id speichern',
-                             'label_en': 'Verify at the next successful login and re-store with Argon2id then',
+                             'label_en': 'At the next successful login, verify the password and re-store it with Argon2id',
                              'to': 'login',
                             },
                             {
@@ -516,7 +512,7 @@ HASHFUNKTIONEN_MODULE = {
                      'text_de': ('Ungebrochen heißt kollisionsresistent, nicht „für Passwörter geeignet“. SHA-256 ist '
                          'schnell: Wer die Tabelle stiehlt, probiert Milliarden Kandidaten pro Sekunde — und '
                          'ohne Salt verraten gleiche Hashes gleiche Passwörter.'),
-                     'text_en': ('Unbroken means collision resistant, not "suitable for passwords". SHA-256 is fast: '
+                     'text_en': ('Unbroken means collision-resistant, not "suitable for passwords". SHA-256 is fast: '
                          'whoever steals the table tries billions of candidates per second — and without a '
                          'salt, equal hashes reveal equal passwords.'),
                     },
@@ -588,15 +584,13 @@ HASHFUNKTIONEN_MODULE = {
           'de': ('Der Lawineneffekt beschreibt, dass sich bei einem geänderten Bit im Mittel die Hälfte der '
               'Ausgabebits ändert. Kollisionsresistenz ist etwas anderes: Sie sagt, dass sich zwei verschiedene '
               'Eingaben mit gleichem Hash praktisch nicht finden lassen.'),
-          'en': ('The avalanche effect means that flipping one input bit changes about half of the output bits. '
-              'Collision resistance is something else: it says two different inputs with the same hash '
-              'practically cannot be found.'),
+          'en': ('The avalanche effect means that flipping one input bit changes about half of the output bits on average. '
+              'Collision resistance is something else: it says that two different inputs with the same hash cannot feasibly be found.'),
          }},
         {'id': 'hf2', 'type': 'single',
          'prompt': {'de': 'Warum wird bei digitalen Signaturen der Hash des Dokuments signiert '
                          'und nicht das Dokument selbst?',
-                    'en': 'Why is the hash of a document signed in digital signatures, rather '
-                         'than the document itself?'},
+                    'en': 'Why do digital signatures sign the hash of a document rather than the document itself?'},
          'answer': 1,
          'options': {
              'de': [
@@ -608,8 +602,7 @@ HASHFUNKTIONEN_MODULE = {
              ],
              'en': [
                  'Because hashes are confidential but documents are not',
-                 'Because asymmetric signature operations are slow, and a short, fixed hash value '
-                 'makes that efficient',
+                 'Because asymmetric signature operations are slow, and a short, fixed-length hash value keeps signing efficient',
                  'Because the hash additionally encrypts the document and so protects it from eavesdroppers',
                  'Because the CA/Browser Forum forbids signing whole documents',
              ],
@@ -686,7 +679,7 @@ HASHFUNKTIONEN_MODULE = {
                  'SHA-1 was replaced by Argon2id',
                  'Practical collision attacks on SHA-1 would have allowed constructing forged '
                  'documents/certificates with a valid signature',
-                 'SHA-1 does not support HMAC construction',
+                 'SHA-1 does not support the HMAC construction',
              ],
          },
          'explanation': {
@@ -702,7 +695,7 @@ HASHFUNKTIONEN_MODULE = {
              'de': ('Die Download-Seite nennt für ein Installationspaket den SHA-256-Wert 1a4ababb…e2ce. Lokal '
                  'liefert `openssl dgst -sha256 paket.bin` den Wert 4b2e5720…9757. Was folgt daraus?'),
              'en': ('The download page lists the SHA-256 value 1a4ababb…e2ce for an installation package. Locally, '
-                 '`openssl dgst -sha256 paket.bin` returns 4b2e5720…9757. What follows?'),
+                 '`openssl dgst -sha256 paket.bin` returns 4b2e5720…9757. What follows from this?'),
             },
          'options': {
              'de': [
@@ -755,7 +748,7 @@ HASHFUNKTIONEN_MODULE = {
                  'Prüfsumme und Fingerprint sind blanke Hashes — jeder kann sie berechnen, deshalb beweisen sie '
                  'allein keine Herkunft.'),
              'en': ('HMAC needs the shared secret key, the signature needs the private key. Checksum and '
-                 'fingerprint are plain hashes — anyone can compute them, so on their own they prove no origin.'),
+                 'fingerprint are plain hashes — anyone can compute them, so on their own they do not prove origin.'),
             },
         },
         {'id': 'hf8', 'type': 'single',
@@ -784,9 +777,7 @@ HASHFUNKTIONEN_MODULE = {
              'de': ('Nur die Argon2id-Konfiguration erreicht die Mindestwerte. Die anderen nutzen zwar teils '
                  'richtige Verfahren, aber viel zu schwache Parameter (PBKDF2 braucht 600.000 Iterationen, '
                  'bcrypt mindestens Faktor 10) — und SHA-256 bleibt trotz großem Salt ein schneller Hash.'),
-             'en': ('Only the Argon2id configuration reaches the minimum values. The others partly use the right '
-                 'schemes but with far too weak parameters (PBKDF2 needs 600,000 iterations, bcrypt at least '
-                 'factor 10) — and SHA-256 remains a fast hash despite a large salt.'),
+             'en': ('Only the Argon2id configuration reaches the minimum values. Some of the others use the right schemes, but with parameters that are far too weak (PBKDF2 needs 600,000 iterations, bcrypt a work factor of at least 10) — and SHA-256 remains a fast hash despite a large salt.'),
             },
         },
     ]},

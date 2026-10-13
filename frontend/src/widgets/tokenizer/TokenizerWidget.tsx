@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { tokenize } from '@/widgets/tokenizer/tokenize'
+import { CHALLENGE_TOKENS, EXAMPLES, tokenize } from '@/widgets/tokenizer/tokenize'
 import { ChallengeBox } from '@/components/ChallengeBox'
 import type { Lang } from '@/lib/i18n'
 
@@ -8,20 +8,16 @@ const STR = {
     title: 'Tokenizer-Demo', hint: 'Tippe Text oder wähle ein Beispiel — sieh, wie er in Tokens zerfällt (vereinfachte Heuristik, kein echter Tokenizer).',
     tokens: 'Tokens', chars: 'Zeichen', sentence: 'Deutscher Satz', code: 'Code-Snippet',
     textLabel: 'Zu tokenisierender Text',
-    challenge: 'Bring den Zähler über 25 Tokens.',
+    challenge: `Bring den Zähler über ${CHALLENGE_TOKENS} Tokens.`,
   },
   en: {
     title: 'Tokenizer Demo', hint: 'Type text or pick an example — watch it split into tokens (simplified heuristic, not a real tokenizer).',
     tokens: 'Tokens', chars: 'Characters', sentence: 'German sentence', code: 'Code snippet',
     textLabel: 'Text to tokenize',
-    challenge: 'Push the counter above 25 tokens.',
+    challenge: `Push the counter above ${CHALLENGE_TOKENS} tokens.`,
   },
 } as const
 
-const EXAMPLES = {
-  sentence: 'Größere Änderungen brauchen präzise Anweisungen für Claude Code.',
-  code: 'function add(a, b) { return a + b; }',
-}
 
 export function Tokenizer({ lang }: { lang: Lang }) {
   const [text, setText] = useState(EXAMPLES.sentence)
@@ -65,7 +61,7 @@ export function Tokenizer({ lang }: { lang: Lang }) {
         <span className="text-slate-500">{s.chars}: <span className="font-mono text-slate-800">{text.length}</span></span>
       </div>
 
-      <ChallengeBox lang={lang} task={s.challenge} done={toks.length > 25} />
+      <ChallengeBox lang={lang} task={s.challenge} done={toks.length > CHALLENGE_TOKENS} />
     </div>
   )
 }

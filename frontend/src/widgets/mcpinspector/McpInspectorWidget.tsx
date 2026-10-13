@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { SERVERS, toolId } from '@/widgets/mcpinspector/mcpInspector'
+import { SERVERS, START_SERVER_ID, toolId } from '@/widgets/mcpinspector/mcpInspector'
 import { ChallengeBox } from '@/components/ChallengeBox'
 import type { Lang } from '@/lib/i18n'
 
@@ -18,7 +18,8 @@ const STR = {
 
 export function McpInspector({ lang }: { lang: Lang }) {
   const s = STR[lang]
-  const [sel, setSel] = useState(SERVERS[0].id)
+  // Start NICHT auf dem Server, den die Aufgabe sucht — sonst wäre sie ohne Klick erfüllt.
+  const [sel, setSel] = useState(START_SERVER_ID)
   const server = SERVERS.find((x) => x.id === sel) ?? SERVERS[0]
   const de = lang !== 'en'
 

@@ -122,6 +122,29 @@ export function shortestPath(graph: Graph, from: string, to: string): CostPathRe
   return { path, cost: dist.get(to)! }
 }
 
+/**
+ * Alle Pfade mit der minimalen Kostensumme (ECMP, Equal-Cost Multi-Path): Bei Gleichstand
+ * installiert echtes OSPF alle gleich teuren Routen und verteilt die Last darauf — Dijkstra
+ * allein liefert nur einen davon. Der Dijkstra-Pfad steht an erster Stelle.
+ */
+export function equalCostPaths(graph: Graph, from: string, to: string): string[][] {
+  const best = shortestPath(graph, from, to)
+  if (!best) return []
+  const others: string[][] = []
+  const walk = (path: string[], cost: number) => {
+    const u = path[path.length - 1]
+    if (u === to) {
+      if (cost === best.cost && path.join('>') !== best.path.join('>')) others.push(path)
+      return
+    }
+    for (const { to: v, edge } of neighborsOf(graph, u)) {
+      if (!path.includes(v) && cost + edge.cost <= best.cost) walk([...path, v], cost + edge.cost)
+    }
+  }
+  walk([from], 0)
+  return [best.path, ...others]
+}
+
 /** Breitensuche: Pfad mit den wenigsten Sprüngen (RIP-artig, ignoriert Kosten). */
 export function fewestHopsPath(graph: Graph, from: string, to: string): HopPathResult | null {
   if (!graph.nodes.includes(from) || !graph.nodes.includes(to)) return null

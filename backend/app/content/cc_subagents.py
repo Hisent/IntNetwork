@@ -47,7 +47,7 @@ SUBAGENTS_MODULE = {'key': 'subagents',
                        'en': '## Why Subagents?\n'
                              '\n'
                              'A subagent is a specialized helper with its **own context window**, '
-                             'its own system prompt, its own tool permissions, and its own '
+                             'its own system prompt, its own tool access, and its own '
                              'permissions. Use one when a side task would otherwise flood your '
                              'main conversation. Benefits:\n'
                              '\n'
@@ -74,7 +74,7 @@ SUBAGENTS_MODULE = {'key': 'subagents',
                          'caption_de': 'Ein Plugin ist kein fünfter Baustein, sondern das Paket, '
                                        'das diese vier für weitere Repositories bündelt.',
                          'caption_en': 'A plugin is not a fifth building block but the package '
-                                       'that bundles these four for further repositories.',
+                                       'that bundles these four for other repositories.',
                          'columns': [{'title': 'Skill'},
                                      {'title': 'Subagent'},
                                      {'title': 'MCP'},
@@ -108,7 +108,7 @@ SUBAGENTS_MODULE = {'key': 'subagents',
                                                  'a side task floods the conversation with output',
                                                  'you keep copying data from a system Claude '
                                                  'cannot see',
-                                                 'something should happen every time without '
+                                                 'something should happen every time without anyone '
                                                  'asking']},
                                   {'label_de': 'Wird geladen',
                                    'label_en': 'Loads',
@@ -128,7 +128,7 @@ SUBAGENTS_MODULE = {'key': 'subagents',
                                                  'gering, bis ein Tool genutzt wird',
                                                  'keine, außer der Hook liefert Zusatzkontext'],
                                    'values_en': ['low',
-                                                 'isolated from the main session',
+                                                 'isolated from the main conversation',
                                                  'low until a tool is used',
                                                  'zero, unless the hook returns additional '
                                                  'context']}]}},
@@ -271,7 +271,7 @@ SUBAGENTS_MODULE = {'key': 'subagents',
                              'Subagents, delegiert Claude von selbst. Deshalb ist eine klare '
                              '`description` so wichtig.\n'
                              '2. **Explizit** — du bittest direkt: „Nutze den code-improver-Agent '
-                             'für dieses Verzeichnis.” Bei so einer Bitte entscheidet weiterhin '
+                             'für dieses Verzeichnis.“ Bei so einer Bitte entscheidet weiterhin '
                              'Claude, ob es delegiert; ein `@`-Mention des Agents stellt sicher, '
                              'dass genau er läuft.\n'
                              '\n'
@@ -342,7 +342,7 @@ SUBAGENTS_MODULE = {'key': 'subagents',
                                       'Create a file in .claude/agents/ with '
                                       'name/description/tools/model',
                                       'Write the system prompt (the role) below the frontmatter',
-                                      'Let it be delegated to or invoke it explicitly, and check '
+                                      'Let Claude delegate to it or invoke it explicitly, and check '
                                       'the result']}},
             {'type': 'debug',
              'id': 'debug-1',
@@ -379,7 +379,7 @@ SUBAGENTS_MODULE = {'key': 'subagents',
              'id': 'reveal-agent-modes',
              'payload': {'teaser_de': 'Nicht verwechseln: Subagent vs. Agent View vs. Agent Teams '
                                       'vs. Git-Worktree',
-                         'teaser_en': 'Don’t mix up: subagent vs. Agent View vs. Agent Teams vs. '
+                         'teaser_en': 'Don’t mix up: subagent vs. agent view vs. agent teams vs. '
                                       'git worktree'},
              'value': {'de': '- **Subagent** (Agent-Tool, früher „Task“): eine Nebenaufgabe in '
                              'eigenem Kontextfenster; gibt nur ihr Ergebnis zurück. Der '
@@ -395,10 +395,10 @@ SUBAGENTS_MODULE = {'key': 'subagents',
                              'Dateien ändern, ohne sich zu überschreiben.',
                        'en': '- **Subagent** (Agent tool, formerly "Task"): one side task in its '
                              'own context window; returns only its result. The everyday case.\n'
-                             '- **Agent View** (`claude agents`, research preview): the view where '
+                             '- **Agent view** (`claude agents`, research preview): the view where '
                              'you dispatch and watch several background sessions — each one is a '
                              'full, independent session.\n'
-                             '- **Agent Teams**: **experimental and off by default**. Several '
+                             '- **Agent teams**: **experimental and off by default**. Several '
                              'agents collaborate on one task — powerful but unfinished; leave it '
                              'disabled for course purposes.\n'
                              '- **Git worktree**: not an agent feature but an isolated working '

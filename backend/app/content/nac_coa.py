@@ -30,7 +30,7 @@ NAC_COA_MODULE = {
               'Endpoint-Protection, dass der Virenschutz deaktiviert wurde. Das Gerät soll '
               'sofort eingeschränkt werden — aber ohne dass sich jemand neu anmelden oder das '
               'Kabel ziehen muss. Genau dafür gibt es Change of Authorization (CoA).',
-        'en': 'A notebook at Nordwind Logistik authenticated properly in the morning and has '
+        'en': 'A laptop at Nordwind Logistik authenticated properly in the morning and has '
               'been sitting in the production VLAN ever since. In the afternoon, the endpoint '
               'protection reports that its antivirus has been disabled. The device needs to be '
               'restricted immediately — but without anyone having to log in again or unplug '
@@ -54,7 +54,7 @@ NAC_COA_MODULE = {
                    'Produktiv-VLAN sitzt, kann per CoA in Sekunden in ein eingeschränktes VLAN '
                    'verschoben werden — ganz ohne physischen Eingriff und ohne dass der Nutzer '
                    'etwas davon mitbekommt, bevor die Änderung wirkt.',
-             'en': '## Change of Authorization (CoA): Changing Rights Without Re-Logging In\n\n'
+             'en': '## Change of Authorization (CoA): Changing Rights Without Logging In Again\n\n'
                    '**Change of Authorization (CoA)**, specified in **RFC 5176**, is an '
                    'extension to RADIUS that allows the authorization of an already running '
                    'session to be changed after the fact — without the device having to '
@@ -62,7 +62,7 @@ NAC_COA_MODULE = {
                    '(typically the same RADIUS/authentication server that authorized the '
                    'session originally) actively sends the switch or WLC a message that '
                    'changes the existing session.\n\n'
-                   'For Nordwind Logistik, that means a notebook that has been sitting in the '
+                   'For Nordwind Logistik, that means a laptop that has been sitting in the '
                    'production VLAN for hours can be moved into a restricted VLAN within '
                    'seconds via CoA — with no physical intervention, and without the user '
                    'noticing anything before the change takes effect.',
@@ -369,7 +369,7 @@ NAC_COA_MODULE = {
                     {
                         'id': 'start',
                         'text_de': 'Die Endpoint-Protection meldet ein Notebook als nicht konform. Der Policy-Server protokolliert „CoA failed — no response from network device“, das Notebook behält vollen Zugriff. Normale Anmeldungen am selben Switch funktionieren. Was prüfst du zuerst?',
-                        'text_en': 'Endpoint protection reports a notebook as non-compliant. The policy server logs "CoA failed — no response from network device", the notebook keeps full access. Normal logins on the same switch work. What do you check first?',
+                        'text_en': 'Endpoint protection reports a laptop as non-compliant. The policy server logs "CoA failed — no response from network device", the laptop keeps full access. Normal logins on the same switch work. What do you check first?',
                         'options': [
                             {
                                 'label_de': 'Den Nutzer bitten, das Kabel kurz zu ziehen',

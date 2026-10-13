@@ -27,13 +27,13 @@ DNS_HA_MODULE = {
               'mehrere Namensserver reicht.',
         'en': 'Nordwind Logistik is growing to three sites. Regardless of where a client sits, it '
               'should always reach its nearest DNS server — even if an entire site fails, without '
-              'anything needing to change on the clients. You check whether DNS Anycast is the '
+              'anything needing to change on the clients. You check whether DNS anycast is the '
               'right fit for this, or whether classic redundancy through multiple name servers is '
               'enough.',
     },
     'blocks': [
         {'type': 'text', 'id': 'text-1',
-         'note': 'Wichtig sauber zu trennen: Grid-HA sichert die Verwaltung, Anycast verteilt den Dienst. Teilnehmende werfen das erfahrungsgemaess zusammen.',
+         'note': 'Wichtig sauber zu trennen: Grid-HA sichert die Verwaltung, Anycast verteilt den Dienst. Teilnehmende werfen das erfahrungsgemäß zusammen.',
          'value': {
              'de': '## Das Anycast-Prinzip\n\n'
                    'Bei **Anycast** bekommen mehrere Server an unterschiedlichen Standorten '
@@ -46,13 +46,13 @@ DNS_HA_MODULE = {
                    'mehrere NS-Records: Dort hat jeder Server eine eigene IP, und der Client (bzw. '
                    'sein Resolver) entscheidet selbst, welche er zuerst probiert.',
              'en': '## The Anycast Principle\n\n'
-                   'With **Anycast**, several servers at different locations are given the same '
+                   'With **anycast**, several servers at different locations are given the same '
                    'service IP address. Routing (OSPF or BGP) decides which physical server '
                    'actually answers a given request — it routes it to the topologically nearest '
                    'server. From the client\'s perspective there is only **one** IP address; which '
                    'server is behind it is invisible and can even change between two requests if '
                    'the routing changes.\n\n'
-                   'This fundamentally distinguishes Anycast from classic DNS redundancy via '
+                   'This fundamentally distinguishes anycast from classic DNS redundancy via '
                    'multiple NS records: there, each server has its own IP, and the client (or its '
                    'resolver) decides itself which one to try first.',
          }},
@@ -71,13 +71,13 @@ DNS_HA_MODULE = {
                    'Netzwerk-Team, den klassische Redundanz über mehrere NS-Records nicht '
                    'erfordert.',
              'en': '## Prerequisites in NIOS\n\n'
-                   'For a Grid member to participate in a DNS Anycast group, it needs:\n\n'
-                   '- A **loopback address** on which the shared Anycast IP is configured — unlike '
+                   'For a Grid member to participate in a DNS anycast group, it needs:\n\n'
+                   '- A **loopback address** on which the shared anycast IP is configured — unlike '
                    'a normal interface address, the loopback address is not bound to a specific '
                    'physical interface.\n'
                    '- A **routing configuration (OSPF or BGP)** through which the member announces this address into '
                    'routing, so neighboring routers know which path leads to it.\n\n'
-                   'So Anycast is not a pure DNS feature — it interlocks DNS configuration with '
+                   'So anycast is not a pure DNS feature — it ties DNS configuration to '
                    'network routing, adding coordination work with the network team that classic '
                    'redundancy via multiple NS records does not require.',
          }},
@@ -98,7 +98,7 @@ DNS_HA_MODULE = {
                         "row": 0,
                         "col": 0,
                         "label_de": "Clients Hamburg",
-                        "label_en": "Clients Hamburg",
+                        "label_en": "Hamburg clients",
                     },
                     {
                         "id": "ra",
@@ -106,7 +106,7 @@ DNS_HA_MODULE = {
                         "row": 0,
                         "col": 1,
                         "label_de": "Router Hamburg",
-                        "label_en": "Router Hamburg",
+                        "label_en": "Hamburg router",
                     },
                     {
                         "id": "ma",
@@ -124,7 +124,7 @@ DNS_HA_MODULE = {
                         "row": 1,
                         "col": 0,
                         "label_de": "Clients München",
-                        "label_en": "Clients Munich",
+                        "label_en": "Munich clients",
                     },
                     {
                         "id": "rb",
@@ -132,7 +132,7 @@ DNS_HA_MODULE = {
                         "row": 1,
                         "col": 1,
                         "label_de": "Router München",
-                        "label_en": "Router Munich",
+                        "label_en": "Munich router",
                     },
                     {
                         "id": "mb",
@@ -193,7 +193,7 @@ DNS_HA_MODULE = {
              'kind': 'choice',
              'prompt_de': 'Worin unterscheidet sich Anycast am grundlegendsten von klassischer '
                           'Redundanz über mehrere NS-Records?',
-             'prompt_en': 'What is the most fundamental difference between Anycast and classic '
+             'prompt_en': 'What is the most fundamental difference between anycast and classic '
                           'redundancy via multiple NS records?',
              'answer': 0,
              'options_de': [
@@ -205,11 +205,11 @@ DNS_HA_MODULE = {
                  'Mehrere NS-Records erfordern zwingend BGP',
              ],
              'options_en': [
-                 'With Anycast, several servers share one IP and routing decides the server; with '
+                 'With anycast, several servers share one IP and routing decides the server; with '
                  'multiple NS records, each server has its own IP and the client decides',
                  'Anycast only works with IPv6, multiple NS records only with IPv4',
                  'Anycast requires no name server configuration at all',
-                 'Multiple NS records necessarily require BGP',
+                 'Multiple NS records always require BGP',
              ],
          }},
         {'type': 'text', 'id': 'text-3',
@@ -231,7 +231,7 @@ DNS_HA_MODULE = {
                    'es ändert nur, **wie** die Erreichbarkeit dieser Server nach außen organisiert '
                    'ist.',
              'en': '## What Happens When a Member Fails\n\n'
-                   'If a site fails completely under **Anycast**, routing reconverges: requests '
+                   'If a site fails completely under **anycast**, routing reconverges: requests '
                    'that were previously routed to that site automatically land on the nearest '
                    'remaining server — without anything needing to change on the client. The '
                    'downside: until routing has converged, requests can briefly go nowhere, and '
@@ -239,11 +239,11 @@ DNS_HA_MODULE = {
                    'not directly visible.\n\n'
                    'With **multiple NS records**, the client itself notices the failure of a '
                    'server: its resolver remembers which servers do not answer and tries a '
-                   'different one next time — slower in the individual case (retry/timeout), but '
+                   'different one next time — slower for the individual query (retry/timeout), but '
                    'without any dependency on network routing.\n\n'
-                   'Important for both variants: a **Name Server Group** (see the previous module) '
+                   'Important for both variants: a **name server group** (see the previous module) '
                    'remains the tool that determines which Grid members act as name servers for a '
-                   'zone at all — Anycast does not change that, it only changes **how** the '
+                   'zone in the first place — anycast does not change that; it only changes **how** the '
                    'reachability of those servers is organized externally.',
          }},
         {
@@ -256,7 +256,7 @@ DNS_HA_MODULE = {
                 "columns": [
                     {"title_de": "Grid-HA-Paar", "title_en": "Grid HA pair"},
                     {"title_de": "Mehrere NS-Records", "title_en": "Multiple NS records"},
-                    {"title": "DNS-Anycast"},
+                    {"title_de": "DNS-Anycast", "title_en": "DNS anycast"},
                 ],
                 "rows": [
                     {
@@ -322,7 +322,7 @@ DNS_HA_MODULE = {
                           'jetzt ist unser DNS quasi wie das Grid-HA-Paar für den Grid Master — '
                           'wenn ein Member ausfällt, übernimmt automatisch der Passive-Partner.“ '
                           'Was ist an dieser Aussage falsch?',
-             'prompt_en': 'A colleague describes their setup like this: "We set up Anycast, so now '
+             'prompt_en': 'A colleague describes their setup like this: "We set up anycast, so now '
                           'our DNS basically works like the Grid HA pair for the Grid Master — if '
                           'one member fails, the passive partner automatically takes over." What is '
                           'wrong with this statement?',
@@ -339,7 +339,7 @@ DNS_HA_MODULE = {
                  'A Grid HA pair is active/passive: only the active node serves the shared '
                  'virtual IP',
                  'Anycast relies on an active/passive partner like the Grid HA pair',
-                 'If an Anycast member fails, the remaining members take over via routing '
+                 'If an anycast member fails, the remaining members take over via routing '
                  'convergence',
              ],
              'wrong': [2],
@@ -367,7 +367,7 @@ DNS_HA_MODULE = {
              'teaser_en': 'Lab: Nordwind has three sites and wants clients to always reach the '
                          'nearest DNS server, even if a site fails — without client '
                          'reconfiguration. Which architecture fits, and which prerequisites must be '
-                         'met? Try it yourself first.',
+                         'met? Think it through yourself first.',
          },
          'value': {
              'de': 'DNS Anycast passt hier gut, weil die Anforderung „automatisch nächstgelegener '
@@ -376,10 +376,10 @@ DNS_HA_MODULE = {
                    'zuständige Grid-Member eine Loopback-Adresse mit der gemeinsamen Anycast-IP '
                    'sowie eine OSPF- oder BGP-Anbindung, die diese Adresse konsistent ankündigt — das muss mit '
                    'dem Netzwerk-Team abgestimmt sein, nicht nur mit dem DNS-Team.',
-             'en': 'DNS Anycast fits well here, because the requirement "automatically nearest '
+             'en': 'DNS anycast fits well here, because the requirement "automatically nearest '
                    'server, no client change on failure" is exactly what routing-based redirection '
                    'provides. Prerequisite: at each of the three sites, the responsible Grid member '
-                   'needs a loopback address with the shared Anycast IP, plus an OSPF or BGP adjacency that '
+                   'needs a loopback address with the shared anycast IP, plus an OSPF or BGP adjacency that '
                    'consistently announces this address — this has to be coordinated with the '
                    'network team, not just the DNS team.',
          }},
@@ -394,11 +394,11 @@ DNS_HA_MODULE = {
                     {
                         "id": "start",
                         "text_de": "Nordwind hat drei Standorte mit je einem DNS-Member. Bisher bekommen Clients per DHCP zwei Resolver-Adressen (lokaler Member, dann Zentrale). Fällt der lokale Member aus, klagen Nutzer über Sekunden Wartezeit bei jeder Auflösung. Die Geschäftsführung fragt nach Anycast. Was klärst du zuerst?",
-                        "text_en": "Nordwind has three sites with one DNS member each. So far clients receive two resolver addresses via DHCP (local member, then headquarters). When the local member fails, users complain about seconds of delay on every lookup. Management asks about anycast. What do you clarify first?",
+                        "text_en": "Nordwind has three sites with one DNS member each. Until now, clients have received two resolver addresses via DHCP (local member, then headquarters). When the local member fails, users complain about a delay of several seconds on every lookup. Management asks about anycast. What do you clarify first?",
                         "options": [
                             {
                                 "label_de": "Ob das Netzwerk-Team OSPF oder BGP mit den Membern fahren kann und will.",
-                                "label_en": "Whether the network team can and wants to run OSPF or BGP with the members.",
+                                "label_en": "Whether the network team is able and willing to run OSPF or BGP with the members.",
                                 "to": "netz",
                             },
                             {
@@ -408,7 +408,7 @@ DNS_HA_MODULE = {
                             },
                             {
                                 "label_de": "Ob ein HA-Paar je Standort dasselbe leistet.",
-                                "label_en": "Whether an HA pair per site achieves the same.",
+                                "label_en": "Whether an HA pair per site achieves the same thing.",
                                 "to": "ha",
                             },
                         ],
@@ -423,7 +423,7 @@ DNS_HA_MODULE = {
                         "id": "ha",
                         "outcome": "ok",
                         "text_de": "Ein HA-Paar fängt den Ausfall eines Knotens ab, ohne dass sich die Adresse ändert — für den Hardwaredefekt reicht das. Fällt aber der ganze Standort-Serverraum oder dessen Uplink aus, ist auch das HA-Paar weg. Es löst einen Teil des Problems, mit doppelter Hardware je Standort.",
-                        "text_en": "An HA pair absorbs the failure of one node without the address changing — enough for a hardware defect. But if the whole site server room or its uplink fails, the HA pair is gone too. It solves part of the problem, with double hardware per site.",
+                        "text_en": "An HA pair absorbs the failure of one node without the address changing — enough for a hardware defect. But if the whole site server room or its uplink fails, the HA pair is gone too. It solves part of the problem, at twice the hardware per site.",
                     },
                     {
                         "id": "netz",
@@ -457,13 +457,13 @@ DNS_HA_MODULE = {
                         "id": "eine",
                         "outcome": "ok",
                         "text_de": "Das funktioniert und ist sauber. Du hängst die gesamte Namensauflösung aber an eine einzige Adresse und an das Routing: Ein Fehler in der Ankündigung trifft dann alle Clients zugleich.",
-                        "text_en": "This works and is clean. But you hang all name resolution on a single address and on routing: a mistake in the announcement then hits all clients at once.",
+                        "text_en": "This works and is clean. But you make all name resolution depend on a single address and on routing: a mistake in the announcement then hits all clients at once.",
                     },
                     {
                         "id": "zwei",
                         "outcome": "good",
                         "text_de": "Gute Wahl: Im Normalfall und beim Ausfall eines Members greift Anycast ohne Wartezeit; die zweite Adresse bleibt als unabhängige Rückfallebene, falls das Routing selbst das Problem ist. Mit dem Netzwerk-Team vereinbarst du, wie Ankündigungen überwacht werden.",
-                        "text_en": "Good choice: in normal operation and when a member fails, anycast applies without delay; the second address remains an independent fallback in case routing itself is the problem. With the network team you agree how announcements are monitored.",
+                        "text_en": "Good choice: in normal operation and when a member fails, anycast kicks in without delay; the second address remains an independent fallback in case routing itself is the problem. You agree with the network team on how announcements are monitored.",
                     },
                 ],
             },
@@ -474,7 +474,7 @@ DNS_HA_MODULE = {
                          'Abstimmung mit dem Netzwerk-Team) gegenüber einfacher Redundanz über '
                          'mehrere NS-Records? Nenne mindestens ein Szenario, in dem du dich für die '
                          'einfachere Variante entscheiden würdest, und begründe warum.',
-             'prompt_en': 'When is the additional effort of Anycast (loopback + OSPF/BGP, coordination '
+             'prompt_en': 'When is the additional effort of anycast (loopback + OSPF/BGP, coordination '
                          'with the network team) worth it compared to simple redundancy via '
                          'multiple NS records? Name at least one scenario where you would choose '
                          'the simpler variant, and explain why.',
@@ -488,7 +488,7 @@ DNS_HA_MODULE = {
          },
          'type': 'single',
          'prompt': {'de': 'Was ist die Grundidee von DNS Anycast?',
-                    'en': 'What is the basic idea of DNS Anycast?'},
+                    'en': 'What is the basic idea of DNS anycast?'},
          'answer': 1,
          'options': {
              'de': [
@@ -514,7 +514,7 @@ DNS_HA_MODULE = {
          'prompt': {'de': 'Welche zwei technischen Voraussetzungen braucht ein Grid-Member für '
                          'DNS-Anycast in NIOS?',
                     'en': 'Which two technical prerequisites does a Grid member need for DNS '
-                         'Anycast in NIOS?'},
+                         'anycast in NIOS?'},
          'answer': 2,
          'options': {
              'de': [
@@ -526,7 +526,7 @@ DNS_HA_MODULE = {
              'en': [
                  'DHCP failover and MCLT',
                  'DNSSEC signature and trust anchor',
-                 'A loopback address with the Anycast IP and an announcement via OSPF or BGP',
+                 'A loopback address with the anycast IP and an announcement via OSPF or BGP',
                  'A second Grid Master Candidate role',
              ],
          }},
@@ -554,7 +554,7 @@ DNS_HA_MODULE = {
                  'The client (or its resolver) remembers this and tries a different server next '
                  'time',
                  'Routing automatically reconverges',
-                 'A BGP update is necessarily triggered',
+                 'A BGP update is always triggered',
                  'The failed server is automatically replaced by a Grid Master Candidate',
              ],
          }},
@@ -578,10 +578,10 @@ DNS_HA_MODULE = {
              ],
              'en': [
                  'Nothing, both concepts are identical',
-                 'A Grid HA pair is active/passive and protects a single node, Anycast '
+                 'A Grid HA pair is active/passive and protects a single node, while anycast '
                  'distributes requests across several simultaneously active members via routing',
                  'Anycast only exists for DHCP, not for DNS',
-                 'Grid HA only exists in combination with Anycast',
+                 'Grid HA only exists in combination with anycast',
              ],
          }},
         {'id': 'dh5',
@@ -591,7 +591,7 @@ DNS_HA_MODULE = {
          },
          'type': 'single',
          'prompt': {'de': 'Wann lohnt sich Anycast typischerweise am ehesten?',
-                    'en': 'When is Anycast typically most worthwhile?'},
+                    'en': 'When is anycast typically most worthwhile?'},
          'answer': 3,
          'options': {
              'de': [

@@ -32,16 +32,16 @@ IB_TROUBLESHOOTING_MODULE = {
               "Alltag besteht aus Störmeldungen, nicht aus sauberer Theorie. Dieses "
               "Abschlussmodul übt, aus einer kurzen Meldung schnell die richtige Spur zu "
               "finden — quer durch alles, was du in diesem Lehrgang gelernt hast.",
-        "en": "You are now responsible for day-to-day operation of the Infoblox grid — the "
+        "en": "You are now responsible for day-to-day operation of the Infoblox Grid — the "
               "architecture is in place, DNS and DHCP/IPAM are configured, backups run, and "
               "a WAPI script automatically provisions new branch-office networks. But daily "
               "operations consist of incident reports, not clean theory. This wrap-up module "
-              "practices quickly finding the right trail from a short report — across "
+              "trains you to quickly find the right lead from a short report — across "
               "everything covered in this course.",
     },
     "blocks": [
         {"type": "text", "id": "text-1",
-         'note': 'Abschlussmodul: Wenn moeglich einen echten Stoerfall aus dem eigenen Betrieb mitbringen und die Gruppe die Systematik daran durchlaufen lassen.',
+         'note': 'Abschlussmodul: Wenn möglich einen echten Störfall aus dem eigenen Betrieb mitbringen und die Gruppe die Systematik daran durchlaufen lassen.',
          "value": {
              "de": "## Methodik: Symptom → Hypothese → Prüfung\n\n"
                    "Wilde Fehlersuche („einfach mal was ausprobieren“) kostet Zeit und "
@@ -58,7 +58,7 @@ IB_TROUBLESHOOTING_MODULE = {
                    "Netzwerk-Troubleshooting — nur dass die Komponenten hier spezifisch aus "
                    "dem DDI-Umfeld stammen.",
              "en": "## Methodology: Symptom → Hypothesis → Check\n\n"
-                   "Wild troubleshooting (“just try something”) costs time and creates new "
+                   "Haphazard troubleshooting (“just try something”) costs time and creates new "
                    "risks. A structured approach uses three steps:\n\n"
                    "1. **Capture the symptom precisely** — what exactly is not working, for "
                    "whom, since when, what changed most recently?\n"
@@ -285,14 +285,14 @@ IB_TROUBLESHOOTING_MODULE = {
                          "Netz zu nehmen.",
                          "Laut Planung soll Server A in den Status Partner Down gesetzt werden "
                          "und den vollen Adressraum übernehmen.",
-                         "Zehn Minuten später steht Server A weiterhin in Communication "
+                         "Zehn Minuten später steht Server A weiterhin in Communications "
                          "Interrupted, nicht in Partner Down."],
             "lines_en": ["The maintenance window for server B is announced and confirmed.",
                          "The technician disables server B's switch port to take it off the "
                          "network.",
                          "Per the plan, server A should be set to Partner Down status and take "
                          "over the full address range.",
-                         "Ten minutes later, server A is still in Communication "
+                         "Ten minutes later, server A is still in Communications "
                          "Interrupted, not in Partner Down."],
             "wrong": [1],
             "explanation_de": "Der Fehler liegt darin, den Switch-Port zu deaktivieren statt "
@@ -335,16 +335,16 @@ IB_TROUBLESHOOTING_MODULE = {
                    "fastest:\n\n"
                    "- **Grid Manager logs/syslog per member** — for DNS and DHCP service "
                    "messages, failover status changes, zone transfer errors.\n"
-                   "- **External name-resolution tools** (querying from a client or an "
+                   "- **External name-resolution tools** (for example, querying from a client or an "
                    "external resolver) — to tell whether a wrong answer originates at the "
                    "server or only appears at the client.\n"
-                   "- **Reporting and Analytics** — for patterns over time: is the number of "
-                   "zone transfer errors rising since a certain point, are RPZ hits piling up, "
+                   "- **Reporting and Analytics** — for patterns over time: has the number of "
+                   "zone transfer errors been rising since a certain point, are RPZ hits piling up, "
                    "is address space availability in a network steadily declining?\n"
                    "- **Grid status/member overview** — for communication and failover status "
-                   "between grid members, especially after a maintenance window or upgrade.\n\n"
+                   "between Grid members, especially after a maintenance window or upgrade.\n\n"
                    "The common thread: form the hypothesis first, then open exactly the "
-                   "matching source — not randomly search every log at once.",
+                   "matching source — instead of randomly searching every log at once.",
          }},
         {"type": "terminal", "id": "terminal-nios-status",
          "note": "Ausgabeformate nach dem NIOS CLI Guide (show status, show network, show version, show ntp, show upgrade_history), gekürzt: show network ohne VLAN-, DSCP- und IPv6-Zeilen, show ntp ohne die Spalte jitter. Werte sind Beispiele; Zugang per SSH oder Konsole.",
@@ -356,7 +356,7 @@ IB_TROUBLESHOOTING_MODULE = {
              "unknown_en": "Unknown command: {cmd} (help lists the commands)",
              "commands": [
                  {"cmd": "show status",
-                  "desc_de": "Grid- und HA-Status dieses Knotens", "desc_en": "grid and HA status of this node",
+                  "desc_de": "Grid- und HA-Status dieses Knotens", "desc_en": "Grid and HA status of this node",
                   "output": "Grid Status: ID Grid Master\nHA Status: Not Configured"},
                  {"cmd": "show network",
                   "desc_de": "IP-Einstellungen der LAN1-Schnittstelle", "desc_en": "IP settings of the LAN1 interface",
@@ -392,7 +392,7 @@ IB_TROUBLESHOOTING_MODULE = {
                 "title_de": "Fehlersuche: Das Failover-Paar findet nicht zusammen",
                 "title_en": "Troubleshooting: the failover pair will not come together",
                 "intro_de": "Störung: Seit dem Neustart von Member B steht das Failover-Paar nicht mehr auf Normal. Du bist an der Konsole von Member B. Vereinfachte Darstellung der Log-Zeilen.",
-                "intro_en": "Incident: since member B was restarted, the failover pair is no longer in Normal. You are on the console of member B. Log lines are a simplified rendering.",
+                "intro_en": "Incident: since member B was restarted, the failover pair is no longer in Normal. You are on the console of member B. Log lines are shown in simplified form.",
                 "prompt": "Infoblox >",
                 "unknown_de": "Unbekannter Befehl: {cmd} (help zeigt die Befehlsliste)",
                 "unknown_en": "Unknown command: {cmd} (help lists the commands)",
@@ -442,7 +442,7 @@ IB_TROUBLESHOOTING_MODULE = {
                      "text_en": "Is the failover itself misconfigured? (yes/no)",
                      "answers": ["nein", "no"],
                      "explanation_de": "Die Failover-Peers verlangen synchrone Uhren – behoben wird also NTP (Firewall, Route, Zeitquelle), nicht das Failover.",
-                     "explanation_en": "The failover peers require synchronised clocks – so the fix is NTP (firewall, route, time source), not the failover."},
+                     "explanation_en": "The failover peers require synchronized clocks – so the fix is NTP (firewall, route, time source), not the failover."},
                 ],
             },
         },
@@ -509,7 +509,7 @@ IB_TROUBLESHOOTING_MODULE = {
                         "id": "restore",
                         "outcome": "bad",
                         "text_de": "Der Restore setzt das gesamte Grid auf 02:00 Uhr zurück: Alle Änderungen des Vormittags an anderen Zonen und Netzen sind weg, geplante Aufgaben kommen nicht wieder, und der Grid Master ist während des Restores nicht verfügbar. Für eine einzelne Zone ist das der größte denkbare Hebel.",
-                        "text_en": "The restore sets the entire Grid back to 2:00 a.m.: all of the morning's changes to other zones and networks are gone, scheduled tasks do not return, and the Grid Master is unavailable during the restore. For a single zone this is the biggest lever imaginable.",
+                        "text_en": "The restore sets the entire Grid back to 2:00 a.m.: all of the morning's changes to other zones and networks are gone, scheduled tasks do not return, and the Grid Master is unavailable during the restore. For a single zone this is the biggest hammer imaginable.",
                     },
                     {
                         "id": "papierkorb",
@@ -532,7 +532,7 @@ IB_TROUBLESHOOTING_MODULE = {
                         "id": "nichts",
                         "outcome": "ok",
                         "text_de": "Wahrscheinlich geht es gut. Aber „steht in der Liste“ ist nicht „wird ausgeliefert“: Ob die Member die Zone wieder bedienen und der externe Sekundär nachgezogen hat, weißt du erst nach einer Abfrage.",
-                        "text_en": "It will probably be fine. But \"is in the list\" is not \"is being served\": whether the members serve the zone again and the external secondary has caught up, you only know after a query.",
+                        "text_en": "It will probably be fine. But \"is in the list\" is not \"is being served\": you only know whether the members serve the zone again and the external secondary has caught up after you run a query.",
                     },
                     {
                         "id": "pruefen",
@@ -581,9 +581,9 @@ IB_TROUBLESHOOTING_MODULE = {
              "en": "## The Common Thread: Four Blocks, One Operation\n\n"
                    "This course covered four topic blocks that, in real operations, do not "
                    "appear separately but interlock:\n\n"
-                   "- **Architecture** (`grid-architektur` and surroundings) determines who "
+                   "- **Architecture** (`grid-architektur` and related modules) determines who "
                    "holds which configuration and where services actually run.\n"
-                   "- **DNS** (`dns-zonen-records`, `dns-views-forwarding` and surroundings) "
+                   "- **DNS** (`dns-zonen-records`, `dns-views-forwarding` and related modules) "
                    "decides which answer a client gets for a name — and whether it gets one "
                    "at all.\n"
                    "- **DHCP/IPAM** (`dhcp-grundlagen`, `dhcp-failover`, `ipam-grundlagen`) "
@@ -611,7 +611,7 @@ IB_TROUBLESHOOTING_MODULE = {
         {"id": "ibt1",
          "explanation": {
              "de": "Betroffen ist ein einzelner Client, alle anderen im selben Netz funktionieren: Server, Bereich und Failover scheiden damit weitgehend aus. Gesucht wird in der kleinsten betroffenen Einheit — Client, Kabel, Port, VLAN.",
-             "en": "A single client is affected, all others on the same network work: server, range and failover are thereby largely ruled out. You search in the smallest affected unit — client, cable, port, VLAN.",
+             "en": "A single client is affected, all others on the same network work: this largely rules out the server, range and failover. You search in the smallest affected unit — client, cable, port, VLAN.",
          },
          "type": "single",
          "prompt": {"de": "Ein einzelner Client bekommt keine IP-Adresse, alle anderen Clients "
@@ -626,7 +626,7 @@ IB_TROUBLESHOOTING_MODULE = {
                     "gesamten DHCP-Bereich",
                     "Bei den Extensible Attributes des Netzwerks"],
              "en": ["The DNS view order",
-                    "The grid master's reporting dashboard",
+                    "The Grid Master's reporting dashboard",
                     "Locally at the affected client or its connection, not first at the "
                     "entire DHCP range",
                     "The network's extensible attributes"],
@@ -648,7 +648,7 @@ IB_TROUBLESHOOTING_MODULE = {
                     "Name-Server-Group-, ACL- oder TSIG-Konfiguration zwischen den Servern",
                     "Der Idempotenz-Gedanke eines WAPI-Skripts",
                     "Die MCLT-Einstellung eines DHCP-Failover-Paars"],
-             "en": ["The grid master's license capacity",
+             "en": ["The Grid Master's license capacity",
                     "Name server group, ACL, or TSIG configuration between the servers",
                     "The idempotency of a WAPI script",
                     "The MCLT setting of a DHCP failover pair"],
@@ -656,7 +656,7 @@ IB_TROUBLESHOOTING_MODULE = {
         {"id": "ibt3",
          "explanation": {
              "de": "Ein abgeschalteter Port sieht für den verbleibenden Peer aus wie jede Leitungsstörung: Communications Interrupted. Partner Down setzt ein Admin von Hand — und darf das erst, wenn der DHCP-Dienst des Partners sicher gestoppt ist.",
-             "en": "A disabled port looks to the remaining peer like any link failure: Communications Interrupted. Partner Down is set by an admin by hand — and only permissible once the partner's DHCP service is reliably stopped.",
+             "en": "A disabled port looks to the remaining peer like any link failure: Communications Interrupted. Partner Down is set by an admin by hand — and that is only permitted once the partner's DHCP service is reliably stopped.",
          },
          "type": "single",
          "prompt": {"de": "Nach einem geplanten Wartungsfenster bleibt ein DHCP-Failover-"
@@ -680,12 +680,12 @@ IB_TROUBLESHOOTING_MODULE = {
         {"id": "ibt4",
          "explanation": {
              "de": "Das ist die bekannte Ausnahme beim Restore: Scheduled- und Approval-Tasks kommen nicht zurück, obwohl sie im Backup stehen. Weil der Restore trotzdem Erfolg meldet, sieht es wie eine neue Störung aus — ist aber dokumentiertes Verhalten.",
-             "en": "This is the known exception in a restore: scheduled and approval tasks do not come back although they are in the backup. Because the restore still reports success, it looks like a new incident — but it is documented behaviour.",
+             "en": "This is the known exception in a restore: scheduled and approval tasks do not come back although they are in the backup. Because the restore still reports success, it looks like a new incident — but it is documented behavior.",
          },
          "type": "single",
          "prompt": {"de": "Nach einem Grid-Restore fehlen alle geplanten Wartungsaufgaben. Was "
                           "ist die wahrscheinlichste Ursache?",
-                    "en": "After a grid restore, all scheduled maintenance tasks are missing. "
+                    "en": "After a Grid restore, all scheduled maintenance tasks are missing. "
                           "What is the most likely cause?"},
          "answer": 3,
          "options": {
@@ -706,8 +706,8 @@ IB_TROUBLESHOOTING_MODULE = {
          "type": "multi",
          "prompt": {"de": "Welche Schritte gehören zu einer systematischen Fehlersuche (statt "
                           "wildem Ausprobieren)?",
-                    "en": "Which steps belong to systematic troubleshooting (rather than wild "
-                          "guessing)?"},
+                    "en": "Which steps belong to systematic troubleshooting (rather than random "
+                          "trial and error)?"},
          "answer": [0, 1, 3],
          "options": {
              "de": ["Das Symptom präzise erfassen: was, für wen, seit wann",
@@ -770,7 +770,7 @@ IB_TROUBLESHOOTING_MODULE = {
             },
             "explanation": {
                 "de": "Beide Member antworten richtig — Zone und Replikation sind damit entlastet. Übrig bleibt, was zwischen Server und Nutzer liegt: zwischengespeicherte alte Antworten bis zum Ablauf der TTL oder eine View, die für die Adresse des Nutzers etwas anderes ausliefert als für deine.",
-                "en": "Both members answer correctly — zone and replication are thereby cleared. What remains is whatever lies between server and user: cached old answers until the TTL expires, or a view that serves something different for the user's address than for yours.",
+                "en": "Both members answer correctly — that rules out the zone and replication. What remains is whatever lies between server and user: cached old answers until the TTL expires, or a view that serves something different for the user's address than for yours.",
             },
         },
         {

@@ -24,8 +24,8 @@ const STR = {
     eveToggle: 'Angreifersicht öffnen: „Was Eve auf der Leitung sieht“',
     eveTitle: 'Was Eve auf der Leitung sieht',
     eveHint: 'Eve kennt nur die öffentlich übertragenen Werte — nicht a, b oder das Geheimnis.',
-    eveButton: 'Eve rechnet durch (Brute-Force über alle 22 Möglichkeiten)',
-    eveFound: (a: number) => `Eve hat a = ${a} gefunden — bei p = ${P} sind das nur ${P - 2} Versuche.`,
+    eveButton: `Eve rechnet durch (Brute-Force über alle ${P - 1} Möglichkeiten)`,
+    eveFound: (a: number) => `Eve hat a = ${a} gefunden — bei p = ${P} sind das höchstens ${P - 1} Versuche.`,
     eveReality: 'Bei einer echten 2048-Bit-Gruppe oder X25519 ist dieses Durchprobieren '
       + 'rechnerisch unmöglich — die Anzahl der Möglichkeiten übersteigt jede verfügbare Rechenleistung.',
     pfsTitle: 'Perfect Forward Secrecy',
@@ -48,8 +48,8 @@ const STR = {
     eveToggle: 'Open attacker view: "What Eve sees on the wire"',
     eveTitle: 'What Eve sees on the wire',
     eveHint: 'Eve only knows the publicly transmitted values — not a, b, or the secret.',
-    eveButton: 'Have Eve brute-force it (tries all 22 possibilities)',
-    eveFound: (a: number) => `Eve found a = ${a} — with p = ${P} that is only ${P - 2} attempts.`,
+    eveButton: `Have Eve brute-force it (tries all ${P - 1} possibilities)`,
+    eveFound: (a: number) => `Eve found a = ${a} — with p = ${P} that is at most ${P - 1} attempts.`,
     eveReality: 'With a real 2048-bit group or X25519, this brute-force search is computationally '
       + 'impossible — the number of possibilities exceeds any available computing power.',
     pfsTitle: 'Perfect Forward Secrecy',
@@ -84,7 +84,7 @@ export function KeyExchange({ lang }: { lang: Lang }) {
           <input
             id="pki-a-slider"
             type="range" min={1} max={22} value={a}
-            onChange={(e) => setA(Number(e.target.value))}
+            onChange={(e) => { setA(Number(e.target.value)); setEveFoundA(null) }}
             className="mt-1 w-full accent-teal-600"
           />
         </label>

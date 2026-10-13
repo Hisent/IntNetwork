@@ -19,7 +19,7 @@ WAPI_MODULE = {
         "Terraform-Provider abgrenzen können",
     ],
     "goals_en": [
-        "Place WAPI as the REST-based programming interface to NIOS and explain its basic structure (HTTPS, JSON/XML, object references)",
+        "Understand WAPI as the REST-based programming interface to NIOS and explain its basic structure (HTTPS, JSON/XML, object references)",
         "Name typical automation cases (bulk creation, synchronization with a source of truth, self-service) and tell them apart",
         "Explain the idea of idempotency in automation and recognize a non-idempotent script as a risk",
         "Tell WAPI apart from higher automation layers such as Ansible modules or the Terraform provider",
@@ -34,8 +34,8 @@ WAPI_MODULE = {
         "en": "Your company wants to stop creating new branch-office networks by hand in the "
               "Grid Manager UI — too slow and too error-prone at 40 new sites a year. Your "
               "team is asked to automate this. Before writing the first line of code, you "
-              "clarify how Infoblox's own REST interface, WAPI, works at its core — and what "
-              "pitfalls automation typically brings along.",
+              "establish how Infoblox's own REST interface, WAPI, works at its core — and what "
+              "pitfalls automation typically brings with it.",
     },
     "blocks": [
         {"type": "text", "id": "text-1",
@@ -142,13 +142,13 @@ WAPI_MODULE = {
                         "style": "reply",
                         "label": "200 · [ { \"_ref\": \"record:host/ZG5z…\", … } ]",
                         "detail_de": "Die Antwort ist eine Liste — auch bei genau einem Treffer. Jedes Objekt bringt seine _ref mit.",
-                        "detail_en": "The answer is a list — even for exactly one hit. Every object comes with its _ref.",
+                        "detail_en": "The response is a list — even for exactly one hit. Every object comes with its _ref.",
                     },
                     {
                         "from": "s",
                         "to": "s",
                         "label_de": "_ref aus der Antwort übernehmen",
-                        "label_en": "take the _ref from the answer",
+                        "label_en": "take the _ref from the response",
                         "detail_de": "Die _ref wird nie selbst zusammengebaut: Ihr mittlerer Teil ist für das Skript undurchsichtig. Immer lesen, dann verwenden.",
                         "detail_en": "The _ref is never assembled by hand: its middle part is opaque to the script. Always read it, then use it.",
                     },
@@ -203,7 +203,7 @@ WAPI_MODULE = {
             "note": "Alle Optionen und Modifikatoren nach der WAPI-Doku (Abschnitte „Naming and Values“, „GET“, „Object reference“; öffentlich einsehbar z. B. unter ipam.illinois.edu/wapidoc). Hinweis für die Runde: Der Stern der EA-Suche und das Plus in _return_fields+ müssen in manchen Werkzeugen URL-kodiert werden.",
             "value": {
                 "de": "## Suchen, eingrenzen, blättern\n\nEine GET-Anfrage lässt sich mit wenigen Bausteinen genau steuern:\n\n**Welche Felder kommen zurück?** Ohne Angabe liefert WAPI nur die Grundfelder eines Objekts.\n\n- `_return_fields=name,comment` — genau diese Felder (statt der Grundfelder).\n- `_return_fields+=extattrs` — die Grundfelder **plus** die genannten.\n\n**Wie viele Treffer?** `_max_results` begrenzt die Ergebnismenge. Der Standardwert ist `-1000`: Gäbe es mehr als 1000 Treffer, antwortet WAPI mit einem Fehler statt mit einer stillschweigend gekürzten Liste. Ein positiver Wert kürzt dagegen ohne Fehler. Für große Mengen gibt es das Blättern: `_paging=1&_return_as_object=1&_max_results=500` liefert die erste Seite samt `next_page_id`; jede weitere Seite holt `_page_id=<next_page_id>`.\n\n**Wie wird verglichen?** Zwischen Feldname und `=` können Modifikatoren stehen:\n\n| Schreibweise | Bedeutung |\n|---|---|\n| `name=srv01.example.com` | exakte Übereinstimmung |\n| `name~=^srv` | regulärer Ausdruck |\n| `comment:=filiale` | Groß-/Kleinschreibung egal |\n| `comment!=Test` | Bedingung negiert |\n| `*Standort=Kiel` | Suche nach einem Extensible Attribute |\n\nWelche Modifikatoren ein Feld zulässt, steht je Objekt in der WAPI-Dokumentation.\n\n**Ändern und löschen** laufen immer über die `_ref`:\n\n```\nPUT    https://<grid-master>/wapi/v2.x/record:host/ZG5z…:server01.example.com/default\n       { \"comment\": \"umgezogen in RZ 2\" }\nDELETE https://<grid-master>/wapi/v2.x/record:host/ZG5z…:server01.example.com/default\n```\n\n**Funktionen** gehen über POST: `…/network/<_ref>?_function=next_available_ip` mit dem Body `{\"num\": 1}` liefert die nächste freie Adresse eines Netzes. Beim Anlegen kann ein Feldwert auch eine Funktion sein — `\"network\": \"func:nextavailablenetwork:10.20.0.0/16,24\"` belegt das nächste freie /24 im Container.\n\n**Versionierung.** Die WAPI-Version steht in der URL (`/wapi/v<Hauptversion>.<Nebenversion>/`). Ein Grid bedient neben seiner aktuellen auch ältere Versionen; Objekte und Felder, die erst später eingeführt wurden, gibt es unter einer älteren Versionsnummer aber nicht. Die zur eigenen NIOS-Version passende Referenz liefert jeder Grid Master selbst unter `/wapidoc`.",
-                "en": "## Search, Narrow Down, Page\n\nA GET request can be controlled precisely with a few building blocks:\n\n**Which fields come back?** Without any option WAPI returns only the basic fields of an object.\n\n- `_return_fields=name,comment` — exactly these fields (instead of the basic ones).\n- `_return_fields+=extattrs` — the basic fields **plus** the ones named.\n\n**How many hits?** `_max_results` limits the result set. The default is `-1000`: if there were more than 1000 hits, WAPI answers with an error instead of a silently truncated list. A positive value, by contrast, truncates without an error. For large sets there is paging: `_paging=1&_return_as_object=1&_max_results=500` returns the first page together with `next_page_id`; each further page is fetched with `_page_id=<next_page_id>`.\n\n**How is the comparison done?** Modifiers can sit between the field name and `=`:\n\n| Notation | Meaning |\n|---|---|\n| `name=srv01.example.com` | exact match |\n| `name~=^srv` | regular expression |\n| `comment:=filiale` | case-insensitive |\n| `comment!=Test` | condition negated |\n| `*Standort=Kiel` | search by an extensible attribute |\n\nWhich modifiers a field allows is listed per object in the WAPI documentation.\n\n**Changing and deleting** always go through the `_ref`:\n\n```\nPUT    https://<grid-master>/wapi/v2.x/record:host/ZG5z…:server01.example.com/default\n       { \"comment\": \"moved to DC 2\" }\nDELETE https://<grid-master>/wapi/v2.x/record:host/ZG5z…:server01.example.com/default\n```\n\n**Functions** go through POST: `…/network/<_ref>?_function=next_available_ip` with the body `{\"num\": 1}` returns the next free address of a network. When creating, a field value can also be a function — `\"network\": \"func:nextavailablenetwork:10.20.0.0/16,24\"` takes the next free /24 in the container.\n\n**Versioning.** The WAPI version is part of the URL (`/wapi/v<major>.<minor>/`). A Grid serves older versions besides its current one; objects and fields introduced later do not exist under an older version number, though. Every Grid Master serves the reference matching its own NIOS version itself under `/wapidoc`.",
+                "en": "## Search, Narrow Down, Page\n\nA GET request can be controlled precisely with a few building blocks:\n\n**Which fields come back?** Without any option WAPI returns only the basic fields of an object.\n\n- `_return_fields=name,comment` — exactly these fields (instead of the basic ones).\n- `_return_fields+=extattrs` — the basic fields **plus** the ones named.\n\n**How many hits?** `_max_results` limits the result set. The default is `-1000`: if there are more than 1000 hits, WAPI responds with an error instead of a silently truncated list. A positive value, by contrast, truncates without an error. For large sets there is paging: `_paging=1&_return_as_object=1&_max_results=500` returns the first page together with `next_page_id`; each further page is fetched with `_page_id=<next_page_id>`.\n\n**How is the comparison done?** Modifiers can sit between the field name and `=`:\n\n| Notation | Meaning |\n|---|---|\n| `name=srv01.example.com` | exact match |\n| `name~=^srv` | regular expression |\n| `comment:=filiale` | case-insensitive |\n| `comment!=Test` | condition negated |\n| `*Standort=Kiel` | search by an extensible attribute |\n\nWhich modifiers a field allows is listed per object in the WAPI documentation.\n\n**Changing and deleting** always go through the `_ref`:\n\n```\nPUT    https://<grid-master>/wapi/v2.x/record:host/ZG5z…:server01.example.com/default\n       { \"comment\": \"moved to DC 2\" }\nDELETE https://<grid-master>/wapi/v2.x/record:host/ZG5z…:server01.example.com/default\n```\n\n**Functions** go through POST: `…/network/<_ref>?_function=next_available_ip` with the body `{\"num\": 1}` returns the next free address of a network. When creating, a field value can also be a function — `\"network\": \"func:nextavailablenetwork:10.20.0.0/16,24\"` takes the next free /24 in the container.\n\n**Versioning.** The WAPI version is part of the URL (`/wapi/v<major>.<minor>/`). A Grid serves older versions in addition to its current one; objects and fields introduced later do not exist under an older version number, though. Every Grid Master serves the reference matching its own NIOS version itself under `/wapidoc`.",
             },
         },
         {"type": "text", "id": "text-3",
@@ -267,7 +267,7 @@ WAPI_MODULE = {
                 "title_de": "WAPI mit curl: vier Anfragen lesen",
                 "title_en": "WAPI with curl: reading four requests",
                 "intro_de": "Vereinfachte Darstellung: Antworten gekürzt, Referenzen und Werte sind Beispiele. Kurzformen: host, netze, alle, frei.",
-                "intro_en": "Simplified rendering: responses shortened, references and values are examples. Short forms: host, netze, alle, frei.",
+                "intro_en": "Simplified view: responses shortened, references and values are examples. Short forms: host, netze, alle, frei.",
                 "prompt": "admin@pc17:~$",
                 "unknown": "bash: {cmd}: command not found",
                 "commands": [
@@ -276,7 +276,7 @@ WAPI_MODULE = {
                         "cmd": "curl -k -u api-ro 'https://gm.nordwind.example/wapi/v2.x/record:host?name=srv01.nordwind.example'",
                         "aliases": ["host"],
                         "desc_de": "einen Host-Record suchen (Kurzform: host)",
-                        "desc_en": "search a host record (short form: host)",
+                        "desc_en": "search for a host record (short form: host)",
                         "output": "[\n  {\n    \"_ref\": \"record:host/ZG5zLmhvc3QkLl9kZWZhdWx0:srv01.nordwind.example/default\",\n    \"ipv4addrs\": [\n      {\n        \"configure_for_dhcp\": false,\n        \"host\": \"srv01.nordwind.example\",\n        \"ipv4addr\": \"192.0.2.10\"\n      }\n    ],\n    \"name\": \"srv01.nordwind.example\",\n    \"view\": \"default\"\n  }\n]",
                     },
                     {
@@ -307,19 +307,19 @@ WAPI_MODULE = {
                 "tasks": [
                     {
                         "text_de": "Suche den Host-Record srv01 (host). Mit welchem Objekttyp beginnt seine _ref?",
-                        "text_en": "Search the host record srv01 (host). Which object type does its _ref start with?",
+                        "text_en": "Search for the host record srv01 (host). Which object type does its _ref start with?",
                         "answers": ["record:host"],
                     },
                     {
                         "text_de": "Suche die Filialnetze (netze). Der zweite Kommentar ist großgeschrieben — welcher Modifikator in der Anfrage sorgt dafür, dass er trotzdem gefunden wird?",
                         "explanation_de": "„:=“ vergleicht den ganzen Wert ohne Rücksicht auf Groß-/Kleinschreibung. Ein Kommentar wie „Filiale Kiel“ träfe nicht — für Teiltreffer bräuchte es die Regex-Suche „~=“.",
                         "explanation_en": "\":=\" compares the whole value case-insensitively. A comment such as \"Filiale Kiel\" would not match — partial matches need the regex search \"~=\".",
-                        "text_en": "Search the branch networks (netze). The second comment is upper case — which modifier in the request makes sure it is found anyway?",
+                        "text_en": "Search for the branch networks (netze). The second comment is in upper case — which modifier in the request makes sure it is found anyway?",
                         "answers": [":", ":="],
                     },
                     {
                         "text_de": "Frage alle A-Records ab (alle). Ab wie vielen Treffern antwortet WAPI standardmäßig mit einem Fehler statt mit Daten?",
-                        "text_en": "Query all A records (alle). Above how many hits does WAPI by default answer with an error instead of data?",
+                        "text_en": "Query all A records (alle). Above how many hits does WAPI by default respond with an error instead of data?",
                         "answers": ["1000", ">1000", "> 1000"],
                     },
                     {
@@ -415,7 +415,7 @@ WAPI_MODULE = {
                     {"id": "cidr", "accept": ["24"]},
                 ],
                 "explanation_de": "Schritt 1 macht das Skript idempotent: Erst die EA-Suche (Stern vor dem EA-Namen), dann nur bei leerem Ergebnis der POST. Die Funktion nextavailablenetwork erhält den Container und die gewünschte Präfixlänge; welches /24 es wird, entscheidet NIOS — so kommen sich zwei gleichzeitig laufende Skripte nicht in die Quere.",
-                "explanation_en": "Step 1 makes the script idempotent: first the EA search (asterisk before the EA name), then the POST only if the result is empty. The nextavailablenetwork function is given the container and the desired prefix length; which /24 it becomes is decided by NIOS — so two scripts running at the same time do not get in each other's way.",
+                "explanation_en": "Step 1 makes the script idempotent: first the EA search (asterisk before the EA name), then the POST only if the result is empty. The nextavailablenetwork function is given the container and the desired prefix length; NIOS decides which /24 it will be — so two scripts running at the same time do not get in each other's way.",
             },
         },
         {"type": "text", "id": "text-5",
@@ -433,7 +433,7 @@ WAPI_MODULE = {
                    "einzelner HTTP-Aufrufe. Intern sprechen auch diese Werkzeuge letztlich mit "
                    "WAPI — sie ersetzen sie nicht, sondern kapseln sie in ein Modell, das "
                    "besser zu Infrastructure-as-Code-Workflows passt.",
-             "en": "## Error Handling and Boundary to Ansible/Terraform\n\n"
+             "en": "## Error Handling and How WAPI Differs from Ansible/Terraform\n\n"
                    "A solid automation script evaluates HTTP status codes specifically "
                    "(success, client error such as an invalid field, server error) instead of "
                    "a blanket “worked or didn't” distinction — and logs enough detail to later "
@@ -473,7 +473,7 @@ WAPI_MODULE = {
                     "Ein Ersatz für die Grid-Manager-Oberfläche, der diese vollständig ablöst"],
              "en": ["A graphical configuration tool exclusively for DNSSEC",
                     "A REST-based programming interface to NIOS over HTTPS with JSON/XML",
-                    "A command-line tool that only runs locally on the grid master",
+                    "A command-line tool that only runs locally on the Grid Master",
                     "A replacement that fully retires the Grid Manager UI"],
          }},
         {"id": "wa2",
@@ -537,7 +537,7 @@ WAPI_MODULE = {
         {"id": "wa5",
          "explanation": {
              "de": "Massenanlage, Abgleich mit einer führenden Quelle und Self-Service sind wiederkehrende, regelgebundene Vorgänge — dafür lohnt sich ein Skript. Eine einmalige Handänderung ist in der Oberfläche schneller erledigt als das Skript geschrieben.",
-             "en": "Bulk creation, reconciliation with an authoritative source and self-service are recurring, rule-bound processes — that is what a script is worth writing for. A one-off manual change is done faster in the UI than the script is written.",
+             "en": "Bulk creation, reconciliation with an authoritative source and self-service are recurring, rule-bound processes — that is where a script pays off. A one-off manual change is done faster in the UI than it takes to write the script.",
          },
          "type": "multi",
          "prompt": {"de": "Welche der folgenden gehören zu typischen WAPI-Automatisierungsfällen?",
@@ -599,14 +599,14 @@ WAPI_MODULE = {
                 ],
                 "en": [
                     "Set _max_results=1000 — then the error is gone",
-                    "Switch to an older WAPI version in the URL that does not know this limit",
+                    "Switch to an older WAPI version in the URL that does not have this limit",
                     "Send the request via POST instead of GET",
                     "Read page by page with _paging=1, _return_as_object=1 and _max_results, following the next_page_id each time",
                 ],
             },
             "explanation": {
                 "de": "Blättern liefert alle Objekte in handhabbaren Seiten. _max_results=1000 unterdrückt nur den Fehler: Das Skript sähe 1000 von 40.000 Hosts, hielte das für vollständig — und würde beim Abgleich die übrigen als „fehlend“ behandeln.",
-                "en": "Paging delivers all objects in manageable pages. _max_results=1000 merely suppresses the error: the script would see 1,000 of 40,000 hosts, take that for complete — and treat the rest as \"missing\" during reconciliation.",
+                "en": "Paging delivers all objects in manageable pages. _max_results=1000 merely suppresses the error: the script would see 1,000 of 40,000 hosts, assume that is everything — and treat the rest as \"missing\" during reconciliation.",
             },
         },
         {

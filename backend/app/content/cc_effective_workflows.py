@@ -12,7 +12,7 @@ EFFECTIVE_WORKFLOWS_MODULE = {
     "goals_en": [
         "Phrase a task with goal, context, constraints and evidence",
         "Explore and plan complex changes first, then implement",
-        "Work on bugs from reproducible observations instead of guesses",
+        "Work on bugs based on reproducible observations rather than guesses",
     ],
     "scenario": {
         "de": "Gute Ergebnisse entstehen aus einem klaren Auftrag, einem geprüften Plan und einem sichtbaren Nachweis. Dieses Modul macht daraus einen kurzen Ablauf für Features, Bugfixes und Reviews.",
@@ -58,11 +58,11 @@ Example: “Admins should export users as CSV. Use the existing list endpoint; d
                                 '[[z3]]: Das Login-Formular und das Rollenmodell bleiben unverändert.\n'
                                 '[[z4]]: Ein neuer Regressionstest schlägt vor dem Fix fehl und läuft '
                                 'danach durch.',
-                     'text_en': '[[z1]]: After session expiry, /profile should answer 401 instead of 500.\n'
+                     'text_en': '[[z1]]: After session expiry, /profile should respond with 401 instead of 500.\n'
                                 '[[z2]]: The session check in the auth middleware is affected; '
                                 'reproduction: delete the cookie, call /profile.\n'
                                 '[[z3]]: The login form and the role model stay unchanged.\n'
-                                '[[z4]]: A new regression test fails before the fix and passes afterwards.',
+                                '[[z4]]: A new regression test fails before the fix and passes afterward.',
                      'gaps': [{'id': 'z1',
                                'options_de': ['Ziel', 'Kontext', 'Grenzen', 'Nachweis'],
                                'options_en': ['Goal', 'Context', 'Constraints', 'Evidence'],
@@ -83,7 +83,7 @@ Example: “Admins should export users as CSV. Use the existing list endpoint; d
                                        'Lösungsweg. Der Kontext sagt, wo zu suchen ist, die Grenze, was '
                                        'nicht angefasst wird. Der Nachweis ist objektiv prüfbar: ein Test, '
                                        'der vorher rot und nachher grün ist.',
-                     'explanation_en': 'The goal describes the desired behaviour, not the solution. The '
+                     'explanation_en': 'The goal describes the desired behavior, not the solution. The '
                                        'context says where to look, the constraint what must not be '
                                        'touched. The evidence is objectively checkable: a test that is red '
                                        'before and green after.'}},
@@ -129,17 +129,17 @@ This is not bureaucracy: a wrong plan usually costs more than a short planning r
                                 'label_de': 'Erkunden',
                                 'label_en': 'Explore',
                                 'detail_de': 'Im Plan-Modus: lesen und analysieren, noch nichts ändern.',
-                                'detail_en': 'In plan mode: read and analyse, change nothing yet.'},
+                                'detail_en': 'In plan mode: read and analyze, change nothing yet.'},
                                {'id': 'plan', 'row': 0, 'col': 2, 'label': 'Plan'},
                                {'id': 'planok',
                                 'shape': 'decision',
                                 'row': 0,
                                 'col': 3,
                                 'label_de': 'Plan passt?',
-                                'label_en': 'Plan fits?',
+                                'label_en': 'Plan OK?',
                                 'detail_de': 'Stimmen Scope und Nicht-Ziele? Wenn nicht: Plan korrigieren '
                                              'lassen, bevor Code entsteht.',
-                                'detail_en': 'Do scope and non-goals fit? If not: have the plan corrected '
+                                'detail_en': 'Are scope and non-goals right? If not: have the plan corrected '
                                              'before any code is written.'},
                                {'id': 'umsetzen',
                                 'row': 1,
@@ -156,7 +156,7 @@ This is not bureaucracy: a wrong plan usually costs more than a short planning r
                                 'row': 1,
                                 'col': 1,
                                 'label_de': 'Nachweis erfüllt?',
-                                'label_en': 'Evidence met?',
+                                'label_en': 'Evidence shown?',
                                 'detail_de': 'Gemessen wird am Nachweis aus dem Auftrag, nicht an der '
                                              'Zusammenfassung des Agenten.',
                                 'detail_en': 'Measured against the evidence from the task, not against the '
@@ -195,7 +195,7 @@ This is not bureaucracy: a wrong plan usually costs more than a short planning r
                                 'text_de': 'Erster Entscheidungspunkt: Ein falscher Plan ist hier billig '
                                            'zu korrigieren – nach der Umsetzung nicht mehr.',
                                 'text_en': 'First decision point: a wrong plan is cheap to correct here – '
-                                           'not any more after implementation.'},
+                                           'after implementation it no longer is.'},
                                {'highlight': ['planok', 'e4', 'umsetzen', 'e5', 'pruefen'],
                                 'text_de': 'Kleine, fokussierte Umsetzung; danach Diff lesen und Tests '
                                            'selbst laufen lassen.',
@@ -204,7 +204,7 @@ This is not bureaucracy: a wrong plan usually costs more than a short planning r
                                {'highlight': ['pruefen', 'e6', 'nachweis', 'e7', 'uebergabe'],
                                 'text_de': 'Zweiter Entscheidungspunkt: Erst wenn der vereinbarte Nachweis '
                                            'erfüllt ist, geht die Änderung ins Review.',
-                                'text_en': 'Second decision point: only when the agreed evidence is met '
+                                'text_en': 'Second decision point: only once the agreed evidence is in '
                                            'does the change go to review.'}]}},
         {
             "type": "text", "id": "text-3",
@@ -271,7 +271,7 @@ Better: “After session expiry, /profile returns 500 instead of 401. Reproducti
                                                          'Monatsberichts; Bibliothekswechsel ist '
                                                          'Nicht-Ziel. Nachweis: Messung, Tests.',
                                              'label_en': "Correct the scope: only the monthly report's "
-                                                         'query; new library is a non-goal. '
+                                                         'query; switching libraries is a non-goal. '
                                                          'Evidence: measurement, tests.',
                                              'to': 'fertig'}]},
                                {'id': 'fertig',
@@ -284,7 +284,7 @@ Better: “After session expiry, /profile returns 500 instead of 401. Reproducti
                                             {'label_de': 'Diff lesen, Messung und Tests selbst '
                                                          'wiederholen, dann zum Review geben.',
                                              'label_en': 'Read the diff, repeat the measurement and tests '
-                                                         'yourself, then hand over for review.',
+                                                         'yourself, then hand it off for review.',
                                              'to': 'ende-gut'}]},
                                {'id': 'ende-wild',
                                 'outcome': 'bad',
@@ -293,7 +293,7 @@ Better: “After session expiry, /profile returns 500 instead of 401. Reproducti
                                            'gelöst ist, noch den Diff sinnvoll prüfen.',
                                 'text_en': 'Without goal, constraints and evidence the agent guesses: it '
                                            'reworks many places, and you can neither tell whether the '
-                                           'problem is solved nor review the diff sensibly.'},
+                                           'problem is solved nor review the diff meaningfully.'},
                                {'id': 'ende-loesung',
                                 'outcome': 'bad',
                                 'text_de': 'Du hast einen Lösungsweg vorgeschrieben, bevor die Ursache '
@@ -309,7 +309,7 @@ Better: “After session expiry, /profile returns 500 instead of 401. Reproducti
                                            'dafür da, solche Ausweitungen vor der Umsetzung zu streichen.',
                                 'text_en': 'The problem will probably be solved, but the library switch '
                                            'inflates the diff and was never asked for. A plan exists '
-                                           'precisely to strike such expansions before implementation.'},
+                                           'precisely to cut such scope expansions before implementation.'},
                                {'id': 'ende-glauben',
                                 'outcome': 'ok',
                                 'text_de': 'Vielleicht stimmt es – du weißt es nur nicht. „Deutlich '
@@ -358,7 +358,7 @@ Better: “After session expiry, /profile returns 500 instead of 401. Reproducti
                 "id": "ew2",
                 "explanation": {'de': 'In unbekanntem Code werden Analyse und Umsetzung getrennt: erst erkunden und einen Plan prüfen, dann freigeben. Direkt loszulegen wirkt schneller, aber ein falscher Ansatz fällt dann erst im fertigen Diff auf – und kostet mehr als die Planungsrunde.', 'en': 'In unfamiliar code, analysis and implementation are separated: explore and review a plan first, then approve. Starting right away feels faster, but a wrong approach then only shows up in the finished diff – and costs more than the planning round.'},
                 "type": "single",
-                "prompt": {"de": "Wie startest du eine größere Änderung in unbekanntem Code sinnvoll?", "en": "How should you sensibly start a larger change in unfamiliar code?"},
+                "prompt": {"de": "Wie startest du eine größere Änderung in unbekanntem Code sinnvoll?", "en": "What is a sensible way to start a larger change in unfamiliar code?"},
                 "answer": 1,
                 "options": {
                     "de": ["Direkt im Auto-Modus implementieren", "Erkunden und Plan im Plan-Modus prüfen", "Zuerst alle Tests löschen", "Den Agenten ohne Kontext raten lassen"],
@@ -367,9 +367,9 @@ Better: “After session expiry, /profile returns 500 instead of 401. Reproducti
             },
             {
                 "id": "ew3",
-                "explanation": {'de': 'Reproduktionsschritte, erwartetes Verhalten und die konkrete Fehlermeldung machen aus einer Vermutung eine überprüfbare Beobachtung. „Geht nicht“ enthält keine davon; der Agent müsste raten, was kaputt ist und woran ein Fix zu erkennen wäre.', 'en': 'Reproduction steps, expected behaviour and the concrete error message turn a guess into a verifiable observation. "It does not work" contains none of them; the agent would have to guess what is broken and how a fix would be recognized.'},
+                "explanation": {'de': 'Reproduktionsschritte, erwartetes Verhalten und die konkrete Fehlermeldung machen aus einer Vermutung eine überprüfbare Beobachtung. „Geht nicht“ enthält keine davon; der Agent müsste raten, was kaputt ist und woran ein Fix zu erkennen wäre.', 'en': 'Reproduction steps, expected behavior and the concrete error message turn a guess into a verifiable observation. "It does not work" contains none of them; the agent would have to guess what is broken and how a fix would be recognized.'},
                 "type": "multi",
-                "prompt": {"de": "Welche Angaben helfen beim Debuggen? (mehrere)", "en": "Which information helps with debugging? (multiple)"},
+                "prompt": {"de": "Welche Angaben helfen beim Debuggen? (mehrere)", "en": "What information helps with debugging? (multiple)"},
                 "answer": [0, 1, 2],
                 "options": {
                     "de": ["Reproduktionsschritte", "Erwartetes Verhalten", "Fehlermeldung oder passender Log-Ausschnitt", "Nur die Aufforderung „geht nicht“"],
@@ -400,7 +400,7 @@ Better: “After session expiry, /profile returns 500 instead of 401. Reproducti
                                    'Präzision mit Mikromanagement zu verwechseln.',
                              'en': 'Only this task names goal, context, constraint and evidence. "Tidy up" has '
                                    'no verifiable end; the line-level instruction prescribes the solution and '
-                                   'says nothing about the desired behaviour – the obvious mistake is to '
+                                   'says nothing about the desired behavior – the obvious mistake is to '
                                    'confuse precision with micromanagement.'}},
             {'id': 'ew5',
              'type': 'multi',
@@ -437,9 +437,9 @@ Better: “After session expiry, /profile returns 500 instead of 401. Reproducti
                                 'Den Agenten drei weitere Fix-Varianten erzeugen lassen und die kürzeste '
                                 'wählen',
                                 'Die Aufgabe abbrechen, weil sporadische Fehler nicht lösbar sind'],
-                         'en': ['Take the fix and watch whether the bug comes back',
-                                'Ask for a reproduction first – ideally a failing test – and then have cause '
-                                'and fix backed by it',
+                         'en': ['Accept the fix and watch whether the bug comes back',
+                                'Ask for a reproduction first – ideally a failing test – and then have the cause '
+                                'and the fix backed by evidence',
                                 'Have the agent generate three more fix variants and pick the shortest',
                                 'Abort the task because sporadic bugs cannot be solved']},
              'answer': 1,
@@ -448,7 +448,7 @@ Better: “After session expiry, /profile returns 500 instead of 401. Reproducti
                                    'und wird danach zum Nachweis. Abwarten, ob er wiederkommt, verschiebt die '
                                    'Prüfung nur in die Produktion.',
                              'en': 'Without a reproduction the fix is a guess: nobody can show that it hits '
-                                   'the cause. A failing test makes the bug observable and afterwards becomes '
+                                   'the cause. A failing test makes the bug observable and afterward becomes '
                                    'the evidence. Waiting to see whether it comes back merely moves the check '
                                    'into production.'}},
         ],

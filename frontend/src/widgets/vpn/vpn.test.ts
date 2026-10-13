@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { attackerView, encapsulate, decapsulate, SCENARIO, type Packet } from './vpn'
+import { attackerView, encapsulate, decapsulate, scenarioFor, SCENARIO, type Packet } from './vpn'
 
 const inner: Packet = { src: '192.168.10.5', dst: '10.20.0.9', payload: 'Gehaltsliste' }
 
@@ -67,5 +67,29 @@ describe('SCENARIO (Remote-Access)', () => {
   it('der Laptop bleibt mit und ohne VPN derselbe äußere Absender', () => {
     expect(SCENARIO.direct.src).toBe(SCENARIO.clientOuter)
     expect(SCENARIO.direct.dst).not.toBe(SCENARIO.gateway)
+  })
+})
+
+describe('scenarioFor (Zweisprachigkeit)', () => {
+  it('EN zeigt keinen deutschen Dateinamen, Adressen bleiben gleich', () => {
+    const en = scenarioFor('en')
+    const de = scenarioFor('de')
+    expect(de.inner.payload).toBe('Gehaltsliste.xlsx')
+    expect(en.inner.payload).toBe('payroll.xlsx')
+    expect(en.direct.payload).toBe('payroll.xlsx')
+    expect([en.inner.src, en.inner.dst, en.clientOuter, en.gateway]).toEqual([de.inner.src, de.inner.dst, de.clientOuter, de.gateway])
+    const view = attackerView(en.direct, encapsulate(en.inner, en.clientOuter, en.gateway), false)
+    expect(view.contentLine).toBe('payroll.xlsx')
+  })
+  it('mit VPN: außen nur Laptop -> Gateway, innere Adressen und Nutzlast nicht im Chiffrat', () => {
+    for (const lang of ['de', 'en'] as const) {
+      const sc = scenarioFor(lang)
+      const t = encapsulate(sc.inner, sc.clientOuter, sc.gateway)
+      const view = attackerView(sc.direct, t, true)
+      expect(view.addressLine).toBe('198.51.100.23 → 203.0.113.10')
+      expect(view.contentLine).not.toContain(sc.inner.payload)
+      expect(view.contentLine).not.toContain('10.20')
+      expect(view.contentLine).not.toMatch(/[0-9a-z]/i)
+    }
   })
 })

@@ -12,8 +12,8 @@ IDEMPOTENZ_MODULE = {
            'Die Task-Status ok, changed, failed, skipped, unreachable und rescued lesen',
            'ignore_errors, failed_when und changed_when mit Bedacht einsetzen',
            'block/rescue/always als Fehlerbehandlungsstruktur lesen'],
- 'goals_en': ['Define idempotency and recognise from an example whether a task is idempotent',
-              'Tell declarative modules apart from command/shell and place creates/removes',
+ 'goals_en': ['Define idempotency and recognize from an example whether a task is idempotent',
+              'Tell declarative modules apart from command/shell and know where creates/removes fit in',
               'Read the task statuses ok, changed, failed, skipped, unreachable and rescued',
               'Use ignore_errors, failed_when and changed_when with care',
               'Read block/rescue/always as an error-handling structure'],
@@ -84,7 +84,7 @@ IDEMPOTENZ_MODULE = {
                        'en': '## Declarative vs. command/shell\n'
                              '\n'
                              'Declarative modules describe the **desired state** '
-                             '(`state: present`) — Ansible checks itself whether that state has '
+                             '(`state: present`) — Ansible itself checks whether that state has '
                              'already been reached, and only acts if it has not:\n'
                              '\n'
                              '```yaml\n'
@@ -95,8 +95,8 @@ IDEMPOTENZ_MODULE = {
                              '```\n'
                              '\n'
                              '`command:`/`shell:`, on the other hand, run an **imperative '
-                             'command** without knowing whether it is even necessary — every '
-                             'run, again:\n'
+                             'command** without knowing whether it is even necessary — again '
+                             'on every run:\n'
                              '\n'
                              '```yaml\n'
                              '- name: Create user (not idempotent)\n'
@@ -287,7 +287,7 @@ IDEMPOTENZ_MODULE = {
                                       'Protokoll läuft in jedem Fall. Ergänze die Lücken.',
                          'prompt_en': 'The new configuration is written and checked; if anything '
                                       'fails, the backup is restored. The log entry runs in any '
-                                      'case. Fill the gaps.',
+                                      'case. Fill in the gaps.',
                          'mono': True,
                          'text_de': '- name: Konfiguration mit Rückfall ausrollen\n'
                                     '  [[block]]:\n'
@@ -358,7 +358,7 @@ IDEMPOTENZ_MODULE = {
                              'an dieser Stelle tatsächlich unkritisch ist und bewusst in Kauf '
                              'genommen wird.\n'
                              '- `failed_when: <bedingung>` überschreibt, wann ein Task als '
-                             'fehlgeschlagen gilt — etwa um einen von Natur aus „erfolgreichen" '
+                             'fehlgeschlagen gilt — etwa um einen von Natur aus „erfolgreichen“ '
                              'Rückgabecode trotzdem als Fehler zu werten.\n'
                              '- `changed_when: <bedingung>` überschreibt, wann ein Task als '
                              '`changed` gilt — typischerweise `changed_when: false` bei reinen '
@@ -398,7 +398,7 @@ IDEMPOTENZ_MODULE = {
                                     'text_en': 'A play aborts on the second run: the task '
                                                '"command: rm /var/cache/app/index.db" fails '
                                                'because the file is already gone. How do you '
-                                               'repair it?',
+                                               'fix it?',
                                     'options': [{'label_de': 'ignore_errors: true an den Task '
                                                              'hängen',
                                                  'label_en': 'Add ignore_errors: true to the task',
@@ -472,7 +472,7 @@ IDEMPOTENZ_MODULE = {
                                                'die Anzeige wäre geschönt. changed_when ändert, '
                                                'was gemeldet wird, nicht, was passiert.',
                                     'text_en': 'The migration would still run on every run — only '
-                                               'the display would be polished. changed_when '
+                                               'the output would look better than it is. changed_when '
                                                'changes what is reported, not what happens.'},
                                    {'id': 'stat',
                                     'outcome': 'ok',
@@ -533,8 +533,8 @@ IDEMPOTENZ_MODULE = {
                                                '`ansible-lint` findet Hinweise, beweist aber '
                                                'nichts.',
                                          'en': 'Idempotency only shows in the second real run: it '
-                                               'must not change anything any more. `--check` only '
-                                               'predicts and is blind for `command`/`shell`; '
+                                               'must not change anything anymore. `--check` only '
+                                               'predicts and is blind to `command`/`shell`; '
                                                '`ansible-lint` finds hints but proves nothing.'},
                          'type': 'single',
                          'prompt': {'de': 'Wie testest du praktisch, ob ein Playbook idempotent '
@@ -666,7 +666,7 @@ IDEMPOTENZ_MODULE = {
                                                'fälschlich `failed=1`.',
                                          'en': 'A caught error does not count as `failed` but as '
                                                '`rescued=1` — the host stays in the play and the '
-                                               'run ends with return code 0 (reproduced for real). '
+                                               'run ends with return code 0 (verified in a real run). '
                                                'The `fatal:` line still appears in the output; '
                                                'seeing only that, you would wrongly expect '
                                                '`failed=1`.'}},
@@ -683,7 +683,7 @@ IDEMPOTENZ_MODULE = {
                                     'en': 'Which status does this task report on the second run?\n'
                                           '\n'
                                           '```yaml\n'
-                                          '- name: Datenbank initialisieren\n'
+                                          '- name: Initialize the database\n'
                                           '  ansible.builtin.command: /opt/app/bin/init-db\n'
                                           '  args:\n'
                                           '    creates: /var/lib/app/db.sqlite\n'
@@ -708,7 +708,7 @@ IDEMPOTENZ_MODULE = {
                                                'der Befehl jedes Mal.',
                                          'en': 'With `creates` the module first checks the path '
                                                'and does not run the command if it exists; it '
-                                               'reports `ok`, not `skipped` (reproduced for real). '
+                                               'reports `ok`, not `skipped` (verified in a real run). '
                                                'This assumes the first run really created the file '
                                                '— otherwise the command runs every time.'}},
                         {'id': 'fi8',

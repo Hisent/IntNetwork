@@ -82,7 +82,7 @@ ICMP_MODULE = {
              "title_de": "tracert (Windows) und traceroute (Unix/Linux)",
              "title_en": "tracert (Windows) and traceroute (Unix/Linux)",
              "caption_de": "Standardverhalten ohne Optionen",
-             "caption_en": "Default behaviour without options",
+             "caption_en": "Default behavior without options",
              "columns": [
                  {"title": "tracert (Windows)"},
                  {"title": "traceroute (Unix/Linux)"},
@@ -116,8 +116,7 @@ ICMP_MODULE = {
             "prompt_en": "A colleague at Nordwind Logistik reports: “`ping 192.168.10.80` "
                          "only returns `Request timed out`, 100% packet loss. Still, "
                          "`https://192.168.10.80` opens normally in the browser and the web "
-                         "application responds.” Which of the following statements about this "
-                         "picture is false?",
+                         "application responds.” Which of the following statements about this situation is false?",
             "lines_de": [
                 "Der Host ist trotz fehlender ping-Antwort erreichbar und liefert einen "
                 "Dienst aus.",
@@ -355,7 +354,7 @@ ICMP_MODULE = {
                    "dessen „Port Unreachable“ — verwirft eine Firewall diese Pakete still, bleibt die "
                    "letzte Zeile leer. Die TTL erhöht traceroute selbst, bis zu 30 Hops.",
              "en": "ping (ICMP echo) works, so the server is reachable and the path complete. Unix "
-                   "traceroute sends UDP to high ports by default and only recognises the destination by "
+                   "traceroute sends UDP to high ports by default and only recognizes the destination by "
                    "its “port unreachable” — if a firewall silently drops those packets, the last line "
                    "stays empty. traceroute raises the TTL by itself, up to 30 hops."}},
     ]},

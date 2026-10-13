@@ -22,7 +22,7 @@ GRID_ARCHITEKTUR_MODULE = {
         'Zweigstellen-Mitgliedern bewerten können.',
     ],
     "goals_en": [
-        "Distinguish the roles Grid Master, Grid Master Candidate and Grid Member.",
+        "Distinguish the roles Grid Master, Grid Master Candidate and Grid member.",
         "Explain why configuration runs centrally through the Grid Master while services run decentrally on the members.",
         "Tell an HA pair, as one logical unit, apart from a simple single-node setup.",
         "Assess a simple Grid topology with a central site and branch-office members.",
@@ -65,7 +65,7 @@ GRID_ARCHITEKTUR_MODULE = {
                       'the Grid Master.\n'
                       '\n'
                       'Important for understanding this: the Grid Master manages '
-                      'the configuration, but the individual Grid Members provide '
+                      'the configuration, but the individual Grid members provide '
                       'the actual services (DNS answers, DHCP lease assignment, '
                       'IPAM data) locally at their own site. This separation '
                       'between central management and local service delivery is '
@@ -98,13 +98,13 @@ GRID_ARCHITEKTUR_MODULE = {
                 'en': '## Grid Master and Grid Master Candidate\n'
                       '\n'
                       'At any point in time, the Grid Master is exactly one Grid '
-                      'Member (or an HA pair, see below) that holds the complete, '
+                      'member (or an HA pair, see below) that holds the complete, '
                       'authoritative Grid configuration. All changes to zones, '
-                      'networks, permissions, or Extensible Attributes are made on '
+                      'networks, permissions, or extensible attributes are made on '
                       'the Grid Master and distributed from there to the other '
                       'members.\n'
                       '\n'
-                      'A Grid Master Candidate (GMC) is a Grid Member that is also '
+                      'A Grid Master Candidate (GMC) is a Grid member that is also '
                       'capable of taking over the complete Grid configuration and '
                       'assuming the Grid Master role if needed. A GMC is therefore '
                       'a kind of standby position for the case where the current '
@@ -143,18 +143,18 @@ GRID_ARCHITEKTUR_MODULE = {
                       'The Grid Master itself can be run as an HA pair: two '
                       'physical or virtual nodes that together act as a single '
                       'logical unit (one active and one passive node). From the '
-                      'outside — as seen by the other Grid Members — the pair '
+                      'outside — as seen by the other Grid members — the pair '
                       'behaves like a single Grid Master. The same mechanism (one '
                       'active and one passive node behind a shared virtual IP, '
                       'VRRP) can also be used for a Grid Master Candidate or a '
-                      'regular Grid Member.\n'
+                      'regular Grid member.\n'
                       '\n'
                       'This HA pair is a different mechanism from the DHCP '
                       'failover pair, which is covered in a later module: the HA '
                       'pair is about protecting a single Grid node — here the '
                       'Grid Master (one master, two nodes behind it). DHCP '
                       'failover, by contrast, '
-                      'involves two independent, equal Grid Members that jointly '
+                      'involves two independent, equal Grid members that jointly '
                       'share a DHCP address pool. These two terms are often '
                       'confused in practice — for this module it is enough to know '
                       'that the difference exists.',
@@ -185,13 +185,13 @@ GRID_ARCHITEKTUR_MODULE = {
                       '\n'
                       'What is managed centrally through the Grid Master includes: '
                       'the Grid-wide configuration of zones and networks, '
-                      'Extensible Attribute definitions, admin accounts and '
+                      'Extensible attribute definitions, admin accounts and '
                       'permissions, and baseline policies.\n'
                       '\n'
-                      'What runs locally on each Grid Member, by contrast, are the '
+                      'What runs locally on each Grid member, by contrast, are the '
                       'actual services: answering DNS queries, handing out DHCP '
                       'leases, and providing the locally relevant IPAM data. One '
-                      'important practical effect of this split: if a Grid Member '
+                      'important practical effect of this split: if a Grid member '
                       'briefly loses its connection to the Grid Master, it '
                       'continues operating with the last known configuration — DNS '
                       'and DHCP at that site keep working even through a short '
@@ -205,7 +205,7 @@ GRID_ARCHITEKTUR_MODULE = {
             'payload': {
                 'kind': 'flow',
                 'title_de': 'Ein Grid: zentral verwalten, lokal ausführen',
-                'title_en': 'One grid: manage centrally, serve locally',
+                'title_en': 'One Grid: manage centrally, serve locally',
                 'nodes': [
                     {'id': 'admin', 'shape': 'user', 'row': 0, 'col': 1,
                      'label_de': 'Admin im Grid Manager', 'label_en': 'Admin in Grid Manager'},
@@ -213,22 +213,22 @@ GRID_ARCHITEKTUR_MODULE = {
                      'label_de': 'Grid Master (Hauptsitz)', 'label_en': 'Grid Master (headquarters)',
                      'detail_de': 'Hält die maßgebliche Grid-Konfiguration. Kann als HA-Paar betrieben '
                                   'werden: zwei Knoten, eine logische Einheit.',
-                     'detail_en': 'Holds the authoritative grid configuration. Can run as an HA pair: '
+                     'detail_en': 'Holds the authoritative Grid configuration. Can run as an HA pair: '
                                   'two nodes, one logical unit.'},
                     {'id': 'a', 'shape': 'server', 'row': 2, 'col': 0,
-                     'label_de': 'Member Zweigstelle A', 'label_en': 'Member branch A',
+                     'label_de': 'Member Zweigstelle A', 'label_en': 'Branch A member',
                      'detail_de': 'Beantwortet DNS-Anfragen und vergibt DHCP-Leases lokal am Standort.',
                      'detail_en': 'Answers DNS queries and hands out DHCP leases locally at the site.'},
                     {'id': 'b', 'shape': 'server', 'row': 2, 'col': 1,
                      'label_de': 'Member Zweigstelle B (GM Candidate)',
-                     'label_en': 'Member branch B (GM Candidate)',
+                     'label_en': 'Branch B member (GM Candidate)',
                      'detail_de': 'Erbringt Dienste wie jedes Member und hält zusätzlich die '
                                   'vollständige Grid-Konfiguration bereit, um die Master-Rolle '
                                   'übernehmen zu können.',
-                     'detail_en': 'Serves like any member and additionally keeps the full grid '
+                     'detail_en': 'Provides services like any member and additionally keeps the full Grid '
                                   'configuration ready so it can take over the master role.'},
                     {'id': 'c', 'shape': 'server', 'row': 2, 'col': 2,
-                     'label_de': 'Member Zweigstelle C', 'label_en': 'Member branch C',
+                     'label_de': 'Member Zweigstelle C', 'label_en': 'Branch C member',
                      'detail_de': 'Arbeitet bei einer kurzen Unterbrechung zum Grid Master mit der '
                                   'zuletzt bekannten Konfiguration weiter.',
                      'detail_en': 'Keeps working with the last known configuration during a short '
@@ -248,7 +248,7 @@ GRID_ARCHITEKTUR_MODULE = {
                      'text_en': 'Every change to zones, networks or permissions is made on the Grid Master.'},
                     {'highlight': ['gm', 'zu-a', 'zu-b', 'zu-c'],
                      'text_de': 'Der Grid Master verteilt die Konfiguration an alle Grid Member.',
-                     'text_en': 'The Grid Master distributes the configuration to all grid members.'},
+                     'text_en': 'The Grid Master distributes the configuration to all Grid members.'},
                     {'highlight': ['a', 'b', 'c'],
                      'text_de': 'Die Dienste laufen lokal: Jedes Member beantwortet DNS und vergibt DHCP-Leases '
                                 'an seinem Standort — auch wenn der Grid Master kurz nicht erreichbar ist.',
@@ -268,7 +268,7 @@ GRID_ARCHITEKTUR_MODULE = {
             "note": "Die Ports stehen in der NIOS-Doku unter „Grid Communications“; die Promotion unter „Promoting a Master Candidate“. Guter Moment für die Frage: Wer im Raum hat SSH-Zugang zur Konsole des eigenen GMC — und ist er überhaupt aktiviert?",
             "value": {
                 "de": "## Wie das Grid kommuniziert — und wer den Master wechselt\n\nGrid Master und Member tauschen ihre Daten nicht offen aus, sondern durch **verschlüsselte VPN-Tunnel**. Zwei Ports solltest du kennen, sobald eine Firewall zwischen den Standorten liegt:\n\n- **UDP 2114** — Schlüsselaustausch: Member und Master authentifizieren sich gegenseitig, bevor der Tunnel entsteht.\n- **UDP 1194** — der eigentliche VPN-Tunnel für die laufende Grid-Kommunikation (Standardwert, in den Grid-Eigenschaften änderbar).\n\nFehlt eine der beiden Freigaben, kann ein Member dem Grid nicht beitreten oder verliert die Verbindung — seine Dienste laufen dann zwar lokal weiter, Konfigurationsänderungen kommen aber nicht mehr an.\n\n**Die GMC-Promotion ist ein manueller Schritt.** Fällt der Grid Master aus, übernimmt kein Candidate von selbst. Ein Admin meldet sich an der Konsole (CLI) des Candidates an und führt dort `set promote_master` aus; mit `set test_promote_master` lässt sich vorher prüfen, ob die Member den Candidate erreichen. Die Promotion verschiebt nur die Master-Rolle — DNS- und DHCP-Dienste des alten Masters ziehen dabei nicht um. Kommt der frühere Grid Master zurück, reiht er sich als Candidate wieder ins Grid ein.",
-                "en": "## How the Grid Communicates — and Who Switches the Master\n\nGrid Master and members do not exchange their data in the clear but through **encrypted VPN tunnels**. Two ports matter as soon as a firewall sits between sites:\n\n- **UDP 2114** — key exchange: member and master authenticate each other before the tunnel is built.\n- **UDP 1194** — the actual VPN tunnel for ongoing Grid communication (default value, can be changed in the Grid properties).\n\nIf either rule is missing, a member cannot join the Grid or loses its connection — its services keep running locally, but configuration changes no longer arrive.\n\n**GMC promotion is a manual step.** If the Grid Master fails, no candidate takes over on its own. An admin logs in to the console (CLI) of the candidate and runs `set promote_master` there; `set test_promote_master` lets you check beforehand whether the members can reach the candidate. Promotion only moves the master role — DNS and DHCP services of the old master do not move with it. When the former Grid Master returns, it rejoins the Grid as a candidate.",
+                "en": "## How the Grid Communicates — and Who Switches the Master\n\nGrid Master and members do not exchange their data in the clear but through **encrypted VPN tunnels**. Two ports matter as soon as a firewall sits between sites:\n\n- **UDP 2114** — key exchange: member and master authenticate each other before the tunnel is built.\n- **UDP 1194** — the actual VPN tunnel for ongoing Grid communication (default value, can be changed in the Grid properties).\n\nIf either firewall rule is missing, a member cannot join the Grid or loses its connection — its services keep running locally, but configuration changes no longer arrive.\n\n**GMC promotion is a manual step.** If the Grid Master fails, no candidate takes over on its own. An admin logs in to the console (CLI) of the candidate and runs `set promote_master` there; `set test_promote_master` lets you check beforehand whether the members can reach the candidate. Promotion only moves the master role — DNS and DHCP services of the old master do not move with it. When the former Grid Master returns, it rejoins the Grid as a candidate.",
             },
         },
         {
@@ -314,7 +314,7 @@ GRID_ARCHITEKTUR_MODULE = {
                         "from": "gmc",
                         "to": "mem",
                         "label_de": "meldet sich als neuer Master",
-                        "label_en": "announces itself as master",
+                        "label_en": "announces itself as new master",
                         "detail_de": "Die Member erfahren, wer ab jetzt Grid Master ist.",
                         "detail_en": "The members learn who the Grid Master is from now on.",
                     },
@@ -342,7 +342,7 @@ GRID_ARCHITEKTUR_MODULE = {
                         "label_de": "kehrt als Candidate zurück",
                         "label_en": "returns as a candidate",
                         "detail_de": "Ist der alte Master repariert, tritt er dem Grid als Master Candidate wieder bei. Für ein Zurückschwenken wäre erneut eine Promotion nötig.",
-                        "detail_en": "Once repaired, the old master rejoins the Grid as a master candidate. Switching back would require another promotion.",
+                        "detail_en": "Once repaired, the old master rejoins the Grid as a Master Candidate. Switching back would require another promotion.",
                     },
                 ],
             },
@@ -354,7 +354,7 @@ GRID_ARCHITEKTUR_MODULE = {
                 'prompt_de': 'Ein Grid Member verliert für einige Minuten die '
                              'Verbindung zum Grid Master. Was passiert '
                              'grundsätzlich?',
-                'prompt_en': 'A Grid Member loses its connection to the Grid '
+                'prompt_en': 'A Grid member loses its connection to the Grid '
                              'Master for a few minutes. What generally happens?',
                 'answer': 1,
                 'options_de': [
@@ -368,13 +368,13 @@ GRID_ARCHITEKTUR_MODULE = {
                     'Alle anderen Grid Member stellen ebenfalls ihren Dienst ein.',
                 ],
                 'options_en': [
-                    'The Grid Member immediately stops all DNS and DHCP services '
+                    'The Grid member immediately stops all DNS and DHCP services '
                     'until the connection is restored.',
-                    'The Grid Member keeps operating with the last known '
+                    'The Grid member keeps operating with the last known '
                     'configuration and keeps answering DNS/DHCP requests locally.',
-                    'The Grid Member automatically takes over the Grid Master '
+                    'The Grid member automatically takes over the Grid Master '
                     'role.',
-                    'All other Grid Members stop their services as well.',
+                    'All other Grid members stop their services as well.',
                 ],
             },
         },
@@ -401,7 +401,7 @@ GRID_ARCHITEKTUR_MODULE = {
                     'The current Grid Master is replaced as planned, or fails.',
                     'An admin manually promotes a previously designated Grid Master '
                     'Candidate to be the new Grid Master.',
-                    'The remaining Grid Members recognize the new Grid Master and '
+                    'The remaining Grid members recognize the new Grid Master and '
                     'synchronize with its configuration.',
                     'The admin checks on the new Grid Master that all members are '
                     'connected and in sync again.',
@@ -429,7 +429,7 @@ GRID_ARCHITEKTUR_MODULE = {
                 'lines_en': [
                     'A Grid Master HA pair consists of two nodes that together '
                     'act as a single logical unit.',
-                    'Grid Members provide DNS, DHCP, and IPAM services locally, '
+                    'Grid members provide DNS, DHCP, and IPAM services locally, '
                     'even when they briefly have no connection to the Grid '
                     'Master.',
                     'A Grid Master HA pair and a DHCP failover pair are the same '
@@ -449,7 +449,7 @@ GRID_ARCHITEKTUR_MODULE = {
                                   'itself (one active, one passive node acting as '
                                   'a single logical unit). A DHCP failover pair is '
                                   'a separate mechanism between two independent '
-                                  'Grid Members for load distribution and '
+                                  'Grid members for load distribution and '
                                   'resilience of DHCP — the two mechanisms are '
                                   'distinct.',
             },
@@ -540,7 +540,7 @@ GRID_ARCHITEKTUR_MODULE = {
                         "id": "warten",
                         "outcome": "bad",
                         "text_de": "Es gibt keine automatische Übernahme. Ohne Promotion bleibt das Grid ohne Master — die Dienste laufen weiter, aber niemand kann mehr eine Zone, ein Netz oder eine Berechtigung ändern.",
-                        "text_en": "There is no automatic takeover. Without a promotion the Grid stays without a master — services keep running, but nobody can change a zone, a network or a permission any more.",
+                        "text_en": "There is no automatic takeover. Without a promotion the Grid stays without a master — services keep running, but nobody can change a zone, a network or a permission anymore.",
                     },
                     {
                         "id": "sofort",
@@ -551,7 +551,7 @@ GRID_ARCHITEKTUR_MODULE = {
                     {
                         "id": "ursache",
                         "text_de": "Der Hauptsitz meldet: Netzteil und Datenträger der Appliance sind defekt, Ersatz kommt frühestens in drei Tagen. Heute stehen aber noch DNS-Änderungen für einen Go-live an. Wie stufst du den Candidate hoch?",
-                        "text_en": "Headquarters reports: the appliance's power supply and disk are broken, a replacement arrives in three days at the earliest. DNS changes for a go-live are due today. How do you promote the candidate?",
+                        "text_en": "Headquarters reports: the appliance's power supply and disk are broken, a replacement arrives in three days at the earliest. But DNS changes for a go-live are still due today. How do you promote the candidate?",
                         "options": [
                             {
                                 "label_de": "Im Grid Manager des alten Masters die Rolle umhängen.",
@@ -618,7 +618,7 @@ GRID_ARCHITEKTUR_MODULE = {
                       'Betriebsvoraussetzung, keine Nebensächlichkeit.',
                 'en': '## Time Synchronization in the Grid\n'
                       '\n'
-                      'All Grid Members must share a synchronized time base '
+                      'All Grid members must share a synchronized time base '
                       '(NTP). If the clocks of individual members drift apart, '
                       'this can cause inconsistencies in configuration '
                       'distribution and in time-dependent processes within the '
@@ -653,7 +653,7 @@ GRID_ARCHITEKTUR_MODULE = {
                     ],
                     'en': [
                         'It holds the complete, authoritative Grid configuration '
-                        'and distributes it to the Grid Members.',
+                        'and distributes it to the Grid members.',
                         'It is the only node in the Grid that answers DNS '
                         'queries.',
                         'It is a purely passive backup node with no active '
@@ -685,9 +685,9 @@ GRID_ARCHITEKTUR_MODULE = {
                         'Ein Platzhalter-Eintrag ohne technische Funktion.',
                     ],
                     'en': [
-                        'A Grid Member that can take over the complete Grid '
+                        'A Grid member that can take over the complete Grid '
                         'configuration and fill the Grid Master role if needed.',
-                        'A Grid Member that only has read access to the '
+                        'A Grid member that only has read access to the '
                         'configuration.',
                         'An external server that does not belong to the Grid.',
                         'A placeholder entry with no technical function.',
@@ -722,7 +722,7 @@ GRID_ARCHITEKTUR_MODULE = {
                     'en': [
                         'The HA pair protects the Grid Master itself; the DHCP '
                         'failover pair is a separate mechanism between two '
-                        'independent Grid Members for DHCP.',
+                        'independent Grid members for DHCP.',
                         'There is no difference, both terms mean the same thing.',
                         'The HA pair exists only for DNS, the failover pair only '
                         'for IPAM.',
@@ -759,10 +759,10 @@ GRID_ARCHITEKTUR_MODULE = {
                         'The Grid-wide configuration is managed centrally through '
                         'the Grid Master.',
                         'DNS and DHCP requests are answered locally by the '
-                        'respective Grid Member.',
-                        'A Grid Member without a connection to the Master '
+                        'respective Grid member.',
+                        'A Grid member without a connection to the master '
                         'immediately stops its service entirely.',
-                        'Extensible Attribute definitions belong to the '
+                        'Extensible attribute definitions belong to the '
                         'centrally managed configuration.',
                     ],
                 },
@@ -778,7 +778,7 @@ GRID_ARCHITEKTUR_MODULE = {
                     'de': 'Warum ist eine funktionierende Zeitsynchronisation '
                           '(NTP) zwischen Grid Membern wichtig?',
                     'en': 'Why is working time synchronization (NTP) between '
-                          'Grid Members important?',
+                          'Grid members important?',
                 },
                 'answer': 0,
                 'options': {
@@ -833,7 +833,7 @@ GRID_ARCHITEKTUR_MODULE = {
             "type": "multi",
             "prompt": {
                 "de": "Zwischen einer neuen Zweigstelle und dem Grid Master liegt eine Firewall. Der Member kann dem Grid nicht beitreten. Welche Freigaben braucht die Grid-Kommunikation in der Standardkonfiguration (mehrere richtig)?",
-                "en": "A firewall sits between a new branch and the Grid Master. The member cannot join the Grid. Which rules does Grid communication need in the default configuration (multiple)?",
+                "en": "A firewall sits between a new branch and the Grid Master. The member cannot join the Grid. Which firewall rules does Grid communication need in the default configuration (multiple)?",
             },
             "answer": [0, 2],
             "options": {

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { createTerminalState, nextMode, runCommand, runTerminalCommand, type CliMode, type TerminalState } from '@/widgets/claudecli/claudeCli'
+import { createTerminalState, isTerminalCommand, nextMode, runCommand, runTerminalCommand, type CliMode, type TerminalState } from '@/widgets/claudecli/claudeCli'
 import { loadSnapshot, newSessionId } from '@/widgets/claudecli/cliSnapshot'
 import { ChallengeBox } from '@/components/ChallengeBox'
 import { useWidgetScope } from '@/lib/widgetScope'
@@ -8,14 +8,14 @@ import type { Lang } from '@/lib/i18n'
 const STR = {
   de: {
     title: 'Claude-Code-CLI (Demo)', modeDefault: 'Manual', modePlan: 'Plan', modeAccept: 'Accept Edits', modeAuto: 'Auto', cycle: 'Shift+Tab: nächster Modus',
-    modeLabel: 'Modus', hint: 'Virtuelle Shell: help, ls, cat README.md. Slash-Commands mit /help.',
+    modeLabel: 'Modus', hint: 'Virtuelle Shell: help, ls, cat README.md. Slash-Commands mit /help. Jeder andere Text gilt als Aufgabe an Claude und zeigt, was der aktive Modus bewirkt.',
     intro: 'Browser-Prototyp — keine echte Host-Shell. Tippe help für Befehle.',
     challenge: 'Wechsle in den Plan-Modus und rufe /context auf.',
     session: 'Session', reset: 'Session zurücksetzen', commandLabel: 'Befehlseingabe',
   },
   en: {
     title: 'Claude Code CLI (demo)', modeDefault: 'Manual', modePlan: 'Plan', modeAccept: 'Accept Edits', modeAuto: 'Auto', cycle: 'Shift+Tab: next mode',
-    modeLabel: 'Mode', hint: 'Virtual shell: help, ls, cat README.md. Try slash commands with /help.',
+    modeLabel: 'Mode', hint: 'Virtual shell: help, ls, cat README.md. Try slash commands with /help. Any other text counts as a task for Claude and shows what the active mode does.',
     intro: 'Browser prototype — no real host shell. Type help for commands.',
     challenge: 'Switch to plan mode and run /context.',
     session: 'Session', reset: 'Reset session', commandLabel: 'Command input',
@@ -47,7 +47,7 @@ export function ClaudeCli({ lang }: { lang: Lang }) {
   function submit() {
     const trimmed = input.trim()
     if (trimmed === '') return
-    const terminalResult = trimmed.startsWith('/') ? undefined : runTerminalCommand(terminal, trimmed, lang)
+    const terminalResult = isTerminalCommand(trimmed) ? runTerminalCommand(terminal, trimmed, lang) : undefined
     const res = terminalResult ?? runCommand(trimmed, mode, lang)
     if (trimmed === '/context' && mode === 'plan') setSolved(true)
     if (res.output === '__CLEAR__') {

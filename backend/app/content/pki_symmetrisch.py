@@ -65,7 +65,7 @@ SYMMETRISCH_MODULE = {
                    'determines the actual security more than the key length itself.',
          }},
         {'type': 'text', 'id': 'text-2',
-         'note': 'Das Pinguin-Beispiel nur beschreiben (bekanntes Bild: ECB-verschluesseltes Logo, bei dem die Konturen sichtbar bleiben), nicht selbst als Bild zeigen/nachbauen.',
+         'note': 'Das Pinguin-Beispiel nur beschreiben (bekanntes Bild: ECB-verschlüsseltes Logo, bei dem die Konturen sichtbar bleiben), nicht selbst als Bild zeigen/nachbauen.',
          'value': {
              'de': '## Warum die Betriebsart entscheidet: ECB zeigt Muster\n\n'
                    'Die einfachste Betriebsart, **ECB (Electronic Codebook)**, verschlüsselt jeden '
@@ -107,8 +107,8 @@ SYMMETRISCH_MODULE = {
                    'or relationships between messages.',
          }},
         {'type': 'terminal', 'id': 'terminal-ecb-muster',
-         'note': ('Ausgaben real mit OpenSSL 3.6 erzeugt (fester Demo-Schluessel per -K, -nopad). xxd ist kein '
-             'openssl-Befehl und deshalb nicht im Openssl-Lab verfuegbar - daher hier als Simulation. Das ist '
+         'note': ('Ausgaben real mit OpenSSL 3.6 erzeugt (fester Demo-Schlüssel per -K, -nopad). xxd ist kein '
+             'openssl-Befehl und deshalb nicht im Openssl-Lab verfügbar - daher hier als Simulation. Das ist '
              'das Pinguin-Bild in drei Zeilen.'),
          'payload': {
              'title_de': 'ECB zeigt Muster, CBC nicht',
@@ -206,7 +206,7 @@ SYMMETRISCH_MODULE = {
              ],
          }},
         {'type': 'text', 'id': 'text-3',
-         'note': 'AEAD ist der Kernbegriff des Moduls — hier bewusst Zeit lassen, das ist der Unterschied zwischen "nur verschluesselt" und "verschluesselt und geprueft".',
+         'note': 'AEAD ist der Kernbegriff des Moduls — hier bewusst Zeit lassen, das ist der Unterschied zwischen "nur verschlüsselt" und "verschlüsselt und geprüft".',
          'value': {
              'de': '## AEAD — Verschlüsselung und Authentifizierung in einem Schritt\n\n'
                    'Reine Verschlüsselungsmodi wie CBC liefern nur Vertraulichkeit — ob ein '
@@ -247,7 +247,7 @@ SYMMETRISCH_MODULE = {
          }},
         {'type': 'widget', 'id': 'crypto-aead',
          'note': 'Direkt nach dem AEAD-Text einsetzen: ein manipuliertes Chiffretext-Byte '
-                 'durchspielen lassen und zeigen, dass die Entschluesselung mit Fehler abbricht '
+                 'durchspielen lassen und zeigen, dass die Entschlüsselung mit Fehler abbricht '
                  'statt einen falschen Klartext auszuliefern.'},
         {'type': 'text', 'id': 'text-4',
          'note': 'Praxisbezug klar machen: das ist keine akademische Randnotiz, sondern der Fehler, der in echten CVEs (z. B. wiederverwendete IVs in Konfigurationsdateien) immer wieder auftaucht.',
@@ -446,14 +446,13 @@ SYMMETRISCH_MODULE = {
              'explanation_en': ('ECB is out because of the patterns, and `openssl enc` rejects GCM ("AEAD ciphers not '
                  'supported"). `-pbkdf2` derives the key from the password using a slow derivation. Important: '
                  '`enc` with CBC only delivers confidentiality — a wrong password usually only shows up as "bad '
-                 'decrypt" at the padding, deliberate tampering is not detected reliably.'),
+                 'decrypt" at the padding; deliberate tampering is not detected reliably.'),
             },
         },
         {'type': 'reflect', 'id': 'reflect-1',
          'payload': {
              'prompt_de': 'Ein Kollege möchte in einem internen Dienst aus Einfachheit einen '
-                         'festen IV für AES-GCM in die Konfigurationsdatei schreiben, "weil sich '
-                         'ja nur der Schlüssel geheim halten lässt". Wie würdest du ihm das '
+                         'festen IV für AES-GCM in die Konfigurationsdatei schreiben, \"weil ja nur der Schlüssel geheim bleiben muss\". Wie würdest du ihm das '
                          'Risiko erklären, ohne nur "das macht man nicht" zu sagen?',
              'prompt_en': 'A colleague wants to write a fixed IV for AES-GCM into a configuration '
                          'file in an internal service for simplicity, "since only the key needs '
@@ -634,7 +633,7 @@ SYMMETRISCH_MODULE = {
          'explanation': {
              'de': ('GCM, CCM und ChaCha20-Poly1305 sind genau die AEAD-Verfahren, die TLS 1.3 kennt. CBC und ECB '
                  'verschlüsseln nur — die längere Schlüssellänge von AES-256 ändert daran nichts.'),
-             'en': ('GCM, CCM, and ChaCha20-Poly1305 are exactly the AEAD schemes TLS 1.3 knows. CBC and ECB only '
+             'en': ('GCM, CCM, and ChaCha20-Poly1305 are exactly the AEAD schemes TLS 1.3 supports. CBC and ECB only '
                  'encrypt — the longer key of AES-256 does not change that.'),
             },
         },

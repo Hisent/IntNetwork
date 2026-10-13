@@ -13,7 +13,7 @@ FAKTEN_BEDINGUNGEN_MODULE = {
            'Mehrere Bedingungen mit and, or und in kombinieren',
            'register nutzen, um das Ergebnis eines Tasks in einer Folge-Bedingung auszuwerten'],
  'goals_en': ['Explain what facts are and where they come from (gather_facts, setup module)',
-              'Name and place commonly used fact variables',
+              'Name and interpret commonly used fact variables',
               'Read when conditions and determine their result (task runs or is skipped)',
               'Combine several conditions with and, or and in',
               'Use register to evaluate a task result in a follow-up condition'],
@@ -51,7 +51,7 @@ FAKTEN_BEDINGUNGEN_MODULE = {
                              '„injizierten“ Facts sind seit ansible-core 2.20 abgekündigt und '
                              'ab 2.24 standardmäßig abgeschaltet — neue Playbooks nutzen '
                              'deshalb durchgehend `ansible_facts`.',
-                       'en': '## What Are Facts?\n'
+                       'en': '## What are facts?\n'
                              '\n'
                              '**Facts** are system information that Ansible automatically '
                              'collects from each managed node before a play\'s tasks run: '
@@ -69,7 +69,7 @@ FAKTEN_BEDINGUNGEN_MODULE = {
                              '`ansible_facts.os_family` or `ansible_facts["os_family"]`. In '
                              'older playbooks you will find the same values as prefixed '
                              'top-level variables (`ansible_os_family`). These "injected" facts '
-                             'are deprecated since ansible-core 2.20 and switched off by '
+                             'have been deprecated since ansible-core 2.20 and are off by '
                              'default from 2.24 — new playbooks therefore use `ansible_facts` '
                              'throughout.'},
              'note': 'Falls eine Live-Umgebung verfügbar ist: ansible <host> -m setup laufen '
@@ -90,9 +90,9 @@ FAKTEN_BEDINGUNGEN_MODULE = {
                              '\n'
                              'Merke: `ansible_facts.os_family` gruppiert verwandte Distributionen '
                              '(Ubuntu und Debian zählen beide zu `Debian`, RHEL und CentOS beide '
-                             'zu `RedHat`) — für „läuft das auf einem Debian-artigen System?" ist '
+                             'zu `RedHat`) — für „läuft das auf einem Debian-artigen System?“ ist '
                              'das meist die passendere Variable als `ansible_facts.distribution`.',
-                       'en': '## Useful Fact Variables\n'
+                       'en': '## Useful fact variables\n'
                              '\n'
                              'A small selection that comes up most often in practice:\n'
                              '\n'
@@ -163,7 +163,7 @@ FAKTEN_BEDINGUNGEN_MODULE = {
                                        'detail_de': 'Vor jedem Task prüft der Control Node die '
                                                     'Bedingung mit den Facts des jeweiligen Hosts.',
                                        'detail_en': 'Before each task the control node checks the '
-                                                    'condition with the facts of the respective '
+                                                    'condition against the facts of that '
                                                     'host.'},
                                       {'from': 'cn',
                                        'to': 'web',
@@ -238,10 +238,11 @@ FAKTEN_BEDINGUNGEN_MODULE = {
                              '```\n'
                              '\n'
                              '**Practical trap:** `when` checks the facts as known at the start '
-                             'of the play (or since the last `gather_facts`) — not any changes a '
+                             'of the play (or at the last `gather_facts`) — not any changes a '
                              'previous task in the same run may have caused. If you change state '
                              'within the same play and want to react to that afterwards, you '
-                             'need `register` (see below) or an explicit re-fact task.'}},
+                             'need `register` (see below) or an explicit task that gathers '
+                             'facts again.'}},
             {'type': 'debug', 'id': 'debug-1',
              'payload': {'prompt_de': 'Dieser Task soll nur auf Debian-basierten Hosts laufen. '
                                       'Auf einem Ubuntu-Server läuft er aber nie — auch nicht, '
@@ -282,7 +283,7 @@ FAKTEN_BEDINGUNGEN_MODULE = {
                                            'only skipped when the condition checks existence '
                                            'itself, e.g. `when: ansible_facts.os_family is defined and '
                                            'ansible_facts.os_family == "Debian"`. That makes this typo '
-                                           'kinder than it looks: it surfaces immediately instead '
+                                           'more benign than it looks: it surfaces immediately instead '
                                            'of skipping the task in silence.'}},
             {'type': 'text', 'id': 'text-4',
              'value': {'de': '## register auswerten\n'
@@ -307,9 +308,9 @@ FAKTEN_BEDINGUNGEN_MODULE = {
                              '```\n'
                              '\n'
                              '`changed_when: false` und `failed_when: false` sorgen hier dafür, '
-                             'dass ein reiner Statuscheck nicht fälschlich als „geändert" oder '
-                             '„fehlgeschlagen" gemeldet wird — dazu mehr im Modul '
-                             '„Fehlerbehandlung & Idempotenz".',
+                             'dass ein reiner Statuscheck nicht fälschlich als „geändert“ oder '
+                             '„fehlgeschlagen“ gemeldet wird — dazu mehr im Modul '
+                             '„Fehlerbehandlung & Idempotenz“.',
                        'en': '## Evaluating register\n'
                              '\n'
                              '`register: name` stores a task\'s complete result object in a '
@@ -449,7 +450,7 @@ FAKTEN_BEDINGUNGEN_MODULE = {
                              'In the lab widget below the **Facts & when** template is '
                              'preselected. It shows three facts of the lab host, contains one task '
                              'each for Debian-like and RedHat-like systems, and finally evaluates '
-                             'a `register` result together with a fact. Run it and read from the '
+                             'a `register` result together with a fact. Run it and check in the '
                              'output which task reports `skipping`. Then enter '
                              '`min_ram_mb=99999999` in the "Extra vars" field and run again — the '
                              'last task must now be skipped as well. Note the `| int` in the '
@@ -504,8 +505,8 @@ FAKTEN_BEDINGUNGEN_MODULE = {
                                                '`strategy` und `serial` die Abarbeitung über Hosts '
                                                '— mit Fakten haben sie nichts zu tun.',
                                          'en': '`gather_facts` is the play keyword for automatic '
-                                               'gathering. `become` governs privileges, `strategy` '
-                                               'and `serial` the processing across hosts — they '
+                                               'gathering. `become` governs privileges; `strategy` '
+                                               'and `serial` govern processing across hosts — they '
                                                'have nothing to do with facts.'},
                          'type': 'single',
                          'prompt': {'de': 'Womit steuerst du auf Play-Ebene, ob Facts überhaupt '
@@ -528,7 +529,7 @@ FAKTEN_BEDINGUNGEN_MODULE = {
                                                '`"Debian"` träfe Ubuntu-Hosts dann nicht.',
                                          'en': '`os_family` groups related distributions (Ubuntu '
                                                'and Debian → `Debian`). `distribution` would be '
-                                               'too precise: a comparison with `"Debian"` would '
+                                               'too specific: a comparison with `"Debian"` would '
                                                'then miss Ubuntu hosts.'},
                          'type': 'single',
                          'prompt': {'de': 'Welche Fact-Variable liefert die grobe '
@@ -687,7 +688,7 @@ FAKTEN_BEDINGUNGEN_MODULE = {
                                          'en': 'A skipped task fills its `register` variable too — '
                                                'but only with `skipped: true`, `changed: false` '
                                                'and the reason; there is no `rc` because no '
-                                               'command ran (reproduced for real). Fix: the same '
+                                               'command ran (verified in a real run). Fix: the same '
                                                'condition on the second task, or `when: status is '
                                                'not skipped and status.rc != 0`.'}},
                         {'id': 'fb8',
@@ -711,7 +712,7 @@ FAKTEN_BEDINGUNGEN_MODULE = {
                                             '`==` vergleicht in Jinja2 nur Zeichenketten gleicher '
                                             'Länge'],
                                      'en': ['The fact is a string; `"9" == 9` is false — you need '
-                                            '`| int` or the comparison with `"9"`',
+                                            '`| int` or a comparison with `"9"`',
                                             '`when` must not use facts in square brackets',
                                             'Rocky Linux reports its version only after a second '
                                             'run',

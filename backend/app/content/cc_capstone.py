@@ -88,7 +88,7 @@ CAPSTONE_MODULE = {'key': 'capstone',
                              'step (e.g. `/new-test` or `/commit-msg`) (Module 6).\n'
                              '5. **Implementation** — implement the feature, delegating larger '
                              'research to a subagent (Module 9). Check first which data may go '
-                             'into the prompt; instructions in foreign content (issues, READMEs, '
+                             'into the prompt; instructions in third-party content (issues, READMEs, '
                              'tool output) are data, not orders (Module 15).\n'
                              '6. **Automation** — set up a hook (e.g. format/lint after edit) '
                              '(Module 11).\n'
@@ -193,7 +193,7 @@ CAPSTONE_MODULE = {'key': 'capstone',
                                                'Daten, keine Aufträge (Modul 15).',
                                     'text_en': 'Wrap a recurring step in a skill (Module 6), then '
                                                'implement. Clarify first which data may go into '
-                                               'the prompt; foreign content is data, not orders '
+                                               'the prompt; third-party content is data, not orders '
                                                '(Module 15).'},
                                    {'highlight': ['e5', 'hook'],
                                     'text_de': 'Ein Hook erzwingt eine Regel, zum Beispiel '
@@ -212,7 +212,7 @@ CAPSTONE_MODULE = {'key': 'capstone',
                                     'text_de': 'Erst dann: Branch mit Spec, Nachweis und offenen '
                                                'Punkten übergeben und mergen (Modul 17).',
                                     'text_en': 'Only then: hand over the branch with spec, '
-                                               'evidence, and open points, and merge (Module '
+                                               'evidence, and open items, and merge (Module '
                                                '17).'}]}},
             {'type': 'order', 'id': 'order-1',
              'payload': {'prompt_de': 'Bring die Capstone-Meilensteine in die Reihenfolge des '
@@ -363,11 +363,11 @@ CAPSTONE_MODULE = {'key': 'capstone',
                              '- **Clean Git history** — a dedicated branch, small, thematically '
                              'separated commits with meaningful messages (no pile of “wip” and '
                              '“fix”).\n'
-                             '- **Tests pass green** — a test suite exists and runs without '
+                             '- **Tests are green** — a test suite exists and runs without '
                              'errors.\n'
                              '- **Security basics respected** — no secrets in the repo or the '
                              'prompt, review subagent read-only, risky commands guarded via '
-                             'hook/permission, no instruction from foreign content followed '
+                             'hook/permission, no instruction from third-party content followed '
                              'unchecked.\n'
                              '- **Decisions justifiable** — you can explain the spec, the '
                              'plan, and your use of subagents in your own words.'},
@@ -460,7 +460,7 @@ CAPSTONE_MODULE = {'key': 'capstone',
                                                'und der Commit umgeht Branch und Review. Ein Issue '
                                                'ist Eingabe – auch im eigenen Repo kann es jeder '
                                                'schreiben, der Zugriff hat.',
-                                    'text_en': 'You treated foreign text as an order. The hook '
+                                    'text_en': 'You treated third-party text as an order. The hook '
                                                'that was supposed to enforce a rule is gone, and '
                                                'the commit bypasses branch and review. An issue is '
                                                'input – even in your own repo, anyone with access '
@@ -497,9 +497,7 @@ CAPSTONE_MODULE = {'key': 'capstone',
                                                'ein Review-Subagent mit frischem Kontext.',
                                     'text_en': 'The answer is “yes” – from the same agent, with '
                                                'the same assumptions. That is a repetition of the '
-                                               'claim, not evidence. Only someone with a view of '
-                                               'their own checks independently: you yourself, or a '
-                                               'review subagent with a fresh context.'},
+                                               'claim, not evidence. Only someone who looks at the code independently provides a real check: you yourself, or a review subagent with a fresh context.'},
                                    {'id': 'ende-direkt',
                                     'outcome': 'ok',
                                     'text_de': 'Der Code stimmt, aber die Spur fehlt: kein Ort, an '
@@ -509,8 +507,8 @@ CAPSTONE_MODULE = {'key': 'capstone',
                                                'Review möglich macht.',
                                     'text_en': 'The code is right, but the trail is missing: no '
                                                'place where the spec, the evidence, and the '
-                                               'injection finding sit together. Alone in the '
-                                               'capstone this hardly shows; in a team, exactly '
+                                               'injection finding sit together. When you work on the '
+                                               'capstone alone, this hardly shows; in a team, exactly '
                                                'this handoff is what makes a review possible.'},
                                    {'id': 'ende-gut',
                                     'outcome': 'good',
@@ -519,7 +517,7 @@ CAPSTONE_MODULE = {'key': 'capstone',
                                                'nachvollziehbar. Das ist der Workflow, den das '
                                                'Capstone zeigen soll – die Größe des Features '
                                                'spielt dafür keine Rolle.',
-                                    'text_en': 'Foreign instruction declined, diff brought back to '
+                                    'text_en': 'Third-party instruction declined, diff brought back to '
                                                'the spec, evidence produced yourself, handoff '
                                                'traceable. This is the workflow the capstone is '
                                                'meant to show – the size of the feature does not '
@@ -589,7 +587,7 @@ CAPSTONE_MODULE = {'key': 'capstone',
                                          'en': 'What is assessed is the path: spec, plan, '
                                                'automation, and review interlock. A big feature '
                                                'does not prove that – it only makes the workflow '
-                                               'harder to oversee, and a small one carried through '
+                                               'harder to follow, and a small one carried through '
                                                'cleanly shows more.'}},
                         {'id': 'cap2',
                          'type': 'single',
@@ -642,7 +640,7 @@ CAPSTONE_MODULE = {'key': 'capstone',
                          'options': {'de': ['Damit er nichts verändert, während er prüft (Least '
                                             'Privilege)',
                                             'Weil er sonst nicht startet',
-                                            'Um Tokens zu sparen ist der einzige Grund',
+                                            'Token-Ersparnis ist der einzige Grund',
                                             'Read-only-Agents gibt es nicht'],
                                      'en': ["So it doesn't change anything while it checks (least "
                                             'privilege)',
@@ -666,7 +664,7 @@ CAPSTONE_MODULE = {'key': 'capstone',
                                           'deine Verantwortung?',
                                     'en': 'In the capstone project the agent reports “done, all '
                                           'tests green”. What remains your responsibility before '
-                                          'handing over for merge?'},
+                                          'handing off for merge?'},
                          'answer': 0,
                          'options': {'de': ['Die Verifikation: Diff und Tests selbst ansehen, '
                                             'Nachweis in die Übergabe',
@@ -674,7 +672,7 @@ CAPSTONE_MODULE = {'key': 'capstone',
                                             'Das manuelle Zählen der verbrauchten Tokens',
                                             'Nichts weiter – der Bericht genügt'],
                                      'en': ['Verification: look at diff and tests yourself, put '
-                                            'the evidence into the handover',
+                                            'the evidence into the handoff',
                                             'Retraining the model on the result',
                                             'Manually counting the tokens used',
                                             'Nothing further – the report is enough']},
@@ -710,7 +708,7 @@ CAPSTONE_MODULE = {'key': 'capstone',
                                             'seine Antwort übernehmen'],
                                      'en': ['All good – green is green',
                                             'The test was bent to fit the code instead of the '
-                                            'other way round; check against the acceptance '
+                                            'other way around; check against the acceptance '
                                             'criterion and have the change reverted',
                                             'Delete the test, it is apparently outdated',
                                             'Ask the agent whether the change is correct and adopt '

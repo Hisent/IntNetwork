@@ -32,7 +32,7 @@ NAC_EAP_TLS_MODULE = {
               'was EAP-TLS im Betrieb wirklich absichert — und was an Infrastruktur dafür '
               'bereitstehen muss.',
         'en': 'Nordwind Logistik wants the strongest available Wi-Fi protection for its '
-              'dispatchers\' notebooks — PEAP with a password is no longer enough for the '
+              'dispatchers\' laptops — PEAP with a password is no longer enough for the '
               'security team. The choice falls on EAP-TLS. Before the rollout begins, you need '
               'to clarify what EAP-TLS actually secures in operation — and what infrastructure '
               'needs to be in place for it.',
@@ -58,10 +58,10 @@ NAC_EAP_TLS_MODULE = {
                    'authenticate **each other** via X.509 certificates — not only does the '
                    'server prove its identity, the client (the supplicant) must also present a '
                    'valid certificate. No password and no pre-shared key are used at all.\n\n'
-                   'For Nordwind Logistik, that means a notebook can only authenticate on the '
+                   'For Nordwind Logistik, that means a laptop can only authenticate on the '
                    'Wi-Fi if it holds a client certificate issued by the company\'s own PKI — '
                    'and the RADIUS server, in turn, proves its identity with a server '
-                   'certificate that the notebook verifies.',
+                   'certificate that the laptop verifies.',
          }},
         {'type': 'text', 'id': 'text-2',
          'value': {
@@ -142,13 +142,13 @@ NAC_EAP_TLS_MODULE = {
                    'gesamte Notebook-Flotte auszurollen, ohne dass die IT jedes Zertifikat '
                    'einzeln verteilen muss.',
              'en': '## Certificate Distribution: Autoenrollment Instead of Manual Rollout\n\n'
-                   'With hundreds of notebooks, manually issuing and installing client '
+                   'With hundreds of laptops, manually issuing and installing client '
                    'certificates is not practical. **Autoenrollment** automates this process: '
                    'devices enrolled in the right group policy or profile request their '
                    'certificate themselves, receive it from the PKI, and renew it '
                    'automatically before it expires.\n\n'
                    'For Nordwind Logistik, this is the only practical way to roll EAP-TLS out '
-                   'across the entire notebook fleet without IT having to distribute every '
+                   'across the entire laptop fleet without IT having to distribute every '
                    'certificate one by one.',
          }},
         {'type': 'order', 'id': 'order-1',
@@ -286,7 +286,7 @@ NAC_EAP_TLS_MODULE = {
                    'misconfigured RADIUS server, but because of **certificate problems**: an '
                    'expired client certificate, a server certificate the client does not trust '
                    '(a missing or wrong root CA in the trust store), or a failure in chain '
-                   'validation. For Nordwind Logistik, that means: when a notebook suddenly can '
+                   'validation. For Nordwind Logistik, that means: when a laptop suddenly can '
                    'no longer log into the Wi-Fi, the first thing to check is almost always the '
                    'certificate status — not the RADIUS configuration.',
          }},
@@ -296,8 +296,8 @@ NAC_EAP_TLS_MODULE = {
              'prompt_de': 'Ein Notebook bei Nordwind Logistik kann sich plötzlich nicht mehr '
                           'per EAP-TLS am WLAN authentifizieren, andere Notebooks funktionieren '
                           'weiterhin normal. Was prüfst du zuerst?',
-             'prompt_en': 'A notebook at Nordwind Logistik can suddenly no longer authenticate '
-                         'on the Wi-Fi via EAP-TLS, while other notebooks keep working '
+             'prompt_en': 'A laptop at Nordwind Logistik can suddenly no longer authenticate '
+                         'on the Wi-Fi via EAP-TLS, while other laptops keep working '
                          'normally. What do you check first?',
              'answer': 0,
              'options_de': [
@@ -308,10 +308,10 @@ NAC_EAP_TLS_MODULE = {
                  'Ob die VLAN-Zuweisung im Access-Accept korrekt formatiert ist',
              ],
              'options_en': [
-                 'Whether the notebook\'s client certificate is still valid and whether the '
+                 'Whether the laptop\'s client certificate is still valid and whether the '
                  'trust store still accepts the server certificate',
                  'Whether the RADIUS server needs to be restarted',
-                 'Whether the notebook should be switched to MAB',
+                 'Whether the laptop should be switched to MAB',
                  'Whether the VLAN assignment in the Access-Accept is formatted correctly',
              ],
          }},
@@ -321,7 +321,7 @@ NAC_EAP_TLS_MODULE = {
             'note': 'Nur der Ablauf — Produktdetails (Portalnamen, Protokolle wie SCEP/EST) bewusst weggelassen.',
             'value': {
                 'de': '## BYOD-Onboarding: vom Portal zum Zertifikat\n\nAutoenrollment setzt verwaltete Geräte voraus. Für private Geräte (BYOD), die trotzdem per EAP-TLS ins Netz sollen, bieten NAC-Plattformen ein **Onboarding** an (z. B. das BYOD-Portal von Cisco ISE oder ClearPass Onboard). Der Ablauf ist herstellerübergreifend ähnlich:\n\n1. **Erstanmeldung mit Benutzerkonto** — das Gerät verbindet sich mit Benutzername und Passwort (PEAP) an der Firmen-SSID oder über eine offene Onboarding-SSID und erhält nur stark eingeschränkten Zugriff.\n2. **Umleitung ins Onboarding-Portal** — der Nutzer registriert das Gerät; es wird ihm namentlich zugeordnet.\n3. **Zertifikats-Enrollment** — ein Assistent bzw. ein Konfigurationsprofil erzeugt auf dem Gerät ein Schlüsselpaar, lässt ein Client-Zertifikat ausstellen und richtet den Supplicant für EAP-TLS ein (samt vertrauter CA und Servername).\n4. **Neuanmeldung per EAP-TLS** — die NAC-Plattform löst per CoA eine erneute Authentifizierung aus; das Gerät meldet sich nun mit Zertifikat an und landet im BYOD-VLAN (bei Nordwind: VLAN 30).\n\nDer Gewinn: Das Passwort wird genau einmal gebraucht, danach nie wieder übertragen. Und geht das Gerät verloren, wird ein einzelnes Zertifikat gesperrt — das Benutzerkonto bleibt unberührt.',
-                'en': '## BYOD Onboarding: From Portal to Certificate\n\nAutoenrollment presupposes managed devices. For personal devices (BYOD) that should still join via EAP-TLS, NAC platforms offer **onboarding** (e.g. the BYOD portal of Cisco ISE or ClearPass Onboard). The flow is similar across vendors:\n\n1. **First login with a user account** — the device connects with username and password (PEAP) to the corporate SSID or via an open onboarding SSID and only gets heavily restricted access.\n2. **Redirect to the onboarding portal** — the user registers the device; it is assigned to them by name.\n3. **Certificate enrollment** — an assistant or configuration profile generates a key pair on the device, has a client certificate issued, and configures the supplicant for EAP-TLS (including trusted CA and server name).\n4. **Re-login via EAP-TLS** — the NAC platform triggers a re-authentication via CoA; the device now logs in with its certificate and lands in the BYOD VLAN (at Nordwind: VLAN 30).\n\nThe gain: the password is needed exactly once and never transmitted again. And if the device is lost, a single certificate is revoked — the user account remains untouched.',
+                'en': '## BYOD Onboarding: From Portal to Certificate\n\nAutoenrollment presupposes managed devices. For personal devices (BYOD) that should still join via EAP-TLS, NAC platforms offer **onboarding** (e.g. the BYOD portal of Cisco ISE or ClearPass Onboard). The flow is similar across vendors:\n\n1. **First login with a user account** — the device connects with username and password (PEAP) to the corporate SSID or via an open onboarding SSID and only gets heavily restricted access.\n2. **Redirect to the onboarding portal** — the user registers the device; it is assigned to them by name.\n3. **Certificate enrollment** — a wizard or configuration profile generates a key pair on the device, has a client certificate issued, and configures the supplicant for EAP-TLS (including trusted CA and server name).\n4. **Re-login via EAP-TLS** — the NAC platform triggers a re-authentication via CoA; the device now logs in with its certificate and lands in the BYOD VLAN (at Nordwind: VLAN 30).\n\nThe gain: the password is needed exactly once and never transmitted again. And if the device is lost, a single certificate is revoked — the user account remains untouched.',
             },
         },
         {
@@ -335,7 +335,7 @@ NAC_EAP_TLS_MODULE = {
                     {
                         'id': 'start',
                         'text_de': 'Montagmorgen: Das Notebook von Herrn Demir kommt nicht ins WLAN. Alle anderen Notebooks funktionieren. Das RADIUS-Log zeigt für sein Gerät: „EAP-TLS failed — certificate expired“. Was tust du zuerst?',
-                        'text_en': 'Monday morning: Mr. Demir\'s notebook cannot join the Wi-Fi. All other notebooks work. The RADIUS log shows for his device: "EAP-TLS failed — certificate expired". What do you do first?',
+                        'text_en': 'Monday morning: Mr. Demir\'s laptop cannot join the Wi-Fi. All other laptops work. The RADIUS log shows for his device: "EAP-TLS failed — certificate expired". What do you do first?',
                         'options': [
                             {
                                 'label_de': 'RADIUS-Server neu starten',
@@ -344,12 +344,12 @@ NAC_EAP_TLS_MODULE = {
                             },
                             {
                                 'label_de': 'Gültigkeit des Client-Zertifikats auf dem Notebook ansehen',
-                                'label_en': 'Look at the validity of the client certificate on the notebook',
+                                'label_en': 'Look at the validity of the client certificate on the laptop',
                                 'to': 'cert',
                             },
                             {
                                 'label_de': 'Das Notebook vorübergehend per MAB ins Mitarbeiter-VLAN lassen',
-                                'label_en': 'Temporarily let the notebook into the employee VLAN via MAB',
+                                'label_en': 'Temporarily let the laptop into the employee VLAN via MAB',
                                 'to': 'mab',
                             },
                         ],
@@ -369,7 +369,7 @@ NAC_EAP_TLS_MODULE = {
                     {
                         'id': 'cert',
                         'text_de': 'Das Zertifikat ist laut Anzeige noch vier Monate gültig. Die Uhr des Notebooks stimmt. Trotzdem meldet der Server „expired“. Was prüfst du jetzt?',
-                        'text_en': 'According to the display the certificate is valid for another four months. The notebook\'s clock is correct. Yet the server reports "expired". What do you check now?',
+                        'text_en': 'According to the display the certificate is valid for another four months. The laptop\'s clock is correct. Yet the server reports "expired". What do you check now?',
                         'options': [
                             {
                                 'label_de': 'Ob im Zertifikatsspeicher ein zweites, älteres Zertifikat liegt, das der Supplicant auswählt',
@@ -392,7 +392,7 @@ NAC_EAP_TLS_MODULE = {
                         'id': 'secret',
                         'outcome': 'bad',
                         'text_de': 'Bei falschem Shared Secret käme gar keine EAP-Aushandlung zustande, und es wären alle Clients dieses Access Points betroffen — nicht ein einzelnes Notebook.',
-                        'text_en': 'With a wrong shared secret no EAP negotiation would take place at all, and all clients of that access point would be affected — not a single notebook.',
+                        'text_en': 'With a wrong shared secret no EAP negotiation would take place at all, and all clients of that access point would be affected — not a single laptop.',
                     },
                     {
                         'id': 'serveruhr',
@@ -497,7 +497,7 @@ NAC_EAP_TLS_MODULE = {
          'prompt': {'de': 'Wie lassen sich Client-Zertifikate praktikabel an eine große Zahl '
                           'von Notebooks verteilen?',
                     'en': 'How can client certificates be practically distributed to a large '
-                         'number of notebooks?'},
+                         'number of laptops?'},
          'answer': 0,
          'options': {
              'de': [
@@ -541,7 +541,7 @@ NAC_EAP_TLS_MODULE = {
          },
          'explanation': {
              'de': 'Abgelaufene oder nicht vertraute Zertifikate sind der Klassiker. DHCP spielt erst NACH der Authentifizierung eine Rolle und kann sie deshalb nicht scheitern lassen.',
-             'en': 'Expired or untrusted certificates are the classic. DHCP only comes into play AFTER authentication and therefore cannot make it fail.',
+             'en': 'Expired or untrusted certificates are the classic cause. DHCP only comes into play AFTER authentication and therefore cannot make it fail.',
          }},
         {
             'id': 'et6',
@@ -575,7 +575,7 @@ NAC_EAP_TLS_MODULE = {
             'type': 'multi',
             'prompt': {
                 'de': 'Ein Notebook mit EAP-TLS wird gestohlen. Welche Maßnahmen verhindern, dass es sich weiter am Netz anmelden kann? (Mehrere richtig)',
-                'en': 'A notebook using EAP-TLS is stolen. Which measures prevent it from continuing to log in to the network? (Several correct)',
+                'en': 'A laptop using EAP-TLS is stolen. Which measures prevent it from continuing to log in to the network? (Several correct)',
             },
             'options': {
                 'de': [

@@ -28,3 +28,15 @@ describe('CHANNELS', () => {
     for (const c of NON_OVERLAPPING) expect(CHANNELS).toContain(c)
   })
 })
+
+describe('Planungsregel: mindestens 5 Kanalnummern Abstand', () => {
+  it('Grenze liegt exakt zwischen Abstand 4 und 5', () => {
+    expect(overlaps(1, 5)).toBe(true) // 20 MHz Abstand < 22 MHz DSSS-Breite
+    expect(overlaps(5, 1)).toBe(true) // symmetrisch
+    expect(overlaps(6, 11)).toBe(false)
+    expect(overlaps(2, 7)).toBe(false) // wie im Modul-Quiz: 2/7/12 ist ebenfalls überlappungsfrei
+    expect(overlaps(7, 12)).toBe(false)
+    expect(overlaps(6, 7)).toBe(true) // Störfall aus dem Modultext (Kanal 7 neben 6)
+    expect(overlaps(3, 4)).toBe(true) // Debug-Aufgabe des Moduls
+  })
+})

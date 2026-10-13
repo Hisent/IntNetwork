@@ -58,7 +58,7 @@ NAC_TROUBLESHOOTING_MODULE = {
                    'überhaupt eine EAPOL-Nachricht den Switch erreicht? Dann liegt es beim '
                    'Supplicant. Kommt die Anfrage beim RADIUS-Server an, aber die Antwort passt '
                    'nicht? Dann liegt es weiter hinten in der Kette.',
-             'en': '## The Path as a Search Grid\n\n'
+             'en': '## The Path as a Troubleshooting Map\n\n'
                    'An 802.1X authentication always runs through the same chain of stations: '
                    '**supplicant** (client) → **switch/authenticator** → **RADIUS/'
                    'authentication server** → **directory/PKI** (user directory or certificate '
@@ -396,7 +396,7 @@ NAC_TROUBLESHOOTING_MODULE = {
              'prompt_en': 'Report: "Kaya\'s laptop can no longer get onto the network via '
                          '802.1X since this morning, but still ends up in the normal employee '
                          'VLAN instead of a restricted network." Which of the following '
-                         'statements about this picture is false?',
+                         'statements about this situation is false?',
              'lines_de': [
                  'Laut Zertifikatsverwaltung ist das Client-Zertifikat des Laptops seit heute '
                  'Nacht abgelaufen',
@@ -439,17 +439,17 @@ NAC_TROUBLESHOOTING_MODULE = {
             'id': 'scenario-kein-netz',
             'payload': {
                 'title_de': 'Ein neues Notebook kommt nicht ins Netz',
-                'title_en': 'A new notebook cannot get onto the network',
+                'title_en': 'A new laptop cannot get onto the network',
                 'start': 'start',
                 'nodes': [
                     {
                         'id': 'start',
                         'text_de': 'Das neue Notebook von Frau Öztürk bekommt an Gi1/0/12 kein Netz; die Kollegen am selben Switch arbeiten normal. Der Switch zeigt für den Port: Status „Unauthorized“, Methode dot1x „Authc Failed“. Wo suchst du weiter?',
-                        'text_en': 'Ms. Öztürk\'s new notebook gets no network on Gi1/0/12; her colleagues on the same switch work normally. The switch shows for the port: status "Unauthorized", method dot1x "Authc Failed". Where do you look next?',
+                        'text_en': 'Ms. Öztürk\'s new laptop gets no network on Gi1/0/12; her colleagues on the same switch work normally. The switch shows for the port: status "Unauthorized", method dot1x "Authc Failed". Where do you look next?',
                         'options': [
                             {
                                 'label_de': 'Am Notebook prüfen, ob der Supplicant-Dienst überhaupt läuft',
-                                'label_en': 'Check on the notebook whether the supplicant service is running at all',
+                                'label_en': 'Check on the laptop whether the supplicant service is running at all',
                                 'to': 'dienst',
                             },
                             {
@@ -474,7 +474,7 @@ NAC_TROUBLESHOOTING_MODULE = {
                         'id': 'force',
                         'outcome': 'bad',
                         'text_de': 'Das Notebook ist dann ungeprüft im Netz, die Ursache unbekannt — und solche „vorübergehenden“ Ausnahmen bleiben erfahrungsgemäß jahrelang stehen.',
-                        'text_en': 'The notebook is then on the network unchecked, the cause unknown — and such "temporary" exceptions tend to stay in place for years.',
+                        'text_en': 'The laptop is then on the network unchecked, the cause unknown — and such "temporary" exceptions tend to stay in place for years.',
                     },
                     {
                         'id': 'log',
@@ -493,7 +493,7 @@ NAC_TROUBLESHOOTING_MODULE = {
                             },
                             {
                                 'label_de': 'Das Notebook neu installieren',
-                                'label_en': 'Reinstall the notebook',
+                                'label_en': 'Reinstall the laptop',
                                 'to': 'neu',
                             },
                         ],
@@ -508,12 +508,12 @@ NAC_TROUBLESHOOTING_MODULE = {
                         'id': 'neu',
                         'outcome': 'bad',
                         'text_de': 'Nach der Neuinstallation bekäme das Notebook ein Zertifikat derselben CA — und scheiterte genauso. Das Problem liegt am Server, nicht am Gerät.',
-                        'text_en': 'After reinstalling, the notebook would get a certificate from the same CA — and fail just the same. The problem is on the server, not on the device.',
+                        'text_en': 'After reinstalling, the laptop would get a certificate from the same CA — and fail just the same. The problem is on the server, not on the device.',
                     },
                     {
                         'id': 'kette',
                         'text_de': 'Ursache gefunden: Die PKI stellt seit letzter Woche über eine neue Zwischen-CA aus, die am RADIUS-Server fehlte. Nach dem Import klappt die Anmeldung — aber das Notebook landet im Gast-VLAN 50. Und jetzt?',
-                        'text_en': 'Cause found: since last week the PKI issues via a new intermediate CA that was missing on the RADIUS server. After importing it the login works — but the notebook lands in guest VLAN 50. And now?',
+                        'text_en': 'Cause found: since last week the PKI issues via a new intermediate CA that was missing on the RADIUS server. After importing it the login works — but the laptop lands in guest VLAN 50. And now?',
                         'options': [
                             {
                                 'label_de': 'Im RADIUS-Log nachsehen, welche Autorisierungsregel gegriffen hat',
@@ -698,7 +698,7 @@ NAC_TROUBLESHOOTING_MODULE = {
             'type': 'single',
             'prompt': {
                 'de': 'Nach einem Akkutausch startet ein Notebook mit dem Datum 01.01.2015. EAP-TLS schlägt fehl, der Supplicant meldet, das Server-Zertifikat sei „noch nicht gültig“. Wie ordnest du das ein?',
-                'en': 'After a battery replacement a notebook boots with the date 01/01/2015. EAP-TLS fails, the supplicant reports the server certificate as "not yet valid". How do you assess this?',
+                'en': 'After a battery replacement a laptop boots with the date 01/01/2015. EAP-TLS fails, the supplicant reports the server certificate as "not yet valid". How do you assess this?',
             },
             'options': {
                 'de': [
@@ -708,7 +708,7 @@ NAC_TROUBLESHOOTING_MODULE = {
                     'Die Uhrzeit spielt für EAP-TLS keine Rolle, die Ursache liegt am RADIUS Shared Secret',
                 ],
                 'en': [
-                    'The notebook\'s clock is the cause: certificates are checked against their validity period — correct the time; there is no fixed "5-minute tolerance" in EAP-TLS',
+                    'The laptop\'s clock is the cause: certificates are checked against their validity period — correct the time; there is no fixed "5-minute tolerance" in EAP-TLS',
                     'The server certificate was issued incorrectly and must be renewed',
                     'EAP-TLS tolerates exactly five minutes of drift; the client certificate must therefore be reissued',
                     'Time is irrelevant for EAP-TLS, the cause is the RADIUS shared secret',
@@ -735,7 +735,7 @@ NAC_TROUBLESHOOTING_MODULE = {
                     'Die Supplicants an diesem Switch sind falsch konfiguriert',
                 ],
                 'en': [
-                    'The client certificates of all notebooks on this switch have expired',
+                    'The client certificates of all laptops on this switch have expired',
                     'The switch is not registered as a client on the RADIUS server, or the shared secret does not match',
                     'The RADIUS server is down',
                     'The supplicants on this switch are misconfigured',

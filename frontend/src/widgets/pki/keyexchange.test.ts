@@ -47,3 +47,20 @@ describe('Diffie-Hellman mit p=23, g=5', () => {
     expect(bruteForceExponent(g, 999, p)).toBeNull()
   })
 })
+
+describe('Review 2026-10: Widget-Werte p = 23, g = 5', () => {
+  it('Startwerte a = 6, b = 15 ergeben A = 8, B = 19 und das gemeinsame Geheimnis 2', () => {
+    expect(publicValue(5, 6, 23)).toBe(8)
+    expect(publicValue(5, 15, 23)).toBe(19)
+    expect(sharedSecret(19, 6, 23)).toBe(2)
+    expect(sharedSecret(8, 15, 23)).toBe(2)
+  })
+
+  it('Eve findet für JEDEN einstellbaren Exponenten 1..22 einen passenden (auch a = 22, A = 1)', () => {
+    for (let a = 1; a <= 22; a++) {
+      const found = bruteForceExponent(5, publicValue(5, a, 23), 23)
+      expect(found).not.toBeNull()
+      expect(publicValue(5, found!, 23)).toBe(publicValue(5, a, 23))
+    }
+  })
+})

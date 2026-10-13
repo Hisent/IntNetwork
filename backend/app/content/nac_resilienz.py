@@ -84,8 +84,7 @@ NAC_RESILIENZ_MODULE = {
                    'die Hardware von selbst „richtig“ trifft. Wer sich nie damit befasst, bekommt '
                    'trotzdem eine der beiden Konsequenzen — nur eben ungeplant.',
              'en': '## The Choice Is a Risk Decision, Not an Automatism\n\n'
-                   'Fail-open balances **availability** against fail-closed, which puts '
-                   '**security** first. Which side outweighs the other at Nordwind depends on '
+                   'Fail-open puts **availability** first, fail-closed puts **security** first. Which side outweighs the other at Nordwind depends on '
                    'the network area in question: for the production halls, where downtime is '
                    'expensive, availability may weigh more heavily; for a segment holding '
                    'sensitive financial data, security may clearly take precedence.\n\n'
@@ -457,8 +456,7 @@ NAC_RESILIENZ_MODULE = {
                    'Profiling, die Switches und WLAN vieler Hersteller steuert (u. a. per SNMP, CLI '
                    'und RADIUS) und sich in die Fortinet Security Fabric einfügt.',
              'en': '## The NAC Ecosystem at a Glance (Vendor-Neutral)\n\n'
-                   'Once you understand RADIUS redundancy and fail-open/fail-closed, product '
-                   'selection opens onto a wide field. Roughly categorized, without version '
+                   'Once you understand RADIUS redundancy and fail-open/fail-closed, you face a wide field of products. Roughly categorized, without version '
                    'details or configuration:\n\n'
                    '- **Cisco ISE** — dedicated NAC platform, acts as a RADIUS and TACACS+ '
                    'server and assigns authorization profiles based on identity, device type, '
@@ -509,7 +507,7 @@ NAC_RESILIENZ_MODULE = {
          'payload': {
              'kind': 'choice',
              'prompt_de': 'Wie ordnet sich Microsoft NPS im NAC-Ökosystem am zutreffendsten ein?',
-             'prompt_en': 'What is the most accurate way to place Microsoft NPS in the NAC '
+             'prompt_en': 'What is the most accurate way to classify Microsoft NPS in the NAC '
                          'ecosystem?',
              'answer': 2,
              'options_de': [
@@ -534,9 +532,7 @@ NAC_RESILIENZ_MODULE = {
                           'Access-Switches in Closed Mode folgendes Bild. Welche der folgenden '
                           'Aussagen dazu ist falsch?',
              'prompt_en': 'Nordwind runs a single RADIUS server without a backup to save costs. '
-                         'After an outage, the access switches in Closed Mode show the '
-                         'following picture. Which of the following statements about it is '
-                         'false?',
+                         'After an outage, the access switches in Closed Mode show the following situation. Which of the following statements about it is false?',
              'lines_de': [
                  'Ist eine Critical-Authentication-Regel konfiguriert, ordnet sie neue '
                  'Anmeldeversuche in ein definiertes Critical VLAN ein, solange der '
@@ -622,7 +618,7 @@ NAC_RESILIENZ_MODULE = {
                     {
                         'id': 'server',
                         'text_de': 'Um 09:10 Uhr läuft der Server wieder. In der Nachbesprechung geht es um die Lehre daraus. Was empfiehlst du?',
-                        'text_en': 'At 09:10 the server is running again. The review is about the lesson learned. What do you recommend?',
+                        'text_en': 'At 09:10 the server is running again. The review is about lessons learned. What do you recommend?',
                         'options': [
                             {
                                 'label_de': 'Zweiten RADIUS-Server plus Critical VLAN mit eingeschränktem Zugriff',

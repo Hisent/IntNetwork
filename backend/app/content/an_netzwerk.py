@@ -16,13 +16,13 @@ NETZWERK_MODULE = {'key': 'netzwerk-automatisierung',
  'goals_en': ['Explain why network modules run on the control node instead of on the device',
               'Match the connection types network_cli, netconf and httpapi to the fitting '
               'scenarios',
-              'Place vendor-specific collections as a concept',
+              'Understand vendor-specific collections as a concept',
               'Read and interpret an example of fact gathering and configuration backup',
               'Distinguish idempotency in network device configuration from idempotency in server '
               'tasks'],
  'scenario': {'de': 'Alle bisherigen Playbooks liefen gegen Linux-Server mit installiertem '
                     'Python. Jetzt kommt ein Cisco-Switch dazu — und der hat kein Python, keinen '
-                    'SSH-Login mit `sudo`, sondern eine CLI mit „enable”-Modus. Funktioniert '
+                    'SSH-Login mit `sudo`, sondern eine CLI mit „enable“-Modus. Funktioniert '
                     'Ansible trotzdem? Ja — aber mit einigen grundlegend anderen Mechanismen, '
                     'die dieses Modul einordnet.',
               'en': "All the playbooks so far ran against Linux servers with Python installed. "
@@ -63,7 +63,7 @@ NETZWERK_MODULE = {'key': 'netzwerk-automatisierung',
                              'automation, and it explains practically every other peculiarity in '
                              'this module — including the fact that a configuration backup ends '
                              'up on the control node, not on the device.'},
-             'note': '„Modul läuft auf dem Control Node” als Kernsatz — alles Weitere im Modul '
+             'note': '„Modul läuft auf dem Control Node“ als Kernsatz — alles Weitere im Modul '
                      'leitet sich daraus ab.'},
             {'type': 'diagram',
              'id': 'diagram-server-vs-netzwerk',
@@ -117,7 +117,7 @@ NETZWERK_MODULE = {'key': 'netzwerk-automatisierung',
                              '- **`httpapi`** — Kommunikation über eine REST-/HTTP(S)-API; '
                              'passend für Geräte bzw. Controller, die eine solche API anbieten.\n'
                              '\n'
-                             '„Persistent” bedeutet: Die Verbindung wird einmal aufgebaut und '
+                             '„Persistent“ bedeutet: Die Verbindung wird einmal aufgebaut und '
                              'zugehörige Zugangsdaten einmal definiert, statt sie bei jedem '
                              'einzelnen Task neu auszuhandeln — das spart Zeit gegenüber vielen '
                              'einzelnen SSH-Verbindungen pro Task.',
@@ -132,7 +132,7 @@ NETZWERK_MODULE = {'key': 'netzwerk-automatisierung',
                              'type them at a terminal; suited to classic, CLI-oriented device '
                              'operating systems.\n'
                              '- **`netconf`** — structured configuration exchange as XML over '
-                             'SSH; suited when the device supports NETCONF and structured rather '
+                             'SSH; suitable when the device supports NETCONF and structured rather '
                              'than text-based configuration is preferred.\n'
                              '- **`httpapi`** — communication over a REST/HTTP(S) API; suited to '
                              'devices or controllers that offer such an API.\n'
@@ -176,7 +176,7 @@ NETZWERK_MODULE = {'key': 'netzwerk-automatisierung',
                              'Teil der Planung, nicht nur der Ausführung.\n'
                              '\n'
                              '**Privilegien-Eskalation** läuft bei Netzwerkgeräten über den '
-                             '„enable”-Modus statt über `sudo`:\n'
+                             '„enable“-Modus statt über `sudo`:\n'
                              '\n'
                              '```yaml\n'
                              'become: true\n'
@@ -261,7 +261,7 @@ NETZWERK_MODULE = {'key': 'netzwerk-automatisierung',
                                       '`ansible_become_method: sudo`'],
                          'wrong': [3],
                          'explanation_de': 'Netzwerkgeräte eskalieren Privilegien über den '
-                                           '„enable”-Modus, nicht über `sudo` — richtig wäre '
+                                           '„enable“-Modus, nicht über `sudo` — richtig wäre '
                                            '`ansible_become_method: enable`. `sudo` ist ein '
                                            'Linux/Unix-Mechanismus und existiert auf einer '
                                            'Cisco-IOS-CLI nicht.',
@@ -301,7 +301,7 @@ NETZWERK_MODULE = {'key': 'netzwerk-automatisierung',
                              '(hier `cisco.ios.ios_facts`). Die '
                              'Backup-Datei aus `ios_config` mit `backup: true` landet im '
                              'angegebenen Verzeichnis **auf dem Control Node** — konsequent aus '
-                             'dem Grundprinzip „Modul läuft auf dem Control Node”.\n'
+                             'dem Grundprinzip „Modul läuft auf dem Control Node“.\n'
                              '\n'
                              '**Idempotenz bei Netzwerkgeräten** funktioniert anders als bei '
                              'Servern: `ios_config` vergleicht die gewünschten Zeilen textuell '
@@ -315,7 +315,7 @@ NETZWERK_MODULE = {'key': 'netzwerk-automatisierung',
                        'en': '## Gathering facts and backing up configuration\n'
                              '\n'
                              'Instead of the generic `ansible.builtin.setup` module, network '
-                             'devices use vendor-specific fact modules, e.g.:\n'
+                             'devices use vendor-specific facts modules, e.g.:\n'
                              '\n'
                              '```yaml\n'
                              '- name: Gather IOS facts and back up configuration\n'
@@ -557,7 +557,7 @@ NETZWERK_MODULE = {'key': 'netzwerk-automatisierung',
              'payload': {'prompt_de': 'Ein Kollege sagt: „Ein Netzwerk-Task, der zweimal '
                                       'hintereinander läuft und beim zweiten Mal `changed` '
                                       'meldet, ist genauso ein Idempotenz-Problem wie bei einem '
-                                      'Server-Task.” Stimmt das uneingeschränkt, oder gibt es '
+                                      'Server-Task.“ Stimmt das uneingeschränkt, oder gibt es '
                                       'einen Unterschied? Begründe in eigenen Worten.',
                          'prompt_en': 'A colleague says: “A network task that runs twice in a '
                                       'row and reports `changed` the second time is just as much '
@@ -573,7 +573,7 @@ NETZWERK_MODULE = {'key': 'netzwerk-automatisierung',
                                          'en': 'Network modules run on the control node and '
                                                'address the device only through its interface — a '
                                                'switch has no Python that could execute a module. '
-                                               'It has nothing to do with a cloud.'},
+                                               'This has nothing to do with the cloud.'},
                          'type': 'single',
                          'prompt': {'de': 'Wo wird ein Modul wie `cisco.ios.ios_facts` '
                                           'tatsächlich ausgeführt?',
@@ -636,7 +636,7 @@ NETZWERK_MODULE = {'key': 'netzwerk-automatisierung',
                          'type': 'single',
                          'prompt': {'de': 'Wie eskalieren Privilegien auf einem Netzwerkgerät '
                                           'typischerweise?',
-                                    'en': 'How do privileges typically escalate on a network '
+                                    'en': 'How are privileges typically escalated on a network '
                                           'device?'},
                          'answer': 2,
                          'options': {'de': ['`become_method: sudo`', '`become_method: su`',
@@ -682,11 +682,11 @@ NETZWERK_MODULE = {'key': 'netzwerk-automatisierung',
                                           'interface has long been configured that way. Why?\n'
                                           '\n'
                                           '```yaml\n'
-                                          '- name: Uplink beschreiben\n'
+                                          '- name: Describe the uplink\n'
                                           '  cisco.ios.ios_config:\n'
                                           '    parents: int gi0/1\n'
                                           '    lines:\n'
-                                          '      - desc Uplink zum Core\n'
+                                          '      - desc Uplink to core\n'
                                           '```'},
                          'answer': 1,
                          'options': {'de': ['`ios_config` ist grundsätzlich nicht idempotent',
@@ -709,10 +709,10 @@ NETZWERK_MODULE = {'key': 'netzwerk-automatisierung',
                                                '`cisco.ios.ios_interfaces`.',
                                          'en': '`ios_config` compares line by line with `show '
                                                'running-config`, which contains `interface '
-                                               'GigabitEthernet0/1` and `description Uplink zum '
-                                               'Core`. Written out in full the task becomes '
-                                               'idempotent — or you use the resource module '
-                                               '`cisco.ios.ios_interfaces` right away.'}},
+                                               'GigabitEthernet0/1` and `description Uplink to '
+                                               'core`. Written out in full, the task becomes '
+                                               'idempotent — or you simply use the resource module '
+                                               '`cisco.ios.ios_interfaces` instead.'}},
                         {'id': 'nw7',
                          'type': 'single',
                          'prompt': {'de': 'Auf switch01 sollen die VLANs 20 und 30 existieren. '
@@ -745,7 +745,7 @@ NETZWERK_MODULE = {'key': 'netzwerk-automatisierung',
                                                '`merged` adds without touching what exists. '
                                                '`overridden` would remove all VLANs not listed — '
                                                'dangerously close to the right answer. '
-                                               '`ios_command` knows no target state and is meant '
+                                               '`ios_command` has no notion of a target state and is meant '
                                                'for show commands.'}},
                         {'id': 'nw8',
                          'type': 'multi',

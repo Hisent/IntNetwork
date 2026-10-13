@@ -13,9 +13,9 @@ SCHLEIFEN_HANDLER_MODULE = {
            'until und retries für wiederholte Prüfungen einordnen',
            'Handler von normalen Tasks unterscheiden und erklären, wann sie tatsächlich laufen'],
  'goals_en': ['Read loop with a list and determine the number of iterations',
-              'Place with_items as the older loop syntax that still works',
+              'Recognize with_items as the older loop syntax that still works',
               'Apply loops over lists of dicts',
-              'Place until and retries for repeated checks',
+              'Explain what until and retries do for repeated checks',
               'Tell handlers apart from normal tasks and explain when they actually run'],
  'scenario': {'de': 'Ein Rollout betrifft mehrere Pakete und mehrere Konfigurationsdateien '
                     'gleichzeitig. Statt für jedes Paket einen eigenen Task zu schreiben, '
@@ -89,7 +89,7 @@ SCHLEIFEN_HANDLER_MODULE = {
                              'reason being that further `with_` variants (`with_dict`, '
                              '`with_fileglob` …) are not receiving new development, while `loop` '
                              'combined with a suitable filter can achieve the same effect for '
-                             'most of those cases.\n'
+                             'many of those cases.\n'
                              '\n'
                              'In existing, older playbooks you still run into `with_items` '
                              'often — when reading someone else\'s code, it helps to recognize '
@@ -384,7 +384,7 @@ SCHLEIFEN_HANDLER_MODULE = {
                                       'lädt nginx am Ende des Plays einmal neu. Ergänze die '
                                       'Lücken.',
                          'prompt_en': 'Two templates are to be rolled out; if one changes, nginx '
-                                      'reloads once at the end of the play. Fill the gaps.',
+                                      'reloads once at the end of the play. Fill in the gaps.',
                          'mono': True,
                          'text_de': 'tasks:\n'
                                     '  - name: Konfigurationsdateien ausrollen\n'
@@ -818,7 +818,7 @@ SCHLEIFEN_HANDLER_MODULE = {
                                                '`handlers:`, nicht in der Reihenfolge der '
                                                '`notify`-Aufrufe (real nachgestellt).',
                                          'en': '`notify` matches not only handler names but also '
-                                               '`listen` topics — all handlers listening are '
+                                               '`listen` topics — all handlers listening to it are '
                                                'queued. Handlers are always processed in the order '
                                                'under `handlers:`, not in the order of the '
-                                               '`notify` calls (reproduced for real).'}}]}}
+                                               '`notify` calls (verified in a real run).'}}]}}

@@ -36,7 +36,7 @@ ASYMMETRISCH_MODULE = {
     },
     'blocks': [
         {'type': 'text', 'id': 'text-1',
-         'note': 'Diese Grundabgrenzung vor allem Weiteren klaeren — sonst vermischen Teilnehmende spaeter "verschluesseln" und "Schluessel aushandeln" (siehe DH-Abschnitt unten).',
+         'note': 'Diese Grundabgrenzung vor allem Weiteren klären — sonst vermischen Teilnehmende später "verschlüsseln" und "Schlüssel aushandeln" (siehe DH-Abschnitt unten).',
          'value': {
              'de': '## Öffentlicher und privater Schlüssel — was womit geht\n\n'
                    'Ein asymmetrisches Schlüsselpaar besteht aus einem **öffentlichen Schlüssel** '
@@ -113,30 +113,30 @@ ASYMMETRISCH_MODULE = {
                  'time deserves a closer look: **key generation and signing** are many times faster with ECC '
                  'than with RSA, whereas **verifying** a signature is faster with RSA because the public '
                  'exponent is small. A sample measurement with `openssl speed` (a current laptop, highly '
-                 'hardware dependent): RSA-2048 manages about 3,100 signatures and 124,000 verifications per '
+                 'hardware-dependent): RSA-2048 manages about 3,100 signatures and 124,000 verifications per '
                  'second, ECDSA P-256 about 100,000 signatures and 33,000 verifications. A TLS server signs in '
                  'every handshake — with many parallel connections an ECDSA certificate therefore noticeably '
-                 'relieves the CPU; for clients that only verify, RSA is no disadvantage.\n\nMinimum sizes '
-                 "depend on the rule set: Germany's **BSI** requires at least **3000 bits** for RSA in "
+                 'reduces CPU load; for clients that only verify, RSA is no disadvantage.\n\nMinimum sizes '
+                 "depend on the applicable standard: Germany's **BSI** requires at least **3000 bits** for RSA in "
                  'TR-02102-1 (version 2026-01) — 2000-bit keys were only considered compliant on a transitional '
                  'basis until the end of 2023 — and at least **250 bits** for elliptic curves. Per NIST SP '
                  '800-57, RSA-2048 corresponds to about 112 bits of security strength, RSA-3072 to about 128 '
                  'bits. The Baseline Requirements for public CAs permit RSA from 2048 bits. Rule of thumb: '
-                 'generate new RSA keys with 3072 or 4096 bits, or use ECDSA on P-256 or P-384 right away. For '
+                 'generate new RSA keys with 3072 or 4096 bits, or go straight to ECDSA on P-256 or P-384. For '
                  '**Ed25519** (a specific ECC signature variant): a 256-bit key likewise delivers about 128 '
                  'bits of security strength, with even smaller keys/signatures than RSA-2048/3072. **One point '
                  'calls for caution:** public certificate authorities do not issue Ed25519 TLS certificates — '
                  'the CA/Browser Forum Baseline Requirements only permit RSA and ECDSA on P-256, P-384, and '
                  'P-521. Ed25519 certificates therefore exist only in private PKIs. For SSH keys, on the other '
-                 'hand, Ed25519 is already the preferred choice per common recommendation.\n\nTwo more names '
+                 'hand, Ed25519 is already the preferred choice according to common recommendations.\n\nTwo more names '
                  'you will come across: RSA is never used "raw" but always with a padding scheme — **RSA-PSS** '
                  'is the modern padding for signatures, **RSA-OAEP** the one for encryption.'),
             },
         },
         {'type': 'diagram', 'id': 'diagram-rsa-ecc-vergleich',
-         'note': ('Groessen: oeffentlicher Schluessel roh, Signatur roh bzw. bei ECDSA DER-kodiert rund 70-72 Byte. '
+         'note': ('Größen: öffentlicher Schlüssel roh, Signatur roh bzw. bei ECDSA DER-kodiert rund 70-72 Byte. '
              'Tempo-Zeile ist eine Beispielmessung (openssl speed, OpenSSL 3.6, Laptop) - nur die '
-             'Groessenordnung zaehlt.'),
+             'Größenordnung zählt.'),
          'payload': {
              'kind': 'compare',
              'title_de': 'RSA, ECDSA und Ed25519 bei rund 128 Bit Sicherheitsstärke',
@@ -208,7 +208,7 @@ ASYMMETRISCH_MODULE = {
                     'ECC does not need a private key',
                     ('ECC reaches the same security with considerably shorter keys, which shrinks the handshake '
                      'and speeds up signing on the server'),
-                    'ECC is fundamentally quantum-computer resistant, unlike RSA',
+                    'ECC is inherently resistant to quantum computers, unlike RSA',
                     'ECC completely eliminates the need for a key exchange',
                 ],
             },
@@ -232,7 +232,7 @@ ASYMMETRISCH_MODULE = {
              'en': '## Diffie-Hellman/ECDHE: Key Agreement, Not Encryption\n\n'
                    'A common misconception: Diffie-Hellman (DH), or its elliptic-curve variant '
                    '**ECDHE**, is often mistaken for an encryption scheme. It is actually something '
-                   'different — a **key agreement scheme**: two parties who did not know each '
+                   'different — a **key agreement scheme (key exchange)**: two parties who did not know each '
                    'other beforehand and share no secret value can generate a shared secret '
                    'through a publicly observable exchange of messages — without an eavesdropper '
                    'being able to compute that secret from the exchanged messages.\n\n'
@@ -244,13 +244,13 @@ ASYMMETRISCH_MODULE = {
          }},
         {'type': 'widget', 'id': 'crypto-keyexchange',
          'note': 'Direkt nach dem DH-Text einsetzen: den ECDHE-Ablauf interaktiv durchspielen '
-                 'lassen, damit sichtbar wird, dass ein Mithoerer trotz oeffentlich sichtbarem '
+                 'lassen, damit sichtbar wird, dass ein Mithörer trotz öffentlich sichtbarem '
                  'Nachrichtenaustausch das gemeinsame Geheimnis nicht berechnen kann.'},
         {'type': 'debug', 'id': 'debug-1',
          'payload': {
              'prompt_de': 'Ein neuer Kollege erklärt im Standup, wie TLS Schlüssel austauscht. '
                           'Welche der folgenden vier Aussagen ist falsch?',
-             'prompt_en': 'A new colleague explains in standup how TLS exchanges keys. Which of '
+             'prompt_en': 'A new colleague explains in the standup how TLS exchanges keys. Which of '
                           'the following four statements is false?',
              'lines_de': [
                  'ECDHE ist ein Schlüsseleinigungsverfahren, kein Verschlüsselungsverfahren',
@@ -281,7 +281,7 @@ ASYMMETRISCH_MODULE = {
                                'Conflating the two confuses key agreement with encryption.',
          }},
         {'type': 'text', 'id': 'text-4',
-         'note': 'PFS ist der schwierigste Begriff des Moduls — die "Aufzeichnen und spaeter entschluesseln"-Bedrohung konkret machen, das macht den Nutzen greifbar.',
+         'note': 'PFS ist der schwierigste Begriff des Moduls — die "Aufzeichnen und später entschlüsseln"-Bedrohung konkret machen, das macht den Nutzen greifbar.',
          'value': {
              'de': '## Perfect Forward Secrecy: warum flüchtige Schlüssel zählen\n\n'
                    'Stell dir vor, ein Angreifer zeichnet über Monate den gesamten '
@@ -326,8 +326,8 @@ ASYMMETRISCH_MODULE = {
                    'This is exactly why PFS is **mandatory in TLS 1.3** — every session uses an '
                    'ephemeral key exchange, and TLS 1.3 has completely removed static RSA key '
                    'transport as an option. In TLS 1.2, by contrast, PFS was only optional and '
-                   'depended on the chosen cipher suite — with static RSA key exchange, the '
-                   'possibility remained there to fully decrypt historical traffic if the key was '
+                   'depended on the chosen cipher suite — with static RSA key exchange, it '
+                   'remained possible there to fully decrypt historical traffic if the key was '
                    'ever stolen.',
          }},
         {'type': 'match', 'id': 'match-verfahren-aufgabe',
@@ -402,7 +402,7 @@ ASYMMETRISCH_MODULE = {
                      'id': 'start',
                      'text_de': ('Das neue Partnerportal bekommt ein Zertifikat einer öffentlichen CA. Die Revision '
                          'verlangt Konformität zur BSI TR-02102. Welchen Schlüssel erzeugst du?'),
-                     'text_en': ('The new partner portal gets a certificate from a public CA. Audit requires compliance '
+                     'text_en': ('The new partner portal gets a certificate from a public CA. Internal audit requires compliance '
                          'with BSI TR-02102. Which key do you generate?'),
                      'options': [
                             {'label': 'RSA 2048', 'to': 'rsa2048'},
@@ -431,7 +431,7 @@ ASYMMETRISCH_MODULE = {
                      'text_de': ('Passt: von öffentlichen CAs ausstellbar, über 250 Bit, schnelles Signieren. Ein '
                          'Partner meldet, sein zehn Jahre altes Warenwirtschaftssystem könne nur '
                          'RSA-Zertifikate prüfen. Was tust du?'),
-                     'text_en': ('A fit: issuable by public CAs, above 250 bits, fast signing. A partner reports that '
+                     'text_en': ('A good fit: issuable by public CAs, above 250 bits, fast signing. A partner reports that '
                          'its ten-year-old ERP system can only verify RSA certificates. What do you do?'),
                      'options': [
                             {
@@ -441,7 +441,7 @@ ASYMMETRISCH_MODULE = {
                             },
                             {
                              'label_de': 'Für alle auf RSA-2048 zurückgehen, das ist am kompatibelsten',
-                             'label_en': 'Fall back to RSA-2048 for everyone, that is most compatible',
+                             'label_en': 'Fall back to RSA-2048 for everyone, that is the most compatible option',
                              'to': 'zurueck',
                             },
                         ],
@@ -461,7 +461,7 @@ ASYMMETRISCH_MODULE = {
                          'RSA-3072 — und der Partner einen Termin für die Ablösung.'),
                      'text_en': ('Common web servers can hold an ECDSA and an RSA certificate side by side and choose '
                          'by client capability. Modern clients get ECDSA, the legacy client RSA-3072 — and the '
-                         'partner a date for replacing it.'),
+                         'partner a deadline for replacing it.'),
                     },
                 ],
             },
@@ -496,8 +496,8 @@ ASYMMETRISCH_MODULE = {
              'en': [
                  'Encrypt with the public key, decrypt with the private key',
                  'Encrypt with the private key, decrypt with the public key',
-                 'Both operations use exclusively the public key',
-                 'Both operations use exclusively the private key',
+                 'Both operations use only the public key',
+                 'Both operations use only the private key',
              ],
          },
          'explanation': {
@@ -572,7 +572,7 @@ ASYMMETRISCH_MODULE = {
                  'Entschlüsselung vergangener, aufgezeichneter Sitzungen',
              ],
              'en': [
-                 'It fundamentally prevents server keys from being stolen',
+                 'It prevents server keys from being stolen altogether',
                  'It makes certificates valid indefinitely',
                  'It replaces the need for encryption with signatures',
                  'A stolen long-term server key still does not allow decrypting past, recorded '
@@ -610,7 +610,7 @@ ASYMMETRISCH_MODULE = {
           'de': ('TLS 1.3 kennt für den Schlüsselaustausch nur noch (EC)DHE, optional kombiniert mit einem PSK; '
               'der RSA-Schlüsseltransport wurde gestrichen. Asymmetrische Kryptografie bleibt nötig — für die '
               'Schlüsseleinigung und für die Signatur des Servers.'),
-          'en': ('For key exchange TLS 1.3 only knows (EC)DHE, optionally combined with a PSK; RSA key transport '
+          'en': ('For key exchange TLS 1.3 only supports (EC)DHE, optionally combined with a PSK; RSA key transport '
               'was removed. Asymmetric cryptography is still needed — for the key agreement and for the '
               "server's signature."),
          }},
@@ -620,8 +620,8 @@ ASYMMETRISCH_MODULE = {
                  'Prüfungen/s, ECDSA P-256 rund 100.000 Signaturen/s und 33.000 Prüfungen/s. Was folgt daraus '
                  'für einen stark belasteten TLS-Server?'),
              'en': ('A sample `openssl speed` run shows: RSA-2048 about 3,100 signatures/s and 124,000 '
-                 'verifications/s, ECDSA P-256 about 100,000 signatures/s and 33,000 verifications/s. What '
-                 'follows for a heavily loaded TLS server?'),
+                 'verifications/s, ECDSA P-256 about 100,000 signatures/s and 33,000 verifications/s. What does '
+                 'this mean for a heavily loaded TLS server?'),
             },
          'options': {
              'de': [
@@ -631,10 +631,10 @@ ASYMMETRISCH_MODULE = {
                     'RSA ist in jeder Disziplin langsamer als ECC',
                 ],
              'en': [
-                    'An ECDSA certificate relieves it, because the server signs in every handshake',
-                    'An RSA certificate relieves it, because RSA is faster at verifying',
+                    'An ECDSA certificate takes load off it, because the server signs in every handshake',
+                    'An RSA certificate takes load off it, because RSA is faster at verifying',
                     'The choice does not matter, because the payload is asymmetrically encrypted anyway',
-                    'RSA is slower than ECC in every discipline',
+                    'RSA is slower than ECC at every operation',
                 ],
             },
          'answer': 0,
@@ -650,16 +650,16 @@ ASYMMETRISCH_MODULE = {
         {'id': 'as7', 'type': 'number',
          'prompt': {
              'de': 'Wie viele Bit muss ein RSA-Modulus nach der BSI TR-02102-1 (Fassung 2026-01) mindestens haben?',
-             'en': 'How many bits must an RSA modulus have at least according to BSI TR-02102-1 (version 2026-01)?',
+             'en': 'What is the minimum number of bits an RSA modulus must have according to BSI TR-02102-1 (version 2026-01)?',
             },
          'answer': 3000,
          'explanation': {
              'de': ('3000 Bit. Schlüssel ab 2000 Bit waren nur übergangsweise bis Ende 2023 konform. In der Praxis '
                  'wählt man 3072 oder 4096 Bit; RSA-2048 erfüllt die BSI-Empfehlung nicht mehr, ist bei '
                  'öffentlichen CAs aber weiterhin zulässig.'),
-             'en': ('3000 bits. Keys from 2000 bits were only compliant on a transitional basis until the end of '
+             'en': ('3000 bits. Keys of 2000 bits or more were only compliant on a transitional basis until the end of '
                  '2023. In practice you choose 3072 or 4096 bits; RSA-2048 no longer meets the BSI '
-                 'recommendation but is still permitted at public CAs.'),
+                 'recommendation but is still permitted for public CAs.'),
             },
         },
         {'id': 'as8', 'type': 'multi',
@@ -691,7 +691,7 @@ ASYMMETRISCH_MODULE = {
                  'Forward Secrecy.'),
              'en': ("The two TLS_RSA suites transmit the session secret encrypted with the server's RSA key — "
                  'whoever holds it opens all recordings. With ECDHE_RSA the RSA key is only used for signing; '
-                 'the "RSA" in that name is therefore no hint at missing forward secrecy.'),
+                 'the "RSA" in that name therefore does not indicate a lack of forward secrecy.'),
             },
         },
     ]},

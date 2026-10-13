@@ -32,8 +32,8 @@ ROUTING_MODULE = {
                    "Netz muss, übernimmt der **Router** (Schicht 3). Er kennt mehrere Netze über "
                    "seine Interfaces und leitet Pakete zwischen ihnen weiter.",
              "en": "## What's a Router For?\n\nA **switch** connects "
-                   "devices on the **same** network (Layer 2). As soon as a packet needs to go to "
-                   "**another** network, the **router** (Layer 3) takes over. It knows multiple "
+                   "devices on the **same** network (layer 2). As soon as a packet needs to go to "
+                   "**another** network, the **router** (layer 3) takes over. It knows multiple "
                    "networks via its interfaces and forwards packets between them.",
          }},
         {"type": "diagram", "id": "diagram-nordwind-r1",
@@ -63,7 +63,7 @@ ROUTING_MODULE = {
                   "text_de": "Der Lager-PC erkennt: 192.168.20.80 liegt nicht in seinem Netz. Er schickt "
                              "den Frame an die MAC seines Gateways 192.168.10.1 — die Ziel-IP im Paket "
                              "bleibt 192.168.20.80.",
-                  "text_en": "The warehouse PC recognises that 192.168.20.80 is not on its network. It "
+                  "text_en": "The warehouse PC recognizes that 192.168.20.80 is not on its network. It "
                              "sends the frame to the MAC of its gateway 192.168.10.1 — the destination "
                              "IP in the packet stays 192.168.20.80."},
                  {"highlight": ["r1"],
@@ -96,7 +96,7 @@ ROUTING_MODULE = {
                    "(typisch Richtung Internet). Cisco IOS markiert sie in `show ip route` als `S*` und "
                    "nennt ihren Next-Hop als „Gateway of last resort“.",
              "en": "## The Routing Table\n\nEvery router keeps a "
-                   "**routing table**: “which destination network do I reach how?”\n\n"
+                   "**routing table**: “how do I reach which destination network?”\n\n"
                    "- **Connected (C)**: a network directly attached to the router.\n"
                    "- **Static (S)**: entered manually — `ip route <network> <mask> <next-hop>`.\n"
                    "- **Default route** `0.0.0.0/0`: the “default gateway” for everything unknown "
@@ -127,7 +127,7 @@ ROUTING_MODULE = {
         {"type": "widget", "id": "learning-route", "note": "Lokale oder entfernte Zustellung per Switch/Gateway entscheiden."},
         {"type": "debug", "id": "debug-1", "payload": {
             "prompt_de": "Ein PC im Lager-Netz (192.168.10.0/24) erreicht das Internet nicht. Finde den Fehler in der Konfiguration:",
-            "prompt_en": "A PC in the warehouse network (192.168.10.0/24) cannot reach the internet. Find the error in the configuration:",
+            "prompt_en": "A PC in the warehouse network (192.168.10.0/24) cannot reach the Internet. Find the error in the configuration:",
             "lines_de": ["IP-Adresse:    192.168.10.50", "Subnetzmaske:  255.255.255.0",
                          "Gateway:       192.168.20.1", "DNS-Server:    192.168.10.1"],
             "lines_en": ["IP address:    192.168.10.50", "Subnet mask:   255.255.255.0",
@@ -152,7 +152,7 @@ ROUTING_MODULE = {
                    "`show ip interface brief` and `show running-config` in the CLI. The "
                    "static route is created in real Cisco IOS with:\n\n"
                    "```\nip route 10.0.0.0 255.0.0.0 203.0.113.2\n```\n\n"
-                   "Static is simple and predictable — with many networks, a "
+                   "Static routing is simple and predictable — with many networks, a "
                    "**dynamic** protocol (OSPF) later takes over entering routes automatically.",
          }},
         {"type": "scenario", "id": "scenario-rueckroute",
@@ -172,7 +172,7 @@ ROUTING_MODULE = {
                              "Was tust du zuerst?",
                   "text_en": "Nordwind connects a branch office: its network 10.0.0.0/8 sits behind "
                              "router R2 — in this scenario it sits on the Gi0/2 link in place of the ISP router "
-                             "and has its address 203.0.113.2. For this,\n"
+                             "and uses that router's address 203.0.113.2. For this,\n"
                              "ip route 10.0.0.0 255.0.0.0 203.0.113.2\n"
                              "was entered on Nordwind-R1. Warehouse PC 192.168.10.50 pings the branch "
                              "server 10.0.5.20 — no reply. It can reach its own gateway 192.168.10.1. "
@@ -196,7 +196,7 @@ ROUTING_MODULE = {
                              "Router gar nicht erreichen — danach ginge überhaupt nichts mehr.",
                   "text_en": "A gateway has to be in the host's own subnet. The PC cannot reach "
                              "203.0.113.2 without a router at all — after that nothing would work "
-                             "any more."},
+                             "anymore."},
                  {"id": "hinweg",
                   "text_de": "R1 zeigt die Route:\n"
                              "S    10.0.0.0/8 [1/0] via 203.0.113.2\n"
@@ -213,7 +213,7 @@ ROUTING_MODULE = {
                        "label_en": "Forward path: R1 needs a more specific route (/24 instead of /8)",
                        "to": "genauer"},
                       {"label_de": "Rückweg: R2 kennt keinen Weg nach 192.168.10.0/24",
-                       "label_en": "Return path: R2 knows no way to 192.168.10.0/24", "to": "rueckweg"},
+                       "label_en": "Return path: R2 has no route to 192.168.10.0/24", "to": "rueckweg"},
                       {"label_de": "Eine Firewall auf dem Server blockt ICMP",
                        "label_en": "A firewall on the server blocks ICMP", "to": "firewall"},
                   ]},
@@ -233,7 +233,7 @@ ROUTING_MODULE = {
                              "beiden angeschlossenen Netze (10.0.0.0/8 und 203.0.113.0/30) und keine "
                              "Default-Route — die Replies an 192.168.10.50 verwirft er. Welche Korrektur "
                              "passt am besten?",
-                  "text_en": "Well scoped: routing applies per direction. R2's table contains only its two "
+                  "text_en": "Correctly narrowed down: routing applies per direction. R2's table contains only its two "
                              "connected networks (10.0.0.0/8 and 203.0.113.0/30) and no default route — "
                              "it drops the replies to 192.168.10.50. Which fix fits best?",
                   "options": [
@@ -311,8 +311,8 @@ ROUTING_MODULE = {
              "de": "Ein Präfix der Länge 0 legt kein einziges Bit fest und passt damit auf jede Adresse: die "
                    "Route für alles, wofür es nichts Genaueres gibt. Mit „kein Netz“ oder der "
                    "Broadcast-Adresse (255.255.255.255) hat sie nichts zu tun.",
-             "en": "A prefix of length 0 fixes not a single bit and thus matches every address: the route "
-                   "for everything that has nothing more specific. It has nothing to do with “no network” or "
+             "en": "A prefix of length 0 does not fix a single bit and thus matches every address: the route "
+                   "for everything without a more specific entry. It has nothing to do with “no network” or "
                    "the broadcast address (255.255.255.255)."}},
         {"id": "r4", "type": "single",
          "prompt": {"de": "Womit trägt man im Cisco IOS eine statische Route ein?",

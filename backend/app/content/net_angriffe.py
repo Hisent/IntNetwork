@@ -22,9 +22,9 @@ NETZ_ANGRIFFE_MODULE = {
         "Describe MAC flooding and DHCP spoofing as further attacks on the local network",
         "Match suitable countermeasures (Dynamic ARP Inspection, DHCP snooping, port security) to "
         "the respective attacks",
-        "Assess the significance and legal limits of port scans",
-        "Tell IDS from IPS and place the risk of false positives with an IPS",
-        "Place segmentation and the basic idea of zero trust as the most effective protection",
+        "Assess the informative value and legal limits of port scans",
+        "Distinguish IDS from IPS and assess the risk of false positives with an IPS",
+        "Recognize segmentation and the basic idea of zero trust as the most effective protection",
     ],
     "scenario": {
         "de": "Die IT bei Nordwind bemerkt seltsamen Netzverkehr: Ein Laptop im Büro-VLAN "
@@ -33,14 +33,14 @@ NETZ_ANGRIFFE_MODULE = {
               "dürfen. Zeit, sich anzusehen, welche Angriffe im eigenen Netz überhaupt möglich "
               "sind — und wie man sich dagegen wehrt.",
         "en": "Nordwind's IT team notices strange network traffic: a laptop on the office VLAN "
-              "keeps briefly losing its internet connection, and the login of an internal tool "
+              "keeps briefly losing its Internet connection, and the login of an internal tool "
               "shows a password that should never have been visible in plain text. Time to "
               "look at what attacks are even possible inside your own network — and how to "
               "defend against them.",
     },
     "blocks": [
         {"type": "text", "id": "text-1",
-         "note": "Rahmen setzen: alle folgenden Angriffe brauchen keinen Zugriff von aussen, "
+         "note": "Rahmen setzen: alle folgenden Angriffe brauchen keinen Zugriff von außen, "
                  "nur einen Anschluss im lokalen Netz (WLAN oder Kabel). Das relativiert oft "
                  "die Vorstellung, Firewall am Rand reiche als Schutz.",
          "value": {
@@ -112,7 +112,7 @@ NETZ_ANGRIFFE_MODULE = {
                  {"highlight": ["atk", "e-atk", "sw", "e-gw", "gw"],
                   "text_de": "Dasselbe in Gegenrichtung: Dem Gateway meldet er „192.168.20.34 hat meine "
                              "MAC.“ Jetzt sind beide Seiten vergiftet.",
-                  "text_en": "The same in the opposite direction: it tells the gateway “192.168.20.34 has "
+                  "text_en": "The same in the opposite direction: the attacker tells the gateway “192.168.20.34 has "
                              "my MAC.” Now both sides are poisoned."},
                  {"highlight": ["pc", "e-pc", "sw", "e-atk", "atk", "e-gw", "gw"],
                   "text_de": "Der PC adressiert seine Frames an die MAC des Angreifers. Der liest mit und "
@@ -131,11 +131,11 @@ NETZ_ANGRIFFE_MODULE = {
             "prompt_de": "Ein Nutzer meldet: Der Internetzugriff ist plötzlich langsam, und "
                          "einige Verbindungen brechen ab. Ein Blick in den ARP-Cache zeigt "
                          "folgendes Bild. Finde den auffälligen Eintrag:",
-            "prompt_en": "A user reports: internet access has suddenly become slow, and some "
+            "prompt_en": "A user reports: Internet access has suddenly become slow, and some "
                          "connections drop. A look at the ARP cache shows the following. Find "
                          "the suspicious entry:",
             "lines_de": [
-                "IP des Standard-Gateways: 192.168.20.1 (unverändert)",
+                "IP des Standardgateways: 192.168.20.1 (unverändert)",
                 "MAC des Gateways laut aktuellem ARP-Cache: 00:11:22:33:44:55",
                 "MAC des Gateways vor einer Stunde laut altem Protokoll: AA:BB:CC:DD:EE:FF",
                 "Für heute war keine Wartung am Gateway angekündigt",
@@ -154,7 +154,7 @@ NETZ_ANGRIFFE_MODULE = {
                               "MAC-Adresse, sodass Clients ihren Verkehr an ihn statt an den "
                               "echten Router schicken.",
             "explanation_en": "The gateway IP stayed the same, but its MAC address changed "
-                              "without any announced reason. That's the typical picture of "
+                              "without any announced reason. That's the typical sign of "
                               "ARP spoofing: an attacker answers ARP requests for the gateway "
                               "IP with their own MAC address, so clients send their traffic "
                               "to the attacker instead of to the real router.",
@@ -181,7 +181,7 @@ NETZ_ANGRIFFE_MODULE = {
              "de": "## DHCP-Spoofing\n\nEin Angreifer kann im lokalen Netz einen **eigenen "
                    "DHCP-Server** betreiben (Modul 10), der auf DHCP-Anfragen schneller "
                    "oder zusätzlich antwortet als der echte Server. Verteilt dieser gefälschte "
-                   "Server sich selbst als **Standard-Gateway** oder DNS-Server, laufen "
+                   "Server sich selbst als **Standardgateway** oder DNS-Server, laufen "
                    "ahnungslose Clients ihren gesamten Verkehr über den Angreifer — eine "
                    "weitere Form von Man-in-the-Middle, diesmal über die DHCP-Konfiguration "
                    "statt über ARP.",
@@ -204,8 +204,8 @@ NETZ_ANGRIFFE_MODULE = {
                    "- **Port Security** — begrenzt, wie viele oder welche MAC-Adressen an "
                    "einem Port gültig sind, und bremst so MAC-Flooding aus.",
              "en": "## Countermeasures: Three Terms\n\nEach of these three attacks has a "
-                   "matching switch-level defense, listed here just as terms to place them "
-                   "correctly:\n\n"
+                   "matching switch-level defense, listed here only as terms for "
+                   "orientation:\n\n"
                    "- **Dynamic ARP Inspection (DAI)** — checks ARP replies against a trusted "
                    "source and discards forged ones.\n"
                    "- **DHCP Snooping** — only allows DHCP replies from ports marked as "
@@ -244,29 +244,29 @@ NETZ_ANGRIFFE_MODULE = {
                       {"label_de": "Den ARP-Cache des Laptops löschen",
                        "label_en": "Clear the laptop's ARP cache", "to": "cache"},
                       {"label_de": "Am Switch nachsehen, an welchem Port die fremde MAC gelernt wurde",
-                       "label_en": "Check on the switch at which port the foreign MAC was learned", "to": "port"},
+                       "label_en": "Check on the switch which port the unknown MAC was learned on", "to": "port"},
                       {"label_de": "Das Gateway neu starten", "label_en": "Restart the gateway", "to": "gwneu"}]},
                  {"id": "cache", "outcome": "bad",
                   "text_de": "Der Angreifer wiederholt seine gefälschten Antworten alle paar Sekunden — "
                              "der Eintrag ist sofort wieder falsch. Das Symptom verschwindet kurz, die "
                              "Ursache bleibt.",
                   "text_en": "The attacker repeats the forged replies every few seconds — the entry is "
-                             "wrong again immediately. The symptom vanishes briefly, the cause remains."},
+                             "wrong again immediately. The symptom vanishes briefly, but the cause remains."},
                  {"id": "gwneu", "outcome": "bad",
                   "text_de": "Das Gateway ist nicht fehlerhaft, es wird nur übergangen. Der Neustart trennt "
                              "das ganze VLAN vom Netz und ändert an den gefälschten ARP-Antworten nichts.",
                   "text_en": "The gateway is not faulty, it is merely being bypassed. The restart cuts the "
-                             "whole VLAN off the network and changes nothing about the forged ARP replies."},
+                             "whole VLAN off from the network and changes nothing about the forged ARP replies."},
                  {"id": "port",
                   "text_de": "show mac address-table: Die MAC hängt an Gi1/0/12 — der Dose im "
                              "Besprechungsraum. Dort steht ein unbekanntes Notebook. Was jetzt?",
                   "text_en": "show mac address-table: the MAC sits on Gi1/0/12 — the wall socket in the "
-                             "meeting room. An unknown notebook is there. What now?",
+                             "meeting room. An unknown laptop is sitting there. What now?",
                   "options": [
                       {"label_de": "Erst einmal weiter beobachten, um mehr über den Angreifer zu erfahren",
                        "label_en": "Keep watching for now to learn more about the attacker", "to": "warten"},
                       {"label_de": "Den Port abschalten und den Vorfall der Sicherheitsstelle melden",
-                       "label_en": "Shut the port down and report the incident to security", "to": "dicht"}]},
+                       "label_en": "Shut the port down and report the incident to the security team", "to": "dicht"}]},
                  {"id": "warten", "outcome": "bad",
                   "text_de": "Solange der Port offen ist, laufen Passwörter und Daten weiter über den "
                              "Angreifer. Eindämmen geht vor Neugier.",
@@ -275,15 +275,15 @@ NETZ_ANGRIFFE_MODULE = {
                  {"id": "dicht",
                   "text_de": "Der Angriff ist gestoppt, die ARP-Caches erholen sich. Wie verhinderst du, "
                              "dass das morgen an einer anderen Dose wieder passiert?",
-                  "text_en": "The attack is stopped, the ARP caches recover. How do you prevent the same "
-                             "thing from happening tomorrow at another socket?",
+                  "text_en": "The attack has been stopped and the ARP caches recover. How do you prevent the "
+                             "same thing from happening tomorrow at another wall socket?",
                   "options": [
                       {"label_de": "Auf allen PCs einen festen ARP-Eintrag für das Gateway setzen",
                        "label_en": "Set a static ARP entry for the gateway on all PCs", "to": "statisch"},
                       {"label_de": "DHCP Snooping und Dynamic ARP Inspection in den Access-VLANs aktivieren",
                        "label_en": "Enable DHCP snooping and Dynamic ARP Inspection on the access VLANs", "to": "dai"},
                       {"label_de": "Ein längeres WLAN-Passwort vergeben",
-                       "label_en": "Set a longer Wi-Fi passphrase", "to": "wlanpw"}]},
+                       "label_en": "Set a longer Wi-Fi password", "to": "wlanpw"}]},
                  {"id": "statisch", "outcome": "ok",
                   "text_de": "Das schützt den Gateway-Eintrag dieser PCs — aber nicht das Gateway selbst, "
                              "nicht neue Geräte, und beim nächsten Hardware-Tausch müssen alle PCs "
@@ -294,14 +294,14 @@ NETZ_ANGRIFFE_MODULE = {
                   "text_de": "Der Angreifer hing an einer Netzwerkdose. Und auch im WLAN gilt: Wer das "
                              "Passwort kennt, sitzt im selben Netz und kann ARP fälschen.",
                   "text_en": "The attacker was plugged into a wall socket. And on Wi-Fi the same applies: "
-                             "whoever knows the passphrase sits on the same network and can forge ARP."},
+                             "whoever knows the password sits on the same network and can forge ARP."},
                  {"id": "dai", "outcome": "good",
                   "text_de": "Der Switch verwirft gefälschte ARP-Antworten künftig am Port des Absenders — "
                              "an jeder Dose. Nicht vergessen: Alle Passwörter, die über den Laptop liefen, "
                              "gelten als bekannt und werden geändert.",
                   "text_en": "From now on the switch discards forged ARP replies at the sender's port — at "
-                             "every socket. Do not forget: all passwords that passed through the laptop "
-                             "count as known and get changed."},
+                             "every wall socket. Do not forget: all passwords that passed through the laptop "
+                             "must be considered compromised and changed."},
              ],
          }},
         {"type": "text", "id": "text-dai-zusammenspiel",
@@ -321,10 +321,10 @@ NETZ_ANGRIFFE_MODULE = {
              "en": "## How the Protection Features Work Together\n\nHow does the switch know which ARP "
                    "reply is genuine? From **DHCP snooping**. The switch divides its ports into two "
                    "classes:\n\n"
-                   "- **Trusted** — only the port towards the real DHCP server (usually the uplink). Only "
+                   "- **Trusted** — only the port toward the real DHCP server (usually the uplink). Only "
                    "here may DHCP replies come in.\n"
                    "- **Untrusted** — all ports with end devices. A DHCP reply from here is discarded.\n\n"
-                   "Along the way the switch records which client received which address on which port: "
+                   "As a side effect, the switch records which client received which address on which port: "
                    "the **binding table** (MAC, IP, VLAN, port). It is exactly this table that **Dynamic "
                    "ARP Inspection** uses: if an ARP packet on an untrusted port claims an IP–MAC pair that "
                    "is not in the table, it is discarded.\n\n"
@@ -361,12 +361,12 @@ NETZ_ANGRIFFE_MODULE = {
                              "00:50:56:A1:0C:22  192.168.20.50  80211  20    Gi1/0/7\n"
                              "Total number of bindings: 2")},
                  {"cmd": "show ip arp inspection statistics vlan 20",
-                  "desc_de": "Zähler der ARP-Prüfung", "desc_en": "counters of the ARP inspection",
+                  "desc_de": "Zähler der ARP-Prüfung", "desc_en": "ARP inspection counters",
                   "output": " Vlan   Forwarded   Dropped   DHCP Drops   ACL Drops\n"
                             " ----   ---------   -------   ----------   ---------\n"
                             "   20        1482        37           37           0"},
                  {"cmd": "show logging | include DAI",
-                  "desc_de": "Logmeldungen der ARP-Prüfung", "desc_en": "log messages of the ARP inspection",
+                  "desc_de": "Logmeldungen der ARP-Prüfung", "desc_en": "ARP inspection log messages",
                   "output": ("%SW_DAI-4-DHCP_SNOOPING_DENY: 1 Invalid ARPs (Res)\n"
                              "  on Gi1/0/12, vlan 20. ([0050.56c0.0066/192.168.20.1/...])")},
                  {"cmd": "show mac address-table address 0050.56c0.0066",
@@ -410,7 +410,7 @@ NETZ_ANGRIFFE_MODULE = {
                    "einfach so gegen ein Netz, das einem nicht gehört.",
              "en": "## Port Scans\n\nA **port scan** systematically checks which ports on a "
                    "target system are open (a service answers), closed (no service is listening, "
-                   "the host actively refuses, with a RST for TCP), or filtered (no answer, presumably due to a "
+                   "the host actively refuses, with an RST for TCP), or filtered (no answer, presumably due to a "
                    "firewall). A scan result therefore doesn't automatically reveal a "
                    "vulnerability — at first it only shows **which services are reachable**. "
                    "That's exactly why a scan is often the first step in assessing an attack "
@@ -482,7 +482,7 @@ NETZ_ANGRIFFE_MODULE = {
          "prompt": {"de": "Warum funktioniert ARP-Spoofing grundsätzlich?",
                     "en": "Why does ARP spoofing fundamentally work?"},
          "options": {
-             "de": ["Weil ARP verschlüsselt aber ungeprüft ist",
+             "de": ["Weil ARP verschlüsselt, aber ungeprüft ist",
                     "Weil ARP keine Authentifizierung vorsieht und jede Antwort geglaubt wird",
                     "Weil ARP nur bei WLAN existiert", "Weil ARP über das Internet läuft"],
              "en": ["Because ARP is encrypted but unchecked",
@@ -510,7 +510,7 @@ NETZ_ANGRIFFE_MODULE = {
          "answer": 0,
          "explanation": {
              "de": "Ist die Tabelle voll, kann der Switch neue Ziele keinem Port mehr zuordnen und flutet deren Frames wie bei einem unbekannten Ziel an alle Ports — der Angreifer liest mit. Die MAC des Angreifers selbst spielt keine Rolle; er erfindet Tausende fremde.",
-             "en": "Once the table is full the switch can no longer map new destinations to a port and floods their frames to all ports, as with an unknown destination — the attacker reads along. The attacker's own MAC plays no role; it invents thousands of foreign ones."}},
+             "en": "Once the table is full, the switch can no longer map new destinations to a port and floods their frames to all ports, as with an unknown destination — the attacker reads along. The attacker's own MAC is irrelevant; the attacker invents thousands of fake ones."}},
         {"id": "na3", "type": "single",
          "prompt": {"de": "Was macht ein gefälschter DHCP-Server bei DHCP-Spoofing "
                          "typischerweise?",
@@ -526,7 +526,7 @@ NETZ_ANGRIFFE_MODULE = {
          "answer": 1,
          "explanation": {
              "de": "Der gefälschte Server beantwortet DHCP-Anfragen und trägt sich selbst als Gateway oder DNS-Server ein. Damit lenkt er den Verkehr der Clients über sich — ganz ohne ARP zu fälschen. Adressen „löschen“ kann er nicht.",
-             "en": "The rogue server answers DHCP requests and enters itself as gateway or DNS server. That steers the clients' traffic through it — without forging any ARP. It cannot “delete” addresses."}},
+             "en": "The rogue server answers DHCP requests and lists itself as the gateway or DNS server. That steers the clients' traffic through it — without forging any ARP. It cannot “delete” addresses."}},
         {"id": "na4", "type": "single",
          "prompt": {"de": "Worin unterscheiden sich IDS und IPS?",
                     "en": "How do IDS and IPS differ?"},
@@ -541,7 +541,7 @@ NETZ_ANGRIFFE_MODULE = {
          "answer": 1,
          "explanation": {
              "de": "Das IDS sitzt neben dem Datenpfad und meldet, das IPS sitzt im Datenpfad und blockiert. Die Verwechslung ist naheliegend, weil oft dasselbe Produkt beides kann — der Unterschied liegt in der Betriebsart und im Risiko eines Fehlalarms.",
-             "en": "The IDS sits beside the data path and reports, the IPS sits in the data path and blocks. The mix-up is understandable because often the same product can do both — the difference lies in the operating mode and in the risk of a false positive."}},
+             "en": "The IDS sits beside the data path and reports; the IPS sits in the data path and blocks. The mix-up is understandable because often the same product can do both — the difference lies in the operating mode and in the risk of a false positive."}},
         {"id": "na5", "type": "single",
          "prompt": {"de": "Unter welcher Bedingung ist ein Port-Scan gegen ein fremdes Netz "
                          "zulässig?",
@@ -560,8 +560,8 @@ NETZ_ANGRIFFE_MODULE = {
              "de": "Maßgeblich ist die Erlaubnis des Betreibers, nicht die Absicht oder der Schaden: Ein "
                    "Scan ohne Auftrag kann strafbar sein, auch wenn nichts kaputtgeht. Kunde zu sein "
                    "genügt nicht — die Erlaubnis muss ausdrücklich und am besten schriftlich vorliegen.",
-             "en": "What counts is the operator's permission, not intent or damage: a scan without a "
-                   "mandate can be a criminal offense even if nothing breaks. Being a customer is not "
+             "en": "What counts is the operator's permission, not intent or damage: a scan without "
+                   "authorization can be a criminal offense even if nothing breaks. Being a customer is not "
                    "enough — the permission must be explicit and preferably in writing."}},
         {"id": "na6", "type": "single",
          "prompt": {"de": "Ein Admin aktiviert Dynamic ARP Inspection für VLAN 20, DHCP Snooping aber "
@@ -585,8 +585,8 @@ NETZ_ANGRIFFE_MODULE = {
                    "Tabelle gibt es kein gültiges Paar — und was nicht belegt ist, wird an untrusted Ports "
                    "verworfen. DAI lernt nicht selbst. Deshalb zuerst DHCP Snooping einführen, dann DAI.",
              "en": "DAI checks ARP packets against the binding table that DHCP snooping builds. Without a "
-                   "table there is no valid pair — and whatever is not backed up gets dropped on untrusted "
-                   "ports. DAI does not learn by itself. So introduce DHCP snooping first, then DAI."}},
+                   "table there is no valid pair — and whatever is not backed by a binding gets dropped on untrusted "
+                   "ports. DAI does not learn on its own. So introduce DHCP snooping first, then DAI."}},
         {"id": "na7", "type": "multi",
          "prompt": {"de": "Welche Beobachtungen deuten auf ARP-Spoofing hin? (mehrere)",
                     "en": "Which observations point to ARP spoofing? (multiple)"},
@@ -606,9 +606,9 @@ NETZ_ANGRIFFE_MODULE = {
                    "fremde IP aus — also taucht sie doppelt auf. Eine 169.254-Adresse zeigt ein "
                    "DHCP-Problem, und eine volle MAC-Tabelle ist das Bild von MAC-Flooding: andere "
                    "Angriffe, andere Gegenmaßnahmen.",
-             "en": "Both are traces of the same forgery: the attacker claims a foreign IP with its own "
+             "en": "Both are traces of the same forgery: the attacker claims someone else's IP with their own "
                    "MAC — so that MAC shows up twice. A 169.254 address indicates a DHCP problem, and a "
-                   "full MAC table is the picture of MAC flooding: different attacks, different "
+                   "full MAC table is the signature of MAC flooding: different attacks, different "
                    "countermeasures."}},
         {"id": "na8", "type": "single",
          "prompt": {"de": "Auf einem Arbeitsplatz-Port ist Port Security aktiv: höchstens 2 MAC-Adressen, "
@@ -632,8 +632,8 @@ NETZ_ANGRIFFE_MODULE = {
              "de": "MAC-Flooding lebt von Tausenden gefälschter Absender-MACs an einem Port. Port Security "
                    "begrenzt genau diese Zahl und reagiert auf die erste überzählige Adresse. Der Preis: "
                    "Auch ein harmloser Mini-Switch mit drei Geräten löst die Sperre aus.",
-             "en": "MAC flooding lives on thousands of forged source MACs on one port. Port security "
-                   "limits exactly that number and reacts to the first surplus address. The price: even a "
+             "en": "MAC flooding relies on thousands of forged source MACs on one port. Port security "
+                   "limits exactly that number and reacts to the first excess address. The downside: even a "
                    "harmless mini switch with three devices triggers the shutdown."}},
     ]},
 }

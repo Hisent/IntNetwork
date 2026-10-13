@@ -1,7 +1,7 @@
 WLAN_MODULE = {
     "key": "wlan",
     "title": "WLAN — Netz ohne Kabel",
-    "title_en": "Wi-Fi — Network Without Cables",
+    "title_en": "Wi-Fi — Networking Without Cables",
     "order": 14,
     "prerequisites": ["switching"],
     "goals": [
@@ -10,7 +10,7 @@ WLAN_MODULE = {
         "Sichere (WPA2/WPA3) von unsicherer Verschlüsselung unterscheiden",
     ],
     "goals_en": [
-        "Place Wi-Fi as radio access on layers 1+2 (AP/SSID/association)",
+        "Classify Wi-Fi as radio access at layers 1+2 (AP/SSID/association)",
         "Explain 2.4 vs 5 GHz and channel overlap (1/6/11)",
         "Tell secure (WPA2/WPA3) from insecure encryption",
     ],
@@ -18,8 +18,8 @@ WLAN_MODULE = {
         "de": "Im Nordwind-Lager arbeiten Scanner und Tablets per Funk. Mal ist "
               "die Verbindung top, mal lahm — obwohl der Access Point direkt an der "
               "Decke hängt. Woran liegt das, und wie hält man das WLAN sicher?",
-        "en": "In the Nordwind warehouse, scanners and tablets work over radio. Sometimes "
-              "the connection is great, sometimes sluggish — even though the access point hangs "
+        "en": "In the Nordwind warehouse, scanners and tablets communicate by radio. Sometimes "
+              "the connection is great, sometimes sluggish — even though the access point is mounted "
               "right on the ceiling. What's causing that, and how do you keep the Wi-Fi secure?",
     },
     "blocks": [
@@ -31,8 +31,8 @@ WLAN_MODULE = {
                    "kabelgebundenen Geräte. Darüber laufen ganz normal IP, DHCP, DNS und der Rest.",
              "en": "## Wi-Fi Is Layer 1+2 Over Radio\n\nAn **access point "
                    "(AP)** is basically a switch port over radio: devices **associate** with "
-                   "an **SSID** (the network name) and then hang on the same LAN as the "
-                   "wired devices. On top of that, IP, DHCP, DNS and the rest run completely normally.",
+                   "an **SSID** (the network name) and are then on the same LAN as the "
+                   "wired devices. On top of that, IP, DHCP, DNS and the rest run as usual.",
          }},
         {"type": "text", "id": "text-2",
          "value": {
@@ -53,7 +53,7 @@ WLAN_MODULE = {
                    "devices, but the shortest range.\n\n"
                    "A channel is wider than its spacing to its neighbor — that's why adjacent "
                    "2.4 GHz channels **overlap** and interfere with each other. At **20 MHz**, "
-                   "**1, 6 and 11** are the common non-overlapping planning recommendation; allowed "
+                   "**1, 6 and 11** are the usual recommendation for a non-overlapping plan; the allowed "
                    "channels also depend on the country. Two APs in range should therefore use "
                    "different, non-overlapping channels.",
          }},
@@ -97,11 +97,11 @@ WLAN_MODULE = {
                          "ständige Verbindungsabbrüche und Geschwindigkeitseinbrüche. Welche "
                          "der folgenden Aussagen zu diesem Bild ist falsch?",
             "prompt_en": "A technician sets up two neighboring access points in the "
-                         "Nordwind warehouse and configures them on 2.4 GHz channels 3 and "
+                         "Nordwind warehouse and sets them to 2.4 GHz channels 3 and "
                          "4 — reasoning that “different channel numbers are enough for clean "
                          "separation”. Shortly after, employees between the two APs report "
                          "constant disconnects and speed drops. Which of the following "
-                         "statements about this picture is false?",
+                         "statements about this situation is false?",
             "lines_de": [
                 "Kanal 3 und Kanal 4 liegen bei 20 MHz Kanalbreite so nah beieinander, "
                 "dass sich ihre Frequenzbereiche überlappen.",
@@ -150,7 +150,7 @@ WLAN_MODULE = {
                    "- **WPA2** (AES): solid standard.\n"
                    "- **WPA3**: current, strongest protection.\n\n"
                    "Guests belong on their **own Wi-Fi/VLAN** — separated from the company network "
-                   "(keyword [[vlan]]).",
+                   "(see [[vlan]]).",
          }},
         {"type": "text", "id": "text-wpa3-sae",
          "value": {
@@ -172,10 +172,10 @@ WLAN_MODULE = {
                    "passphrase feeds directly into the keys of the connection setup: whoever captures that handshake "
                    "can try any number of passphrases at home — a weak one falls quickly. **WPA3-Personal** "
                    "replaces this with **SAE** (Simultaneous Authentication of Equals): every guess needs a "
-                   "real exchange with the access point, offline guessing no longer works. In addition, "
+                   "real exchange with the access point; offline guessing no longer works. In addition, "
                    "every session gets a key of its own — if the passphrase leaks later, old captures "
                    "still stay unreadable (**forward secrecy**).\n\n"
-                   "The **6 GHz band** carries no legacy: **WPA3** is mandatory there — or, for open "
+                   "The **6 GHz band** has no legacy baggage: **WPA3** is mandatory there — or, for open "
                    "networks, **Enhanced Open**, which encrypts even without a passphrase. WPA2 and "
                    "completely unencrypted networks are not permitted on 6 GHz.\n\n"
                    "**Looking ahead:** the small lab further up names two switch protection features, "
@@ -228,14 +228,14 @@ WLAN_MODULE = {
                  "plant man üblicherweise mit etwa −67 dBm oder besser (Faustwert, kein Standard).",
          "payload": {
              "title_de": "Die Scanner am Hallenende verlieren die Verbindung",
-             "title_en": "The scanners at the far end of the hall lose their connection",
+             "title_en": "The scanners at the far end of the warehouse lose their connection",
              "start": "start",
              "nodes": [
                  {"id": "start",
                   "text_de": "Im Nordwind-Lager hängt ein Access Point am Eingang, 2,4 GHz, Kanal 6. Vorn "
                              "läuft alles, am Hallenende brechen die Handscanner ständig ab. Was tust du "
                              "zuerst?",
-                  "text_en": "In the Nordwind warehouse one access point hangs at the entrance, 2.4 GHz, "
+                  "text_en": "In the Nordwind warehouse one access point is mounted at the entrance, 2.4 GHz, "
                              "channel 6. Up front everything works; at the far end the handheld scanners "
                              "keep dropping. What do you do first?",
                   "options": [
@@ -249,22 +249,22 @@ WLAN_MODULE = {
                   "text_de": "Funk ist ein Dialog: Der Scanner hört den AP dann zwar besser, der AP den "
                              "schwachen Scanner aber nicht. Dafür stört der AP jetzt mehr Nachbarn.",
                   "text_en": "Radio is a dialogue: the scanner may hear the AP better then, but the AP "
-                             "still cannot hear the weak scanner. And the AP now disturbs more neighbors."},
+                             "still cannot hear the weak scanner. And the AP now interferes with more neighbors."},
                  {"id": "offen", "outcome": "bad",
                   "text_de": "Die Verschlüsselung kostet praktisch keine Reichweite. Ein offenes Netz löst "
                              "das Funkproblem nicht — und jeder vor der Halle könnte mitlesen.",
                   "text_en": "Encryption costs practically no range. An open network does not solve the "
-                             "radio problem — and anyone outside the hall could listen in."},
+                             "radio problem — and anyone outside the building could listen in."},
                  {"id": "messen",
                   "text_de": "Messung am Hallenende: der eigene AP kommt nur mit −82 dBm an (sehr schwach), "
                              "und auf Kanal 6 funken zusätzlich zwei Nachbarfirmen. Welche Maßnahme passt?",
                   "text_en": "Measurement at the far end: your own AP arrives at only −82 dBm (very weak), "
-                             "and two neighboring companies also transmit on channel 6. Which measure fits?",
+                             "and two neighboring companies also transmit on channel 6. Which action fits?",
                   "options": [
                       {"label_de": "Zweiten AP am Hallenende per Kabel anbinden, auf Kanal 1 oder 11",
-                       "label_en": "Wire a second AP at the far end, on channel 1 or 11", "to": "zweiter"},
+                       "label_en": "Connect a second AP by cable at the far end, on channel 1 or 11", "to": "zweiter"},
                       {"label_de": "Einen Funk-Repeater in die Hallenmitte stellen",
-                       "label_en": "Put a wireless repeater in the middle of the hall", "to": "repeater"},
+                       "label_en": "Put a wireless repeater in the middle of the warehouse", "to": "repeater"},
                       {"label_de": "Den vorhandenen AP auf Kanal 7 stellen, um den Nachbarn auszuweichen",
                        "label_en": "Move the existing AP to channel 7 to dodge the neighbors", "to": "kanal7"}]},
                  {"id": "repeater", "outcome": "ok",
@@ -295,8 +295,8 @@ WLAN_MODULE = {
                          "gleich (SSID, Verschlüsselung), und was müsste grundlegend neu "
                          "hinzukommen?",
             "prompt_en": "The Nordwind warehouse Wi-Fi today uses a single SSID with one "
-                         "shared WPA2 password for every device. Turning this into a real "
-                         "enterprise Wi-Fi with individual user accounts (keyword "
+                         "shared WPA2 passphrase for every device. Turning this into a real "
+                         "company Wi-Fi with individual user accounts (known as "
                          "enterprise Wi-Fi) means this setup is no longer enough. What "
                          "stays the same (SSID, encryption), and what would fundamentally "
                          "need to be added?",
@@ -356,7 +356,7 @@ WLAN_MODULE = {
                     "Das geht, aber nur mit Kanal 1, 6 oder 11",
                     "Das geht nur ohne Verschlüsselung"],
              "en": ["That works — WPA2 works on every band",
-                    "It does not work: 6 GHz requires WPA3 (or Enhanced Open for open networks)",
+                    "That does not work: 6 GHz requires WPA3 (or Enhanced Open for open networks)",
                     "That works, but only on channel 1, 6 or 11",
                     "That only works without encryption"],
          },
@@ -365,7 +365,7 @@ WLAN_MODULE = {
              "de": "Im 6-GHz-Band gibt es keine Altgeräte, auf die Rücksicht zu nehmen wäre — deshalb ist "
                    "dort WPA3 vorgeschrieben. Alte WPA2-Geräte bleiben einfach auf 2,4 und 5 GHz. Die "
                    "Kanäle 1/6/11 sind eine Regel des 2,4-GHz-Bands und haben mit 6 GHz nichts zu tun.",
-             "en": "The 6 GHz band has no legacy devices to accommodate — which is why WPA3 is prescribed "
+             "en": "The 6 GHz band has no legacy devices to accommodate — which is why WPA3 is required "
                    "there. Old WPA2 devices simply stay on 2.4 and 5 GHz. Channels 1/6/11 are a rule of the "
                    "2.4 GHz band and have nothing to do with 6 GHz."}},
         {"id": "w6", "type": "single",
@@ -408,7 +408,7 @@ WLAN_MODULE = {
                    "Kanal 6 überlappt vollständig: Die drei APs teilen sich dann die Sendezeit.",
              "en": "What matters is a spacing of at least five channel numbers, not the numbers 1, 6 and "
                    "11 themselves — in Europe (channels 1–13) 2/7/12 is therefore non-overlapping too. In "
-                   "practice you still choose 1/6/11 because the neighbors stick to it. Three times "
-                   "channel 6 overlaps completely: the three APs then share the airtime."}},
+                   "practice you still choose 1/6/11 because the neighbors stick to it. Using "
+                   "channel 6 three times means complete overlap: the three APs then share the airtime."}},
     ]},
 }

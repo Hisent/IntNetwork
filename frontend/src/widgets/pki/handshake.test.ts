@@ -35,3 +35,14 @@ describe('Schritt-Daten Konsistenz', () => {
     }
   })
 })
+
+describe('Review 2026-10', () => {
+  it('Schrittnamen sind sprachneutral (kein deutsches "mit")', () => {
+    for (const step of [...TLS12_STEPS, ...TLS13_STEPS]) expect(step.name).not.toMatch(/\bmit\b/)
+  })
+
+  it('TLS 1.2: Flüge mit ChangeCipherSpec sind nur teilweise verschlüsselt, TLS 1.3 kennt das nicht', () => {
+    for (const step of TLS12_STEPS) expect(!!step.partial).toBe(step.name.includes('ChangeCipherSpec'))
+    expect(TLS13_STEPS.some((s) => s.partial)).toBe(false)
+  })
+})

@@ -12,7 +12,7 @@ SPEC_DRIVEN_BMAD_MODULE = {'key': 'spec-driven-bmad',
            'Rollen als Subagents/Skills in Claude Code abbilden'],
  'goals_en': ['Understand why spec-driven work raises the quality of results',
                'Apply the cycle spec → plan → implementation → review',
-               'Place the core idea of the BMAD methodology (roles & artifacts)',
+               'Put the core idea of the BMAD methodology (roles & artifacts) into context',
                'Map roles onto subagents/skills in Claude Code'],
  'scenario': {'de': 'Größere Aufgaben scheitern selten am Coden, sondern an unklaren '
                     'Anforderungen. **Spec-driven Development** dreht die Reihenfolge um: erst '
@@ -192,7 +192,7 @@ SPEC_DRIVEN_BMAD_MODULE = {'key': 'spec-driven-bmad',
                                     'detail_de': 'Idee erkunden und prüfen, recherchieren. '
                                                  'Artefakt: Product Brief. Rolle: Analyst.',
                                     'detail_en': 'Explore and test the idea, research. Artifact: '
-                                                 'product brief. Role: analyst.'},
+                                                 'product brief. Role: Analyst.'},
                                    {'id': 'planung',
                                     'row': 0,
                                     'col': 1,
@@ -202,8 +202,8 @@ SPEC_DRIVEN_BMAD_MODULE = {'key': 'spec-driven-bmad',
                                                  'UX-Beschreibung, kurze Spec. Rollen: Product '
                                                  'Manager, UX Designer.',
                                     'detail_en': 'Record the requirements. Artifacts: PRD, UX '
-                                                 'description, short spec. Roles: product manager, '
-                                                 'UX designer.'},
+                                                 'description, short spec. Roles: Product Manager, '
+                                                 'UX Designer.'},
                                    {'id': 'solutioning',
                                     'row': 0,
                                     'col': 2,
@@ -213,7 +213,7 @@ SPEC_DRIVEN_BMAD_MODULE = {'key': 'spec-driven-bmad',
                                                  'und Stories. Rollen: Architect, Product Manager.',
                                     'detail_en': 'Make the technical decisions and slice the work. '
                                                  'Artifacts: architecture document, epics and '
-                                                 'stories. Roles: architect, product manager.'},
+                                                 'stories. Roles: Architect, Product Manager.'},
                                    {'id': 'build',
                                     'row': 1,
                                     'col': 2,
@@ -221,7 +221,7 @@ SPEC_DRIVEN_BMAD_MODULE = {'key': 'spec-driven-bmad',
                                     'detail_de': 'Eine Story je Sitzung umsetzen, reviewen und '
                                                  'testen. Rolle: Developer.',
                                     'detail_en': 'Implement, review, and test one story per '
-                                                 'session. Role: developer.'},
+                                                 'session. Role: Developer.'},
                                    {'id': 'klein',
                                     'row': 1,
                                     'col': 1,
@@ -263,7 +263,7 @@ SPEC_DRIVEN_BMAD_MODULE = {'key': 'spec-driven-bmad',
                              '\n'
                              '- Each **role** is a **subagent** (Module 9) with a focused system '
                              'prompt and matching tool permissions (a pure review agent, for '
-                             'example, read-only).\n'
+                             'example, is read-only).\n'
                              '- Recurring process steps become **skills** (Module 6), e.g. '
                              '`/write-prd` or `/slice-stories`.\n'
                              '- The **artifacts** (PRD, architecture, stories) live as Markdown in '
@@ -365,7 +365,7 @@ SPEC_DRIVEN_BMAD_MODULE = {'key': 'spec-driven-bmad',
                                                'Zugriffsrechte sind offen. Wie startest du?',
                                     'text_en': 'The ticket only says: “We need an export of the '
                                                'user list.” Format, audience, and access rights '
-                                               'are open. How do you start?',
+                                               'are still open. How do you start?',
                                     'options': [{'label_de': 'Das Ticket in den Prompt kopieren '
                                                              'und den Agenten bauen lassen.',
                                                  'label_en': 'Paste the ticket into the prompt and '
@@ -448,7 +448,7 @@ SPEC_DRIVEN_BMAD_MODULE = {'key': 'spec-driven-bmad',
                                     'text_en': 'Often this goes well. But the agent puts the '
                                                'endpoint in a place that contradicts your '
                                                'convention – in the plan you would have spotted it '
-                                               'in a minute, now it is a rework.'},
+                                               'in a minute; now it means rework.'},
                                    {'id': 'ende-halb',
                                     'outcome': 'bad',
                                     'text_de': 'Du hast nur den Gutfall gesehen. Das zweite '
@@ -505,7 +505,7 @@ SPEC_DRIVEN_BMAD_MODULE = {'key': 'spec-driven-bmad',
             {'type': 'reflect', 'id': 'reflect-1',
              'payload': {'prompt_de': 'Bei welcher letzten Aufgabe hätte eine 6-Zeilen-Spec vorab '
                                       'dir (oder dem Agenten) teure Nacharbeit erspart?',
-                         'prompt_en': 'On which recent task would a 6-line spec upfront have saved '
+                         'prompt_en': 'On which recent task would a 6-line spec up front have saved '
                                       'you (or the agent) expensive rework?'}}],
  'quiz': {'questions': [{'id': 'sd1',
                          'type': 'single',
@@ -578,7 +578,7 @@ SPEC_DRIVEN_BMAD_MODULE = {'key': 'spec-driven-bmad',
                                                'Editor-Plugin, auch wenn es sich als Skills in ein '
                                                'Coding-Tool installieren lässt.',
                                          'en': 'BMAD is a methodology for agile, AI-driven '
-                                               'development in which specialized roles hand on '
+                                               'development in which specialized roles hand off '
                                                'clearly defined artifacts. It is not a tool like a '
                                                'test framework or an editor plugin, even though it '
                                                'can be installed into a coding tool as skills.'}},
@@ -672,7 +672,7 @@ SPEC_DRIVEN_BMAD_MODULE = {'key': 'spec-driven-bmad',
                                     'en': 'An error message contains a typo. A colleague demands a '
                                           'PRD, an architecture document, and stories for it, '
                                           '“because we work spec-driven now”. What fits the idea – '
-                                          'also according to the BMAD docs?'},
+                                          'according to the BMAD docs as well?'},
                          'answer': 1,
                          'options': {'de': ['Er hat recht: Ohne alle Artefakte darf nichts '
                                             'geändert werden',
@@ -706,8 +706,8 @@ SPEC_DRIVEN_BMAD_MODULE = {'key': 'spec-driven-bmad',
                          'type': 'multi',
                          'prompt': {'de': 'Du bildest den Review-Schritt als Subagent ab. Was '
                                           'gehört zu einer sauberen Umsetzung? (mehrere)',
-                                    'en': 'You map the review step onto a subagent. What belongs '
-                                          'to a clean setup? (multiple)'},
+                                    'en': 'You map the review step onto a subagent. What is part '
+                                          'of a clean setup? (multiple)'},
                          'answer': [0, 1, 3],
                          'options': {'de': ['Nur lesende Tools – der Prüfer ändert nichts',
                                             'Die Spec mit den Akzeptanzkriterien als Eingabe',

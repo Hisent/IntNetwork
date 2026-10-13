@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import {
-  buildGraph, shortestPath, fewestHopsPath, withoutLink, TOPOLOGY, type LinkSpec,
+  buildGraph, shortestPath, fewestHopsPath, equalCostPaths, withoutLink, TOPOLOGY, type LinkSpec,
 } from '@/widgets/ospf/ospf'
 import { ChallengeBox } from '@/components/ChallengeBox'
 import type { Lang } from '@/lib/i18n'
@@ -39,6 +39,7 @@ const STR = {
     linksTitle: 'Leitungen', bandwidth: 'Bandbreite', cost: 'Kosten', down: 'ausfallen lassen', restore: 'wiederherstellen',
     bestPath: 'Kostengünstigster Pfad (OSPF)', fewestHops: 'Pfad mit den wenigsten Sprüngen (RIP-artig)',
     sameAsCost: 'entspricht dem kostengünstigsten Pfad',
+    ecmp: 'Gleich teuer (ECMP) — OSPF nutzt alle gleich teuren Pfade parallel, zusätzlich:',
     costSum: 'Kostensumme', hopCount: 'Sprünge', hops: 'Sprünge',
     unreachable: 'Ziel nicht erreichbar — kein funktionierender Pfad mehr vorhanden.',
     challenge: 'Lass eine Leitung auf dem aktuellen besten Pfad ausfallen und beobachte, wie sich der Pfad ändert.',
@@ -55,6 +56,7 @@ const STR = {
     linksTitle: 'Links', bandwidth: 'Bandwidth', cost: 'Cost', down: 'fail link', restore: 'restore',
     bestPath: 'Lowest-cost path (OSPF)', fewestHops: 'Fewest-hops path (RIP-like)',
     sameAsCost: 'matches the lowest-cost path',
+    ecmp: 'Equal cost (ECMP) — OSPF uses all equal-cost paths in parallel, additionally:',
     costSum: 'Total cost', hopCount: 'Hops', hops: 'hops',
     unreachable: 'Destination unreachable — no working path remains.',
     challenge: 'Fail a link on the current best path and watch how the path changes.',
@@ -87,7 +89,10 @@ export function Ospf({ lang }: { lang: Lang }) {
   const best = shortestPath(graph, from, to)
   const baseline = shortestPath(fullGraph, from, to)
   const hopPath = fewestHopsPath(graph, from, to)
-  const hopsDiffer = best && hopPath && best.path.join('>') !== hopPath.path.join('>')
+  // Gleich teure Alternativen (ECMP): Der Hop-Pfad gilt nur dann als „anders", wenn er
+  // nicht selbst einer der kostengünstigsten Pfade ist.
+  const ecmp = equalCostPaths(graph, from, to)
+  const hopsDiffer = best && hopPath && !ecmp.some((p) => p.join('>') === hopPath.path.join('>'))
 
   function toggleLink(l: LinkSpec) {
     const key = linkKey(l.a, l.b)
@@ -144,7 +149,7 @@ export function Ospf({ lang }: { lang: Lang }) {
           const key = linkKey(l.a, l.b)
           const isDown = downLinks.has(key)
           const edge = graph.edges.find((e) => linkKey(e.a, e.b) === key) ?? fullGraph.edges.find((e) => linkKey(e.a, e.b) === key)!
-          const onBestPath = !isDown && best ? edgeOnPath(best.path, l.a, l.b) : false
+          const onBestPath = !isDown && ecmp.some((p) => edgeOnPath(p, l.a, l.b))
           return (
             <div key={key} className={`flex flex-wrap items-center justify-between gap-2 px-3 py-1.5 ${
               isDown ? 'bg-rose-50' : onBestPath ? 'bg-teal-50' : ''}`}
@@ -171,6 +176,11 @@ export function Ospf({ lang }: { lang: Lang }) {
           <>
             <p className="text-slate-700">{best.path.map((n) => LABEL[n][lang]).join(' → ')}</p>
             <p className="text-slate-600 mt-1">{s.costSum}: {best.cost}</p>
+            {ecmp.length > 1 && (
+              <p className="text-slate-600 mt-1">
+                {s.ecmp} {ecmp.slice(1).map((p) => p.map((n) => LABEL[n][lang]).join(' → ')).join(' · ')}
+              </p>
+            )}
           </>
         ) : (
           <p className="text-rose-700">{s.unreachable}</p>

@@ -47,9 +47,9 @@ VLAN_MODULE = {
                    "- **Flexibilität**: VLAN-Zugehörigkeit per Port-Konfiguration, nicht per Verkabelung.",
              "en": "## Why VLANs?\n\n- **Separation**: warehouse (VLAN 10), office (VLAN 20) "
                    "and guest Wi-Fi (VLAN 30) on the same switch, but logically separate.\n"
-                   "- **Containment**: broadcasts and direct Layer-2 traffic stay inside the VLAN. "
-                   "That is not a complete security boundary by itself — inter-VLAN routing and "
-                   "firewall rules still need to be secured.\n"
+                   "- **Containment**: broadcasts and direct layer-2 traffic stay inside the VLAN. "
+                   "That is not yet a complete security boundary — that also takes properly set up "
+                   "inter-VLAN routing and firewall rules.\n"
                    "- **Less broadcast load**: broadcasts stay within the VLAN, don't flood the whole network.\n"
                    "- **Flexibility**: VLAN membership by port configuration, not by cabling.",
          }},
@@ -142,7 +142,7 @@ VLAN_MODULE = {
                                "Trunk. Die Liste „allowed vlan“ legt fest, welche VLANs der Trunk trägt — "
                                "fehlt dort ein VLAN, sind dessen Geräte auf den beiden Switches voneinander "
                                "getrennt.",
-             "explanation_en": "An access port in exactly one VLAN towards the end device, a trunk between "
+             "explanation_en": "An access port in exactly one VLAN toward the end device, a trunk between "
                                "the switches. The “allowed vlan” list defines which VLANs the trunk carries "
                                "— if a VLAN is missing there, its devices on the two switches are cut off "
                                "from each other.",
@@ -163,9 +163,9 @@ VLAN_MODULE = {
                    "Stichwort **Inter-VLAN-Routing** / „Router-on-a-Stick“: ein Trunk zum Router, der "
                    "zwischen den VLANs vermittelt. Ohne Layer 3 bleiben VLANs strikt getrennt.",
              "en": "## Talking Across VLANs? → Router\n\nFor VLAN 10 and "
-                   "VLAN 20 to communicate, a **Layer 3 device** is needed (router or Layer 3 switch). "
-                   "Keyword **inter-VLAN routing** / “router-on-a-stick”: a trunk to the router that "
-                   "mediates between the VLANs. Without Layer 3, VLANs stay strictly separated.",
+                   "VLAN 20 to communicate, a **layer-3 device** is needed (router or layer-3 switch). "
+                   "This is called **inter-VLAN routing**, or “router-on-a-stick”: a trunk to the router, which "
+                   "routes between the VLANs. Without layer 3, VLANs stay strictly separated.",
          }},
         {"type": "diagram", "id": "diagram-router-on-a-stick",
          "note": "Schrittweise durchklicken: Der Frame läuft zweimal über denselben Trunk — einmal mit "
@@ -248,7 +248,7 @@ VLAN_MODULE = {
          "options": {
              "de": ["Eigene Broadcast-Domäne", "Brauchen Router für VLAN-übergreifend",
                     "Access-Port taggt Frames", "Trennen Geräte logisch"],
-             "en": ["Own broadcast domain", "Need a router to cross VLANs",
+             "en": ["Are separate broadcast domains", "Need a router to cross VLANs",
                     "Access port tags frames", "Separate devices logically"],
          },
          "answer": [0, 1, 3],

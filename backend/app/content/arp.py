@@ -30,8 +30,8 @@ ARP_MODULE = {
                    "(Schicht 2). Bevor ein Frame rausgeht, muss zur Ziel-**IP** die passende "
                    "Ziel-**MAC** her. Das löst **ARP** (Address Resolution Protocol).",
              "en": "## The Gap Between Layer 3 and 2\n\nApplications "
-                   "work with **IP addresses** (Layer 3), the switch only with **MAC addresses** "
-                   "(Layer 2). Before a frame goes out, the destination **IP** needs a matching "
+                   "work with **IP addresses** (layer 3), the switch only with **MAC addresses** "
+                   "(layer 2). Before a frame goes out, the destination **IP** needs a matching "
                    "destination **MAC**. That's what **ARP** (Address Resolution Protocol) solves.",
          }},
         {"type": "text", "id": "text-2",
@@ -67,7 +67,7 @@ ARP_MODULE = {
                          "DHCP briefly loses its connection whenever the newly installed label "
                          "printer comes online. The printer was given a fixed IP by hand — and "
                          "`arp -a` shows two different MAC addresses alternating for "
-                         "192.168.10.120.” Which of the following statements about this picture "
+                         "192.168.10.120.” Which of the following statements about this situation "
                          "is false?",
             "lines_de": [
                 "Das Muster deutet auf eine doppelt vergebene IP-Adresse hin: Die statische "
@@ -152,7 +152,7 @@ ARP_MODULE = {
                   "detail_de": "Beispiel 192.168.20.80: „Wer hat 192.168.10.1?“ — der Router antwortet. "
                                "Nach 192.168.20.80 selbst wird nie per ARP gefragt.",
                   "detail_en": "Example 192.168.20.80: “Who has 192.168.10.1?” — the router replies. "
-                               "192.168.20.80 itself is never asked for via ARP."},
+                               "No ARP request is ever sent for 192.168.20.80 itself."},
                  {"id": "frame", "row": 0, "col": 3,
                   "label_de": "Frame an die gelernte MAC", "label_en": "Frame to the learned MAC",
                   "detail_de": "In beiden Fällen bleibt die Ziel-IP im Paket unverändert — nur die "
@@ -225,7 +225,7 @@ ARP_MODULE = {
                   "text_en": "So which IP owns the destination MAC that PC-A sent the ping frames to?",
                   "answers": ["192.168.10.1"],
                   "explanation_de": "Für das Ziel im Büro-Netz gibt es keinen Cache-Eintrag: PC-A hat nur die MAC des Gateways aufgelöst und die Frames dorthin geschickt.",
-                  "explanation_en": "There is no cache entry for the target in the office network: PC-A only resolved the gateway's MAC and sent the frames there."},
+                  "explanation_en": "There is no cache entry for the target on the office network: PC-A only resolved the gateway's MAC and sent the frames there."},
              ],
          }},
         {"type": "reflect", "id": "reflect-arp", "payload": {
@@ -285,7 +285,7 @@ ARP_MODULE = {
                    "antwortet — per Unicast direkt an den Fragenden. Der Switch reicht die Frames nur "
                    "weiter; er hat (als Schicht-2-Gerät) keine eigene Rolle im ARP.",
              "en": "Every host on the segment receives the broadcast, but only the owner of the requested IP "
-                   "replies — by unicast straight to the asker. The switch merely forwards the frames; as a "
+                   "replies — by unicast straight to the requester. The switch merely forwards the frames; as a "
                    "layer-2 device it has no role of its own in ARP."}},
         {"id": "a4", "type": "single",
          "prompt": {"de": "Das Ziel liegt in einem anderen Netz. Nach wessen MAC fragt der Host per ARP?",
@@ -343,13 +343,13 @@ ARP_MODULE = {
                    "liegen. 3 + 1 = 4. Wer 8 rechnet, lässt PC-A nach Adressen fragen, die sein "
                    "Broadcast nie erreicht.",
              "en": "Three local hosts each need their own resolution. For all five remote servers a "
-                   "single one is enough: the gateway's — no matter how many foreign networks they are "
+                   "single one is enough: the gateway's — no matter how many other networks they are "
                    "on. 3 + 1 = 4. Counting 8 has PC-A asking for addresses its broadcast never reaches."}},
         {"id": "a7", "type": "single",
          "prompt": {"de": "Auf einem PC zeigt `arp -a` für das Gateway 192.168.10.1 plötzlich die "
                           "MAC-Adresse eines Kollegen-Notebooks statt der des Routers. Der Router wurde "
                           "nicht getauscht. Was ist die naheliegendste Erklärung?",
-                    "en": "On a PC, `arp -a` suddenly shows a colleague's notebook MAC for the gateway "
+                    "en": "On a PC, `arp -a` suddenly shows the MAC of a colleague's laptop for the gateway "
                           "192.168.10.1 instead of the router's. The router has not been replaced. What "
                           "is the most plausible explanation?"},
          "options": {
@@ -358,7 +358,7 @@ ARP_MODULE = {
                     "Der Switch hat seine MAC-Tabelle neu gelernt",
                     "Der DNS-Cache des PCs ist veraltet",
                     "Der DHCP-Lease des PCs ist abgelaufen"],
-             "en": ["The notebook answers ARP requests for the gateway IP (IP conflict or ARP "
+             "en": ["The laptop answers ARP requests for the gateway IP (IP conflict or ARP "
                     "spoofing)",
                     "The switch has relearned its MAC table",
                     "The PC's DNS cache is stale",
@@ -372,7 +372,7 @@ ARP_MODULE = {
                    "absichtlich, um Verkehr umzuleiten. Die MAC-Tabelle des Switches ordnet MACs Ports "
                    "zu und ändert nichts am IP-zu-MAC-Eintrag des PCs.",
              "en": "ARP does not verify that the replier really owns the IP — the cache accepts whatever "
-                   "was announced last. If the gateway IP points to a foreign MAC, that device is "
+                   "was announced last. If the gateway IP points to another device's MAC, that device is "
                    "claiming the address: by accident (a misconfigured static IP) or on purpose, to "
                    "redirect traffic. The switch's MAC table maps MACs to ports and does not change the "
                    "PC's IP-to-MAC entry."}},

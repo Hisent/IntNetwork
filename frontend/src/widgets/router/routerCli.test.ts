@@ -22,6 +22,12 @@ describe('runRouterCommand', () => {
     expect(out).toContain('Gateway of last resort is not set')
   })
 
+  it('IOS-Kurzformen: sh ip route / sh ip int brief / sh run', () => {
+    expect(runRouterCommand(ROUTES, 'sh ip route')).toBe(runRouterCommand(ROUTES, 'show ip route'))
+    expect(runRouterCommand(ROUTES, 'sh ip int brief')).toContain('Gi0/0      192.168.10.1')
+    expect(runRouterCommand(ROUTES, 'sho run')).toContain('ip route 0.0.0.0 0.0.0.0 203.0.113.2')
+    expect(runRouterCommand(ROUTES, 'sh run')).toContain(' ip address 192.168.10.1 255.255.255.0')
+  })
   it('unbekannter Befehl -> Fehlermeldung', () => {
     expect(runRouterCommand(ROUTES, 'foo')).toContain('% Invalid input')
   })

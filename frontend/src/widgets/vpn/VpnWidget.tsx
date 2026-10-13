@@ -1,9 +1,7 @@
 import { useState } from 'react'
-import { attackerView, encapsulate, SCENARIO } from '@/widgets/vpn/vpn'
+import { attackerView, encapsulate, scenarioFor } from '@/widgets/vpn/vpn'
 import { ChallengeBox } from '@/components/ChallengeBox'
 import type { Lang } from '@/lib/i18n'
-
-const INNER = SCENARIO.inner
 
 const STR = {
   de: {
@@ -49,6 +47,8 @@ const STR = {
 export function Vpn({ lang }: { lang: Lang }) {
   const [decrypted, setDecrypted] = useState(false)
   const [attackerVpnOn, setAttackerVpnOn] = useState(false)
+  const SCENARIO = scenarioFor(lang)
+  const INNER = SCENARIO.inner
   const t = encapsulate(INNER, SCENARIO.clientOuter, SCENARIO.gateway)
   const s = STR[lang]
   const view = attackerView(SCENARIO.direct, t, attackerVpnOn)

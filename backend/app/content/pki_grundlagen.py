@@ -19,7 +19,7 @@ KRYPTO_GRUNDLAGEN_MODULE = {
         'Cleanly distinguish the four protection goals confidentiality, integrity, authenticity, and non-repudiation',
         'Explain why encryption alone only delivers confidentiality',
         'Compare symmetric and asymmetric encryption in terms of speed and key distribution',
-        'Justify why practice combines both in hybrid schemes',
+        'Justify why real-world systems combine both in hybrid schemes',
         'Explain Kerckhoffs\'s principle and argue against "homegrown encryption"',
         'Name outdated algorithms that have no place in new systems',
     ],
@@ -39,7 +39,7 @@ KRYPTO_GRUNDLAGEN_MODULE = {
     },
     'blocks': [
         {'type': 'text', 'id': 'text-1',
-         'note': 'Haeufigste Verwechslung im Modul: "verschluesselt" wird mit "sicher" gleichgesetzt. Diese Abgrenzung ganz an den Anfang stellen, sie traegt den Rest des Lehrgangs.',
+         'note': 'Häufigste Verwechslung im Modul: "verschlüsselt" wird mit "sicher" gleichgesetzt. Diese Abgrenzung ganz an den Anfang stellen, sie trägt den Rest des Lehrgangs.',
          'value': {
              'de': '## Vier Schutzziele, nicht eins\n\n'
                    'Wer "Kryptografie" sagt, meint oft nur Verschlüsselung. Tatsächlich unterscheidet '
@@ -59,7 +59,7 @@ KRYPTO_GRUNDLAGEN_MODULE = {
                    'in den folgenden Modulen dieses Blocks im Detail behandelt werden.',
              'en': '## Four Protection Goals, Not One\n\n'
                    'When people say "cryptography," they often mean just encryption. In reality, '
-                   'four separate protection goals are distinguished:\n\n'
+                   'there are four separate protection goals:\n\n'
                    '- **Confidentiality** — nobody except the authorized parties can read the '
                    'data. This is the job of encryption.\n'
                    '- **Integrity** — the data was not altered along the way. Encryption alone '
@@ -75,14 +75,14 @@ KRYPTO_GRUNDLAGEN_MODULE = {
                    'detail.',
          }},
         {'type': 'diagram', 'id': 'diagram-schutzziele',
-         'note': ('Zeile fuer Zeile aufdecken lassen: Welcher Mechanismus liefert welches Schutzziel? Die Spalte '
-             '"Hash" ist die Falle - ohne Schluessel schuetzt er nur vor Zufallsfehlern.'),
+         'note': ('Zeile für Zeile aufdecken lassen: Welcher Mechanismus liefert welches Schutzziel? Die Spalte '
+             '"Hash" ist die Falle - ohne Schlüssel schützt er nur vor Zufallsfehlern.'),
          'payload': {
              'kind': 'compare',
              'title_de': 'Schutzziele und die Mechanismen, die sie liefern',
              'title_en': 'Protection goals and the mechanisms that deliver them',
              'caption_de': 'Kein Mechanismus deckt alles ab — deshalb kombiniert die Praxis sie.',
-             'caption_en': 'No single mechanism covers everything — which is why practice combines them.',
+             'caption_en': 'No single mechanism covers everything — which is why they are combined in practice.',
              'columns': [
                     {'title_de': 'Verschlüsselung (AES-CBC)', 'title_en': 'Encryption (AES-CBC)'},
                     {'title_de': 'Hash (SHA-256)', 'title_en': 'Hash (SHA-256)'},
@@ -194,7 +194,7 @@ KRYPTO_GRUNDLAGEN_MODULE = {
                    'encrypting, a private key for decrypting. The public key can be distributed '
                    'openly — no prior secret exchange needed. Downside: significantly more '
                    'computationally expensive, unsuitable for large amounts of data.\n\n'
-                   'That is why practice combines both in a **hybrid scheme**: only a short, random '
+                   'That is why real-world systems combine both in a **hybrid scheme**: only a short, random '
                    'session key is exchanged asymmetrically — the actual payload is then encrypted '
                    'symmetrically, because that is orders of magnitude faster. This exact pattern '
                    'is behind TLS and will accompany you throughout this course.',
@@ -239,7 +239,7 @@ KRYPTO_GRUNDLAGEN_MODULE = {
                      'label_en': 'compute secret, derive key',
                      'detail_de': ('Aus dem eigenen privaten und dem fremden öffentlichen Anteil entsteht das gemeinsame '
                          'Geheimnis; daraus wird der symmetrische Sitzungsschlüssel abgeleitet.'),
-                     'detail_en': ("The own private share and the peer's public share yield the shared secret; the "
+                     'detail_en': ("The client's own private share and the peer's public share yield the shared secret; the "
                          'symmetric session key is derived from it.'),
                     },
                     {
@@ -316,7 +316,7 @@ KRYPTO_GRUNDLAGEN_MODULE = {
                    'exclusively on the key, not on keeping the algorithm itself secret.** The '
                    'algorithm (e.g. AES) may be publicly known, standardized, and analyzable by '
                    'anyone — as long as the key stays secret, the encryption stays secure.\n\n'
-                   'This leads to a clear practical rule: **"homegrown" or secretly held encryption '
+                   'This leads to a clear practical rule: **"homegrown" or secret encryption '
                    'schemes are a classic mistake** ("security through obscurity"). A self-designed '
                    'algorithm has not been scrutinized for weaknesses by the worldwide cryptography '
                    'community for years — established, openly standardized schemes like AES or RSA '
@@ -387,7 +387,7 @@ KRYPTO_GRUNDLAGEN_MODULE = {
                    '- **RSA keys that are too short** — RSA-1024 is considered outdated, since it '
                    'only reaches a security strength of about 80 bits, below the common 112-bit '
                    'minimum threshold. Germany\'s BSI now requires at least 3000 bits for RSA in '
-                   'TR-02102-1; RSA-2048 (about 112 bits) remains the permitted minimum at public CAs '
+                   'TR-02102-1; RSA-2048 (about 112 bits) remains the permitted minimum for public CAs '
                    '— module 4 of this block puts the numbers into context.\n\n'
                    'Rule of thumb for operations: if a component still uses MD5, SHA-1, DES/3DES, '
                    'RC4, or short RSA keys, that is a clear migration signal — not only once an '
@@ -413,7 +413,7 @@ KRYPTO_GRUNDLAGEN_MODULE = {
                     {
                      'left': 'HMAC-SHA-256',
                      'right_de': 'Prüfcode über Nachricht plus gemeinsamen geheimen Schlüssel',
-                     'right_en': 'check code over the message plus a shared secret key',
+                     'right_en': 'authentication code over the message plus a shared secret key',
                     },
                     {
                      'left': 'ECDSA',
@@ -478,7 +478,7 @@ KRYPTO_GRUNDLAGEN_MODULE = {
              'an der Anforderung "vor Dritten belegbar".'),
          'payload': {
              'title_de': 'Welcher Mechanismus für das Lieferavis?',
-             'title_en': 'Which mechanism for the dispatch advice?',
+             'title_en': 'Which mechanism for the shipping notice?',
              'start': 'start',
              'nodes': [
                     {
@@ -487,13 +487,13 @@ KRYPTO_GRUNDLAGEN_MODULE = {
                          'prüfen können, dass ein Avis unverändert von Nordwind stammt — und das im Streitfall '
                          'auch einem Dritten belegen können. Der Inhalt selbst ist nicht geheim. Was setzt du '
                          'ein?'),
-                     'text_en': ('Nordwind sends dispatch advices to shipping partners. Requirement: the partner must '
-                         'be able to verify that an advice comes from Nordwind unaltered — and prove that to a '
+                     'text_en': ('Nordwind sends shipping notices to shipping partners. Requirement: the partner must '
+                         'be able to verify that a notice comes from Nordwind unaltered — and prove that to a '
                          'third party in a dispute. The content itself is not secret. What do you use?'),
                      'options': [
                             {
                              'label_de': 'Das Avis mit AES verschlüsseln',
-                             'label_en': 'Encrypt the advice with AES',
+                             'label_en': 'Encrypt the notice with AES',
                              'to': 'aes',
                             },
                             {
@@ -503,7 +503,7 @@ KRYPTO_GRUNDLAGEN_MODULE = {
                             },
                             {
                              'label_de': 'Das Avis mit Nordwinds privatem Schlüssel digital signieren',
-                             'label_en': "Digitally sign the advice with Nordwind's private key",
+                             'label_en': "Digitally sign the notice with Nordwind's private key",
                              'to': 'sig',
                             },
                         ],
@@ -514,14 +514,14 @@ KRYPTO_GRUNDLAGEN_MODULE = {
                      'text_de': ('Verschlüsselung liefert Vertraulichkeit — genau das Schutzziel, das hier nicht '
                          'gefragt war. Ob das Avis verändert wurde oder von wem es stammt, bleibt offen.'),
                      'text_en': ('Encryption delivers confidentiality — exactly the goal that was not asked for here. '
-                         'Whether the advice was altered or who sent it remains open.'),
+                         'Whether the notice was altered or who sent it remains open.'),
                     },
                     {
                      'id': 'hmac',
                      'text_de': ('Der Partner kann jetzt Veränderungen erkennen. Im Streitfall behauptet Nordwind aber, '
                          'das Avis nie geschickt zu haben. Kann der Partner mit dem HMAC das Gegenteil beweisen?'),
                      'text_en': ('The partner can now detect alterations. In a dispute, however, Nordwind claims it '
-                         'never sent the advice. Can the partner prove otherwise with the HMAC?'),
+                         'never sent the notice. Can the partner prove otherwise with the HMAC?'),
                      'options': [
                             {
                              'label_de': 'Ja, der HMAC ist ja nur mit dem geheimen Schlüssel erzeugbar',
@@ -551,7 +551,7 @@ KRYPTO_GRUNDLAGEN_MODULE = {
                          'Partnern, aber keine Nichtabstreitbarkeit. Für die Anforderung braucht es eine '
                          'digitale Signatur.'),
                      'text_en': ('Correctly spotted: HMAC delivers integrity and authenticity between the two partners, '
-                         'but no non-repudiation. The requirement calls for a digital signature.'),
+                         'but not non-repudiation. The requirement calls for a digital signature.'),
                     },
                     {
                      'id': 'sig',
@@ -559,7 +559,7 @@ KRYPTO_GRUNDLAGEN_MODULE = {
                          'Ein Jahr später sollen die Avise zusätzlich Preise enthalten, die Wettbewerber nicht '
                          'sehen dürfen. Was jetzt?'),
                      'text_en': ("Good: anyone can verify the signature with Nordwind's public key. A year later the "
-                         'advices are to include prices competitors must not see. What now?'),
+                         'notices are to also include prices competitors must not see. What now?'),
                      'options': [
                             {
                              'label_de': 'Nichts — signierte Daten sind bereits geschützt',
@@ -578,7 +578,7 @@ KRYPTO_GRUNDLAGEN_MODULE = {
                      'outcome': 'bad',
                      'text_de': ('Eine Signatur verschlüsselt nichts: Das Avis bleibt für jeden lesbar, der es abfängt. '
                          'Vertraulichkeit ist ein eigenes Schutzziel mit eigenem Mechanismus.'),
-                     'text_en': ('A signature encrypts nothing: the advice stays readable for anyone who intercepts it. '
+                     'text_en': ('A signature encrypts nothing: the notice stays readable for anyone who intercepts it. '
                          'Confidentiality is a separate goal with its own mechanism.'),
                     },
                     {
@@ -587,7 +587,7 @@ KRYPTO_GRUNDLAGEN_MODULE = {
                      'text_de': ('Genau so kombiniert die Praxis: Signatur für Integrität, Authentizität und '
                          'Nichtabstreitbarkeit, Verschlüsselung für Vertraulichkeit — jedes Schutzziel mit dem '
                          'passenden Mechanismus.'),
-                     'text_en': ('This is how practice combines them: a signature for integrity, authenticity, and '
+                     'text_en': ('This is how it is done in practice: a signature for integrity, authenticity, and '
                          'non-repudiation, encryption for confidentiality — each goal with the matching '
                          'mechanism.'),
                     },
@@ -633,8 +633,8 @@ KRYPTO_GRUNDLAGEN_MODULE = {
         {'id': 'kg2', 'type': 'single',
          'prompt': {'de': 'Warum kombiniert die Praxis symmetrische und asymmetrische '
                          'Verschlüsselung in Hybridverfahren?',
-                    'en': 'Why does practice combine symmetric and asymmetric encryption in '
-                         'hybrid schemes?'},
+                    'en': 'Why are symmetric and asymmetric encryption combined in hybrid '
+                         'schemes in practice?'},
          'answer': 1,
          'options': {
              'de': [
@@ -723,7 +723,7 @@ KRYPTO_GRUNDLAGEN_MODULE = {
          'prompt': {'de': 'Ein Entwickler will ein eigenes, geheim gehaltenes '
                          'Verschlüsselungsverfahren einsetzen, "damit Angreifer den Algorithmus '
                          'nicht kennen". Wie ist das einzuordnen?',
-                    'en': 'A developer wants to use a homegrown, secretly held encryption scheme '
+                    'en': 'A developer wants to use a homegrown, secret encryption scheme '
                          '"so attackers do not know the algorithm." How should this be assessed?'},
          'answer': 1,
          'options': {
@@ -735,7 +735,7 @@ KRYPTO_GRUNDLAGEN_MODULE = {
                  'Nur bei symmetrischen Verfahren problematisch, bei asymmetrischen unbedenklich',
              ],
              'en': [
-                 'Sensible, because keeping the algorithm secret additionally increases security',
+                 'Sensible, because keeping the algorithm secret further increases security',
                  'Contradicts Kerckhoffs\'s principle — the lack of public cryptanalysis is a '
                  'risk, not a benefit',
                  'Necessary, because AES and RSA are considered broken',
@@ -803,7 +803,7 @@ KRYPTO_GRUNDLAGEN_MODULE = {
          'prompt': {
              'de': ('Ein Audit findet auf einem Altsystem: „Verschlüsselung 3DES, Prüfsumme SHA-1, Schlüsseltausch '
                  'RSA-1024“. Welche Bewertung trifft zu?'),
-             'en': ('An audit finds on a legacy system: "encryption 3DES, checksum SHA-1, key exchange RSA-1024". '
+             'en': ('An audit of a legacy system finds: "encryption 3DES, checksum SHA-1, key exchange RSA-1024". '
                  'Which assessment is correct?'),
             },
          'options': {
@@ -816,7 +816,7 @@ KRYPTO_GRUNDLAGEN_MODULE = {
              'en': [
                     'All three are considered outdated and are a migration signal',
                     'Only SHA-1 is a problem, 3DES and RSA-1024 are still recommended',
-                    "Uncritical as long as the system's algorithm is kept secret",
+                    "Not a problem as long as the system's algorithm is kept secret",
                     'Only RSA-1024 is a problem, because symmetric schemes never become outdated',
                 ],
             },

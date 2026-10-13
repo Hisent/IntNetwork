@@ -12,9 +12,9 @@ MODULE_COLLECTIONS_MODULE = {
               'ansible-doc und Galaxy/Automation Hub als Nachschlagequellen benennen',
               'Passendes Modul für eine gegebene Aufgabe aus einer kurzen Liste auswählen'],
     'goals_en': ['Explain what a module is and how it differs from a collection',
-                 'Read and place fully qualified collection names (FQCN)',
+                 'Read and interpret fully qualified collection names (FQCN)',
                  'Name ansible-doc and Galaxy/Automation Hub as reference sources',
-                 'Pick the fitting module for a given job from a short list'],
+                 'Pick the right module for a given job from a short list'],
     'scenario': {'de': 'Die bisherigen Playbook-Beispiele haben Module wie '
                        '`ansible.builtin.package` schon benutzt, ohne genauer zu erklären, was '
                        'dieser lange Name eigentlich bedeutet. Dieses Modul klärt den '
@@ -28,7 +28,7 @@ MODULE_COLLECTIONS_MODULE = {
                        'where to look when searching for the right module for a task.'},
     'blocks': [
         {'type': 'text', 'id': 'text-1',
-         'note': 'Hier lohnt es, einmal gemeinsam eine Moduldoku aufzuschlagen und die Beispiele unten zu lesen — die meisten Fragen im Kurs beantwortet die Doku schneller als eine Erklaerung.',
+         'note': 'Hier lohnt es, einmal gemeinsam eine Moduldoku aufzuschlagen und die Beispiele unten zu lesen — die meisten Fragen im Kurs beantwortet die Doku schneller als eine Erklärung.',
          'value': {'de': '## Modul vs. Collection\n'
                          '\n'
                          '- **Modul** — die eigentliche Ausführungseinheit eines Tasks: eine '
@@ -136,7 +136,7 @@ MODULE_COLLECTIONS_MODULE = {
                          'Als Quelle für Collections stehen zwei Anlaufstellen zur Verfügung: '
                          '**Ansible Galaxy** (öffentliches Community-Repository) und '
                          '**Automation Hub** (kuratierte, zertifizierte Collections, Teil der '
-                         'Ansible Automation Platform — auch als „Private Automation Hub” für '
+                         'Ansible Automation Platform — auch als „Private Automation Hub“ für '
                          'den Offline-/On-Prem-Betrieb).',
                    'en': '## Installing collections\n'
                          '\n'
@@ -185,7 +185,7 @@ MODULE_COLLECTIONS_MODULE = {
                                 'detail_de': 'Kuratierte, zertifizierte Collections; als Private '
                                              'Automation Hub auch intern betreibbar.',
                                 'detail_en': 'Curated, certified collections; can also be run '
-                                             'internally as a private automation hub.'},
+                                             'internally as a Private Automation Hub.'},
                                {'id': 'cli',
                                 'row': 0,
                                 'col': 1,
@@ -225,7 +225,7 @@ MODULE_COLLECTIONS_MODULE = {
                                 'text_de': 'ansible-galaxy holt die Collection aus der '
                                            'konfigurierten Quelle: Galaxy oder ein Automation Hub.',
                                 'text_en': 'ansible-galaxy fetches the collection from the '
-                                           'configured source: Galaxy or an automation hub.'},
+                                           'configured source: Galaxy or an Automation Hub.'},
                                {'highlight': ['cli', 'e3', 'path'],
                                 'text_de': 'Sie landet auf dem Control Node im Collections-Pfad — '
                                            'nicht auf den Managed Nodes.',
@@ -277,7 +277,7 @@ MODULE_COLLECTIONS_MODULE = {
                      'unknown': 'bash: {cmd}: command not found',
                      'commands': [{'cmd': 'ansible-doc ansible.posix.mount',
                                    'desc_de': 'Doku eines Moduls (hier noch nicht installiert)',
-                                   'desc_en': 'docs of a module (not installed yet here)',
+                                   'desc_en': 'docs for a module (not yet installed here)',
                                    'output': '[WARNING]: ansible.posix.mount was not found'},
                                   {'cmd': 'ansible-galaxy collection install ansible.posix',
                                    'desc_de': 'Collection von Galaxy holen',
@@ -355,15 +355,15 @@ MODULE_COLLECTIONS_MODULE = {
                                 'command': 'ansible-doc -s ansible.posix.mount'},
                                {'text_de': 'Welcher der gezeigten Parameter neben state ist '
                                            'Pflicht?',
-                                'text_en': 'Which of the shown parameters besides state is '
+                                'text_en': 'Which of the parameters shown, besides state, is '
                                            'required?',
                                 'answers': ['path']}]}},
         {'type': 'text', 'id': 'text-4',
          'value': {'de': '## Modul-Doku lesen, Modul vs. Plugin\n'
                          '\n'
                          'Statt online zu suchen, liefert `ansible-doc <modul>` die Dokumentation '
-                         'direkt in der Kommandozeile — inklusive aller Parameter, Beispielen und '
-                         'Rückgabewerten:\n'
+                         'direkt in der Kommandozeile — inklusive aller Parameter, Beispiele und '
+                         'Rückgabewerte:\n'
                          '\n'
                          '```text\n'
                          'ansible-doc ansible.builtin.copy\n'
@@ -398,7 +398,7 @@ MODULE_COLLECTIONS_MODULE = {
          'payload': {'kind': 'choice',
                      'prompt_de': 'Welches Modul passt am besten zur Aufgabe „stelle sicher, dass '
                                   'ein bestimmter Systemdienst läuft und beim Booten automatisch '
-                                  'startet”?',
+                                  'startet“?',
                      'prompt_en': 'Which module best fits the task "ensure a given system '
                                   'service is running and starts automatically on boot"?',
                      'answer': 2,
@@ -438,7 +438,7 @@ MODULE_COLLECTIONS_MODULE = {
                                        'schon, ändert ein weiterer Lauf nichts. Erst wenn kein passendes Modul existiert, '
                                        'kommen command oder shell in Frage.',
                      'explanation_en': 'All six describe a target state: if it already '
-                                       'holds, another run changes nothing. Only when no fitting module exists do command '
+                                       'holds, another run changes nothing. Only when no suitable module exists do command '
                                        'or shell come into play.'}},
         {'type': 'debug', 'id': 'debug-1',
          'payload': {'prompt_de': 'Aussagen zu Modulen und Collections — welche ist falsch?',
@@ -490,7 +490,7 @@ MODULE_COLLECTIONS_MODULE = {
                                'enthält Collections“) stimmt die Richtung nicht, und installiert '
                                'werden Collections auf dem Control Node.',
                          'en': 'A collection is the package, a module a single tool inside it — '
-                               'next to plugins, roles and docs. The reverse ("a module contains '
+                               'alongside plugins, roles and docs. The reverse ("a module contains '
                                'collections") gets the direction wrong, and collections are '
                                'installed on the control node.'},
          'type': 'single',
@@ -551,8 +551,8 @@ MODULE_COLLECTIONS_MODULE = {
                                'unterstützte Collections und gehört zur Automation Platform; '
                                'Galaxy ist das offene Community-Repository. Kostenlos ist also '
                                'gerade Galaxy, und FQCN gelten bei beiden.',
-                         'en': 'Automation hub delivers collections certified and supported by Red '
-                               'Hat or partners and is part of the automation platform; Galaxy is '
+                         'en': 'Automation Hub delivers collections certified and supported by Red '
+                               'Hat or partners and is part of the Automation Platform; Galaxy is '
                                'the open community repository. So Galaxy is the free one, and '
                                'FQCNs apply to both.'},
          'type': 'single',
@@ -567,7 +567,7 @@ MODULE_COLLECTIONS_MODULE = {
                      'en': ['Automation Hub is free, Galaxy is paid',
                             'Automation Hub offers curated, certified collections and is part of '
                             'the Ansible Automation Platform',
-                            'Galaxy only works with FQCN, Automation Hub does not',
+                            'Galaxy only works with FQCNs, Automation Hub does not',
                             'There is no difference']}},
         {'id': 'mc5',
          'explanation': {'de': 'Plugins erweitern Ansible selbst — Lookups, Filter, Inventar- oder '
@@ -579,7 +579,7 @@ MODULE_COLLECTIONS_MODULE = {
                                'is called as a task and usually works on the managed node.'},
          'type': 'single',
          'prompt': {'de': 'Was beschreibt am ehesten ein Plugin im Unterschied zu einem Modul?',
-                    'en': 'What best describes a plugin as distinct from a module?'},
+                    'en': 'What best describes a plugin, as opposed to a module?'},
          'answer': 3,
          'options': {'de': ['Ein Plugin ersetzt das Inventar', 'Ein Plugin ist ein Task ohne '
                             'Parameter', 'Ein Plugin läuft ausschließlich auf dem Managed Node',

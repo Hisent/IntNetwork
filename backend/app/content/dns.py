@@ -31,7 +31,7 @@ DNS_MODULE = {
                    "braucht IPs.",
              "en": "## What Is DNS For?\n\n**DNS** (Domain Name System) is the "
                    "“phone book” of the Internet: it translates **names** (`www.nordwind-logistik.de`) "
-                   "into **IP addresses** (`203.0.113.11`). Humans remember names, the network "
+                   "into **IP addresses** (`203.0.113.11`). Humans remember names; the network "
                    "needs IPs.",
          }},
         {"type": "text", "id": "text-2",
@@ -48,8 +48,8 @@ DNS_MODULE = {
                    "- **TLD servers** (`.de`, `.com`): know the responsible name servers for each domain.\n"
                    "- **Authoritative servers**: hold the real records of a domain.\n\n"
                    "The client makes **one** request to the resolver (recursive) — the "
-                   "resolver then works its way down **iteratively** from root to TLD to the "
-                   "authoritative server itself, until it has the IP.",
+                   "resolver itself then works its way down **iteratively** from root to TLD to the "
+                   "authoritative server, until it has the IP.",
          }},
         {"type": "widget", "id": "dns-demo",
          "note": "Einen bekannten Namen auflösen und die drei Stufen vorlesen, dann "
@@ -74,7 +74,7 @@ DNS_MODULE = {
                    "(Time To Live). Die zweite Anfrage nach demselben Namen ist dann sofort da.",
              "en": "## Caching\n\nSo that not every request has to walk the whole "
                    "tree, resolvers **cache** answers for the duration of the **TTL** "
-                   "(Time To Live). The second request for the same name is then instant.",
+                   "(Time To Live). The second request for the same name is then answered instantly.",
          }},
         {"type": "text", "id": "text-4",
          "value": {
@@ -91,7 +91,7 @@ DNS_MODULE = {
                    "- **AAAA** — name → IPv6.\n"
                    "- **CNAME** — alias to another name; the resolver follows it and returns the "
                    "target name's address along with it.\n"
-                   "- **MX** — the domain's mail server: a host name plus a preference (lower number = "
+                   "- **MX** — the domain's mail server: a hostname plus a preference (lower number = "
                    "preferred).\n\n"
                    "If the queried name does not exist at all, the authoritative server answers "
                    "**NXDOMAIN**. If the name exists but has no record of the requested type, "
@@ -303,7 +303,7 @@ DNS_MODULE = {
              "en": ["The CNAME plus the IP address of www",
                     "NXDOMAIN, because shop has no A record",
                     "An empty answer (NODATA)",
-                    "Only the name www — the user has to look up the IP by hand"],
+                    "Only the name www — the client has to query the IP separately by hand"],
          },
          "answer": 0,
          "explanation": {
@@ -343,14 +343,14 @@ DNS_MODULE = {
         {"id": "d8", "type": "multi",
          "prompt": {"de": "Mails an @nordwind-logistik.de kommen nicht an, die Website läuft. Du prüfst die "
                           "MX-Records. Welche Aussagen über MX stimmen? (mehrere)",
-                    "en": "Mail to @nordwind-logistik.de does not arrive, the website is up. You check the "
+                    "en": "Mail to @nordwind-logistik.de does not arrive, but the website is up. You check the "
                           "MX records. Which statements about MX are true? (multiple)"},
          "options": {
              "de": ["Ein MX-Record nennt einen Hostnamen, keine IP-Adresse",
                     "Bei mehreren MX-Records wird der mit der kleinsten Zahl bevorzugt",
                     "Der MX-Record muss auf denselben Server zeigen wie der A-Record von www",
                     "Ohne MX-Record ist auch die Website nicht erreichbar"],
-             "en": ["An MX record names a host name, not an IP address",
+             "en": ["An MX record names a hostname, not an IP address",
                     "With several MX records, the one with the lowest number is preferred",
                     "The MX record has to point to the same server as the A record of www",
                     "Without an MX record the website is unreachable as well"],

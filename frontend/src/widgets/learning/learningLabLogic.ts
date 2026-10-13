@@ -8,7 +8,8 @@ export function diagnosisForSymptom(symptom: DhcpSymptom): DhcpDiagnosis {
 }
 
 export function isValidAddressFilter(value: string): boolean {
-  const normalized = value.toLowerCase().replace(/[\s()]/g, '')
+  // eq/or sind in Wireshark gleichwertig zu ==/||
+  const normalized = value.toLowerCase().replace(/\s+eq\s+/g, '==').replace(/\s+or\s+/g, '||').replace(/[\s()]/g, '')
   const ip = '192.168.20.34'
   return normalized === `ip.addr==${ip}`
     || normalized === `ip.src==${ip}||ip.dst==${ip}`

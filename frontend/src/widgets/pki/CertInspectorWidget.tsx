@@ -96,7 +96,7 @@ const STR = {
   },
 } as const
 
-function fieldsOf(cert: Cert): { key: FieldKey; value: string; ext?: boolean }[] {
+function fieldsOf(cert: Cert, lang: Lang): { key: FieldKey; value: string; ext?: boolean }[] {
   return [
     { key: 'version', value: `v${cert.version}` },
     { key: 'serial', value: cert.serial },
@@ -105,7 +105,7 @@ function fieldsOf(cert: Cert): { key: FieldKey; value: string; ext?: boolean }[]
     { key: 'subject', value: cert.subject },
     { key: 'validity', value: `${cert.notBefore.slice(0, 10)} → ${cert.notAfter.slice(0, 10)}` },
     { key: 'publicKey', value: `${cert.keyInfo.alg} ${cert.keyInfo.bits} bit` },
-    { key: 'san', value: cert.san.length ? cert.san.join(', ') : '(leer / empty)', ext: true },
+    { key: 'san', value: cert.san.length ? cert.san.join(', ') : lang === 'en' ? '(empty)' : '(leer)', ext: true },
     { key: 'keyUsage', value: cert.keyUsage.length ? cert.keyUsage.join(', ') : '—', ext: true },
     { key: 'extKeyUsage', value: cert.extKeyUsage.length ? cert.extKeyUsage.join(', ') : '—', ext: true },
     { key: 'basicConstraints', value: cert.isCa ? 'CA:TRUE' : 'CA:FALSE', ext: true },
@@ -147,7 +147,7 @@ export function CertInspector({ lang }: { lang: Lang }) {
     statusColor = 'border-rose-200 bg-rose-50 text-rose-800'
   }
 
-  const fields = fieldsOf(cert)
+  const fields = fieldsOf(cert, lang)
   const mainFields = fields.filter((f) => !f.ext)
   const extFields = fields.filter((f) => f.ext)
 

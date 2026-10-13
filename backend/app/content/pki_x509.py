@@ -48,8 +48,8 @@ X509_MODULE = {
     'blocks': [
         {'type': 'text', 'id': 'text-1',
          'note': 'Klassischer Irrtum: Ein Zertifikat ist kein Geheimnis, sondern eine '
-                 'signierte, oeffentlich einsehbare Aussage. Das Geheimnis ist '
-                 'ausschliesslich der zugehoerige private Schluessel, der nie im Zertifikat '
+                 'signierte, öffentlich einsehbare Aussage. Das Geheimnis ist '
+                 'ausschließlich der zugehörige private Schlüssel, der nie im Zertifikat '
                  'steht.',
          'value': {
              'de': '## Ein Zertifikat ist eine signierte Aussage\n\n'
@@ -124,8 +124,8 @@ X509_MODULE = {
                  'eigene Browser-Zertifikat oder ein Beispiel per openssl x509 -text) und '
                  'die eben genannten Felder darin suchen lassen.'},
         {'type': 'diagram', 'id': 'diagram-x509-aufbau',
-         'note': ('Die oberen drei Schichten bilden zusammen das tbsCertificate ("to be signed") - nur darueber '
-             'rechnet die CA ihre Signatur. Anklicken lassen und die Felder im Inspector-Widget darueber '
+         'note': ('Die oberen drei Schichten bilden zusammen das tbsCertificate ("to be signed") - nur darüber '
+             'rechnet die CA ihre Signatur. Anklicken lassen und die Felder im Inspector-Widget darüber '
              'wiederfinden.'),
          'payload': {
              'kind': 'layers',
@@ -196,8 +196,8 @@ X509_MODULE = {
         },
         {'type': 'text', 'id': 'text-3',
          'note': 'Zentrale Aussage dieses Blocks, unbedingt hervorheben: Chrome und andere '
-                 'aktuelle Browser pruefen NUR die SAN-Liste, das CN-Feld ist fuer die '
-                 'Hostnamen-Pruefung irrelevant.',
+                 'aktuelle Browser prüfen NUR die SAN-Liste, das CN-Feld ist für die '
+                 'Hostnamen-Prüfung irrelevant.',
          'value': {
              'de': '## SAN entscheidet, nicht der Common Name\n\n'
                    'Früher stand der Hostname im **Common Name (CN)** des Subject-Felds. Seit '
@@ -279,7 +279,7 @@ X509_MODULE = {
                  'Client-Zertifikat für mTLS genutzt hat, braucht dafür künftig Zertifikate aus einer privaten '
                  'PKI.'),
              'en': ('## Key Usage and Extended Key Usage\n\nTwo extensions define **what** the key may be used '
-                 'for:\n\n- **Key Usage** - the basic purpose, e.g. digital signature or key encipherment.\n- '
+                 'for:\n\n- **Key Usage** - the basic purpose, e.g. digital signature or key encipherment (`keyEncipherment`).\n- '
                  '**Extended Key Usage (EKU)** - refines the purpose further, e.g. `serverAuth` (TLS server), '
                  '`clientAuth` (TLS client authentication, e.g. for VPN/IPsec client certificates or '
                  '802.1X/EAP-TLS), or `codeSigning` (signing software).\n\nFor operations this means: a '
@@ -290,7 +290,7 @@ X509_MODULE = {
                  'Program Policy (version 1.8) requires certificates issued on or after March 15, 2027 to carry '
                  "`serverAuth` only; Let's Encrypt has not issued certificates with `clientAuth` since July "
                  '2026. Anyone who has been using a public server certificate on the side as a client '
-                 'certificate for mTLS will need certificates from a private PKI for that in future.'),
+                 'certificate for mTLS will need certificates from a private PKI for that in the future.'),
             },
         },
         {'type': 'text', 'id': 'text-5',
@@ -399,9 +399,9 @@ X509_MODULE = {
                    'verification fails.',
          }},
         {'type': 'terminal', 'id': 'terminal-x509-lesen',
-         'note': ('Echte Ausgabe (OpenSSL 3.6) eines Zertifikats aus einer fuer den Kurs erzeugten Test-PKI; '
-             'gekuerzt ([...]); wrap ist aus, die Zeilen stehen in Originalbreite (Terminal scrollt waagerecht). Die Namen sind die der Nordwind-Beispiele, die '
-             'Schluessel sind Wegwerfmaterial.'),
+         'note': ('Echte Ausgabe (OpenSSL 3.6) eines Zertifikats aus einer für den Kurs erzeugten Test-PKI; '
+             'gekürzt ([...]); wrap ist aus, die Zeilen stehen in Originalbreite (Terminal scrollt waagerecht). Die Namen sind die der Nordwind-Beispiele, die '
+             'Schlüssel sind Wegwerfmaterial.'),
          'payload': {
              'title_de': 'Ein Zertifikat mit openssl x509 lesen',
              'title_en': 'Reading a certificate with openssl x509',
@@ -528,7 +528,7 @@ X509_MODULE = {
         },
         {'type': 'text', 'id': 'text-7',
          'note': 'Praxisregel betonen: .p12/.pfx-Dateien wie ein Passwort behandeln, nicht '
-                 'wie eine gewoehnliche Zertifikatsdatei.',
+                 'wie eine gewöhnliche Zertifikatsdatei.',
          'value': {
              'de': '## Formate und Dateiendungen\n\n'
                    '- **PEM** - Base64-kodiertes ASCII-Textformat '

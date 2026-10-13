@@ -73,7 +73,7 @@ WIDERRUF_MODULE = {
         {'type': 'text', 'id': 'text-2',
          'note': 'Drei Mechanismen sauber trennen: CRL = Liste, OCSP = Einzelabfrage, '
                  'Stapling = Server liefert die Antwort gleich mit. Verwechslung von OCSP '
-                 'und Stapling ist der haeufigste Fehler in Pruefungsfragen.',
+                 'und Stapling ist der häufigste Fehler in Prüfungsfragen.',
          'value': {
              'de': '## CRL, OCSP und OCSP-Stapling\n\n'
                    '- **CRL (Certificate Revocation List)** - eine von der CA '
@@ -109,7 +109,7 @@ WIDERRUF_MODULE = {
          }},
         {'type': 'diagram', 'id': 'diagram-widerruf-vergleich',
          'note': ("Stand der letzten Zeile: Baseline Requirements seit Ballot SC-063 (wirksam 15.03.2024) und Let's "
-             'Encrypt seit August 2025. Kurzlebig = hoechstens 7 Tage (seit 15.03.2026).'),
+             'Encrypt seit August 2025. Kurzlebig = höchstens 7 Tage (seit 15.03.2026).'),
          'payload': {
              'kind': 'compare',
              'title_de': 'Vier Wege, mit Widerruf umzugehen',
@@ -202,7 +202,7 @@ WIDERRUF_MODULE = {
         },
         {'type': 'diagram', 'id': 'diagram-ocsp-stapling',
          'note': ('Kernpunkt: Der Client spricht nie mit der CA. Die Antwort ist von der CA signiert, der Server '
-             'kann sie also nicht faelschen - nur weiterreichen. Erweiterung status_request nach RFC 6066; in '
+             'kann sie also nicht fälschen - nur weiterreichen. Erweiterung status_request nach RFC 6066; in '
              'TLS 1.3 reist die Antwort in der Certificate-Nachricht.'),
          'payload': {
              'kind': 'sequence',
@@ -373,7 +373,7 @@ WIDERRUF_MODULE = {
         {'type': 'terminal', 'id': 'terminal-widerruf-pruefen',
          'note': ('Echte Ausgaben (OpenSSL 3.6, curl 8.21) gegen die Kurs-Test-PKI mit lokalem Testserver und '
              'lokalem OCSP-Responder; Hostnamen/URLs wurden von 127.0.0.1 auf die Nordwind-Namen umgeschrieben, '
-             'lange Zeilen umbrochen, die curl-Ausgabe auf die entscheidenden Zeilen gekuerzt.'),
+             'lange Zeilen umbrochen, die curl-Ausgabe auf die entscheidenden Zeilen gekürzt.'),
          'payload': {
              'title_de': 'Ein widerrufenes Zertifikat prüfen',
              'title_en': 'Checking a revoked certificate',
@@ -553,7 +553,7 @@ WIDERRUF_MODULE = {
              'options_en': [
                  'CT additionally encrypts the TLS handshake',
                  'CT makes it possible to search public logs and thereby notice when '
-                 'someone has a certificate issued for one\'s own domain unnoticed',
+                 'someone has a certificate issued for one\'s own domain without anyone knowing',
                  'CT eliminates the need for a root CA',
                  'CT automatically shortens the certificate validity period',
              ],
@@ -575,7 +575,7 @@ WIDERRUF_MODULE = {
                      'options': [
                             {
                              'label_de': 'Das Zertifikat sofort widerrufen, den Ersatz kläre ich danach',
-                             'label_en': 'Revoke the certificate immediately, I will sort out the replacement after',
+                             'label_en': 'Revoke the certificate immediately, then sort out the replacement afterward',
                              'to': 'sofort',
                             },
                             {
@@ -651,7 +651,7 @@ WIDERRUF_MODULE = {
             },
         },
         {'type': 'text', 'id': 'text-lab-widerruf',
-         'note': ('Das Lab kann je nach Server abgeschaltet sein. Der Rueckgabewert 2 des letzten Befehls ist hier '
+         'note': ('Das Lab kann je nach Server abgeschaltet sein. Der Rückgabewert 2 des letzten Befehls ist hier '
              'das erwartete Ergebnis.'),
          'value': {
              'de': ('## Selbst ausprobieren: Widerruf per CRL\n\nDas Openssl-Lab unten öffnet mit der Vorlage **Widerruf '
@@ -667,7 +667,7 @@ WIDERRUF_MODULE = {
             },
         },
         {'type': 'widget', 'id': 'openssl-lab',
-         'note': ('Das Lab oeffnet in diesem Modul mit der Vorlage "Widerruf per CRL pruefen". Laeuft im Runner; ohne freigegebene Art '
+         'note': ('Das Lab öffnet in diesem Modul mit der Vorlage "Widerruf per CRL prüfen". Läuft im Runner; ohne freigegebene Art '
              '"openssl" zeigt das Widget einen Hinweis.'),
         },
         {'type': 'reflect', 'id': 'reflect-1',
@@ -816,7 +816,7 @@ WIDERRUF_MODULE = {
                  'To speed up TLS handshakes',
                  'To shorten the maximum certificate validity period',
                  'To replace OCSP stapling',
-                 'To notice when a certificate is issued for one\'s own domain unnoticed',
+                 'To detect certificates issued for one\'s own domain without one\'s knowledge',
              ],
          },
          'explanation': {

@@ -26,8 +26,8 @@ NAC_GRUNDLAGEN_MODULE = {
               'angeschlossener Etikettendrucker im Lager. Die IT-Leitung will wissen: Wer genau '
               'ist gerade im Netz, und warum darf jedes Gerät automatisch alles sehen? Du sollst '
               'die Grundlagen für ein NAC-Konzept legen, bevor Nordwind irgendein Produkt auswählt.',
-        'en': 'At Nordwind Logistik GmbH, every free network port at headquarters simply gets '
-              'plugged in — interns, visitors, a personally brought laptop, a newly connected '
+        'en': 'At Nordwind Logistik GmbH, every free network port at headquarters leads straight '
+              'into the network — for interns, visitors, a laptop brought from home, a newly connected '
               'label printer in the warehouse. IT management wants to know: who exactly is on '
               'the network right now, and why can every device automatically see everything? '
               'You are asked to lay the groundwork for a NAC concept before Nordwind picks any '
@@ -53,16 +53,16 @@ NAC_GRUNDLAGEN_MODULE = {
              'en': '## The Problem: Uncontrolled Network Access\n\n'
                    'A classic network trusts every device that is physically connected (or '
                    'connects with Wi-Fi credentials). At Nordwind, the risk is concrete: an '
-                   'unknown laptop at the free port in the meeting room gets the same '
-                   'connectivity as the accounting department\'s machine. On top of that comes '
-                   'sprawl from **BYOD** (personally brought devices) and **IoT** devices such as '
+                   'unknown laptop on the free port in the meeting room gets the same '
+                   'connectivity as the accounting department\'s machine. On top of that, there is '
+                   'the sprawl of **BYOD** (employees\' personal devices) and **IoT** devices such as '
                    'label printers or cameras, which often do not support a classic endpoint '
                    'agent.\n\n'
                    '**Network Access Control (NAC)** — also called "Network Admission Control" — '
                    'is the process that keeps unauthorized users and devices from accessing a '
                    'private network. NAC ensures that only authenticated users and authorized, '
                    'policy-compliant devices get access — and provides the visibility and '
-                   'enforceable policy needed for that.',
+                   'enforceable policies needed for that.',
          }},
         {'type': 'text', 'id': 'text-2',
          'value': {
@@ -203,7 +203,7 @@ NAC_GRUNDLAGEN_MODULE = {
                     {
                         'highlight': ['sw', 'e2', 'pol'],
                         'text_de': 'Der Switch fragt den Policy-Server — er entscheidet nicht selbst.',
-                        'text_en': 'The switch asks the policy server — it does not decide by itself.',
+                        'text_en': 'The switch asks the policy server — it does not decide on its own.',
                     },
                     {
                         'highlight': ['pol', 'e3', 'dir'],
@@ -242,7 +242,7 @@ NAC_GRUNDLAGEN_MODULE = {
                    'have already been admitted, and requires re-checking when someone tries to '
                    'move into a different network area. Non-compliance or anomalous behavior '
                    'triggers isolation or restriction.\n\n'
-                   'For Nordwind, concretely: pre-admission decides whether the laptop in the '
+                   'For Nordwind, this means: pre-admission decides whether the laptop in the '
                    'meeting room gets in at all — post-admission would notice if an already '
                    'admitted device suddenly starts behaving suspiciously.',
          }},
@@ -336,7 +336,7 @@ NAC_GRUNDLAGEN_MODULE = {
                    '2. **What are you allowed to do?** — Authorization (which network segment, '
                    'VLAN, ACL, or role assignment follows from that identity).\n'
                    '3. **What state are you in?** — Posture (is the device policy-compliant, '
-                   'e.g. patch level, antivirus, encryption).\n\n'
+                   'e.g., patch level, antivirus, encryption).\n\n'
                    'These three questions run through the entire course: 802.1X and RADIUS '
                    'provide the technical foundation for questions 1 and 2, posture assessment '
                    'goes deeper into question 3 in a later block.',
@@ -389,8 +389,8 @@ NAC_GRUNDLAGEN_MODULE = {
                           'Besprechungsraum bei Nordwind. Welche der drei NAC-Grundfragen greift '
                           'zuerst, noch bevor irgendein Datenverkehr durchgelassen wird? Erst '
                           'selbst überlegen.',
-             'teaser_en': 'A guest plugs their personal notebook into a free port in Nordwind\'s '
-                          'meeting room. Which of the three NAC fundamental questions kicks in '
+             'teaser_en': 'A guest plugs their personal laptop into a free port in Nordwind\'s '
+                          'meeting room. Which of the three fundamental NAC questions kicks in '
                           'first, before any traffic is let through at all? Think it through '
                           'yourself first.',
          },
@@ -400,7 +400,7 @@ NAC_GRUNDLAGEN_MODULE = {
                    'Posture-Prüfung sinnvoll erfolgen. Deshalb steht Authentifizierung technisch '
                    'am Anfang der Kette — bei 802.1X ist das der Grund, warum der Port zunächst '
                    'komplett gesperrt bleibt, bis eine Identität feststeht.',
-             'en': '"Who are you?" — authentication. Without a resolved identity, neither an '
+             'en': '"Who are you?" — authentication. Without an established identity, neither an '
                    'authorization decision (which VLAN, which rights) nor a posture check can '
                    'meaningfully happen. That is why authentication technically stands at the '
                    'start of the chain — with 802.1X, this is why the port stays fully blocked '
@@ -431,7 +431,7 @@ NAC_GRUNDLAGEN_MODULE = {
                  'Zu hohe Stromkosten von Switches',
              ],
              'en': [
-                 'Too slow an internet connection',
+                 'Too slow an Internet connection',
                  'Uncontrolled network access by unknown or unmanaged devices',
                  'Missing backups of network devices',
                  'Excessive power costs of switches',
@@ -505,7 +505,7 @@ NAC_GRUNDLAGEN_MODULE = {
                  'Away from identity, toward pure IP-based filtering',
                  'Away from implicit trust based on network location, toward identity and '
                  'context',
-                 'Away from authentication, toward exclusive encryption',
+                 'Away from authentication, toward encryption only',
                  'Away from any access control, toward open networks',
              ],
          },
@@ -542,7 +542,7 @@ NAC_GRUNDLAGEN_MODULE = {
             'type': 'single',
             'prompt': {
                 'de': 'Ein Firmen-Notebook hat sich morgens korrekt angemeldet. Mittags deaktiviert der Nutzer den Virenschutz; das NAC-System schränkt das Gerät daraufhin ein. Welche Art von Kontrolle hat gegriffen?',
-                'en': 'A company notebook logged in correctly in the morning. At noon the user disables the antivirus; the NAC system then restricts the device. Which kind of control kicked in?',
+                'en': 'A company laptop logged in correctly in the morning. At noon the user disables the antivirus; the NAC system then restricts the device. Which kind of control kicked in?',
             },
             'options': {
                 'de': [
@@ -580,7 +580,7 @@ NAC_GRUNDLAGEN_MODULE = {
                 ],
                 'en': [
                     'Printers, cameras, and guest devices can be discovered and classified this way',
-                    "A notebook's patch level can be checked just as deeply as with an agent",
+                    "A laptop's patch level can be checked just as deeply as with an agent",
                     'If an MDM exists, its compliance status can be queried without a NAC agent',
                     'Agentless replaces authentication via 802.1X',
                 ],

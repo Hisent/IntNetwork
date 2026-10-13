@@ -11,14 +11,42 @@ export interface ToolCall {
   arg: string
 }
 
-function globToRe(glob: string): RegExp {
-  const esc = glob.replace(/[.+^${}()|[\]\\]/g, '\\$&').replace(/\*/g, '.*')
-  return new RegExp('^' + esc + '$')
+const esc = (text: string) => text.replace(/[.+^${}()|[\]\\]/g, '\\$&')
+
+// Bash-Regeln (code.claude.com/docs/en/permissions, "Wildcard patterns"): `*` steht
+// für beliebigen Text; ein abschließendes " *" (oder ":*") als einziger Wildcard
+// trifft auch den nackten Befehl — `Bash(ls *)` passt auf `ls` und `ls -la`,
+// nicht auf `lsof`.
+function bashRe(glob: string): RegExp {
+  const g = glob.endsWith(':*') ? glob.slice(0, -2) + ' *' : glob
+  if (g.endsWith(' *') && g.indexOf('*') === g.length - 1) return new RegExp('^' + esc(g.slice(0, -2)) + '( .*)?$')
+  return new RegExp('^' + esc(g).replace(/\*/g, '.*') + '$')
 }
+
+// Read/Edit-Regeln folgen der gitignore-Syntax: `*` bleibt in einem Pfadsegment,
+// `**` reicht über Verzeichnisse, ein nackter Dateiname passt in jeder Tiefe.
+// ponytail: nur Pfade relativ zum Arbeitsverzeichnis (`pfad`, `./pfad`); die Anker
+// `//`, `~/`, `/` und die Tiefenregel für deny/ask bei `dir/**` fehlen.
+const relPath = (path: string) => path.replace(/^\.\//, '')
+function pathRe(glob: string): RegExp {
+  const g = relPath(glob)
+  const body = esc(g).replace(/\*\*\/?|\*/g, (m) => (m === '*' ? '[^/]*' : m.endsWith('/') ? '(.*/)?' : '.*'))
+  return new RegExp('^' + (g.includes('/') ? '' : '(.*/)?') + body + '$')
+}
+
+// Zusammengesetzte Befehle: Claude Code kennt die Shell-Operatoren und prüft
+// jeden Teilbefehl einzeln.
+const subcommands = (cmd: string) => cmd.split(/&&|\|\||[;|&\n]/).map((c) => c.trim()).filter(Boolean)
 
 export function matches(rule: Rule, call: ToolCall): boolean {
   if (rule.tool !== call.tool) return false
-  return globToRe(rule.glob).test(call.arg)
+  if (call.tool === 'Read' || call.tool === 'Edit' || call.tool === 'Write') return pathRe(rule.glob).test(relPath(call.arg))
+  if (call.tool !== 'Bash') return bashRe(rule.glob).test(call.arg)
+  const parts = subcommands(call.arg)
+  const hit = (part: string) => bashRe(rule.glob).test(part)
+  // deny/ask greifen, sobald EIN Teilbefehl passt; allow nur, wenn JEDER passt —
+  // `Bash(npm run *)` erlaubt also nicht `npm run test && rm -rf x`.
+  return rule.effect === 'allow' ? parts.length > 0 && parts.every(hit) : parts.some(hit)
 }
 
 // Woher die Entscheidung kommt: aus einer Regel, aus dem eingebauten Verhalten

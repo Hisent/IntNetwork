@@ -18,12 +18,12 @@ REDUNDANZ_MODULE = {
     ],
     "goals_en": [
         "Explain why a loop in a switched network leads to a broadcast storm without protection",
-        "Name the role of STP/RSTP: root bridge election, blocked ports, faster convergence with RSTP",
-        "Place PortFast/edge ports and BPDU guard as terms",
+        "Describe the role of STP/RSTP: root bridge election, blocked ports, faster convergence with RSTP",
+        "Explain the terms PortFast/edge port and BPDU guard",
         "Distinguish link aggregation (LACP/EtherChannel) from the common misconception that it "
         "makes a single transfer faster",
         "Explain VRRP/HSRP as failover protection for the default gateway",
-        "Keep STP, LACP and VRRP/HSRP apart as mechanisms for different problems",
+        "Tell STP, LACP and VRRP/HSRP apart as mechanisms for different problems",
     ],
     "scenario": {
         "de": "Nordwind hat seine zwei Kernswitches und den Standard-Gateway-Router redundant "
@@ -32,8 +32,8 @@ REDUNDANZ_MODULE = {
               "eine Schleife. Wie sorgt man dafür, dass Redundanz nicht selbst zum Problem "
               "wird?",
         "en": "Nordwind has cabled its two core switches and the default-gateway router "
-              "redundantly so a single broken cable doesn't cut anyone off the network. "
-              "Shortly after the rebuild, the entire office VLAN collapses — a loop is "
+              "redundantly so a single broken cable doesn't cut anyone off from the network. "
+              "Shortly after the change, the entire office VLAN collapses — a loop is "
               "suspected. How do you make sure redundancy doesn't become the problem itself?",
     },
     "blocks": [
@@ -48,7 +48,7 @@ REDUNDANZ_MODULE = {
                    "trennt — und **Schicht 3** — mehrere Router, damit der Ausfall des "
                    "Standard-Gateways die Clients nicht aussperrt. Beide Ebenen brauchen dafür "
                    "eigene Mechanismen, sonst erzeugt die Redundanz selbst neue Probleme.",
-             "en": "## Redundancy on Two Levels\n\nSecuring a network against failures needs "
+             "en": "## Redundancy on Two Levels\n\nProtecting a network against failures requires "
                    "redundancy in two places: **Layer 2** — multiple cables between switches, "
                    "so that one broken link doesn't cut off the whole network — and **Layer "
                    "3** — multiple routers, so that a failed default gateway doesn't lock "
@@ -83,8 +83,8 @@ REDUNDANZ_MODULE = {
              "en": "## STP: Root Bridge Election and Blocked Ports\n\nThe **Spanning Tree "
                    "Protocol (STP)** prevents exactly that: all participating switches jointly "
                    "elect a **root bridge** as a reference point. From every other switch, the "
-                   "cheapest path to the root bridge is then made active — redundant links "
-                   "that would create a loop get set to **blocked ports**. They don't forward "
+                   "lowest-cost path to the root bridge is then made active — redundant links "
+                   "that would create a loop are put on **blocked ports**. They don't forward "
                    "ordinary data but remain as a backup: if the active link fails, STP "
                    "unblocks one of the blocked ports.",
          }},
@@ -163,7 +163,7 @@ REDUNDANZ_MODULE = {
                          "Kanal bündeln, aber der Kanal kommt nicht stabil hoch. Finde den "
                          "Fehler:",
             "prompt_en": "Two core switches are supposed to bundle two 10 Gbit links into "
-                         "one LACP channel, but the channel won't come up stably. Find the "
+                         "one LACP channel, but the channel won't come up reliably. Find the "
                          "error:",
             "lines_de": [
                 "Switch A: Te1/1 und Te1/2 im Kanal, Modus 'active', beide Ports laufen "
@@ -189,7 +189,7 @@ REDUNDANZ_MODULE = {
                               "10 GBit/s laufen.",
             "explanation_en": "All member ports of an LACP channel must have identical speed "
                               "and duplex settings. A port with a different speed (here 1 "
-                              "instead of 10 Gbit/s) won't join the channel stably and "
+                              "instead of 10 Gbit/s) won't join the channel reliably and "
                               "disrupts the bundle. Te1/2 on switch B must run at "
                               "10 Gbit/s like every other member port.",
         }},
@@ -201,7 +201,7 @@ REDUNDANZ_MODULE = {
                           "aber geschützt gegen angesteckte Switches). Gi1/0/49 und Gi1/0/51 sollen per "
                           "LACP ein Bündel zum Kernswitch aushandeln.",
              "prompt_en": "Complete the configuration: Gi1/0/5 is a workstation port (active immediately, "
-                          "but protected against plugged-in switches). Gi1/0/49 and Gi1/0/51 are to "
+                          "but protected against switches being plugged in). Gi1/0/49 and Gi1/0/51 are to "
                           "negotiate a bundle to the core switch via LACP.",
              "mono": True,
              "text": "interface Gi1/0/5\n"
@@ -360,7 +360,7 @@ REDUNDANZ_MODULE = {
                  {"highlight": ["r1", "e-r1", "sw", "e-r2", "r2"],
                   "text_de": "Lebenszeichen: R1 sendet jede Sekunde ein Advertisement. R2 hört nur zu — "
                              "solange sie eintreffen, bleibt er Backup.",
-                  "text_en": "Sign of life: R1 sends an advertisement every second. R2 just listens — as "
+                  "text_en": "Heartbeat: R1 sends an advertisement every second. R2 just listens — as "
                              "long as they arrive, it stays backup."},
                  {"highlight": ["r2"],
                   "text_de": "R1 fällt aus, die Advertisements bleiben weg. Nach gut drei Sekunden erklärt "
@@ -405,7 +405,7 @@ REDUNDANZ_MODULE = {
                                 "wartet als Backup/Standby"],
                   "values_en": ["sits idle (blocked)", "is used as well (all links active)",
                                 "waits as backup/standby"]},
-                 {"label_de": "Umschaltzeit (Richtwert)", "label_en": "Failover time (rule of thumb)",
+                 {"label_de": "Umschaltzeit (Richtwert)", "label_en": "Failover time (typical)",
                   "values_de": ["RSTP: meist innerhalb weniger Sekunden · altes STP: 30–50 s",
                                 "bei Link-Ausfall praktisch sofort",
                                 "VRRP-Standard: gut 3 s · HSRP-Standard: 10 s"],
@@ -467,8 +467,8 @@ REDUNDANZ_MODULE = {
                     "bestehen",
                     "Sie wird stärker priorisiert", "Sie wird zur Root-Bridge gemacht"],
              "en": ["It gets completely disabled",
-                    "It gets set to a blocked port and remains as a backup",
-                    "It gets prioritized more strongly", "It gets made the root bridge"],
+                    "It is put on a blocked port and remains as a backup",
+                    "It is given a higher priority", "It is made the root bridge"],
          },
          "answer": 1,
          "explanation": {
@@ -507,7 +507,7 @@ REDUNDANZ_MODULE = {
          "answer": 2,
          "explanation": {
              "de": "VRRP und HSRP lassen mehrere Router eine gemeinsame virtuelle Gateway-Adresse bedienen. Mehr Bandbreite (LACP) oder Schleifenschutz (STP) liefern sie nicht — sie sichern ausschließlich das Gateway auf Schicht 3 ab.",
-             "en": "VRRP and HSRP let several routers serve one shared virtual gateway address. They provide neither more bandwidth (LACP) nor loop protection (STP) — they exclusively safeguard the gateway at layer 3."}},
+             "en": "VRRP and HSRP let several routers serve one shared virtual gateway address. They provide neither more bandwidth (LACP) nor loop protection (STP) — they exclusively safeguard the gateway at Layer 3."}},
         {"id": "rd5", "type": "single",
          "prompt": {"de": "Auf welcher Ebene setzen STP und LACP jeweils an, im Vergleich zu "
                          "VRRP/HSRP?",
@@ -526,7 +526,7 @@ REDUNDANZ_MODULE = {
          "answer": 0,
          "explanation": {
              "de": "STP und LACP arbeiten mit Frames, Ports und MAC-Adressen zwischen Switches — Schicht 2. VRRP/HSRP sichern eine IP-Adresse, das Gateway — Schicht 3. Die Zuordnung ist nicht herstellerabhängig, sondern folgt aus dem jeweiligen Problem.",
-             "en": "STP and LACP work with frames, ports and MAC addresses between switches — layer 2. VRRP/HSRP safeguard an IP address, the gateway — layer 3. The assignment is not vendor-dependent; it follows from the respective problem."}},
+             "en": "STP and LACP work with frames, ports and MAC addresses between switches — Layer 2. VRRP/HSRP safeguard an IP address, the gateway — Layer 3. The assignment is not vendor-dependent; it follows from the problem each one solves."}},
         {"id": "rd6", "type": "single",
          "prompt": {"de": "Ein Techniker schließt einen alten Switch aus dem Lagerbestand ans Netz an. Kurz "
                           "darauf läuft der Verkehr über Umwege: Der alte Switch ist Root-Bridge geworden. "
@@ -550,7 +550,7 @@ REDUNDANZ_MODULE = {
                    "Priorität überall auf dem Standardwert, entscheidet allein die MAC — also der Zufall, "
                    "oft zugunsten alter Geräte. Deshalb setzt man die Priorität der Kernswitches bewusst "
                    "niedrig. Leistung oder Portzahl spielen bei der Wahl keine Rolle.",
-             "en": "The root is the lowest bridge ID made of priority and MAC address. If the priority is "
+             "en": "The lowest bridge ID, made up of priority and MAC address, becomes root. If the priority is "
                    "left at the default everywhere, the MAC alone decides — in other words chance, often in "
                    "favor of old devices. That is why the core switches' priority is deliberately set low. "
                    "Performance or port count play no role in the election."}},
@@ -560,7 +560,7 @@ REDUNDANZ_MODULE = {
                           "nichts funktioniert mehr. Wie ist das einzuordnen?",
                     "en": "On a workstation port with PortFast and BPDU guard an employee plugs in a small "
                           "switch. The port immediately goes into the “err-disabled” state and nothing "
-                          "works anymore. How should this be assessed?"},
+                          "works anymore. How do you interpret this?"},
          "options": {
              "de": ["Der Port ist defekt und muss getauscht werden",
                     "BPDU-Guard hat wie vorgesehen ausgelöst: Ursache entfernen, Port wieder aktivieren",

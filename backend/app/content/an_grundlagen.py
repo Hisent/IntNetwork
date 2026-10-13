@@ -13,7 +13,7 @@ ANSIBLE_GRUNDLAGEN_MODULE = {
               'Ad-hoc-Kommandos von Playbooks abgrenzen'],
     'goals_en': ['Explain what Ansible is and what it is for (agentless, declarative, push model)',
                  'Tell the roles of control node and managed node apart',
-                 'Place ansible-core, collections and Ansible Automation Platform as three layers',
+                 'Describe ansible-core, collections and Ansible Automation Platform as three layers',
                  'Distinguish ad-hoc commands from playbooks'],
     'scenario': {'de': 'Ein kleines IT-Team pflegt ein Dutzend Server per Hand: einloggen, Paket '
                        'installieren, Konfigurationsdatei anpassen, Dienst neu starten — für jeden '
@@ -44,9 +44,9 @@ ANSIBLE_GRUNDLAGEN_MODULE = {
                          '\n'
                          'Das unterscheidet Ansible von Werkzeugen, die einen dauerhaften Agenten '
                          'auf jedem Zielsystem voraussetzen und diesen regelmäßig „nach Hause '
-                         'telefonieren” lassen (Pull-Prinzip). Ansible-Beschreibungen sind zudem '
+                         'telefonieren“ lassen (Pull-Prinzip). Ansible-Beschreibungen sind zudem '
                          '**deklarativ**: Man beschreibt den gewünschten Zielzustand '
-                         '(„Paket X soll installiert sein”), nicht die einzelnen Schritte dorthin.',
+                         '(„Paket X soll installiert sein“), nicht die einzelnen Schritte dorthin.',
                    'en': '## What is Ansible?\n'
                          '\n'
                          'Ansible is an automation tool for configuration management, software '
@@ -81,7 +81,7 @@ ANSIBLE_GRUNDLAGEN_MODULE = {
                          'Ausnahme: Netzwerkgeräte (Switches, Router) können in der Regel kein '
                          'Python ausführen. Wie Ansible damit umgeht, ist Thema eines späteren '
                          'Moduls — für den Einstieg reicht die Merkregel „Control Node denkt und '
-                         'verbindet, Managed Node führt aus”.',
+                         'verbindet, Managed Node führt aus“.',
                    'en': '## Control node and managed node\n'
                          '\n'
                          '- **Control node**: the machine where Ansible is installed and from '
@@ -208,7 +208,7 @@ ANSIBLE_GRUNDLAGEN_MODULE = {
                          'Für den Alltag reicht meist die Merkregel: ansible-core ist der Motor, '
                          'Collections liefern die Werkzeuge dazu, AAP ist der Betriebsrahmen für '
                          'größere Teams.',
-                   'en': '## Three layers: ansible-core, collections, automation platform\n'
+                   'en': '## Three layers: ansible-core, collections, Automation Platform\n'
                          '\n'
                          '- **ansible-core**: the actual engine — reads inventory and playbooks, '
                          'evaluates variables, establishes connections, invokes modules. Ships '
@@ -342,7 +342,7 @@ ANSIBLE_GRUNDLAGEN_MODULE = {
                                              '}'},
                                   {'cmd': 'ansible webservers --list-hosts',
                                    'desc_de': 'nur zeigen, wen das Pattern trifft',
-                                   'desc_en': 'only show whom the pattern matches',
+                                   'desc_en': 'only show which hosts the pattern matches',
                                    'output': '  hosts (3):\n    web01\n    web02\n    web03'}],
                      'tasks': [{'text_de': 'Prüfe, ob alle Webserver erreichbar sind.',
                                 'text_en': 'Check whether all web servers are reachable.',
@@ -408,7 +408,7 @@ ANSIBLE_GRUNDLAGEN_MODULE = {
                                        'zusätzlichen Collections zeigt der Kurs als '
                                        'Terminal-Simulation.',
                      'explanation_en': 'The course lab contains exactly the ansible-core layer: '
-                                       'everything in ansible.builtin runs there for real, modules '
+                                       'everything in ansible.builtin runs there for real; modules '
                                        'from additional collections are shown as terminal '
                                        'simulations.'}},
         {'type': 'debug', 'id': 'debug-1',
@@ -449,7 +449,7 @@ ANSIBLE_GRUNDLAGEN_MODULE = {
                          'sorgt dafür, dass die Aktion mit erhöhten Rechten läuft (vergleichbar '
                          '`sudo`), was für eine Paketinstallation in der Regel nötig ist. Da keine '
                          'Version angegeben ist, kümmert sich '
-                         'Ansible nur um den Zustand „vorhanden”, nicht um eine bestimmte Version.',
+                         'Ansible nur um den Zustand „vorhanden“, nicht um eine bestimmte Version.',
                    'en': 'The command runs the `package` module on all hosts in the `datenbank` '
                          'group with the parameters `name=postgresql` and `state=present` — so it '
                          'ensures the `postgresql` package is installed (without specifying which '
@@ -467,12 +467,12 @@ ANSIBLE_GRUNDLAGEN_MODULE = {
                                'installiert, und ohne Netzwerkverbindung (SSH/WinRM) erreicht es '
                                'kein Zielsystem.',
                          'en': 'Agentless refers to the managed node: nothing permanent from '
-                               'Ansible runs there, modules are transferred only for the duration '
+                               'Ansible runs there; modules are transferred only for the duration '
                                'of a task. Ansible is of course installed on the control node, and '
-                               'without a network connection (SSH/WinRM) it reaches no target '
+                               'without a network connection (SSH/WinRM) it cannot reach any target '
                                'system.'},
          'type': 'single',
-         'prompt': {'de': 'Was bedeutet „agentenlos” im Zusammenhang mit Ansible?',
+         'prompt': {'de': 'Was bedeutet „agentenlos“ im Zusammenhang mit Ansible?',
                     'en': 'What does "agentless" mean in the context of Ansible?'},
          'answer': 1,
          'options': {'de': ['Auf dem Control Node läuft keine Software.',
@@ -490,7 +490,7 @@ ANSIBLE_GRUNDLAGEN_MODULE = {
                                'Nodes gelangt je Task nur das benötigte Modul — nie das ganze '
                                'Playbook.',
                          'en': 'Inventory, playbooks and ansible.cfg live on the control node '
-                               'because only there Ansible runs and reads them. Per task only the '
+                               'because that is the only place where Ansible runs and reads them. For each task, only the '
                                'required module reaches the managed nodes — never the whole '
                                'playbook.'},
          'type': 'single',
@@ -507,7 +507,7 @@ ANSIBLE_GRUNDLAGEN_MODULE = {
                                'Irrtum, ansible-core sei selbst eine Collection, verwechselt die '
                                'Engine mit dem Namensraum ansible.builtin, den sie mitbringt.',
                          'en': 'ansible-core is the engine including ansible.builtin; collections '
-                               'add further modules, plugins and roles. The common mistake that '
+                               'add further modules, plugins and roles. The common misconception that '
                                'ansible-core is itself a collection confuses the engine with the '
                                'ansible.builtin namespace it ships.'},
          'type': 'single',
@@ -560,9 +560,9 @@ ANSIBLE_GRUNDLAGEN_MODULE = {
                             'Windows-Zielsysteme werden ausschließlich über SSH angesprochen.',
                             'Windows-Zielsysteme werden typischerweise über WinRM angesprochen.',
                             'Der Managed Node initiiert die Verbindung zum Control Node.'],
-                     'en': ['Linux target systems are typically addressed over SSH.',
-                            'Windows target systems are addressed exclusively over SSH.',
-                            'Windows target systems are typically addressed over WinRM.',
+                     'en': ['Linux target systems are typically reached over SSH.',
+                            'Windows target systems are reached exclusively over SSH.',
+                            'Windows target systems are typically reached over WinRM.',
                             'The managed node initiates the connection to the control node.']}},
         {'id': 'ag6',
          'type': 'single',
@@ -586,7 +586,7 @@ ANSIBLE_GRUNDLAGEN_MODULE = {
                                'wird.',
                          'en': 'Without `-m` the `ansible` CLI assumes the '
                                '`ansible.builtin.command` module; `-a` passes its arguments, the '
-                               'pattern in front selects the hosts. The command runs on the '
+                               'pattern before it selects the hosts. The command runs on the '
                                'managed nodes — not locally, even though it is typed on the '
                                'control node.'}},
         {'id': 'ag7',
@@ -594,8 +594,8 @@ ANSIBLE_GRUNDLAGEN_MODULE = {
          'prompt': {'de': '`ansible web01 -m ansible.builtin.ping` meldet `UNREACHABLE!`, obwohl '
                           '`ping web01` (ICMP) auf der Shell antwortet. Was ist die plausibelste '
                           'Ursache?',
-                    'en': '`ansible web01 -m ansible.builtin.ping` reports `UNREACHABLE!` although '
-                          '`ping web01` (ICMP) answers on the shell. What is the most plausible '
+                    'en': '`ansible web01 -m ansible.builtin.ping` reports `UNREACHABLE!` even though '
+                          '`ping web01` (ICMP) gets a reply in the shell. What is the most plausible '
                           'cause?'},
          'answer': 2,
          'options': {'de': ['Auf web01 fehlt der Ansible-Agent',

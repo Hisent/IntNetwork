@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import {
-  DOT1X_PATHS, DOT1X_PATH_IDS, isDecided, isPortAuthorized,
+  DOT1X_PATHS, DOT1X_PATH_IDS, isDecided, isPortAuthorized, stepName,
   type Dot1xLayer, type Dot1xPathId, type Dot1xRole,
 } from '@/widgets/nac/dot1x'
 import { ChallengeBox } from '@/components/ChallengeBox'
@@ -205,7 +205,7 @@ export function Dot1xFlow({ lang }: { lang: Lang }) {
             transition: transitioning ? 'left 650ms ease-in-out' : 'none',
           }}
         >
-          {step.from === step.to ? step.name : (ROLE_X[step.to] > ROLE_X[step.from] ? '→ ' : '← ') + step.name}
+          {step.from === step.to ? stepName(step, lang) : (ROLE_X[step.to] > ROLE_X[step.from] ? '→ ' : '← ') + stepName(step, lang)}
         </div>
       </div>
 
@@ -220,7 +220,7 @@ export function Dot1xFlow({ lang }: { lang: Lang }) {
         <p className="text-xs font-semibold text-slate-600 mb-1">
           {step.from === step.to ? roleLabel(step.from) : `${roleLabel(step.from)} → ${roleLabel(step.to)}`}
         </p>
-        <p className="font-mono text-sm text-slate-800 mb-1">{step.name}</p>
+        <p className="font-mono text-sm text-slate-800 mb-1">{stepName(step, lang)}</p>
         <p className="text-xs text-slate-600">{step.detail[lang]}</p>
       </div>
 

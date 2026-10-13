@@ -51,7 +51,7 @@ const help = (lang: 'de' | 'en') => [
 ].join('\n')
 
 export function runRouterCommand(routes: Route[], raw: string, lang: 'de' | 'en' = 'de'): string {
-  const cmd = raw.trim().toLowerCase().replace(/\s+/g, ' ')
+  const cmd = raw.trim().toLowerCase().replace(/\s+/g, ' ').replace(/^sh(o|ow)? /, 'show ')
   if (!cmd) return ''
   if (cmd === '?' || cmd === 'help') return help(lang)
   if (cmd === 'show ip route') return showIpRoute(routes)

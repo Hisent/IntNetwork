@@ -29,3 +29,16 @@ describe('tokenize', () => {
     expect(tokenCount('Hallo')).toBe(2)
   })
 })
+
+describe('Widget-Aufgabe (Review 2026-10)', () => {
+  it('ist mit keinem der Beispieltexte schon beim Laden erfüllt', async () => {
+    const { CHALLENGE_TOKENS, EXAMPLES } = await import('./tokenize')
+    for (const text of Object.values(EXAMPLES)) expect(tokenCount(text)).toBeLessThanOrEqual(CHALLENGE_TOKENS)
+  })
+
+  it('verkraftet leere und extreme Eingaben', () => {
+    expect(tokenCount('')).toBe(0)
+    expect(tokenCount('😀\u0000\r\n')).toBeGreaterThan(0)
+    expect(tokenCount('a'.repeat(100_000))).toBe(25_000)
+  })
+})

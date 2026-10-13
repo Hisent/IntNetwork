@@ -17,13 +17,17 @@ const STR = {
       text: 'Jedes Glied passt zum nächsten (Issuer = Subject), jeder Aussteller ist eine CA (CA:TRUE, keyCertSign), das letzte Glied ist selbstsigniert und liegt im Trust Store, und kein Zertifikat ist zeitlich abgelaufen. Genau so validiert auch ein Browser oder curl eine TLS-Verbindung.',
     },
     results: {
+      'no-leaf': {
+        title: '✗ Kette beginnt nicht mit dem Serverzertifikat',
+        text: 'Das erste Glied ist ein CA-Zertifikat. Geprüft wird aber der Weg vom Serverzertifikat (Leaf) über das Intermediate bis zur Root — beginne mit dem Zertifikat, das der Server für seinen Hostnamen vorlegt.',
+      },
       incomplete: {
         title: '✗ Kette unvollständig',
         text: 'Die Kette bricht ab, ohne einen Vertrauensanker im Trust Store zu erreichen — es fehlt (mindestens) ein Glied. Das ist der klassische „funktioniert im Browser, aber nicht mit curl/Java“-Fall: Browser cachen bereits gesehene Intermediates oder laden sie automatisch nach (Authority Information Access) und bauen die Kette so trotzdem zusammen. curl, openssl s_client und viele Java-Clients tun das nicht — sie verifizieren strikt nur, was tatsächlich vorliegt.',
       },
       'issuer-mismatch': {
         title: '✗ Issuer passt nicht zum Subject des nächsten Zertifikats',
-        text: 'Zwei aufeinanderfolgende Kettenglieder passen nicht zueinander: Der Issuer-Eintrag des einen stimmt nicht mit dem Subject des nächsten überein. Damit lässt sich keine durchgängige Signaturprüfung aufbauen — meist, weil ein Zertifikat einer falschen/fremden CA in die Kette geraten ist.',
+        text: 'Zwei aufeinanderfolgende Kettenglieder passen nicht zueinander: Der Issuer-Eintrag des einen stimmt nicht mit dem Subject des nächsten überein. Damit lässt sich keine durchgängige Signaturprüfung aufbauen — meist, weil ein Zertifikat einer falschen/fremden CA in die Kette geraten ist, ein Zwischenglied fehlt oder die Reihenfolge nicht stimmt.',
       },
       'not-a-ca': {
         title: '✗ Ein Aussteller ist keine CA (Basic Constraints)',
@@ -61,13 +65,17 @@ const STR = {
       text: 'Every link matches the next one (issuer = subject), every issuer is a CA (CA:TRUE, keyCertSign), the last link is self-signed and present in the trust store, and no certificate has expired. This is exactly how a browser or curl validates a TLS connection.',
     },
     results: {
+      'no-leaf': {
+        title: '✗ Chain does not start with the server certificate',
+        text: 'The first link is a CA certificate. What gets validated is the path from the server certificate (leaf) via the intermediate up to the root — start with the certificate the server presents for its hostname.',
+      },
       incomplete: {
         title: '✗ Chain incomplete',
         text: 'The chain stops without reaching a trust anchor in the trust store — at least one link is missing. This is the classic “works in the browser, but not with curl/Java” case: browsers cache intermediates they’ve already seen or fetch them automatically (Authority Information Access) and still complete the chain. curl, openssl s_client, and many Java clients do not — they strictly verify only what is actually present.',
       },
       'issuer-mismatch': {
         title: '✗ Issuer does not match the next certificate’s subject',
-        text: 'Two consecutive links in the chain don’t fit together: one certificate’s issuer entry does not match the next one’s subject. That breaks the signature-verification chain — usually because a certificate from the wrong/a different CA ended up in the chain.',
+        text: 'Two consecutive links in the chain don’t fit together: one certificate’s issuer entry does not match the next one’s subject. That breaks the signature-verification chain — usually because a certificate from the wrong/a different CA ended up in the chain, an intermediate link is missing, or the order is wrong.',
       },
       'not-a-ca': {
         title: '✗ An issuer is not a CA (Basic Constraints)',

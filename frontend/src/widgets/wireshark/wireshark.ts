@@ -23,27 +23,75 @@ export interface Packet {
 const KNOWN_PROTOCOLS = new Set(['frame', 'eth', 'arp', 'ip', 'ipv6', 'icmp', 'icmpv6', 'tcp', 'udp',
   'dns', 'dhcp', 'http', 'tls', 'ssh', 'ftp', 'smtp', 'ntp', 'telnet', 'quic'])
 
-/** Anzeigefilter → Prädikat. Unterstützt: leer, Protokollname (dns/tcp/http/
- *  tls/icmp/udp/ip …), `ip.addr|ip.src|ip.dst == X`, `tcp.port|udp.port == N`.
- *  Ungültig → null. */
-export function parseFilter(filter: string): ((p: Packet) => boolean) | null {
+type Pred = (p: Packet) => boolean
+
+const isIpv4 = (s: string) => /^\d{1,3}(\.\d{1,3}){3}$/.test(s) && s.split('.').every((o) => Number(o) <= 255)
+
+/** Ein Protokollname oder ein Feldvergleich → Prädikat; null = ungültig. */
+function parseAtom(atom: string): Pred | null {
+  if (KNOWN_PROTOCOLS.has(atom)) return (p) => p.protocols.includes(atom)
+  const m = atom.match(/^([a-z.]+)\s*(==|!=)\s*(\S+)$/)
+  if (!m) return null
+  const [, field, op, value] = m
+  const ipField = field.match(/^ip\.(addr|src|dst)$/)
+  const portField = field.match(/^(tcp|udp)\.(port|srcport|dstport)$/)
+  let has: Pred
+  let eq: Pred
+  if (ipField && isIpv4(value)) {
+    const which = ipField[1]
+    has = () => true // jedes Paket des Mitschnitts hat einen IPv4-Header
+    eq = (p) => (which !== 'dst' && p.src === value) || (which !== 'src' && p.dst === value)
+  } else if (portField && /^\d+$/.test(value) && Number(value) <= 65535) {
+    const [, proto, which] = portField
+    const port = Number(value)
+    has = (p) => p.protocols.includes(proto) && p.ports !== undefined
+    eq = (p) => has(p) && (which === 'port' ? p.ports!.includes(port) : p.ports![which === 'srcport' ? 0 : 1] === port)
+  } else {
+    return null
+  }
+  // wie Wireshark: ein Vergleich ist falsch, wenn das Paket das Feld gar nicht hat
+  return op === '==' ? eq : (p) => has(p) && !eq(p)
+}
+
+/** Anzeigefilter → Prädikat. Unterstützt: leer, Protokollname (dns/tcp/http/tls/icmp/udp/ip …),
+ *  `ip.addr|ip.src|ip.dst`, `tcp|udp.port|srcport|dstport` mit `==`/`eq` und `!=`/`ne`,
+ *  verknüpft mit `&&`/`and`, `||`/`or`, `!`/`not` und Klammern (and bindet stärker als or).
+ *  Ungültig → null.
+ *  ponytail: andere Felder (tcp.flags.syn, http.request.method …) kennt die Mini-Engine nicht
+ *  und meldet sie als ungültig — bei Bedarf in parseAtom ergänzen. */
+export function parseFilter(filter: string): Pred | null {
   const f = filter.trim().toLowerCase()
   if (f === '') return () => true
-  if (KNOWN_PROTOCOLS.has(f)) {
-    return (p) => p.protocols.includes(f)
+  const tokens = f.replace(/\s+eq\s+/g, ' == ').replace(/\s+ne\s+/g, ' != ')
+    .split(/\s*(\(|\)|&&|\|\||!(?!=)|\band\b|\bor\b|\bnot\b)\s*/).filter(Boolean)
+  let i = 0
+  const unary = (): Pred | null => {
+    const t = tokens[i++]
+    if (t === undefined) return null
+    if (t === '!' || t === 'not') { const x = unary(); return x && ((p) => !x(p)) }
+    if (t === '(') { const x = or(); return tokens[i++] === ')' ? x : null }
+    return parseAtom(t)
   }
-  let m = f.match(/^ip\.(addr|src|dst)\s*==\s*([0-9.]+)$/)
-  if (m) {
-    const [, field, ip] = m
-    return (p) => (field !== 'dst' && p.src === ip) || (field !== 'src' && p.dst === ip)
+  const and = (): Pred | null => {
+    let left = unary()
+    while (left && (tokens[i] === '&&' || tokens[i] === 'and')) {
+      i++
+      const l = left, r = unary()
+      left = r && ((p) => l(p) && r(p))
+    }
+    return left
   }
-  m = f.match(/^(tcp|udp)\.port\s*==\s*(\d+)$/)
-  if (m) {
-    const [, proto] = m
-    const port = Number(m[2])
-    return (p) => p.protocols.includes(proto) && (p.ports?.includes(port) ?? false)
+  function or(): Pred | null {
+    let left = and()
+    while (left && (tokens[i] === '||' || tokens[i] === 'or')) {
+      i++
+      const l = left, r = and()
+      left = r && ((p) => l(p) || r(p))
+    }
+    return left
   }
-  return null
+  const pred = or()
+  return pred && i === tokens.length ? pred : null
 }
 
 export function applyFilter(packets: Packet[], filter: string): Packet[] | null {
@@ -204,7 +252,7 @@ export const CAPTURE: Packet[] = [
       { name: 'Transport Layer Security', fields: [
         { label: 'Handshake', value: 'Server Hello' },
         { label: 'Supported Version', value: 'TLS 1.3 (0x0304)' },
-        { label: 'Encrypted Data', value: '17 03 03 09 c4 5b e0 1d …  (unlesbar)' }] }],
+        { label: 'Encrypted Data', value: '17 03 03 09 c4 5b e0 1d …  (encrypted)' }] }],
   },
   {
     no: 17, time: '15.262', src: PC, dst: BANK, protocol: 'TLS',
@@ -213,7 +261,7 @@ export const CAPTURE: Packet[] = [
     layers: [eth(MAC_PC, MAC_GW), ip(PC, BANK), tcp(52101, 443, 'PSH, ACK'),
       { name: 'Transport Layer Security', fields: [
         { label: 'Content Type', value: 'Change Cipher Spec (20)' },
-        { label: 'Encrypted Data', value: '17 03 03 00 45 7a 0c 93 …  (unlesbar)' }] }],
+        { label: 'Encrypted Data', value: '17 03 03 00 45 7a 0c 93 …  (encrypted)' }] }],
   },
   {
     no: 18, time: '15.290', src: PC, dst: BANK, protocol: 'TLS',
@@ -222,7 +270,7 @@ export const CAPTURE: Packet[] = [
     layers: [eth(MAC_PC, MAC_GW), ip(PC, BANK), tcp(52101, 443, 'PSH, ACK'),
       { name: 'Transport Layer Security', fields: [
         { label: 'Content Type', value: 'Application Data (23)' },
-        { label: 'Encrypted Data', value: '17 03 03 00 8a f2 9c 41 …  (unlesbar)' }] }],
+        { label: 'Encrypted Data', value: '17 03 03 00 8a f2 9c 41 …  (encrypted)' }] }],
   },
   {
     no: 19, time: '15.331', src: BANK, dst: PC, protocol: 'TLS',
@@ -231,6 +279,6 @@ export const CAPTURE: Packet[] = [
     layers: [eth(MAC_GW, MAC_PC), ip(BANK, PC), tcp(443, 52101, 'PSH, ACK'),
       { name: 'Transport Layer Security', fields: [
         { label: 'Content Type', value: 'Application Data (23)' },
-        { label: 'Encrypted Data', value: '17 03 03 04 1e 6d b8 27 …  (unlesbar)' }] }],
+        { label: 'Encrypted Data', value: '17 03 03 04 1e 6d b8 27 …  (encrypted)' }] }],
   },
 ]

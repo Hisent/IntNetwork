@@ -33,7 +33,7 @@ PAKET_MODULE = {
              "en": "## The OSI Layer Model\n\nNetwork communication "
                    "is organized into **7 layers**. When sending, data travels from top "
                    "to bottom — each layer prepends its own header (*encapsulation*); at the "
-                   "receiver, it gets unpacked layer by layer. Play it through and "
+                   "receiver, it gets unpacked layer by layer. Step through it and "
                    "click on the layers:",
          }},
         {"type": "widget", "id": "osi-model",
@@ -65,7 +65,7 @@ PAKET_MODULE = {
                  "sondern wo eine Adresse oder ein Datenstück im Stapel zu Hause ist.",
          "payload": {
              "prompt_de": "Auf welcher Schicht ist das zu Hause? Ordne zu.",
-             "prompt_en": "Which layer is this at home on? Match them.",
+             "prompt_en": "Which layer does this belong to? Match them.",
              "pairs": [
                  {"left_de": "MAC-Adresse", "left_en": "MAC address",
                   "right_de": "Schicht 2 – Sicherung", "right_en": "Layer 2 – data link"},
@@ -127,7 +127,7 @@ PAKET_MODULE = {
                                "daran erkennt der Empfänger den Tag. 12 Bit VLAN-ID ergeben 4096 Werte; "
                                "0 und 4095 sind reserviert, nutzbar sind die VLANs 1–4094.",
                   "detail_en": "The first 2 bytes (TPID 0x8100) sit where the EtherType would otherwise be — "
-                               "that is how the receiver recognises the tag. A 12-bit VLAN ID gives 4096 "
+                               "that is how the receiver recognizes the tag. A 12-bit VLAN ID gives 4096 "
                                "values; 0 and 4095 are reserved, VLANs 1–4094 are usable."},
                  {"name": "EtherType", "pdu": "2 B",
                   "content_de": "Protokoll im Payload, z. B. 0x0800 = IPv4",
@@ -166,7 +166,7 @@ PAKET_MODULE = {
                    "Reihenfolge ist also „an wen, von wem“, nicht umgekehrt.",
              "en": "The destination MAC comes first: a switch can decide which port the frame goes to after "
                    "just the first 6 bytes. The source MAC only follows after that — the order is “to whom, "
-                   "from whom”, not the other way round."}},
+                   "from whom”, not the other way around."}},
         {"id": "p2", "type": "single",
          "prompt": {"de": "Wie groß ist eine MAC-Adresse?", "en": "How large is a MAC address?"},
          "options": {
@@ -196,7 +196,7 @@ PAKET_MODULE = {
                    "Payload wäre die VLAN-Information für die Schicht-2-Weiterleitung nicht im Header "
                    "sichtbar.",
              "en": "The tag sits after the two MAC addresses, right before the original EtherType. Where a "
-                   "switch would otherwise read the EtherType it finds 0x8100 and recognises the tag. Inside "
+                   "switch would otherwise read the EtherType it finds 0x8100 and recognizes the tag. Inside "
                    "the payload, the VLAN information would not be visible in the header for layer-2 "
                    "forwarding."}},
         {"id": "p4", "type": "number",

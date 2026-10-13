@@ -24,7 +24,7 @@ ROLLEN_BERECHTIGUNGEN_MODULE = {
     "goals_en": [
         "Explain the three permission levels Read/Write, Read-Only and Deny.",
         "Describe the difference between permissions assigned directly to a group and role-based permission bundles.",
-        "Place the significance of object granularity and of the superuser role.",
+        "Assess the significance of object granularity and of the superuser role.",
         "Apply the principle of least privilege to a typical day-to-day DDI scenario.",
     ],
     'scenario': {
@@ -42,7 +42,7 @@ ROLLEN_BERECHTIGUNGEN_MODULE = {
         {
             'type': 'text', 'id': 'text-1',
             'note': 'Hier lohnt die Frage in die Runde, wer im eigenen Haus Superuser ist — meist '
-                    'sind es deutlich mehr Personen als noetig. Guter Anlass, das '
+                    'sind es deutlich mehr Personen als nötig. Guter Anlass, das '
                     'Least-Privilege-Prinzip an einem echten Beispiel durchzuspielen.',
             'value': {
                 'de': '## Administratoren, Gruppen und Rollen\n'
@@ -57,7 +57,7 @@ ROLLEN_BERECHTIGUNGEN_MODULE = {
                       'Zusätzlich zur direkten Gruppenberechtigung gibt es '
                       'Rollen: wiederverwendbare Bündel von Berechtigungen, die '
                       'mehreren Admin-Gruppen zugewiesen werden können. Eine '
-                      'Rolle „Zonenverwaltung Zweigstelle” lässt sich '
+                      'Rolle „Zonenverwaltung Zweigstelle“ lässt sich '
                       'beispielsweise einmal definieren und dann auf mehrere '
                       'Gruppen anwenden, statt dieselben Berechtigungen in jeder '
                       'Gruppe einzeln neu zu setzen.',
@@ -71,8 +71,8 @@ ROLLEN_BERECHTIGUNGEN_MODULE = {
                       '\n'
                       'In addition to direct group permissions, there are roles: '
                       'reusable bundles of permissions that can be assigned to '
-                      'multiple admin groups. A role such as branch zone '
-                      'administration can be defined once and then applied to '
+                      'multiple admin groups. A role such as "Branch zone '
+                      'administration" can be defined once and then applied to '
                       'several groups, instead of setting the same permissions '
                       'again in every single group.',
             },
@@ -110,7 +110,7 @@ ROLLEN_BERECHTIGUNGEN_MODULE = {
                       'restrictive default is a deliberate choice — it forces '
                       'access to be actively granted, rather than actively '
                       'restricted. If Read-Only were the default, every group '
-                      'would, in doubt, have at least visibility into objects '
+                      'would end up with at least visibility into objects '
                       'that are none of its concern.',
             },
         },
@@ -133,7 +133,7 @@ ROLLEN_BERECHTIGUNGEN_MODULE = {
                 'en': '## Granularity Down to the Object Level\n'
                       '\n'
                       'Permissions can be broken down not only Grid-wide, but '
-                      'down to individual objects: a specific Grid Member, a '
+                      'down to individual objects: a specific Grid member, a '
                       'specific DNS zone, a specific network, or a specific RPZ. '
                       'An admin group can, for example, get Read/Write on exactly '
                       'one zone while being set to Deny for every other zone at '
@@ -243,7 +243,7 @@ ROLLEN_BERECHTIGUNGEN_MODULE = {
                     {
                         "highlight": ["gruppe", "g-r", "rolle", "r-z", "zone"],
                         "text_de": "Weg 1: Die Gruppe bekommt eine Rolle. Die Rolle bringt Read/Write auf die Zone nordwind-intern.de mit.",
-                        "text_en": "Path 1: the group is given a role. The role brings Read/Write on the zone nordwind-intern.de.",
+                        "text_en": "Path 1: the group is given a role. The role grants Read/Write on the zone nordwind-intern.de.",
                     },
                     {
                         "highlight": ["gruppe", "g-d", "direkt", "d-n", "netz"],
@@ -429,9 +429,9 @@ ROLLEN_BERECHTIGUNGEN_MODULE = {
                                   'Objekte herunterbrechen — ein bestimmter Grid '
                                   'Member, eine bestimmte Zone, ein bestimmtes '
                                   'Netzwerk oder eine bestimmte RPZ. Die Aussage '
-                                  '„nur grid-weit” ist falsch.',
+                                  '„nur grid-weit“ ist falsch.',
                 'explanation_en': 'Permissions can be broken down to individual '
-                                  'objects — a specific Grid Member, a specific '
+                                  'objects — a specific Grid member, a specific '
                                   'zone, a specific network, or a specific RPZ. '
                                   'The statement that permissions are only ever '
                                   'Grid-wide is false.',
@@ -457,7 +457,7 @@ ROLLEN_BERECHTIGUNGEN_MODULE = {
                             },
                             {
                                 "label_de": "Den beiden zuständigen Personen einzeln Rechte am Konto eintragen.",
-                                "label_en": "Enter rights on the accounts of the two people in charge.",
+                                "label_en": "Enter rights individually on the accounts of the two people in charge.",
                                 "to": "konto",
                             },
                             {
@@ -486,7 +486,7 @@ ROLLEN_BERECHTIGUNGEN_MODULE = {
                         "options": [
                             {
                                 "label_de": "Read/Write auf alle Netzwerke des Grids — dann passt es auch künftig.",
-                                "label_en": "Read/Write on all networks of the Grid — then it also fits in future.",
+                                "label_en": "Read/Write on all networks of the Grid — then it also fits in the future.",
                                 "to": "alle",
                             },
                             {
@@ -505,7 +505,7 @@ ROLLEN_BERECHTIGUNGEN_MODULE = {
                         "id": "alle",
                         "outcome": "bad",
                         "text_de": "Zu breit: Tier 1 könnte damit auch Server- und Managementnetze verändern. „Passt auch künftig“ ist kein Argument für Rechte, die heute niemand braucht.",
-                        "text_en": "Too broad: tier 1 could then also change server and management networks. \"Fits in future\" is no argument for rights nobody needs today.",
+                        "text_en": "Too broad: tier 1 could then also change server and management networks. \"Fits in the future\" is no argument for rights nobody needs today.",
                     },
                     {
                         "id": "direkt",
@@ -551,8 +551,8 @@ ROLLEN_BERECHTIGUNGEN_MODULE = {
                       'entire company.\n'
                       '\n'
                       'A narrower assignment is more sensible: tier-1 service '
-                      'desk, for example, gets Read/Write only on specific Fixed '
-                      'Addresses, the security team gets Read-Only on DNS zones '
+                      'desk, for example, gets Read/Write only on specific fixed '
+                      'addresses, the security team gets Read-Only on DNS zones '
                       'and full rights on RPZ configuration, and network '
                       'operations gets Read/Write on networks and DHCP objects. '
                       'Every group gets exactly what it needs for its task — '
@@ -670,7 +670,7 @@ ROLLEN_BERECHTIGUNGEN_MODULE = {
                     ],
                     'en': [
                         'Permissions can be restricted to a specific Grid '
-                        'Member.',
+                        'member.',
                         'Permissions can be restricted to a specific DNS zone.',
                         'Permissions can be restricted to a specific RPZ.',
                         'Permissions always automatically apply to the entire '
@@ -686,7 +686,7 @@ ROLLEN_BERECHTIGUNGEN_MODULE = {
                 },
                 'type': 'single',
                 'prompt': {
-                    'de': 'Warum gilt „jede Person bekommt Superuser-Rechte” als '
+                    'de': 'Warum gilt „jede Person bekommt Superuser-Rechte“ als '
                           'Betriebsrisiko?',
                     'en': 'Why is giving every person superuser rights considered '
                           'an operational risk?',
