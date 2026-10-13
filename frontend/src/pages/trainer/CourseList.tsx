@@ -48,7 +48,7 @@ export function CourseList({ courses, workshops, workshopTitle, selected, onSele
                   Interaktionselement mehr mit dem Kopieren-Button daneben. */}
               <button type="button" onClick={() => onSelect(c.id)} aria-pressed={selected === c.id}
                 className="min-w-0 flex-1 text-left">
-                <span className="block min-w-0 truncate font-medium text-[var(--wb-ink)]">{c.name}</span>
+                <span title={c.name} className="block min-w-0 truncate font-medium text-[var(--wb-ink)]">{c.name}</span>
                 <span className="mt-1 flex items-center gap-3 text-xs text-[var(--wb-muted)]">
                   <span>{workshopTitle(c.workshop_key)}</span>
                   <span className="inline-flex items-center gap-1"><Icon name="users" className="h-3.5 w-3.5" />{c.participant_count ?? 0}</span>

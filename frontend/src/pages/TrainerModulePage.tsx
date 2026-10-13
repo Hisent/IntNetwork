@@ -43,7 +43,7 @@ function QuizStatsBox({ stats, courseFilter }: { stats: QuizStats; courseFilter:
           return (
             <div key={q.id}>
               <div className="flex justify-between gap-3 text-xs text-slate-600 mb-0.5">
-                <span className="truncate">{i + 1}. {q.prompt}</span>
+                <span title={q.prompt} className="truncate">{i + 1}. {q.prompt}</span>
                 <span className="shrink-0 tabular-nums">{q.correct}/{q.attempts}</span>
               </div>
               <div className="h-2 rounded-full bg-slate-100 overflow-hidden">
