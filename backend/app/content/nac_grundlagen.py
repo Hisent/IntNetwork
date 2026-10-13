@@ -568,8 +568,8 @@ NAC_GRUNDLAGEN_MODULE = {
             'id': 'ng7',
             'type': 'multi',
             'prompt': {
-                'de': 'Nordwind führt zunächst nur agentless NAC ein. Welche Aussagen treffen zu? Mehrere Antworten sind richtig.',
-                'en': 'Nordwind initially introduces agentless NAC only. Which statements are true? Select all that apply.',
+                'de': 'Nordwind führt zunächst nur agentless NAC ein. Welche Aussagen treffen zu?',
+                'en': 'Nordwind initially introduces agentless NAC only. Which statements are true?',
             },
             'options': {
                 'de': [

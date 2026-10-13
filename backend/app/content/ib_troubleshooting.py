@@ -115,8 +115,8 @@ IB_TROUBLESHOOTING_MODULE = {
                 "kind": "flow",
                 "title_de": "Vom Symptom über die Komponente zum Werkzeug",
                 "title_en": "From Symptom via Component to Tool",
-                "caption_de": "Spaltenweise von oben nach unten lesen. Die Knoten sind anklickbar.",
-                "caption_en": "Read each column top to bottom. The nodes are clickable.",
+                "caption_de": "Spaltenweise von oben nach unten lesen.",
+                "caption_en": "Read each column top to bottom.",
                 "nodes": [
                     {
                         "id": "s1",
@@ -777,8 +777,8 @@ IB_TROUBLESHOOTING_MODULE = {
             "id": "ibt8",
             "type": "multi",
             "prompt": {
-                "de": "Jemand schlägt vor, eine Störung durch Einspielen des letzten Grid-Backups zu beheben. Welche Folgen eines vollständigen Restores gehören in die Abwägung? Mehrere Antworten sind richtig.",
-                "en": "Someone proposes resolving an incident by restoring the latest Grid backup. Which consequences of a full restore belong in the assessment? Select all that apply.",
+                "de": "Jemand schlägt vor, eine Störung durch Einspielen des letzten Grid-Backups zu beheben. Welche Folgen eines vollständigen Restores gehören in die Abwägung?",
+                "en": "Someone proposes resolving an incident by restoring the latest Grid backup. Which consequences of a full restore belong in the assessment?",
             },
             "answer": [0, 1, 3],
             "options": {

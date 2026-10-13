@@ -705,10 +705,10 @@ CLAUDE_MD_MODULE = {'key': 'claude-md',
                          'type': 'multi',
                          'prompt': {'de': 'Eine Rule hat das Frontmatter `paths: '
                                           '["src/api/**/*.ts"]`. Welche Aussagen stimmen? '
-                                          'Mehrere Antworten sind richtig.',
+                                          '',
                                     'en': 'A rule has the frontmatter `paths: '
                                           '["src/api/**/*.ts"]`. Which statements are correct? '
-                                          'Select all that apply.'},
+                                          ''},
                          'answer': [0, 1],
                          'options': {'de': ['Sie lädt erst, wenn Claude eine passende Datei liest '
                                             'oder bearbeitet',

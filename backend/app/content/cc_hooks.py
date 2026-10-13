@@ -772,9 +772,9 @@ HOOKS_MODULE = {'key': 'hooks',
                         {'id': 'hk7',
                          'type': 'multi',
                          'prompt': {'de': 'Ein PreToolUse-Hook soll einen Tool-Aufruf verweigern. '
-                                          'Welche Wege funktionieren? Mehrere Antworten sind richtig.',
+                                          'Welche Wege funktionieren?',
                                     'en': 'A PreToolUse hook should refuse a tool call. Which approaches '
-                                          'work? Select all that apply.'},
+                                          'work?'},
                          'answer': [0, 1],
                          'options': {'de': ['Mit Exit-Code 2 enden und die Begründung auf stderr '
                                             'schreiben',

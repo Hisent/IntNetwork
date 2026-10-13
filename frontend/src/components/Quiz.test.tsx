@@ -49,4 +49,12 @@ describe('Quiz', () => {
     expect(order(en[0].type === 'single' ? en[0].options : [])).toEqual(before)
     expect(screen.getByText('2 / 2', { exact: false })).toBeTruthy()
   })
+
+  it('zeigt den Mehrfachauswahl-Hinweis nur bei multi, zweisprachig', () => {
+    const qs: Question[] = [{ id: '1', type: 'single', prompt: 'A', options: ['x', 'y'] }, { id: '2', type: 'multi', prompt: 'B', options: ['x', 'y'] }]
+    const { rerender } = render(<Quiz moduleKey="m" questions={qs} lang="de" />)
+    expect(screen.getAllByText('Mehrere Antworten sind richtig.')).toHaveLength(1)
+    rerender(<Quiz moduleKey="m" questions={qs} lang="en" />)
+    expect(screen.getAllByText('Select all that apply.')).toHaveLength(1)
+  })
 })

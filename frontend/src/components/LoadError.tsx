@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { t, type Lang } from '@/lib/i18n'
+import { t, useDocumentTitle, type Lang } from '@/lib/i18n'
 
 // Ersetzt das frühere „Dauerskeleton bei API-Fehler": eine geladene Query, die
 // fehlschlägt, zeigt jetzt eine echte Meldung mit Wiederholen-Knopf statt
@@ -27,6 +27,7 @@ export function LoadError({ onRetry, lang = 'de' }: { onRetry?: () => void; lang
 // `code` kommt vom Backend (module_not_enabled | module_unknown); ohne bekannten Code
 // bleibt die Sammelmeldung.
 export function ModuleMissing({ lang = 'de', code }: { lang?: Lang; code?: string }) {
+  useDocumentTitle(t(lang, 'moduleMissingTitle'))
   const body = code === 'module_not_enabled' ? 'moduleNotEnabledBody' : code === 'module_unknown' ? 'moduleUnknownBody' : 'moduleMissingBody'
   return (
     <main id="main-content" tabIndex={-1} className="min-h-dvh flex items-center justify-center bg-slate-50 p-6">

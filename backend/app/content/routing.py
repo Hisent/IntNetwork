@@ -350,9 +350,9 @@ ROUTING_MODULE = {
                    "the table” (C) only wins if it actually matches."}},
         {"id": "r6", "type": "multi",
          "prompt": {"de": "Ein Router leitet ein IPv4-Paket weiter (ohne NAT). Was verändert er dabei? "
-                          "Mehrere Antworten sind richtig.",
+                          "",
                     "en": "A router forwards an IPv4 packet (no NAT). What does it change in the "
-                          "process? Select all that apply."},
+                          "process?"},
          "options": {
              "de": ["Quell- und Ziel-MAC im Frame", "Die TTL im IP-Header",
                     "Die Ziel-IP-Adresse", "Die Prüfsumme des IP-Headers"],

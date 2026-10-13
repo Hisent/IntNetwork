@@ -374,9 +374,9 @@ WIRESHARK_MODULE = {
                    "be no reply at all; the client would merely repeat its SYN."}},
         {"id": "ws7", "type": "multi",
          "prompt": {"de": "Ein Nutzer öffnet https://bank.example.com/login und meldet sich an. Was kann "
-                          "jemand, der den Verkehr mitschneidet, im Übungs-Mitschnitt trotzdem lesen? Mehrere Antworten sind richtig.",
+                          "jemand, der den Verkehr mitschneidet, im Übungs-Mitschnitt trotzdem lesen?",
                     "en": "A user opens https://bank.example.com/login and signs in. What can someone "
-                          "capturing the traffic still read in the exercise capture? Select all that apply."},
+                          "capturing the traffic still read in the exercise capture?"},
          "options": {
              "de": ["Quell- und Ziel-IP-Adresse", "Den Zielport 443",
                     "Den Servernamen bank.example.com im Client Hello (SNI)",

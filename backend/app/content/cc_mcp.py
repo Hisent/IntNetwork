@@ -679,9 +679,9 @@ MCP_MODULE = {'key': 'mcp',
                         {'id': 'mcp8',
                          'type': 'multi',
                          'prompt': {'de': 'Eine Kollegin klont ein Repo mit eingecheckter '
-                                          '.mcp.json. Was gilt? Mehrere Antworten sind richtig.',
+                                          '.mcp.json. Was gilt?',
                                     'en': 'A colleague clones a repo with a checked-in .mcp.json. '
-                                          'Which statements are true? Select all that apply.'},
+                                          'Which statements are true?'},
                          'answer': [0, 1, 2],
                          'options': {'de': ['In einer interaktiven Session fragt Claude Code nach '
                                             'Freigabe, bevor es die Server nutzt',

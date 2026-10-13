@@ -87,9 +87,9 @@ ROLLEN_MODULE = {
              'payload': {'kind': 'layers',
                          'title_de': 'Eine Rolle: sieben Verzeichnisse, sieben Aufgaben',
                          'title_en': 'A Role: Seven Directories, Seven Jobs',
-                         'caption_de': 'Anklicken für Details. Ansible lädt jeweils main.yml '
+                         'caption_de': 'Jedes Verzeichnis hat eine Aufgabe. Ansible lädt jeweils main.yml '
                                        'automatisch.',
-                         'caption_en': 'Click for details. Ansible loads main.yml in each '
+                         'caption_en': 'Each directory has one job. Ansible loads main.yml in each '
                                        'automatically.',
                          'layers': [{'name': 'tasks/',
                                      'content_de': 'die Schritte der Rolle',

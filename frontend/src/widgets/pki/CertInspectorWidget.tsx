@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { checkCert, INSPECTOR_CERTS, DEMO_NOW, HOSTNAME, type Cert } from '@/widgets/pki/certs'
+import { checkCert, INSPECTOR_CERTS, DEMO_NOW, demoNowLabel, HOSTNAME, type Cert } from '@/widgets/pki/certs'
 import { ChallengeBox } from '@/components/ChallengeBox'
 import type { Lang } from '@/lib/i18n'
 
@@ -154,7 +154,8 @@ export function CertInspector({ lang }: { lang: Lang }) {
   return (
     <div className="rounded-2xl border bg-white p-5">
       <p className="text-sm font-semibold text-slate-700 mb-1">{s.title}</p>
-      <p className="text-xs text-slate-500 mb-4">{s.subtitle}</p>
+      <p className="text-xs text-slate-500 mb-1">{s.subtitle}</p>
+      <p className="text-xs text-slate-500 mb-4">{demoNowLabel(lang)}</p>
 
       <p className="mb-1 text-xs font-semibold text-slate-500" id="cert-pick-label">{s.pickLabel}</p>
       <div className="flex flex-wrap gap-2 mb-3" role="group" aria-labelledby="cert-pick-label">

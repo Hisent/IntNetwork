@@ -418,8 +418,8 @@ PLUGINS_MODULE = {'key': 'plugins',
                                       'command?'}}],
  'quiz': {'questions': [{'id': 'pl1',
                          'type': 'multi',
-                         'prompt': {'de': 'Was kann ein Plugin bündeln? Mehrere Antworten sind richtig.',
-                                    'en': 'What can a plugin bundle? Select all that apply.'},
+                         'prompt': {'de': 'Was kann ein Plugin bündeln?',
+                                    'en': 'What can a plugin bundle?'},
                          'answer': [0, 1, 2, 3],
                          'options': {'de': ['Skills',
                                             'Agenten',
@@ -594,9 +594,9 @@ PLUGINS_MODULE = {'key': 'plugins',
                          'type': 'multi',
                          'prompt': {'de': 'Nach einer Änderung an deinem Plugin taucht ein Skill '
                                           'nicht auf. Welche Schritte helfen bei der Fehlersuche? '
-                                          'Mehrere Antworten sind richtig.',
+                                          '',
                                     'en': 'After changing your plugin, a skill does not show up. '
-                                          'Which steps help with troubleshooting? Select all that apply.'},
+                                          'Which steps help with troubleshooting?'},
                          'answer': [0, 1, 2],
                          'options': {'de': ['In der Shell `claude plugin validate <pfad>` '
                                             'ausführen',

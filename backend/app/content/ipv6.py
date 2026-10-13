@@ -297,8 +297,8 @@ IPV6_MODULE = {
                    "group count must add up: in 2001:db8::a0:0:1 the “::” would stand for three groups "
                    "instead of two."}},
         {"id": "6f", "type": "multi",
-         "prompt": {"de": "Welche Aussagen über Link-Local-Adressen (fe80::/10) stimmen? Mehrere Antworten sind richtig.",
-                    "en": "Which statements about link-local addresses (fe80::/10) are true? Select all that apply."},
+         "prompt": {"de": "Welche Aussagen über Link-Local-Adressen (fe80::/10) stimmen?",
+                    "en": "Which statements about link-local addresses (fe80::/10) are true?"},
          "options": {
              "de": ["Jedes IPv6-Interface hat eine — auch ohne Router und ohne DHCP",
                     "Router leiten Pakete mit Link-Local-Adressen nicht in andere Netze weiter",

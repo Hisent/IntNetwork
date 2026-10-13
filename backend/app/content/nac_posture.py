@@ -588,8 +588,8 @@ NAC_POSTURE_MODULE = {
             'id': 'po7',
             'type': 'multi',
             'prompt': {
-                'de': 'Nordwind stuft Verstöße ab. Welche Zuordnungen sind sinnvoll? Mehrere Antworten sind richtig.',
-                'en': 'Nordwind grades violations. Which assignments make sense? Select all that apply.',
+                'de': 'Nordwind stuft Verstöße ab. Welche Zuordnungen sind sinnvoll?',
+                'en': 'Nordwind grades violations. Which assignments make sense?',
             },
             'options': {
                 'de': [

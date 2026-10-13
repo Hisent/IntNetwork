@@ -500,9 +500,9 @@ DYNAMISCHES_ROUTING_MODULE = {
                    "on ALL routers."}},
         {"id": "dr8", "type": "multi",
          "prompt": {"de": "Zwei direkt verbundene Router werden keine OSPF-Nachbarn. Welche Unterschiede "
-                          "bzw. Zustände verhindern eine Nachbarschaft? Mehrere Antworten sind richtig.",
+                          "bzw. Zustände verhindern eine Nachbarschaft?",
                     "en": "Two directly connected routers do not become OSPF neighbors. Which differences "
-                          "or conditions prevent an adjacency? Select all that apply."},
+                          "or conditions prevent an adjacency?"},
          "options": {
              "de": ["Verschiedene Areas auf der gemeinsamen Leitung",
                     "Verschiedene Hello-/Dead-Timer",

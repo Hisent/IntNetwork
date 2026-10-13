@@ -28,13 +28,13 @@ PAKET_MODULE = {
              "de": "## Das OSI-Schichtenmodell\n\nNetzwerk-Kommunikation "
                    "ist in **7 Schichten** organisiert. Beim Senden wandern die Daten von oben "
                    "nach unten — jede Schicht stellt ihren Header voran (*Encapsulation*); beim "
-                   "Empfänger wird Schicht für Schicht wieder ausgepackt. Spiel es durch und "
-                   "klick auf die Schichten:",
+                   "Empfänger wird Schicht für Schicht wieder ausgepackt. Hier die Schichten im "
+                   "Überblick:",
              "en": "## The OSI Layer Model\n\nNetwork communication "
                    "is organized into **7 layers**. When sending, data travels from top "
                    "to bottom — each layer prepends its own header (*encapsulation*); at the "
-                   "receiver, it gets unpacked layer by layer. Step through it and "
-                   "click on the layers:",
+                   "receiver, it gets unpacked layer by layer. The layers at a "
+                   "glance:",
          }},
         {"type": "widget", "id": "osi-model",
          "note": "Erst die Encapsulation beim Sender Schicht für Schicht zeigen, dann "
@@ -112,8 +112,8 @@ PAKET_MODULE = {
              "kind": "layers",
              "title_de": "Ethernet-Frame mit 802.1Q-Tag: Felder in Sendereihenfolge",
              "title_en": "Ethernet Frame With 802.1Q Tag: Fields in Transmission Order",
-             "caption_de": "Von oben (zuerst auf dem Kabel) nach unten (zuletzt). Anklicken für Details.",
-             "caption_en": "From top (first on the wire) to bottom (last). Click for details.",
+             "caption_de": "Von oben (zuerst auf dem Kabel) nach unten (zuletzt).",
+             "caption_en": "From top (first on the wire) to bottom (last).",
              "layers": [
                  {"name_de": "Ziel-MAC", "name_en": "Destination MAC", "pdu": "6 B",
                   "content_de": "Empfänger des Frames", "content_en": "Receiver of the frame"},
@@ -222,8 +222,8 @@ PAKET_MODULE = {
                    "1518 bytes. Answering 1500 forgets the 18 bytes of framing: 1500 is only the payload "
                    "(MTU). With an 802.1Q tag it would be 1522."}},
         {"id": "p7", "type": "multi",
-         "prompt": {"de": "Welche Aussagen zur Kapselung stimmen? Mehrere Antworten sind richtig.",
-                    "en": "Which statements about encapsulation are true? Select all that apply."},
+         "prompt": {"de": "Welche Aussagen zur Kapselung stimmen?",
+                    "en": "Which statements about encapsulation are true?"},
          "options": {
              "de": ["Ein TCP-Segment wird als Nutzlast in ein IP-Paket gepackt",
                     "Ein IP-Paket ist die Payload eines Ethernet-Frames",

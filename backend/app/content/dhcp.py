@@ -293,8 +293,8 @@ DHCP_MODULE = {
                    "to the pool. An address only stays permanently the same through a reservation — which "
                    "technically also runs on leases."}},
         {"id": "h5", "type": "multi",
-         "prompt": {"de": "Welche Aussagen zum DHCP-Verkehr stimmen? Mehrere Antworten sind richtig.",
-                    "en": "Which statements about DHCP traffic are true? Select all that apply."},
+         "prompt": {"de": "Welche Aussagen zum DHCP-Verkehr stimmen?",
+                    "en": "Which statements about DHCP traffic are true?"},
          "options": {
              "de": ["DHCP nutzt UDP: Server-Port 67, Client-Port 68",
                     "Das Discover hat die Quell-IP 0.0.0.0 und die Ziel-IP 255.255.255.255",

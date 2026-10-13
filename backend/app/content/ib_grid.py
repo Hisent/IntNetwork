@@ -739,9 +739,9 @@ GRID_ARCHITEKTUR_MODULE = {
                 'type': 'multi',
                 'prompt': {
                     'de': 'Welche Aussagen zur Verteilung von Diensten im Grid '
-                          'treffen zu? Mehrere Antworten sind richtig.',
+                          'treffen zu?',
                     'en': 'Which statements about the distribution of services in '
-                          'the Grid are correct? Select all that apply.',
+                          'the Grid are correct?',
                 },
                 'answer': [0, 1, 3],
                 'options': {
@@ -832,8 +832,8 @@ GRID_ARCHITEKTUR_MODULE = {
             "id": "ga7",
             "type": "multi",
             "prompt": {
-                "de": "Zwischen einer neuen Zweigstelle und dem Grid Master liegt eine Firewall. Der Member kann dem Grid nicht beitreten. Welche Freigaben braucht die Grid-Kommunikation in der Standardkonfiguration? Mehrere Antworten sind richtig.",
-                "en": "A firewall sits between a new branch and the Grid Master. The member cannot join the Grid. Which firewall rules does Grid communication need in the default configuration? Select all that apply.",
+                "de": "Zwischen einer neuen Zweigstelle und dem Grid Master liegt eine Firewall. Der Member kann dem Grid nicht beitreten. Welche Freigaben braucht die Grid-Kommunikation in der Standardkonfiguration?",
+                "en": "A firewall sits between a new branch and the Grid Master. The member cannot join the Grid. Which firewall rules does Grid communication need in the default configuration?",
             },
             "answer": [0, 2],
             "options": {

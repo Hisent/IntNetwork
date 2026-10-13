@@ -627,9 +627,9 @@ INFOBLOX_UEBERBLICK_MODULE = {
                 'type': 'multi',
                 'prompt': {
                     'de': 'Welche Aussagen zu Universal DDI treffen zu? '
-                          'Mehrere Antworten sind richtig.',
+                          '',
                     'en': 'Which statements about Universal DDI are correct?'
-                          ' Select all that apply.',
+                          '',
                 },
                 'answer': [0, 1, 3],
                 'options': {

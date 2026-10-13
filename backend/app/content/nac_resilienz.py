@@ -819,8 +819,8 @@ NAC_RESILIENZ_MODULE = {
             'id': 'rs7',
             'type': 'multi',
             'prompt': {
-                'de': 'Beide RADIUS-Server sind ausgefallen; an den Ports ist ein Critical VLAN samt „server alive action reinitialize“ konfiguriert. Welche Aussagen treffen zu? Mehrere Antworten sind richtig.',
-                'en': 'Both RADIUS servers have failed; a critical VLAN including “server alive action reinitialize” is configured on the ports. Which statements are true? Select all that apply.',
+                'de': 'Beide RADIUS-Server sind ausgefallen; an den Ports ist ein Critical VLAN samt „server alive action reinitialize“ konfiguriert. Welche Aussagen treffen zu?',
+                'en': 'Both RADIUS servers have failed; a critical VLAN including “server alive action reinitialize” is configured on the ports. Which statements are true?',
             },
             'options': {
                 'de': [

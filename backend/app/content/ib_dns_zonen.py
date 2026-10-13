@@ -625,8 +625,8 @@ DNS_ZONEN_MODULE = {
             "id": "dz8",
             "type": "multi",
             "prompt": {
-                "de": "Welche Aussagen zum Abgleich von Zonendaten treffen zu? Mehrere Antworten sind richtig.",
-                "en": "Which statements about synchronizing zone data are correct? Select all that apply.",
+                "de": "Welche Aussagen zum Abgleich von Zonendaten treffen zu?",
+                "en": "Which statements about synchronizing zone data are correct?",
             },
             "answer": [0, 2, 3],
             "options": {

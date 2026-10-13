@@ -526,8 +526,8 @@ NAC_GUEST_MODULE = {
             'id': 'gu7',
             'type': 'multi',
             'prompt': {
-                'de': 'Ein Gastgerät verbindet sich, aber die Portalseite erscheint nie. Welche Dienste MUSS der eingeschränkte Zustand vor der Anmeldung erlauben, damit die Umleitung funktioniert? Mehrere Antworten sind richtig.',
-                'en': 'A guest device connects, but the portal page never appears. Which services MUST the restricted pre-login state allow for the redirect to work? Select all that apply.',
+                'de': 'Ein Gastgerät verbindet sich, aber die Portalseite erscheint nie. Welche Dienste MUSS der eingeschränkte Zustand vor der Anmeldung erlauben, damit die Umleitung funktioniert?',
+                'en': 'A guest device connects, but the portal page never appears. Which services MUST the restricted pre-login state allow for the redirect to work?',
             },
             'options': {
                 'de': [

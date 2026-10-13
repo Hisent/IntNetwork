@@ -599,9 +599,9 @@ EXTENSIBLE_ATTRIBUTES_MODULE = {
                 'prompt': {
                     'de': 'Welche der folgenden Punkte gelten als typische '
                           'Fehler beim Aufbau eines EA-Datenmodells? '
-                          'Mehrere Antworten sind richtig.',
+                          '',
                     'en': 'Which of the following count as typical mistakes when '
-                          'building an EA data model? Select all that apply.',
+                          'building an EA data model?',
                 },
                 'answer': [0, 1, 3],
                 'options': {
@@ -723,8 +723,8 @@ EXTENSIBLE_ATTRIBUTES_MODULE = {
                 "id": "ea8",
                 "type": "multi",
                 "prompt": {
-                    "de": "Nordwind will künftig Reports „Auslastung je Standort“ fahren. Welche Entscheidungen im EA-Schema machen das belastbar? Mehrere Antworten sind richtig.",
-                    "en": "Nordwind wants to run “utilization per site” reports in the future. Which decisions in the EA schema make that reliable? Select all that apply.",
+                    "de": "Nordwind will künftig Reports „Auslastung je Standort“ fahren. Welche Entscheidungen im EA-Schema machen das belastbar?",
+                    "en": "Nordwind wants to run “utilization per site” reports in the future. Which decisions in the EA schema make that reliable?",
                 },
                 "answer": [0, 3],
                 "options": {

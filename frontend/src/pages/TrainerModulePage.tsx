@@ -75,6 +75,11 @@ export function TrainerModulePage() {
     queryFn: () => trainerApi.listCourses().then((r) => r.data),
     enabled: role === 'trainer' && !!token,
   })
+  const allModules = useQuery({
+    queryKey: ['trainer-modules'],
+    queryFn: () => trainerApi.trainerModules().then((r) => r.data),
+    enabled: role === 'trainer' && !!token,
+  })
   const stats = useQuery({
     queryKey: ['quiz-stats', key, courseId],
     queryFn: () => trainerApi.quizStats(key, courseId).then((r) => r.data),
@@ -110,7 +115,7 @@ export function TrainerModulePage() {
 
         <div className="rounded-xl border bg-white p-4 mb-6 text-sm">
           <div className="flex flex-wrap gap-x-6 gap-y-1 text-slate-600">
-            <span>Voraussetzungen: {m.prerequisites.length ? m.prerequisites.join(', ') : '—'}</span>
+            <span>Voraussetzungen: {m.prerequisites.length ? m.prerequisites.map((k) => allModules.data?.find((x) => x.key === k)?.title ?? k).join(', ') : '—'}</span>
             <span>{m.blocks.length} Blöcke</span>
             <span>{m.quiz.questions.length} Quiz-Fragen</span>
           </div>

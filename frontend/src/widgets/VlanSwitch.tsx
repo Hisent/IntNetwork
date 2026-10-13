@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { DeviceCli } from '@/widgets/cli/DeviceCli'
-import { clampVlan, runSwitchCommand, trunkTag, vlanChallengeDone, type Port } from '@/widgets/cli/switchCli'
+import { VlanInput } from '@/widgets/cli/VlanInput'
+import { runSwitchCommand, trunkTag, vlanChallengeDone, type Port } from '@/widgets/cli/switchCli'
 import { ChallengeBox } from '@/components/ChallengeBox'
 import type { Lang } from '@/lib/i18n'
 
@@ -69,8 +70,7 @@ export function VlanSwitch({ lang }: { lang: Lang }) {
               className={`rounded-xl border-2 p-3 text-sm ${VLAN_COLORS[p.vlan] ?? 'bg-slate-100 border-slate-300'} ${active ? 'ring-2 ring-teal-500' : ''} ${lit ? 'outline outline-2 outline-amber-400' : ''}`}>
               <div className="font-semibold mb-1">{s.port} {i + 1}</div>
               <label className="block text-xs">{p.mode === 'trunk' ? s.nativeVlan : s.vlan}
-                <input type="number" value={p.vlan} min={1} max={4094}
-                  onChange={(e) => update(i, { vlan: clampVlan(Number(e.target.value)) })}
+                <VlanInput value={p.vlan} onChange={(vlan) => update(i, { vlan })}
                   className="ml-1 w-14 border rounded px-1" />
               </label>
               <label className="block text-xs mt-1">{s.mode}

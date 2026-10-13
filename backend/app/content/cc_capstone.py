@@ -729,9 +729,9 @@ CAPSTONE_MODULE = {'key': 'capstone',
                         {'id': 'cap7',
                          'type': 'multi',
                          'prompt': {'de': 'Du formulierst den Arbeitsauftrag für Meilenstein 5. '
-                                          'Was gehört hinein? Mehrere Antworten sind richtig.',
+                                          'Was gehört hinein?',
                                     'en': 'You write the task for milestone 5. What belongs in it? '
-                                          'Select all that apply.'},
+                                          ''},
                          'answer': [0, 2, 3],
                          'options': {'de': ['Das Ziel: was am Ende wahr sein soll',
                                             'Der fertige Code, den der Agent nur noch einfügen '

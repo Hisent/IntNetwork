@@ -79,8 +79,8 @@ NAC_TROUBLESHOOTING_MODULE = {
                 'kind': 'flow',
                 'title_de': 'Vier Stationen, vier Werkzeugkästen',
                 'title_en': 'Four Stations, Four Toolboxes',
-                'caption_de': 'Anklicken zeigt, was du an der Station prüfst.',
-                'caption_en': 'Click to see what you check at each station.',
+                'caption_de': 'An jeder Station prüfst du andere Dinge.',
+                'caption_en': 'Each station has its own checks.',
                 'nodes': [
                     {
                         'id': 'sup',
@@ -751,8 +751,8 @@ NAC_TROUBLESHOOTING_MODULE = {
             'id': 'ts7',
             'type': 'multi',
             'prompt': {
-                'de': 'Der Switch zeigt für einen Port: Status „Authorized“, „Vlan: 20“, dot1x „Authc Failed“, mab „Authc Success“. Welche Schlüsse sind richtig? Mehrere Antworten sind richtig.',
-                'en': 'For a port the switch shows: status “Authorized”, “Vlan: 20”, dot1x “Authc Failed”, mab “Authc Success”. Which conclusions are correct? Select all that apply.',
+                'de': 'Der Switch zeigt für einen Port: Status „Authorized“, „Vlan: 20“, dot1x „Authc Failed“, mab „Authc Success“. Welche Schlüsse sind richtig?',
+                'en': 'For a port the switch shows: status “Authorized”, “Vlan: 20”, dot1x “Authc Failed”, mab “Authc Success”. Which conclusions are correct?',
             },
             'options': {
                 'de': [

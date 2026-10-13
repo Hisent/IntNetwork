@@ -154,8 +154,8 @@ DNS_MODULE = {
          "note": "Live zeigen: nslookup auf eine bekannte IP (z.B. 8.8.8.8 → dns.google). "
                  "Merkhilfe: A = Name→IP, PTR = IP→Name."},
         {"type": "check", "id": "check-1", "payload": {
-            "prompt_de": "Im Firewall-Log steht nur die IP 192.168.10.60. Mit welchem Record-Typ findest du den zugehörigen Namen?",
-            "prompt_en": "The firewall log only shows the IP 192.168.10.60. Which record type lets you find the matching name?",
+            "prompt_de": "Im Firewall-Log steht nur die IP 192.168.10.80. Mit welchem Record-Typ findest du den zugehörigen Namen?",
+            "prompt_en": "The firewall log only shows the IP 192.168.10.80. Which record type lets you find the matching name?",
             "options_de": ["A", "PTR", "CNAME", "MX"],
             "options_en": ["A", "PTR", "CNAME", "MX"],
             "answer": 1,
@@ -344,9 +344,9 @@ DNS_MODULE = {
                    "would come back at all."}},
         {"id": "d8", "type": "multi",
          "prompt": {"de": "Mails an @nordwind-logistik.de kommen nicht an, die Website läuft. Du prüfst die "
-                          "MX-Records. Welche Aussagen über MX stimmen? Mehrere Antworten sind richtig.",
+                          "MX-Records. Welche Aussagen über MX stimmen?",
                     "en": "Mail to @nordwind-logistik.de does not arrive, but the website is up. You check the "
-                          "MX records. Which statements about MX are true? Select all that apply."},
+                          "MX records. Which statements about MX are true?"},
          "options": {
              "de": ["Ein MX-Record nennt einen Hostnamen, keine IP-Adresse",
                     "Bei mehreren MX-Records wird der mit der kleinsten Zahl bevorzugt",

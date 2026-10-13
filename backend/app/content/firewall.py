@@ -329,9 +329,9 @@ FIREWALL_MODULE = {
                    "general one — or the general one gets narrowed down."}},
         {"id": "f6", "type": "multi",
          "prompt": {"de": "Eine stateful Firewall erlaubt ausgehend LAN → Internet TCP 443; eingehend gibt es "
-                          "keine Regel (Default Deny). Was kommt durch? Mehrere Antworten sind richtig.",
+                          "keine Regel (Default Deny). Was kommt durch?",
                     "en": "A stateful firewall allows outbound LAN → Internet TCP 443; there is no inbound "
-                          "rule (default deny). What gets through? Select all that apply."},
+                          "rule (default deny). What gets through?"},
          "options": {
              "de": ["Die Antwortpakete eines Webservers auf eine vom PC aufgebaute Verbindung",
                     "Ein neues SYN aus dem Internet an den PC, Zielport 443",

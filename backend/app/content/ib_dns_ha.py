@@ -638,8 +638,8 @@ DNS_HA_MODULE = {
             "id": "dh7",
             "type": "multi",
             "prompt": {
-                "de": "Welche Aussagen zum Vergleich von Anycast und Redundanz über mehrere NS-Records treffen zu? Mehrere Antworten sind richtig.",
-                "en": "Which statements comparing anycast with redundancy through multiple NS records are correct? Select all that apply.",
+                "de": "Welche Aussagen zum Vergleich von Anycast und Redundanz über mehrere NS-Records treffen zu?",
+                "en": "Which statements comparing anycast with redundancy through multiple NS records are correct?",
             },
             "answer": [0, 1, 3],
             "options": {

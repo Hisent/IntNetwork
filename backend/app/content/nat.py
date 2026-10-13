@@ -345,8 +345,8 @@ NAT_MODULE = {
                    "reply belongs — so it rewrites a source port. The PCs' MAC addresses do not help: they "
                    "never leave the local network and are not part of the web server's reply."}},
         {"id": "t6", "type": "multi",
-         "prompt": {"de": "Welche Adressen liegen in einem privaten RFC-1918-Bereich? Mehrere Antworten sind richtig.",
-                    "en": "Which addresses lie in a private RFC 1918 range? Select all that apply."},
+         "prompt": {"de": "Welche Adressen liegen in einem privaten RFC-1918-Bereich?",
+                    "en": "Which addresses lie in a private RFC 1918 range?"},
          "options": {
              "de": ["172.20.5.1", "172.32.0.1", "10.200.3.4", "100.64.1.1", "192.168.255.254"],
              "en": ["172.20.5.1", "172.32.0.1", "10.200.3.4", "100.64.1.1", "192.168.255.254"],

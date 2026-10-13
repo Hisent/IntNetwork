@@ -652,9 +652,9 @@ ROLLEN_BERECHTIGUNGEN_MODULE = {
                 'type': 'multi',
                 'prompt': {
                     'de': 'Welche Aussagen zur Objekt-Granularität von '
-                          'Berechtigungen treffen zu? Mehrere Antworten sind richtig.',
+                          'Berechtigungen treffen zu?',
                     'en': 'Which statements about the object granularity of '
-                          'permissions are correct? Select all that apply.',
+                          'permissions are correct?',
                 },
                 'answer': [0, 1, 2],
                 'options': {
@@ -744,8 +744,8 @@ ROLLEN_BERECHTIGUNGEN_MODULE = {
                 "id": "rb7",
                 "type": "multi",
                 "prompt": {
-                    "de": "Ein Skript soll per API regelmäßig neue Filialnetze anlegen. Welche Maßnahmen passen zum Prinzip der geringsten Rechte? Mehrere Antworten sind richtig.",
-                    "en": "A script is to create new branch networks via the API on a regular basis. Which measures fit the principle of least privilege? Select all that apply.",
+                    "de": "Ein Skript soll per API regelmäßig neue Filialnetze anlegen. Welche Maßnahmen passen zum Prinzip der geringsten Rechte?",
+                    "en": "A script is to create new branch networks via the API on a regular basis. Which measures fit the principle of least privilege?",
                 },
                 "answer": [0, 2, 3],
                 "options": {

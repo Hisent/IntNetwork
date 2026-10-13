@@ -463,9 +463,9 @@ SUBAGENTS_MODULE = {'key': 'subagents',
                         {'id': 'sa3',
                          'type': 'multi',
                          'prompt': {'de': 'Welche Felder gehören ins Subagent-Frontmatter? '
-                                          'Mehrere Antworten sind richtig.',
+                                          '',
                                     'en': 'Which fields belong in the subagent frontmatter? '
-                                          'Select all that apply.'},
+                                          ''},
                          'answer': [0, 1, 2, 3],
                          'options': {'de': ['name',
                                             'description',
@@ -607,9 +607,9 @@ SUBAGENTS_MODULE = {'key': 'subagents',
                         {'id': 'sa8',
                          'type': 'multi',
                          'prompt': {'de': 'Claude delegiert nie von selbst an deinen Subagent '
-                                          '`db-reader`. Was hilft? Mehrere Antworten sind richtig.',
+                                          '`db-reader`. Was hilft?',
                                     'en': 'Claude never delegates to your subagent `db-reader` on '
-                                          'its own. What helps? Select all that apply.'},
+                                          'its own. What helps?'},
                          'answer': [0, 1],
                          'options': {'de': ['Die description schärfen: klar sagen, wann delegiert '
                                             'werden soll',

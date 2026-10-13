@@ -614,8 +614,8 @@ NAC_COA_MODULE = {
             'id': 'co7',
             'type': 'multi',
             'prompt': {
-                'de': 'Welche Aussagen zu CoA nach RFC 5176 treffen zu? Mehrere Antworten sind richtig.',
-                'en': 'Which statements about CoA per RFC 5176 are true? Select all that apply.',
+                'de': 'Welche Aussagen zu CoA nach RFC 5176 treffen zu?',
+                'en': 'Which statements about CoA per RFC 5176 are true?',
             },
             'options': {
                 'de': [

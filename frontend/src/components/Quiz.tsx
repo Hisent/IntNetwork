@@ -51,8 +51,8 @@ function hintFor(type: Question['type'], termLabels: string[], lang: Lang, level
 
 /** Eingabe EINER Frage (Zahl, Radio oder Checkboxen) — geteilt von Quiz und Übungsmodus.
  * Die Überschrift der Frage trägt `id="quiz-<frage-id>"` (Beschriftung der Gruppe). */
-export function QuestionInput({ q, value, locked, order, onChange }: {
-  q: Question; value: unknown; locked: boolean; order?: number[]; onChange: (value: unknown) => void
+export function QuestionInput({ q, lang, value, locked, order, onChange }: {
+  q: Question; lang: Lang; value: unknown; locked: boolean; order?: number[]; onChange: (value: unknown) => void
 }) {
   if (q.type === 'number') {
     return (
@@ -61,8 +61,10 @@ export function QuestionInput({ q, value, locked, order, onChange }: {
     )
   }
   const picked = (value as number[]) ?? []
-  return (
-    <div role={q.type === 'single' ? 'radiogroup' : 'group'} aria-labelledby={`quiz-${q.id}`} className="flex flex-col gap-1.5">
+  return (<>
+    {q.type === 'multi' && <p id={`quiz-${q.id}-hint`} className="mb-2 text-sm text-slate-500">{t(lang, 'multiHint')}</p>}
+    <div role={q.type === 'single' ? 'radiogroup' : 'group'} aria-labelledby={`quiz-${q.id}`}
+      aria-describedby={q.type === 'multi' ? `quiz-${q.id}-hint` : undefined} className="flex flex-col gap-1.5">
       {(order ?? q.options.map((_, i) => i)).map((i) => (
         <label key={i} className={`flex items-center gap-2 ${locked ? 'text-slate-500' : 'text-slate-700 cursor-pointer'}`}>
           <input
@@ -76,7 +78,7 @@ export function QuestionInput({ q, value, locked, order, onChange }: {
         </label>
       ))}
     </div>
-  )
+  </>)
 }
 
 export function Quiz({ moduleKey, questions, lang, onResult }: {
@@ -187,7 +189,7 @@ export function Quiz({ moduleKey, questions, lang, onResult }: {
                   </span>
                 )}
               </div>
-              <QuestionInput q={q} value={answers[q.id]} locked={locked} order={optionOrder[q.id]}
+              <QuestionInput q={q} lang={lang} value={answers[q.id]} locked={locked} order={optionOrder[q.id]}
                 onChange={(value) => set(q.id, value)} />
               {result?.explanations?.[q.id] && (
                 <p className="mt-3 flex items-start gap-1.5 rounded-lg bg-white/70 px-3 py-2 text-sm leading-relaxed text-slate-700">

@@ -270,7 +270,7 @@ export function WorkbenchModuleView({ lang, moduleKey, keyScope, module, modules
         </details>
 
         <div className="wb-module-grid">
-          <aside className="sticky top-20 hidden max-h-[calc(100dvh-6rem)] overflow-y-auto lg:block print:hidden">
+          <aside aria-label={lang === 'de' ? 'Modulübersicht' : 'Course overview'} className="sticky top-20 hidden max-h-[calc(100dvh-6rem)] overflow-y-auto lg:block print:hidden">
             <WorkbenchSectionTitle>{lang === 'de' ? 'Kursmodule' : 'Course modules'}</WorkbenchSectionTitle>
             <WorkbenchModuleNav lang={lang} current={moduleKey} modules={modules} sections={sections} progress={progress} />
           </aside>
@@ -334,9 +334,9 @@ export function WorkbenchModuleView({ lang, moduleKey, keyScope, module, modules
             </a>
           </main>
 
-          <aside className="sticky top-20 hidden max-h-[calc(100dvh-6rem)] space-y-5 overflow-y-auto xl:block print:hidden">
+          <aside aria-label={lang === 'de' ? 'Auf dieser Seite' : 'On this page'} className="sticky top-20 hidden max-h-[calc(100dvh-6rem)] space-y-5 overflow-y-auto xl:block print:hidden">
             <section className="wb-surface p-4"><WorkbenchProgress value={readPct} label={lang === 'de' ? 'Gelesen' : 'Read'} />{showGlossary && <div className="mt-4"><GlossaryPanel moduleKey={moduleKey} lang={lang} /></div>}</section>
-            {toc.length > 0 && <section><WorkbenchSectionTitle>{t(lang, 'tocTitle')}</WorkbenchSectionTitle><nav className="space-y-1">{toc.map((item, index) => <a key={`${item.i}-${index}`} href={`#block-${item.i}`} className="wb-control flex items-center border-l border-[var(--wb-border)] px-3 text-sm text-[var(--wb-muted)] hover:border-[var(--wb-accent)] hover:text-[var(--wb-accent)]">{item.title}</a>)}</nav></section>}
+            {toc.length > 0 && <section><WorkbenchSectionTitle>{t(lang, 'tocTitle')}</WorkbenchSectionTitle><nav aria-label={t(lang, 'tocTitle')} className="space-y-1">{toc.map((item, index) => <a key={`${item.i}-${index}`} href={`#block-${item.i}`} className="wb-control flex items-center border-l border-[var(--wb-border)] px-3 text-sm text-[var(--wb-muted)] hover:border-[var(--wb-accent)] hover:text-[var(--wb-accent)]">{item.title}</a>)}</nav></section>}
           </aside>
         </div>
       </div>

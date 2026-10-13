@@ -665,8 +665,8 @@ NAC_EAP_MODULE = {
             'id': 'ep7',
             'type': 'multi',
             'prompt': {
-                'de': 'Ein Audit findet auf den Notebooks ein PEAP-Profil mit „Serverzertifikat überprüfen: aus“. Welche Folgen hat das? Mehrere Antworten sind richtig.',
-                'en': 'An audit finds a PEAP profile on the laptops with “Verify server certificate: off”. What are the consequences? Select all that apply.',
+                'de': 'Ein Audit findet auf den Notebooks ein PEAP-Profil mit „Serverzertifikat überprüfen: aus“. Welche Folgen hat das?',
+                'en': 'An audit finds a PEAP profile on the laptops with “Verify server certificate: off”. What are the consequences?',
             },
             'options': {
                 'de': [

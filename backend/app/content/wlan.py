@@ -316,8 +316,8 @@ WLAN_MODULE = {
              "de": "Die SSID ist der Name, unter dem ein WLAN sichtbar ist und den mehrere Access Points gemeinsam ausstrahlen können. Sie sagt nichts über Verschlüsselung oder Kanal aus — beides wird getrennt eingestellt.",
              "en": "The SSID is the name under which a Wi-Fi network is visible and which several access points can broadcast together. It says nothing about encryption or channel — both are configured separately."}},
         {"id": "w2", "type": "multi",
-         "prompt": {"de": "Welche 2,4-GHz-Kanäle überlappen sich NICHT? Mehrere Antworten sind richtig.",
-                    "en": "Which 2.4 GHz channels do NOT overlap? Select all that apply."},
+         "prompt": {"de": "Welche 2,4-GHz-Kanäle überlappen sich NICHT?",
+                    "en": "Which 2.4 GHz channels do NOT overlap?"},
          "options": {"de": ["1", "6", "8", "11"], "en": ["1", "6", "8", "11"]},
          "answer": [0, 1, 3],
          "explanation": {
@@ -397,9 +397,9 @@ WLAN_MODULE = {
                    "SAE removes that option: every attempt needs a fresh exchange with the AP."}},
         {"id": "w7", "type": "multi",
          "prompt": {"de": "Drei Access Points in gegenseitiger Reichweite sollen im 2,4-GHz-Band (20 MHz, "
-                          "Europa) überlappungsfrei arbeiten. Welche Kanalpläne erfüllen das? Mehrere Antworten sind richtig.",
+                          "Europa) überlappungsfrei arbeiten. Welche Kanalpläne erfüllen das?",
                     "en": "Three access points within range of each other are to work without overlap on "
-                          "the 2.4 GHz band (20 MHz, Europe). Which channel plans achieve that? Select all that apply."},
+                          "the 2.4 GHz band (20 MHz, Europe). Which channel plans achieve that?"},
          "options": {"de": ["1 / 6 / 11", "1 / 3 / 5", "2 / 7 / 12", "6 / 6 / 6"],
                      "en": ["1 / 6 / 11", "1 / 3 / 5", "2 / 7 / 12", "6 / 6 / 6"]},
          "answer": [0, 2],

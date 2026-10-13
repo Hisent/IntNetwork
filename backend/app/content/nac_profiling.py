@@ -660,8 +660,8 @@ NAC_PROFILING_MODULE = {
             'id': 'pf7',
             'type': 'multi',
             'prompt': {
-                'de': 'Eine IP-Kamera ist mit statischer IP-Adresse konfiguriert und sendet nie eine DHCP-Anfrage. Welche Quellen können trotzdem zum Profil beitragen? Mehrere Antworten sind richtig.',
-                'en': 'An IP camera is configured with a static IP address and never sends a DHCP request. Which sources can still contribute to the profile? Select all that apply.',
+                'de': 'Eine IP-Kamera ist mit statischer IP-Adresse konfiguriert und sendet nie eine DHCP-Anfrage. Welche Quellen können trotzdem zum Profil beitragen?',
+                'en': 'An IP camera is configured with a static IP address and never sends a DHCP request. Which sources can still contribute to the profile?',
             },
             'options': {
                 'de': [
