@@ -117,10 +117,25 @@ services:
       # Code mehr aus, sondern nur ein Krypto-Werkzeug — strikt weniger als heute.
       # Muss zu LAB_KINDS beim Backend passen (siehe dort).
       RUNNER_KINDS: ${RUNNER_KINDS:-ansible}
+    # Trennung der Laeufe (docs/lab-sicherheit.md): Der Worker laeuft als uid 0
+    # mit GENAU den fuenf Capabilities unten und startet jeden Lauf unter einer
+    # eigenen uid (10002-10009) ohne jede Capability. Ein Playbook kommt damit
+    # nicht mehr an /queue, an den Worker oder an fremde Arbeitsverzeichnisse.
+    # user und cap_add gehoeren zusammen: fehlt eines, lehnt der Worker
+    # Playbooks ab ("ANSIBLE-LAB DEAKTIVIERT" im Log) statt unsicher zu laufen.
+    user: "0:0"
     cap_drop:
-      - ALL  # fuer "ansible-playbook -c local" wird keine Capability gebraucht
+      - ALL
+    cap_add:
+      - SETUID        # Lauf unter die Job-uid setzen
+      - SETGID        # ... samt Gruppe, Zusatzgruppen leeren
+      - CHOWN         # Arbeitsverzeichnis an die Job-uid geben und zuruecknehmen
+      - DAC_OVERRIDE  # Dateien der Laeufe lesen, schreiben, aufraeumen
+      - KILL          # Zeitgrenze: Prozesse einer fremden uid beenden
     security_opt:
-      - no-new-privileges:true  # keine Rechteausweitung ueber SUID-Binaries
+      # Keine Rechteausweitung ueber SUID-Binaries - damit bekommt ein Lauf die
+      # Capabilities oben auch ueber su/mount im Image nicht zurueck.
+      - no-new-privileges:true
     read_only: true  # Root-Dateisystem nur lesbar; das Image bleibt unveraendert
     tmpfs:
       # Einziger Schreibort. Hier liegen die Arbeitsverzeichnisse der

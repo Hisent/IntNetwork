@@ -1,4 +1,4 @@
-Stand: v1.43.0 (2026-10-13) · Quelle: docs/operations.md, README.md, .env.example, docker-compose.yml, docs/lab-sicherheit.md, backend/app/database.py, backend/app/utils.py, backend/app/content/changelog.py
+Stand: v1.43.0 + Trennung der Lab-Läufe per uid (2026-10-13) · Quelle: docs/operations.md, README.md, .env.example, docker-compose.yml, docs/lab-sicherheit.md, backend/app/database.py, backend/app/utils.py, backend/app/content/changelog.py
 
 # IntLab: Betrieb
 
@@ -11,7 +11,7 @@ Das Projekt wird mit Docker Compose betrieben (`docker-compose.yml`). Der Zielbe
 | `db` | `postgres:16-alpine` | Datenbank; einziger Dienst mit Compose-Healthcheck |
 | `backend` | `backend/Dockerfile` (`python:3.11-slim-trixie`, Benutzer uid 10001) | FastAPI, führt Migrationen und Content-Sync beim Start aus; Port 8000 intern |
 | `frontend` | `frontend/Dockerfile` | nginx mit der gebauten Oberfläche; reicht `/api/` an `backend:8000` weiter |
-| `runner` | `runner/Dockerfile` (`python:3.12-slim-trixie`, Benutzer uid 10001) | Lab-Ausführung ohne Netzwerk (`network_mode: "none"`) |
+| `runner` | `runner/Dockerfile` (`python:3.12-slim-trixie`; Worker uid 0 mit fünf Capabilities, Läufe unter uid 10002 bis 10009) | Lab-Ausführung ohne Netzwerk (`network_mode: "none"`) |
 
 Volumes: `postgres_data` (Datenbank) und `lab_queue` (Austausch Backend und Runner).
 
@@ -28,7 +28,7 @@ Frontend lokal: `http://localhost:5173`, API: `http://localhost:8000`.
 
 1. `GET /api/health` muss erfolgreich antworten.
 2. Trainer-Login, Kursbeitritt und ein Quiz einmal im Browser prüfen.
-3. Falls das Lab aktiv ist: einen harmlosen Lauf zweimal ausführen und im Runner prüfen, dass `NetworkMode` weiterhin `none` ist.
+3. Falls das Lab aktiv ist: einen harmlosen Lauf zweimal ausführen und im Runner prüfen, dass `NetworkMode` weiterhin `none` ist und das Log `Trennung aktiv` zeigt.
 4. Die CI muss grün sein. `pip-audit` und `npm audit --omit=dev` sind bewusst blockierend; ein Advisory wird vor dem Deploy bewertet und nicht übergangen.
 
 ## Konfiguration und Secrets
@@ -220,11 +220,46 @@ Das Lab ist standardmäßig aus. Vor dem Einschalten die Seite „Lab-Sicherheit
 - Einschalten: `LAB_QUEUE_DIR=/queue` beim Backend, dazu `LAB_KINDS` (Backend) und `RUNNER_KINDS` (Runner) mit denselben Werten.
 - Ausschalten: `LAB_QUEUE_DIR` leeren und neu ausrollen. Die API antwortet dann mit `503`, das Widget zeigt einen Hinweis.
 - Status: Als angemeldeter Teilnehmer `GET /api/lab/status`; Antwort `{"enabled": false}`, wenn aus.
-- Runner prüfen: `docker logs --tail 5 <runner-container>`; erwartet wird beim Start eine Zeile `Lab-Runner bereit. Warteschlange: /queue, … Netzwerk: keines`. Einen Health-Endpunkt gibt es nicht.
+- Runner prüfen: `docker logs --tail 5 <runner-container>`; erwartet werden beim Start `Trennung aktiv: Läufe unter uid 10002-10009, ohne Capabilities.` und `Lab-Runner bereit. Warteschlange: /queue, … Netzwerk: keines, …, Trennung: uid je Lauf`. Einen Health-Endpunkt gibt es nicht.
 - Isolierung prüfen: `docker inspect <runner-container> --format '{{.HostConfig.NetworkMode}}'` muss `none` liefern. Sonst das Lab abschalten, bis das geklärt ist.
-- `PermissionError: '/queue/in'` im Runner-Log: Das Volume wurde von einer älteren Fassung angelegt und gehört `root`. Volume einmal entfernen (`docker volume rm <projekt>_lab_queue`) und neu ausrollen; es enthält nur Aufträge in Bearbeitung.
+- Rechte von `/queue`: Der Worker setzt sie bei jedem Start selbst (`root:10001`, `0750`/`0770`). Ein Volume aus einer älteren Fassung muss nicht mehr entfernt werden (siehe „Rollout: Trennung der Lab-Läufe“).
 - Dauerlast: `RUNNER_MAX_PARALLEL` senken oder das Lab abschalten.
 - OpenSSL im Runner: Basis ist Debian 13 (trixie) mit OpenSSL 3.5 (LTS). Mindestversion 3.5, weil die Vorlage „Post-Quanten-Schlüssel“ ML-KEM-768 und ML-DSA-65 erzeugt. Nach einem Wechsel des Debian-Release prüfen: `docker exec <runner-container> openssl version`.
+
+### Rollout: Trennung der Lab-Läufe
+
+Seit dem 13.10.2026 läuft der Lab-Worker als uid 0 mit fünf Capabilities und startet jeden Lauf unter einer eigenen uid (10002 bis 10009). Hintergrund und Restrisiken: Seite „Lab-Sicherheit“, Abschnitt „Trennung der Läufe per uid“.
+
+Was sich ändert:
+
+- `docker-compose.yml`, Dienst `runner`: neu `user: "0:0"` und `cap_add` (`SETUID`, `SETGID`, `CHOWN`, `DAC_OVERRIDE`, `KILL`). Alles andere bleibt (`network_mode: none`, `cap_drop: ALL`, `no-new-privileges`, `read_only`, `tmpfs`, Limits). Wer den Dienst in Coolify von Hand überschrieben hat, muss dort nachziehen.
+- Runner-Image: Benutzer `labjob10002` bis `labjob10009`, `/queue` gehört `root:10001`. Backend-Image und Backend-Konfiguration bleiben unverändert. Neue Umgebungsvariablen braucht es nicht.
+
+Schritte:
+
+1. Backend und Runner gemeinsam ausrollen (Image und Compose-Datei aus demselben Stand).
+2. Runner-Log prüfen: `docker logs --tail 20 <runner-container>` muss `Trennung aktiv: Läufe unter uid 10002-10009, ohne Capabilities.` und `Lab-Runner bereit … Trennung: uid je Lauf` zeigen.
+3. Im Kurs ein Playbook zweimal ausführen, je einmal `openssl` und `git`, falls freigegeben.
+4. Empfohlen, einmal je Installation und nach Plattform-Updates: den Trennungstest gegen das laufende System fahren (belegt für etwa eine Minute zwei Läufe):
+
+```text
+docker exec -i <backend-container> python - < runner/tests/isolation_check.py
+```
+
+Das vorhandene Volume `lab_queue`: Ein Volume aus einer älteren Fassung gehört uid 10001 mit Modus `0777`. Es muss nicht entfernt werden. Der Worker setzt beim ersten Start `/queue` auf `root:10001`, `0750` und `in/`, `out/` auf `0770`. Das darf nur er (einziger Prozess mit `CAP_CHOWN` auf diesem Volume); das Backend ändert dort keine Rechte. Liegengebliebene Dateien bleiben unangetastet: Aufträge in `in/` führt der neue Worker aus, Ergebnisse in `out/` holt das Backend ab oder der Worker löscht sie nach fünf Minuten. Gelingt die Korrektur nicht, meldet der Runner alle fünf Sekunden `Warteschlange … lässt sich nicht für Läufe schließen` und nimmt keine Aufträge an; dann das Volume einmal entfernen (`docker volume rm <projekt>_lab_queue`) und neu ausrollen.
+
+| Log-Zeile im Runner | Ursache | Behebung |
+|---|---|---|
+| `ANSIBLE-LAB DEAKTIVIERT (fail-closed): Der Worker läuft als uid 10001 statt 0` | neues Image, aber alte Compose-Datei (kein `user: "0:0"`) | Compose-Datei aus dem Repository ausrollen |
+| `ANSIBLE-LAB DEAKTIVIERT (fail-closed): … (CAP_…) fehlgeschlagen` | die genannte Capability fehlt in `cap_add` | `cap_add` wie im Repository |
+| `ANSIBLE-LAB DEAKTIVIERT … fehlt security_opt no-new-privileges?` | `no-new-privileges` wurde entfernt | wieder eintragen |
+| `Job-Slot uid … GESPERRT` | Prozesse eines Laufs ließen sich nicht beenden | Runner-Container neu starten |
+
+In allen `DEAKTIVIERT`-Fällen läuft der Runner weiter: Ansible-Aufträge enden mit einer klaren Meldung im Widget, `openssl` und `git` funktionieren. Es läuft nie still ein Playbook ohne Trennung.
+
+Zurückrollen: vorherigen Stand von Image und Compose-Datei ausrollen. Der alte Worker (uid 10001) kann in das inzwischen `root` gehörende `/queue` weiter schreiben, weil uid 10001 der Gruppe 10001 angehört.
+
+Lokale Entwicklung ohne Docker: `RUNNER_ISOLATION=aus-unsicher` schaltet die Trennung ab. Nie auf einem Server setzen; ein Worker mit uid 0 verweigert den Wert.
 
 ## Bekannte Fallstricke und Vorfälle
 
