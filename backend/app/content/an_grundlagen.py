@@ -241,8 +241,10 @@ ANSIBLE_GRUNDLAGEN_MODULE = {
                          'Das erste Beispiel prüft mit dem Modul `ping`, ob die Hostgruppe '
                          '`webservers` erreichbar ist. Das zweite führt den Befehl `uptime` auf '
                          'allen Hosts aus (Kurzform ohne `-m`, dann wird das Modul `command` '
-                         'angenommen). Für wiederholbare, mehrschrittige Automatisierung sind '
-                         'stattdessen **Playbooks** gedacht (nächstes Modul) — Ad-hoc-Kommandos '
+                         'angenommen). `ping` und `command` sind Kurznamen: Bei Ad-hoc-Kommandos '
+                         'ist die Kurzform üblich, in Playbooks schreibt man den vollen Namen '
+                         '(FQCN), etwa `ansible.builtin.ping` — gemeint ist dasselbe Modul. Für wiederholbare, mehrschrittige Automatisierung sind '
+                         'stattdessen **Playbooks** gedacht (übernächstes Modul) — Ad-hoc-Kommandos '
                          'werden dort nicht in einer Datei festgehalten.\n'
                          '\n'
                          'Wichtige CLI-Werkzeuge im Überblick:\n'
@@ -264,8 +266,10 @@ ANSIBLE_GRUNDLAGEN_MODULE = {
                          'The first example uses the `ping` module to check whether the '
                          '`webservers` host group is reachable. The second runs the `uptime` '
                          'command on all hosts (shorthand without `-m`, which defaults to the '
-                         '`command` module). Repeatable, multi-step automation is what '
-                         '**playbooks** are for instead (next module) — ad-hoc commands are not '
+                         '`command` module). `ping` and `command` are short names: the short form '
+                         'is common for ad-hoc commands, while playbooks use the full name '
+                         '(FQCN), such as `ansible.builtin.ping` — it is the same module. Repeatable, multi-step automation is what '
+                         '**playbooks** are for instead (the module after next) — ad-hoc commands are not '
                          'saved to a file.\n'
                          '\n'
                          'Key CLI tools at a glance:\n'
@@ -277,8 +281,8 @@ ANSIBLE_GRUNDLAGEN_MODULE = {
         {'type': 'terminal',
          'id': 'terminal-adhoc',
          'note': 'Ad-hoc-Kommandos kann das Kurs-Lab nicht ausführen (es startet nur Playbooks) — '
-                 'deshalb als Simulation. Ausgabeformat von ansible-core 2.21; Hostnamen, Zeiten '
-                 'und die Fehlermeldung von web03 sind erfunden bzw. gekürzt.',
+                 'deshalb als Simulation. Ausgabeformat von ansible-core 2.21; Hostnamen und Zeiten '
+                 'sind erfunden; die Fehlermeldung von web03 ist umbrochen, die [ERROR]-Zeilen davor fehlen.',
          'payload': {'title_de': 'Ad-hoc-Kommandos am Control Node',
                      'title_en': 'Ad-hoc commands on the control node',
                      'intro_de': 'Inventar: Gruppe webservers mit web01, web02, web03. Tippe help '
@@ -313,9 +317,9 @@ ANSIBLE_GRUNDLAGEN_MODULE = {
                                              '}\n'
                                              'web03 | UNREACHABLE! => {\n'
                                              '    "changed": false,\n'
-                                             '    "msg": "Failed to connect to the host via ssh:\n'
-                                             '      connect to host 10.0.0.13 port 22: timed '
-                                             'out",\n'
+                                             '    "msg": "Task failed: Failed to connect to the host\n'
+                                             '      via ssh: ssh: connect to host 10.0.0.13 port 22:\n'
+                                             '      Connection timed out",\n'
                                              '    "unreachable": true\n'
                                              '}'},
                                   {'cmd': 'ansible webservers -a "uptime"',
@@ -331,9 +335,9 @@ ANSIBLE_GRUNDLAGEN_MODULE = {
                                              'average: 0.31\n'
                                              'web03 | UNREACHABLE! => {\n'
                                              '    "changed": false,\n'
-                                             '    "msg": "Failed to connect to the host via ssh:\n'
-                                             '      connect to host 10.0.0.13 port 22: timed '
-                                             'out",\n'
+                                             '    "msg": "Task failed: Failed to connect to the host\n'
+                                             '      via ssh: ssh: connect to host 10.0.0.13 port 22:\n'
+                                             '      Connection timed out",\n'
                                              '    "unreachable": true\n'
                                              '}'},
                                   {'cmd': 'ansible webservers --list-hosts',

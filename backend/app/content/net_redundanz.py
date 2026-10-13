@@ -212,7 +212,7 @@ REDUNDANZ_MODULE = {
                      "interface range Gi1/0/49 , Gi1/0/51\n"
                      " channel-group 1 mode [[lacp]]",
              "gaps": [
-                 {"id": "edge", "accept": ["portfast"]},
+                 {"id": "edge", "accept": ["portfast", "portfast edge"]},
                  {"id": "guard", "options": ["bpduguard", "bpdufilter", "portfast"], "answer": 0},
                  {"id": "lacp", "options": ["active", "desirable", "on", "auto"], "answer": 0},
              ],
@@ -406,7 +406,7 @@ REDUNDANZ_MODULE = {
                   "values_en": ["sits idle (blocked)", "is used as well (all links active)",
                                 "waits as backup/standby"]},
                  {"label_de": "Umschaltzeit (Richtwert)", "label_en": "Failover time (rule of thumb)",
-                  "values_de": ["RSTP: meist unter wenigen Sekunden · altes STP: 30–50 s",
+                  "values_de": ["RSTP: meist innerhalb weniger Sekunden · altes STP: 30–50 s",
                                 "bei Link-Ausfall praktisch sofort",
                                 "VRRP-Standard: gut 3 s · HSRP-Standard: 10 s"],
                   "values_en": ["RSTP: usually within a few seconds · legacy STP: 30–50 s",
@@ -472,8 +472,8 @@ REDUNDANZ_MODULE = {
          },
          "answer": 1,
          "explanation": {
-             "de": "STP blockiert den Port nur für Nutzdaten; BPDUs empfängt er weiter. Deshalb kann er sofort einspringen, wenn der aktive Weg ausfällt. „Komplett deaktiviert“ wäre ein abgeschalteter Port ohne diese Reservefunktion.",
-             "en": "STP blocks the port for user data only; it keeps receiving BPDUs. That is why it can step in immediately when the active path fails. “Completely disabled” would be a shut-down port without this standby function."}},
+             "de": "STP blockiert den Port nur für Nutzdaten; BPDUs empfängt er weiter. Deshalb kann er ohne manuelles Eingreifen einspringen, wenn der aktive Weg ausfällt (bei RSTP in Sekunden, beim alten STP nach 30–50 s). „Komplett deaktiviert“ wäre ein abgeschalteter Port ohne diese Reservefunktion.",
+             "en": "STP blocks the port for user data only; it keeps receiving BPDUs. That is why it can step in without manual intervention when the active path fails (within seconds with RSTP, after 30–50 s with legacy STP). “Completely disabled” would be a shut-down port without this standby function."}},
         {"id": "rd3", "type": "single",
          "prompt": {"de": "Vier 1-Gbit-Leitungen sind per LACP gebündelt. Was passiert mit "
                          "einer einzelnen großen Dateiübertragung?",

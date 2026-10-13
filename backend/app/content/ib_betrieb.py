@@ -344,7 +344,7 @@ BETRIEB_MODULE = {
                     {
                         "text_de": "Der Grid Master ist ein HA-Paar. Welcher Knoten des Paars erhält beim Upload zunächst die Software — der aktive oder der passive?",
                         "text_en": "The Grid Master is an HA pair. Which node of the pair initially receives the software during upload — the active or the passive one?",
-                        "answers": ["aktive", "der aktive", "aktiv", "active", "the active"],
+                        "answers": ["aktive", "der aktive", "aktiv", "aktiver", "aktiver Knoten", "der aktive Knoten", "active", "the active", "active node", "the active node"],
                     },
                 ],
             },

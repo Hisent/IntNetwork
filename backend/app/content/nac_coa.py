@@ -213,8 +213,8 @@ NAC_COA_MODULE = {
                         'to': 'srv',
                         'label': 'CoA-ACK',
                         'style': 'reply',
-                        'detail_de': 'Der Switch bestätigt und stößt die Re-Authentifizierung der Sitzung an.',
-                        'detail_en': 'The switch acknowledges and triggers re-authentication of the session.',
+                        'detail_de': 'Der Switch bestätigt und stößt die Re-Authentifizierung der Sitzung an. Schickt der Server die neuen Attribute stattdessen direkt im CoA-Request mit, wendet der Switch sie erst an und bestätigt dann.',
+                        'detail_en': 'The switch acknowledges and triggers re-authentication of the session. If the server instead sends the new attributes directly in the CoA-Request, the switch applies them first and then acknowledges.',
                     },
                     {
                         'from': 'sw',

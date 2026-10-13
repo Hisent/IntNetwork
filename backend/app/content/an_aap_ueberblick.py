@@ -355,9 +355,11 @@ AAP_UEBERBLICK_MODULE = {'key': 'automation-platform-ueberblick',
              'payload': {'title_de': 'Ein Execution Environment bauen und benutzen (Simulation)',
                          'title_en': 'Build and use an execution environment (simulation)',
                          'intro_de': 'Reihenfolge: Definition ansehen → bauen → Image prüfen → '
-                                     'Playbook darin ausführen.',
+                                     'Playbook darin ausführen. Vorgriff: cisco.ios und netz_ee '
+                                     'gehören zur Netzwerk-Automatisierung (übernächstes Modul).',
                          'intro_en': 'Order: look at the definition → build → check the image → '
-                                     'run a playbook inside it.',
+                                     'run a playbook inside it. Looking ahead: cisco.ios and '
+                                     'netz_ee belong to network automation (the module after next).',
                          'prompt': 'admin@control:~/ee$',
                          'unknown': 'bash: {cmd}: command not found',
                          'commands': [{'cmd': 'cat execution-environment.yml',
@@ -564,7 +566,7 @@ AAP_UEBERBLICK_MODULE = {'key': 'automation-platform-ueberblick',
                                   {'id': 'condition',
                                    'options': ['condition', 'when', 'until'],
                                    'answer': 0},
-                                  {'id': 'action', 'accept': ['action', 'actions']}],
+                                  {'id': 'action', 'accept': ['action']}],
                          'explanation_de': 'Ein Rulebook sieht aus wie ein Playbook, hat aber '
                                            'sources und rules statt tasks. Die Bedingung heißt '
                                            'condition (nicht when) und prüft das eingehende '

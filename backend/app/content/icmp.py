@@ -108,14 +108,14 @@ ICMP_MODULE = {
                  "weiterer Router (Time Exceeded), am Ende Echo Reply vom Ziel. Das Widget bildet "
                  "Windows-tracert nach (ICMP Echo); Unix-traceroute nutzt standardmäßig UDP."},
         {"type": "debug", "id": "debug-icmp-ping", "payload": {
-            "prompt_de": "Ein Kollege bei Nordwind Logistik meldet: „`ping 192.168.10.50` "
+            "prompt_de": "Ein Kollege bei Nordwind Logistik meldet: „`ping 192.168.10.80` "
                          "liefert nur `Request timed out`, 100% Paketverlust. Trotzdem lässt "
-                         "sich `https://192.168.10.50` im Browser ganz normal öffnen, die "
+                         "sich `https://192.168.10.80` im Browser ganz normal öffnen, die "
                          "Webanwendung antwortet.“ Welche der folgenden Aussagen zu diesem "
                          "Bild ist falsch?",
-            "prompt_en": "A colleague at Nordwind Logistik reports: “`ping 192.168.10.50` "
+            "prompt_en": "A colleague at Nordwind Logistik reports: “`ping 192.168.10.80` "
                          "only returns `Request timed out`, 100% packet loss. Still, "
-                         "`https://192.168.10.50` opens normally in the browser and the web "
+                         "`https://192.168.10.80` opens normally in the browser and the web "
                          "application responds.” Which of the following statements about this "
                          "picture is false?",
             "lines_de": [

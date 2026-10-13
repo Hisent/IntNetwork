@@ -164,13 +164,15 @@ ROUTING_MODULE = {
              "nodes": [
                  {"id": "start",
                   "text_de": "Nordwind bindet eine Zweigstelle an: Ihr Netz 10.0.0.0/8 liegt hinter dem "
-                             "Router R2 (203.0.113.2). Auf Nordwind-R1 wurde dafür\n"
+                             "Router R2 — er sitzt in diesem Szenario am Gi0/2-Link an der Stelle des ISP-Routers "
+                             "und hat dessen Adresse 203.0.113.2. Auf Nordwind-R1 wurde dafür\n"
                              "ip route 10.0.0.0 255.0.0.0 203.0.113.2\n"
                              "eingetragen. Der Lager-PC 192.168.10.50 pingt den Zweigstellen-Server "
                              "10.0.5.20 — keine Antwort. Sein eigenes Gateway 192.168.10.1 erreicht er. "
                              "Was tust du zuerst?",
                   "text_en": "Nordwind connects a branch office: its network 10.0.0.0/8 sits behind "
-                             "router R2 (203.0.113.2). For this,\n"
+                             "router R2 — in this scenario it sits on the Gi0/2 link in place of the ISP router "
+                             "and has its address 203.0.113.2. For this,\n"
                              "ip route 10.0.0.0 255.0.0.0 203.0.113.2\n"
                              "was entered on Nordwind-R1. Warehouse PC 192.168.10.50 pings the branch "
                              "server 10.0.5.20 — no reply. It can reach its own gateway 192.168.10.1. "

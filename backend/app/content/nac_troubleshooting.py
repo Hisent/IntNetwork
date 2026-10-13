@@ -353,7 +353,7 @@ NAC_TROUBLESHOOTING_MODULE = {
                                    '  auth-port 1812, acct-port 1813, hostname ISE-1\n'
                                    '  State: current UP, duration 86329s, previous duration 0s\n'
                                    '  Dead: total time 0s, count 0\n'
-                                   '  Authen: request 412, timeouts 0, failover 0\n'
+                                   '  Authen: request 2520, timeouts 0, failover 0\n'
                                    '  Response: accept 371, reject 9, challenge 2140'),
                     },
                     {

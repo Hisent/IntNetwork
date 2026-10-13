@@ -345,8 +345,7 @@ DHCP_INFOBLOX_MODULE = {
                                         {"when": "lease",
                                          "output": ("[\n"
                                                     "  {\n"
-                                                    "    \"_ref\": \"lease/ZG5zLmxlYXNlJDEwLjIwLjMwLjExNw:\n"
-                                                    "             10.20.30.117/default\",\n"
+                                                    "    \"_ref\": \"lease/ZG5zLmxlYXNlJDEwLjIwLjMwLjExNw:10.20.30.117/default\",\n"
                                                     "    \"address\": \"10.20.30.117\",\n"
                                                     "    \"binding_state\": \"ACTIVE\",\n"
                                                     "    \"client_hostname\": \"nb-keller\",\n"

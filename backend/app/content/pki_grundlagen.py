@@ -395,8 +395,10 @@ KRYPTO_GRUNDLAGEN_MODULE = {
          }},
         {'type': 'match', 'id': 'match-verfahren-kategorie',
          'payload': {
-             'prompt_de': 'Ordne jedem Verfahren seine Kategorie zu.',
-             'prompt_en': 'Match each algorithm to its category.',
+             'prompt_de': ('Ordne jedem Verfahren seine Kategorie zu. (ECDSA und ECDHE folgen in Modul 4 und 5: '
+                           'DSA steht für „Digital Signature Algorithm“, DH für „Diffie-Hellman“.)'),
+             'prompt_en': ('Match each algorithm to its category. (ECDSA and ECDHE follow in modules 4 and 5: '
+                           'DSA stands for "Digital Signature Algorithm", DH for "Diffie-Hellman".)'),
              'pairs': [
                     {
                      'left': 'AES-256-GCM',

@@ -298,8 +298,8 @@ VAULT_MODULE = {'key': 'ansible-vault',
                              'opens an editor to change the content.'}},
             {'type': 'terminal',
              'id': 'terminal-vault',
-             'note': ('Ausgaben mit ansible-core 2.21 erzeugt; Hex-Blöcke auf wenige Zeilen gekürzt, Pfade vereinfacht, '
-                      'Passworteingaben unsichtbar. Das Lab kann ansible-vault nicht ausführen. cat und head zeigen den '
+             'note': ('Ausgaben mit ansible-core 2.21 erzeugt; Hex-Blöcke auf wenige Zeilen gekürzt und schmaler umbrochen (echt: 80 Zeichen je Zeile), Pfade vereinfacht, '
+                      'Passworteingaben unsichtbar, der bei --stdin-name eingetippte Wert ist weggelassen. Das Lab kann ansible-vault nicht ausführen. cat und head zeigen den '
                       'Zustand der Datei: Klartext vor „ansible-vault encrypt“, danach den Vault-Text; die übrigen Befehle '
                       'setzen die verschlüsselte Datei voraus.'),
              'payload': {'title_de': 'Eine Datei unter Vault stellen',
@@ -379,7 +379,7 @@ VAULT_MODULE = {'key': 'ansible-vault',
                                                  'end input,\n'
                                                  'twice if your content does not already have a '
                                                  'newline)\n'
-                                                 '\n'
+                                                 'Encryption successful\n'
                                                  'db_password: !vault |\n'
                                                  '          $ANSIBLE_VAULT;1.1;AES256\n'
                                                  '          '

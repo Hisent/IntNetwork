@@ -548,19 +548,19 @@ DNSSEC_MODULE = {
                 "de": [
                     "Der Resolver erreicht den autoritativen Server nur über TCP",
                     "Der Name existiert nicht, +cd liefert einen veralteten Cache-Eintrag",
-                    "Die Zone ist nicht signiert, der Resolver verlangt aber Signaturen",
+                    "Der Resolver validiert gar nicht — sonst hätte auch die Abfrage mit +cd SERVFAIL geliefert",
                     "Die Daten sind erreichbar, bestehen aber die DNSSEC-Validierung nicht",
                 ],
                 "en": [
                     "The resolver reaches the authoritative server only over TCP",
                     "The name does not exist, +cd returns a stale cache entry",
-                    "The zone is not signed, but the resolver demands signatures",
+                    "The resolver does not validate at all — otherwise the query with +cd would have returned SERVFAIL too",
                     "The data is reachable but fails DNSSEC validation",
                 ],
             },
             "explanation": {
-                "de": "+cd bittet den Resolver, das Ergebnis ohne Validierung herauszugeben. Kommt dann eine Antwort, sind Server und Daten erreichbar — gescheitert ist allein die Prüfung, typischerweise an abgelaufenen Signaturen oder einer gerissenen Schlüsselkette. Eine unsignierte Zone ohne DS würde ein validierender Resolver normal auflösen.",
-                "en": "+cd asks the resolver to hand out the result without validation. If an answer then arrives, server and data are reachable — only the check failed, typically because of expired signatures or a broken key chain. A validating resolver would resolve an unsigned zone without a DS normally.",
+                "de": "+cd bittet den Resolver, das Ergebnis ohne Validierung herauszugeben. Kommt dann eine Antwort, sind Server und Daten erreichbar — gescheitert ist allein die Prüfung, typischerweise an abgelaufenen Signaturen oder einer gerissenen Schlüsselkette. Dass der Resolver validiert, zeigt gerade das SERVFAIL ohne +cd: Ein nicht validierender Resolver hätte die Antwort von Anfang an geliefert.",
+                "en": "+cd asks the resolver to hand out the result without validation. If an answer then arrives, server and data are reachable — only the check failed, typically because of expired signatures or a broken key chain. That the resolver validates is shown precisely by the SERVFAIL without +cd: a non-validating resolver would have returned the answer from the start.",
             },
         },
         {

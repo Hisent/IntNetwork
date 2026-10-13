@@ -422,14 +422,12 @@ INVENTARE_MODULE = {
                                              '    "http_port": 8080\n'
                                              '}'},
                                   {'cmd': "ansible 'webservers:&prod' --list-hosts",
-                                   'aliases': ['ansible webservers:&prod --list-hosts',
-                                               'ansible "webservers:&prod" --list-hosts'],
+                                   'aliases': ['ansible "webservers:&prod" --list-hosts'],
                                    'desc_de': 'Schnittmenge testen',
                                    'desc_en': 'test the intersection',
                                    'output': '  hosts (1):\n    web01'},
                                   {'cmd': "ansible 'datacenter1:!prod' --list-hosts",
-                                   'aliases': ['ansible datacenter1:!prod --list-hosts',
-                                               'ansible "datacenter1:!prod" --list-hosts'],
+                                   'aliases': ['ansible "datacenter1:!prod" --list-hosts'],
                                    'desc_de': 'Ausschluss testen',
                                    'desc_en': 'test the exclusion',
                                    'output': '  hosts (1):\n    web02'}],
@@ -497,10 +495,10 @@ INVENTARE_MODULE = {
                                'this host. `group_vars/webservers.yml` would also hit web02, '
                                '`group_vars/all.yml` every host — both are too broad for this.'},
          'type': 'single',
-         'prompt': {'de': 'Welche Datei würde eine Variable setzen, die nur für den Host `web01` '
-                          'gilt?',
-                    'en': 'Which file would set a variable that applies only to the `web01` '
-                          'host?'},
+         'prompt': {'de': 'Welche Datei lädt Ansible automatisch nur für den Host `web01`, '
+                          'sodass ihre Variablen nur dort gelten?',
+                    'en': 'Which file does Ansible load automatically for the `web01` host '
+                          'only, so that its variables apply only there?'},
          'answer': 2,
          'options': {'de': ['group_vars/all.yml', 'group_vars/webservers.yml',
                             'host_vars/web01.yml', 'inventory.ini'],
@@ -562,38 +560,41 @@ INVENTARE_MODULE = {
                             'ansible-inventory --graph']}},
         {'id': 'in6',
          'type': 'number',
-         'prompt': {'de': 'Im Inventar steht `[webservers:vars]` mit `http_port=8080`; zusätzlich '
-                          'gibt es `host_vars/web02.yml` mit `http_port: 9090`. Welchen Wert hat '
-                          '`http_port` auf web02?',
-                    'en': 'The inventory has `[webservers:vars]` with `http_port=8080`; in '
-                          'addition there is `host_vars/web02.yml` with `http_port: 9090`. What is '
-                          'the value of `http_port` on web02?'},
-         'answer': 9090,
+         'prompt': {'de': 'Die Gruppe `webservers` enthält web01, web02 und web03. Im Inventar '
+                          'steht `[webservers:vars]` mit `http_port=8080`; zusätzlich gibt es '
+                          '`host_vars/web03.yml` mit `http_port: 8443`. Welchen Wert hat '
+                          '`http_port` auf web03?',
+                    'en': 'The group `webservers` contains web01, web02 and web03. The inventory '
+                          'has `[webservers:vars]` with `http_port=8080`; in addition there is '
+                          '`host_vars/web03.yml` with `http_port: 8443`. What is the value of '
+                          '`http_port` on web03?'},
+         'answer': 8443,
          'explanation': {'de': 'Hostvariablen schlagen Gruppenvariablen: Die spezifischere Quelle '
-                               'gewinnt, also 9090. web01 ohne eigene host_vars-Datei behält die '
-                               '8080 der Gruppe — prüfen lässt sich das mit `ansible-inventory '
-                               '--host web02`.',
+                               'gewinnt, also 8443. web01 und web02 ohne eigene host_vars-Datei '
+                               'behalten die 8080 der Gruppe — prüfen lässt sich das mit '
+                               '`ansible-inventory --host web03`.',
                          'en': 'Host variables beat group variables: the more specific source '
-                               'wins, so 9090. web01 without its own host_vars file keeps the '
-                               "group's 8080 — you can check this with `ansible-inventory --host "
-                               'web02`.'}},
+                               'wins, so 8443. web01 and web02 without a host_vars file of their '
+                               "own keep the group's 8080 — you can check this with "
+                               '`ansible-inventory --host web03`.'}},
         {'id': 'in7',
          'type': 'single',
-         'prompt': {'de': 'Gruppen: `webservers` = web01, web02 · `dbservers` = db01 · `prod` = '
-                          'web01, db01 · `datacenter1` enthält webservers und dbservers als '
+         'prompt': {'de': 'Gruppen: `webservers` = web01, web02, web03 · `dbservers` = db01, db02 · '
+                          '`prod` = web01, web02, db01 · `datacenter1` enthält webservers und dbservers als '
                           'Kinder. Welche Hosts trifft `hosts: datacenter1:!prod`?',
-                    'en': 'Groups: `webservers` = web01, web02 · `dbservers` = db01 · `prod` = '
-                          'web01, db01 · `datacenter1` contains webservers and dbservers as '
+                    'en': 'Groups: `webservers` = web01, web02, web03 · `dbservers` = db01, db02 · '
+                          '`prod` = web01, web02, db01 · `datacenter1` contains webservers and dbservers as '
                           'children. Which hosts does `hosts: datacenter1:!prod` match?'},
          'answer': 1,
-         'options': {'de': ['web01 und db01', 'Nur web02', 'web01, web02 und db01', 'Keinen Host'],
-                     'en': ['web01 and db01', 'Only web02', 'web01, web02 and db01', 'No host']},
-         'explanation': {'de': '`datacenter1` umfasst über seine Kinder web01, web02 und db01; '
-                               '`:!prod` zieht web01 und db01 wieder ab — übrig bleibt web02. Wer '
-                               '`!` als „nur prod“ liest, landet beim Gegenteil.',
-                         'en': '`datacenter1` covers web01, web02 and db01 through its children; '
-                               '`:!prod` removes web01 and db01 again — web02 remains. Reading `!` '
-                               'as "prod only" gives the opposite.'}},
+         'options': {'de': ['web01, web02 und db01', 'web03 und db02', 'Alle fünf Hosts',
+                            'Keinen Host'],
+                     'en': ['web01, web02 and db01', 'web03 and db02', 'All five hosts', 'No host']},
+         'explanation': {'de': '`datacenter1` umfasst über seine Kinder alle fünf Hosts; `:!prod` '
+                               'zieht web01, web02 und db01 wieder ab — übrig bleiben web03 und '
+                               'db02. Wer `!` als „nur prod“ liest, landet beim Gegenteil.',
+                         'en': '`datacenter1` covers all five hosts through its children; `:!prod` '
+                               'removes web01, web02 and db01 again — web03 and db02 remain. '
+                               'Reading `!` as "prod only" gives the opposite.'}},
         {'id': 'in8',
          'type': 'multi',
          'prompt': {'de': 'Ein Kollege sagt: „Mein Play mit `hosts: webserver` läuft, tut aber '

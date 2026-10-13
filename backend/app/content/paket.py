@@ -221,31 +221,6 @@ PAKET_MODULE = {
              "en": "6 (destination MAC) + 6 (source MAC) + 2 (EtherType) + 1500 (payload) + 4 (FCS) = "
                    "1518 bytes. Answering 1500 forgets the 18 bytes of framing: 1500 is only the payload "
                    "(MTU). With an 802.1Q tag it would be 1522."}},
-        {"id": "p6", "type": "single",
-         "prompt": {"de": "Ein Router leitet ein IP-Paket vom Lager-Netz ins Büro-Netz weiter (ohne NAT). "
-                          "Was gilt für die Adressen auf dem Weg?",
-                    "en": "A router forwards an IP packet from the warehouse network to the office "
-                          "network (no NAT). What holds for the addresses along the way?"},
-         "options": {
-             "de": ["Der Ethernet-Header wird neu gebaut (neue MACs), die IP-Adressen bleiben",
-                    "Die IP-Adressen werden ersetzt, die MAC-Adressen bleiben",
-                    "MAC- und IP-Adressen bleiben beide unverändert",
-                    "MAC- und IP-Adressen werden beide ersetzt"],
-             "en": ["The Ethernet header is rebuilt (new MACs), the IP addresses stay",
-                    "The IP addresses are replaced, the MAC addresses stay",
-                    "MAC and IP addresses both stay unchanged",
-                    "MAC and IP addresses are both replaced"],
-         },
-         "answer": 0,
-         "explanation": {
-             "de": "Der Frame gilt nur bis zum nächsten Schicht-3-Gerät: Der Router packt das IP-Paket aus "
-                   "und kapselt es für das nächste Netz in einen neuen Frame mit neuen MAC-Adressen. Das "
-                   "IP-Paket darin behält Quell- und Ziel-IP von Ende zu Ende. Der Irrtum „MACs bleiben“ "
-                   "verwechselt die Reichweite der beiden Adressen.",
-             "en": "A frame is only valid up to the next layer-3 device: the router unpacks the IP packet "
-                   "and encapsulates it for the next network in a new frame with new MAC addresses. The "
-                   "IP packet inside keeps its source and destination IP end to end. The idea that “MACs "
-                   "stay” confuses the reach of the two addresses."}},
         {"id": "p7", "type": "multi",
          "prompt": {"de": "Welche Aussagen zur Kapselung stimmen? (mehrere)",
                     "en": "Which statements about encapsulation are true? (multiple)"},

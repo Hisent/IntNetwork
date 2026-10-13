@@ -616,22 +616,22 @@ SPEC_DRIVEN_BMAD_MODULE = {'key': 'spec-driven-bmad',
                                     'en': 'Which mode helps review the implementation plan before '
                                           'changes are made?'},
                          'answer': 1,
-                         'options': {'de': ['Auto-Accept',
+                         'options': {'de': ['Accept Edits (`acceptEdits`)',
                                             'Plan-Modus',
                                             'Print-Modus',
                                             'Clear-Modus'],
-                                     'en': ['Auto-accept',
+                                     'en': ['Accept Edits (`acceptEdits`)',
                                             'Plan mode',
                                             'Print mode',
                                             'Clear mode']},
                          'explanation': {'de': 'Im Plan-Modus erkundet Claude und legt einen Plan '
                                                'vor, ohne deine Quelldateien zu ändern – du '
-                                               'prüfst, bevor etwas passiert. Auto-Accept ist das '
+                                               'prüfst, bevor etwas passiert. Accept Edits ist das '
                                                'Gegenteil: Dort werden Edits ohne Rückfrage '
                                                'übernommen.',
                                          'en': 'In plan mode Claude explores and presents a plan '
                                                'without editing your source files – you review '
-                                               'before anything happens. Auto-accept is the '
+                                               'before anything happens. Accept Edits is the '
                                                'opposite: there, edits are applied without asking.'}},
                         {'id': 'sd6',
                          'type': 'single',

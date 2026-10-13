@@ -287,8 +287,9 @@ VARIABLEN_MODULE = {
                          '`| upper` converts the value to uppercase. Filters are appended to a '
                          'variable with a pipe character and can also be chained.'}},
         {'type': 'debug', 'id': 'debug-1',
-         'payload': {'prompt_de': 'Dieser Task soll eine Variable in den Task-Namen einsetzen, '
-                                  'schlägt aber fehl. Welche Zeile enthält den Jinja2-Fehler?\n'
+         'payload': {'prompt_de': 'Dieser Task soll eine Variable in den Task-Namen einsetzen; '
+                                  'statt des Namens meldet Ansible aber einen Template-Fehler. '
+                                  'Welche Zeile enthält den Jinja2-Fehler?\n'
                                   '\n'
                                   '```yaml\n'
                                   '- name: "{{ paket_name } installieren"\n'
@@ -297,7 +298,8 @@ VARIABLEN_MODULE = {
                                   '    state: present\n'
                                   '```',
                      'prompt_en': 'This task is meant to insert a variable into the task name, '
-                                  'but it fails. Which line contains the Jinja2 error?\n'
+                                  'but instead of the name Ansible reports a template error. '
+                                  'Which line contains the Jinja2 error?\n'
                                   '\n'
                                   '```yaml\n'
                                   '- name: "{{ paket_name } installieren"\n'

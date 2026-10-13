@@ -154,8 +154,8 @@ WLAN_MODULE = {
          }},
         {"type": "text", "id": "text-wpa3-sae",
          "value": {
-             "de": "## WPA3 genauer: SAE und das 6-GHz-Band\n\nBei **WPA2-Personal** steckt das "
-                   "WLAN-Passwort direkt im Verbindungsaufbau: Wer diesen Handshake mitschneidet, kann "
+             "de": "## WPA3 genauer: SAE und das 6-GHz-Band\n\nBei **WPA2-Personal** geht das "
+                   "WLAN-Passwort direkt in die Schlüssel des Verbindungsaufbaus ein: Wer diesen Handshake mitschneidet, kann "
                    "zu Hause beliebig viele Passwörter durchprobieren — ein schwaches Passwort fällt so "
                    "schnell. **WPA3-Personal** ersetzt das durch **SAE** (Simultaneous Authentication of "
                    "Equals): Jeder Rateversuch braucht einen echten Austausch mit dem Access Point, "
@@ -169,7 +169,7 @@ WLAN_MODULE = {
                    "Inspection* zwei Schutzfunktionen am Switch. Was sie genau tun, erklärt das Modul "
                    "„Angriffe im lokalen Netz“ — hier genügt die Zuordnung von Bedrohung und Gegenmaßnahme.",
              "en": "## WPA3 in Detail: SAE and the 6 GHz Band\n\nWith **WPA2-Personal** the Wi-Fi "
-                   "passphrase is baked right into the connection setup: whoever captures that handshake "
+                   "passphrase feeds directly into the keys of the connection setup: whoever captures that handshake "
                    "can try any number of passphrases at home — a weak one falls quickly. **WPA3-Personal** "
                    "replaces this with **SAE** (Simultaneous Authentication of Equals): every guess needs a "
                    "real exchange with the access point, offline guessing no longer works. In addition, "

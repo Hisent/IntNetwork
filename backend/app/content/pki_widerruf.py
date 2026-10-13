@@ -378,8 +378,10 @@ WIDERRUF_MODULE = {
              'title_de': 'Ein widerrufenes Zertifikat prüfen',
              'title_en': 'Checking a revoked certificate',
              'prompt': 'nordwind$',
-             'intro_de': 'revoked.pem gehört zum gestohlenen Notebook und wurde von der CA gesperrt.',
-             'intro_en': 'revoked.pem belongs to the stolen notebook and was revoked by the CA.',
+             'intro_de': ('revoked.pem ist ein Zertifikat für www.nordwind-logistik.de, dessen privater Schlüssel '
+                          'abgeflossen ist; die CA hat es gesperrt.'),
+             'intro_en': ('revoked.pem is a certificate for www.nordwind-logistik.de whose private key leaked; '
+                          'the CA has revoked it.'),
              'unknown_de': 'Befehl nicht in dieser Übung: {cmd} (Tipp: help)',
              'unknown_en': 'Command not part of this exercise: {cmd} (hint: help)',
              'commands': [

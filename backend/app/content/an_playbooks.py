@@ -179,14 +179,22 @@ PLAYBOOKS_MODULE = {
                                        'Der Rest des Playbooks ist korrekt eingerückt (die '
                                        '`tasks:`-Liste beginnt hier bewusst auf derselben '
                                        'Einrückungsebene wie `tasks:` selbst — auch das ist eine '
-                                       'gültige YAML-Schreibweise).',
+                                       'gültige YAML-Schreibweise). Achtung beim Lesen der echten '
+                                       'Meldung: Ansible zeigt auf die Folgezeile 9 („Mapping '
+                                       'values are not allowed in this context“) — erst dort '
+                                       'merkt der Parser, dass etwas nicht passt. Der Fehler '
+                                       'steckt eine Zeile darüber.',
                      'explanation_en': 'Line 8 (`name:nginx`) is missing the space after the '
                                        'colon — YAML interprets `name:nginx` as a single string '
                                        'rather than the key-value pair `name: nginx`. The rest of '
                                        'the playbook is indented correctly (the `tasks:` list '
                                        'intentionally starts at the same indentation level as '
                                        '`tasks:` itself here — that is also a valid YAML '
-                                       'style).'}},
+                                       'style). Careful when reading the real message: Ansible '
+                                       'points at the following line 9 ("Mapping values are not '
+                                       'allowed in this context") — only there does the parser '
+                                       'notice that something is off. The bug sits one line '
+                                       'above.'}},
         {'type': 'cloze', 'id': 'cloze-play-aufbau',
          'note': 'Lücke 3 akzeptiert neben package auch dnf, apt und yum — gute Gelegenheit, '
                  'über generische und distributionsspezifische Module zu sprechen.',
@@ -451,7 +459,11 @@ PLAYBOOKS_MODULE = {
          'id': 'terminal-playbook-cli',
          'note': 'Das Lab kann nur ausführen und --check; --syntax-check, --list-tasks und '
                  '--list-hosts gibt es dort nicht. Ausgabeformat von ansible-core 2.21 (der '
-                 'Tabulator vor TAGS ist durch Leerzeichen ersetzt), der Diff ist gekürzt.',
+                 'Tabulator vor TAGS ist durch Leerzeichen ersetzt, lange Zeilen sind umbrochen). '
+                 '--list-tasks zeigt Task-Namen untemplated ({{ paket_name }}), der Lauf selbst '
+                 'den aufgelösten Namen. Beim --check ist nginx auf web01 schon installiert, der '
+                 'Dienst aber gestoppt: Fehlte das Paket, würde service im Check-Modus mit '
+                 '„Could not find the requested service“ scheitern.',
          'payload': {'title_de': 'Vor dem Lauf nachsehen',
                      'title_en': 'Look before you run',
                      'intro_de': 'site.yml ist das Play aus dem Abschnitt „Aufbau“. help zeigt '
@@ -487,7 +499,7 @@ PLAYBOOKS_MODULE = {
                                              'installieren\n'
                                              '  und Service starten  TAGS: []\n'
                                              '    tasks:\n'
-                                             '      nginx installieren  TAGS: []\n'
+                                             '      {{ paket_name }} installieren  TAGS: []\n'
                                              '      Service aktivieren und starten  TAGS: []'},
                                   {'cmd': 'ansible-playbook site.yml --check',
                                    'desc_de': 'Trockenlauf auf den Hosts',
@@ -503,7 +515,7 @@ PLAYBOOKS_MODULE = {
                                              '\n'
                                              'TASK [nginx installieren] '
                                              '******************************\n'
-                                             'changed: [web01]\n'
+                                             'ok: [web01]\n'
                                              'ok: [web02]\n'
                                              '\n'
                                              'TASK [Service aktivieren und starten] '
@@ -513,7 +525,7 @@ PLAYBOOKS_MODULE = {
                                              '\n'
                                              'PLAY RECAP '
                                              '*********************************************\n'
-                                             'web01 : ok=3 changed=2 unreachable=0 failed=0 '
+                                             'web01 : ok=3 changed=1 unreachable=0 failed=0 '
                                              'skipped=0\n'
                                              '        rescued=0 ignored=0\n'
                                              'web02 : ok=3 changed=0 unreachable=0 failed=0 '
@@ -546,9 +558,10 @@ PLAYBOOKS_MODULE = {
                          'Das Lab ist nicht auf jedem Server aktiviert — es steht nur zur '
                          'Verfügung, wenn eure Umgebung dafür freigeschaltet wurde. Ist es bei '
                          'euch verfügbar, probiere es direkt aus. Fehlt es, funktioniert die '
-                         'Übung trotzdem als Denkaufgabe: Überlege anhand des kaputten Playbooks '
-                         'oben, welche Fehlermeldung `ansible-playbook` ausgeben würde, und wie '
-                         'du sie reparieren würdest.',
+                         'Übung trotzdem als Denkaufgabe: Stell dir ein Playbook vor, in dem ein '
+                         'Modulname falsch geschrieben ist (anders als im YAML-Beispiel oben ist '
+                         'die Datei also gültiges YAML). Überlege, welche Fehlermeldung '
+                         '`ansible-playbook` ausgeben würde, und wie du sie reparieren würdest.',
                    'en': '## Hands-on: trying the Ansible lab\n'
                          '\n'
                          'From here on, a playbook can not only be read but actually run, in the '
@@ -561,8 +574,10 @@ PLAYBOOKS_MODULE = {
                          'The lab is not enabled on every server — it is only available if your '
                          'environment has it switched on. If it is available for you, try it '
                          'directly. If it is missing, the exercise still works as a thought '
-                         'exercise: using the broken playbook above, work out what error message '
-                         '`ansible-playbook` would print, and how you would fix it.'}},
+                         'exercise: imagine a playbook in which a module name is misspelled '
+                         '(unlike the YAML example above, the file is valid YAML). Work out what '
+                         'error message `ansible-playbook` would print, and how you would fix '
+                         'it.'}},
         {'type': 'widget', 'id': 'ansible-lab',
          'note': 'Erste Begegnung mit dem echten Lab im Kurs — kurz ansagen, dass es je nach '
                  'Server-Konfiguration deaktiviert sein kann, damit die Denkaufgaben-Variante '

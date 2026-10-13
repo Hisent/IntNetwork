@@ -189,14 +189,14 @@ ARP_MODULE = {
                                   {"when": "ping",
                                    "output": ("Interface: 192.168.10.10 --- 0xb\n"
                                               "  Internet Address      Physical Address      Type\n"
-                                              "  192.168.10.1          00-11-22-33-44-01     dynamic\n"
-                                              "  192.168.10.11         00-11-22-33-44-0b     dynamic\n"
+                                              "  192.168.10.1          aa-00-00-00-10-01     dynamic\n"
+                                              "  192.168.10.11         aa-00-00-00-10-11     dynamic\n"
                                               "  192.168.10.255        ff-ff-ff-ff-ff-ff     static\n"
                                               "  224.0.0.22            01-00-5e-00-00-16     static")},
                               ], "cmd": "arp -a", "desc_de": "ARP-Cache anzeigen", "desc_en": "show the ARP cache",
                   "output": ("Interface: 192.168.10.10 --- 0xb\n"
                              "  Internet Address      Physical Address      Type\n"
-                             "  192.168.10.11         00-11-22-33-44-0b     dynamic\n"
+                             "  192.168.10.11         aa-00-00-00-10-11     dynamic\n"
                              "  192.168.10.255        ff-ff-ff-ff-ff-ff     static\n"
                              "  224.0.0.22            01-00-5e-00-00-16     static")},
                  {"sets": ["ping"], "cmd": "ping 192.168.20.80", "desc_de": "Server im Büro-Netz anpingen",
@@ -220,7 +220,7 @@ ARP_MODULE = {
                   "command": "arp -a 192.168.20.80"},
                  {"text_de": "Zeige den Cache erneut an (arp -a): Ein Eintrag ist neu hinzugekommen. Welche MAC-Adresse trägt er?",
                   "text_en": "Show the cache again (arp -a): one entry is new. Which MAC address does it carry?",
-                  "answers": ["00-11-22-33-44-01", "00:11:22:33:44:01", "0011.2233.4401"]},
+                  "answers": ["aa-00-00-00-10-01", "aa:00:00:00:10:01", "aa00.0000.1001"]},
                  {"text_de": "Zu welcher IP gehört also die Ziel-MAC, an die PC-A die Ping-Frames geschickt hat?",
                   "text_en": "So which IP owns the destination MAC that PC-A sent the ping frames to?",
                   "answers": ["192.168.10.1"],
