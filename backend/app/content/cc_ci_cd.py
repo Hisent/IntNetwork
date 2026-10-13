@@ -40,7 +40,7 @@ CI_CD_MODULE = {'key': 'ci-cd',
                              'Der Code bleibt dabei auf GitHubs Runnern (secure by default). Die '
                              'Action baut auf dem Agent SDK auf — für eigene Automatisierungen '
                              'jenseits von GitHub.',
-                       'en': '## What the GitHub Action does\n'
+                       'en': '## What the GitHub Action Does\n'
                              '\n'
                              'The **Claude Code GitHub Action** brings agentic coding into your '
                              'GitHub workflow. With an `@claude` mention on a PR or issue, Claude '
@@ -132,7 +132,7 @@ CI_CD_MODULE = {'key': 'ci-cd',
                              'einem `prompt` laufen) arbeiten soll. `id-token: write` braucht die '
                              'Action für ihre Standard-Anmeldung als GitHub App; `actions/checkout` '
                              'gibt Claude eine Arbeitskopie des Repos.',
-                       'en': '## A simple workflow\n'
+                       'en': '## A Simple Workflow\n'
                              '\n'
                              '```yaml\n'
                              'name: Claude Code\n'
@@ -169,7 +169,7 @@ CI_CD_MODULE = {'key': 'ci-cd',
                      'der Action betonen, am letzten Schritt das menschliche Review.',
              'payload': {'kind': 'sequence',
                          'title_de': 'Vom @claude-Kommentar zum Review',
-                         'title_en': 'From the @claude comment to the review',
+                         'title_en': 'From the @claude Comment to the Review',
                          'caption_de': 'Interaktiver Modus: ohne prompt-Input wartet die Action '
                                        'auf die Erwähnung.',
                          'caption_en': 'Interactive mode: without a prompt input the action waits '
@@ -295,7 +295,7 @@ CI_CD_MODULE = {'key': 'ci-cd',
                              'landet das Ergebnis standardmäßig im Workflow-Log; damit Claude im PR '
                              'kommentiert, braucht es passende Tools/Schreibrechte — die offizielle '
                              'Doku zeigt dafür den `code-review`-Skill mit `--comment`.',
-                       'en': '## Automated PR review\n'
+                       'en': '## Automated PR Review\n'
                              '\n'
                              'Instead of waiting for a trigger, Claude can review **every** PR. To '
                              'do this, you provide a `prompt` (a skill invocation is also allowed) '
@@ -321,7 +321,7 @@ CI_CD_MODULE = {'key': 'ci-cd',
                              '          claude_args: "--max-turns 5"\n'
                              '```\n'
                              '\n'
-                             'Via `claude_args` you pass through any CLI arguments (e.g. '
+                             'Via `claude_args` you pass through any CLI arguments (e.g., '
                              '`--model`, `--max-turns`, `--mcp-config`). In automation mode the '
                              'result goes to the workflow run log by default; for Claude to comment '
                              'on the PR it needs suitable tools/write permissions — the official '
@@ -397,10 +397,10 @@ CI_CD_MODULE = {'key': 'ci-cd',
                              'maskierte CI/CD-Variable `ANTHROPIC_API_KEY` vor. Die Integration '
                              'wird von GitLab gepflegt und ist in der Doku als Beta '
                              'gekennzeichnet.',
-                       'en': '## Scheduled jobs & cost awareness\n'
+                       'en': '## Scheduled Jobs & Cost Awareness\n'
                              '\n'
                              "Because it's a normal workflow, you can also **schedule** Claude — "
-                             'e.g. to generate a daily report:\n'
+                             'e.g., to generate a daily report:\n'
                              '\n'
                              '```yaml\n'
                              'on:\n'
@@ -448,7 +448,7 @@ CI_CD_MODULE = {'key': 'ci-cd',
                                            '`anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}`. '
                                            'Hardcodierte Keys landen sonst dauerhaft in der '
                                            'Git-Historie.',
-                         'explanation_en': 'The API key must never appear in plain text in the '
+                         'explanation_en': 'The API key must never appear in plaintext in the '
                                            'workflow. The correct approach is a GitHub secret: '
                                            '`anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}`. '
                                            'Hardcoded keys otherwise end up permanently in the Git '
@@ -459,7 +459,7 @@ CI_CD_MODULE = {'key': 'ci-cd',
                      'Rechte des Workflows, nicht durch die Hoffnung, dass das Modell die '
                      'Injection erkennt.',
              'payload': {'title_de': 'Issue-Triage im öffentlichen Repo',
-                         'title_en': 'Issue triage in a public repo',
+                         'title_en': 'Issue Triage in a Public Repo',
                          'start': 'oeffnen',
                          'nodes': [{'id': 'oeffnen',
                                     'text_de': 'Euer Repo ist öffentlich. Ein Workflow soll neue '
@@ -635,7 +635,7 @@ CI_CD_MODULE = {'key': 'ci-cd',
                                             'Als GitHub-Secret: ${{ secrets.ANTHROPIC_API_KEY }}',
                                             'In die CLAUDE.md',
                                             'Als Git-Tag'],
-                                     'en': ['As plain text in the YAML',
+                                     'en': ['As plaintext in the YAML',
                                             'As a GitHub secret: ${{ secrets.ANTHROPIC_API_KEY }}',
                                             'In the CLAUDE.md',
                                             'As a Git tag']},
@@ -647,14 +647,14 @@ CI_CD_MODULE = {'key': 'ci-cd',
                                                'sichtbar.',
                                          'en': 'The key is stored as a repository or organization '
                                                'secret and only referenced in the workflow via '
-                                               '`${{ secrets.ANTHROPIC_API_KEY }}`. Plain text in '
+                                               '`${{ secrets.ANTHROPIC_API_KEY }}`. Plaintext in '
                                                'the YAML ends up permanently in the Git history '
                                                'and is visible to everyone with read access.'}},
                         {'id': 'ci4',
                          'type': 'multi',
                          'prompt': {'de': 'Welche Kosten fallen bei der GitHub-Action an? '
-                                          '(mehrere)',
-                                    'en': 'Which costs does the GitHub Action incur? (multiple)'},
+                                          'Mehrere Antworten sind richtig.',
+                                    'en': 'Which costs does the GitHub Action incur? Select all that apply.'},
                          'answer': [0, 1],
                          'options': {'de': ['GitHub-Actions-Minuten',
                                             'API-Tokens',
@@ -685,7 +685,7 @@ CI_CD_MODULE = {'key': 'ci-cd',
                                             'Das Secret verschlüsseln',
                                             'Den Branch wechseln'],
                                      'en': ['Passing through arbitrary Claude Code CLI arguments '
-                                            '(e.g. --max-turns)',
+                                            '(e.g., --max-turns)',
                                             'Setting the repo name',
                                             'Encrypting the secret',
                                             'Switching the branch']},
@@ -736,10 +736,10 @@ CI_CD_MODULE = {'key': 'ci-cd',
                          'type': 'multi',
                          'prompt': {'de': 'Jemand kommentiert in einem Issue, aber Claude reagiert '
                                           'nicht. Welche Ursachen kommen laut Doku in Frage? '
-                                          '(mehrere)',
+                                          'Mehrere Antworten sind richtig.',
                                     'en': 'Someone comments on an issue, but Claude does not '
                                           'respond. Which causes are possible according to the '
-                                          'docs? (multiple)'},
+                                          'docs? Select all that apply.'},
                          'answer': [0, 2, 3],
                          'options': {'de': ['Die Claude GitHub App ist auf dem Repo nicht '
                                             'installiert',

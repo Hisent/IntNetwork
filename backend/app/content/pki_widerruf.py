@@ -22,7 +22,7 @@ WIDERRUF_MODULE = {
         'Name typical reasons for revocation',
         ('Distinguish CRL, OCSP, and OCSP stapling and put their respective downsides (size, latency, privacy) '
          'into context'),
-        'Assess the "soft-fail" behavior of classic revocation checking in the browser',
+        'Assess the “soft-fail” behavior of classic revocation checking in the browser',
         'Understand why the operational trend is toward short lifetimes instead of active revocation',
         'Explain Certificate Transparency (CT) and name a practical benefit for your own operations',
     ],
@@ -34,7 +34,7 @@ WIDERRUF_MODULE = {
               'Widerruf in der Praxis (nicht) ankommt, und stößt dabei auf ein '
               'ungeschminktes Bild: Widerrufsprüfung ist historisch eher weich als hart '
               'durchgesetzt.',
-        'en': 'A Nordwind Logistik employee loses their notebook with an installed client '
+        'en': 'A Nordwind Logistik employee loses their laptop with an installed client '
               'certificate. The certificate urgently needs to be declared invalid - but how '
               'do you actually make sure other systems find out about it? You work through '
               'the mechanisms by which a revocation does (or does not) get noticed in '
@@ -59,14 +59,14 @@ WIDERRUF_MODULE = {
                    'vertrauenswürdig ist.',
              'en': '## When a Certificate Must Be Revoked\n\n'
                    'Typical reasons for revoking a certificate before it expires:\n\n'
-                   '- the **private key** is compromised or lost (e.g. a stolen notebook),\n'
+                   '- the **private key** is compromised or lost (e.g., a stolen laptop),\n'
                    '- an **employee leaves** the company and their client certificate must '
                    'no longer be valid,\n'
                    '- a certificate was **issued incorrectly** (wrong domain, wrong '
                    'identity),\n'
-                   '- the underlying **data has changed** (e.g. company name after an '
+                   '- the underlying **data has changed** (e.g., company name after an '
                    'acquisition).\n\n'
-                   'In every one of these cases, it is not enough to simply "forget" the '
+                   'In every one of these cases, it is not enough to simply “forget” the '
                    'certificate - other systems need to actively learn that it is no longer '
                    'trustworthy.',
          }},
@@ -113,12 +113,12 @@ WIDERRUF_MODULE = {
          'payload': {
              'kind': 'compare',
              'title_de': 'Vier Wege, mit Widerruf umzugehen',
-             'title_en': 'Four ways of dealing with revocation',
+             'title_en': 'Four Ways of Dealing With Revocation',
              'columns': [
                     {'title': 'CRL'},
                     {'title': 'OCSP'},
                     {'title': 'OCSP-Stapling'},
-                    {'title_de': 'Kurzlebige Zertifikate', 'title_en': 'Short-lived certificates'},
+                    {'title_de': 'Kurzlebige Zertifikate', 'title_en': 'Short-Lived Certificates'},
                 ],
              'rows': [
                     {
@@ -175,7 +175,7 @@ WIDERRUF_MODULE = {
                             'egal',
                         ],
                      'values_en': [
-                            'old list until "Next Update"',
+                            'old list until “Next Update”',
                             'mostly soft-fail: connection allowed',
                             'last response stays valid for days',
                             'irrelevant',
@@ -207,7 +207,7 @@ WIDERRUF_MODULE = {
          'payload': {
              'kind': 'sequence',
              'title_de': 'OCSP-Stapling: der Server bringt den Nachweis mit',
-             'title_en': 'OCSP stapling: the server brings the proof along',
+             'title_en': 'OCSP Stapling: the Server Brings the Proof Along',
              'actors': [
                     {'id': 'c', 'label': 'Client'},
                     {'id': 's', 'label': 'Server'},
@@ -230,7 +230,7 @@ WIDERRUF_MODULE = {
                      'label_en': 'signed response: good, valid for some days',
                      'detail_de': ('Die Antwort trägt die Signatur der CA sowie „This Update“ und „Next Update“. Der '
                          'Server speichert sie zwischen.'),
-                     'detail_en': ('The response carries the CA\'s signature plus "This Update" and "Next Update". The '
+                     'detail_en': ('The response carries the CA\'s signature plus “This Update” and “Next Update”. The '
                          'server caches it.'),
                     },
                     {
@@ -306,9 +306,9 @@ WIDERRUF_MODULE = {
                  'eine von Google zusammengestellte, per Browser-Update verteilte Auswahl wichtiger '
                  'Sperreinträge - bewusst keine vollständige Liste aller widerrufenen Zertifikate.'),
              'en': ('## The Honest Picture: Soft Instead of Hard\n\nRevocation checking in the browser has '
-                 'historically been a **"soft-fail"**: if the OCSP responder or the CRL source is currently '
+                 'historically been a **“soft-fail”**: if the OCSP responder or the CRL source is currently '
                  'unreachable, the connection is allowed anyway instead of being blocked as a precaution - '
-                 'otherwise a single failed responder could take down large parts of the internet.\n\nA '
+                 'otherwise a single failed responder could take down large parts of the Internet.\n\nA '
                  "concrete example of how this has played out in practice: **Let's Encrypt fully shut down its "
                  'OCSP service in early August 2025** and switched to CRLs - among other reasons, exactly the '
                  'privacy issue mentioned above (the CA saw every single OCSP request), as well as '
@@ -327,9 +327,9 @@ WIDERRUF_MODULE = {
                           'OCSP-Stapling aktiviert, deshalb hat der Browser die Verbindung '
                           'zum kompromittierten Zertifikat trotzdem zugelassen." Welche der '
                           'folgenden Aussagen zu diesem Bild ist falsch?',
-             'prompt_en': 'A colleague claims after an incident: "The server did not have '
+             'prompt_en': 'A colleague claims after an incident: “The server did not have '
                           'OCSP stapling enabled, which is why the browser still allowed '
-                          'the connection to the compromised certificate." Which of the '
+                          'the connection to the compromised certificate.” Which of the '
                           'following statements about this picture is false?',
              'lines_de': [
                  'Fehlt OCSP-Stapling, müsste der Client selbst per OCSP nachfragen oder '
@@ -376,7 +376,7 @@ WIDERRUF_MODULE = {
              'lange Zeilen umbrochen, die curl-Ausgabe auf die entscheidenden Zeilen gekürzt.'),
          'payload': {
              'title_de': 'Ein widerrufenes Zertifikat prüfen',
-             'title_en': 'Checking a revoked certificate',
+             'title_en': 'Checking a Revoked Certificate',
              'prompt': 'nordwind$',
              'intro_de': ('revoked.pem ist ein Zertifikat für www.nordwind-logistik.de, dessen privater Schlüssel '
                           'abgeflossen ist; die CA hat es gesperrt.'),
@@ -494,7 +494,7 @@ WIDERRUF_MODULE = {
                    'reaches everyone, a **short validity period** ensures that a '
                    'compromised certificate becomes useless on its own before long. This '
                    'is exactly the logic behind the roadmap for shortening validity '
-                   'periods covered in the "Certificate Lifecycle" module (Ballot '
+                   'periods covered in the “Certificate Lifecycle” module (Ballot '
                    'SC-081v3, heading toward 47 days): the shorter the validity period, '
                    'the smaller the window in which a certificate that was not (or not '
                    'promptly) revoked can do any damage at all.\n\n'
@@ -561,7 +561,7 @@ WIDERRUF_MODULE = {
         {'type': 'scenario', 'id': 'scenario-schluessel-kompromittiert',
          'payload': {
              'title_de': 'Der private Schlüssel des Webshops ist abgeflossen',
-             'title_en': "The webshop's private key has leaked",
+             'title_en': "The Webshop's Private Key Has Leaked",
              'start': 'start',
              'nodes': [
                     {
@@ -618,7 +618,7 @@ WIDERRUF_MODULE = {
                             {
                              'label_de': ('Altes Zertifikat mit Grund „keyCompromise“ widerrufen und CT-Logs auf fremde '
                                  'Ausstellungen prüfen'),
-                             'label_en': ('Revoke the old certificate with reason "keyCompromise" and check CT logs for '
+                             'label_en': ('Revoke the old certificate with reason “keyCompromise” and check CT logs for '
                                  'foreign issuance'),
                              'to': 'widerruf',
                             },
@@ -654,12 +654,12 @@ WIDERRUF_MODULE = {
          'note': ('Das Lab kann je nach Server abgeschaltet sein. Der Rückgabewert 2 des letzten Befehls ist hier '
              'das erwartete Ergebnis.'),
          'value': {
-             'de': ('## Selbst ausprobieren: Widerruf per CRL\n\nDas Openssl-Lab unten öffnet mit der Vorlage **Widerruf '
+             'de': ('## Selbst ausprobieren: Widerruf per CRL\n\nDas OpenSSL-Lab unten öffnet mit der Vorlage **Widerruf '
                  'per CRL prüfen**. Sie bringt eine kleine Kurs-CA, zwei Zertifikate und eine Sperrliste mit. '
                  'Beobachte den Unterschied: Ohne `-crl_check` hält openssl das gesperrte Zertifikat für '
                  'gültig, mit Sperrliste meldet der letzte Befehl `error 23 … certificate revoked`. Eine Sperre '
                  'wirkt also nur dort, wo sie jemand prüft.'),
-             'en': ('## Try it yourself: revocation via CRL\n\nThe openssl lab below opens with the template **Check '
+             'en': ('## Try It Yourself: Revocation via CRL\n\nThe OpenSSL lab below opens with the template **Check '
                  'revocation via CRL**. It ships a small course CA, two certificates, and a revocation list. '
                  'Watch the difference: without `-crl_check` openssl considers the revoked certificate valid; '
                  'with the CRL the last command reports `error 23 … certificate revoked`. A revocation only '
@@ -713,7 +713,7 @@ WIDERRUF_MODULE = {
         {'id': 'wt2', 'type': 'single',
          'prompt': {'de': 'Was bedeutet "Soft-Fail" bei klassischer Widerrufsprüfung im '
                           'Browser?',
-                    'en': 'What does "soft-fail" mean for classic revocation checking in '
+                    'en': 'What does “soft-fail” mean for classic revocation checking in '
                           'the browser?'},
          'answer': 2,
          'options': {
@@ -737,7 +737,7 @@ WIDERRUF_MODULE = {
           'de': ('Soft-Fail heißt: keine Antwort wird wie „nicht widerrufen“ behandelt. Ein Angreifer, der die '
               'Verbindung kontrolliert, kann die Abfrage einfach blockieren — genau dann, wenn die Prüfung am '
               'wichtigsten wäre.'),
-          'en': ('Soft-fail means: no answer is treated like "not revoked". An attacker who controls the '
+          'en': ('Soft-fail means: no answer is treated like “not revoked.” An attacker who controls the '
               'connection can simply block the query — exactly when the check would matter most.'),
          }},
         {'id': 'wt3', 'type': 'single',
@@ -831,7 +831,7 @@ WIDERRUF_MODULE = {
              'de': ('Ein interner Dienst prüft Sperrlisten strikt. Seit heute lehnt er ALLE Zertifikate der '
                  'internen CA ab: „error 12 at 0 depth lookup: CRL has expired“. Was ist passiert?'),
              'en': ('An internal service checks revocation lists strictly. Since today it rejects ALL certificates '
-                 'of the internal CA: "error 12 at 0 depth lookup: CRL has expired". What happened?'),
+                 'of the internal CA: “error 12 at 0 depth lookup: CRL has expired”. What happened?'),
             },
          'options': {
              'de': [
@@ -841,7 +841,7 @@ WIDERRUF_MODULE = {
                     'Der Dienst hat keinen Zugriff mehr auf den OCSP-Responder',
                 ],
              'en': [
-                    'The CA did not publish a new CRL — the old one\'s "Next Update" has passed',
+                    'The CA did not publish a new CRL — the old one\'s “Next Update” has passed',
                     'All certificates of the CA were revoked at the same time',
                     'The server certificates themselves have expired',
                     'The service can no longer reach the OCSP responder',
@@ -853,10 +853,10 @@ WIDERRUF_MODULE = {
                  'veralteten Liste nicht trauen und lehnt deshalb alles ab. Das regelmäßige Neuausstellen der '
                  'CRL ist damit genauso betriebskritisch wie die Zertifikatserneuerung. Ein abgelaufenes '
                  'Zertifikat hieße „certificate has expired“ (Fehler 10).'),
-             'en': ('A CRL has an expiry date of its own ("Next Update"). A strict checker must not trust a stale '
+             'en': ('A CRL has an expiry date of its own (“Next Update”). A strict checker must not trust a stale '
                  'list and therefore rejects everything. Regularly re-issuing the CRL is thus just as '
-                 'operationally critical as certificate renewal. An expired certificate would read "certificate '
-                 'has expired" (error 10).'),
+                 'operationally critical as certificate renewal. An expired certificate would read “certificate '
+                 'has expired” (error 10).'),
             },
         },
         {'id': 'wt7', 'type': 'multi',
@@ -886,7 +886,7 @@ WIDERRUF_MODULE = {
                  'also nie „verlängern“: Erneuern heißt immer, ein neues Zertifikat auszustellen. Fällt die '
                  'Automatisierung aus, steht der Dienst nach wenigen Tagen.'),
              'en': ('Expiry replaces revocation here — and it is signed into the certificate, so it can never be '
-                 '"extended": renewing always means issuing a new certificate. If automation fails, the service '
+                 '“extended”: renewing always means issuing a new certificate. If automation fails, the service '
                  'is down within days.'),
             },
         },
@@ -895,8 +895,8 @@ WIDERRUF_MODULE = {
              'de': ('`openssl s_client -connect shop.nordwind-logistik.de:443 -status` zeigt 2026 für ein '
                  "Let's-Encrypt-Zertifikat „OCSP responses: no responses sent“ (ältere OpenSSL-Versionen: „OCSP "
                  'response: no response sent“). Wie ist das einzuordnen?'),
-             'en': ('In 2026, `openssl s_client -connect shop.nordwind-logistik.de:443 -status` shows "OCSP '
-                 'responses: no responses sent" (older OpenSSL versions: "OCSP response: no response sent") for '
+             'en': ('In 2026, `openssl s_client -connect shop.nordwind-logistik.de:443 -status` shows “OCSP '
+                 'responses: no responses sent” (older OpenSSL versions: “OCSP response: no response sent”) for '
                  "a Let's Encrypt certificate. How should this be assessed?"),
             },
          'options': {

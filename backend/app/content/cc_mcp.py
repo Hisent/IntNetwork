@@ -42,19 +42,19 @@ MCP_MODULE = {'key': 'mcp',
                              '- „Finde in der PostgreSQL-DB 10 Nutzer, die Feature X genutzt '
                              'haben.“\n'
                              '- „Aktualisiere die E-Mail-Vorlage nach den neuen Figma-Designs.“',
-                       'en': '## What is MCP?\n'
+                       'en': '## What Is MCP?\n'
                              '\n'
                              '**MCP** is an open standard for connecting AI tools to external data '
-                             'sources and services. An **MCP server** provides Claude Code with **tools** (actions, e.g. "create an issue") and **resources** (data, e.g. a document).\n'
+                             'sources and services. An **MCP server** provides Claude Code with **tools** (actions, e.g., “create an issue”) and **resources** (data, e.g., a document).\n'
                              '\n'
                              'The best trigger for connecting a server: whenever you *copy* data '
                              'from another tool into the chat — issue tracker, monitoring '
                              'dashboard, database. After that, Claude can access it directly. '
                              'Examples:\n'
                              '\n'
-                             '- "Implement the feature from JIRA ENG-4521 and open a PR."\n'
-                             '- "Find 10 users in the PostgreSQL database who used feature X."\n'
-                             '- "Update the email template based on the new Figma designs."'},
+                             '- “Implement the feature from JIRA ENG-4521 and open a PR.”\n'
+                             '- “Find 10 users in the PostgreSQL database who used feature X.”\n'
+                             '- “Update the email template based on the new Figma designs.”'},
              'note': 'Einen einfachen MCP-Server verbinden und die bereitgestellten '
                      'Tools/Resources zeigen; die Scope-Unterschiede erklären.'},
             {'type': 'text',
@@ -66,8 +66,8 @@ MCP_MODULE = {'key': 'mcp',
                              '\n'
                              '- **stdio** — ein lokaler Prozess, mit dem Claude Code über '
                              'Standard-Ein-/Ausgabe redet. Typisch für lokal installierte Server.\n'
-                             '- **SSE** (Server-Sent Events) — ein älterer Dienst über '
-                             'HTTP-Streaming; **veraltet**, für neue Integrationen HTTP nutzen.\n'
+                             '- **SSE** (Server-Sent Events) — ein älterer Transport, durch '
+                             'Streamable HTTP abgelöst; **veraltet**, für neue Integrationen HTTP nutzen.\n'
                              '- **HTTP** — ein erreichbarer HTTP-Endpunkt (oft remote/gehostet).\n'
                              '\n'
                              'Für lokale Tools nimmst du meist stdio; für gehostete Dienste HTTP, '
@@ -86,8 +86,8 @@ MCP_MODULE = {'key': 'mcp',
                              '\n'
                              '- **stdio** — a local process that Claude Code talks to over '
                              'standard input/output. Typical for locally installed servers.\n'
-                             '- **SSE** (Server-Sent Events) — an older service over HTTP '
-                             'streaming; **deprecated**, so use HTTP for new integrations.\n'
+                             '- **SSE** (Server-Sent Events) — an older transport, superseded by '
+                             'Streamable HTTP; **deprecated**, so use HTTP for new integrations.\n'
                              '- **HTTP** — a reachable HTTP endpoint (often remote/hosted).\n'
                              '\n'
                              "For local tools you'll usually use stdio; for hosted services, HTTP, "
@@ -106,7 +106,7 @@ MCP_MODULE = {'key': 'mcp',
                      'und Resources.',
              'payload': {'kind': 'flow',
                          'title_de': 'MCP: Claude Code, Server und Transporte',
-                         'title_en': 'MCP: Claude Code, servers and transports',
+                         'title_en': 'MCP: Claude Code, Servers and Transports',
                          'nodes': [{'id': 'user',
                                     'shape': 'user',
                                     'row': 1,
@@ -217,7 +217,7 @@ MCP_MODULE = {'key': 'mcp',
                              'Kommando, das den Server startet. Ist derselbe Servername in '
                              'mehreren Scopes definiert, gilt **local vor project vor user** — der '
                              'ganze Eintrag der höchsten Quelle, ohne Felder zu mischen.',
-                       'en': '## Adding servers & scopes\n'
+                       'en': '## Adding Servers & Scopes\n'
                              '\n'
                              'You add servers with `claude mcp add`. The **scope** determines '
                              'where the configuration applies:\n'
@@ -253,7 +253,7 @@ MCP_MODULE = {'key': 'mcp',
                      'Pending approval) und die Befehlssyntax stammen aus der Doku; Spaltenlayout '
                      'und der Wortlaut nach „Added“ sind gekürzt bzw. nachgestellt.',
              'payload': {'title_de': 'MCP-Server per CLI verwalten',
-                         'title_en': 'Manage MCP servers from the CLI',
+                         'title_en': 'Manage MCP Servers From the CLI',
                          'prompt': '$',
                          'unknown': 'error: unknown command: {cmd}',
                          'commands': [{'cmd': 'claude mcp add --transport http docs '
@@ -410,7 +410,7 @@ MCP_MODULE = {'key': 'mcp',
                              'ein Ticket für diesen Bug an“ — Claude wählt das passende Tool des '
                              'verbundenen Servers. **Resources** (Daten) referenzierst du bei '
                              'vielen Servern per `@`-Mention.',
-                       'en': '## Using tools & resources — the naming scheme\n'
+                       'en': '## Using Tools & Resources — the Naming Scheme\n'
                              '\n'
                              'Once a server is connected, its tools appear under the scheme '
                              '**`mcp__<server>__<tool>`**. This also matters for hooks and '
@@ -418,8 +418,8 @@ MCP_MODULE = {'key': 'mcp',
                              '`mcp__issues__.*` matches all tools of the `issues` server; as a '
                              'permission rule you write `mcp__issues__*`.\n'
                              '\n'
-                             'You still address tools in plain everyday language: "Create a '
-                             'ticket in Jira for this bug" — Claude picks the matching tool from '
+                             'You still address tools in plain everyday language: “Create a '
+                             'ticket in Jira for this bug” — Claude picks the matching tool from '
                              'the connected server. With many servers, you reference **resources** (data) via an `@` mention.'}},
             {'type': 'order',
              'id': 'order-1',
@@ -452,14 +452,14 @@ MCP_MODULE = {'key': 'mcp',
                                       'Transports include stdio and HTTP; SSE is deprecated.',
                                       'The project scope shares servers via a checked-in '
                                       '.mcp.json.',
-                                      'You should commit API keys directly in plain text to '
+                                      'You should commit API keys directly in plaintext to '
                                       '.mcp.json.'],
                          'wrong': [3],
                          'explanation_de': 'Secrets gehören nie im Klartext in eine eingecheckte '
                                            'Datei. In der geteilten `.mcp.json` referenziert man '
                                            'Zugangsdaten über Umgebungsvariablen; die Werte selbst '
                                            'bleiben außerhalb der Versionskontrolle.',
-                         'explanation_en': 'Secrets never belong in plain text in a checked-in '
+                         'explanation_en': 'Secrets never belong in plaintext in a checked-in '
                                            'file. In the shared `.mcp.json`, credentials are '
                                            'referenced via environment variables; the values '
                                            'themselves stay outside version control.'}},
@@ -630,7 +630,7 @@ MCP_MODULE = {'key': 'mcp',
                                             'URLs sind in einer .mcp.json nicht erlaubt',
                                             'HTTP-Server dürfen nur im user-Scope liegen',
                                             'Der Eintrag braucht zusätzlich ein command-Feld'],
-                                     'en': ['"type": "http" is missing — without a type Claude '
+                                     'en': ['“type”: “http” is missing — without a type Claude '
                                             'Code reads the entry as a stdio server',
                                             'URLs are not allowed in a .mcp.json',
                                             'HTTP servers may only live in the user scope',
@@ -679,9 +679,9 @@ MCP_MODULE = {'key': 'mcp',
                         {'id': 'mcp8',
                          'type': 'multi',
                          'prompt': {'de': 'Eine Kollegin klont ein Repo mit eingecheckter '
-                                          '.mcp.json. Was gilt? (mehrere)',
+                                          '.mcp.json. Was gilt? Mehrere Antworten sind richtig.',
                                     'en': 'A colleague clones a repo with a checked-in .mcp.json. '
-                                          'Which statements are true? (multiple)'},
+                                          'Which statements are true? Select all that apply.'},
                          'answer': [0, 1, 2],
                          'options': {'de': ['In einer interaktiven Session fragt Claude Code nach '
                                             'Freigabe, bevor es die Server nutzt',
@@ -695,7 +695,7 @@ MCP_MODULE = {'key': 'mcp',
                                      'en': ['In an interactive session Claude Code asks for '
                                             'approval before using the servers',
                                             '`claude mcp list` shows servers not yet approved as '
-                                            '"Pending approval"',
+                                            '“Pending approval”',
                                             'In `claude -p` runs the project servers are loaded '
                                             'without prompting',
                                             'The repo can approve its own servers through the '
@@ -709,8 +709,8 @@ MCP_MODULE = {'key': 'mcp',
                                                'eingecheckten Settings gelten im nicht vertrauten '
                                                'Ordner nicht.',
                                          'en': 'Project servers need your approval in interactive '
-                                               'sessions and sit at "Pending approval" until then; '
-                                               'with no dialog, i.e. `claude -p`, they load '
+                                               'sessions and sit at “Pending approval” until then; '
+                                               'with no dialog, i.e., `claude -p`, they load '
                                                'directly. A cloned repository cannot approve '
                                                'itself: approvals from checked-in settings do not '
                                                'apply in an untrusted folder.'}}]}}

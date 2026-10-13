@@ -90,7 +90,7 @@ TROUBLESHOOTING_MODULE = {
                    "**Faustregel**: `ping 8.8.8.8` geht, aber keine Webseite lädt → das Netz "
                    "steht, die **Namensauflösung** klemmt.",
              "en": "## Bottom-Up Through the Layers\n\nWork your way **from the bottom "
-                   "up** through the layer model — each step rules out one source of error:\n\n"
+                   "up** through the OSI model — each step rules out one source of error:\n\n"
                    "1. **Physical**: cable plugged in, Wi-Fi connected, link LED on?\n"
                    "2. **Your own IP configuration**: `ipconfig` — real address or 169.254.x.x?\n"
                    "3. **Gateway**: `ping 192.168.x.1` — can I get out of my own network?\n"
@@ -106,7 +106,7 @@ TROUBLESHOOTING_MODULE = {
          "payload": {
              "kind": "flow",
              "title_de": "Der Diagnosepfad: fünf Fragen von unten nach oben",
-             "title_en": "The diagnostic path: five questions from the bottom up",
+             "title_en": "The Diagnostic Path: Five Questions From the Bottom Up",
              "caption_de": "Pfeil nach unten = ja, weiter · Pfeil nach rechts = nein, hier suchen",
              "caption_en": "Arrow down = yes, continue · arrow right = no, look here",
              "nodes": [
@@ -162,7 +162,7 @@ TROUBLESHOOTING_MODULE = {
                   "text_de": "Namensauflösung: Das Netz trägt, also bleibt DNS. Sind alle fünf Antworten "
                              "„ja“, liegt das Problem bei der Anwendung oder ihrem Server.",
                   "text_en": "Name resolution: the network holds, so DNS remains. If all five answers are "
-                             "“yes”, the problem lies with the application or its server."},
+                             "“yes,” the problem lies with the application or its server."},
              ],
          }},
         {"type": "widget", "id": "troubleshoot-demo",
@@ -232,10 +232,10 @@ TROUBLESHOOTING_MODULE = {
          "note": "Vierter Störfall, den das Widget oben nicht abdeckt: Alles Interne funktioniert, der "
                  "Weg endet beim Provider. Windows-Ausgaben in der englischen Fassung und gekürzt "
                  "(ipconfig /all: nur die relevanten Zeilen, Punktreihen verkürzt; tracert: nach Hop 4 "
-                 "abgeschnitten). 203.0.113.9 ist der Router des Providers.",
+                 "abgeschnitten). 203.0.113.2 ist der Router des Providers.",
          "payload": {
              "title_de": "Störfall: „Das Internet ist weg“ — bei allen",
-             "title_en": "Incident: “The Internet is gone” — for everyone",
+             "title_en": "Incident: “The Internet Is Gone” — for Everyone",
              "intro_de": "Du sitzt am PC von Frau Berg im Büro-VLAN. Tippe ? für die verfügbaren Befehle.",
              "intro_en": "You are at Ms. Berg's PC on the office VLAN. Type ? for the available commands.",
              "prompt": "C:\\Users\\berg>",
@@ -272,14 +272,14 @@ TROUBLESHOOTING_MODULE = {
                   "desc_de": "Weg zum Ziel, Hop für Hop", "desc_en": "path to the target, hop by hop",
                   "output": "Tracing route to 8.8.8.8 over a maximum of 30 hops\n\n"
                             "  1    <1 ms    <1 ms    <1 ms  192.168.20.1\n"
-                            "  2     1 ms     1 ms     1 ms  203.0.113.9\n"
+                            "  2     1 ms     1 ms     1 ms  203.0.113.2\n"
                             "  3     *        *        *     Request timed out.\n"
                             "  4     *        *        *     Request timed out."},
-                 {"cmd": "nslookup intranet.nordwind.example",
+                 {"cmd": "nslookup intranet.nordwind-intern.de",
                   "desc_de": "internen Namen auflösen", "desc_en": "resolve an internal name",
-                  "output": "Server:  dns1.nordwind.example\n"
+                  "output": "Server:  dns1.nordwind-intern.de\n"
                             "Address:  192.168.10.53\n\n"
-                            "Name:    intranet.nordwind.example\n"
+                            "Name:    intranet.nordwind-intern.de\n"
                             "Address:  192.168.10.80"},
              ],
              "tasks": [
@@ -294,12 +294,12 @@ TROUBLESHOOTING_MODULE = {
                   "command": "tracert -d 8.8.8.8"},
                  {"text_de": "Welche Adresse antwortet als letzte auf dem Weg?",
                   "text_en": "Which address is the last one to reply along the path?",
-                  "answers": ["203.0.113.9"]},
+                  "answers": ["203.0.113.2"]},
                  {"text_de": "Wo liegt die Störung — intern oder beim Provider?",
                   "text_en": "Where is the fault — internal or at the provider?",
                   "answers": ["provider", "beim provider", "isp", "extern", "external", "at the provider"],
-                  "explanation_de": "Alles Interne funktioniert; der Weg endet bei 203.0.113.9 – dem Router des Providers.",
-                  "explanation_en": "Everything internal works; the path ends at 203.0.113.9 – the provider's router."},
+                  "explanation_de": "Alles Interne funktioniert; der Weg endet bei 203.0.113.2 – dem Router des Providers.",
+                  "explanation_en": "Everything internal works; the path ends at 203.0.113.2 – the provider's router."},
              ],
          }},
         {"type": "widget", "id": "learning-evidence", "note": "Den nächsten Beweisschritt der Diagnose wählen."},
@@ -332,7 +332,7 @@ TROUBLESHOOTING_MODULE = {
                  "geändert hat.",
          "payload": {
              "title_de": "Frau Berg erreicht den Drucker nicht",
-             "title_en": "Ms. Berg cannot reach the printer",
+             "title_en": "Ms. Berg Cannot Reach the Printer",
              "start": "start",
              "nodes": [
                  {"id": "start",
@@ -466,8 +466,8 @@ TROUBLESHOOTING_MODULE = {
              "de": "169.254.0.0/16 ist der APIPA-Bereich: Windows vergibt sich daraus selbst eine Adresse, wenn auf die DHCP-Anfrage niemand antwortet. Die Adresse sieht „gültig“ aus, ist aber weder öffentlich noch routbar — der PC erreicht damit nur andere APIPA-Geräte im selben Segment.",
              "en": "169.254.0.0/16 is the APIPA range: Windows assigns itself an address from it when nobody answers the DHCP request. The address looks “valid” but is neither public nor routable — with it, the PC can only reach other APIPA devices on the same segment."}},
         {"id": "ts2", "type": "single",
-         "prompt": {"de": "ping 8.8.8.8 funktioniert, aber www.nordwind.de lädt nicht. Wo suchst du zuerst?",
-                    "en": "ping 8.8.8.8 works, but www.nordwind.de does not load. Where do you look first?"},
+         "prompt": {"de": "ping 8.8.8.8 funktioniert, aber www.nordwind-logistik.de lädt nicht. Wo suchst du zuerst?",
+                    "en": "ping 8.8.8.8 works, but www.nordwind-logistik.de does not load. Where do you look first?"},
          "options": {
              "de": ["Am Netzwerkkabel", "Beim DHCP-Server", "Bei der Namensauflösung (DNS)", "Am Standardgateway"],
              "en": ["At the network cable", "At the DHCP server", "At name resolution (DNS)", "At the default gateway"],
@@ -516,13 +516,13 @@ TROUBLESHOOTING_MODULE = {
          "answer": 1,
          "explanation": {
              "de": "Die Antwort teilt den Suchraum sofort: Ein Einzelfall zeigt auf den Arbeitsplatz, ein Ausfall bei vielen auf gemeinsam genutzte Technik. Sie ersetzt die Prüfung von Schicht 1 nicht — sie sagt, WO man sie prüft.",
-             "en": "The answer splits the search space immediately: a single case points to the workstation, an outage for many to shared infrastructure. It does not replace checking layer 1 — it tells you WHERE to check it."}},
+             "en": "The answer splits the search space immediately: a single case points to the workstation, an outage for many to shared infrastructure. It does not replace checking Layer 1 — it tells you WHERE to check it."}},
         {"id": "ts6", "type": "single",
          "prompt": {"de": "Ping zum Gateway klappt, ping 8.8.8.8 klappt, nslookup liefert für "
-                          "portal.nordwind.de die richtige Adresse — trotzdem zeigt der Browser bei genau "
+                          "portal.nordwind-logistik.de die richtige Adresse — trotzdem zeigt der Browser bei genau "
                           "dieser Seite einen Fehler, andere Seiten laden. Wo suchst du weiter?",
                     "en": "Pinging the gateway works, ping 8.8.8.8 works, nslookup returns the correct "
-                          "address for portal.nordwind.de — yet the browser shows an error for exactly this "
+                          "address for portal.nordwind-logistik.de — yet the browser shows an error for exactly this "
                           "site while other sites load. Where do you continue looking?"},
          "options": {
              "de": ["Am Netzwerkkabel des PCs", "Beim DHCP-Server",
@@ -538,23 +538,23 @@ TROUBLESHOOTING_MODULE = {
                    "ausgeschlossen. Übrig bleibt, was darüber liegt: der Dienst selbst oder ein Filter "
                    "auf dem Weg zu genau diesem Port. DNS noch einmal zu prüfen, wäre Raten — es hat "
                    "nachweislich richtig geantwortet.",
-             "en": "The three tests have already ruled out layers 1 to 3 and name resolution. What remains "
+             "en": "The three tests have already ruled out Layers 1 to 3 and name resolution. What remains "
                    "is whatever lies above: the service itself or a filter on the way to exactly that "
                    "port. Checking DNS again would be guessing — it demonstrably answered correctly."}},
         {"id": "ts7", "type": "multi",
          "prompt": {"de": "Welche Befunde sprechen dafür, dass die Störung im EIGENEN lokalen Netz liegt "
-                          "und nicht beim Provider? (mehrere)",
+                          "und nicht beim Provider? Mehrere Antworten sind richtig.",
                     "en": "Which findings indicate that the fault lies on your OWN local network and not at "
-                          "the provider? (multiple)"},
+                          "the provider? Select all that apply."},
          "options": {
              "de": ["Der Ping zum Standardgateway schlägt fehl",
                     "ipconfig zeigt eine Adresse aus 169.254.0.0/16",
-                    "tracert antwortet bei Hop 1 (eigenes Gateway) und Hop 2 (Provider-Router 203.0.113.9), danach nur "
+                    "tracert antwortet bei Hop 1 (eigenes Gateway) und Hop 2 (Provider-Router 203.0.113.2), danach nur "
                     "noch Zeitüberschreitungen",
                     "Interne Server sind erreichbar, externe Adressen nicht"],
              "en": ["The ping to the default gateway fails",
                     "ipconfig shows an address from 169.254.0.0/16",
-                    "tracert replies at hop 1 (your own gateway) and hop 2 (provider router 203.0.113.9), then only timeouts",
+                    "tracert replies at hop 1 (your own gateway) and hop 2 (provider router 203.0.113.2), then only timeouts",
                     "Internal servers are reachable, external addresses are not"],
          },
          "answer": [0, 1],
@@ -566,10 +566,10 @@ TROUBLESHOOTING_MODULE = {
                    "network. If, however, hops 1 and 2 or the internal servers reply, the local network "
                    "has just been proven fine — the fault lies beyond it."}},
         {"id": "ts8", "type": "number",
-         "prompt": {"de": "tracert zu 8.8.8.8: Hop 1 = 192.168.20.1, Hop 2 = 203.0.113.9, Hop 3 bis 30 nur "
+         "prompt": {"de": "tracert zu 8.8.8.8: Hop 1 = 192.168.20.1, Hop 2 = 203.0.113.2, Hop 3 bis 30 nur "
                           "Zeitüberschreitungen. Bis zu welchem Hop ist der Weg nachweislich in Ordnung? "
                           "(Zahl)",
-                    "en": "tracert to 8.8.8.8: hop 1 = 192.168.20.1, hop 2 = 203.0.113.9, hops 3 to 30 only "
+                    "en": "tracert to 8.8.8.8: hop 1 = 192.168.20.1, hop 2 = 203.0.113.2, hops 3 to 30 only "
                           "timeouts. Up to which hop is the path demonstrably fine? (number)"},
          "answer": 2,
          "explanation": {

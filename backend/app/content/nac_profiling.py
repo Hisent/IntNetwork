@@ -35,7 +35,7 @@ NAC_PROFILING_MODULE = {
     },
     'blocks': [
         {'type': 'text', 'id': 'text-1',
-         'note': 'Zentrale Botschaft frueh setzen: Sichtbarkeit ist keine Zusatzfunktion, sondern '
+         'note': 'Zentrale Botschaft früh setzen: Sichtbarkeit ist keine Zusatzfunktion, sondern '
                  'die Grundvoraussetzung. Ohne sie bleibt jede Policy blind geraten.',
          'value': {
              'de': '## Sichtbarkeit als Voraussetzung\n\n'
@@ -86,7 +86,7 @@ NAC_PROFILING_MODULE = {
                    '- **MAC OUI** (Organizationally Unique Identifier) — the first three bytes of '
                    'a MAC address identify the manufacturer of the network card. This helps '
                    'exactly where DHCP fingerprinting hits its limits: if the DHCP fingerprint only '
-                   'recognizes "generic Android," the OUI can supply the specific manufacturer of '
+                   'recognizes “generic Android,” the OUI can supply the specific manufacturer of '
                    'the handheld scanner or camera.',
          }},
         {'type': 'text', 'id': 'text-3',
@@ -123,7 +123,7 @@ NAC_PROFILING_MODULE = {
             'payload': {
                 'kind': 'flow',
                 'title_de': 'Vom Port zum Geräteprofil',
-                'title_en': 'From port to device profile',
+                'title_en': 'From Port to Device Profile',
                 'nodes': [
                     {
                         'id': 'dev',
@@ -213,7 +213,7 @@ NAC_PROFILING_MODULE = {
                     {
                         'highlight': ['nac', 'e3', 'prof'],
                         'text_de': 'Alle Merkmale werden zu einem Profil zusammengeführt: „Etikettendrucker, Hersteller X“.',
-                        'text_en': 'All traits are merged into one profile: "label printer, vendor X".',
+                        'text_en': 'All traits are merged into one profile: “label printer, vendor X.”',
                     },
                     {
                         'highlight': ['prof', 'e4', 'pol', 'e5', 'sw'],
@@ -267,7 +267,7 @@ NAC_PROFILING_MODULE = {
              'prompt_de': 'Ein Gerät liefert per DHCP-Fingerprint nur „generisches Android“. '
                          'Welche zusätzliche Datenquelle hilft am ehesten, den konkreten '
                          'Hersteller zu bestimmen?',
-             'prompt_en': 'A device\'s DHCP fingerprint only shows "generic Android." Which '
+             'prompt_en': 'A device\'s DHCP fingerprint only shows “generic Android.” Which '
                          'additional data source is most likely to help determine the specific '
                          'manufacturer?',
              'answer': 1,
@@ -299,15 +299,15 @@ NAC_PROFILING_MODULE = {
                    'sollte“.',
              'en': '## Profiling as a Safeguard for MAB\n\n'
                    'MAB (MAC Authentication Bypass) only checks a MAC address against a list — MAB '
-                   'delivers no more proof than "this MAC address is on the list." This is exactly '
+                   'delivers no more proof than “this MAC address is on the list.” This is exactly '
                    'where profiling comes in: it additionally checks whether the device behind '
                    'that MAC address actually behaves like the claimed device type.\n\n'
                    'If a MAC address is listed as a label printer on the MAB list, but the '
                    'profiling system observes the DHCP fingerprint and traffic pattern of a '
                    'full-fledged laptop operating system, that is a clear warning sign. Profiling '
-                   'is thus the second layer of scrutiny that MAB lacks: not just "is this MAC '
-                   'address on the list," but "does the device actually behave the way it '
-                   'should."',
+                   'is thus the second layer of scrutiny that MAB lacks: not just “is this MAC '
+                   'address on the list,” but “does the device actually behave the way it '
+                   'should.”',
          }},
         {'type': 'text', 'id': 'text-5',
          'value': {
@@ -342,7 +342,7 @@ NAC_PROFILING_MODULE = {
             'id': 'text-mac-randomisierung',
             'value': {
                 'de': '## Stolperstein: zufällige MAC-Adressen\n\nProfiling hängt am Schlüssel **MAC-Adresse** — und genau der ist bei modernen Endgeräten im WLAN nicht mehr stabil. iOS (ab Version 14), Android (ab Version 10) und Windows können sich mit einer **zufälligen MAC-Adresse** anmelden; bei iOS und Android ist das die Voreinstellung, und zwar mit einer eigenen Adresse je WLAN. Neuere Versionen wechseln sie in schwach gesicherten Netzen zusätzlich regelmäßig.\n\nDie Folgen für das Profiling:\n\n- **Die OUI sagt nichts mehr aus.** Zufällige Adressen sind als „lokal verwaltet“ markiert — erkennbar am zweiten Hex-Zeichen 2, 6, A oder E (z. B. `da:a1:19:…`). Eine Herstellersuche läuft ins Leere.\n- **Ein Gerät, mehrere Datensätze.** Dasselbe Smartphone erscheint je SSID (und nach einem Adresswechsel erneut) als neues, unbekanntes Gerät.\n- **MAC-basierte Listen altern.** Registrierungen, die an der MAC-Adresse hängen, passen irgendwann nicht mehr.\n\nFür verkabelte Drucker, Kameras und Scanner ändert sich nichts — sie nutzen ihre feste Hardware-Adresse. Für Smartphones und Notebooks gilt: Die Identität gehört an ein **Zertifikat oder Benutzerkonto** (802.1X), nicht an die MAC-Adresse; für verwaltete Geräte lässt sich die Randomisierung für die Firmen-SSID per MDM-Profil abschalten.',
-                'en': '## Pitfall: Randomized MAC Addresses\n\nProfiling hinges on the key **MAC address** — and for modern endpoints on Wi-Fi that key is no longer stable. iOS (from version 14), Android (from version 10), and Windows can join with a **randomized MAC address**; on iOS and Android this is the default, with a separate address per Wi-Fi network. Newer versions additionally rotate it regularly on weakly secured networks.\n\nThe consequences for profiling:\n\n- **The OUI no longer tells you anything.** Random addresses are flagged as "locally administered" — recognizable by the second hex character 2, 6, A, or E (e.g. `da:a1:19:…`). A vendor lookup comes up empty.\n- **One device, several records.** The same smartphone appears per SSID (and again after an address change) as a new, unknown device.\n- **MAC-based lists age.** Registrations tied to the MAC address eventually stop matching.\n\nNothing changes for wired printers, cameras, and scanners — they use their fixed hardware address. For smartphones and laptops: identity belongs on a **certificate or user account** (802.1X), not on the MAC address; for managed devices randomization can be turned off for the corporate SSID via an MDM profile.',
+                'en': '## Pitfall: Randomized MAC Addresses\n\nProfiling hinges on the key **MAC address** — and for modern endpoints on Wi-Fi that key is no longer stable. iOS (from version 14), Android (from version 10), and Windows can join with a **randomized MAC address**; on iOS and Android this is the default, with a separate address per Wi-Fi network. Newer versions additionally rotate it regularly on weakly secured networks.\n\nThe consequences for profiling:\n\n- **The OUI no longer tells you anything.** Random addresses are flagged as “locally administered” — recognizable by the second hex character 2, 6, A, or E (e.g., `da:a1:19:…`). A vendor lookup comes up empty.\n- **One device, several records.** The same smartphone appears per SSID (and again after an address change) as a new, unknown device.\n- **MAC-based lists age.** Registrations tied to the MAC address eventually stop matching.\n\nNothing changes for wired printers, cameras, and scanners — they use their fixed hardware address. For smartphones and laptops: identity belongs on a **certificate or user account** (802.1X), not on the MAC address; for managed devices randomization can be turned off for the corporate SSID via an MDM profile.',
             },
         },
         {'type': 'debug', 'id': 'debug-1',
@@ -351,9 +351,9 @@ NAC_PROFILING_MODULE = {
                          'Etikettendruckers zeigt seit einer Stunde einen DHCP-Fingerprint und ein '
                          'Verkehrsmuster, das zu einem vollwertigen Windows-Laptop passt.“ Welche '
                          'der folgenden Aussagen zu diesem Bild ist falsch?',
-             'prompt_en': 'An alert reports: "Device with the MAC address of a registered label '
+             'prompt_en': 'An alert reports: “Device with the MAC address of a registered label '
                          'printer has shown, for the past hour, a DHCP fingerprint and traffic '
-                         'pattern matching a full Windows laptop." Which of the following '
+                         'pattern matching a full Windows laptop.” Which of the following '
                          'statements about this situation is false?',
              'lines_de': [
                  'Das Muster passt zu MAC-Spoofing kombiniert mit einem falschen Geräteprofil',
@@ -410,7 +410,7 @@ NAC_PROFILING_MODULE = {
             'id': 'scenario-profil-alarm',
             'payload': {
                 'title_de': 'Der Drucker, der sich wie ein Laptop verhält',
-                'title_en': 'The printer that behaves like a laptop',
+                'title_en': 'The Printer That Behaves Like a Laptop',
                 'start': 'start',
                 'nodes': [
                     {
@@ -526,7 +526,7 @@ NAC_PROFILING_MODULE = {
          },
          'explanation': {
              'de': 'Eine Regel wie „Drucker ins Drucker-VLAN“ setzt voraus, dass das System Drucker erkennt. Eine gesetzliche Pflicht oder eine technische Abhängigkeit von RADIUS gibt es dabei nicht.',
-             'en': 'A rule like "printers into the printer VLAN" presupposes that the system recognizes printers. There is neither a legal obligation nor a technical dependency of RADIUS involved.',
+             'en': 'A rule like “printers into the printer VLAN” presupposes that the system recognizes printers. There is neither a legal obligation nor a technical dependency of RADIUS involved.',
          }},
         {'id': 'pf2', 'type': 'single',
          'prompt': {'de': 'Was liefert DHCP-Fingerprinting typischerweise?',
@@ -653,15 +653,15 @@ NAC_PROFILING_MODULE = {
             'answer': 1,
             'explanation': {
                 'de': 'Das zweite Hex-Zeichen „a“ zeigt das gesetzte „lokal verwaltet“-Bit — typisch für die privaten WLAN-Adressen von iOS, Android und Windows. Solche Adressen sind keinem Hersteller zugeordnet; die Datenbank ist in Ordnung.',
-                'en': 'The second hex character "a" shows the "locally administered" bit being set — typical of the private Wi-Fi addresses of iOS, Android, and Windows. Such addresses are not assigned to any vendor; the database is fine.',
+                'en': 'The second hex character “a” shows the “locally administered” bit being set — typical of the private Wi-Fi addresses of iOS, Android, and Windows. Such addresses are not assigned to any vendor; the database is fine.',
             },
         },
         {
             'id': 'pf7',
             'type': 'multi',
             'prompt': {
-                'de': 'Eine IP-Kamera ist mit statischer IP-Adresse konfiguriert und sendet nie eine DHCP-Anfrage. Welche Quellen können trotzdem zum Profil beitragen? (Mehrere richtig)',
-                'en': 'An IP camera is configured with a static IP address and never sends a DHCP request. Which sources can still contribute to the profile? (Several correct)',
+                'de': 'Eine IP-Kamera ist mit statischer IP-Adresse konfiguriert und sendet nie eine DHCP-Anfrage. Welche Quellen können trotzdem zum Profil beitragen? Mehrere Antworten sind richtig.',
+                'en': 'An IP camera is configured with a static IP address and never sends a DHCP request. Which sources can still contribute to the profile? Select all that apply.',
             },
             'options': {
                 'de': [

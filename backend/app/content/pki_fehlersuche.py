@@ -29,9 +29,9 @@ ZERT_FEHLERSUCHE_MODULE = {
               'Laptop geht es, auf dem anderen nicht". Statt jedes Ticket von Grund auf neu zu '
               'untersuchen, brauchst du ein systematisches Vorgehen — und ein Repertoire an '
               'wiederkehrenden Fehlerbildern, die du auf den ersten Blick erkennst.',
-        'en': 'The Nordwind Logistik helpdesk sees TLS tickets every day: "The website shows a '
-              'security error", "Our payment service cannot connect", "It works on one laptop but not '
-              'the other". Instead of investigating every ticket from scratch, you need a systematic '
+        'en': 'The Nordwind Logistik helpdesk sees TLS tickets every day: “The website shows a '
+              'security error,” “Our payment service cannot connect,” “It works on one laptop but not '
+              'the other.” Instead of investigating every ticket from scratch, you need a systematic '
               'approach — and a repertoire of recurring fault patterns you recognize at a glance.',
     },
     'blocks': [
@@ -51,7 +51,7 @@ ZERT_FEHLERSUCHE_MODULE = {
                    'Diese Einordnung dauert oft nur Sekunden, spart aber den Umweg über Hypothesen, '
                    'die von vornherein nicht zur Meldung passen. Die folgenden Blöcke gehen die '
                    'häufigsten Bilder der Reihe nach durch.',
-             'en': '## Identify the Layer First, Then Go into Detail\n\n'
+             'en': '## Identify the Layer First, Then Go Into Detail\n\n'
                    'A TLS error message rarely tells you directly what to do — but it almost always '
                    'narrows down **which layer** the problem is on:\n\n'
                    '- Is it about the **certificate itself** (expired, wrong name)?\n'
@@ -104,11 +104,11 @@ ZERT_FEHLERSUCHE_MODULE = {
          'payload': {
              'kind': 'compare',
              'title_de': 'Acht Fehlerbilder auf einen Blick',
-             'title_en': 'Eight fault patterns at a glance',
+             'title_en': 'Eight Fault Patterns at a Glance',
              'columns': [
-                    {'title_de': 'Chrome zeigt', 'title_en': 'Chrome shows'},
-                    {'title_de': 'openssl / curl melden', 'title_en': 'openssl / curl report'},
-                    {'title_de': 'Zuerst prüfen', 'title_en': 'First check'},
+                    {'title_de': 'Chrome zeigt', 'title_en': 'Chrome Shows'},
+                    {'title_de': 'openssl / curl melden', 'title_en': 'openssl / curl Report'},
+                    {'title_de': 'Zuerst prüfen', 'title_en': 'First Check'},
                 ],
              'rows': [
                     {
@@ -197,8 +197,8 @@ ZERT_FEHLERSUCHE_MODULE = {
                  'themselves** — either from cached intermediates seen in earlier connections, or via the **AIA '
                  'extension** (Authority Information Access) in the certificate, which points to where the '
                  'missing intermediate can be fetched.\n- `curl`, many programming-language libraries, and Java '
-                 '**do not do this** — they rely on the server sending the complete chain itself.\n\nSo "works '
-                 'in the browser, fails in the application" is almost always a sign of a **server-side '
+                 '**do not do this** — they rely on the server sending the complete chain itself.\n\nSo “works '
+                 'in the browser, fails in the application” is almost always a sign of a **server-side '
                  'incomplete certificate chain**, not a problem with the particular application.\n\n**Note that '
                  'the same message has two possible causes:** `unable to get local issuer certificate` '
                  'literally only means that the client cannot find a local issuer for some certificate in the '
@@ -250,7 +250,7 @@ ZERT_FEHLERSUCHE_MODULE = {
              'en': '## Name Mismatch and Access via IP\n\n'
                    'A name mismatch occurs when the requested hostname does not appear in any entry '
                    'of the SAN list (Subject Alternative Names). Two common triggers:\n\n'
-                   '- The SAN list simply was not kept complete at issuance time (e.g. a new '
+                   '- The SAN list simply was not kept complete at issuance time (e.g., a new '
                    'subdomain went live but was never added to the certificate).\n'
                    '- The server is accessed **via an IP address instead of the hostname** — a certificate '
                    'issued only for hostnames does not cover an IP address, even if that IP clearly '
@@ -317,7 +317,7 @@ ZERT_FEHLERSUCHE_MODULE = {
                    'store.\n\n'
                    'Practical consequence: an internal root CA can be cleanly distributed into the '
                    'Windows trust store via Group Policy — and a Java application on the very same '
-                   'machine still reports "unknown issuer", because nobody additionally imported the '
+                   'machine still reports “unknown issuer”, because nobody additionally imported the '
                    'internal root into the `cacerts` store. The problem then is not the certificate '
                    'itself, but **which** trust store the particular program actually uses.',
          }},
@@ -331,7 +331,7 @@ ZERT_FEHLERSUCHE_MODULE = {
                  '**uneinheitlich**. Chrome meldet `NET::ERR_CERT_REVOKED`, sofern die Sperre in seinen '
                  'vorverteilten Sperrdaten steht. `openssl verify` und `s_client` melden `certificate revoked` '
                  '(Code 23) nur, wenn du die Sperrprüfung mit `-crl_check` einschaltest — und `curl` mit OpenSSL '
-                 '(Linux, macOS) prüft den Sperrstatus standardmäßig gar nicht und verbindet sich klaglos; '
+                 '(Linux) oder LibreSSL (System-curl unter macOS) prüft den Sperrstatus standardmäßig gar nicht und verbindet sich klaglos; '
                  'unter Windows prüft curl mit Schannel ihn dagegen. „In curl geht es, im Browser '
                  'nicht“ ist also das Spiegelbild der unvollständigen Kette. Abhilfe: neues Zertifikat mit '
                  'neuem Schlüssel einspielen — ein Widerruf lässt sich nicht zurücknehmen.\n\n**Falscher '
@@ -349,8 +349,8 @@ ZERT_FEHLERSUCHE_MODULE = {
                  'reports `NET::ERR_CERT_REVOKED` if the revocation is in its pre-distributed revocation data. '
                  '`openssl verify` and `s_client` only report `certificate revoked` (code 23) if you switch on '
                  'revocation checking with `-crl_check` — and `curl` built on OpenSSL '
-                 '(Linux, macOS) does not check revocation status by default at all and connects without '
-                 'complaint; on Windows, curl with Schannel does check it. "Works in curl, fails in the browser" is thus '
+                 '(Linux) or LibreSSL (the system curl on macOS) does not check revocation status by default at all and connects without '
+                 'complaint; on Windows, curl with Schannel does check it. “Works in curl, fails in the browser” is thus '
                  'the mirror image of the incomplete chain. Remedy: deploy a new certificate with a new key — a '
                  'revocation cannot be undone.\n\n**Wrong purpose (EKU).** The certificate is valid but was '
                  'issued for a different purpose: a certificate with only `clientAuth` on a web server, or '
@@ -358,7 +358,7 @@ ZERT_FEHLERSUCHE_MODULE = {
                  '`unsuitable certificate purpose` (code 26). Typical causes are a wrong certificate template '
                  'at the internal CA — or, now that public CAs no longer put `clientAuth` into TLS '
                  'certificates, a public certificate that used to double as a client certificate. Check: '
-                 '`openssl x509 -in cert.pem -noout -purpose` or the "Extended Key Usage" section of the text '
+                 '`openssl x509 -in cert.pem -noout -purpose` or the “Extended Key Usage” section of the text '
                  'output.'),
             },
         },
@@ -369,7 +369,7 @@ ZERT_FEHLERSUCHE_MODULE = {
              'Zusatz "OpenSSL verify result" und ohne Code in Klammern (geprüft mit curl 8.7).'),
          'payload': {
              'title_de': 'Fünf Server, fünf curl-Fehler',
-             'title_en': 'Five servers, five curl errors',
+             'title_en': 'Five Servers, Five curl Errors',
              'prompt': 'helpdesk$',
              'intro_de': 'Fünf Tickets, fünf Server. Finde je Server die Ursache.',
              'intro_en': 'Five tickets, five servers. Find the cause for each server.',
@@ -461,9 +461,9 @@ ZERT_FEHLERSUCHE_MODULE = {
                           '\'unable to find valid certification path\' gegen den internen '
                           'API-Server. Im Browser auf demselben Rechner funktioniert alles normal." '
                           'Vier Interpretationen dazu — welche ist falsch?',
-             'prompt_en': 'A ticket reads: "Since today, our Java batch job reports \'unable to '
+             'prompt_en': 'A ticket reads: “Since today, our Java batch job reports \'unable to '
                           'find valid certification path\' against the internal API server. In the '
-                          'browser on the same machine, everything works normally." Four '
+                          'browser on the same machine, everything works normally.” Four '
                           'interpretations — which one is false?',
              'lines_de': [
                  'Die interne CA ist vermutlich im Windows-Trust-Store vorhanden, aber nicht im '
@@ -478,7 +478,7 @@ ZERT_FEHLERSUCHE_MODULE = {
                  'The internal CA is presumably present in the Windows trust store, but not in the '
                  'Java `cacerts` store',
                  'The browser checks a different trust store in this case than the Java batch job',
-                 'Since it has been happening "since today", the cause must necessarily be the rollout of a new DNS view',
+                 'Since it has been happening “since today,” the cause must necessarily be the rollout of a new DNS view',
                  'A sensible next step is to check the Java environment\'s `cacerts` store for the '
                  'internal root CA',
              ],
@@ -491,9 +491,9 @@ ZERT_FEHLERSUCHE_MODULE = {
                                'seinen eigenen `cacerts`-Store mit, in den die interne Root-CA '
                                'separat importiert werden muss.',
              'explanation_en': 'DNS views have nothing to do with a trust store problem — this is a '
-                               'pure red herring that latches onto the phrase "since today" without '
-                               'fitting technically. The pattern ("browser fine, Java application '
-                               'reports a trust error on the same machine") is a classic trust-store '
+                               'pure red herring that latches onto the phrase “since today” without '
+                               'fitting technically. The pattern (“browser fine, Java application '
+                               'reports a trust error on the same machine”) is a classic trust-store '
                                'difference between the operating system and Java — Java ships its own '
                                '`cacerts` store, into which the internal root CA must be imported '
                                'separately.',
@@ -559,7 +559,7 @@ ZERT_FEHLERSUCHE_MODULE = {
              'en': '## The Enterprise Case: the TLS-Inspecting Firewall\n\n'
                    'In many companies, outbound traffic passes through a **TLS-inspecting firewall or '
                    'proxy**: the device terminates the TLS connection, inspects the decrypted content '
-                   '(e.g. for malware or data-loss-prevention rules), and then establishes a new TLS '
+                   '(e.g., for malware or data-loss-prevention rules), and then establishes a new TLS '
                    'connection using a **certificate from the internal company CA**. The client thus '
                    'never sees the destination\'s original certificate, only one freshly issued by the '
                    'internal CA.\n\n'
@@ -601,7 +601,7 @@ ZERT_FEHLERSUCHE_MODULE = {
         {'type': 'scenario', 'id': 'scenario-ticket-nach-zertifikatswechsel',
          'payload': {
              'title_de': 'Ticket: „Seit dem Zertifikatswechsel geht der Batchjob nicht mehr“',
-             'title_en': 'Ticket: "The batch job has been failing since the certificate change"',
+             'title_en': 'Ticket: “The Batch Job Has Been Failing Since the Certificate Change”',
              'start': 'start',
              'nodes': [
                     {
@@ -636,7 +636,7 @@ ZERT_FEHLERSUCHE_MODULE = {
                      'text_de': ('Ohne Prüfung akzeptieren die Programme jedes Zertifikat — auch das eines Angreifers. '
                          'Solche „vorübergehenden“ Schalter bleiben erfahrungsgemäß jahrelang im Code.'),
                      'text_en': ("Without verification the programs accept any certificate — an attacker's too. Such "
-                         '"temporary" switches tend to stay in the code for years.'),
+                         '“temporary” switches tend to stay in the code for years.'),
                     },
                     {
                      'id': 'import',
@@ -650,8 +650,8 @@ ZERT_FEHLERSUCHE_MODULE = {
                      'id': 'sclient',
                      'text_de': ('Die Ausgabe zeigt unter „Certificate chain“ nur Eintrag 0 und endet mit „Verify '
                          'return code: 21“. Was ist die richtige Abhilfe?'),
-                     'text_en': ('The output shows only entry 0 under "Certificate chain" and ends with "Verify return '
-                         'code: 21". What is the right fix?'),
+                     'text_en': ('The output shows only entry 0 under “Certificate chain” and ends with “Verify return '
+                         'code: 21”. What is the right fix?'),
                      'options': [
                             {
                              'label_de': 'Am Server die vollständige Kette (Zertifikat + Intermediate) konfigurieren',
@@ -743,12 +743,12 @@ ZERT_FEHLERSUCHE_MODULE = {
               'das Zertifikat einen SAN-Eintrag vom Typ „IP Address“ enthält. TLS selbst funktioniert mit '
               'IP-Adressen problemlos.'),
           'en': ('What gets checked is the name the client used — here the IP address. It only matches if the '
-              'certificate contains a SAN entry of type "IP Address". TLS itself works fine with IP addresses.'),
+              'certificate contains a SAN entry of type “IP Address”. TLS itself works fine with IP addresses.'),
          }},
         {'id': 'zf3', 'type': 'single',
          'prompt': {'de': 'Warum kann ein an sich gültiges Zertifikat für einen einzelnen Client '
                          'als "noch nicht gültig" erscheinen?',
-                    'en': 'Why can an otherwise valid certificate appear "not yet valid" to a single '
+                    'en': 'Why can an otherwise valid certificate appear “not yet valid” to a single '
                          'client?'},
          'answer': 2,
          'options': {
@@ -766,14 +766,14 @@ ZERT_FEHLERSUCHE_MODULE = {
               'wirkt ein frisch ausgestelltes Zertifikat „noch nicht gültig“. Betrifft der Fehler nur einen '
               'Client, ist die Uhr der erste Verdächtige.'),
           'en': ('The client compares notBefore/notAfter with its own clock. If that is set in the past, a freshly '
-              'issued certificate looks "not yet valid". If the error affects only one client, the clock is the '
+              'issued certificate looks “not yet valid”. If the error affects only one client, the clock is the '
               'first suspect.'),
          }},
         {'id': 'zf4', 'type': 'single',
          'prompt': {'de': 'Eine interne CA ist im Windows-Trust-Store vorhanden. Eine Java-Anwendung '
                          'auf demselben Rechner meldet trotzdem "unbekannter Aussteller". Warum?',
                     'en': 'An internal CA is present in the Windows trust store. A Java application '
-                         'on the same machine still reports "unknown issuer". Why?'},
+                         'on the same machine still reports “unknown issuer”. Why?'},
          'answer': 3,
          'options': {
              'de': ['Java unterstützt grundsätzlich kein TLS',
@@ -825,7 +825,7 @@ ZERT_FEHLERSUCHE_MODULE = {
                  'vom selben Rechner meldet dagegen „SSL certificate verified“ und bekommt HTTP 200. Wie passt '
                  'das zusammen?'),
              'en': ('Chrome blocks https://shop.nordwind-logistik.de with NET::ERR_CERT_REVOKED. A `curl -v` from '
-                 'the same machine, however, reports "SSL certificate verified" and gets HTTP 200. How does '
+                 'the same machine, however, reports “SSL certificate verified” and gets HTTP 200. How does '
                  'that fit together?'),
             },
          'options': {
@@ -847,17 +847,17 @@ ZERT_FEHLERSUCHE_MODULE = {
              'de': ('Kette, Name und Laufzeit sind in Ordnung, deshalb ist curl zufrieden. Den Widerruf kennt nur, '
                  'wer ihn prüft: der Browser über seine vorverteilten Sperrdaten, openssl erst mit '
                  '`-crl_check`. Ein „verified“ von curl ist also kein Beweis gegen einen Widerruf. '
-                 '(Das gilt für curl mit OpenSSL; unter Windows prüft curl mit Schannel den Sperrstatus.)'),
+                 '(Das gilt für curl mit OpenSSL unter Linux und mit LibreSSL im System-curl von macOS; unter Windows prüft curl mit Schannel den Sperrstatus.)'),
              'en': ('Chain, name, and validity are fine, so curl is satisfied. Revocation is only known to those '
                  'who check it: the browser via its pre-distributed revocation data, openssl only with '
-                 '`-crl_check`. A "verified" from curl is therefore no evidence against a revocation. '
-                 '(This holds for curl built on OpenSSL; on Windows, curl with Schannel does check revocation.)'),
+                 '`-crl_check`. A “verified” from curl is therefore no evidence against a revocation. '
+                 '(This holds for curl built on OpenSSL on Linux and on LibreSSL in the macOS system curl; on Windows, curl with Schannel does check revocation.)'),
             },
         },
         {'id': 'zf7', 'type': 'multi',
          'prompt': {
              'de': 'curl meldet „unable to get local issuer certificate“. Welche Ursachen kommen dafür infrage?',
-             'en': 'curl reports "unable to get local issuer certificate". Which causes are possible?',
+             'en': 'curl reports “unable to get local issuer certificate”. Which causes are possible?',
             },
          'options': {
              'de': [
@@ -881,8 +881,8 @@ ZERT_FEHLERSUCHE_MODULE = {
                  'matches“.'),
              'en': ('The message only says: for some certificate in the chain the issuer is missing locally. That '
                  "can be the server's fault (intermediate missing) or the client's (root missing). Expiry and "
-                 'name errors have their own messages: "certificate has expired" and "no alternative '
-                 'certificate subject name matches".'),
+                 'name errors have their own messages: “certificate has expired” and “no alternative '
+                 'certificate subject name matches”.'),
             },
         },
         {'id': 'zf8', 'type': 'single',
@@ -891,7 +891,7 @@ ZERT_FEHLERSUCHE_MODULE = {
                  'Webserver: „Verify return code: 26 (unsuitable certificate purpose)“. Kette, Name und '
                  'Laufzeit stimmen. Was ist passiert?'),
              'en': ('After renewing a certificate via the internal CA, `openssl s_client` reports for the web '
-                 'server: "Verify return code: 26 (unsuitable certificate purpose)". Chain, name, and validity '
+                 'server: “Verify return code: 26 (unsuitable certificate purpose)”. Chain, name, and validity '
                  'are correct. What happened?'),
             },
          'options': {
@@ -913,7 +913,7 @@ ZERT_FEHLERSUCHE_MODULE = {
              'de': ('„Purpose“ verweist auf die Extended Key Usage: Enthält das Zertifikat nur clientAuth, darf es '
                  'nicht als TLS-Server auftreten. Abhilfe ist eine Neuausstellung aus der richtigen Vorlage — '
                  'nachträglich ändern lässt sich ein signiertes Zertifikat nicht.'),
-             'en': ('"Purpose" points to the Extended Key Usage: if the certificate contains only clientAuth, it '
+             'en': ('“Purpose” points to the Extended Key Usage: if the certificate contains only clientAuth, it '
                  'must not act as a TLS server. The fix is re-issuing from the correct template — a signed '
                  'certificate cannot be changed afterwards.'),
             },

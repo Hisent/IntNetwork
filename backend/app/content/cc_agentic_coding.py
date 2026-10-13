@@ -50,8 +50,8 @@ AGENTIC_CODING_MODULE = {'key': 'agentic-coding',
                              'do this, it uses **tools**: reading/writing files, running a shell, '
                              'searching the web, working with Git.\n'
                              '\n'
-                             '> Rule of thumb: Autocomplete answers "How does this line continue?" '
-                             '— an agent answers "Get this task done."'},
+                             '> Rule of thumb: Autocomplete answers “How does this line continue?” '
+                             '— an agent answers “Get this task done.”'},
              'note': 'Den Unterschied Autocomplete↔Agent an einem echten Beispiel vorführen: Ziel '
                      'beschreiben statt Zeile vervollständigen.'},
             {'type': 'text', 'id': 'text-2',
@@ -89,7 +89,7 @@ AGENTIC_CODING_MODULE = {'key': 'agentic-coding',
                      'Nächstes zu tun ist? (Aus dem Ergebnis des vorigen Tool-Aufrufs.)',
              'payload': {'kind': 'sequence',
                          'title_de': 'Die Agenten-Schleife an einem Beispiel',
-                         'title_en': 'The agent loop in one example',
+                         'title_en': 'The Agent Loop in One Example',
                          'caption_de': 'Die Doku nennt die Phasen: Kontext sammeln, handeln, '
                                        'Ergebnis prüfen – bis die Aufgabe erledigt ist.',
                          'caption_en': 'The docs name the phases: gather context, take action, '
@@ -291,7 +291,7 @@ AGENTIC_CODING_MODULE = {'key': 'agentic-coding',
              'note': 'Vorgriff auf Modul 4 (Berechtigungsmodi). Im Plenum abstimmen lassen; die '
                      'Modi werden dort im Detail erklärt.',
              'payload': {'title_de': 'Wie viel Autonomie für welche Aufgabe?',
-                         'title_en': 'How much autonomy for which task?',
+                         'title_en': 'How Much Autonomy for Which Task?',
                          'start': 'start',
                          'nodes': [{'id': 'start',
                                     'text_de': 'Du sollst in einem Repo, das du nicht kennst, das '
@@ -473,8 +473,8 @@ AGENTIC_CODING_MODULE = {'key': 'agentic-coding',
                                                'stops at the next line.'}},
                         {'id': 'ac2',
                          'type': 'multi',
-                         'prompt': {'de': 'Welche Schritte gehören zur Agenten-Schleife? (mehrere)',
-                                    'en': 'Which steps are part of the agent loop? (multiple)'},
+                         'prompt': {'de': 'Welche Schritte gehören zur Agenten-Schleife? Mehrere Antworten sind richtig.',
+                                    'en': 'Which steps are part of the agent loop? Select all that apply.'},
                          'answer': [0, 1, 2, 3],
                          'options': {'de': ['Wahrnehmen/Lesen',
                                             'Planen',
@@ -496,8 +496,8 @@ AGENTIC_CODING_MODULE = {'key': 'agentic-coding',
                                                'context window.'}},
                         {'id': 'ac3',
                          'type': 'multi',
-                         'prompt': {'de': 'Auf welchen Oberflächen läuft Claude Code? (mehrere)',
-                                    'en': 'On which surfaces does Claude Code run? (multiple)'},
+                         'prompt': {'de': 'Auf welchen Oberflächen läuft Claude Code? Mehrere Antworten sind richtig.',
+                                    'en': 'On which surfaces does Claude Code run? Select all that apply.'},
                          'answer': [0, 1, 2],
                          'options': {'de': ['Terminal/CLI',
                                             'IDE (VS Code, JetBrains)',
@@ -544,7 +544,7 @@ AGENTIC_CODING_MODULE = {'key': 'agentic-coding',
                          'prompt': {'de': 'Der Agent meldet „Fertig, alle Tests grün“. Im Diff '
                                           'siehst du, dass er den fehlschlagenden Test gelöscht '
                                           'hat. Wie bewertest du das?',
-                                    'en': 'The agent reports "Done, all tests green". In the diff '
+                                    'en': 'The agent reports “Done, all tests green.” In the diff '
                                           'you see that it deleted the failing test. How do you '
                                           'assess this?'},
                          'answer': 0,
@@ -569,13 +569,13 @@ AGENTIC_CODING_MODULE = {'key': 'agentic-coding',
                                                'intended goal. That is exactly why the success '
                                                'message is not enough: you check the diff and the '
                                                'test run and tighten the instruction, for example '
-                                               '"tests must not be removed".'}},
+                                               '“tests must not be removed.”'}},
                         {'id': 'ac6',
                          'type': 'multi',
                          'prompt': {'de': 'Welche Aufgaben eignen sich gut für einen '
-                                          'Coding-Agenten? (mehrere)',
+                                          'Coding-Agenten? Mehrere Antworten sind richtig.',
                                     'en': 'Which tasks are a good fit for a coding agent? '
-                                          '(multiple)'},
+                                          'Select all that apply.'},
                          'answer': [0, 1],
                          'options': {'de': ['Tests für bisher ungetesteten Code schreiben und '
                                             'ausführen',

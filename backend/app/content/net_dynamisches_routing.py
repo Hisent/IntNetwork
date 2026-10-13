@@ -96,7 +96,7 @@ DYNAMISCHES_ROUTING_MODULE = {
          "payload": {
              "kind": "sequence",
              "title_de": "OSPF: von zwei Fremden zur vollen Nachbarschaft",
-             "title_en": "OSPF: from two strangers to full adjacency",
+             "title_en": "OSPF: From Two Strangers to Full Adjacency",
              "caption_de": "Transfernetz 10.0.0.0/30 zwischen Zentrale und Lager",
              "caption_en": "Transit network 10.0.0.0/30 between headquarters and warehouse",
              "actors": [
@@ -226,7 +226,7 @@ DYNAMISCHES_ROUTING_MODULE = {
                   " hat MTU 1400 statt 1500 — die Nachbarschaft zur Außenstelle bleibt in EXSTART hängen."),
          "payload": {
              "title_de": "OSPF auf R1 prüfen: Nachbarn, Routen, eine Störung",
-             "title_en": "Checking OSPF on R1: neighbors, routes, one fault",
+             "title_en": "Checking OSPF on R1: Neighbors, Routes, One Fault",
              "intro_de": "R1 (Zentrale) hat drei Transferleitungen: Gi1/0 zum Lager, Gi1/1 zum Rechenzentrum, Gi1/2 zur neuen Außenstelle. Tippe ? für Hilfe.",
              "intro_en": "R1 (headquarters) has three transit links: Gi1/0 to the warehouse, Gi1/1 to the data center, Gi1/2 to the new branch office. Type ? for help.",
              "prompt": "r1#", "abbreviations": True,
@@ -247,7 +247,7 @@ DYNAMISCHES_ROUTING_MODULE = {
                  {"cmd": "show ip route ospf",
                   "desc_de": "per OSPF gelernte Routen", "desc_en": "routes learned via OSPF",
                   "output": ("O    10.50.0.0/24 [110/2] via 10.0.0.2, 00:12:41, Gi1/0\n"
-                             "O    10.60.0.0/24 [110/3] via 10.0.0.2, 00:12:41, Gi1/0")},
+                             "O    10.20.0.0/16 [110/3] via 10.0.0.2, 00:12:41, Gi1/0")},
                  {"cmd": "show interfaces Gi1/0 | include MTU", "chip": False,
                   "desc_de": "MTU der Leitung zum Lager", "desc_en": "MTU of the link to the warehouse",
                   "output": "  MTU 1500 bytes, BW 1000000 Kbit/sec, DLY 10 usec,"},
@@ -262,8 +262,8 @@ DYNAMISCHES_ROUTING_MODULE = {
                  {"text_de": "Welcher Nachbar (Router-ID) hat den Zustand FULL nicht erreicht?",
                   "text_en": "Which neighbor (router ID) has not reached the FULL state?",
                   "answers": ["4.4.4.4"]},
-                 {"text_de": "Über welchen Next-Hop geht der Verkehr ins Rechenzentrum 10.60.0.0/24?",
-                  "text_en": "Via which next hop does traffic to the data center 10.60.0.0/24 go?",
+                 {"text_de": "Über welchen Next-Hop geht der Verkehr ins Rechenzentrum 10.20.0.0/16?",
+                  "text_en": "Via which next hop does traffic to the data center 10.20.0.0/16 go?",
                   "answers": ["10.0.0.2"]},
                  {"text_de": "Welche OSPF-Kosten hat die direkte Leitung zum Rechenzentrum (Gi1/1)?",
                   "text_en": "What is the OSPF cost of the direct link to the data center (Gi1/1)?",
@@ -314,7 +314,7 @@ DYNAMISCHES_ROUTING_MODULE = {
                    "vorhersehbarer und ausreichend.",
              "en": "## BGP: Between Networks, Not Inside One\n\n**BGP** (Border Gateway "
                    "Protocol) is often mistaken for an internal routing protocol — wrongly so. "
-                   "BGP runs **between autonomous systems (AS)**, i.e. between the networks of "
+                   "BGP runs **between autonomous systems (AS)**, i.e., between the networks of "
                    "different organizations on the Internet, for example between Internet "
                    "service providers or between a large company and its provider. For routing "
                    "**inside** a company network — like at Nordwind — BGP is not the right "
@@ -371,7 +371,7 @@ DYNAMISCHES_ROUTING_MODULE = {
                 "Die Routing-Tabelle wird mit dem neuen Pfad aktualisiert",
             ],
             "items_en": [
-                "A router notices the failure (e.g. Hello packets stop arriving)",
+                "A router notices the failure (e.g., Hello packets stop arriving)",
                 "It floods an updated link-state advertisement to its neighbors",
                 "All affected routers update their link-state database",
                 "Every router recomputes the shortest path with SPF/Dijkstra",
@@ -442,7 +442,7 @@ DYNAMISCHES_ROUTING_MODULE = {
          "answer": 2,
          "explanation": {
              "de": "15 Hops sind bei RIP das Maximum, das noch erreichbar ist; der Wert 16 bedeutet „unendlich“, also nicht erreichbar. Die naheliegende Antwort 15 ist deshalb knapp daneben.",
-             "en": "15 hops is the maximum that is still reachable in RIP; the value 16 means “infinity”, i.e. unreachable. The obvious answer 15 is therefore a near miss."}},
+             "en": "15 hops is the maximum that is still reachable in RIP; the value 16 means “infinity”, i.e., unreachable. The obvious answer 15 is therefore a near miss."}},
         {"id": "dr5", "type": "single",
          "prompt": {"de": "Wo kommt BGP typischerweise zum Einsatz?",
                     "en": "Where is BGP typically used?"},
@@ -500,9 +500,9 @@ DYNAMISCHES_ROUTING_MODULE = {
                    "on ALL routers."}},
         {"id": "dr8", "type": "multi",
          "prompt": {"de": "Zwei direkt verbundene Router werden keine OSPF-Nachbarn. Welche Unterschiede "
-                          "bzw. Zustände verhindern eine Nachbarschaft? (mehrere)",
+                          "bzw. Zustände verhindern eine Nachbarschaft? Mehrere Antworten sind richtig.",
                     "en": "Two directly connected routers do not become OSPF neighbors. Which differences "
-                          "or conditions prevent an adjacency? (multiple)"},
+                          "or conditions prevent an adjacency? Select all that apply."},
          "options": {
              "de": ["Verschiedene Areas auf der gemeinsamen Leitung",
                     "Verschiedene Hello-/Dead-Timer",

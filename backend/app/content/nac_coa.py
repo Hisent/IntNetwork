@@ -39,8 +39,8 @@ NAC_COA_MODULE = {
     'blocks': [
         {'type': 'text', 'id': 'text-1',
          'note': 'CoA wird oft mit einer normalen Re-Authentifizierung verwechselt. '
-                 'Klarstellen: CoA aendert eine laufende Session aktiv von aussen, ohne dass '
-                 'der Client selbst eine neue Anmeldung anstoesst.',
+                 'Klarstellen: CoA ändert eine laufende Session aktiv von außen, ohne dass '
+                 'der Client selbst eine neue Anmeldung anstößt.',
          'value': {
              'de': '## Change of Authorization (CoA): Rechte ändern, ohne neu anzumelden\n\n'
                    '**Change of Authorization (CoA)**, spezifiziert in **RFC 5176**, ist eine '
@@ -165,7 +165,7 @@ NAC_COA_MODULE = {
             'payload': {
                 'kind': 'sequence',
                 'title_de': 'CoA: die Richtung kehrt sich um',
-                'title_en': 'CoA: the direction is reversed',
+                'title_en': 'CoA: the Direction Is Reversed',
                 'caption_de': 'Hier fragt der Server den Switch — UDP 3799 (Cisco: 1700).',
                 'caption_en': 'Here the server asks the switch — UDP 3799 (Cisco: 1700).',
                 'actors': [
@@ -291,7 +291,7 @@ NAC_COA_MODULE = {
                     },
                 ],
                 'explanation_de': 'Bei CoA ist der Switch der Server und der Policy-Server der Client — deshalb „client“. Standardmäßig verwirft der Switch CoA-Anfragen von Absendern, die hier nicht eingetragen sind.',
-                'explanation_en': 'For CoA the switch is the server and the policy server the client — hence "client". By default the switch drops CoA requests from senders that are not listed here.',
+                'explanation_en': 'For CoA the switch is the server and the policy server the client — hence “client”. By default the switch drops CoA requests from senders that are not listed here.',
             },
         },
         {'type': 'reveal', 'id': 'reveal-1',
@@ -363,13 +363,13 @@ NAC_COA_MODULE = {
             'id': 'scenario-coa-fehler',
             'payload': {
                 'title_de': 'Die CoA kommt nicht an',
-                'title_en': 'The CoA does not arrive',
+                'title_en': 'The CoA Does Not Arrive',
                 'start': 'start',
                 'nodes': [
                     {
                         'id': 'start',
                         'text_de': 'Die Endpoint-Protection meldet ein Notebook als nicht konform. Der Policy-Server protokolliert „CoA failed — no response from network device“, das Notebook behält vollen Zugriff. Normale Anmeldungen am selben Switch funktionieren. Was prüfst du zuerst?',
-                        'text_en': 'Endpoint protection reports a laptop as non-compliant. The policy server logs "CoA failed — no response from network device", the laptop keeps full access. Normal logins on the same switch work. What do you check first?',
+                        'text_en': 'Endpoint protection reports a laptop as non-compliant. The policy server logs “CoA failed — no response from network device”, the laptop keeps full access. Normal logins on the same switch work. What do you check first?',
                         'options': [
                             {
                                 'label_de': 'Den Nutzer bitten, das Kabel kurz zu ziehen',
@@ -403,7 +403,7 @@ NAC_COA_MODULE = {
                     {
                         'id': 'client',
                         'text_de': 'Der Eintrag „aaa server radius dynamic-author“ mit dem richtigen Client und Schlüssel ist vorhanden. Der Zähler für empfangene CoA-Anfragen auf dem Switch steht auf 0. Was nun?',
-                        'text_en': 'The "aaa server radius dynamic-author" entry with the correct client and key exists. The counter for received CoA requests on the switch is at 0. What now?',
+                        'text_en': 'The “aaa server radius dynamic-author” entry with the correct client and key exists. The counter for received CoA requests on the switch is at 0. What now?',
                         'options': [
                             {
                                 'label_de': 'Firewall und Port prüfen: Erreicht die CoA den Port, auf dem der Switch lauscht (1700 oder 3799)?',
@@ -588,7 +588,7 @@ NAC_COA_MODULE = {
             'type': 'single',
             'prompt': {
                 'de': 'Der Policy-Server schickt einen CoA-Request, der Switch antwortet mit CoA-NAK und „Error-Cause = 503 (Session Context Not Found)“. Was bedeutet das?',
-                'en': 'The policy server sends a CoA-Request, the switch answers with a CoA-NAK and "Error-Cause = 503 (Session Context Not Found)". What does that mean?',
+                'en': 'The policy server sends a CoA-Request, the switch answers with a CoA-NAK and “Error-Cause = 503 (Session Context Not Found)”. What does that mean?',
             },
             'options': {
                 'de': [
@@ -614,8 +614,8 @@ NAC_COA_MODULE = {
             'id': 'co7',
             'type': 'multi',
             'prompt': {
-                'de': 'Welche Aussagen zu CoA nach RFC 5176 treffen zu? (Mehrere richtig)',
-                'en': 'Which statements about CoA per RFC 5176 are true? (Several correct)',
+                'de': 'Welche Aussagen zu CoA nach RFC 5176 treffen zu? Mehrere Antworten sind richtig.',
+                'en': 'Which statements about CoA per RFC 5176 are true? Select all that apply.',
             },
             'options': {
                 'de': [

@@ -29,8 +29,8 @@ SIGNATUREN_MODULE = {
               'digitale Signatur tatsächlich beweist — und die Verwechslung mit Verschlüsselung '
               'aus der Welt schaffen, bevor sie sich in der Fachabteilung festsetzt.',
         'en': 'Nordwind Logistik GmbH is introducing digitally signed delivery notes. An '
-              'accountant asks: "If I see a signature, does that mean the delivery note was '
-              'kept secret and inaccessible to anyone else?" Your task: clarify what a digital '
+              'accountant asks: “If I see a signature, does that mean the delivery note was '
+              'kept secret and inaccessible to anyone else?” Your task: clarify what a digital '
               'signature actually proves — and clear up the confusion with encryption before it '
               'takes hold in the department.',
     },
@@ -65,9 +65,9 @@ SIGNATUREN_MODULE = {
                    'key can check whether the signature matches the document.\n\n'
                    'This is exactly the point where most learners get confused, because they carry '
                    'the encryption direction from module 4 over to signatures. Memory aid: '
-                   '**"signing with the public key" is wrong** — if anyone could sign with the '
+                   '**“signing with the public key” is wrong** — if anyone could sign with the '
                    'freely available public key, a signature would have no evidentiary value at '
-                   'all, since then anyone could produce a "valid" signature.',
+                   'all, since then anyone could produce a “valid” signature.',
          }},
         {'type': 'diagram', 'id': 'diagram-signieren-pruefen',
          'note': ('Schritt für Schritt durchklicken und jeweils fragen: Welcher Schlüssel ist hier im Spiel, und '
@@ -75,7 +75,7 @@ SIGNATUREN_MODULE = {
          'payload': {
              'kind': 'sequence',
              'title_de': 'Signieren und Prüfen',
-             'title_en': 'Signing and verifying',
+             'title_en': 'Signing and Verifying',
              'actors': [
                     {'id': 'a', 'label_de': 'Absender (Nordwind)', 'label_en': 'Sender (Nordwind)'},
                     {'id': 'e', 'label_de': 'Empfänger (Spedition)', 'label_en': 'Receiver (carrier)'},
@@ -200,8 +200,8 @@ SIGNATUREN_MODULE = {
                    'certain date needs a trustworthy timestamp proof for that, not just the '
                    'signature itself.\n\n'
                    'This is exactly the answer to the accountant\'s question from the scenario: a '
-                   'signature says nothing about secrecy — it says "this came from here and was '
-                   'not altered", not "nobody else has seen this".',
+                   'signature says nothing about secrecy — it says “this came from here and was '
+                   'not altered,” not “nobody else has seen this.”',
          }},
         {'type': 'text', 'id': 'text-3',
          'value': {
@@ -219,12 +219,12 @@ SIGNATUREN_MODULE = {
                    'privaten Schlüsseln (Hardware Security Module, Passwortschutz, restriktive '
                    'Zugriffsrechte): Nichtabstreitbarkeit ist kein Merkmal des Algorithmus, sondern '
                    'eine Eigenschaft, die nur so gut ist wie der Schutz des privaten Schlüssels.',
-             'en': '## Non-repudiation and Its Precondition\n\n'
+             'en': '## Non-Repudiation and Its Precondition\n\n'
                    '**Non-repudiation** means: the signer cannot credibly deny afterward that they '
                    'signed the document. That sounds like a pure property of mathematics — but it '
                    'is not. Non-repudiation stands or falls on a single precondition: **the private '
                    'key really must be held exclusively by one party.**\n\n'
-                   'If a second person can use the same private key (e.g. because it sits on a '
+                   'If a second person can use the same private key (e.g., because it sits on a '
                    'server without access control, was shared, or was stolen), the original signer '
                    'can claim the signature might have come from that second person instead — '
                    'non-repudiation is thereby effectively voided. This is why, in practice, so '
@@ -278,8 +278,8 @@ SIGNATUREN_MODULE = {
              'en': ('## The Bridge to the Certificate\n\nEverything in this module leads directly to the actual '
                  'topic of this course: an **X.509 certificate** is, at its core, nothing other than a '
                  '**digital signature by a certificate authority (CA) over a public key plus identity '
-                 'information** (e.g. domain name, organization). The CA uses its own private key to sign the '
-                 'statement "this public key belongs to this identity" — and anyone who knows the '
+                 'information** (e.g., domain name, organization). The CA uses its own private key to sign the '
+                 'statement “this public key belongs to this identity” — and anyone who knows the '
                  "CA's public key and trusts the CA can verify that signature.\n\nThis means the exact same thing applies to a "
                  'certificate as to any other signature: it proves that the key-to-identity mapping was '
                  'confirmed by the CA and has not been altered since — it does not automatically prove that the '
@@ -365,7 +365,7 @@ SIGNATUREN_MODULE = {
                                'keinerlei Beweiskraft mehr.',
              'explanation_en': 'It is exactly the other way around: signing happens with the '
                                '**private** key, verifying with the **public** key. If signing '
-                               'happened with the public key, anyone could produce a "valid" '
+                               'happened with the public key, anyone could produce a “valid” '
                                'signature — the signature would then have no evidentiary value at '
                                'all.',
          }},
@@ -373,7 +373,7 @@ SIGNATUREN_MODULE = {
          'note': ('Das Lab kann je nach Server abgeschaltet sein; dann die Befehle als Lesestoff nutzen. Die '
              'Vorlagenauswahl steht oben im Widget.'),
          'value': {
-             'de': ('## Selbst ausprobieren: signieren und prüfen\n\nIm Openssl-Lab unten gibt es dafür zwei '
+             'de': ('## Selbst ausprobieren: signieren und prüfen\n\nIm OpenSSL-Lab unten gibt es dafür zwei '
                  'Vorlagen:\n\n- **Hash und HMAC** — berechnet den SHA-256 eines Lieferscheins und einer '
                  'manipulierten Kopie sowie einen HMAC.\n- **Signieren und prüfen** — erzeugt ein '
                  'ECDSA-Schlüsselpaar, signiert `lieferschein.txt` und prüft die Signatur mit dem öffentlichen '
@@ -381,7 +381,7 @@ SIGNATUREN_MODULE = {
                  '`lieferschein.txt` durch `lieferschein-manipuliert.txt` und führe ihn erneut aus. Die Dateien '
                  'unterscheiden sich in einer einzigen Ziffer — openssl meldet `Verification failure` und '
                  'beendet sich mit einem Rückgabewert ungleich 0. Genau so sieht eine erkannte Manipulation aus.'),
-             'en': ('## Try It Yourself: Sign and Verify\n\nThe openssl lab below offers two templates for '
+             'en': ('## Try It Yourself: Sign and Verify\n\nThe OpenSSL lab below offers two templates for '
                  'this:\n\n- **Hash and HMAC** — computes the SHA-256 of a delivery note and of a tampered '
                  'copy, plus an HMAC.\n- **Sign and verify** — generates an ECDSA key pair, signs '
                  '`lieferschein.txt`, and verifies the signature with the public key (`Verified OK`).\n\nThe '
@@ -401,8 +401,8 @@ SIGNATUREN_MODULE = {
                          'auch verschlüsselt und niemand außer dem Empfänger kann es lesen." '
                          'Wie würdest du diesen Satz korrigieren, und welche Brücke schlägst du '
                          'zum Konzept des Zertifikats, das im nächsten Block folgt?',
-             'prompt_en': 'A colleague says: "The document is digitally signed, so it is also '
-                         'encrypted and nobody except the recipient can read it." How would you '
+             'prompt_en': 'A colleague says: “The document is digitally signed, so it is also '
+                         'encrypted and nobody except the recipient can read it.” How would you '
                          'correct this statement, and what bridge would you draw to the concept '
                          'of a certificate, which follows in the next block?',
          }},
@@ -431,7 +431,7 @@ SIGNATUREN_MODULE = {
               'erzeugen. Der Irrtum „öffentlicher Schlüssel des Empfängers“ stammt aus der Verschlüsselung — '
               'dort ist die Richtung genau umgekehrt.'),
           'en': ('Only the signer holds their private key, so only they can create the signature. The mistake '
-              '"recipient\'s public key" comes from encryption — where the direction is exactly reversed.'),
+              '“recipient\'s public key” comes from encryption — where the direction is exactly reversed.'),
          }},
         {'id': 'ds2', 'type': 'single',
          'prompt': {'de': 'Was beweist eine gültige digitale Signatur NICHT?',
@@ -506,7 +506,7 @@ SIGNATUREN_MODULE = {
           'de': ('Die CA signiert die Aussage „dieser öffentliche Schlüssel gehört zu dieser Identität“. Ein '
               'Zertifikat enthält weder einen Sitzungsschlüssel noch einen privaten Schlüssel und ersetzt auch '
               'keine Verschlüsselung.'),
-          'en': ('The CA signs the statement "this public key belongs to this identity". A certificate contains '
+          'en': ('The CA signs the statement “this public key belongs to this identity.” A certificate contains '
               'neither a session key nor a private key, and it does not replace encryption either.'),
          }},
         {'id': 'ds5', 'type': 'single',
@@ -544,7 +544,7 @@ SIGNATUREN_MODULE = {
                  'ist die wahrscheinlichste Ursache?'),
              'en': ('A signed delivery note is transferred to a Windows server via FTP in text mode. There, '
                  '`openssl dgst -sha256 -verify sign.pub -signature lieferschein.sig lieferschein.txt` reports '
-                 '"Verification failure". In the editor the content looks unchanged. What is the most likely '
+                 '“Verification failure”. In the editor the content looks unchanged. What is the most likely '
                  'cause?'),
             },
          'options': {
@@ -605,7 +605,7 @@ SIGNATUREN_MODULE = {
         {'id': 'ds8', 'type': 'single',
          'prompt': {
              'de': 'Ein Zertifikat zeigt „Signature Algorithm: sha256WithRSAEncryption“. Was sagt das aus?',
-             'en': 'A certificate shows "Signature Algorithm: sha256WithRSAEncryption". What does that tell you?',
+             'en': 'A certificate shows “Signature Algorithm: sha256WithRSAEncryption”. What does that tell you?',
             },
          'options': {
              'de': [
@@ -628,8 +628,8 @@ SIGNATUREN_MODULE = {
                  'Schlüssel der ausstellenden CA — der Schlüssel des Servers steht getrennt davon im Feld '
                  '„Subject Public Key Info“ und kann ein ECDSA-Schlüssel sein. Über den Schlüsseltausch der '
                  'Verbindung sagt die Zeile nichts.'),
-             'en': ('Despite the historical name "Encryption", this is a signature. It describes the key of the '
-                 'issuing CA — the server\'s key sits separately in "Subject Public Key Info" and may be an '
+             'en': ('Despite the historical name “Encryption,” this is a signature. It describes the key of the '
+                 'issuing CA — the server\'s key sits separately in “Subject Public Key Info” and may be an '
                  "ECDSA key. The line says nothing about the connection's key exchange."),
             },
         },

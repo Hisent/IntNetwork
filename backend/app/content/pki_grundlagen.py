@@ -20,7 +20,7 @@ KRYPTO_GRUNDLAGEN_MODULE = {
         'Explain why encryption alone only delivers confidentiality',
         'Compare symmetric and asymmetric encryption in terms of speed and key distribution',
         'Justify why real-world systems combine both in hybrid schemes',
-        'Explain Kerckhoffs\'s principle and argue against "homegrown encryption"',
+        'Explain Kerckhoffs\'s principle and argue against “homegrown encryption”',
         'Name outdated algorithms that have no place in new systems',
     ],
     'scenario': {
@@ -33,9 +33,9 @@ KRYPTO_GRUNDLAGEN_MODULE = {
         'en': 'Nordwind Logistik GmbH is planning to build its own PKI to secure internal services, '
               'employee logins, and communication with shipping partners. Before a single '
               'certificate gets issued, IT management wants a clear answer to one simple question: '
-              'what exactly is the cryptography here supposed to deliver? "Confidentiality" is not '
+              'what exactly is the cryptography here supposed to deliver? “Confidentiality” is not '
               'a sufficient answer — you need to separate the protection goals cleanly and explain '
-              'why a PKI needs more than just "encryption".',
+              'why a PKI needs more than just “encryption.”',
     },
     'blocks': [
         {'type': 'text', 'id': 'text-1',
@@ -58,7 +58,7 @@ KRYPTO_GRUNDLAGEN_MODULE = {
                    'brauchen jeweils eigene Mechanismen — Hashes, MACs, digitale Signaturen —, die '
                    'in den folgenden Modulen dieses Blocks im Detail behandelt werden.',
              'en': '## Four Protection Goals, Not One\n\n'
-                   'When people say "cryptography," they often mean just encryption. In reality, '
+                   'When people say “cryptography,” they often mean just encryption. In reality, '
                    'there are four separate protection goals:\n\n'
                    '- **Confidentiality** — nobody except the authorized parties can read the '
                    'data. This is the job of encryption.\n'
@@ -69,7 +69,7 @@ KRYPTO_GRUNDLAGEN_MODULE = {
                    'the data.\n\n'
                    '**Important:** encryption by itself delivers confidentiality only. An '
                    'encrypted packet can still be tampered with unnoticed unless an additional '
-                   'integrity mechanism (e.g. a MAC or an AEAD scheme) is added. Integrity, '
+                   'integrity mechanism (e.g., a MAC or an AEAD scheme) is added. Integrity, '
                    'authenticity, and non-repudiation each need their own mechanisms — hashes, '
                    'MACs, digital signatures — which the following modules of this block cover in '
                    'detail.',
@@ -80,14 +80,14 @@ KRYPTO_GRUNDLAGEN_MODULE = {
          'payload': {
              'kind': 'compare',
              'title_de': 'Schutzziele und die Mechanismen, die sie liefern',
-             'title_en': 'Protection goals and the mechanisms that deliver them',
+             'title_en': 'Protection Goals and the Mechanisms That Deliver Them',
              'caption_de': 'Kein Mechanismus deckt alles ab — deshalb kombiniert die Praxis sie.',
              'caption_en': 'No single mechanism covers everything — which is why they are combined in practice.',
              'columns': [
                     {'title_de': 'Verschlüsselung (AES-CBC)', 'title_en': 'Encryption (AES-CBC)'},
                     {'title_de': 'Hash (SHA-256)', 'title_en': 'Hash (SHA-256)'},
                     {'title': 'MAC (HMAC)'},
-                    {'title_de': 'Digitale Signatur', 'title_en': 'Digital signature'},
+                    {'title_de': 'Digitale Signatur', 'title_en': 'Digital Signature'},
                 ],
              'rows': [
                     {
@@ -151,7 +151,7 @@ KRYPTO_GRUNDLAGEN_MODULE = {
                           'sagt "Vertraulichkeit allein" darüber aus, ob das erkannt wird?',
              'prompt_en': 'An attacker intercepts an encrypted message and deliberately flips '
                           'individual bits in the ciphertext without knowing the plaintext. What '
-                          'does "confidentiality alone" say about whether this is detected?',
+                          'does “confidentiality alone” say about whether this is detected?',
              'answer': 2,
              'options_de': [
                  'Verschlüsselung erkennt jede Manipulation automatisch, weil der Schlüssel fehlt',
@@ -185,12 +185,12 @@ KRYPTO_GRUNDLAGEN_MODULE = {
                    'nungen schneller ist. Genau dieses Muster steckt hinter TLS und wird dich durch '
                    'den gesamten Lehrgang begleiten.',
              'en': '## Symmetric vs. Asymmetric\n\n'
-                   '**Symmetric encryption** (e.g. AES) uses the same key for encrypting and '
+                   '**Symmetric encryption** (e.g., AES) uses the same key for encrypting and '
                    'decrypting. Advantage: very fast, even for large amounts of data. Problem: both '
                    'sides must securely exchange the same key beforehand — with many communication '
-                   'partners, the number of required keys grows quadratically (the "key '
-                   'distribution problem").\n\n'
-                   '**Asymmetric encryption** (e.g. RSA) uses a key pair: a public key for '
+                   'partners, the number of required keys grows quadratically (the “key '
+                   'distribution problem”).\n\n'
+                   '**Asymmetric encryption** (e.g., RSA) uses a key pair: a public key for '
                    'encrypting, a private key for decrypting. The public key can be distributed '
                    'openly — no prior secret exchange needed. Downside: significantly more '
                    'computationally expensive, unsuitable for large amounts of data.\n\n'
@@ -205,7 +205,7 @@ KRYPTO_GRUNDLAGEN_MODULE = {
          'payload': {
              'kind': 'sequence',
              'title_de': 'Hybridverfahren: asymmetrisch einigen, symmetrisch verschlüsseln',
-             'title_en': 'Hybrid scheme: agree asymmetrically, encrypt symmetrically',
+             'title_en': 'Hybrid Scheme: Agree Asymmetrically, Encrypt Symmetrically',
              'actors': [
                     {'id': 'c', 'label': 'Client'},
                     {'id': 's', 'label': 'Server'},
@@ -314,10 +314,10 @@ KRYPTO_GRUNDLAGEN_MODULE = {
              'en': '## Kerckhoffs\'s Principle\n\n'
                    'A core tenet of modern cryptography: **the security of a scheme must depend '
                    'exclusively on the key, not on keeping the algorithm itself secret.** The '
-                   'algorithm (e.g. AES) may be publicly known, standardized, and analyzable by '
+                   'algorithm (e.g., AES) may be publicly known, standardized, and analyzable by '
                    'anyone — as long as the key stays secret, the encryption stays secure.\n\n'
-                   'This leads to a clear practical rule: **"homegrown" or secret encryption '
-                   'schemes are a classic mistake** ("security through obscurity"). A self-designed '
+                   'This leads to a clear practical rule: **“homegrown” or secret encryption '
+                   'schemes are a classic mistake** (“security through obscurity”). A self-designed '
                    'algorithm has not been scrutinized for weaknesses by the worldwide cryptography '
                    'community for years — established, openly standardized schemes like AES or RSA '
                    'have undergone that scrutiny and are therefore considered more trustworthy, not '
@@ -329,7 +329,7 @@ KRYPTO_GRUNDLAGEN_MODULE = {
                           '"firmeninternes" Verschlüsselungsverfahren zu entwerfen, damit '
                           'Angreifer den Algorithmus gar nicht erst kennen. Gute Idee?',
              'teaser_en': 'A developer at Nordwind Logistik proposes designing a homegrown, '
-                          '"company-internal" encryption scheme so attackers do not even know the '
+                          '“company-internal” encryption scheme so attackers do not even know the '
                           'algorithm. Good idea?',
          },
          'value': {
@@ -344,8 +344,8 @@ KRYPTO_GRUNDLAGEN_MODULE = {
                    'scheme has not undergone public cryptanalysis — weaknesses often remain '
                    'undiscovered for years until someone with the right expertise finds them '
                    '(usually only after an incident). Standardized, openly vetted schemes such as '
-                   'AES-256 or RSA with a sufficient key length are the right choice — "security '
-                   'through obscurity" is not a viable security strategy.',
+                   'AES-256 or RSA with a sufficient key length are the right choice — “security '
+                   'through obscurity” is not a viable security strategy.',
          }},
         {'type': 'text', 'id': 'text-4',
          'note': 'Bei den konkreten Zahlen bewusst vorsichtig bleiben, da Teile der Quelle als unsicher markiert sind — im Vortrag nicht als scharfe Grenzwerte verkaufen.',
@@ -398,7 +398,7 @@ KRYPTO_GRUNDLAGEN_MODULE = {
              'prompt_de': ('Ordne jedem Verfahren seine Kategorie zu. (ECDSA und ECDHE folgen in Modul 4 und 5: '
                            'DSA steht für „Digital Signature Algorithm“, DH für „Diffie-Hellman“.)'),
              'prompt_en': ('Match each algorithm to its category. (ECDSA and ECDHE follow in modules 4 and 5: '
-                           'DSA stands for "Digital Signature Algorithm", DH for "Diffie-Hellman".)'),
+                           'DSA stands for “Digital Signature Algorithm,” DH for “Diffie-Hellman.”)'),
              'pairs': [
                     {
                      'left': 'AES-256-GCM',
@@ -468,7 +468,7 @@ KRYPTO_GRUNDLAGEN_MODULE = {
                                'ein rein verschlüsselter Chiffretext kann unbemerkt manipuliert '
                                'werden, wenn keine zusätzliche Integritätsprüfung stattfindet.',
              'explanation_en': 'Encryption secures confidentiality only. Integrity is a separate '
-                               'protection goal and needs its own mechanism (e.g. a MAC, a hash '
+                               'protection goal and needs its own mechanism (e.g., a MAC, a hash '
                                'comparison, or an AEAD scheme) — a purely encrypted ciphertext can '
                                'be tampered with unnoticed unless an additional integrity check '
                                'takes place.',
@@ -478,7 +478,7 @@ KRYPTO_GRUNDLAGEN_MODULE = {
              'an der Anforderung "vor Dritten belegbar".'),
          'payload': {
              'title_de': 'Welcher Mechanismus für das Lieferavis?',
-             'title_en': 'Which mechanism for the shipping notice?',
+             'title_en': 'Which Mechanism for the Shipping Notice?',
              'start': 'start',
              'nodes': [
                     {
@@ -568,7 +568,7 @@ KRYPTO_GRUNDLAGEN_MODULE = {
                             },
                             {
                              'label_de': 'Zusätzlich verschlüsselt übertragen (z. B. über TLS), Signatur beibehalten',
-                             'label_en': 'Additionally transmit encrypted (e.g. via TLS), keep the signature',
+                             'label_en': 'Additionally transmit encrypted (e.g., via TLS), keep the signature',
                              'to': 'sig-tls',
                             },
                         ],
@@ -599,8 +599,8 @@ KRYPTO_GRUNDLAGEN_MODULE = {
              'prompt_de': 'Ein Kollege sagt: "Wir nutzen TLS, also ist bei uns alles '
                          'verschlüsselt und damit sicher." Welche Schutzziele deckt diese Aussage '
                          'ab, und welche Rückfrage würdest du stellen, bevor du zustimmst?',
-             'prompt_en': 'A colleague says: "We use TLS, so everything is encrypted and '
-                         'therefore secure." Which protection goals does this statement actually '
+             'prompt_en': 'A colleague says: “We use TLS, so everything is encrypted and '
+                         'therefore secure.” Which protection goals does this statement actually '
                          'cover, and what follow-up question would you ask before agreeing?',
          }},
     ],
@@ -659,7 +659,7 @@ KRYPTO_GRUNDLAGEN_MODULE = {
               'Massendaten zu langsam; symmetrische sind schnell, brauchen aber einen gemeinsamen Schlüssel. '
               'Symmetrische Verfahren sind dabei nicht „unsicher“ — AES trägt in TLS die gesamte Nutzlast.'),
           'en': ('Asymmetric schemes solve the distribution problem (no prior secret needed) but are too slow for '
-              'bulk data; symmetric ones are fast but need a shared key. Symmetric schemes are not "insecure" — '
+              'bulk data; symmetric ones are fast but need a shared key. Symmetric schemes are not “insecure” — '
               'in TLS, AES carries the entire payload.'),
          }},
         {'id': 'kg3', 'type': 'single',
@@ -715,16 +715,16 @@ KRYPTO_GRUNDLAGEN_MODULE = {
           'de': ('Seit dem 1. Januar 2016 dürfen öffentliche CAs keine SHA-1-signierten TLS-Zertifikate mehr '
               'ausstellen. „Nur intern“ macht MD5 nicht sicher: Ein Kollisionsangriff funktioniert im Intranet '
               'genauso wie im Internet.'),
-          'en': ('Since January 1, 2016, public CAs may no longer issue SHA-1-signed TLS certificates. "Internal '
-              'only" does not make MD5 safe: a collision attack works on an intranet just as it does on the '
-              'internet.'),
+          'en': ('Since January 1, 2016, public CAs may no longer issue SHA-1-signed TLS certificates. “Internal '
+              'only” does not make MD5 safe: a collision attack works on an intranet just as it does on the '
+              'Internet.'),
          }},
         {'id': 'kg5', 'type': 'single',
          'prompt': {'de': 'Ein Entwickler will ein eigenes, geheim gehaltenes '
                          'Verschlüsselungsverfahren einsetzen, "damit Angreifer den Algorithmus '
                          'nicht kennen". Wie ist das einzuordnen?',
                     'en': 'A developer wants to use a homegrown, secret encryption scheme '
-                         '"so attackers do not know the algorithm." How should this be assessed?'},
+                         '“so attackers do not know the algorithm.” How should this be assessed?'},
          'answer': 1,
          'options': {
              'de': [
@@ -747,7 +747,7 @@ KRYPTO_GRUNDLAGEN_MODULE = {
               'kennt im Zweifel nur der Angreifer. Der Irrtum „geheim = zusätzlich sicher“ übersieht, dass '
               'Algorithmen durch Reverse Engineering ohnehin bekannt werden.'),
           'en': ('A secret homegrown scheme has not undergone public cryptanalysis — in the worst case only the '
-              'attacker knows its weaknesses. The belief "secret = extra secure" overlooks that algorithms '
+              'attacker knows its weaknesses. The belief “secret = extra secure” overlooks that algorithms '
               'become known through reverse engineering anyway.'),
          }},
         {'id': 'kg6', 'type': 'multi',
@@ -768,7 +768,7 @@ KRYPTO_GRUNDLAGEN_MODULE = {
              'en': [
                     'HMAC with a key known only to sender and receiver',
                     'A digital signature by the sender',
-                    'AEAD encryption (e.g. AES-GCM) with a shared key',
+                    'AEAD encryption (e.g., AES-GCM) with a shared key',
                     'A plain SHA-256 hash sent along with the message',
                     'AES in CBC mode without an additional MAC',
                 ],
@@ -803,7 +803,7 @@ KRYPTO_GRUNDLAGEN_MODULE = {
          'prompt': {
              'de': ('Ein Audit findet auf einem Altsystem: „Verschlüsselung 3DES, Prüfsumme SHA-1, Schlüsseltausch '
                  'RSA-1024“. Welche Bewertung trifft zu?'),
-             'en': ('An audit of a legacy system finds: "encryption 3DES, checksum SHA-1, key exchange RSA-1024". '
+             'en': ('An audit of a legacy system finds: “encryption 3DES, checksum SHA-1, key exchange RSA-1024.” '
                  'Which assessment is correct?'),
             },
          'options': {

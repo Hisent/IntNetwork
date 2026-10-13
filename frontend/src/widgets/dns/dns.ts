@@ -14,6 +14,8 @@ export interface DnsResult {
 const DOMAIN = 'nordwind-logistik.de'
 const ZONE: Record<string, string> = {
   'nordwind-logistik.de': '203.0.113.10',
+  // Kundenportal: NAT-Adresse von Nordwind-R1, Port-Forwarding 443 -> DMZ-Server 192.168.30.80 (nat.py)
+  'portal.nordwind-logistik.de': '203.0.113.10',
   'www.nordwind-logistik.de': '203.0.113.11',
   'mail.nordwind-logistik.de': '203.0.113.12',
 }

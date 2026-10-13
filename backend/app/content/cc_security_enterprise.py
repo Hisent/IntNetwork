@@ -64,7 +64,7 @@ SECURITY_ENTERPRISE_MODULE = {'key': 'security-enterprise',
                              '- **ask** — confirmation required.\n'
                              '- **deny** — strictly forbidden (overrides everything).\n'
                              '\n'
-                             'Rules address tools and patterns, e.g. `Bash(rm *)` or '
+                             'Rules address tools and patterns, e.g., `Bash(rm *)` or '
                              '`Read(./secrets/**)`:\n'
                              '\n'
                              '```json\n'
@@ -91,7 +91,7 @@ SECURITY_ENTERPRISE_MODULE = {'key': 'security-enterprise',
                      'ohne Rückfrage läuft.',
              'payload': {'kind': 'flow',
                          'title_de': 'So wird ein Tool-Aufruf geprüft',
-                         'title_en': 'How a tool call is checked',
+                         'title_en': 'How a Tool Call Is Checked',
                          'caption_de': 'Reihenfolge deny → ask → allow; der erste Treffer '
                                        'entscheidet.',
                          'caption_en': 'Order deny → ask → allow; the first match decides.',
@@ -310,7 +310,7 @@ SECURITY_ENTERPRISE_MODULE = {'key': 'security-enterprise',
                              'use WSL2 or a container instead.\n'
                              '\n'
                              'Why this matters: the more autonomously Claude is meant to work '
-                             '(e.g. in CI or unattended), the more important a sandbox becomes as '
+                             '(e.g., in CI or unattended), the more important a sandbox becomes as '
                              'a safety net. Permissions say *what is allowed*; the sandbox limits '
                              '*what is even possible* — two layers that complement each other.'}},
             {'type': 'text', 'id': 'text-4',
@@ -356,7 +356,7 @@ SECURITY_ENTERPRISE_MODULE = {'key': 'security-enterprise',
                        'en': '## Enterprise: Managed Settings\n'
                              '\n'
                              'Organizations can centrally roll out policies that individual users '
-                             '**cannot** override — via **Managed Settings**. The policy has the '
+                             '**cannot** override — via **managed settings**. The policy has the '
                              'same JSON shape as a `settings.json` and reaches the machine in one '
                              'of these ways:\n'
                              '\n'
@@ -380,9 +380,9 @@ SECURITY_ENTERPRISE_MODULE = {'key': 'security-enterprise',
                              'from below applies in addition. A sensible separation:\n'
                              '\n'
                              '\n'
-                             '- Block tools/commands/paths — belongs in: Managed Settings '
+                             '- Block tools/commands/paths — belongs in: managed settings '
                              '(`permissions.deny`)\n'
-                             '- Enforce a fail-closed sandbox — belongs in: Managed Settings '
+                             '- Enforce a fail-closed sandbox — belongs in: managed settings '
                              '(`sandbox.enabled`, `sandbox.failIfUnavailable`)\n'
                              '- Auth method / org binding — belongs in: `forceLoginMethod`, '
                              '`forceLoginOrgUUID`\n'
@@ -397,7 +397,7 @@ SECURITY_ENTERPRISE_MODULE = {'key': 'security-enterprise',
                      'von jeder Ebene aus.',
              'payload': {'kind': 'layers',
                          'title_de': 'Rangfolge der Einstellungen',
-                         'title_en': 'Settings precedence',
+                         'title_en': 'Settings Precedence',
                          'caption_de': 'Für denselben Schlüssel gilt der Wert der höchsten Ebene, '
                                        'die ihn setzt.',
                          'caption_en': 'For the same key, the value from the highest level that '
@@ -527,7 +527,7 @@ SECURITY_ENTERPRISE_MODULE = {'key': 'security-enterprise',
                              'verification remains your responsibility (Module 2).\n'
                              '- **Least Privilege** — keep subagents and permissions minimal (only '
                              'the necessary tools).\n'
-                             '- **Protect sensitive paths** — e.g. block `Read(./.env)` via deny.\n'
+                             '- **Protect sensitive paths** — e.g., block `Read(./.env)` via deny.\n'
                              '- **Vet external sources** — only install plugins/MCP servers from '
                              'trusted sources.'}},
             {'type': 'order', 'id': 'order-1',
@@ -543,8 +543,8 @@ SECURITY_ENTERPRISE_MODULE = {'key': 'security-enterprise',
                          'items_en': ['Set deny rules for dangerous commands and sensitive paths',
                                       'Enable the sandbox when autonomous/unattended operation is '
                                       'planned',
-                                      'In the enterprise, roll out policies centrally as Managed '
-                                      'Settings',
+                                      'In the enterprise, roll out policies centrally as managed '
+                                      'settings',
                                       'Review AI output before merging']}},
             {'type': 'debug', 'id': 'debug-1',
              'payload': {'prompt_de': 'Sicherheits-Aussagen — welche ist falsch?',
@@ -562,13 +562,13 @@ SECURITY_ENTERPRISE_MODULE = {'key': 'security-enterprise',
                                       'Sandboxing isolates file/network access as an additional '
                                       'layer.',
                                       'Managed CLAUDE.md cannot be excluded by users.',
-                                      'For traceability, API keys belong in plain text in '
+                                      'For traceability, API keys belong in plaintext in '
                                       'CLAUDE.md.'],
                          'wrong': [3],
                          'explanation_de': 'Secrets gehören niemals im Klartext in Dateien wie '
                                            'CLAUDE.md, .mcp.json oder Workflows — sie würden mit dem Repo geteilt und landeten in der Historie. Zugangsdaten '
                                            'führt man über Umgebungsvariablen bzw. Secret-Stores.',
-                         'explanation_en': 'Secrets should never be stored in plain text in files '
+                         'explanation_en': 'Secrets should never be stored in plaintext in files '
                                            'like CLAUDE.md, .mcp.json, or workflows — they would '
                                            'be shared and end up in the history. Credentials '
                                            'should be managed via environment variables or secret '
@@ -636,7 +636,7 @@ SECURITY_ENTERPRISE_MODULE = {'key': 'security-enterprise',
                                             'In der README',
                                             'In einem Git-Tag'],
                                      'en': ['In the local settings.local.json',
-                                            'In Managed Settings (managed-settings.json)',
+                                            'In managed settings (managed-settings.json)',
                                             'In the README',
                                             'In a Git tag']},
                          'explanation': {'de': 'Managed Settings stehen in der Rangfolge ganz '
@@ -678,8 +678,8 @@ SECURITY_ENTERPRISE_MODULE = {'key': 'security-enterprise',
                                                'sentence.'}},
                         {'id': 'se5',
                          'type': 'multi',
-                         'prompt': {'de': 'Welche Praktiken sind sicher? (mehrere)',
-                                    'en': 'Which practices are secure? (multiple)'},
+                         'prompt': {'de': 'Welche Praktiken sind sicher? Mehrere Antworten sind richtig.',
+                                    'en': 'Which practices are secure? Select all that apply.'},
                          'answer': [0, 1, 2],
                          'options': {'de': ['Secrets über Umgebungsvariablen führen',
                                             'KI-Ausgaben vor dem Merge reviewen',
@@ -770,9 +770,9 @@ SECURITY_ENTERPRISE_MODULE = {'key': 'security-enterprise',
                         {'id': 'se8',
                          'type': 'multi',
                          'prompt': {'de': 'Auf welchen Wegen kann eine Managed-Settings-Richtlinie '
-                                          'laut Doku auf einen Rechner kommen? (mehrere)',
+                                          'laut Doku auf einen Rechner kommen? Mehrere Antworten sind richtig.',
                                     'en': 'In which ways can a managed settings policy reach a '
-                                          'machine according to the docs? (multiple)'},
+                                          'machine according to the docs? Select all that apply.'},
                          'answer': [0, 2, 3],
                          'options': {'de': ['Als Datei /etc/claude-code/managed-settings.json auf '
                                             'einem Linux-Host',

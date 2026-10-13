@@ -57,7 +57,7 @@ describe('SCENARIOS — Symptom, Ausgaben und Diagnose passen zusammen', () => {
     const s = byId('dns')
     const dnsServer = outputFor(s, 'ipconfig', 'en').match(/DNS server[ .]*: ([\d.]+)/)![1]
     expect(dnsServer).toBe('192.168.10.53')
-    expect(outputFor(s, 'nslookup www.nordwind.de', 'en')).toContain(dnsServer)
+    expect(outputFor(s, 'nslookup www.nordwind-logistik.de', 'en')).toContain(dnsServer)
     for (const c of s.commands.filter((c) => c.cmd.startsWith('ping'))) expect(c.output.en).toContain('0 lost')
     // gepingtes Gateway = Gateway aus ipconfig
     expect(s.commands.some((c) => c.cmd === 'ping 192.168.20.1')).toBe(true)

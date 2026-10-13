@@ -10,7 +10,7 @@ WLAN_MODULE = {
         "Sichere (WPA2/WPA3) von unsicherer Verschlüsselung unterscheiden",
     ],
     "goals_en": [
-        "Classify Wi-Fi as radio access at layers 1+2 (AP/SSID/association)",
+        "Classify Wi-Fi as radio access at Layers 1+2 (AP/SSID/association)",
         "Explain 2.4 vs 5 GHz and channel overlap (1/6/11)",
         "Tell secure (WPA2/WPA3) from insecure encryption",
     ],
@@ -41,7 +41,8 @@ WLAN_MODULE = {
                    "(schneller, mehr Kanäle, kürzere Reichweite). Moderne Geräte (Wi-Fi 6E/7) "
                    "funken zusätzlich auf **6 GHz** — viele breite Kanäle, kaum Altgeräte, "
                    "dafür die kürzeste Reichweite.\n\n"
-                   "Ein Kanal ist breiter als sein Abstand zum Nachbarn — deshalb **überlappen** "
+                   "Ein Kanal ist breiter als sein Abstand zum Nachbarn (5 MHz Raster, aber rund "
+                   "20 MHz Signalbreite, bei 802.11b 22 MHz) — deshalb **überlappen** "
                    "sich benachbarte 2,4-GHz-Kanäle und stören sich. Bei **20 MHz** sind "
                    "**1, 6 und 11** die übliche überlappungsfreie Planungsempfehlung; erlaubte "
                    "Kanäle hängen zudem vom Land ab. Zwei APs in Reichweite sollten daher "
@@ -51,7 +52,8 @@ WLAN_MODULE = {
                    "(faster, more channels, shorter range). Modern devices (Wi-Fi 6E/7) "
                    "additionally transmit on **6 GHz** — many wide channels, hardly any legacy "
                    "devices, but the shortest range.\n\n"
-                   "A channel is wider than its spacing to its neighbor — that's why adjacent "
+                   "A channel is wider than its spacing to its neighbor (5 MHz grid, but a signal "
+                   "roughly 20 MHz wide, 22 MHz with 802.11b) — that's why adjacent "
                    "2.4 GHz channels **overlap** and interfere with each other. At **20 MHz**, "
                    "**1, 6 and 11** are the usual recommendation for a non-overlapping plan; the allowed "
                    "channels also depend on the country. Two APs in range should therefore use "
@@ -63,7 +65,7 @@ WLAN_MODULE = {
          "payload": {
              "kind": "compare",
              "title_de": "WLAN-Generationen: Wi-Fi 4 bis Wi-Fi 7",
-             "title_en": "Wi-Fi generations: Wi-Fi 4 to Wi-Fi 7",
+             "title_en": "Wi-Fi Generations: Wi-Fi 4 to Wi-Fi 7",
              "caption_de": "Neuere Generationen bleiben abwärtskompatibel — ein Wi-Fi-7-AP bedient auch alte Clients.",
              "caption_en": "Newer generations stay backward compatible — a Wi-Fi 7 AP also serves old clients.",
              "columns": [{"title": "Wi-Fi 4"}, {"title": "Wi-Fi 5"}, {"title": "Wi-Fi 6 / 6E"}, {"title": "Wi-Fi 7"}],
@@ -99,7 +101,7 @@ WLAN_MODULE = {
             "prompt_en": "A technician sets up two neighboring access points in the "
                          "Nordwind warehouse and sets them to 2.4 GHz channels 3 and "
                          "4 — reasoning that “different channel numbers are enough for clean "
-                         "separation”. Shortly after, employees between the two APs report "
+                         "separation.” Shortly after, employees between the two APs report "
                          "constant disconnects and speed drops. Which of the following "
                          "statements about this situation is false?",
             "lines_de": [
@@ -228,7 +230,7 @@ WLAN_MODULE = {
                  "plant man üblicherweise mit etwa −67 dBm oder besser (Faustwert, kein Standard).",
          "payload": {
              "title_de": "Die Scanner am Hallenende verlieren die Verbindung",
-             "title_en": "The scanners at the far end of the warehouse lose their connection",
+             "title_en": "The Scanners at the Far End of the Warehouse Lose Their Connection",
              "start": "start",
              "nodes": [
                  {"id": "start",
@@ -314,13 +316,13 @@ WLAN_MODULE = {
              "de": "Die SSID ist der Name, unter dem ein WLAN sichtbar ist und den mehrere Access Points gemeinsam ausstrahlen können. Sie sagt nichts über Verschlüsselung oder Kanal aus — beides wird getrennt eingestellt.",
              "en": "The SSID is the name under which a Wi-Fi network is visible and which several access points can broadcast together. It says nothing about encryption or channel — both are configured separately."}},
         {"id": "w2", "type": "multi",
-         "prompt": {"de": "Welche 2,4-GHz-Kanäle überlappen sich NICHT? (mehrere)",
-                    "en": "Which 2.4 GHz channels do NOT overlap? (multiple)"},
+         "prompt": {"de": "Welche 2,4-GHz-Kanäle überlappen sich NICHT? Mehrere Antworten sind richtig.",
+                    "en": "Which 2.4 GHz channels do NOT overlap? Select all that apply."},
          "options": {"de": ["1", "6", "8", "11"], "en": ["1", "6", "8", "11"]},
          "answer": [0, 1, 3],
          "explanation": {
-             "de": "Ein 20-MHz-Kanal ist etwa fünf Kanalnummern breit, also brauchen zwei Kanäle mindestens fünf Nummern Abstand: 1, 6 und 11. Kanal 8 liegt zwischen 6 und 11 und überlappt mit beiden — eine andere Nummer allein genügt nicht.",
-             "en": "A 20 MHz channel is roughly five channel numbers wide, so two channels need at least five numbers of spacing: 1, 6 and 11. Channel 8 sits between 6 and 11 and overlaps both — a different number alone is not enough."}},
+             "de": "Die Kanalnummern liegen nur 5 MHz auseinander, ein 802.11b-Signal ist aber 22 MHz breit. Erst fünf Nummern Abstand (25 MHz) trennen zwei Kanäle sauber: 1, 6 und 11. Reines OFDM mit 20 MHz käme rechnerisch auch mit 1/5/9/13 aus, in der Praxis bleibt 1/6/11 der Standard. Kanal 8 liegt zwischen 6 und 11 und überlappt mit beiden — eine andere Nummer allein genügt nicht.",
+             "en": "Channel numbers are only 5 MHz apart, but an 802.11b signal is 22 MHz wide. Only a spacing of five numbers (25 MHz) separates two channels cleanly: 1, 6 and 11. Pure OFDM at 20 MHz could in theory also use 1/5/9/13, but in practice 1/6/11 remains the standard. Channel 8 sits between 6 and 11 and overlaps both — a different number alone is not enough."}},
         {"id": "w3", "type": "single",
          "prompt": {"de": "Welche Verschlüsselung gehört ins Firmennetz?",
                     "en": "Which encryption belongs on the company network?"},
@@ -331,7 +333,7 @@ WLAN_MODULE = {
          "answer": 2,
          "explanation": {
              "de": "WPA2 (mit AES) und WPA3 gelten als sicher. WEP ist gebrochen und lässt sich in Minuten knacken — es „verschlüsselt“ zwar, schützt aber praktisch nicht besser als ein offenes Netz.",
-             "en": "WPA2 (with AES) and WPA3 are considered secure. WEP is broken and can be cracked within minutes — it does “encrypt”, but in practice protects no better than an open network."}},
+             "en": "WPA2 (with AES) and WPA3 are considered secure. WEP is broken and can be cracked within minutes — it does “encrypt,” but in practice protects no better than an open network."}},
         {"id": "w4", "type": "single",
          "prompt": {"de": "Warum wird ein WLAN bei vielen Geräten langsamer?",
                     "en": "Why does Wi-Fi get slower with many devices?"},
@@ -395,18 +397,20 @@ WLAN_MODULE = {
                    "SAE removes that option: every attempt needs a fresh exchange with the AP."}},
         {"id": "w7", "type": "multi",
          "prompt": {"de": "Drei Access Points in gegenseitiger Reichweite sollen im 2,4-GHz-Band (20 MHz, "
-                          "Europa) überlappungsfrei arbeiten. Welche Kanalpläne erfüllen das? (mehrere)",
+                          "Europa) überlappungsfrei arbeiten. Welche Kanalpläne erfüllen das? Mehrere Antworten sind richtig.",
                     "en": "Three access points within range of each other are to work without overlap on "
-                          "the 2.4 GHz band (20 MHz, Europe). Which channel plans achieve that? (multiple)"},
+                          "the 2.4 GHz band (20 MHz, Europe). Which channel plans achieve that? Select all that apply."},
          "options": {"de": ["1 / 6 / 11", "1 / 3 / 5", "2 / 7 / 12", "6 / 6 / 6"],
                      "en": ["1 / 6 / 11", "1 / 3 / 5", "2 / 7 / 12", "6 / 6 / 6"]},
          "answer": [0, 2],
          "explanation": {
-             "de": "Entscheidend ist der Abstand von mindestens fünf Kanalnummern, nicht die Zahlen 1, 6 "
+             "de": "Entscheidend ist der Abstand von mindestens fünf Kanalnummern (25 MHz, mehr als die "
+                   "22 MHz Signalbreite von 802.11b), nicht die Zahlen 1, 6 "
                    "und 11 selbst — in Europa (Kanäle 1–13) ist deshalb auch 2/7/12 überlappungsfrei. In "
                    "der Praxis nimmt man trotzdem 1/6/11, weil sich die Nachbarn daran halten. Dreimal "
                    "Kanal 6 überlappt vollständig: Die drei APs teilen sich dann die Sendezeit.",
-             "en": "What matters is a spacing of at least five channel numbers, not the numbers 1, 6 and "
+             "en": "What matters is a spacing of at least five channel numbers (25 MHz, more than the "
+                   "22 MHz signal width of 802.11b), not the numbers 1, 6 and "
                    "11 themselves — in Europe (channels 1–13) 2/7/12 is therefore non-overlapping too. In "
                    "practice you still choose 1/6/11 because the neighbors stick to it. Using "
                    "channel 6 three times means complete overlap: the three APs then share the airtime."}},

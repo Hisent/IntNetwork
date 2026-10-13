@@ -70,7 +70,7 @@ SUBAGENTS_MODULE = {'key': 'subagents',
                      'Alltag, die Gruppe ordnet es einer Spalte zu.',
              'payload': {'kind': 'compare',
                          'title_de': 'Wann nehme ich was?',
-                         'title_en': 'Which one do I use when?',
+                         'title_en': 'Which One Do I Use When?',
                          'caption_de': 'Ein Plugin ist kein fünfter Baustein, sondern das Paket, '
                                        'das diese vier für weitere Repositories bündelt.',
                          'caption_en': 'A plugin is not a fifth building block but the package '
@@ -286,8 +286,8 @@ SUBAGENTS_MODULE = {'key': 'subagents',
                              "1. **Automatically** — if a task matches a subagent's `description`, "
                              "Claude delegates on its own. That's why a clear `description` "
                              'matters so much.\n'
-                             '2. **Explicitly** — you ask directly: "Use the code-improver agent '
-                             'for this directory." With such a request Claude still decides '
+                             '2. **Explicitly** — you ask directly: “Use the code-improver agent '
+                             'for this directory.” With such a request Claude still decides '
                              'whether to delegate; an `@`-mention of the agent makes sure that '
                              'exact one runs.\n'
                              '\n'
@@ -393,7 +393,7 @@ SUBAGENTS_MODULE = {'key': 'subagents',
                              '- **Git-Worktree**: kein Agent-Feature, sondern eine isolierte '
                              'Arbeitskopie des Repos. Nützlich, wenn parallele Agents gleichzeitig '
                              'Dateien ändern, ohne sich zu überschreiben.',
-                       'en': '- **Subagent** (Agent tool, formerly "Task"): one side task in its '
+                       'en': '- **Subagent** (Agent tool, formerly “Task”): one side task in its '
                              'own context window; returns only its result. The everyday case.\n'
                              '- **Agent view** (`claude agents`, research preview): the view where '
                              'you dispatch and watch several background sessions — each one is a '
@@ -463,9 +463,9 @@ SUBAGENTS_MODULE = {'key': 'subagents',
                         {'id': 'sa3',
                          'type': 'multi',
                          'prompt': {'de': 'Welche Felder gehören ins Subagent-Frontmatter? '
-                                          '(mehrere)',
+                                          'Mehrere Antworten sind richtig.',
                                     'en': 'Which fields belong in the subagent frontmatter? '
-                                          '(multiple)'},
+                                          'Select all that apply.'},
                          'answer': [0, 1, 2, 3],
                          'options': {'de': ['name',
                                             'description',
@@ -607,9 +607,9 @@ SUBAGENTS_MODULE = {'key': 'subagents',
                         {'id': 'sa8',
                          'type': 'multi',
                          'prompt': {'de': 'Claude delegiert nie von selbst an deinen Subagent '
-                                          '`db-reader`. Was hilft? (mehrere)',
+                                          '`db-reader`. Was hilft? Mehrere Antworten sind richtig.',
                                     'en': 'Claude never delegates to your subagent `db-reader` on '
-                                          'its own. What helps? (multiple)'},
+                                          'its own. What helps? Select all that apply.'},
                          'answer': [0, 1],
                          'options': {'de': ['Die description schärfen: klar sagen, wann delegiert '
                                             'werden soll',

@@ -85,12 +85,12 @@ CAPSTONE_MODULE = {'key': 'capstone',
                              '3. **Plan** — generate and review an implementation plan in plan '
                              'mode (Module 4/16).\n'
                              '4. **Skill** — build a custom skill that encapsulates a recurring '
-                             'step (e.g. `/new-test` or `/commit-msg`) (Module 6).\n'
+                             'step (e.g., `/new-test` or `/commit-msg`) (Module 6).\n'
                              '5. **Implementation** — implement the feature, delegating larger '
                              'research to a subagent (Module 9). Check first which data may go '
                              'into the prompt; instructions in third-party content (issues, READMEs, '
                              'tool output) are data, not orders (Module 15).\n'
-                             '6. **Automation** — set up a hook (e.g. format/lint after edit) '
+                             '6. **Automation** — set up a hook (e.g., format/lint after edit) '
                              '(Module 11).\n'
                              '7. **Review** — check against the acceptance criteria with a '
                              'read-only review subagent and iterate (Module 9/10); look at the '
@@ -104,7 +104,7 @@ CAPSTONE_MODULE = {'key': 'capstone',
                      'Scheitern.',
              'payload': {'kind': 'flow',
                          'title_de': 'Der Capstone-Ablauf',
-                         'title_en': 'The capstone flow',
+                         'title_en': 'The Capstone Flow',
                          'caption_de': 'Oben wird gedacht, unten gebaut und geprüft. Review-Funde '
                                        'führen zurück in den Plan.',
                          'caption_en': 'The top row thinks, the bottom row builds and checks. '
@@ -378,7 +378,7 @@ CAPSTONE_MODULE = {'key': 'capstone',
              'note': 'Verbindet Modul 15 (Injection), 16 (Nachweis) und 17 (Übergabe). Vor der '
                      'Abnahme durchspielen.',
              'payload': {'title_de': 'Kurz vor dem Merge: drei Entscheidungen',
-                         'title_en': 'Just before the merge: three decisions',
+                         'title_en': 'Just Before the Merge: Three Decisions',
                          'start': 'fund',
                          'nodes': [{'id': 'fund',
                                     'text_de': 'Mitten in der Umsetzung liest der Agent ein Issue '
@@ -629,7 +629,7 @@ CAPSTONE_MODULE = {'key': 'capstone',
                                                'es soll.',
                                          'en': "The spec's acceptance criteria are the yardstick "
                                                'agreed in advance; without them all that is left '
-                                               'is “looks good”. Commit count and file size are '
+                                               'is “looks good.” Commit count and file size are '
                                                'measurable but say nothing about whether the '
                                                'feature does what it should.'}},
                         {'id': 'cap4',
@@ -663,7 +663,7 @@ CAPSTONE_MODULE = {'key': 'capstone',
                                           'Tests grün“. Was bleibt vor der Übergabe zum Merge '
                                           'deine Verantwortung?',
                                     'en': 'In the capstone project the agent reports “done, all '
-                                          'tests green”. What remains your responsibility before '
+                                          'tests green.” What remains your responsibility before '
                                           'handing off for merge?'},
                          'answer': 0,
                          'options': {'de': ['Die Verifikation: Diff und Tests selbst ansehen, '
@@ -729,9 +729,9 @@ CAPSTONE_MODULE = {'key': 'capstone',
                         {'id': 'cap7',
                          'type': 'multi',
                          'prompt': {'de': 'Du formulierst den Arbeitsauftrag für Meilenstein 5. '
-                                          'Was gehört hinein? (mehrere)',
+                                          'Was gehört hinein? Mehrere Antworten sind richtig.',
                                     'en': 'You write the task for milestone 5. What belongs in it? '
-                                          '(multiple)'},
+                                          'Select all that apply.'},
                          'answer': [0, 2, 3],
                          'options': {'de': ['Das Ziel: was am Ende wahr sein soll',
                                             'Der fertige Code, den der Agent nur noch einfügen '

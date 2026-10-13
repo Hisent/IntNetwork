@@ -46,7 +46,7 @@ export function DeviceCli({ prompt, run, lang = 'de', intro, chips, chipLabels, 
       if (ni >= 0) { setHi(ni); setInput(hist[ni]) }
     } else if (e.key === 'ArrowDown') {
       e.preventDefault()
-      const ni = hi - 1
+      const ni = Math.max(hi - 1, -1)  // nie unter „keine Auswahl“: sonst greift Pfeil-hoch danach ins Leere
       setHi(ni)
       setInput(ni >= 0 ? hist[ni] : '')
     }

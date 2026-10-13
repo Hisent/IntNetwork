@@ -32,7 +32,7 @@ Grenzen: Was darf ausdrücklich nicht geändert werden?
 Nachweis: Welche Tests, Beispiele oder Akzeptanzkriterien zeigen Erfolg?
 
 Beispiel: „Admins sollen Nutzer als CSV exportieren. Nutze den bestehenden Listen-Endpoint; ändere keine Rollenlogik. Erfolg: Nur Admins erhalten eine CSV, Nicht-Admins bekommen 403, Tests laufen.“""",
-                "en": """## A task you can verify
+                "en": """## A Task You Can Verify
 
 Give the agent enough direction, but do not prescribe the solution. Four lines are often enough:
 
@@ -97,7 +97,7 @@ Bei unbekanntem oder größerem Code trenne Analyse und Umsetzung. Starte im Pla
 Beispielauftrag: Untersuche den Auth-Bereich. Erkläre zuerst den aktuellen Ablauf und erstelle einen Plan für OAuth. Ändere noch nichts.
 
 Das ist keine Bürokratie: Ein falscher Plan kostet meist mehr als eine kurze Planungsrunde.""",
-                "en": """## Explore before changing
+                "en": """## Explore Before Changing
 
 For unfamiliar or larger codebases, separate analysis from implementation. Start in plan mode and first ask for relevant files, existing patterns, risks, and a plan. Review it, correct scope or non-goals, and only then approve implementation.
 
@@ -111,7 +111,7 @@ This is not bureaucracy: a wrong plan usually costs more than a short planning r
          'note': 'An den beiden Rauten anhalten: Das sind die Stellen, an denen ein Mensch entscheidet.',
          'payload': {'kind': 'flow',
                      'title_de': 'Auftrag → Plan → Verifikation',
-                     'title_en': 'Task → plan → verification',
+                     'title_en': 'Task → Plan → Verification',
                      'caption_de': 'Zwei Entscheidungspunkte gehören dir: Plan freigeben und Nachweis '
                                    'prüfen.',
                      'caption_en': 'Two decision points are yours: approving the plan and checking the '
@@ -216,7 +216,7 @@ Ein guter Debug-Auftrag enthält beobachtbares Verhalten, einen Reproduktionssch
 Nicht: „Login kaputt, mach mal.“
 
 Besser: „Nach Ablauf der Session führt /profile zu 500 statt 401. Reproduktion: …; erwartet: 401. Finde die Ursache, schlage einen kleinen Fix vor und ergänze einen Regressionstest.“""",
-                "en": """## Bugs: evidence before a fix
+                "en": """## Bugs: Evidence Before a Fix
 
 A good debugging task includes observable behavior, a reproduction step, expected behavior, and the smallest useful output (error, log, or test). Ask the agent to state the cause and plan first, then prove the fix with a test.
 
@@ -230,13 +230,13 @@ Better: “After session expiry, /profile returns 500 instead of 401. Reproducti
          'note': 'Im Plenum abstimmen lassen. Der schnelle Weg (Auftrag wörtlich weiterreichen) ist '
                  'verlockend – bewusst einmal durchspielen.',
          'payload': {'title_de': '„Mach das Reporting schneller“',
-                     'title_en': '"Make reporting faster"',
+                     'title_en': '“Make Reporting Faster”',
                      'start': 'start',
                      'nodes': [{'id': 'start',
                                 'text_de': 'Im Ticket steht nur: „Das Reporting ist zu langsam, bitte '
                                            'schneller machen.“ Du kennst den Code kaum. Wie startest du?',
-                                'text_en': 'The ticket only says: "Reporting is too slow, please make it '
-                                           'faster." You hardly know the code. How do you start?',
+                                'text_en': 'The ticket only says: “Reporting is too slow, please make it '
+                                           'faster.” You hardly know the code. How do you start?',
                                 'options': [{'label_de': 'Den Satz so an den Agenten geben und Änderungen '
                                                          'automatisch annehmen lassen.',
                                              'label_en': 'Hand the sentence to the agent as is and let it '
@@ -250,8 +250,8 @@ Better: “After session expiry, /profile returns 500 instead of 401. Reproducti
                                              'to': 'plan'},
                                             {'label_de': 'Dem Agenten vorgeben: „Baue einen Cache vor alle '
                                                          'Berichte.“',
-                                             'label_en': 'Tell the agent: "Put a cache in front of all '
-                                                         'reports."',
+                                             'label_en': 'Tell the agent: “Put a cache in front of all '
+                                                         'reports.”',
                                              'to': 'ende-loesung'}]},
                                {'id': 'plan',
                                 'text_de': 'Messung: Der Monatsbericht braucht 40 Sekunden, alle anderen '
@@ -277,7 +277,7 @@ Better: “After session expiry, /profile returns 500 instead of 401. Reproducti
                                {'id': 'fertig',
                                 'text_de': 'Der Agent meldet: „Erledigt, der Bericht ist jetzt deutlich '
                                            'schneller.“',
-                                'text_en': 'The agent reports: "Done, the report is much faster now."',
+                                'text_en': 'The agent reports: “Done, the report is much faster now.”',
                                 'options': [{'label_de': 'Ticket schließen.',
                                              'label_en': 'Close the ticket.',
                                              'to': 'ende-glauben'},
@@ -315,7 +315,7 @@ Better: “After session expiry, /profile returns 500 instead of 401. Reproducti
                                 'text_de': 'Vielleicht stimmt es – du weißt es nur nicht. „Deutlich '
                                            'schneller“ ist eine Behauptung; der vereinbarte Nachweis war '
                                            'eine Messung und grüne Tests.',
-                                'text_en': 'It may be true – you just do not know. "Much faster" is a '
+                                'text_en': 'It may be true – you just do not know. “Much faster” is a '
                                            'claim; the agreed evidence was a measurement and green tests.'},
                                {'id': 'ende-gut',
                                 'outcome': 'good',
@@ -367,9 +367,9 @@ Better: “After session expiry, /profile returns 500 instead of 401. Reproducti
             },
             {
                 "id": "ew3",
-                "explanation": {'de': 'Reproduktionsschritte, erwartetes Verhalten und die konkrete Fehlermeldung machen aus einer Vermutung eine überprüfbare Beobachtung. „Geht nicht“ enthält keine davon; der Agent müsste raten, was kaputt ist und woran ein Fix zu erkennen wäre.', 'en': 'Reproduction steps, expected behavior and the concrete error message turn a guess into a verifiable observation. "It does not work" contains none of them; the agent would have to guess what is broken and how a fix would be recognized.'},
+                "explanation": {'de': 'Reproduktionsschritte, erwartetes Verhalten und die konkrete Fehlermeldung machen aus einer Vermutung eine überprüfbare Beobachtung. „Geht nicht“ enthält keine davon; der Agent müsste raten, was kaputt ist und woran ein Fix zu erkennen wäre.', 'en': 'Reproduction steps, expected behavior and the concrete error message turn a guess into a verifiable observation. “It does not work” contains none of them; the agent would have to guess what is broken and how a fix would be recognized.'},
                 "type": "multi",
-                "prompt": {"de": "Welche Angaben helfen beim Debuggen? (mehrere)", "en": "What information helps with debugging? (multiple)"},
+                "prompt": {"de": "Welche Angaben helfen beim Debuggen? Mehrere Antworten sind richtig.", "en": "What information helps with debugging? Select all that apply."},
                 "answer": [0, 1, 2],
                 "options": {
                     "de": ["Reproduktionsschritte", "Erwartetes Verhalten", "Fehlermeldung oder passender Log-Ausschnitt", "Nur die Aufforderung „geht nicht“"],
@@ -387,27 +387,27 @@ Better: “After session expiry, /profile returns 500 instead of 401. Reproducti
                                 'Session-Prüfung der Middleware. Rollenlogik nicht ändern. Erfolg: neuer '
                                 'Regressionstest grün.“',
                                 '„Lies das gesamte Repository und sag mir, was du verbessern würdest.“'],
-                         'en': ['"Tidy up the auth module and make it more modern."',
-                                '"In auth/session.py, replace the loop on line 40 with a list comprehension."',
-                                '"Expired sessions should return 401 instead of 500. Affected: the '
+                         'en': ['“Tidy up the auth module and make it more modern.”',
+                                '“In auth/session.py, replace the loop on line 40 with a list comprehension.”',
+                                '“Expired sessions should return 401 instead of 500. Affected: the '
                                 "middleware's session check. Do not change role logic. Success: new regression "
-                                'test green."',
-                                '"Read the whole repository and tell me what you would improve."']},
+                                'test green.”',
+                                '“Read the whole repository and tell me what you would improve.”']},
              'answer': 2,
              'explanation': {'de': 'Nur dieser Auftrag nennt Ziel, Kontext, Grenze und Nachweis. „Aufräumen“ '
                                    'hat kein prüfbares Ende; die Zeilenvorgabe schreibt den Lösungsweg vor und '
                                    'sagt nichts über das gewünschte Verhalten – der naheliegende Irrtum ist, '
                                    'Präzision mit Mikromanagement zu verwechseln.',
-                             'en': 'Only this task names goal, context, constraint and evidence. "Tidy up" has '
+                             'en': 'Only this task names goal, context, constraint and evidence. “Tidy up” has '
                                    'no verifiable end; the line-level instruction prescribes the solution and '
                                    'says nothing about the desired behavior – the obvious mistake is to '
                                    'confuse precision with micromanagement.'}},
             {'id': 'ew5',
              'type': 'multi',
              'prompt': {'de': 'Der Agent legt im Plan-Modus einen Plan vor. Welche Beobachtungen sind ein '
-                              'Grund, den Plan vor der Freigabe korrigieren zu lassen? (mehrere)',
+                              'Grund, den Plan vor der Freigabe korrigieren zu lassen? Mehrere Antworten sind richtig.',
                         'en': 'The agent presents a plan in plan mode. Which observations are a reason to have '
-                              'the plan corrected before approving? (multiple)'},
+                              'the plan corrected before approving? Select all that apply.'},
              'options': {'de': ['Der Plan ändert Dateien, die als Nicht-Ziel genannt waren',
                                 'Der Plan nennt keinen Schritt, mit dem der Erfolg nachgewiesen wird',
                                 'Der Plan nutzt ein bestehendes Muster aus dem Projekt',
@@ -429,7 +429,7 @@ Better: “After session expiry, /profile returns 500 instead of 401. Reproducti
              'type': 'single',
              'prompt': {'de': 'Ein Fehler tritt „manchmal“ auf. Der Agent schlägt sofort einen Fix vor, ohne '
                               'den Fehler reproduziert zu haben. Was ist der sinnvollste nächste Schritt?',
-                        'en': 'A bug occurs "sometimes". The agent immediately proposes a fix without having '
+                        'en': 'A bug occurs “sometimes.” The agent immediately proposes a fix without having '
                               'reproduced the bug. What is the most sensible next step?'},
              'options': {'de': ['Den Fix übernehmen und beobachten, ob der Fehler wiederkommt',
                                 'Erst eine Reproduktion verlangen – am besten einen Test, der fehlschlägt – '

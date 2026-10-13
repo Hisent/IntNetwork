@@ -114,7 +114,7 @@ IB_TROUBLESHOOTING_MODULE = {
             "payload": {
                 "kind": "flow",
                 "title_de": "Vom Symptom über die Komponente zum Werkzeug",
-                "title_en": "From symptom via component to tool",
+                "title_en": "From Symptom via Component to Tool",
                 "caption_de": "Spaltenweise von oben nach unten lesen. Die Knoten sind anklickbar.",
                 "caption_en": "Read each column top to bottom. The nodes are clickable.",
                 "nodes": [
@@ -350,7 +350,7 @@ IB_TROUBLESHOOTING_MODULE = {
          "note": "Ausgabeformate nach dem NIOS CLI Guide (show status, show network, show version, show ntp, show upgrade_history), gekürzt: show network ohne VLAN-, DSCP- und IPv6-Zeilen, show ntp ohne die Spalte jitter. Werte sind Beispiele; Zugang per SSH oder Konsole.",
          "payload": {
              "title_de": "Erste Lage am Grid Master: NIOS-CLI",
-             "title_en": "First look at the Grid Master: NIOS CLI",
+             "title_en": "First Look at the Grid Master: NIOS CLI",
              "prompt": "Infoblox >",
              "unknown_de": "Unbekannter Befehl: {cmd} (help zeigt die Befehlsliste)",
              "unknown_en": "Unknown command: {cmd} (help lists the commands)",
@@ -390,7 +390,7 @@ IB_TROUBLESHOOTING_MODULE = {
             "note": "Auflösung: Kein Stern vor der Zeitquelle und reach 0 — Member B erreicht seinen NTP-Server nicht, seine Uhr läuft frei. Die Failover-Peers verlangen synchrone Uhren; behoben wird also NTP (Firewall, Route, Zeitquelle), nicht das Failover. Befehle und Spalten nach dem NIOS CLI Guide (show log mit tail, show ntp, show status, show network); die Syslog-Zeilen sind vereinfacht und folgen den Meldungen des ISC-DHCP-Dienstes.",
             "payload": {
                 "title_de": "Fehlersuche: Das Failover-Paar findet nicht zusammen",
-                "title_en": "Troubleshooting: the failover pair will not come together",
+                "title_en": "Troubleshooting: the Failover Pair Will Not Come Together",
                 "intro_de": "Störung: Seit dem Neustart von Member B steht das Failover-Paar nicht mehr auf Normal. Du bist an der Konsole von Member B. Vereinfachte Darstellung der Log-Zeilen.",
                 "intro_en": "Incident: since member B was restarted, the failover pair is no longer in Normal. You are on the console of member B. Log lines are shown in simplified form.",
                 "prompt": "Infoblox >",
@@ -474,7 +474,7 @@ IB_TROUBLESHOOTING_MODULE = {
             "note": "Leitgedanke: der kleinste Eingriff, der das Problem löst. Ob und wie lange ein gelöschtes Objekt im Papierkorb liegt, in der eigenen Umgebung nachsehen lassen.",
             "payload": {
                 "title_de": "„Ich habe gerade die falsche Zone gelöscht“",
-                "title_en": "\"I just deleted the wrong zone\"",
+                "title_en": "“I Just Deleted the Wrong Zone”",
                 "start": "start",
                 "nodes": [
                     {
@@ -532,7 +532,7 @@ IB_TROUBLESHOOTING_MODULE = {
                         "id": "nichts",
                         "outcome": "ok",
                         "text_de": "Wahrscheinlich geht es gut. Aber „steht in der Liste“ ist nicht „wird ausgeliefert“: Ob die Member die Zone wieder bedienen und der externe Sekundär nachgezogen hat, weißt du erst nach einer Abfrage.",
-                        "text_en": "It will probably be fine. But \"is in the list\" is not \"is being served\": you only know whether the members serve the zone again and the external secondary has caught up after you run a query.",
+                        "text_en": "It will probably be fine. But “is in the list” is not “is being served”: you only know whether the members serve the zone again and the external secondary has caught up after you run a query.",
                     },
                     {
                         "id": "pruefen",
@@ -743,7 +743,7 @@ IB_TROUBLESHOOTING_MODULE = {
             },
             "explanation": {
                 "de": "Der Stern markiert die Quelle, mit der synchronisiert wird — er fehlt. reach 0 heißt: keiner der letzten Versuche wurde beantwortet; Stratum 16 steht für „nicht synchronisiert“. Offset 0 ist dann kein gutes Zeichen, sondern schlicht fehlende Messung.",
-                "en": "The asterisk marks the source being synchronized to — it is missing. reach 0 means: none of the recent attempts was answered; stratum 16 stands for \"unsynchronized\". An offset of 0 is then not a good sign but simply a missing measurement.",
+                "en": "The asterisk marks the source being synchronized to — it is missing. reach 0 means: none of the recent attempts was answered; stratum 16 stands for “unsynchronized.” An offset of 0 is then not a good sign but simply a missing measurement.",
             },
         },
         {
@@ -777,8 +777,8 @@ IB_TROUBLESHOOTING_MODULE = {
             "id": "ibt8",
             "type": "multi",
             "prompt": {
-                "de": "Jemand schlägt vor, eine Störung durch Einspielen des letzten Grid-Backups zu beheben. Welche Folgen eines vollständigen Restores gehören in die Abwägung (mehrere richtig)?",
-                "en": "Someone proposes resolving an incident by restoring the latest Grid backup. Which consequences of a full restore belong in the assessment (multiple)?",
+                "de": "Jemand schlägt vor, eine Störung durch Einspielen des letzten Grid-Backups zu beheben. Welche Folgen eines vollständigen Restores gehören in die Abwägung? Mehrere Antworten sind richtig.",
+                "en": "Someone proposes resolving an incident by restoring the latest Grid backup. Which consequences of a full restore belong in the assessment? Select all that apply.",
             },
             "answer": [0, 1, 3],
             "options": {

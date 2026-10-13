@@ -127,7 +127,7 @@ INFOBLOX_UEBERBLICK_MODULE = {
             "payload": {
                 "kind": "flow",
                 "title_de": "Ein Lease, drei Dienste: so greift DDI ineinander",
-                "title_en": "One lease, three services: how DDI interlocks",
+                "title_en": "One Lease, Three Services: How DDI Interlocks",
                 "nodes": [
                     {
                         "id": "client",
@@ -268,7 +268,7 @@ INFOBLOX_UEBERBLICK_MODULE = {
             "payload": {
                 "kind": "compare",
                 "title_de": "NIOS-Grid und Universal DDI im Vergleich",
-                "title_en": "NIOS Grid and Universal DDI compared",
+                "title_en": "NIOS Grid and Universal DDI Compared",
                 "columns": [{"title_de": "NIOS (Grid)", "title_en": "NIOS (Grid)"}, {"title": "Universal DDI"}],
                 "rows": [
                     {
@@ -626,10 +626,10 @@ INFOBLOX_UEBERBLICK_MODULE = {
                 },
                 'type': 'multi',
                 'prompt': {
-                    'de': 'Welche Aussagen zu Universal DDI treffen zu (mehrere '
-                          'richtig)?',
-                    'en': 'Which statements about Universal DDI are correct '
-                          '(multiple)?',
+                    'de': 'Welche Aussagen zu Universal DDI treffen zu? '
+                          'Mehrere Antworten sind richtig.',
+                    'en': 'Which statements about Universal DDI are correct?'
+                          ' Select all that apply.',
                 },
                 'answer': [0, 1, 3],
                 'options': {
@@ -718,7 +718,7 @@ INFOBLOX_UEBERBLICK_MODULE = {
                 "type": "single",
                 "prompt": {
                     "de": "Ein Kunde schreibt: „Wir betreiben ein NIOS-Grid mit acht Membern und zusätzlich BloxOne Threat Defense.“ Welche Einordnung trifft zu?",
-                    "en": "A customer writes: \"We run a NIOS Grid with eight members plus BloxOne Threat Defense.\" Which reading is correct?",
+                    "en": "A customer writes: “We run a NIOS Grid with eight members plus BloxOne Threat Defense.” Which reading is correct?",
                 },
                 "answer": 2,
                 "options": {

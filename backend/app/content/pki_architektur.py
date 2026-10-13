@@ -69,8 +69,8 @@ PKI_ARCHITEKTUR_MODULE = {
                    'operational issuance of end-entity certificates. Allows segmentation by '
                    'geography, department, or certificate type.\n'
                    '- **End-entity certificate (leaf certificate)** - the certificate that '
-                   'actually sits on a server or client, e.g. for '
-                   '"shop.nordwind-logistik.de".\n\n'
+                   'actually sits on a server or client, e.g., for '
+                   '“shop.nordwind-logistik.de”.\n\n'
                    'The chain forms because each certificate is signed by the one above it: '
                    'the root signs the intermediate, the intermediate signs the end-entity '
                    'certificate.',
@@ -108,7 +108,7 @@ PKI_ARCHITEKTUR_MODULE = {
          'payload': {
              'kind': 'layers',
              'title_de': 'Vertrauenskette: drei Stufen, von oben nach unten signiert',
-             'title_en': 'Chain of trust: three tiers, signed from the top down',
+             'title_en': 'Chain of Trust: Three Tiers, Signed From the Top Down',
              'layers': [
                  {'name_de': 'Root-CA', 'name_en': 'Root CA',
                   'content_de': 'selbstsigniert, liegt in den Trust Stores',
@@ -129,7 +129,7 @@ PKI_ARCHITEKTUR_MODULE = {
                                'and replaced after an incident without swapping the root in the trust stores.'},
                  {'name_de': 'Endzertifikat (Leaf)', 'name_en': 'End-entity certificate (leaf)',
                   'content_de': 'liegt am Server oder Client, z. B. shop.nordwind-logistik.de',
-                  'content_en': 'installed on the server or client, e.g. shop.nordwind-logistik.de',
+                  'content_en': 'installed on the server or client, e.g., shop.nordwind-logistik.de',
                   'pdu': 'Leaf',
                   'detail_de': 'Von der Intermediate-CA signiert. Darf selbst keine weiteren Zertifikate '
                                'ausstellen und hat die kürzeste Laufzeit der Kette.',
@@ -175,7 +175,7 @@ PKI_ARCHITEKTUR_MODULE = {
          'payload': {
              'kind': 'flow',
              'title_de': 'Pfadvalidierung: wie der Client die Kette prüft',
-             'title_en': 'Path validation: how the client checks the chain',
+             'title_en': 'Path Validation: How the Client Checks the Chain',
              'nodes': [
                     {
                      'id': 'leaf',
@@ -269,11 +269,11 @@ PKI_ARCHITEKTUR_MODULE = {
         },
         {'type': 'terminal', 'id': 'terminal-verify-kette',
          'note': ('Echte Ausgaben von openssl verify (OpenSSL 3.6) gegen die Kurs-Test-PKI; die langen '
-             'Subject-Zeilen sind umbrochen. Dieselbe Übung läuft real im Openssl-Lab mit der Vorlage '
+             'Subject-Zeilen sind umbrochen. Dieselbe Übung läuft real im OpenSSL-Lab mit der Vorlage '
              '"Mini-CA mit Intermediate + Kettenprüfung".'),
          'payload': {
              'title_de': 'Die Kette mit openssl verify prüfen',
-             'title_en': 'Checking the chain with openssl verify',
+             'title_en': 'Checking the Chain With openssl verify',
              'prompt': 'nordwind$',
              'intro_de': 'Dateien: root.pem (Root-CA), issuing.pem (Issuing-CA), www.pem (Serverzertifikat).',
              'intro_en': 'Files: root.pem (root CA), issuing.pem (issuing CA), www.pem (server certificate).',
@@ -365,8 +365,8 @@ PKI_ARCHITEKTUR_MODULE = {
                  'Root-CA muss in **alle** relevanten Trust Stores verteilt werden - Betriebssystem-Rollout '
                  'allein reicht nicht.'),
              'en': ('## Trust Stores: OS, Browser, Java/Python\n\nOperating systems, browsers, and runtimes '
-                 'sometimes bring their **own** certificate stores - this is the cause of the classic "no '
-                 'warning in the browser, but the Java application complains". (Incidentally, no current '
+                 'sometimes bring their **own** certificate stores - this is the cause of the classic “no '
+                 'warning in the browser, but the Java application complains.” (Incidentally, no current '
                  'browser shows a green padlock anymore: in May 2023 Chrome announced it would replace the lock '
                  'icon with a neutral one, because it was mistaken for a seal of quality for the website.) The '
                  'stores at a glance:\n\n- **Windows/macOS** - their own OS-managed store (Windows Certificate Store '
@@ -380,7 +380,7 @@ PKI_ARCHITEKTUR_MODULE = {
                  'additionally be imported **manually** into `cacerts`, or no Java application on the same '
                  "machine will trust it.\n- **Python** - the standard `ssl` module uses OpenSSL's system "
                  'defaults, whereas the widely used `requests` library ships its own CA bundle via the '
-                 '`certifi` package. Here, too, an internal root CA must be made known separately (e.g. via the '
+                 '`certifi` package. Here, too, an internal root CA must be made known separately (e.g., via the '
                  '`REQUESTS_CA_BUNDLE` environment variable).\n\nFor operations this means: a new internal root '
                  'CA must be distributed to **all** relevant trust stores - an OS-level rollout alone is not '
                  'enough.'),
@@ -432,12 +432,12 @@ PKI_ARCHITEKTUR_MODULE = {
                    'öffentliche CA, für interne Maschinenzertifikate im Lager dagegen die '
                    'eigene interne CA - beide Welten koexistieren, ohne sich zu vermischen.',
              'en': '## Public CA vs. Internal Enterprise CA\n\n'
-                   '- **Public CA** (e.g. Let\'s Encrypt, DigiCert, Sectigo) - its root is '
+                   '- **Public CA** (e.g., Let\'s Encrypt, DigiCert, Sectigo) - its root is '
                    'pre-installed in the common trust stores of operating systems and '
                    'browsers. Certificates are accepted **automatically** by any common '
                    'client, without manual distribution. Suitable for anything reached from '
                    'outside (customers, partners).\n'
-                   '- **Internal enterprise CA** (e.g. run via AD CS or step-ca) - no public '
+                   '- **Internal enterprise CA** (e.g., run via AD CS or step-ca) - no public '
                    'root, must be actively distributed into the trust stores of all '
                    'relevant systems (OS, browser, Java, ...). In return: full control over '
                    'issuance policy, no dependency on an external CA, no ongoing '
@@ -471,7 +471,7 @@ PKI_ARCHITEKTUR_MODULE = {
         {'type': 'scenario', 'id': 'scenario-issuing-ca-kompromittiert',
          'payload': {
              'title_de': 'Verdacht: Schlüssel der Issuing-CA abgeflossen',
-             'title_en': 'Suspicion: issuing CA key leaked',
+             'title_en': 'Suspicion: Issuing CA Key Leaked',
              'start': 'start',
              'nodes': [
                     {
@@ -564,8 +564,8 @@ PKI_ARCHITEKTUR_MODULE = {
                  'aktiv mit der neuen Root bestücken, damit am Ende nicht „im Browser in Ordnung, in der '
                  'Anwendung ein Vertrauensfehler“ passiert? Liste mindestens drei konkrete Stellen.'),
              'prompt_en': ('Nordwind is building an internal CA for warehouse IoT devices. Which systems/trust stores do '
-                 'you need to actively populate with the new root so you do not end up with "fine in the '
-                 'browser, trust error in the application"? List at least three concrete places.'),
+                 'you need to actively populate with the new root so you do not end up with “fine in the '
+                 'browser, trust error in the application”? List at least three concrete places.'),
             },
         },
     ],
@@ -720,8 +720,8 @@ PKI_ARCHITEKTUR_MODULE = {
          'prompt': {
              'de': ('`openssl verify -CAfile root.pem www.pem` meldet: „error 20 at 0 depth lookup: unable to get '
                  'local issuer certificate“. root.pem ist die richtige Root. Was fehlt?'),
-             'en': ('`openssl verify -CAfile root.pem www.pem` reports: "error 20 at 0 depth lookup: unable to get '
-                 'local issuer certificate". root.pem is the correct root. What is missing?'),
+             'en': ('`openssl verify -CAfile root.pem www.pem` reports: “error 20 at 0 depth lookup: unable to get '
+                 'local issuer certificate”. root.pem is the correct root. What is missing?'),
             },
          'options': {
              'de': [
@@ -731,7 +731,7 @@ PKI_ARCHITEKTUR_MODULE = {
                     'Die Root — depth 0 bezeichnet immer die Root',
                 ],
              'en': [
-                    'The intermediate certificate that issued www.pem (e.g. via -untrusted)',
+                    'The intermediate certificate that issued www.pem (e.g., via -untrusted)',
                     'The private key for www.pem',
                     'A SAN entry for the hostname',
                     'The root — depth 0 always denotes the root',
@@ -776,7 +776,7 @@ PKI_ARCHITEKTUR_MODULE = {
                  'versorgt werden — der Klassiker hinter „im Browser geht es“.'),
              'en': ('Chrome and Edge honor roots installed locally in the operating system. Java (`cacerts`) and '
                  '`requests` (CA bundle from `certifi`) ship their own stores and have to be provisioned '
-                 'separately — the classic behind "it works in the browser".'),
+                 'separately — the classic behind “it works in the browser.”'),
             },
         },
         {'id': 'pa8', 'type': 'number',
@@ -793,7 +793,7 @@ PKI_ARCHITEKTUR_MODULE = {
                  '„unvollständige Kette“.'),
              'en': ('Two: the server certificate and the intermediate. The client must already have the root in '
                  'its trust store; sending it along only costs bytes. Sending just one is the common '
-                 '"incomplete chain" mistake.'),
+                 '“incomplete chain” mistake.'),
             },
         },
     ]},

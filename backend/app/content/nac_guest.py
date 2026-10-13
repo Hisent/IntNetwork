@@ -35,7 +35,7 @@ NAC_GUEST_MODULE = {
     },
     'blocks': [
         {'type': 'text', 'id': 'text-1',
-         'note': 'Eigenstaendiges Modul begruenden: Gaeste sind kein Sonderfall von 802.1X, '
+         'note': 'Eigenständiges Modul begründen: Gäste sind kein Sonderfall von 802.1X, '
                  'sondern ein komplett anderer Zugangsweg mit eigenen Regeln.',
          'value': {
              'de': '## Warum Gastzugang eine eigene Betrachtung braucht\n\n'
@@ -75,7 +75,7 @@ NAC_GUEST_MODULE = {
                    'e.g., with name and email address. Depending on configuration, such '
                    'self-registration may additionally require **sponsor approval** before '
                    'credentials are issued.\n'
-                   '- **Sponsor approval** — an employee (the "sponsor") creates the guest account '
+                   '- **Sponsor approval** — an employee (the “sponsor”) creates the guest account '
                    'or must actively approve a registration request, often via email or a '
                    'dashboard. This adds an extra layer of control: a guest only gets access once '
                    'someone from the company vouches for it.\n\n'
@@ -147,7 +147,7 @@ NAC_GUEST_MODULE = {
             'payload': {
                 'kind': 'sequence',
                 'title_de': 'Captive Portal: vom ersten Frame bis zur Gast-Freigabe',
-                'title_en': 'Captive portal: from the first frame to guest access',
+                'title_en': 'Captive Portal: From the First Frame to Guest Access',
                 'actors': [
                     {
                         'id': 'dev',
@@ -330,7 +330,7 @@ NAC_GUEST_MODULE = {
             'id': 'text-gast-mac-randomisierung',
             'value': {
                 'de': '## Private WLAN-Adressen: warum Gäste „vergessen“ werden\n\nEin Captive Portal merkt sich einen angemeldeten Gast über die **MAC-Adresse** seines Geräts. Smartphones und Notebooks verwenden im WLAN aber zunehmend zufällige Adressen: je Netz eine eigene, und in offenen oder schwach gesicherten Netzen — also genau in typischen Gast-WLANs — wechseln aktuelle iOS-Versionen sie standardmäßig alle zwei Wochen.\n\nDas erklärt typische Gast-Beschwerden und hat Folgen für das Design:\n\n- **Erneute Anmeldung trotz gültigem Konto** — nach einem Adresswechsel erkennt das Portal das Gerät nicht wieder. Das ist kein Fehler, sondern das Verhalten des Endgeräts.\n- **Gerätelimits zählen falsch** — „höchstens drei Geräte je Gast“ läuft voll, weil dasselbe Gerät mehrfach gezählt wird.\n- **Dauerhafte Freischaltungen per MAC taugen nicht** — wer Lieferanten langfristig anbinden will, braucht ein Konto oder Zertifikat statt einer MAC-Liste.\n\nDie Gegenmaßnahme ist nicht, Gäste zum Abschalten der Funktion aufzufordern, sondern die Gültigkeit realistisch zu planen: Die Anmeldung gilt für ein Gerät mit der Adresse, die es gerade hat.',
-                'en': '## Private Wi-Fi Addresses: Why Guests Get "Forgotten"\n\nA captive portal remembers a logged-in guest by the **MAC address** of their device. But smartphones and laptops increasingly use random addresses on Wi-Fi: a separate one per network, and on open or weakly secured networks — precisely typical guest Wi-Fi — current iOS versions rotate them every two weeks by default.\n\nThis explains typical guest complaints and has consequences for the design:\n\n- **Login required again despite a valid account** — after an address change the portal no longer recognizes the device. This is not a fault but the behavior of the endpoint.\n- **Device limits are miscounted** — "at most three devices per guest" fills up because the same device is counted several times.\n- **Permanent approvals by MAC are unsuitable** — anyone who wants to connect suppliers long term needs an account or certificate instead of a MAC list.\n\nThe countermeasure is not to ask guests to turn the feature off, but to plan validity realistically: the login applies to one device with the address it currently has.',
+                'en': '## Private Wi-Fi Addresses: Why Guests Get “Forgotten”\n\nA captive portal remembers a logged-in guest by the **MAC address** of their device. But smartphones and laptops increasingly use random addresses on Wi-Fi: a separate one per network, and on open or weakly secured networks — precisely typical guest Wi-Fi — current iOS versions rotate them every two weeks by default.\n\nThis explains typical guest complaints and has consequences for the design:\n\n- **Login required again despite a valid account** — after an address change the portal no longer recognizes the device. This is not a fault but the behavior of the endpoint.\n- **Device limits are miscounted** — “at most three devices per guest” fills up because the same device is counted several times.\n- **Permanent approvals by MAC are unsuitable** — anyone who wants to connect suppliers long term needs an account or certificate instead of a MAC list.\n\nThe countermeasure is not to ask guests to turn the feature off, but to plan validity realistically: the login applies to one device with the address it currently has.',
             },
         },
         {'type': 'order', 'id': 'order-1',
@@ -526,8 +526,8 @@ NAC_GUEST_MODULE = {
             'id': 'gu7',
             'type': 'multi',
             'prompt': {
-                'de': 'Ein Gastgerät verbindet sich, aber die Portalseite erscheint nie. Welche Dienste MUSS der eingeschränkte Zustand vor der Anmeldung erlauben, damit die Umleitung funktioniert? (Mehrere richtig)',
-                'en': 'A guest device connects, but the portal page never appears. Which services MUST the restricted pre-login state allow for the redirect to work? (Several correct)',
+                'de': 'Ein Gastgerät verbindet sich, aber die Portalseite erscheint nie. Welche Dienste MUSS der eingeschränkte Zustand vor der Anmeldung erlauben, damit die Umleitung funktioniert? Mehrere Antworten sind richtig.',
+                'en': 'A guest device connects, but the portal page never appears. Which services MUST the restricted pre-login state allow for the redirect to work? Select all that apply.',
             },
             'options': {
                 'de': [

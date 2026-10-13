@@ -31,7 +31,7 @@ const STEPS: Step[] = [
   },
   {
     title: { de: '3. Paketreise', en: '3. Packet journey' },
-    context: { de: 'Ein Laptop öffnet zum ersten Mal portal.nordwind.de; das Ziel liegt außerhalb des eigenen Subnetzes.', en: 'A laptop opens portal.nordwind.de for the first time; the destination is outside its own subnet.' },
+    context: { de: 'Ein Laptop öffnet zum ersten Mal portal.nordwind-logistik.de; das Ziel liegt außerhalb des eigenen Subnetzes.', en: 'A laptop opens portal.nordwind-logistik.de for the first time; the destination is outside its own subnet.' },
     prompt: { de: 'Was passiert zuerst, bevor das erste TCP-Paket zum Webserver gesendet werden kann?', en: 'What happens first before the first TCP packet can be sent to the web server?' },
     options: { de: ['DNS löst den Namen auf; danach ermittelt ARP die MAC-Adresse des Gateways', 'NAT übersetzt sofort die private IP; DNS ist nur für E-Mails nötig', 'Der Switch kennt automatisch die MAC-Adresse jedes Webservers im Internet'], en: ['DNS resolves the name; then ARP finds the gateway’s MAC address', 'NAT immediately translates the private IP; DNS is only needed for email', 'The switch automatically knows every web server’s MAC address on the internet'] },
     correct: 0,
@@ -39,7 +39,7 @@ const STEPS: Step[] = [
   },
   {
     title: { de: '4. Störfall', en: '4. Incident' },
-    context: { de: 'Nach dem Umzug meldet nur das Lager: Webseiten funktionieren nicht. IP und Gateway sind korrekt; ping 8.8.8.8 klappt; nslookup portal.nordwind.de läuft in einen Timeout.', en: 'After the move, only the warehouse reports that websites fail. IP and gateway are correct; ping 8.8.8.8 works; nslookup portal.nordwind.de times out.' },
+    context: { de: 'Nach dem Umzug meldet nur das Lager: Webseiten funktionieren nicht. IP und Gateway sind korrekt; ping 8.8.8.8 klappt; nslookup portal.nordwind-logistik.de läuft in einen Timeout.', en: 'After the move, only the warehouse reports that websites fail. IP and gateway are correct; ping 8.8.8.8 works; nslookup portal.nordwind-logistik.de times out.' },
     prompt: { de: 'Wo setzt du die Diagnose fort?', en: 'Where do you continue the diagnosis?' },
     options: { de: ['Beim DNS-Dienst bzw. seiner Erreichbarkeit aus dem Lager-VLAN', 'Am Netzwerkkabel jedes Lager-PCs', 'Beim Internet-Provider, weil keine Webseite lädt'], en: ['At the DNS service or its reachability from the warehouse VLAN', 'At every warehouse PC’s network cable', 'At the internet provider because no website loads'] },
     correct: 0,
@@ -69,7 +69,7 @@ export function Capstone({ lang }: { lang: Lang }) {
     <div className="rounded-2xl border border-teal-200 bg-teal-50/40 p-5">
       <p className="mb-1 text-sm font-semibold text-teal-900">{s.title}</p>
       <p className="mb-4 text-xs text-slate-600">{s.subtitle}</p>
-      <div className="mb-4 flex gap-1.5" aria-label={s.progress}>
+      <div className="mb-4 flex gap-1.5" role="progressbar" aria-label={s.progress} aria-valuemin={0} aria-valuemax={STEPS.length} aria-valuenow={complete ? STEPS.length : step}>
         {STEPS.map((_, i) => <div key={i} className={i < step || complete ? 'h-1.5 flex-1 rounded bg-teal-600' : i === step ? 'h-1.5 flex-1 rounded bg-teal-300' : 'h-1.5 flex-1 rounded bg-slate-200'} />)}
       </div>
       {!complete ? <>
@@ -77,7 +77,7 @@ export function Capstone({ lang }: { lang: Lang }) {
         <p className="mb-3 rounded-lg bg-white/80 p-3 text-sm text-slate-700">{current.context[lang]}</p>
         <p className="mb-2 font-medium text-slate-800">{current.prompt[lang]}</p>
         <div className="flex flex-col gap-1.5">
-          {current.options[lang].map((option, i) => <button key={option} disabled={picked !== null} onClick={() => setPicked(i)} className={picked === null ? 'rounded-lg border border-slate-200 bg-white px-3 py-2 text-left text-sm hover:bg-slate-50' : i === current.correct ? 'rounded-lg border border-green-300 bg-green-50 px-3 py-2 text-left text-sm text-green-900' : i === picked ? 'rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-left text-sm text-amber-900' : 'rounded-lg border border-slate-100 bg-white px-3 py-2 text-left text-sm text-slate-400'}>{option}</button>)}
+          {current.options[lang].map((option, i) => <button key={option} disabled={picked !== null} onClick={() => setPicked(i)} className={picked === null ? 'rounded-lg border border-slate-200 bg-white px-3 py-2 text-left text-sm hover:bg-slate-50' : i === current.correct ? 'rounded-lg border border-green-300 bg-green-50 px-3 py-2 text-left text-sm text-green-900' : i === picked ? 'rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-left text-sm text-amber-900' : 'rounded-lg border border-slate-100 bg-white px-3 py-2 text-left text-sm text-slate-500'}>{option}</button>)}
         </div>
         {picked !== null && <div className="mt-3 text-sm">
           <p className={correct ? 'text-green-700' : 'text-amber-700'}>{correct ? '✓ ' : '✗ '}{current.explanation[lang]}</p>

@@ -33,7 +33,7 @@ HASHFUNKTIONEN_MODULE = {
         'en': 'Nordwind Logistik GmbH runs an internal software repository. The latest audit '
               'found that downloads are checksummed with SHA-256, but the employee portal login '
               'database still stores passwords with a plain SHA-256 hash. Your task: explain what '
-              'a cryptographic hash is actually good for — and why not every "hash" is the same when '
+              'a cryptographic hash is actually good for — and why not every “hash” is the same when '
               'it comes to passwords.',
     },
     'blocks': [
@@ -58,7 +58,7 @@ HASHFUNKTIONEN_MODULE = {
                    'Hash, aber schon eine minimale Änderung ist sofort sichtbar.',
              'en': '## Properties of a Cryptographic Hash Function\n\n'
                    'A cryptographic hash function maps inputs of any size to a **fixed output '
-                   'length** (e.g. always 256 bits for SHA-256), along with a few additional '
+                   'length** (e.g., always 256 bits for SHA-256), along with a few additional '
                    'properties that an ordinary checksum (like CRC32) does not have:\n\n'
                    '- **One-way function** — the original input cannot feasibly be reconstructed from the hash value.\n'
                    '- **Collision resistance** — it should be practically infeasible to find two '
@@ -67,7 +67,7 @@ HASHFUNKTIONEN_MODULE = {
                    'hash value completely and unpredictably.\n'
                    '- **Fixed output length** — regardless of input size, the output is always the '
                    'same length.\n\n'
-                   'Together, these properties make a hash a reliable "digital fingerprint": two '
+                   'Together, these properties make a hash a reliable “digital fingerprint”: two '
                    'identical inputs always produce the same hash, but even a minimal change is '
                    'immediately visible.',
          }},
@@ -136,7 +136,7 @@ HASHFUNKTIONEN_MODULE = {
                    'starting in 2017 by no longer accepting SHA-1 certificates. MD5 has been '
                    'considered fully unsuitable for even longer and no longer appears in any '
                    'current recommendation. For SHA-1, the first real collision was published in '
-                   '2017 ("SHAttered"), followed in 2020 by a practical chosen-prefix attack. For '
+                   '2017 (“SHAttered”), followed in 2020 by a practical chosen-prefix attack. For '
                    'new certificates and signatures, at least SHA-256 is standard today: the SHA-2 '
                    'family (SHA-256, SHA-384, SHA-512) is considered unbroken, as is **SHA-3**, '
                    'which has a completely different internal design and stands ready as an '
@@ -181,8 +181,8 @@ HASHFUNKTIONEN_MODULE = {
                    'mit einem passenden HMAC versehen. Damit liefert HMAC nicht nur Integrität '
                    '(wie ein blanker Hash), sondern zusätzlich Authentizität: Der Empfänger weiß, '
                    'dass die Nachricht von jemandem stammt, der den geheimen Schlüssel kennt.',
-             'en': '## HMAC — Integrity with a Key\n\n'
-                   'A plain hash value (e.g. SHA-256 over a message) only proves that nobody '
+             'en': '## HMAC — Integrity With a Key\n\n'
+                   'A plain hash value (e.g., SHA-256 over a message) only proves that nobody '
                    'altered the message if the hash value itself reaches the receiver over a '
                    'trusted, separate channel. If it travels together with the message, an '
                    'attacker who intercepts it can change the message and simply compute the '
@@ -200,7 +200,7 @@ HASHFUNKTIONEN_MODULE = {
          'payload': {
              'kind': 'compare',
              'title_de': 'Hash, HMAC und Signatur im Vergleich',
-             'title_en': 'Hash, HMAC, and signature compared',
+             'title_en': 'Hash, HMAC, and Signature Compared',
              'columns': [
                     {'title_de': 'Hash (SHA-256)', 'title_en': 'Hash (SHA-256)'},
                     {'title': 'HMAC-SHA-256'},
@@ -260,14 +260,14 @@ HASHFUNKTIONEN_MODULE = {
         },
         {'type': 'terminal', 'id': 'terminal-dgst',
          'note': ('Ausgaben real mit OpenSSL 3.6 erzeugt (Datei: eine Zeile "Lieferschein 4711: 12 Paletten nach '
-                  'Hamburg", manipuliert: 13 Paletten). Dieselben Befehle laufen im Openssl-Lab über die Vorlage "Hash'
+                  'Hamburg", manipuliert: 13 Paletten). Dieselben Befehle laufen im OpenSSL-Lab über die Vorlage "Hash'
                   ' und HMAC" (Modul "TLS prüfen" bzw. "Digitale Signaturen"). Für die Anzeige steht jeder Hash-Wert '
                   'auf einer eigenen Zeile unter dem Dateinamen (echt: eine Zeile "NAME(datei)= wert"), der '
                   'SHA-512-Wert auf zwei Zeilen zu je 64 Hex-Zeichen; so stehen die Werte zum Vergleich untereinander. '
                   'wrap ist aus, damit auch auf dem Tablet nichts umbricht.'),
          'payload': {
              'title_de': 'Hash und HMAC mit openssl dgst',
-             'title_en': 'Hash and HMAC with openssl dgst',
+             'title_en': 'Hash and HMAC With openssl dgst',
              'wrap': False,
              'prompt': 'nordwind$',
              'intro_de': ('Zwei Dateien: lieferschein.txt (12 Paletten) und eine\n'
@@ -442,7 +442,7 @@ HASHFUNKTIONEN_MODULE = {
                    '- **bcrypt** — for legacy systems only, with a work factor of at least 10 per '
                    'OWASP. **Important for user guidance:** bcrypt processes at most 72 bytes of '
                    'input — longer passwords get truncated.\n'
-                   '- **PBKDF2** — only where FIPS-140 compliance is mandatory, e.g. with '
+                   '- **PBKDF2** — only where FIPS-140 compliance is mandatory, e.g., with '
                    'PBKDF2-HMAC-SHA256 and 600,000 iterations per OWASP recommendation.\n\n'
                    'SHA-256 or MD5 as a plain hash have no place in any of these recommendations — '
                    'they are simply too fast for passwords.',
@@ -471,7 +471,7 @@ HASHFUNKTIONEN_MODULE = {
         {'type': 'scenario', 'id': 'scenario-passwort-migration',
          'payload': {
              'title_de': 'Die Login-Datenbank mit blankem SHA-256',
-             'title_en': 'The login database with plain SHA-256',
+             'title_en': 'The Login Database With Plain SHA-256',
              'start': 'start',
              'nodes': [
                     {
@@ -503,7 +503,7 @@ HASHFUNKTIONEN_MODULE = {
                      'outcome': 'bad',
                      'text_de': ('Ein Hash ist eine Einwegfunktion — „zurückrechnen“ heißt hier Passwörter raten. Genau '
                          'das wäre der Angriff, vor dem die Umstellung schützen soll.'),
-                     'text_en': ('A hash is a one-way function — "reversing" here means guessing passwords. That is '
+                     'text_en': ('A hash is a one-way function — “reversing” here means guessing passwords. That is '
                          'precisely the attack the migration is meant to protect against.'),
                     },
                     {
@@ -512,7 +512,7 @@ HASHFUNKTIONEN_MODULE = {
                      'text_de': ('Ungebrochen heißt kollisionsresistent, nicht „für Passwörter geeignet“. SHA-256 ist '
                          'schnell: Wer die Tabelle stiehlt, probiert Milliarden Kandidaten pro Sekunde — und '
                          'ohne Salt verraten gleiche Hashes gleiche Passwörter.'),
-                     'text_en': ('Unbroken means collision-resistant, not "suitable for passwords". SHA-256 is fast: '
+                     'text_en': ('Unbroken means collision-resistant, not “suitable for passwords.” SHA-256 is fast: '
                          'whoever steals the table tries billions of candidates per second — and without a '
                          'salt, equal hashes reveal equal passwords.'),
                     },
@@ -563,7 +563,7 @@ HASHFUNKTIONEN_MODULE = {
                          'einfacher zu implementieren sei. Was übersieht er dabei, und wie '
                          'würdest du das im Review begründen?',
              'prompt_en': 'A developer at Nordwind Logistik proposes storing passwords with '
-                         '"SHA-256 plus salt" instead of Argon2id in the future because it is '
+                         '“SHA-256 plus salt” instead of Argon2id in the future because it is '
                          'easier to implement. What is he overlooking, and how would you justify '
                          'your objection in a code review?',
          }},
@@ -718,7 +718,7 @@ HASHFUNKTIONEN_MODULE = {
                  'SHA-256 kennt keinen Schlüssel. Achtung: Der Vergleich schützt nur, wenn der Sollwert aus '
                  'vertrauenswürdiger Quelle stammt.'),
              'en': ('A hash is deterministic: the same input yields the same value everywhere, regardless of tool '
-                 'and version. There is no "almost equal" because of the avalanche effect, and a plain SHA-256 '
+                 'and version. There is no “almost equal” because of the avalanche effect, and a plain SHA-256 '
                  'has no key. Note: the comparison only protects you if the reference value comes from a '
                  'trustworthy source.'),
             },

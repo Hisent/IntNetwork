@@ -52,7 +52,7 @@ TLS_KONFIGURATION_MODULE = {
              'en': '## Reading a Cipher Suite in TLS 1.2\n\n'
                    'A TLS 1.2 cipher suite such as `TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256` names four '
                    'building blocks in one string:\n\n'
-                   '- **ECDHE** — the key exchange (elliptic-curve Diffie-Hellman, ephemeral, i.e. with '
+                   '- **ECDHE** — the key exchange (elliptic-curve Diffie-Hellman, ephemeral, i.e., with '
                    'forward secrecy).\n'
                    '- **RSA** — the authentication: the server proves its identity with an RSA key — '
                    'its certificate contains an RSA key, which it uses to sign the key exchange.\n'
@@ -69,7 +69,7 @@ TLS_KONFIGURATION_MODULE = {
          'payload': {
              'kind': 'layers',
              'title_de': 'TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256, zerlegt',
-             'title_en': 'TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256, taken apart',
+             'title_en': 'TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256, Taken Apart',
              'caption_de': 'Eine TLS-1.2-Suite bündelt vier Entscheidungen; TLS 1.3 behält nur die letzten zwei.',
              'caption_en': 'A TLS 1.2 suite bundles four decisions; TLS 1.3 keeps only the last two.',
              'layers': [
@@ -130,7 +130,7 @@ TLS_KONFIGURATION_MODULE = {
                    'wissen: Die alten Namensbestandteile ECDHE/RSA/ECDSA stehen hier schlicht nicht mehr '
                    'in der Suite selbst, obwohl sie im Handshake weiterhin eine Rolle spielen.',
              'en': '## TLS 1.3: The Suite Gets Leaner\n\n'
-                   'In TLS 1.3, a cipher suite looks noticeably shorter, e.g. `TLS_AES_128_GCM_SHA256`: '
+                   'In TLS 1.3, a cipher suite looks noticeably shorter, e.g., `TLS_AES_128_GCM_SHA256`: '
                    'it only names **encryption** and **hash**. Key exchange and authentication are no '
                    'longer part of the suite here, because in TLS 1.3 they are negotiated separately — '
                    'the key exchange runs via the `key_share` extension (always ephemeral, see the '
@@ -177,7 +177,7 @@ TLS_KONFIGURATION_MODULE = {
                  'ausschließlich moderne Clients zugreifen, ist "modern" die richtige Wahl — im Zweifel ist '
                  '"intermediate" der sicherere Ausgangspunkt.'),
              'en': ('## The Three Mozilla Profiles\n\nThe best-known practical guideline comes from Mozilla '
-                 '("Server Side TLS") and is maintained today under the name **TLSRef** (docs.tlsref.org, '
+                 '(“Server Side TLS”) and is maintained today under the name **TLSRef** (docs.tlsref.org, '
                  'version 6.0 as of October 2026); the accompanying configuration generator turns it into ready-made '
                  'blocks for common server software. Historically there were three profiles:\n\n- **modern** — '
                  'TLS 1.3 only with its AEAD suites, no legacy configuration needed. Fits when only modern '
@@ -189,8 +189,8 @@ TLS_KONFIGURATION_MODULE = {
                  'compatibility for very old clients (still allows TLS 1.0/1.1), explicitly not recommended '
                  'here; the current version of the guideline (version 6.0) has removed this profile.\n\nThe '
                  'selection criterion is always the same: **which range of clients does the service still have '
-                 'to serve?** Only if it can be shown that exclusively modern clients connect is "modern" the '
-                 'right choice — when in doubt, "intermediate" is the safer starting point.'),
+                 'to serve?** Only if it can be shown that exclusively modern clients connect is “modern” the '
+                 'right choice — when in doubt, “intermediate” is the safer starting point.'),
             },
         },
         {'type': 'text', 'id': 'text-bsi-tr02102',
@@ -217,8 +217,8 @@ TLS_KONFIGURATION_MODULE = {
                  '`SecP256r1MLKEM768` und `SecP384r1MLKEM1024`, sobald der zugehörige RFC verabschiedet ist. '
                  'Klassische Schlüsseleinigung allein wird nur noch bis Ende 2031 empfohlen.'),
              'en': ('## The German Reference: BSI TR-02102-2\n\nBesides the Mozilla guideline there is a second, '
-                 'often more binding reference for Germany: the technical guideline **BSI TR-02102-2** ("Use of '
-                 'TLS", version 2026-01). Its key statements:\n\n- **Prefer TLS 1.3.** TLS 1.2 is only '
+                 'often more binding reference for Germany: the technical guideline **BSI TR-02102-2** (“Use of '
+                 'TLS,” version 2026-01). Its key statements:\n\n- **Prefer TLS 1.3.** TLS 1.2 is only '
                  'recommended until the end of 2031, because no quantum-safe key agreement schemes are being '
                  'standardized for it. TLS 1.0/1.1 and SSL are not recommended.\n- **Forward secrecy** is '
                  'recommended as a matter of principle; in TLS 1.2 that means ECDHE suites, and CBC suites only '
@@ -244,7 +244,7 @@ TLS_KONFIGURATION_MODULE = {
          'payload': {
              'kind': 'compare',
              'title_de': 'Mozilla/TLSRef „intermediate“ und BSI TR-02102-2',
-             'title_en': 'Mozilla/TLSRef "intermediate" and BSI TR-02102-2',
+             'title_en': 'Mozilla/TLSRef “Intermediate” and BSI TR-02102-2',
              'columns': [
                     {'title': 'TLSRef 6.0 intermediate'},
                     {'title': 'BSI TR-02102-2 (2026-01)'},
@@ -392,8 +392,8 @@ TLS_KONFIGURATION_MODULE = {
              'en': '## Mixed Content\n\n'
                    'Even if the page itself is served over HTTPS, it can still embed resources (images, '
                    'scripts, stylesheets) via `http://` — this is **mixed content**. Browsers now block '
-                   'active mixed-content resources (e.g. scripts) by default, because an attacker could '
-                   'tamper with them in transit even though the page itself is shown as "secure". '
+                   'active mixed-content resources (e.g., scripts) by default, because an attacker could '
+                   'tamper with them in transit even though the page itself is shown as “secure.” '
                    'Practical rule: after migrating to HTTPS, check all embedded resources for '
                    '`https://` or protocol-relative/relative paths.',
          }},
@@ -460,8 +460,8 @@ TLS_KONFIGURATION_MODULE = {
                  'Hardware schnellste wählen — so empfiehlt es auch das Intermediate-Profil.'),
              'explanation_en': ('Statement 4 is false (and thus the answer sought): the cipher suites and the basic HSTS '
                  'values are fine, but `ssl_protocols` still enables TLS 1.0 and TLS 1.1 — that contradicts '
-                 'both RFC 8996 and the Mozilla profiles modern and intermediate. Before calling this "fully '
-                 'compliant", that line would first need to be fixed to `TLSv1.2 TLSv1.3` (intermediate) or '
+                 'both RFC 8996 and the Mozilla profiles modern and intermediate. Before calling this “fully '
+                 'compliant,” that line would first need to be fixed to `TLSv1.2 TLSv1.3` (intermediate) or '
                  '`TLSv1.3` (modern). The `preload` directive is also still missing from the header if the '
                  'domain is actually meant to join the preload list. `ssl_prefer_server_ciphers off`, by '
                  'contrast, is not a mistake: once only strong suites are allowed, the client may pick the one '
@@ -526,7 +526,7 @@ TLS_KONFIGURATION_MODULE = {
                    '- **Enable OCSP stapling, provided the CA still offers OCSP** — the server '
                    'delivers the revocation information directly along with the handshake, instead of '
                    'every client having to query the OCSP responder individually. For certificates '
-                   'without an OCSP URL (e.g. from Let\'s Encrypt since 2025, see the revocation '
+                   'without an OCSP URL (e.g., from Let\'s Encrypt since 2025, see the revocation '
                    'module) there is nothing left to staple.\n'
                    '- **Deliver the complete certificate chain** — besides the leaf certificate, the '
                    'server must also send the intermediate certificates, otherwise verification fails '
@@ -535,7 +535,7 @@ TLS_KONFIGURATION_MODULE = {
         {'type': 'scenario', 'id': 'scenario-altclient-tls10',
          'payload': {
              'title_de': 'Der Handscanner, der nur TLS 1.0 kann',
-             'title_en': 'The handheld scanner that only speaks TLS 1.0',
+             'title_en': 'The Handheld Scanner That Only Speaks TLS 1.0',
              'start': 'start',
              'nodes': [
                     {
@@ -628,14 +628,14 @@ TLS_KONFIGURATION_MODULE = {
                           'klärst du, bevor du dich festlegst?',
              'prompt_en': 'A Nordwind Logistik service still needs to be reachable by some older '
                           'internal clients that do not support TLS 1.3. How do you approach the '
-                          'choice between "modern" and "intermediate", and what questions do you '
+                          'choice between “modern” and “intermediate,” and what questions do you '
                           'clarify before committing?',
          }},
     ],
     'quiz': {'questions': [
         {'id': 'tk1', 'type': 'single',
          'prompt': {'de': 'Was benennt der Bestandteil "ECDHE" in `TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256`?',
-                    'en': 'What does the "ECDHE" component in `TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256` name?'},
+                    'en': 'What does the “ECDHE” component in `TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256` name?'},
          'answer': 0,
          'options': {
              'de': [
@@ -655,7 +655,7 @@ TLS_KONFIGURATION_MODULE = {
           'de': ('ECDHE steht für den flüchtigen Schlüsselaustausch auf elliptischen Kurven — das „E“ am Ende '
               '(ephemeral) ist der Hinweis auf Forward Secrecy. Der Hash am Ende des Namens (SHA256) gehört zur '
               'Schlüsselableitung, AES_128_GCM zur Verschlüsselung.'),
-          'en': ('ECDHE stands for the ephemeral key exchange on elliptic curves — the trailing "E" (ephemeral) is '
+          'en': ('ECDHE stands for the ephemeral key exchange on elliptic curves — the trailing “E” (ephemeral) is '
               'the hint at forward secrecy. The hash at the end of the name (SHA256) belongs to key derivation, '
               'AES_128_GCM to encryption.'),
          }},
@@ -708,7 +708,7 @@ TLS_KONFIGURATION_MODULE = {
               'Betriebssystem oder Zertifikatszahl spielen keine Rolle. Das Profil „old“ ist in der aktuellen '
               'Fassung 6.0 der Leitlinie gestrichen.'),
           'en': ('The profiles differ in which clients still get a connection. Location, operating system, or '
-              'number of certificates play no role. The "old" profile has been removed in the current version '
+              'number of certificates play no role. The “old” profile has been removed in the current version '
               '6.0 of the guideline.'),
          }},
         {'id': 'tk4', 'type': 'single',
@@ -836,7 +836,7 @@ TLS_KONFIGURATION_MODULE = {
          'explanation': {
              'de': ('63072000 Sekunden ÷ 86400 = 730 Tage, also zwei Jahre. Das Minimum für die Preload-Liste '
                  'liegt bei einem Jahr (31536000 Sekunden).'),
-             'en': ('63072000 seconds ÷ 86400 = 730 days, i.e. two years. The minimum for the preload list is one '
+             'en': ('63072000 seconds ÷ 86400 = 730 days, i.e., two years. The minimum for the preload list is one '
                  'year (31536000 seconds).'),
             },
         },

@@ -79,7 +79,7 @@ PKI_AUTOMATISIERUNG_MODULE = {
                  'Juni 2025) nennt die CA dem Client ein empfohlenes Erneuerungsfenster. So kann sie die Last '
                  'verteilen — und Clients gezielt vorzeitig erneuern lassen, wenn sie Zertifikate widerrufen '
                  'muss.'),
-             'en': ('## ACME: Automation from Start to Finish\n\n**ACME** (Automated Certificate Management '
+             'en': ('## ACME: Automation From Start to Finish\n\n**ACME** (Automated Certificate Management '
                  'Environment, RFC 8555) is a protocol that lets a CA and an applicant automate domain '
                  'validation and certificate issuance — without a human uploading a CSR by hand.\n\nKey '
                  'properties:\n\n- The **ACME client generates the key pair locally** on the target system — '
@@ -121,20 +121,20 @@ PKI_AUTOMATISIERUNG_MODULE = {
                  'to verify that the applicant controls the domain:\n\n- **HTTP-01**: the client places a file '
                  'containing a CA-supplied token at a well-defined URL on the web server '
                  '(`http://domain/.well-known/acme-challenge/<token>`). The CA fetches that URL to confirm '
-                 'control. Requirement: the server must be reachable over port 80 from the public internet.\n- '
+                 'control. Requirement: the server must be reachable over port 80 from the public Internet.\n- '
                  '**DNS-01**: the client creates a TXT record containing a hash value under '
                  '`_acme-challenge.domain`. The CA queries that TXT record.\n- **TLS-ALPN-01** (RFC 8737): the '
                  'CA opens a TLS connection to port 443 and, via the ALPN protocol `acme-tls/1`, asks for a '
                  'specially generated validation certificate. Useful when only port 443 is open and the TLS '
-                 'endpoint (e.g. a reverse proxy) can answer the challenge itself.\n\nDNS-01 is **mandatory**, '
-                 'not just an option, in two cases:\n\n- For **wildcard certificates** (e.g. '
+                 'endpoint (e.g., a reverse proxy) can answer the challenge itself.\n\nDNS-01 is **mandatory**, '
+                 'not just an option, in two cases:\n\n- For **wildcard certificates** (e.g., '
                  "`*.nordwind-intern.de`), the route leads through DNS: Let's Encrypt issues wildcards "
                  'exclusively via DNS-01, because HTTP-01 and TLS-ALPN-01 only prove control over a single '
                  'hostname, not over every possible subdomain. With **DNS-PERSIST-01** a further DNS method is '
                  'on its way (permitted in the Baseline Requirements since Ballot SC-088v3, still a draft at '
                  'the IETF as of October 2026): instead of setting a new TXT record for every issuance, you publish a persistent '
                  'record once that authorizes a specific ACME account. Whether your own CA already offers it '
-                 'has to be checked case by case.\n- For **servers without public HTTP access** (e.g. purely '
+                 'has to be checked case by case.\n- For **servers without public HTTP access** (e.g., purely '
                  'internal systems behind a firewall), HTTP-01 is technically impossible — the CA could never '
                  'reach the file. DNS-01 still works here, because only the DNS answer needs to be publicly '
                  'visible, not the server itself.'),
@@ -147,7 +147,7 @@ PKI_AUTOMATISIERUNG_MODULE = {
          'payload': {
              'kind': 'sequence',
              'title_de': 'ACME: von der Bestellung zum Zertifikat',
-             'title_en': 'ACME: from order to certificate',
+             'title_en': 'ACME: From Order to Certificate',
              'actors': [
                     {'id': 'c', 'label_de': 'ACME-Client', 'label_en': 'ACME client'},
                     {'id': 'ca', 'label_de': 'ACME-Server (CA)', 'label_en': 'ACME server (CA)'},
@@ -302,7 +302,7 @@ PKI_AUTOMATISIERUNG_MODULE = {
                    'Let\'s Encrypt — it works just as well for **internal CAs**.\n\n'
                    '**smallstep / step-ca** is a well-known open-source example: a private CA with '
                    'native ACME support. This lets standard ACME clients obtain certificates from an '
-                   'internal CA — entirely without the public internet, but with the same degree of '
+                   'internal CA — entirely without the public Internet, but with the same degree of '
                    'automation as with Let\'s Encrypt. For Nordwind Logistik this means internal API '
                    'servers and databases can obtain certificates just as automatically as the public '
                    'website.',
@@ -343,7 +343,7 @@ PKI_AUTOMATISIERUNG_MODULE = {
          'payload': {
              'kind': 'flow',
              'title_de': 'Interne PKI: von der Offline-Root bis zum Dienst',
-             'title_en': 'Internal PKI: from the offline root to the service',
+             'title_en': 'Internal PKI: From the Offline Root to the Service',
              'nodes': [
                     {
                      'id': 'root',
@@ -364,7 +364,7 @@ PKI_AUTOMATISIERUNG_MODULE = {
                      'col': 0,
                      'label': 'Issuing CA',
                      'detail_de': 'Stellt online und automatisiert aus — z. B. step-ca (ACME) oder AD CS (Autoenrollment).',
-                     'detail_en': 'Issues online and automatically — e.g. step-ca (ACME) or AD CS (autoenrollment).',
+                     'detail_en': 'Issues online and automatically — e.g., step-ca (ACME) or AD CS (autoenrollment).',
                     },
                     {
                      'id': 'cl',
@@ -505,7 +505,7 @@ PKI_AUTOMATISIERUNG_MODULE = {
              'explanation_en': ('The deploy hook only runs after a renewal that actually succeeded — pre and post hooks, by '
                  'contrast, on every attempt. Without the reload the web server keeps serving the old '
                  'certificate even though the new one has long been on disk: one of the most common reasons for '
-                 '"expired despite automation".'),
+                 '“expired despite automation.”'),
             },
         },
         {'type': 'text', 'id': 'text-6',
@@ -568,7 +568,7 @@ PKI_AUTOMATISIERUNG_MODULE = {
         {'type': 'scenario', 'id': 'scenario-erneuerung-still-gescheitert',
          'payload': {
              'title_de': 'Die Automatisierung läuft — das Zertifikat läuft trotzdem ab',
-             'title_en': 'Automation is running — the certificate is expiring anyway',
+             'title_en': 'Automation Is Running — the Certificate Is Expiring Anyway',
              'start': 'start',
              'nodes': [
                     {
@@ -795,7 +795,7 @@ PKI_AUTOMATISIERUNG_MODULE = {
          'prompt': {
              'de': ('Ein Reverse Proxy ist aus dem Internet nur über Port 443 erreichbar; auf das DNS der Zone hat '
                  'das Team keinen automatisierten Zugriff. Welche ACME-Challenge passt?'),
-             'en': ('A reverse proxy is reachable from the internet only on port 443; the team has no automated '
+             'en': ('A reverse proxy is reachable from the Internet only on port 443; the team has no automated '
                  "access to the zone's DNS. Which ACME challenge fits?"),
             },
          'options': {

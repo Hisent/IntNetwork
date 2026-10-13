@@ -44,7 +44,7 @@ PLAYBOOKS_MODULE = {
                          '— sind für den Einstieg wichtiger als jede Ansible-spezifische Regel: '
                          'ein falsches Leerzeichen reicht, um ein Playbook nicht mehr starten zu '
                          'lassen.',
-                   'en': '## YAML basics\n'
+                   'en': '## YAML Basics\n'
                          '\n'
                          'Playbooks are YAML files. Three rules prevent most beginner mistakes:\n'
                          '\n'
@@ -93,7 +93,7 @@ PLAYBOOKS_MODULE = {
                          '- **Modul** — die eigentliche Ausführungseinheit (hier '
                          '`ansible.builtin.package`, `ansible.builtin.service`), mit ihren '
                          'eigenen Parametern (`name`, `state`, …).',
-                   'en': '## Structure: play, task, module\n'
+                   'en': '## Structure: Play, Task, Module\n'
                          '\n'
                          '```yaml\n'
                          '---\n'
@@ -191,8 +191,8 @@ PLAYBOOKS_MODULE = {
                                        'intentionally starts at the same indentation level as '
                                        '`tasks:` itself here — that is also a valid YAML '
                                        'style). Careful when reading the real message: Ansible '
-                                       'points at the following line 9 ("Mapping values are not '
-                                       'allowed in this context") — only there does the parser '
+                                       'points at the following line 9 (“Mapping values are not '
+                                       'allowed in this context”) — only there does the parser '
                                        'notice that something is off. The bug sits one line '
                                        'above.'}},
         {'type': 'cloze', 'id': 'cloze-play-aufbau',
@@ -259,7 +259,7 @@ PLAYBOOKS_MODULE = {
                          'Host, ab oben nach unten. Mehrere Hosts werden dabei standardmäßig '
                          '**parallel** abgearbeitet (begrenzt durch die Einstellung `forks`) — '
                          'nicht Host für Host nacheinander.',
-                   'en': '## Running and inspecting\n'
+                   'en': '## Running and Inspecting\n'
                          '\n'
                          '```text\n'
                          'ansible-playbook site.yml\n'
@@ -317,7 +317,7 @@ PLAYBOOKS_MODULE = {
                          'die mit `changed` (web01: ein Task, und der hat geändert → '
                          '`ok=1 changed=1`). Echte Recap-Zeilen enden außerdem mit '
                          '`rescued=` und `ignored=`; sie sind hier weggelassen.',
-                   'en': '## Reading the output\n'
+                   'en': '## Reading the Output\n'
                          '\n'
                          'Every task reports one result per host:\n'
                          '\n'
@@ -342,7 +342,7 @@ PLAYBOOKS_MODULE = {
                          '- **changed** — the task made an actual change.\n'
                          '- **failed** — the task failed (shown as `fatal: … FAILED!` on the '
                          'task line, as `failed=` in the recap).\n'
-                         '- **skipped** — the task was skipped (e.g. by a condition).\n'
+                         '- **skipped** — the task was skipped (e.g., by a condition).\n'
                          '\n'
                          'The `PLAY RECAP` at the end summarizes these counters per host — the '
                          'quickest way to see whether, and where, something failed.\n'
@@ -361,7 +361,7 @@ PLAYBOOKS_MODULE = {
                  'die der Hosts.',
          'payload': {'kind': 'sequence',
                      'title_de': 'Ein Play, zwei Tasks, zwei Hosts',
-                     'title_en': 'One play, two tasks, two hosts',
+                     'title_en': 'One Play, Two Tasks, Two Hosts',
                      'caption_de': 'Task für Task; je Task laufen die Hosts parallel (forks).',
                      'caption_en': 'Task by task; within a task the hosts run in parallel (forks).',
                      'actors': [{'id': 'cn', 'label': 'Control Node'},
@@ -465,10 +465,10 @@ PLAYBOOKS_MODULE = {
                  'Dienst aber gestoppt: Fehlte das Paket, würde service im Check-Modus mit '
                  '„Could not find the requested service“ scheitern.',
          'payload': {'title_de': 'Vor dem Lauf nachsehen',
-                     'title_en': 'Look before you run',
+                     'title_en': 'Look Before You Run',
                      'intro_de': 'site.yml ist das Play aus dem Abschnitt „Aufbau“. help zeigt '
                                  'alle Befehle.',
-                     'intro_en': 'site.yml is the play from the "Structure" section. help lists '
+                     'intro_en': 'site.yml is the play from the “Structure” section. help lists '
                                  'all commands.',
                      'prompt': 'admin@control:~/projekt$',
                      'unknown': 'bash: {cmd}: command not found',
@@ -562,7 +562,7 @@ PLAYBOOKS_MODULE = {
                          'Modulname falsch geschrieben ist (anders als im YAML-Beispiel oben ist '
                          'die Datei also gültiges YAML). Überlege, welche Fehlermeldung '
                          '`ansible-playbook` ausgeben würde, und wie du sie reparieren würdest.',
-                   'en': '## Hands-on: trying the Ansible lab\n'
+                   'en': '## Hands-on: Trying the Ansible Lab\n'
                          '\n'
                          'From here on, a playbook can not only be read but actually run, in the '
                          'lab widget below. Choose the **Reading errors** template there: it '
@@ -663,7 +663,7 @@ PLAYBOOKS_MODULE = {
                             'Der Task wurde übersprungen, z. B. durch eine Bedingung'],
                      'en': ['The task failed', 'The task made a change',
                             'The host was unreachable',
-                            'The task was skipped, e.g. due to a condition']}},
+                            'The task was skipped, e.g., due to a condition']}},
         {'id': 'pb5',
          'explanation': {'de': 'Innerhalb eines Hosts laufen die Tasks strikt von oben nach unten. '
                                'Parallel ist nur die Abarbeitung über mehrere Hosts hinweg '
@@ -671,7 +671,7 @@ PLAYBOOKS_MODULE = {
                                'gleichzeitig“.',
                          'en': 'Within one host the tasks run strictly top to bottom. Only the '
                                'processing across several hosts is parallel (limited by `forks`) — '
-                               'hence the impression that "everything runs at once".'},
+                               'hence the impression that “everything runs at once.”'},
          'type': 'single',
          'prompt': {'de': 'In welcher Reihenfolge laufen Tasks innerhalb eines Hosts ab?',
                     'en': 'In what order do tasks run within a single host?'},
@@ -697,7 +697,7 @@ PLAYBOOKS_MODULE = {
                          'en': 'In the recap, `ok` counts all tasks that ran successfully: three '
                                'of your own plus `Gathering Facts` makes 4. `changed=2` is '
                                'included in it, not on top — counting only the lines starting with '
-                               '"ok:" wrongly gives 2.'}},
+                               '“ok:” wrongly gives 2.'}},
         {'id': 'pb7',
          'type': 'single',
          'prompt': {'de': 'Dieses Play bricht mit einem Fehler ab. Warum?\n'

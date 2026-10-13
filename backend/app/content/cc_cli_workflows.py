@@ -59,13 +59,13 @@ CLI_WORKFLOWS_MODULE = {'key': 'cli-workflows',
                              'Faustregel: **Erst planen, dann laufen lassen.** Bei unbekanntem '
                              'Code startest du im Plan-Modus, prüfst den Plan und wechselst dann '
                              'zum Umsetzen.',
-                       'en': '## Modes: from cautious to autonomous\n'
+                       'en': '## Modes: From Cautious to Autonomous\n'
                              '\n'
-                             'Claude Code can act with varying degrees of "boldness." The most '
+                             'Claude Code can act with varying degrees of “boldness.” The most '
                              'important modes (you can switch between them in the session with '
                              '**Shift+Tab**, among other ways):\n'
                              '\n'
-                             '- **Manual mode** (config value `default`, labeled "Manual" in the '
+                             '- **Manual mode** (config value `default`, labeled “Manual” in the '
                              'UI) — Claude asks for permission before making changes and '
                              'running commands.\n'
                              '- **Plan mode** — Claude **only plans** and changes nothing: it '
@@ -103,15 +103,15 @@ CLI_WORKFLOWS_MODULE = {'key': 'cli-workflows',
                      'der Oberfläche heißt `default` „Manual“.',
              'payload': {'kind': 'compare',
                          'title_de': 'Berechtigungsmodi im Vergleich',
-                         'title_en': 'Permission modes compared',
+                         'title_en': 'Permission Modes Compared',
                          'caption_de': 'Von oben nach unten ist die Tabelle keine Rangfolge: Jeder '
                                        'Modus tauscht Komfort gegen Aufsicht anders.',
                          'caption_en': 'Top to bottom is not a ranking: each mode trades '
                                        'convenience against oversight differently.',
                          'columns': [{'title_de': 'Läuft ohne Rückfrage',
-                                      'title_en': 'Runs without asking'},
+                                      'title_en': 'Runs Without Asking'},
                                      {'title_de': 'Geeignet für', 'title_en': 'Best for'},
-                                     {'title_de': 'Statuszeile', 'title_en': 'Status bar'}],
+                                     {'title_de': 'Statuszeile', 'title_en': 'Status Bar'}],
                          'rows': [{'label': 'default (Manual)',
                                    'values_de': ['nur Lesezugriffe',
                                                  'jede Aktion selbst prüfen, heikle Arbeit',
@@ -192,7 +192,7 @@ CLI_WORKFLOWS_MODULE = {'key': 'cli-workflows',
                                            'den Settings-Dateien eines Projekts.',
                          'explanation_en': '`permissions.defaultMode` sets the starting mode; for '
                                            'a single session `--permission-mode` overrides it. '
-                                           '`disableAutoMode` expects the value "disable" and '
+                                           '`disableAutoMode` expects the value “disable” and '
                                            'removes `auto` from the Shift+Tab cycle. Note: as '
                                            '`defaultMode`, `auto` and `bypassPermissions` do not '
                                            "take effect from a project's settings files."}},
@@ -212,7 +212,7 @@ CLI_WORKFLOWS_MODULE = {'key': 'cli-workflows',
                              '- `/model` — das verwendete Modell wechseln.\n'
                              '\n'
                              'Später kommen **eigene** Commands/Skills dazu (Modul 6).',
-                       'en': '## Built-in slash commands\n'
+                       'en': '## Built-in Slash Commands\n'
                              '\n'
                              'In the session, `/` followed by the name opens the built-in '
                              "commands. A few you'll need daily:\n"
@@ -251,7 +251,7 @@ CLI_WORKFLOWS_MODULE = {'key': 'cli-workflows',
                              'So steuerst du **aktiv**, welcher Kontext ins Fenster kommt — das '
                              'ist effizienter (und billiger), als Claude das ganze Repo '
                              'durchsuchen zu lassen.',
-                       'en': '## @-mentions & referencing files\n'
+                       'en': '## @-mentions & Referencing Files\n'
                              '\n'
                              'Instead of describing paths, you reference them directly: use `@` to '
                              'reference files or directories in the prompt so Claude looks exactly '
@@ -279,7 +279,7 @@ CLI_WORKFLOWS_MODULE = {'key': 'cli-workflows',
                              'So bleibt der Gesprächskontext erhalten, ohne dass du alles neu '
                              'erklären musst. (Dauerhaftes Wissen über Sessions hinweg verankerst '
                              'du getrennt davon in `CLAUDE.md` und Memory — Modul 5.)',
-                       'en': '## Continuing & resuming sessions\n'
+                       'en': '## Continuing & Resuming Sessions\n'
                              '\n'
                              'Work often spans multiple sessions:\n'
                              '\n'
@@ -309,7 +309,7 @@ CLI_WORKFLOWS_MODULE = {'key': 'cli-workflows',
                              'Wenn ein Gespräch thematisch abgeschlossen ist, ist **`/clear`** '
                              '(kompletter Neustart des Verlaufs) oft sauberer als '
                              'weiterzuschleppen.',
-                       'en': '## Managing the context window\n'
+                       'en': '## Managing the Context Window\n'
                              '\n'
                              'In long sessions the window fills up (history, files read, tool '
                              'output). Two tools help:\n'
@@ -327,7 +327,7 @@ CLI_WORKFLOWS_MODULE = {'key': 'cli-workflows',
              'id': 'diagram-kontextfenster',
              'payload': {'kind': 'layers',
                          'title_de': 'Was im Kontextfenster liegt',
-                         'title_en': 'What sits in the context window',
+                         'title_en': 'What Sits in the Context Window',
                          'caption_de': 'Von oben nach unten in der Reihenfolge, in der es '
                                        'hineinkommt. Schichten anklicken.',
                          'caption_en': 'Top to bottom in the order it arrives. Click the layers.',
@@ -432,7 +432,7 @@ CLI_WORKFLOWS_MODULE = {'key': 'cli-workflows',
                              'CLAUDE.md kurz und lade seltene Skill-Details nur bei Bedarf. Ziel '
                              'ist ein prüfbarer, fokussierter Kontext — nicht minimale Antworten '
                              'um jeden Preis.',
-                       'en': '## Managing context and usage deliberately\n'
+                       'en': '## Managing Context and Usage Deliberately\n'
                              '\n'
                              'A limit is not just a fixed token count: the context window, model, '
                              'plan, and current usage all matter. There is no guarantee that you '
@@ -463,7 +463,7 @@ CLI_WORKFLOWS_MODULE = {'key': 'cli-workflows',
                      'farbiges Raster, /usage und /permissions öffnen interaktive Ansichten. '
                      'Zahlen und Kategorien sind Beispielwerte.',
              'payload': {'title_de': 'Modus, Kontext und Regeln im Blick',
-                         'title_en': 'Mode, context and rules at a glance',
+                         'title_en': 'Mode, Context and Rules at a Glance',
                          'prompt': '$',
                          'intro_de': 'Starte eine Session im Plan-Modus und sieh nach, was Kontext '
                                      'belegt.',
@@ -716,9 +716,9 @@ CLI_WORKFLOWS_MODULE = {'key': 'cli-workflows',
                         {'id': 'cli7',
                          'type': 'multi',
                          'prompt': {'de': 'Welche Aussagen zum Umschalten der Modi mit Shift+Tab '
-                                          'stimmen? (mehrere)',
+                                          'stimmen? Mehrere Antworten sind richtig.',
                                     'en': 'Which statements about switching modes with Shift+Tab '
-                                          'are correct? (multiple)'},
+                                          'are correct? Select all that apply.'},
                          'answer': [0, 1, 2],
                          'options': {'de': ['Der Grundzyklus läuft `default` → `acceptEdits` → '
                                             '`plan`',

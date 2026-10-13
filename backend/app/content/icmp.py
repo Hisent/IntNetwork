@@ -145,7 +145,7 @@ ICMP_MODULE = {
             "explanation_en": "Ping only checks ICMP reachability, not the application. A "
                               "host can be up and serving traffic while ICMP is blocked "
                               "separately — often deliberately, for security reasons. "
-                              "“ping fails” does not automatically mean “host down”, as the "
+                              "“ping fails” does not automatically mean “host down,” as the "
                               "working browser access here shows.",
         }},
         {"type": "text", "id": "text-4",
@@ -155,7 +155,7 @@ ICMP_MODULE = {
                    "das heißt nicht zwingend „kaputt“, nur „antwortet nicht auf ICMP“.",
              "en": "## Limits\n\nSome routers and firewalls **don't respond "
                    "to ICMP** (for security reasons). Then a hop shows up as `* * *` — "
-                   "that doesn't necessarily mean “broken”, just “doesn't reply to ICMP”.",
+                   "that doesn't necessarily mean “broken,” just “doesn't reply to ICMP.”",
          }},
         {"type": "terminal", "id": "terminal-ping-tracert",
          "note": "Windows-Eingabeaufforderung (englische Ausgabe), Statistikzeilen gekürzt. Pfad und "

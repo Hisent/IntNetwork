@@ -48,7 +48,7 @@ export const SCENARIOS: Scenario[] = [
         },
       },
       {
-        cmd: 'nslookup nordwind.de',
+        cmd: 'nslookup nordwind-logistik.de',
         output: {
           de: 'DNS-Anfrage fehlgeschlagen: kein Server erreichbar.',
           en: 'DNS request failed: no server reachable.',
@@ -105,7 +105,7 @@ export const SCENARIOS: Scenario[] = [
         },
       },
       {
-        cmd: 'nslookup www.nordwind.de',
+        cmd: 'nslookup www.nordwind-logistik.de',
         output: {
           de: 'Zeitüberschreitung: DNS-Server 192.168.10.53 antwortet nicht.',
           en: 'Timeout: DNS server 192.168.10.53 is not responding.',

@@ -64,7 +64,7 @@ PORTS_MODULE = {
         {"type": "diagram", "id": "diagram-port-bereiche",
          "payload": {
              "kind": "compare",
-             "title_de": "Die drei Port-Bereiche (IANA)", "title_en": "The three port ranges (IANA)",
+             "title_de": "Die drei Port-Bereiche (IANA)", "title_en": "The Three Port Ranges (IANA)",
              "caption_de": "16 Bit Portnummer: 0–65535, für TCP und UDP getrennt gezählt",
              "caption_en": "16-bit port number: 0–65535, counted separately for TCP and UDP",
              "columns": [
@@ -130,9 +130,7 @@ PORTS_MODULE = {
          "note": "Ein paar Ports nachschlagen (443/22/53), dann den 3-Wege-Handshake "
                  "durchgehen und den TCP/UDP-Vergleich zeigen."},
         {"type": "widget", "id": "visual-tcp-session",
-         "note": "DE: TCP-Sitzung mit Handshake, Datenbestätigung und geordnetem Abbau "
-                 "verfolgen. EN: Trace a TCP session through handshake, data acknowledgement "
-                 "and orderly teardown."},
+         "note": "TCP-Sitzung mit Handshake, Datenbestätigung und geordnetem Abbau verfolgen."},
         {"type": "text", "id": "text-source-ports",
          "value": {
              "de": "## Quell-Port: die Gegenstelle der Verbindung\n\nBisher ging es um "
@@ -172,16 +170,13 @@ PORTS_MODULE = {
             "answer": 0,
         }},
         {"type": "widget", "id": "visual-ephemeral-ports",
-         "note": "DE: Drei Verbindungen mit festen Quell-Ports öffnen und ankommende "
-                 "Antwortpakete der richtigen Verbindung zuordnen. EN: Open three "
-                 "connections with fixed source ports and match incoming response "
-                 "packets to the right connection."},
+         "note": "Drei Verbindungen mit festen Quell-Ports öffnen und ankommende Antwortpakete der richtigen Verbindung zuordnen."},
         {"type": "terminal", "id": "terminal-ss-ports",
          "note": "Linux-Server, Ausgabe von ss gekürzt (Spalten Recv-Q/Send-Q und Process weggelassen). "
                  "0.0.0.0 = lauscht auf allen Interfaces, 127.0.0.1 = nur lokal erreichbar.",
          "payload": {
              "title_de": "Welche Ports sind auf dem Server offen?",
-             "title_en": "Which ports are open on the server?",
+             "title_en": "Which Ports Are Open on the Server?",
              "intro_de": "Nordwind-Server 203.0.113.11 (Web, Mail, Fernwartung). Tippe ? für die Befehle.",
              "intro_en": "Nordwind server 203.0.113.11 (web, mail, remote admin). Type ? for the commands.",
              "prompt": "admin@srv1:~$",
@@ -247,7 +242,7 @@ PORTS_MODULE = {
                    "Host. „Zum richtigen Host“ ist also die Aufgabe von Schicht 3; MAC-Auflösung macht ARP, "
                    "VLAN-Trennung der Switch.",
              "en": "The IP address gets the packet to the host, the port to the right program on that host. "
-                   "“To the right host” is therefore layer 3's job; ARP does MAC resolution, the switch does "
+                   "“To the right host” is therefore Layer 3's job; ARP does MAC resolution, the switch does "
                    "VLAN separation."}},
         {"id": "p2", "type": "single",
          "prompt": {"de": "Welcher Port ist HTTPS?", "en": "Which port is HTTPS?"},
@@ -285,7 +280,7 @@ PORTS_MODULE = {
                    "Byte in der richtigen Reihenfolge, also TCP.",
              "en": "For live video and voice, a packet delivered late is worthless — a brief glitch beats a "
                    "pause. Downloads, bank transfers and SSH, by contrast, need every byte in the right "
-                   "order, i.e. TCP."}},
+                   "order, i.e., TCP."}},
         {"id": "p5", "type": "single",
          "prompt": {"de": "Ein Linux-Client ruft `https://203.0.113.11` auf. Welche Port-Kombination ist "
                           "für das erste Paket (SYN) plausibel?",
@@ -310,8 +305,8 @@ PORTS_MODULE = {
                    "picks the source port at random from the ephemeral range — 32768–60999 by default on "
                    "Linux. The reverse combination (443 → 41872) only appears in the server's reply."}},
         {"id": "p6", "type": "multi",
-         "prompt": {"de": "Welche Zuordnungen von Mail-Ports stimmen? (mehrere)",
-                    "en": "Which mail port assignments are correct? (multiple)"},
+         "prompt": {"de": "Welche Zuordnungen von Mail-Ports stimmen? Mehrere Antworten sind richtig.",
+                    "en": "Which mail port assignments are correct? Select all that apply."},
          "options": {
              "de": ["587 — Mail-Programm liefert Mail ein (Submission)",
                     "993 — IMAP über TLS",

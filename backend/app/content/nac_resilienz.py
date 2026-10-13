@@ -39,7 +39,7 @@ NAC_RESILIENZ_MODULE = {
     },
     'blocks': [
         {'type': 'text', 'id': 'text-1',
-         'note': 'Diese Entscheidung frueh als Entweder-Oder positionieren: es gibt keine echte '
+         'note': 'Diese Entscheidung früh als Entweder-Oder positionieren: es gibt keine echte '
                  'neutrale Option. Beide Seiten haben einen echten Preis.',
          'value': {
              'de': '## Fail-Open vs. Fail-Closed\n\n'
@@ -67,7 +67,7 @@ NAC_RESILIENZ_MODULE = {
                    '- **Fail-closed** — new devices are rejected during a RADIUS outage. '
                    'Security comes first, but legitimate employees and devices then also cannot '
                    'get onto the network for as long as the outage lasts.\n\n'
-                   'There is no truly "neutral" option — intermediate solutions such as the critical '
+                   'There is no truly “neutral” option — intermediate solutions such as the critical '
                    'VLAN (see below) only soften one of the two consequences, they do not '
                    'remove it.',
          }},
@@ -90,14 +90,14 @@ NAC_RESILIENZ_MODULE = {
                    'sensitive financial data, security may clearly take precedence.\n\n'
                    'What matters operationally: this is an **explicit decision by the '
                    'operator** that must be deliberately configured — not an automatism that '
-                   'the hardware somehow gets "right" on its own. Whoever never addresses it '
+                   'the hardware somehow gets “right” on its own. Whoever never addresses it '
                    'still gets one of the two consequences — just unplanned.',
          }},
         {'type': 'check', 'id': 'check-1',
          'payload': {
              'kind': 'choice',
              'prompt_de': 'Was beschreibt „Fail-Open“ bei einem RADIUS-Ausfall am treffendsten?',
-             'prompt_en': 'What best describes "fail-open" during a RADIUS outage?',
+             'prompt_en': 'What best describes “fail-open” during a RADIUS outage?',
              'answer': 1,
              'options_de': [
                  'Der Switch schaltet sich komplett ab, bis der RADIUS-Server wieder erreichbar '
@@ -137,7 +137,7 @@ NAC_RESILIENZ_MODULE = {
                    'automatically placed into a dedicated critical VLAN during the outage, with '
                    'clearly restricted rights.\n\n'
                    'At its core, this is a **controlled** fail-open: Nordwind does not choose '
-                   'between "everything" and "nothing," but instead defines a limited emergency '
+                   'between “everything” and “nothing,” but instead defines a limited emergency '
                    'access level in advance. Already-running, authenticated sessions are not '
                    'immediately disconnected by a RADIUS outage in this setup.',
          }},
@@ -148,7 +148,7 @@ NAC_RESILIENZ_MODULE = {
             'payload': {
                 'kind': 'flow',
                 'title_de': 'RADIUS-Ausfall: was passiert mit einem neuen Gerät?',
-                'title_en': 'RADIUS outage: what happens to a new device?',
+                'title_en': 'RADIUS Outage: What Happens to a New Device?',
                 'nodes': [
                     {
                         'id': 'dev',
@@ -201,7 +201,7 @@ NAC_RESILIENZ_MODULE = {
                         'label_de': 'Critical VLAN 90',
                         'label_en': 'Critical VLAN 90',
                         'detail_de': 'Kontrolliertes Fail-Open: eingeschränkter Notbetrieb, z. B. nur die für die Arbeit unverzichtbaren Systeme.',
-                        'detail_en': 'Controlled fail-open: restricted emergency operation, e.g. only the systems indispensable for work.',
+                        'detail_en': 'Controlled fail-open: restricted emergency operation, e.g., only the systems indispensable for work.',
                     },
                     {
                         'id': 'open',
@@ -259,7 +259,7 @@ NAC_RESILIENZ_MODULE = {
                     {
                         'highlight': ['sw', 'e3', 'r2'],
                         'text_de': 'Der Server gilt als „dead“. Der Switch versucht den zweiten — Redundanz fängt den Ausfall hier normalerweise ab.',
-                        'text_en': 'The server is marked "dead". The switch tries the second one — redundancy normally absorbs the outage at this point.',
+                        'text_en': 'The server is marked “dead”. The switch tries the second one — redundancy normally absorbs the outage at this point.',
                     },
                     {
                         'highlight': ['sw', 'e4', 'dec'],
@@ -304,7 +304,7 @@ NAC_RESILIENZ_MODULE = {
                     },
                 ],
                 'explanation_de': '„dead-criteria“ bestimmt, ab wann ein Server als tot gilt; „deadtime“ (in Minuten), wie lange er danach übersprungen wird. Die zweite Port-Zeile wird gern vergessen: Ohne „alive … reinitialize“ bleiben Geräte im Critical VLAN, obwohl der Server längst wieder antwortet.',
-                'explanation_en': '"dead-criteria" determines when a server counts as dead; "deadtime" (in minutes) how long it is skipped afterwards. The second port line is often forgotten: without "alive … reinitialize" devices stay in the critical VLAN although the server has long been answering again.',
+                'explanation_en': '“dead-criteria” determines when a server counts as dead; “deadtime” (in minutes) how long it is skipped afterwards. The second port line is often forgotten: without “alive … reinitialize” devices stay in the critical VLAN although the server has long been answering again.',
             },
         },
         {'type': 'text', 'id': 'text-4',
@@ -330,7 +330,7 @@ NAC_RESILIENZ_MODULE = {
                    'fail-open/fail-closed decision.\n\n'
                    'The fail-open/fail-closed policy and the critical authentication rule still '
                    'make sense regardless — even redundant systems can fail at the same time '
-                   '(e.g. a shared network segment or power outage), and for exactly that rarer '
+                   '(e.g., a shared network segment or power outage), and for exactly that rarer '
                    'case Nordwind still needs a deliberate answer.',
          }},
         {'type': 'check', 'id': 'check-2',
@@ -364,7 +364,7 @@ NAC_RESILIENZ_MODULE = {
                      'das lokal (nicht vom Server) zugewiesene VLAN.'),
             'payload': {
                 'title_de': 'Montag, 07:40 Uhr: Neue Geräte landen im falschen Netz',
-                'title_en': 'Monday, 07:40: new devices end up on the wrong network',
+                'title_en': 'Monday, 07:40: New Devices End Up on the Wrong Network',
                 'prompt': 'nw-acc1#',
                 'abbreviations': True,
                 'unknown': '% Invalid input detected: {cmd}',
@@ -432,7 +432,7 @@ NAC_RESILIENZ_MODULE = {
                      'text_en': 'Did this VLAN come from the RADIUS server or from local configuration (server/local)?',
                      'answers': ['lokal', 'local', 'lokale Konfiguration', 'local policies', 'Local Policies'],
                      'explanation_de': 'Critical Auth: Der Port ist „Authorized“, obwohl die Methode fehlgeschlagen ist – das VLAN stammt aus der lokalen Konfiguration des Switches, nicht vom Server.',
-                     'explanation_en': 'Critical auth: the port is "Authorized" although the method failed – the VLAN comes from the switch\'s local configuration, not from the server.'},
+                     'explanation_en': 'Critical auth: the port is “Authorized” although the method failed – the VLAN comes from the switch\'s local configuration, not from the server.'},
                 ],
             },
         },
@@ -499,9 +499,9 @@ NAC_RESILIENZ_MODULE = {
                    'on top of it, with a captive portal, 802.1X support, compliance-based device '
                    'assignment, and centralized management for wired, wireless, and VPN '
                    'environments.\n\n'
-                   'For Nordwind, the practical question is less "which product is best" and '
-                   'more "how much posture, profiling, and guest functionality do we actually '
-                   'need, measured against effort and budget."',
+                   'For Nordwind, the practical question is less “which product is best” and '
+                   'more “how much posture, profiling, and guest functionality do we actually '
+                   'need, measured against effort and budget.”',
          }},
         {'type': 'check', 'id': 'check-3',
          'payload': {
@@ -568,7 +568,7 @@ NAC_RESILIENZ_MODULE = {
              'explanation_en': 'The choice between fail-open and fail-closed is precisely '
                                '**not** an automatic hardware decision, but an explicit risk '
                                'decision made by the operator between availability and '
-                               'security — it must be deliberately configured (e.g. via a '
+                               'security — it must be deliberately configured (e.g., via a '
                                'critical authentication rule). The other three statements '
                                'correctly describe the behavior of Closed Mode with and without '
                                'a critical authentication configuration.',
@@ -578,7 +578,7 @@ NAC_RESILIENZ_MODULE = {
             'id': 'scenario-radius-ausfall',
             'payload': {
                 'title_de': 'Der einzige RADIUS-Server fällt aus',
-                'title_en': 'The only RADIUS server goes down',
+                'title_en': 'The Only RADIUS Server Goes Down',
                 'start': 'start',
                 'nodes': [
                     {
@@ -598,7 +598,7 @@ NAC_RESILIENZ_MODULE = {
                             },
                             {
                                 'label_de': 'Per Skript alle Ports auf „force-authorized“ stellen',
-                                'label_en': 'Set all ports to "force-authorized" by script',
+                                'label_en': 'Set all ports to “force-authorized” by script',
                                 'to': 'force',
                             },
                         ],
@@ -793,7 +793,7 @@ NAC_RESILIENZ_MODULE = {
             'type': 'single',
             'prompt': {
                 'de': '„show aaa servers“ zeigt: ISE-1 „State: current DEAD“, ISE-2 „State: current UP“. Am Port ist ein Critical VLAN konfiguriert. Was passiert mit einem Gerät, das sich jetzt neu anmeldet?',
-                'en': '"show aaa servers" shows: ISE-1 "State: current DEAD", ISE-2 "State: current UP". A critical VLAN is configured on the port. What happens to a device that logs in now?',
+                'en': '“show aaa servers” shows: ISE-1 “State: current DEAD”, ISE-2 “State: current UP”. A critical VLAN is configured on the port. What happens to a device that logs in now?',
             },
             'options': {
                 'de': [
@@ -819,8 +819,8 @@ NAC_RESILIENZ_MODULE = {
             'id': 'rs7',
             'type': 'multi',
             'prompt': {
-                'de': 'Beide RADIUS-Server sind ausgefallen; an den Ports ist ein Critical VLAN samt „server alive action reinitialize“ konfiguriert. Welche Aussagen treffen zu? (Mehrere richtig)',
-                'en': 'Both RADIUS servers have failed; a critical VLAN including "server alive action reinitialize" is configured on the ports. Which statements are true? (Several correct)',
+                'de': 'Beide RADIUS-Server sind ausgefallen; an den Ports ist ein Critical VLAN samt „server alive action reinitialize“ konfiguriert. Welche Aussagen treffen zu? Mehrere Antworten sind richtig.',
+                'en': 'Both RADIUS servers have failed; a critical VLAN including “server alive action reinitialize” is configured on the ports. Which statements are true? Select all that apply.',
             },
             'options': {
                 'de': [
@@ -839,7 +839,7 @@ NAC_RESILIENZ_MODULE = {
             'answer': [0, 1, 3],
             'explanation': {
                 'de': 'Im Critical VLAN sitzt, wer NICHT geprüft werden konnte — deshalb muss es eng begrenzt sein. Der Irrtum „Authorized heißt authentifiziert“ liegt nahe, weil der Switch den Port als autorisiert anzeigt.',
-                'en': 'The critical VLAN holds whoever could NOT be checked — which is why it must be tightly limited. The misconception "authorized means authenticated" is tempting, because the switch shows the port as authorized.',
+                'en': 'The critical VLAN holds whoever could NOT be checked — which is why it must be tightly limited. The misconception “authorized means authenticated” is tempting, because the switch shows the port as authorized.',
             },
         },
     ]},

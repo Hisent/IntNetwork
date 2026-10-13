@@ -44,7 +44,7 @@ LLM_GRUNDLAGEN_MODULE = {'key': 'llm-grundlagen',
                              '(Sampling / Temperatur).\n'
                              '- Es kann **plausibel klingenden Unsinn** erzeugen (*Halluzination*) '
                              '— deshalb verifizieren wir Ergebnisse.',
-                       'en': '## What an LLM actually does\n'
+                       'en': '## What an LLM Actually Does\n'
                              '\n'
                              'A **Large Language Model (LLM)** like Claude is trained on a '
                              'seemingly simple task: given a piece of text, predict the **next '
@@ -55,7 +55,7 @@ LLM_GRUNDLAGEN_MODULE = {'key': 'llm-grundlagen',
                              'surprising range of others: writing code, explaining errors, '
                              'summarizing texts. What matters for the mental model:\n'
                              '\n'
-                             '- The model **computes probabilities**; it doesn\'t "know" anything '
+                             '- The model **computes probabilities**; it doesn\'t “know” anything '
                              'in the human sense.\n'
                              '- The same input can yield slightly **different** outputs (sampling / '
                              'temperature).\n'
@@ -78,11 +78,11 @@ LLM_GRUNDLAGEN_MODULE = {'key': 'llm-grundlagen',
                              'Für den Workshop reicht diese Intuition: **Attention = das Modell '
                              'verknüpft Kontext.** Je klarer und relevanter der Kontext, desto '
                              'besser die Verknüpfung — und desto besser die Antwort.',
-                       'en': '## The Transformer & Attention (in brief)\n'
+                       'en': '## The Transformer & Attention (in Brief)\n'
                              '\n'
                              'Modern LLMs are built on the **Transformer** architecture (2017). '
                              'Its core is the **attention mechanism**: while processing, each '
-                             'token can "look" at *all other* tokens in the context and weigh '
+                             'token can “look” at *all other* tokens in the context and weigh '
                              'which ones are currently relevant. This is how the model captures '
                              'relationships across long distances — for example, that a `return` '
                              'far below refers back to a function signature far above.\n'
@@ -107,7 +107,7 @@ LLM_GRUNDLAGEN_MODULE = {'key': 'llm-grundlagen',
                              'Warum das zählt: **Alles kostet Tokens** — dein Prompt, die Dateien, '
                              'die Claude liest, die Tool-Ergebnisse und die Antwort. Tokens sind '
                              'die Währung von Kontextfenster *und* Kosten.',
-                       'en': '## Tokenization: text becomes numbers\n'
+                       'en': '## Tokenization: Text Becomes Numbers\n'
                              '\n'
                              "Models don't see text — they see **tokens**, short character "
                              'sequences, often word fragments. A tokenizer breaks input into these '
@@ -129,7 +129,7 @@ LLM_GRUNDLAGEN_MODULE = {'key': 'llm-grundlagen',
                      'Token wird Teil der nächsten Eingabe.',
              'payload': {'kind': 'flow',
                          'title_de': 'Vom Text zum nächsten Token',
-                         'title_en': 'From text to the next token',
+                         'title_en': 'From Text to the Next Token',
                          'caption_de': 'Eine Runde der Schleife – sie läuft für jedes einzelne Token der '
                                        'Antwort.',
                          'caption_en': 'One turn of the loop – it runs for every single token of the answer.',
@@ -225,11 +225,11 @@ LLM_GRUNDLAGEN_MODULE = {'key': 'llm-grundlagen',
                              'wirken stärker als 500 Zeilen Rauschen. Deshalb kümmern wir uns in '
                              'späteren Modulen aktiv um sauberen Kontext (Memory, Subagents, '
                              '`/context`).',
-                       'en': '## The context window\n'
+                       'en': '## The Context Window\n'
                              '\n'
                              'The **context window** is the maximum number of tokens the model can '
                              'take into account in a *single* pass — input **and** output '
-                             'combined. Everything Claude Code currently has "in mind" lives in '
+                             'combined. Everything Claude Code currently has “in mind” lives in '
                              'it: the system prompt, your `CLAUDE.md`, the conversation so far, '
                              'files it has read, and tool results.\n'
                              '\n'
@@ -343,9 +343,9 @@ LLM_GRUNDLAGEN_MODULE = {'key': 'llm-grundlagen',
                          'explanation': {'de': 'Im Kontextfenster liegt nur, was in dieser Session hineingegeben wurde: System-Prompt, geladene CLAUDE.md, Verlauf, gelesene Dateien und Tool-Ergebnisse. Die Trainingsdaten stecken dagegen in den Gewichten des Modells – sie liegen nicht als Text im Fenster und lassen sich dort auch nicht nachlesen.', 'en': "The context window holds only what was put in during this session: system prompt, loaded CLAUDE.md, history, files read and tool results. The training data, by contrast, is baked into the model's weights – it is not present as text in the window and cannot be read back from there."},
                          'type': 'multi',
                          'prompt': {'de': 'Was liegt alles im Kontextfenster einer '
-                                          'Claude-Code-Session? (mehrere)',
+                                          'Claude-Code-Session? Mehrere Antworten sind richtig.',
                                     'en': 'What is contained in the context window of a Claude '
-                                          'Code session? (multiple)'},
+                                          'Code session? Select all that apply.'},
                          'answer': [0, 1, 2],
                          'options': {'de': ['System-Prompt',
                                             'Geladene CLAUDE.md',
@@ -407,8 +407,8 @@ LLM_GRUNDLAGEN_MODULE = {'key': 'llm-grundlagen',
                                                'always apply therefore live in CLAUDE.md rather than only in chat.'}},
                         {'id': 'llm7',
                          'type': 'multi',
-                         'prompt': {'de': 'Welche Aussagen über Tokens treffen zu? (mehrere)',
-                                    'en': 'Which statements about tokens are true? (multiple)'},
+                         'prompt': {'de': 'Welche Aussagen über Tokens treffen zu? Mehrere Antworten sind richtig.',
+                                    'en': 'Which statements about tokens are true? Select all that apply.'},
                          'options': {'de': ['Auch gelesene Dateien und Tool-Ergebnisse verbrauchen Tokens im '
                                             'Kontextfenster',
                                             'Ein Token entspricht immer genau einem Wort',
@@ -424,7 +424,7 @@ LLM_GRUNDLAGEN_MODULE = {'key': 'llm-grundlagen',
                                                'Token“. Gezählt wird alles, was durch das Modell läuft: Prompt, Dateien, '
                                                'Tool-Ergebnisse und die Ausgabe.',
                                          'en': 'Tokens are pieces of text, often parts of words – a long or rare word '
-                                               'consists of several. The common misconception is "one word = one token". '
+                                               'consists of several. The common misconception is “one word = one token”. '
                                                'Everything that passes through the model counts: prompt, files, tool '
                                                'results and the output.'}},
                         {'id': 'llm8',

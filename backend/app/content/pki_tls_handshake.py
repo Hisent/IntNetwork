@@ -29,8 +29,8 @@ TLS_HANDSHAKE_MODULE = {
               'Serverkonfiguration denkst, brauchst du eine klare Antwort auf diese Frage — der '
               'Handshake ist die Grundlage für alles, was danach an Härtung folgt.',
         'en': 'Nordwind Logistik GmbH runs several HTTPS services for customers and shipping '
-              'partners. A new colleague asks during onboarding: "What actually happens before the '
-              'first encrypted payload goes over the wire?" Before you think about cipher suites or '
+              'partners. A new colleague asks during onboarding: “What actually happens before the '
+              'first encrypted payload goes over the wire?” Before you think about cipher suites or '
               'server configuration, you need a clear answer to this question — the handshake is '
               'the foundation for everything that follows in hardening.',
     },
@@ -120,7 +120,7 @@ TLS_HANDSHAKE_MODULE = {
                  'Juli 2026 ersetzt **RFC 9846** diese Fassung (Klarstellungen und Korrekturen, dasselbe '
                  'Protokoll). Weil sich dabei Abschnittsnummern verschoben haben, gehört zu jedem Zitat die '
                  'RFC-Nummer.'),
-             'en': ('## TLS 1.3 (RFC 8446): One Round Trip, Encrypted from ServerHello On\n\nTLS 1.3 reduces the '
+             'en': ('## TLS 1.3 (RFC 8446): One Round Trip, Encrypted From ServerHello On\n\nTLS 1.3 reduces the '
                  'full handshake to **one round trip**: the client speculatively sends its key share (`key_share`) '
                  'in the very first `ClientHello` — assuming client and server will agree on a '
                  'common Diffie-Hellman group anyway. The server can respond directly with `ServerHello`, and '
@@ -143,7 +143,7 @@ TLS_HANDSHAKE_MODULE = {
          'payload': {
              'kind': 'compare',
              'title_de': 'TLS 1.2 und TLS 1.3 im direkten Vergleich',
-             'title_en': 'TLS 1.2 and TLS 1.3 side by side',
+             'title_en': 'TLS 1.2 and TLS 1.3 Side by Side',
              'columns': [{'title': 'TLS 1.2'}, {'title': 'TLS 1.3'}],
              'rows': [
                  {'label_de': 'Roundtrips (voller Handshake)', 'label_en': 'Round trips (full handshake)',
@@ -265,7 +265,7 @@ TLS_HANDSHAKE_MODULE = {
                    'hosting) to know which certificate to present at all, the client sends the '
                    'desired hostname along in the `ClientHello` — the **Server Name Indication '
                    '(SNI)**. This field is transmitted in cleartext, since it has to be processed '
-                   'before a session key even exists. A network observer (e.g. an ISP) can therefore '
+                   'before a session key even exists. A network observer (e.g., an ISP) can therefore '
                    'still see which hostname a client is requesting — even if the rest of the traffic '
                    'is fully encrypted by TLS 1.3.\n\n'
                    '**Encrypted Client Hello (ECH)** encrypts the ClientHello, including SNI, with a '
@@ -329,7 +329,7 @@ TLS_HANDSHAKE_MODULE = {
          'payload': {
              'kind': 'sequence',
              'title_de': 'TLS 1.3: Wiederaufnahme mit Ticket und 0-RTT',
-             'title_en': 'TLS 1.3: resumption with ticket and 0-RTT',
+             'title_en': 'TLS 1.3: Resumption With Ticket and 0-RTT',
              'actors': [
                     {'id': 'c', 'label': 'Client'},
                     {'id': 's', 'label': 'Server'},
@@ -368,7 +368,7 @@ TLS_HANDSHAKE_MODULE = {
                      'to': 's',
                      'style': 'encrypted',
                      'label_de': '0-RTT-Daten (z. B. GET /)',
-                     'label_en': '0-RTT data (e.g. GET /)',
+                     'label_en': '0-RTT data (e.g., GET /)',
                      'detail_de': ('Optional und riskant: Diese Daten sind nur mit dem PSK geschützt — ohne Forward '
                          'Secrecy und wiederholbar (Replay). Nur für Anfragen, die doppelt ausgeführt keinen '
                          'Schaden anrichten.'),
@@ -430,7 +430,7 @@ TLS_HANDSHAKE_MODULE = {
          'payload': {
              'kind': 'sequence',
              'title_de': 'mTLS in TLS 1.3: auch der Client weist sich aus',
-             'title_en': 'mTLS in TLS 1.3: the client proves its identity too',
+             'title_en': 'mTLS in TLS 1.3: the Client Proves Its Identity Too',
              'actors': [
                     {'id': 'c', 'label': 'Client'},
                     {'id': 's', 'label': 'Server'},
@@ -502,7 +502,7 @@ TLS_HANDSHAKE_MODULE = {
                    'schwach, sondern schlicht nicht mehr konform zum aktuellen Standard.',
              'en': '## TLS 1.0/1.1: Formally History\n\n'
                    'RFC 8996 formally deprecated TLS 1.0, TLS 1.1, and DTLS 1.0 and moved them to '
-                   '"Historic" status. Since then, the required minimum version has been **TLS 1.2 or '
+                   '“Historic” status. Since then, the required minimum version has been **TLS 1.2 or '
                    'higher** — falling back to TLS 1.0/1.1 is prohibited. In practice this means: '
                    'servers that still offer these old versions are not just cryptographically weak, '
                    'they are simply no longer compliant with the current standard.',
@@ -511,11 +511,11 @@ TLS_HANDSHAKE_MODULE = {
          'note': ('Echte Ausgaben von openssl s_client (OpenSSL 3.6) gegen einen lokalen Testserver mit der '
              'Kurs-Test-PKI; Hostname statt 127.0.0.1 eingesetzt, Zertifikats-PEM und Sitzungsdetails gekürzt '
              '([...]). Bei -tls1_1 bricht schon der eigene Client ab ("no protocols available": OpenSSLs '
-             'Standard-Sicherheitsstufe lässt TLS 1.1 nicht mehr zu). Im Openssl-Lab ist s_client gesperrt '
+             'Standard-Sicherheitsstufe lässt TLS 1.1 nicht mehr zu). Im OpenSSL-Lab ist s_client gesperrt '
              '(kein Netz), deshalb hier als Simulation.'),
          'payload': {
              'title_de': 'Den Handshake in der s_client-Ausgabe lesen',
-             'title_en': 'Reading the handshake in the s_client output',
+             'title_en': 'Reading the Handshake in the s_client Output',
              'prompt': 'nordwind$',
              'intro_de': 'Drei Verbindungsversuche zu www.nordwind-logistik.de mit unterschiedlichen Protokollversionen.',
              'intro_en': 'Three connection attempts to www.nordwind-logistik.de with different protocol versions.',
@@ -590,7 +590,7 @@ TLS_HANDSHAKE_MODULE = {
                           'Endpunkt zu aktivieren, "weil das schneller ist". Welche Rückfrage stellst '
                           'du zuerst, und woran machst du fest, ob der Vorschlag sicher umsetzbar ist?',
              'prompt_en': 'A colleague suggests enabling 0-RTT for all requests to an internal API '
-                          'endpoint "because it is faster". What question do you ask first, and how '
+                          'endpoint “because it is faster.” What question do you ask first, and how '
                           'do you determine whether the proposal can be implemented safely?',
          }},
     ],
@@ -716,7 +716,7 @@ TLS_HANDSHAKE_MODULE = {
           'de': ('RFC 8996 hat TLS 1.0 und 1.1 in den Status „Historic“ versetzt; ein Fallback ist nicht mehr '
               'zulässig, auch nicht intern. Die Protokolle existieren weiter, dürfen aber nicht mehr '
               'ausgehandelt werden.'),
-          'en': ('RFC 8996 moved TLS 1.0 and 1.1 to "Historic" status; falling back is no longer permitted, not '
+          'en': ('RFC 8996 moved TLS 1.0 and 1.1 to “Historic” status; falling back is no longer permitted, not '
               'even internally. The protocols still exist but must no longer be negotiated.'),
          }},
         {'id': 'th6', 'type': 'single',
@@ -724,8 +724,8 @@ TLS_HANDSHAKE_MODULE = {
              'de': ('`openssl s_client` zeigt: „Peer signature type: ecdsa_secp256r1_sha256“, „Negotiated TLS1.3 '
                  'group: X25519MLKEM768“ und „New, TLSv1.3, Cipher is TLS_AES_256_GCM_SHA384“. Welche Lesart '
                  'stimmt?'),
-             'en': ('`openssl s_client` shows: "Peer signature type: ecdsa_secp256r1_sha256", "Negotiated TLS1.3 '
-                 'group: X25519MLKEM768", and "New, TLSv1.3, Cipher is TLS_AES_256_GCM_SHA384". Which reading '
+             'en': ('`openssl s_client` shows: “Peer signature type: ecdsa_secp256r1_sha256”, “Negotiated TLS1.3 '
+                 'group: X25519MLKEM768”, and “New, TLSv1.3, Cipher is TLS_AES_256_GCM_SHA384”. Which reading '
                  'is correct?'),
             },
          'options': {

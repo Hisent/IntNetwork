@@ -8,6 +8,8 @@
 // useFileCommandLab/FileCommandLabConsole tragen die komplette Datei-/
 // Befehls-Editor-Logik für OpensslLabWidget und GitLabWidget, useLabAvailability
 // und LabDisabledBanner/LabOutputPanel sind auch für AnsibleLabWidget nutzbar.
+import type { LabRunResult } from '@/lib/labApi'
+
 export const MAX_COMMANDS = 6
 export const MAX_COMMAND_CHARS = 512
 export const MAX_FILES = 10
@@ -38,7 +40,15 @@ export function validateLabRun(files: LabFile[], commands: string[]): LimitViola
   if (files.length > MAX_FILES) {
     return { de: `Höchstens ${MAX_FILES} Dateien pro Lauf.`, en: `At most ${MAX_FILES} files per run.` }
   }
+  const seen = new Set<string>()
   for (const f of files) {
+    if (seen.has(f.name)) {
+      return {
+        de: `Dateiname "${f.name}" kommt mehrfach vor — jede Datei braucht einen eigenen Namen.`,
+        en: `File name "${f.name}" is used more than once — every file needs its own name.`,
+      }
+    }
+    seen.add(f.name)
     if (!FILENAME_RE.test(f.name)) {
       return {
         de: `Ungültiger Dateiname "${f.name}" (erlaubt: Buchstaben, Ziffern, Punkt, Unterstrich, Bindestrich; max. 64 Zeichen).`,
@@ -67,4 +77,24 @@ export function validateLabRun(files: LabFile[], commands: string[]): LimitViola
     }
   }
   return null
+}
+
+// Erfolgskriterium einer Vorlage für die Aufgabe unter dem Lab. Ohne Angabe
+// gilt "Rückgabewert 0". Vorlagen, die absichtlich mit einem Fehler enden
+// (Widerruf: rc 2, Merge-Konflikt: rc 1), nennen hier den erwarteten
+// Rückgabewert, den Text, den der LETZTE Befehl melden muss, und den dazu
+// passenden Aufgabentext.
+export interface RunExpectation {
+  rc: number
+  output: string
+  task: { de: string; en: string }
+}
+
+export function runMeetsExpectation(result: LabRunResult | null, expectation?: RunExpectation): boolean {
+  if (result === null) return false
+  if (!expectation) return result.rc === 0
+  // Der Runner stellt jedem Befehl eine Zeile "$ <werkzeug> <befehl>" voran;
+  // alles nach der letzten davon ist die Ausgabe des letzten Befehls.
+  const last = result.output.slice(result.output.lastIndexOf('\n$ ') + 1)
+  return result.rc === expectation.rc && last.includes(expectation.output)
 }

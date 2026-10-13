@@ -35,7 +35,7 @@ NAC_RADIUS_MODULE = {
     },
     'blocks': [
         {'type': 'text', 'id': 'text-1',
-         'note': 'Die vier Antworttypen sind die Grundlage fuer den spaeteren Debug-Block. Hier '
+         'note': 'Die vier Antworttypen sind die Grundlage für den späteren Debug-Block. Hier '
                  'ruhig mit konkreten Beispielen pro Typ arbeiten, nicht nur die Namen nennen.',
          'value': {
              'de': '## RADIUS: die vier Pakettypen\n\n'
@@ -60,9 +60,9 @@ NAC_RADIUS_MODULE = {
                    '- **Access-Request** — contains attributes such as username, password '
                    'information, client ID, and port ID; sent by the authenticator.\n'
                    '- **Access-Accept** — grants access to the requested network resource.\n'
-                   '- **Access-Reject** — unconditionally denies access, e.g. for invalid '
+                   '- **Access-Reject** — unconditionally denies access, e.g., for invalid '
                    'credentials or an inactive account.\n'
-                   '- **Access-Challenge** — requests additional information, e.g. a second '
+                   '- **Access-Challenge** — requests additional information, e.g., a second '
                    'password, a PIN, or a token; used for multi-step EAP exchanges (see module '
                    'nac-8021x, step 5 of the flow).',
          }},
@@ -73,7 +73,7 @@ NAC_RADIUS_MODULE = {
             'payload': {
                 'kind': 'sequence',
                 'title_de': 'RADIUS: Request, Challenge, Accept',
-                'title_en': 'RADIUS: request, challenge, accept',
+                'title_en': 'RADIUS: Request, Challenge, Accept',
                 'caption_de': 'Der Switch (NAS) fragt, der Server antwortet — UDP 1812.',
                 'caption_en': 'The switch (NAS) asks, the server answers — UDP 1812.',
                 'actors': [
@@ -93,7 +93,7 @@ NAC_RADIUS_MODULE = {
                         'to': 'srv',
                         'label': 'Access-Request',
                         'detail_de': 'Enthält u. a. User-Name, NAS-IP-Address, NAS-Port, Calling-Station-Id (MAC des Clients) und die EAP-Nachricht im Attribut EAP-Message.',
-                        'detail_en': 'Contains among others User-Name, NAS-IP-Address, NAS-Port, Calling-Station-Id (the client MAC) and the EAP message in the EAP-Message attribute.',
+                        'detail_en': 'Contains, among others, User-Name, NAS-IP-Address, NAS-Port, Calling-Station-Id (the client MAC) and the EAP message in the EAP-Message attribute.',
                     },
                     {
                         'from': 'srv',
@@ -183,8 +183,8 @@ NAC_RADIUS_MODULE = {
                    'In the **Access-Accept**, the RADIUS server can include attributes that tell '
                    'the authenticator a dynamic VLAN membership for the user or device just '
                    'authenticated. Typically, three attributes are set for this:\n\n'
-                   '- **Tunnel-Type** = "VLAN"\n'
-                   '- **Tunnel-Medium-Type** = "802"\n'
+                   '- **Tunnel-Type** = “VLAN”\n'
+                   '- **Tunnel-Medium-Type** = “802”\n'
                    '- **Tunnel-Private-Group-ID** = the actual VLAN ID\n\n'
                    'This way, the same physical port at Nordwind can lead into completely '
                    'different VLANs depending on identity: a company laptop into the employee '
@@ -271,7 +271,7 @@ NAC_RADIUS_MODULE = {
                     },
                 ],
                 'explanation_de': 'Die ersten drei stehen im Access-Request (wer fragt für wen), die letzten drei im Access-Accept (was folgt daraus). Session-Timeout bedeutet nur zusammen mit Termination-Action=RADIUS-Request „neu authentifizieren“.',
-                'explanation_en': 'The first three are in the Access-Request (who asks on whose behalf), the last three in the Access-Accept (what follows). Session-Timeout only means "re-authenticate" together with Termination-Action=RADIUS-Request.',
+                'explanation_en': 'The first three are in the Access-Request (who asks on whose behalf), the last three in the Access-Accept (what follows). Session-Timeout only means “re-authenticate” together with Termination-Action=RADIUS-Request.',
             },
         },
         {'type': 'text', 'id': 'text-3',
@@ -327,7 +327,7 @@ NAC_RADIUS_MODULE = {
                     },
                 ],
                 'explanation_de': '1812 ist der Port für Authentifizierung, 1813 für Accounting. Erst „aaa authorization network“ erlaubt dem Switch, Autorisierungs-Attribute aus dem Access-Accept (VLAN, ACL) anzuwenden — fehlt die Zeile, klappt die Anmeldung, aber das Gerät bleibt im statischen Port-VLAN.',
-                'explanation_en': '1812 is the port for authentication, 1813 for accounting. Only "aaa authorization network" allows the switch to apply authorization attributes from the Access-Accept (VLAN, ACL) — without that line the login works, but the device stays in the static port VLAN.',
+                'explanation_en': '1812 is the port for authentication, 1813 for accounting. Only “aaa authorization network” allows the switch to apply authorization attributes from the Access-Accept (VLAN, ACL) — without that line the login works, but the device stays in the static port VLAN.',
             },
         },
         {'type': 'text', 'id': 'text-4',
@@ -345,7 +345,7 @@ NAC_RADIUS_MODULE = {
                    'Für Nordwind ist RadSec vor allem dann relevant, wenn RADIUS-Verkehr über '
                    'ungesicherte oder weniger vertrauenswürdige Netzabschnitte läuft, etwa '
                    'zwischen Standorten.',
-             'en': '## RadSec: RADIUS over TLS\n\n'
+             'en': '## RadSec: RADIUS Over TLS\n\n'
                    'Classic RADIUS over UDP only encrypts the password portion, not the entire '
                    'packet — attributes and headers remain visible. **RadSec** (RADIUS/TLS) '
                    'instead encapsulates the entire RADIUS packet in TLS, hiding attributes and '
@@ -354,7 +354,7 @@ NAC_RADIUS_MODULE = {
                    'RadSec, by contrast, supports several client identification modes, including '
                    'TLS-PSK and X.509 certificate fingerprint.\n\n'
                    'For Nordwind, RadSec matters especially when RADIUS traffic crosses '
-                   'unsecured or less trusted network segments, e.g. between sites.',
+                   'unsecured or less trusted network segments, e.g., between sites.',
          }},
         {'type': 'check', 'id': 'check-2',
          'payload': {
@@ -392,16 +392,16 @@ NAC_RADIUS_MODULE = {
                    'Kurz: RADIUS entscheidet bei Nordwind, wer ins Netz darf — TACACS+ würde '
                    'entscheiden, wer sich auf einem Switch anmelden und welche Befehle er dort '
                    'ausführen darf.',
-             'en': '## Distinction from TACACS+\n\n'
+             'en': '## Distinction From TACACS+\n\n'
                    '**TACACS+**, like RADIUS, provides centralized AAA — but for a different '
-                   'purpose: it is typically used for **administrative device access** (e.g. who '
+                   'purpose: it is typically used for **administrative device access** (e.g., who '
                    'may log into a switch via SSH and which CLI commands they may run), while '
                    'RADIUS dominates for **802.1X network access** and Wi-Fi. TACACS+ also '
                    'encrypts the entire packet body (via shared secret and padding), while '
                    'classic RADIUS only encrypts the password portion. TACACS+ additionally '
                    'treats every AAA phase — authentication, authorization, accounting — as an '
                    'independent exchange: the administrator is authenticated first, then a '
-                   'separate authorization request is sent for every single action (e.g. every '
+                   'separate authorization request is sent for every single action (e.g., every '
                    'CLI command).\n\n'
                    'In short: at Nordwind, RADIUS decides who gets onto the network — TACACS+ '
                    'would decide who can log into a switch and which commands they may run '
@@ -559,7 +559,7 @@ NAC_RADIUS_MODULE = {
                  'For dynamic VLAN assignment in 802.1X',
                  'For encrypting all Wi-Fi traffic',
                  'For RADIUS accounting on port 1813',
-                 'For administrative device access, e.g. CLI login on switches',
+                 'For administrative device access, e.g., CLI login on switches',
              ],
          },
          'explanation': {
@@ -597,12 +597,12 @@ NAC_RADIUS_MODULE = {
             'type': 'number',
             'prompt': {
                 'de': 'Ein Access-Accept enthält: Tunnel-Type = VLAN (13), Tunnel-Medium-Type = 802 (6), Tunnel-Private-Group-ID = "40", Session-Timeout = 28800. In welches VLAN legt der Switch den Port?',
-                'en': 'An Access-Accept contains: Tunnel-Type = VLAN (13), Tunnel-Medium-Type = 802 (6), Tunnel-Private-Group-ID = "40", Session-Timeout = 28800. Which VLAN does the switch place the port in?',
+                'en': 'An Access-Accept contains: Tunnel-Type = VLAN (13), Tunnel-Medium-Type = 802 (6), Tunnel-Private-Group-ID = “40”, Session-Timeout = 28800. Which VLAN does the switch place the port in?',
             },
             'answer': 40,
             'explanation': {
                 'de': 'Die VLAN-ID steht in Tunnel-Private-Group-ID. Die 13 und die 6 sind nur die Codes für „VLAN“ und „802“, und Session-Timeout ist eine Zeit in Sekunden (hier 8 Stunden), kein VLAN.',
-                'en': 'The VLAN ID is in Tunnel-Private-Group-ID. The 13 and the 6 are merely the codes for "VLAN" and "802", and Session-Timeout is a time in seconds (here 8 hours), not a VLAN.',
+                'en': 'The VLAN ID is in Tunnel-Private-Group-ID. The 13 and the 6 are merely the codes for “VLAN” and “802”, and Session-Timeout is a time in seconds (here 8 hours), not a VLAN.',
             },
         },
         {
@@ -629,7 +629,7 @@ NAC_RADIUS_MODULE = {
             'answer': 1,
             'explanation': {
                 'de': 'Ohne „aaa authorization network“ wertet der Switch die Autorisierungs-Attribute des Servers nicht aus. Fehlten die Authentifizierungs-Zeile oder „dot1x system-auth-control“, käme gar keine erfolgreiche 802.1X-Anmeldung zustande.',
-                'en': 'Without "aaa authorization network" the switch does not evaluate the server\'s authorization attributes. If the authentication line or "dot1x system-auth-control" were missing, there would be no successful 802.1X login at all.',
+                'en': 'Without “aaa authorization network” the switch does not evaluate the server\'s authorization attributes. If the authentication line or “dot1x system-auth-control” were missing, there would be no successful 802.1X login at all.',
             },
         },
     ]},

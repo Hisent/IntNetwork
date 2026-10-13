@@ -33,7 +33,7 @@ DNSSEC_MODULE = {
     },
     'blocks': [
         {'type': 'text', 'id': 'text-1',
-         'note': 'Haeufigste Rueckfrage: Verschluesselt DNSSEC meine Abfragen? Nein — es beweist die Echtheit der Antwort. Diese Abgrenzung fruehzeitig setzen, sonst zieht sie sich durch das ganze Modul.',
+         'note': 'Häufigste Rückfrage: Verschlüsselt DNSSEC meine Abfragen? Nein — es beweist die Echtheit der Antwort. Diese Abgrenzung frühzeitig setzen, sonst zieht sie sich durch das ganze Modul.',
          'value': {
              'de': '## Was DNSSEC leistet — und was nicht\n\n'
                    '**DNSSEC** (DNS Security Extensions) schützt vor **Manipulation und Fälschung** '
@@ -51,7 +51,7 @@ DNSSEC_MODULE = {
                    'can cryptographically verify whether an answer really comes from the '
                    'authoritative server and was not altered along the way.\n\n'
                    'What DNSSEC does **not** deliver: **confidentiality**. DNSSEC encrypts nothing '
-                   '— anyone reading the traffic still sees the queries and answers in plain text. '
+                   '— anyone reading the traffic still sees the queries and answers in cleartext. '
                    'DNSSEC secures **authenticity and integrity**, not secrecy. This is a common '
                    'misunderstanding that leads to wrong expectations in operations.',
          }},
@@ -131,7 +131,7 @@ DNSSEC_MODULE = {
             "payload": {
                 "kind": "layers",
                 "title_de": "Die Vertrauenskette: wer bürgt für wen",
-                "title_en": "The chain of trust: who vouches for whom",
+                "title_en": "The Chain of Trust: Who Vouches for Whom",
                 "caption_de": "Von oben nach unten: Jede Ebene macht die darunter prüfbar. Anklicken für Details.",
                 "caption_en": "Top to bottom: each layer makes the one below verifiable. Click for details.",
                 "layers": [
@@ -143,7 +143,7 @@ DNSSEC_MODULE = {
                         "pdu_de": "Startpunkt",
                         "pdu_en": "starting point",
                         "detail_de": "Im Internet ist das der Schlüssel der Root-Zone. Für eine rein interne Zone ohne signierte Elternzone muss der Trust Anchor der Zone selbst auf den validierenden Resolvern hinterlegt werden.",
-                        "detail_en": "On the internet this is the key of the root zone. For a purely internal zone without a signed parent, the trust anchor of the zone itself has to be configured on the validating resolvers.",
+                        "detail_en": "On the Internet this is the key of the root zone. For a purely internal zone without a signed parent, the trust anchor of the zone itself has to be configured on the validating resolvers.",
                     },
                     {
                         "name_de": "DS-Record in der Elternzone",
@@ -190,7 +190,7 @@ DNSSEC_MODULE = {
             "note": "Quellen: RFC 4034/5155 (NSEC/NSEC3), RFC 8624 und Nachfolger (Algorithmen-Empfehlungen), RFC 6781 (Rollover-Verfahren). Welche Algorithmen und Voreinstellungen die eigene NIOS-Version anbietet, in den Grid-DNS-Eigenschaften nachsehen lassen.",
             "value": {
                 "de": "## NSEC/NSEC3, Algorithmen und Rollover-Arten\n\n**Auch „gibt es nicht“ muss beweisbar sein.** Für einen Namen ohne Eintrag gibt es nichts zu signieren. DNSSEC liefert deshalb einen signierten Nachweis der Lücke:\n\n- **NSEC** nennt den nächsten existierenden Namen in der Zone. Nebeneffekt: Wer sich von Lücke zu Lücke hangelt, kann die ganze Zone auslesen (Zone Walking).\n- **NSEC3** verwendet stattdessen Hashwerte der Namen und erschwert dieses Auslesen. In NIOS wird die Variante in den DNSSEC-Eigenschaften gewählt; ein späterer Wechsel bedeutet, die Zone zu entsignieren und neu zu signieren.\n\n**Algorithmen.** Im DNSKEY- und RRSIG-Record steht eine Algorithmus-Nummer. Für neue Zonen empfohlen ist heute **ECDSAP256SHA256 (Nummer 13)**: kleine Schlüssel und Signaturen bei hoher Sicherheit. Weit verbreitet ist **RSASHA256 (Nummer 8)**. Verfahren auf SHA-1-Basis gelten als überholt. Ein Algorithmus-Wechsel ist ein eigener, sorgfältig zu planender Rollover.\n\n**Zwei Rollover-Arten** begegnen dir in jeder Doku:\n\n- **Pre-Publish** (üblich für den ZSK): Der neue Schlüssel wird zuerst nur veröffentlicht, bis alle Caches ihn kennen. Erst dann wird mit ihm signiert; der alte bleibt noch sichtbar, bis seine Signaturen abgelaufen sind.\n- **Double-Signature** (üblich für den KSK): Alter und neuer KSK signieren das DNSKEY-RRset eine Zeit lang gemeinsam. In dieser Phase wird der DS-Record in der Elternzone getauscht; danach entfällt der alte KSK.\n\nGemeinsam ist beiden: Kein Schritt darf schneller erfolgen, als die TTLs der beteiligten Records ablaufen.",
-                "en": "## NSEC/NSEC3, Algorithms and Rollover Types\n\n**Even \"does not exist\" must be provable.** For a name without a record there is nothing to sign. DNSSEC therefore delivers a signed proof of the gap:\n\n- **NSEC** names the next existing name in the zone. Side effect: by walking from gap to gap, anyone can enumerate the whole zone (zone walking).\n- **NSEC3** uses hashes of the names instead and makes this enumeration harder. In NIOS the variant is chosen in the DNSSEC properties; changing it later means unsigning and re-signing the zone.\n\n**Algorithms.** The DNSKEY and RRSIG records carry an algorithm number. Recommended for new zones today is **ECDSAP256SHA256 (number 13)**: small keys and signatures with high security. **RSASHA256 (number 8)** is widely deployed. SHA-1-based algorithms are considered obsolete. Changing the algorithm is a rollover of its own that needs careful planning.\n\n**Two rollover types** appear in every piece of documentation:\n\n- **Pre-publish** (usual for the ZSK): the new key is first only published until all caches know it. Only then is it used for signing; the old one stays visible until its signatures have expired.\n- **Double-signature** (usual for the KSK): old and new KSK sign the DNSKEY RRset together for a while. During this phase the DS record in the parent zone is replaced; afterwards the old KSK is dropped.\n\nCommon to both: no step may happen faster than the TTLs of the records involved expire.",
+                "en": "## NSEC/NSEC3, Algorithms and Rollover Types\n\n**Even “does not exist” must be provable.** For a name without a record there is nothing to sign. DNSSEC therefore delivers a signed proof of the gap:\n\n- **NSEC** names the next existing name in the zone. Side effect: by walking from gap to gap, anyone can enumerate the whole zone (zone walking).\n- **NSEC3** uses hashes of the names instead and makes this enumeration harder. In NIOS the variant is chosen in the DNSSEC properties; changing it later means unsigning and re-signing the zone.\n\n**Algorithms.** The DNSKEY and RRSIG records carry an algorithm number. Recommended for new zones today is **ECDSAP256SHA256 (number 13)**: small keys and signatures with high security. **RSASHA256 (number 8)** is widely deployed. SHA-1-based algorithms are considered obsolete. Changing the algorithm is a rollover of its own that needs careful planning.\n\n**Two rollover types** appear in every piece of documentation:\n\n- **Pre-publish** (usual for the ZSK): the new key is first only published until all caches know it. Only then is it used for signing; the old one stays visible until its signatures have expired.\n- **Double-signature** (usual for the KSK): old and new KSK sign the DNSKEY RRset together for a while. During this phase the DS record in the parent zone is replaced; afterwards the old KSK is dropped.\n\nCommon to both: no step may happen faster than the TTLs of the records involved expire.",
             },
         },
         {'type': 'text', 'id': 'text-4',
@@ -221,7 +221,7 @@ DNSSEC_MODULE = {
             "note": "Merksatz für die Runde: SERVFAIL, das mit +cd verschwindet, ist ein Validierungsproblem — kein Erreichbarkeitsproblem. dig-Ausgaben im Standardformat von BIND 9; Signaturen, Schlüssel und Kopfzeilen gekürzt.",
             "payload": {
                 "title_de": "Signiert, validiert, kaputt? Diagnose mit dig",
-                "title_en": "Signed, validated, broken? Diagnosis with dig",
+                "title_en": "Signed, Validated, Broken? Diagnosis With dig",
                 "intro_de": "10.20.30.53 ist der autoritative Member, 10.20.30.60 ein validierender Resolver. Signaturen und Schlüssel sind gekürzt.",
                 "intro_en": "10.20.30.53 is the authoritative member, 10.20.30.60 a validating resolver. Signatures and keys are shortened.",
                 "prompt": "admin@pc17:~$",
@@ -278,13 +278,13 @@ DNSSEC_MODULE = {
         },
         {'type': 'debug', 'id': 'debug-1',
          'payload': {
-             'prompt_de': 'Ein Monitoring-Alarm meldet: „Externe validierende Resolver antworten '
-                          'mit SERVFAIL für nordwind-intern.de. Interne Clients ohne Validierung '
+             'prompt_de': 'Ein Monitoring-Alarm meldet: „Die validierenden internen Resolver antworten '
+                          'mit SERVFAIL für nordwind-intern.de. Clients an Resolvern ohne Validierung '
                           'sehen die Zone weiterhin normal auflösen.“ Welche der folgenden '
                           'Aussagen zu diesem Bild ist falsch?',
-             'prompt_en': 'A monitoring alert reports: "External validating resolvers respond with '
-                          'SERVFAIL for nordwind-intern.de. Internal clients without validation '
-                          'still see the zone resolve normally." Which of the following statements '
+             'prompt_en': 'A monitoring alert reports: “The validating internal resolvers respond with '
+                          'SERVFAIL for nordwind-intern.de. Clients on resolvers without validation '
+                          'still see the zone resolve normally.” Which of the following statements '
                           'about this picture is false?',
              'lines_de': [
                  'Das Muster passt zu einer abgelaufenen Signatur oder einem fehlgeschlagenen '
@@ -311,9 +311,9 @@ DNSSEC_MODULE = {
                                'validierenden Resolvern als „bogus“ und wird verworfen.',
              'explanation_en': 'Permissions/admin groups (Roles & Permissions, a different module) '
                                'have nothing to do with this symptom. The classic pattern of '
-                               '"SERVFAIL only for validating resolvers, normal resolution for '
-                               'non-validating clients" points to an expired signature or a failed '
-                               'rollover — validating resolvers treat the zone as "bogus" and '
+                               '“SERVFAIL only for validating resolvers, normal resolution for '
+                               'non-validating clients” points to an expired signature or a failed '
+                               'rollover — validating resolvers treat the zone as “bogus” and '
                                'discard it.',
          }},
         {'type': 'order', 'id': 'order-1',
@@ -381,7 +381,7 @@ DNSSEC_MODULE = {
              'prompt_de': 'Warum ist „DNSSEC einmal aktivieren und dann vergessen“ ein Betriebs-'
                          'risiko? Was müsste im laufenden Betrieb regelmäßig geschehen, damit '
                          'Signaturen nicht unbemerkt ablaufen und ein Rollover nicht schiefgeht?',
-             'prompt_en': 'Why is "enable DNSSEC once and then forget about it" an operational '
+             'prompt_en': 'Why is “enable DNSSEC once and then forget about it” an operational '
                          'risk? What would need to happen regularly in ongoing operations so '
                          'signatures do not expire unnoticed and a rollover does not go wrong?',
          }},
@@ -390,7 +390,7 @@ DNSSEC_MODULE = {
         {'id': 'ds1',
          "explanation": {
              "de": "DNSSEC beweist, dass eine Antwort echt und unverändert ist. Verschlüsselt wird nichts — wer mitliest, sieht Frage und Antwort weiterhin im Klartext; Vertraulichkeit liefern erst Verfahren wie DNS over TLS oder HTTPS.",
-             "en": "DNSSEC proves that an answer is genuine and unaltered. Nothing is encrypted — anyone listening still sees question and answer in plain text; confidentiality only comes from mechanisms such as DNS over TLS or HTTPS.",
+             "en": "DNSSEC proves that an answer is genuine and unaltered. Nothing is encrypted — anyone listening still sees question and answer in cleartext; confidentiality only comes from mechanisms such as DNS over TLS or HTTPS.",
          },
          'type': 'single',
          'prompt': {'de': 'Was schützt DNSSEC?',
@@ -533,7 +533,7 @@ DNSSEC_MODULE = {
             },
             "explanation": {
                 "de": "Der DS zeigt auf einen Schlüssel, den es in der Zone nicht mehr gibt — die Kette reißt am DNSKEY-RRset, und damit ist auch der ZSK nicht mehr vertrauenswürdig. „Unsigniert“ wäre die Zone nur ohne DS; ein DS ohne passenden Schlüssel bedeutet dagegen: Fälschungsverdacht.",
-                "en": "The DS points to a key that no longer exists in the zone — the chain breaks at the DNSKEY RRset, and with it the ZSK is no longer trustworthy either. The zone would only be \"unsigned\" without a DS; a DS without a matching key instead means: suspected forgery.",
+                "en": "The DS points to a key that no longer exists in the zone — the chain breaks at the DNSKEY RRset, and with it the ZSK is no longer trustworthy either. The zone would only be “unsigned” without a DS; a DS without a matching key instead means: suspected forgery.",
             },
         },
         {
@@ -567,8 +567,8 @@ DNSSEC_MODULE = {
             "id": "ds8",
             "type": "multi",
             "prompt": {
-                "de": "Welche Aussagen zu NSEC, NSEC3 und Algorithmen treffen zu (mehrere richtig)?",
-                "en": "Which statements about NSEC, NSEC3 and algorithms are correct (multiple)?",
+                "de": "Welche Aussagen zu NSEC, NSEC3 und Algorithmen treffen zu? Mehrere Antworten sind richtig.",
+                "en": "Which statements about NSEC, NSEC3 and algorithms are correct? Select all that apply.",
             },
             "answer": [0, 2],
             "options": {
@@ -587,7 +587,7 @@ DNSSEC_MODULE = {
             },
             "explanation": {
                 "de": "NSEC3 hasht Namen, um das Durchlaufen der Zone zu erschweren — verschlüsselt wird bei DNSSEC nirgends. Der Algorithmus steckt in den Schlüsseln und Signaturen der Zone; ihn zu wechseln heißt neue Schlüssel einführen, also ein Rollover.",
-                "en": "NSEC3 hashes names to make walking the zone harder — nothing is encrypted anywhere in DNSSEC. The algorithm is part of the zone's keys and signatures; changing it means introducing new keys, i.e. a rollover.",
+                "en": "NSEC3 hashes names to make walking the zone harder — nothing is encrypted anywhere in DNSSEC. The algorithm is part of the zone's keys and signatures; changing it means introducing new keys, i.e., a rollover.",
             },
         },
     ]},

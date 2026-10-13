@@ -10,15 +10,15 @@ DHCP_FAILOVER_MODULE = {
     'prerequisites': ['dhcp-grundlagen'],
     'goals': [
         'Erklären, dass ein DHCP-Failover-Paar zwei unabhängige Grid-Member verbindet — kein Grid-HA-Paar',
-        'Die Lastverteilung per Hash über die Client-MAC-Adresse und den konfigurierbaren Split beschreiben',
+        'Die Lastverteilung per Hash über die Client-Kennung und den konfigurierbaren Split beschreiben',
         'Die Zustände eines Failover-Paars und MCLT als Kompromiss zwischen Lease-Dauer und Recovery-Zeit einordnen',
         'Das korrekte Vorgehen bei einem geplanten „Partner Down“ nennen können',
     ],
     "goals_en": [
         "Explain that a DHCP failover pair connects two independent Grid members — it is not a Grid HA pair",
-        "Describe load balancing by a hash of the client MAC address and the configurable split",
+        "Describe load balancing by a hash of the client identifier and the configurable split",
         "Explain the states of a failover pair and understand the MCLT as a trade-off between lease duration and recovery time",
-        "Name the correct procedure for a planned \"Partner Down\"",
+        "Name the correct procedure for a planned “Partner Down”",
     ],
     'scenario': {
         'de': ('Ein Kollege plant Wartungsarbeiten an einem Grid Member und sagt: „Kein '
@@ -116,7 +116,8 @@ DHCP_FAILOVER_MODULE = {
              'de': ('## Lastverteilung: Hash und Split\n'
                     '\n'
                     'Innerhalb eines Failover-Paars wird jede Anfrage anhand eines '
-                    '**Hash über die Client-MAC-Adresse** einem der beiden Peers '
+                    '**Hash über die Client-Kennung** (Client-Identifier, falls der Client '
+                    'einen sendet, sonst seine MAC-Adresse) einem der beiden Peers '
                     'zugeordnet. Welcher Anteil der Anfragen an welchen Server geht, '
                     'legt der **Split** fest — im Standard 50/50, aber konfigurierbar.\n'
                     '\n'
@@ -127,7 +128,8 @@ DHCP_FAILOVER_MODULE = {
              'en': ('## Load Balancing: Hash and Split\n'
                     '\n'
                     'Within a failover pair, every request is assigned to one of the '
-                    'two peers based on a **hash of the client MAC address**. Which '
+                    'two peers based on a **hash of the client identifier** (the client '
+                    'identifier option if the client sends one, otherwise its MAC address). Which '
                     'share of requests goes to which server is set by the **split** — '
                     '50/50 by default, but configurable.\n'
                     '\n'
@@ -193,7 +195,7 @@ DHCP_FAILOVER_MODULE = {
             "payload": {
                 "kind": "sequence",
                 "title_de": "Peer B fällt aus: Zustände und MCLT im Ablauf",
-                "title_en": "Peer B fails: states and MCLT in sequence",
+                "title_en": "Peer B Fails: States and MCLT in Sequence",
                 "caption_de": "Beispiel mit MCLT = 1 Stunde (Standardwert).",
                 "caption_en": "Example with MCLT = 1 hour (the default).",
                 "actors": [
@@ -382,13 +384,13 @@ DHCP_FAILOVER_MODULE = {
             "note": "Der Bereitschaftsfall schlechthin. Vor der Auflösung fragen: Woher weiß Hamburg, ob München noch Leases vergibt? (Gar nicht — das muss ein Mensch klären.)",
             "payload": {
                 "title_de": "Communications Interrupted — Partner Down setzen oder nicht?",
-                "title_en": "Communications Interrupted — set Partner Down or not?",
+                "title_en": "Communications Interrupted — Set Partner Down or Not?",
                 "start": "start",
                 "nodes": [
                     {
                         "id": "start",
                         "text_de": "Samstag, 22 Uhr: Das Monitoring meldet für das Failover-Paar Hamburg/München „Communications Interrupted“. Du erreichst den Hamburger Peer per Grid Manager, den Münchner nicht. Der Bereitschaftskollege schlägt vor: „Setz Hamburg auf Partner Down, dann ist Ruhe.“ Was tust du?",
-                        "text_en": "Saturday, 10 p.m.: monitoring reports \"Communications Interrupted\" for the failover pair Hamburg/Munich. You can reach the Hamburg peer through Grid Manager, but not the Munich one. The on-call colleague suggests: \"Set Hamburg to Partner Down and we are done.\" What do you do?",
+                        "text_en": "Saturday, 10 p.m.: monitoring reports “Communications Interrupted” for the failover pair Hamburg/Munich. You can reach the Hamburg peer through Grid Manager, but not the Munich one. The on-call colleague suggests: “Set Hamburg to Partner Down and we are done.” What do you do?",
                         "options": [
                             {
                                 "label_de": "Partner Down auf dem Hamburger Peer setzen.",
@@ -476,7 +478,7 @@ DHCP_FAILOVER_MODULE = {
         {'id': 'df1',
          "explanation": {
              "de": "Failover: zwei eigenständige Member, beide vergeben Leases. HA: zwei Knoten, einer aktiv, als ein Grid-Knoten. Die Verwechslung ist gefährlich, weil sich daraus falsche Erwartungen ergeben — etwa, dass beim Failover „der passive Partner automatisch übernimmt“.",
-             "en": "Failover: two independent members, both hand out leases. HA: two nodes, one active, acting as one Grid node. The confusion is dangerous because it leads to wrong expectations — such as \"the passive partner takes over automatically\" in failover.",
+             "en": "Failover: two independent members, both hand out leases. HA: two nodes, one active, acting as one Grid node. The confusion is dangerous because it leads to wrong expectations — such as “the passive partner takes over automatically” in failover.",
          },
          'type': 'single',
          'prompt': {'de': 'Was unterscheidet ein DHCP-Failover-Paar grundlegend von einem Grid-HA-Paar?',
@@ -487,13 +489,13 @@ DHCP_FAILOVER_MODULE = {
                             'Ein Failover-Paar sichert nur DNS ab, kein DHCP',
                             'Ein Grid-HA-Paar existiert nur bei virtuellen Appliances'],
                      'en': ['There is no difference, both mean the same thing',
-                            'A failover pair is active/active and jointly serves an address pool; a Grid HA pair is active/passive and protects a single Grid node (e.g. the Grid Master)',
+                            'A failover pair is active/active and jointly serves an address pool; a Grid HA pair is active/passive and protects a single Grid node (e.g., the Grid Master)',
                             'A failover pair only protects DNS, not DHCP',
                             'A Grid HA pair only exists for virtual appliances']}},
         {'id': 'df2',
          "explanation": {
              "de": "Die MCLT begrenzt, wie weit ein Peer dem anderen „vorauseilen“ darf: um höchstens diese Spanne darf eine Lease länger laufen, als der Partner weiß. Sie ist keine Mindest-Lease-Zeit und hat mit dem Grid Master nichts zu tun.",
-             "en": "The MCLT limits how far one peer may \"run ahead\" of the other: a lease may run at most this much longer than the partner knows. It is not a minimum lease time and has nothing to do with the Grid Master.",
+             "en": "The MCLT limits how far one peer may “run ahead” of the other: a lease may run at most this much longer than the partner knows. It is not a minimum lease time and has nothing to do with the Grid Master.",
          },
          'type': 'single',
          'prompt': {'de': 'Wofür steht MCLT und welchen Zweck erfüllt sie?',
@@ -524,18 +526,18 @@ DHCP_FAILOVER_MODULE = {
                             'Nothing, the failover pair reliably detects the outage on its own']}},
         {'id': 'df4',
          "explanation": {
-             "de": "Der Hash über die Client-Kennung entscheidet, welcher Peer antwortet; der Split legt die Anteile fest (Standard 50 %). Beide Peers sind aktiv — „nur einer antwortet“ beschreibt ein HA-Paar, kein Failover-Paar.",
-             "en": "The hash of the client identifier decides which peer answers; the split sets the shares (default 50%). Both peers are active — \"only one answers\" describes an HA pair, not a failover pair.",
+             "de": "Der Hash über die Client-Kennung (Client-Identifier, sonst die MAC-Adresse) entscheidet, welcher Peer antwortet; der Split legt die Anteile fest (Standard 50 %). Beide Peers sind aktiv — „nur einer antwortet“ beschreibt ein HA-Paar, kein Failover-Paar.",
+             "en": "The hash of the client identifier (the client identifier option, otherwise the MAC address) decides which peer answers; the split sets the shares (default 50%). Both peers are active — “only one answers” describes an HA pair, not a failover pair.",
          },
          'type': 'multi',
-         'prompt': {'de': 'Welche Aussagen zur Lastverteilung in einem Failover-Paar treffen zu? (mehrere)',
-                    'en': 'Which statements about load balancing in a failover pair are true? (multiple)'},
+         'prompt': {'de': 'Welche Aussagen zur Lastverteilung in einem Failover-Paar treffen zu? Mehrere Antworten sind richtig.',
+                    'en': 'Which statements about load balancing in a failover pair are true? Select all that apply.'},
          'answer': [0, 1, 3],
-         'options': {'de': ['Die Zuordnung erfolgt über einen Hash der Client-MAC-Adresse',
+         'options': {'de': ['Die Zuordnung erfolgt über einen Hash der Client-Kennung',
                             'Der Split ist im Standard 50/50, aber konfigurierbar',
                             'Nur einer der beiden Server beantwortet im Normalbetrieb Anfragen',
                             'Fällt ein Peer aus, übernimmt der verbleibende Server dessen Anteil zusätzlich'],
-                     'en': ['Assignment is based on a hash of the client MAC address',
+                     'en': ['Assignment is based on a hash of the client identifier',
                             'The split defaults to 50/50 but is configurable',
                             'Only one of the two servers answers requests during normal operation',
                             "If a peer fails, the remaining server takes over its share as well"]}},
@@ -592,8 +594,8 @@ DHCP_FAILOVER_MODULE = {
             "id": "df8",
             "type": "multi",
             "prompt": {
-                "de": "Welche Aussagen zum Split eines Failover-Paars treffen zu (mehrere richtig)?",
-                "en": "Which statements about the split of a failover pair are correct (multiple)?",
+                "de": "Welche Aussagen zum Split eines Failover-Paars treffen zu? Mehrere Antworten sind richtig.",
+                "en": "Which statements about the split of a failover pair are correct? Select all that apply.",
             },
             "answer": [0, 2],
             "options": {

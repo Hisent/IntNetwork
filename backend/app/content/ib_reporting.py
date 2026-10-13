@@ -114,7 +114,7 @@ REPORTING_MODULE = {
             "payload": {
                 "kind": "flow",
                 "title_de": "Vom Ereignis zum Alarm: der Weg der Reporting-Daten",
-                "title_en": "From event to alert: the path of reporting data",
+                "title_en": "From Event to Alert: the Path of Reporting Data",
                 "nodes": [
                     {
                         "id": "mem",
@@ -332,13 +332,13 @@ REPORTING_MODULE = {
             "id": "scenario-alarm-muedigkeit",
             "payload": {
                 "title_de": "37 Alarme am Tag: den Auslastungs-Alert reparieren",
-                "title_en": "37 alerts a day: fixing the utilization alert",
+                "title_en": "37 Alerts a Day: Fixing the Utilization Alert",
                 "start": "start",
                 "nodes": [
                     {
                         "id": "start",
                         "text_de": "Der Alert „DHCP-Bereich über 70 %“ feuert im Schnitt 37-mal täglich, meist für Gäste-WLANs, die tagsüber voll und nachts leer sind. Das Team hat die Mails per Regel in einen Ordner verschoben. Letzte Woche lief ein Produktionsnetz voll — der Alarm dazu lag ungelesen im Ordner. Was änderst du?",
-                        "text_en": "The alert \"DHCP range above 70%\" fires 37 times a day on average, mostly for guest Wi-Fi networks that are full during the day and empty at night. The team has set up a rule that moves the emails into a folder. Last week a production network filled up — the alert for it sat unread in the folder. What do you change?",
+                        "text_en": "The alert “DHCP range above 70%” fires 37 times a day on average, mostly for guest Wi-Fi networks that are full during the day and empty at night. The team has set up a rule that moves the emails into a folder. Last week a production network filled up — the alert for it sat unread in the folder. What do you change?",
                         "options": [
                             {
                                 "label_de": "Die Schwelle für alle Bereiche auf 95 % anheben.",
@@ -372,7 +372,7 @@ REPORTING_MODULE = {
                     {
                         "id": "analyse",
                         "text_de": "Die Auswertung zeigt: 34 der 37 Alarme stammen aus sechs Gäste-Bereichen mit Tagesspitzen; Server- und Produktionsnetze lösen selten aus, wachsen aber stetig. Dank des EA „Netztyp“ lassen sich die Gruppen sauber trennen. Wie baust du die Alerts neu?",
-                        "text_en": "The analysis shows: 34 of the 37 alerts come from six guest ranges with daytime peaks; server and production networks rarely trigger but grow steadily. Thanks to the EA \"network type\" the groups can be separated cleanly. How do you rebuild the alerts?",
+                        "text_en": "The analysis shows: 34 of the 37 alerts come from six guest ranges with daytime peaks; server and production networks rarely trigger but grow steadily. Thanks to the EA “network type” the groups can be separated cleanly. How do you rebuild the alerts?",
                         "options": [
                             {
                                 "label_de": "Gäste-Bereiche ganz von der Überwachung ausnehmen.",
@@ -541,8 +541,8 @@ REPORTING_MODULE = {
              "en": "DHCP utilization, DNS query volume and capacity trend lines are the three analyses from the module. The number of Grid Master Candidates is an architecture decision, not a metric that keeps changing in operations.",
          },
          'type': 'multi',
-         'prompt': {'de': 'Welche Auswertungen zählen zu den typischen Betriebs-Kennzahlen aus diesem Modul? (mehrere)',
-                    'en': 'Which analyses count as typical operational metrics from this module? (multiple)'},
+         'prompt': {'de': 'Welche Auswertungen zählen zu den typischen Betriebs-Kennzahlen aus diesem Modul? Mehrere Antworten sind richtig.',
+                    'en': 'Which analyses count as typical operational metrics from this module? Select all that apply.'},
          'answer': [0, 1, 2],
          'options': {'de': ['DHCP-Auslastung je Netzwerk', 'DNS-Abfragevolumen',
                             'Kapazitätsplanung anhand von Trendlinien',
@@ -573,7 +573,7 @@ REPORTING_MODULE = {
             "answer": 3,
             "explanation": {
                 "de": "90 % von 400 sind 360 Adressen; es fehlen 60, also 3 Wochen. Danach bleiben bei gleichem Wachstum nur noch 2 Wochen bis 100 % — die Schwelle muss zur Zeit passen, die eine Erweiterung im eigenen Haus tatsächlich dauert.",
-                "en": "90% of 400 is 360 addresses; 60 more are needed, i.e. 3 weeks. After that, at the same growth, only 2 weeks remain until 100% — the threshold has to match the time an expansion actually takes in your organization.",
+                "en": "90% of 400 is 360 addresses; 60 more are needed, i.e., 3 weeks. After that, at the same growth, only 2 weeks remain until 100% — the threshold has to match the time an expansion actually takes in your organization.",
             },
         },
         {
@@ -607,8 +607,8 @@ REPORTING_MODULE = {
             "id": "ra8",
             "type": "multi",
             "prompt": {
-                "de": "Welche Auswertungen sind nur dann verlässlich, wenn Extensible Attributes konsequent gepflegt sind (mehrere richtig)?",
-                "en": "Which analyses are only reliable if extensible attributes are maintained consistently (multiple)?",
+                "de": "Welche Auswertungen sind nur dann verlässlich, wenn Extensible Attributes konsequent gepflegt sind? Mehrere Antworten sind richtig.",
+                "en": "Which analyses are only reliable if extensible attributes are maintained consistently? Select all that apply.",
             },
             "answer": [0, 3],
             "options": {
@@ -622,7 +622,7 @@ REPORTING_MODULE = {
                     "Utilization of all networks per site",
                     "Total number of DNS queries in the Grid per hour",
                     "The ten clients with the most queries",
-                    "An alert that applies only to networks of the type \"production\"",
+                    "An alert that applies only to networks of the type “production”",
                 ],
             },
             "explanation": {

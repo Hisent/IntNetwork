@@ -7,11 +7,11 @@ import type { Lang } from '@/lib/i18n'
 
 const STR = {
   de: {
-    title: 'Openssl-Lab',
+    title: 'OpenSSL-Lab',
     hint: 'Echte openssl-Befehle tippen und die echte Ausgabe lesen — serverseitig in einem isolierten Container.',
     workspaceHint: 'Das Arbeitsverzeichnis bleibt zwischen Läufen erhalten: eine in Schritt 1 erzeugte CA ist in Schritt 3 noch da.',
     disabledTitle: 'Lab auf diesem Server nicht aktiviert',
-    disabledBody: 'Auf diesem Server ist das Openssl-Lab nicht aktiviert; die Aufgaben lassen sich trotzdem als Denkaufgaben lösen.',
+    disabledBody: 'Auf diesem Server ist das OpenSSL-Lab nicht aktiviert; die Aufgaben lassen sich trotzdem als Denkaufgaben lösen.',
     statusChecking: 'Prüfe Verfügbarkeit…',
     templates: 'Vorlagen',
     filesLabel: 'Dateien',
@@ -26,7 +26,7 @@ const STR = {
     challenge: 'Führe einen Lauf mit Rückgabewert 0 aus.',
   },
   en: {
-    title: 'Openssl Lab',
+    title: 'OpenSSL Lab',
     hint: 'Type real openssl commands and read the real output — server-side, in an isolated container.',
     workspaceHint: 'The workspace persists between runs: a CA created in step 1 is still there in step 3.',
     disabledTitle: 'Lab not enabled on this server',

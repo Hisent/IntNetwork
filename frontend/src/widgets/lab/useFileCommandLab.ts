@@ -22,10 +22,19 @@ interface Snapshot {
   commands: string[]
 }
 
-function isSnapshot(parsed: unknown): parsed is Snapshot {
+// Streng: jedes Element wird geprüft. Ein Eintrag wie files: [null] oder
+// commands: [42] (beschädigt/fremd) würde sonst erst beim Rendern bzw. in
+// validateLabRun mit einem TypeError die Seite zerlegen.
+export function isSnapshot(parsed: unknown): parsed is Snapshot {
   if (typeof parsed !== 'object' || parsed === null) return false
   const rec = parsed as Record<string, unknown>
-  return typeof rec.templateId === 'string' && Array.isArray(rec.files) && Array.isArray(rec.commands)
+  return typeof rec.templateId === 'string'
+    && Array.isArray(rec.files)
+    && rec.files.every((f: unknown) => typeof f === 'object' && f !== null
+      && typeof (f as Record<string, unknown>).name === 'string'
+      && typeof (f as Record<string, unknown>).content === 'string')
+    && Array.isArray(rec.commands)
+    && rec.commands.every((c: unknown) => typeof c === 'string')
 }
 
 export interface UseFileCommandLabArgs {
@@ -137,6 +146,8 @@ export function useFileCommandLab({
     setRunning(true)
     setRunError(null)
     try {
+      // Doppelte Namen kommen hier nicht an: validateLabRun meldet sie als
+      // Grenzverletzung (sonst überschriebe der spätere Eintrag still den früheren).
       const filesRecord: Record<string, string> = {}
       for (const f of files) filesRecord[f.name] = f.content
       const res = await runLabKind({ kind, files: filesRecord, commands })

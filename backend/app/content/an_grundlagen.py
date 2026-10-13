@@ -47,7 +47,7 @@ ANSIBLE_GRUNDLAGEN_MODULE = {
                          'telefonieren“ lassen (Pull-Prinzip). Ansible-Beschreibungen sind zudem '
                          '**deklarativ**: Man beschreibt den gewünschten Zielzustand '
                          '(„Paket X soll installiert sein“), nicht die einzelnen Schritte dorthin.',
-                   'en': '## What is Ansible?\n'
+                   'en': '## What Is Ansible?\n'
                          '\n'
                          'Ansible is an automation tool for configuration management, software '
                          'deployment, and ad-hoc tasks across many systems at once. Two properties '
@@ -61,9 +61,9 @@ ANSIBLE_GRUNDLAGEN_MODULE = {
                          'would); it is actively contacted when a command runs.\n'
                          '\n'
                          'This sets Ansible apart from tools that require a permanent agent on '
-                         'every target system, one that regularly "phones home" (a pull model). '
+                         'every target system, one that regularly “phones home” (a pull model). '
                          'Ansible descriptions are also **declarative**: you describe the desired '
-                         'end state ("package X should be installed"), not the individual steps '
+                         'end state (“package X should be installed”), not the individual steps '
                          'to get there.'},
          'note': 'Gut geeignet für einen kurzen Vergleich mit einem den Teilnehmenden bekannten '
                  'Pull-basierten Werkzeug, falls vorhanden — hilft, das Push-Prinzip zu verankern.'},
@@ -82,7 +82,7 @@ ANSIBLE_GRUNDLAGEN_MODULE = {
                          'Python ausführen. Wie Ansible damit umgeht, ist Thema eines späteren '
                          'Moduls — für den Einstieg reicht die Merkregel „Control Node denkt und '
                          'verbindet, Managed Node führt aus“.',
-                   'en': '## Control node and managed node\n'
+                   'en': '## Control Node and Managed Node\n'
                          '\n'
                          '- **Control node**: the machine where Ansible is installed and from '
                          'which commands/playbooks are launched. This is where the inventory, '
@@ -93,15 +93,15 @@ ANSIBLE_GRUNDLAGEN_MODULE = {
                          '\n'
                          'Exception: network devices (switches, routers) typically cannot run '
                          'Python at all. How Ansible handles that is covered in a later module — '
-                         'for now, remember it as "the control node thinks and connects, the '
-                         'managed node executes."'}},
+                         'for now, remember it as “the control node thinks and connects, the '
+                         'managed node executes.”'}},
         {'type': 'diagram',
          'id': 'diagram-control-managed',
          'note': 'Die Schritte einzeln durchklicken: Der Pfeil geht immer vom Control Node aus — '
                  'nie umgekehrt.',
          'payload': {'kind': 'flow',
                      'title_de': 'Control Node und Managed Nodes',
-                     'title_en': 'Control node and managed nodes',
+                     'title_en': 'Control Node and Managed Nodes',
                      'caption_de': 'Push-Prinzip: Jede Verbindung geht vom Control Node aus.',
                      'caption_en': 'Push model: every connection starts at the control node.',
                      'nodes': [{'id': 'admin',
@@ -208,7 +208,7 @@ ANSIBLE_GRUNDLAGEN_MODULE = {
                          'Für den Alltag reicht meist die Merkregel: ansible-core ist der Motor, '
                          'Collections liefern die Werkzeuge dazu, AAP ist der Betriebsrahmen für '
                          'größere Teams.',
-                   'en': '## Three layers: ansible-core, collections, Automation Platform\n'
+                   'en': '## Three Layers: ansible-core, Collections, Automation Platform\n'
                          '\n'
                          '- **ansible-core**: the actual engine — reads inventory and playbooks, '
                          'evaluates variables, establishes connections, invokes modules. Ships '
@@ -253,7 +253,7 @@ ANSIBLE_GRUNDLAGEN_MODULE = {
                          '- `ansible-playbook` — ein Playbook ausführen\n'
                          '- `ansible-inventory` — Inventar anzeigen/prüfen\n'
                          '- `ansible-doc` — Modul-Dokumentation offline nachschlagen',
-                   'en': '## Ad-hoc commands\n'
+                   'en': '## Ad-Hoc Commands\n'
                          '\n'
                          'An ad-hoc command runs a single task directly through the `ansible` CLI, '
                          'without writing a playbook file — meant for quick, one-off actions:\n'
@@ -284,7 +284,7 @@ ANSIBLE_GRUNDLAGEN_MODULE = {
                  'deshalb als Simulation. Ausgabeformat von ansible-core 2.21; Hostnamen und Zeiten '
                  'sind erfunden; die Fehlermeldung von web03 ist umbrochen, die [ERROR]-Zeilen davor fehlen.',
          'payload': {'title_de': 'Ad-hoc-Kommandos am Control Node',
-                     'title_en': 'Ad-hoc commands on the control node',
+                     'title_en': 'Ad-Hoc Commands on the Control Node',
                      'intro_de': 'Inventar: Gruppe webservers mit web01, web02, web03. Tippe help '
                                  'für alle Befehle.',
                      'intro_en': 'Inventory: group webservers with web01, web02, web03. Type help '
@@ -456,7 +456,7 @@ ANSIBLE_GRUNDLAGEN_MODULE = {
                          'version, and without starting the service). `--become` runs the action '
                          'with elevated privileges (comparable to `sudo`), which is usually '
                          'required for installing a package. Since no version is specified, '
-                         'Ansible only concerns itself with the state "present," not with any '
+                         'Ansible only concerns itself with the state “present,” not with any '
                          'particular version.'}},
     ],
     'quiz': {'questions': [
@@ -473,7 +473,7 @@ ANSIBLE_GRUNDLAGEN_MODULE = {
                                'system.'},
          'type': 'single',
          'prompt': {'de': 'Was bedeutet „agentenlos“ im Zusammenhang mit Ansible?',
-                    'en': 'What does "agentless" mean in the context of Ansible?'},
+                    'en': 'What does “agentless” mean in the context of Ansible?'},
          'answer': 1,
          'options': {'de': ['Auf dem Control Node läuft keine Software.',
                             'Auf dem Managed Node läuft keine dauerhaft installierte '
@@ -549,7 +549,7 @@ ANSIBLE_GRUNDLAGEN_MODULE = {
                                'die umgekehrte Verbindungsrichtung: Beim Push-Prinzip baut immer '
                                'der Control Node die Verbindung auf.',
                          'en': 'Linux is reached over SSH, Windows typically over WinRM. '
-                               '"Exclusively SSH" is wrong for Windows, and so is the reversed '
+                               '“Exclusively SSH” is wrong for Windows, and so is the reversed '
                                'direction: in the push model the control node always opens the '
                                'connection.'},
          'type': 'multi',
@@ -613,7 +613,7 @@ ANSIBLE_GRUNDLAGEN_MODULE = {
                                'einem Ad-hoc-Kommando gar nicht beteiligt.',
                          'en': 'The `ping` module sends no ICMP: it logs in over SSH and runs a '
                                'small Python module that returns `pong`. `UNREACHABLE` therefore '
-                               'means "connection/login failed" — Ansible has no agent, and no '
+                               'means “connection/login failed” — Ansible has no agent, and no '
                                'playbook is involved in an ad-hoc command at all.'}},
         {'id': 'ag8',
          'type': 'multi',
@@ -637,6 +637,6 @@ ANSIBLE_GRUNDLAGEN_MODULE = {
                          'en': 'Ansible transfers its modules over SSH and runs them on the target '
                                'with Python — a Linux target needs nothing more. ansible-core and '
                                'the inventory live exclusively on the control node; that is what '
-                               '"agentless" means.'}},
+                               '“agentless” means.'}},
     ]},
 }

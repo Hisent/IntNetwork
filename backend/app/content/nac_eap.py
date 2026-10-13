@@ -29,7 +29,7 @@ NAC_EAP_MODULE = {
               'vorbereiten.',
         'en': 'At Nordwind Logistik, 802.1X over RADIUS is already running — what remains open '
               'is which specific EAP method serves as the inner authentication mechanism. IT '
-              'management has heard of "EAP-TLS", "PEAP", and "EAP-MSCHAPv2" but cannot place '
+              'management has heard of “EAP-TLS,” “PEAP,” and “EAP-MSCHAPv2” but cannot place '
               'the terms. You are asked to prepare a well-reasoned recommendation.',
     },
     'blocks': [
@@ -97,7 +97,7 @@ NAC_EAP_MODULE = {
                    'als anfällig für Phishing- und Downgrade-Angriffe — vor allem, wenn die '
                    'client-seitige Zertifikatsprüfung des Servers nicht strikt konfiguriert ist '
                    'und ein Client sich mit einem gefälschten Server-Zertifikat zufriedengibt.',
-             'en': '## PEAP: TLS Tunnel with Password Authentication Inside\n\n'
+             'en': '## PEAP: TLS Tunnel With Password Authentication Inside\n\n'
                    '**PEAP** (Protected EAP) establishes a TLS tunnel, secured by a **server-side '
                    'certificate**. Inside this tunnel, **MSCHAPv2** usually handles the actual '
                    'password authentication. PEAP has broad native support across operating '
@@ -149,7 +149,7 @@ NAC_EAP_MODULE = {
             'payload': {
                 'kind': 'sequence',
                 'title_de': 'Getunnelte EAP-Methode: zwei Phasen (Beispiel PEAP)',
-                'title_en': 'Tunneled EAP method: two phases (example PEAP)',
+                'title_en': 'Tunneled EAP Method: Two Phases (Example PEAP)',
                 'caption_de': 'Der Switch dazwischen packt nur um (EAPOL ↔ RADIUS).',
                 'caption_en': 'The switch in between merely re-wraps (EAPOL ↔ RADIUS).',
                 'actors': [
@@ -170,7 +170,7 @@ NAC_EAP_MODULE = {
                         'label_de': 'Äußere Identität',
                         'label_en': 'Outer identity',
                         'detail_de': 'Im Klartext sichtbar. Viele Supplicants erlauben hier eine anonyme Identität (z. B. anonymous@nordwind.example), damit der echte Name erst im Tunnel fällt.',
-                        'detail_en': 'Visible in clear text. Many supplicants allow an anonymous identity here (e.g. anonymous@nordwind.example) so the real name is only sent inside the tunnel.',
+                        'detail_en': 'Visible in cleartext. Many supplicants allow an anonymous identity here (e.g., anonymous@nordwind.example) so the real name is only sent inside the tunnel.',
                     },
                     {
                         'from': 's',
@@ -326,7 +326,7 @@ NAC_EAP_MODULE = {
             'payload': {
                 'kind': 'compare',
                 'title_de': 'EAP-TLS, PEAP-MSCHAPv2 und TEAP im Vergleich',
-                'title_en': 'EAP-TLS, PEAP-MSCHAPv2, and TEAP compared',
+                'title_en': 'EAP-TLS, PEAP-MSCHAPv2, and TEAP Compared',
                 'columns': [
                     {
                         'title': 'EAP-TLS',
@@ -437,7 +437,7 @@ NAC_EAP_MODULE = {
             'id': 'scenario-eap-wahl',
             'payload': {
                 'title_de': 'Welche EAP-Methode für Nordwind?',
-                'title_en': 'Which EAP method for Nordwind?',
+                'title_en': 'Which EAP Method for Nordwind?',
                 'start': 'start',
                 'nodes': [
                     {
@@ -506,7 +506,7 @@ NAC_EAP_MODULE = {
                         'id': 'klick',
                         'outcome': 'bad',
                         'text_de': 'Wer einmal „Verbinden“ klickt, klickt auch beim gefälschten Server. Die Entscheidung gehört in die zentral verteilte Konfiguration, nicht zum Nutzer.',
-                        'text_en': 'Whoever clicks "Connect" once will also click it for the rogue server. The decision belongs in the centrally distributed configuration, not with the user.',
+                        'text_en': 'Whoever clicks “Connect” once will also click it for the rogue server. The decision belongs in the centrally distributed configuration, not with the user.',
                     },
                     {
                         'id': 'strikt',
@@ -551,7 +551,7 @@ NAC_EAP_MODULE = {
          },
          'explanation': {
              'de': 'EAP-TLS kommt ohne Passwort aus: Beide Seiten weisen sich per Zertifikat aus. Gerade deshalb braucht es eine PKI — „einfach einzuführen“ ist also genau der falsche Grund.',
-             'en': 'EAP-TLS works without a password: both sides prove their identity with a certificate. That is precisely why it needs a PKI — "easy to roll out" is exactly the wrong reason.',
+             'en': 'EAP-TLS works without a password: both sides prove their identity with a certificate. That is precisely why it needs a PKI — “easy to roll out” is exactly the wrong reason.',
          }},
         {'id': 'ep2', 'type': 'single',
          'prompt': {'de': 'Was läuft typischerweise innerhalb des TLS-Tunnels bei PEAP?',
@@ -665,8 +665,8 @@ NAC_EAP_MODULE = {
             'id': 'ep7',
             'type': 'multi',
             'prompt': {
-                'de': 'Ein Audit findet auf den Notebooks ein PEAP-Profil mit „Serverzertifikat überprüfen: aus“. Welche Folgen hat das? (Mehrere richtig)',
-                'en': 'An audit finds a PEAP profile on the laptops with "Verify server certificate: off". What are the consequences? (Several correct)',
+                'de': 'Ein Audit findet auf den Notebooks ein PEAP-Profil mit „Serverzertifikat überprüfen: aus“. Welche Folgen hat das? Mehrere Antworten sind richtig.',
+                'en': 'An audit finds a PEAP profile on the laptops with “Verify server certificate: off”. What are the consequences? Select all that apply.',
             },
             'options': {
                 'de': [

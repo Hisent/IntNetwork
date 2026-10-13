@@ -39,7 +39,7 @@ export interface AttackerView {
 export const SCENARIO = {
   clientOuter: '198.51.100.23', // Laptop im Hotel-WLAN (äußere Adresse)
   gateway: '203.0.113.10', // öffentliche IP des Nordwind-VPN-Gateways
-  // im Tunnel: Adresse aus dem VPN-Pool -> Dateiserver der Zentrale
+  // im Tunnel: Adresse aus dem VPN-Pool (10.20.99.0/24) -> Dateiserver im Rechenzentrums-Netz 10.20.0.0/16
   inner: { src: '10.20.99.5', dst: '10.20.0.9', payload: 'Gehaltsliste.xlsx' } as Packet,
   // ohne VPN: derselbe Inhalt unverschlüsselt an einen öffentlich erreichbaren Server
   direct: { src: '198.51.100.23', dst: '203.0.113.25', payload: 'Gehaltsliste.xlsx' } as Packet,
@@ -57,22 +57,33 @@ export function scenarioFor(lang: 'de' | 'en') {
   }
 }
 
+/** Größenordnung des Tunnel-Overheads in Bytes (äußerer IP-Header 20 + UDP 8 +
+ * ESP-Header/IV/Padding/ICV bzw. WireGuard-Header + Tag): je nach Protokoll und
+ * Chiffre etwa 60–80. Deshalb wird die Größe mit VPN als „ca.“ ausgewiesen. */
+export const TUNNEL_OVERHEAD_BYTES = 70
+
 /** Sicht eines Angreifers im offenen WLAN. `plain` ist das Paket, das OHNE VPN über das
  * WLAN ginge (Klartext); mit VPN bleiben nur die Tunnel-Endpunkte als Metadaten und ein
- * verschlüsselter Block. */
-export function attackerView(plain: Packet, t: Tunneled, vpnActive: boolean, byteSize = 812, timestamp = '14:32:07'): AttackerView {
+ * verschlüsselter Block — das Paket ist um den Tunnel-Overhead größer als ohne VPN. */
+export function attackerView(plain: Packet, t: Tunneled, vpnActive: boolean, byteSize = 812, timestamp = '14:32:07', lang: 'de' | 'en' = 'de'): AttackerView {
   if (!vpnActive) {
     return {
       addressLine: `${plain.src} → ${plain.dst}`,
       contentVisible: true,
       contentLine: plain.payload,
-      metadataVisible: [`${plain.src} → ${plain.dst}`, `${byteSize} Bytes`, timestamp],
+      metadataVisible: [`${plain.src} → ${plain.dst}`, `${byteSize} ${lang === 'de' ? 'Bytes' : 'bytes'}`, timestamp],
     }
   }
   return {
     addressLine: `${t.outerSrc} → ${t.outerDst}`,
     contentVisible: false,
     contentLine: t.cipher,
-    metadataVisible: [`${t.outerSrc} → ${t.outerDst}`, `${byteSize} Bytes`, timestamp],
+    metadataVisible: [
+      `${t.outerSrc} → ${t.outerDst}`,
+      lang === 'de'
+        ? `ca. ${byteSize + TUNNEL_OVERHEAD_BYTES} Bytes (${byteSize} + ca. ${TUNNEL_OVERHEAD_BYTES} Tunnel-Overhead, Größenordnung)`
+        : `approx. ${byteSize + TUNNEL_OVERHEAD_BYTES} bytes (${byteSize} + approx. ${TUNNEL_OVERHEAD_BYTES} tunnel overhead, order of magnitude)`,
+      timestamp,
+    ],
   }
 }

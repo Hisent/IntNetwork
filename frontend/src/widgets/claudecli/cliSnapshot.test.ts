@@ -20,6 +20,12 @@ describe('loadSnapshot (pro-User-CLI-Persistenz)', () => {
     expect(snap.solved).toBe(false)
   })
 
+  it('startet eine frische Session im Auto-Modus (eingebauter Startmodus interaktiver Sessions)', () => {
+    expect(loadSnapshot(null, 'intro').mode).toBe('auto')
+    localStorage.setItem('k', '{kaputt')
+    expect(loadSnapshot('k', 'intro').mode).toBe('auto')
+  })
+
   it('stellt gespeicherte Session desselben Teilnehmers wieder her', () => {
     const key = 'intnetwork-cli-7-3'
     localStorage.setItem(key, JSON.stringify({

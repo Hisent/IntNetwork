@@ -54,7 +54,7 @@ ASYMMETRISCH_MODULE = {
                    'Für diesen Abschnitt zählt vor allem: Der private Schlüssel darf seinen '
                    'Besitzer niemals verlassen. Alles, was RSA, ECC & Co. an Sicherheit bieten, hängt daran, '
                    'dass genau ein privater Schlüssel bei genau einer Partei bleibt.',
-             'en': '## Public and Private Key — What Goes with What\n\n'
+             'en': '## Public and Private Key — What Goes With What\n\n'
                    'An asymmetric key pair consists of a **public key** (can be freely '
                    'distributed) and a **private key** (stays secret, held by only one party). The '
                    'two keys are mathematically related, but the private key cannot practically '
@@ -105,7 +105,7 @@ ASYMMETRISCH_MODULE = {
                  'Verschlüsselung.'),
              'en': ('## RSA vs. ECC: Same Security, Very Different Key Lengths\n\nRSA and ECC (Elliptic Curve '
                  'Cryptography) are both asymmetric schemes, but differ greatly in the key length needed for '
-                 'the same "security strength" — i.e. the effort an attacker would need to break the key. Per '
+                 'the same “security strength” — i.e., the effort an attacker would need to break the key. Per '
                  'common equivalence tables, a security strength of roughly 128 bits corresponds to both '
                  'RSA-3072 and an ECC curve such as P-256 (secp256r1) — ECC therefore reaches the same security '
                  'with a considerably shorter key.\n\nThis has concrete practical consequences: shorter keys '
@@ -129,7 +129,7 @@ ASYMMETRISCH_MODULE = {
                  'the CA/Browser Forum Baseline Requirements only permit RSA and ECDSA on P-256, P-384, and '
                  'P-521. Ed25519 certificates therefore exist only in private PKIs. For SSH keys, on the other '
                  'hand, Ed25519 is already the preferred choice according to common recommendations.\n\nTwo more names '
-                 'you will come across: RSA is never used "raw" but always with a padding scheme — **RSA-PSS** '
+                 'you will come across: RSA is never used “raw” but always with a padding scheme — **RSA-PSS** '
                  'is the modern padding for signatures, **RSA-OAEP** the one for encryption.'),
             },
         },
@@ -140,7 +140,7 @@ ASYMMETRISCH_MODULE = {
          'payload': {
              'kind': 'compare',
              'title_de': 'RSA, ECDSA und Ed25519 bei rund 128 Bit Sicherheitsstärke',
-             'title_en': 'RSA, ECDSA, and Ed25519 at about 128 bits of security strength',
+             'title_en': 'RSA, ECDSA, and Ed25519 at About 128 Bits of Security Strength',
              'columns': [
                     {'title': 'RSA-3072'},
                     {'title': 'ECDSA P-256'},
@@ -277,7 +277,7 @@ ASYMMETRISCH_MODULE = {
                                'Schlüsseleinigung mit Verschlüsselung.',
              'explanation_en': 'ECDHE delivers a shared secret from which a symmetric session key '
                                'is derived — the actual encryption of the payload is then handled '
-                               'by a symmetric scheme (e.g. AES-GCM), not by ECDHE itself. '
+                               'by a symmetric scheme (e.g., AES-GCM), not by ECDHE itself. '
                                'Conflating the two confuses key agreement with encryption.',
          }},
         {'type': 'text', 'id': 'text-4',
@@ -302,9 +302,10 @@ ASYMMETRISCH_MODULE = {
                    'langfristige Schlüssel später gestohlen, bleiben alle vergangenen, '
                    'aufgezeichneten Sitzungen dennoch unlesbar — es gibt keinen Generalschlüssel '
                    'mehr, der rückwirkend alles öffnet.\n\n'
-                   'Genau deshalb ist PFS in **TLS 1.3 verpflichtend** — jede Sitzung nutzt einen '
-                   'ephemeren Schlüsselaustausch, und TLS 1.3 hat die statische RSA-'
-                   'Schlüsselübertragung als Option vollständig gestrichen. In TLS 1.2 war PFS '
+                   'Genau deshalb ist PFS in **TLS 1.3 der Normalfall** — jeder Handshake mit '
+                   '(EC)DHE nutzt einen ephemeren Schlüsselaustausch, und TLS 1.3 hat die statische RSA-'
+                   'Schlüsselübertragung als Option vollständig gestrichen. Einzige Ausnahme ist die '
+                   'reine PSK-Wiederaufnahme ohne (EC)DHE (`psk_ke`). In TLS 1.2 war PFS '
                    'dagegen nur optional und hing von der gewählten Cipher-Suite ab — mit '
                    'statischem RSA-Kex blieb dort weiterhin die Möglichkeit offen, historischen '
                    'Verkehr bei Schlüsseldiebstahl komplett zu entschlüsseln.',
@@ -323,9 +324,10 @@ ASYMMETRISCH_MODULE = {
                    'cannot be derived from the server\'s long-term private key. If the long-term '
                    'key is stolen later, all past recorded sessions remain unreadable — there is '
                    'no master key left that retroactively unlocks everything.\n\n'
-                   'This is exactly why PFS is **mandatory in TLS 1.3** — every session uses an '
-                   'ephemeral key exchange, and TLS 1.3 has completely removed static RSA key '
-                   'transport as an option. In TLS 1.2, by contrast, PFS was only optional and '
+                   'This is exactly why PFS is **the norm in TLS 1.3** — every handshake with '
+                   '(EC)DHE uses an ephemeral key exchange, and TLS 1.3 has completely removed static RSA key '
+                   'transport as an option. The only exception is pure PSK resumption without '
+                   '(EC)DHE (`psk_ke`). In TLS 1.2, by contrast, PFS was only optional and '
                    'depended on the chosen cipher suite — with static RSA key exchange, it '
                    'remained possible there to fully decrypt historical traffic if the key was '
                    'ever stolen.',
@@ -343,7 +345,7 @@ ASYMMETRISCH_MODULE = {
                     {
                      'left': 'ECDSA',
                      'right_de': 'Signatur mit elliptischen Kurven, etwa im Server-Zertifikat',
-                     'right_en': 'signature using elliptic curves, e.g. in the server certificate',
+                     'right_en': 'signature using elliptic curves, e.g., in the server certificate',
                     },
                     {
                      'left': 'RSA-PSS',
@@ -395,7 +397,7 @@ ASYMMETRISCH_MODULE = {
         {'type': 'scenario', 'id': 'scenario-schluesselwahl',
          'payload': {
              'title_de': 'Welcher Schlüssel für das Partnerportal?',
-             'title_en': 'Which key for the partner portal?',
+             'title_en': 'Which Key for the Partner Portal?',
              'start': 'start',
              'nodes': [
                     {
@@ -472,8 +474,8 @@ ASYMMETRISCH_MODULE = {
                          'ein Diebstahl ist unwahrscheinlich — deshalb brauchen wir kein PFS." '
                          'Welchen Denkfehler enthält dieses Argument, wenn du an aufgezeichneten '
                          'Verkehr denkst?',
-             'prompt_en': 'A colleague argues: "Our server key is well protected, theft is '
-                         'unlikely — so we do not need PFS." What flaw does this argument have '
+             'prompt_en': 'A colleague argues: “Our server key is well protected, theft is '
+                         'unlikely — so we do not need PFS.” What flaw does this argument have '
                          'when you think about recorded traffic?',
          }},
     ],
@@ -587,19 +589,19 @@ ASYMMETRISCH_MODULE = {
               'and cannot be derived from the long-term key. Traffic recorded earlier stays unreadable.'),
          }},
         {'id': 'as5', 'type': 'single',
-         'prompt': {'de': 'Warum ist PFS in TLS 1.3 verpflichtend?',
-                    'en': 'Why is PFS mandatory in TLS 1.3?'},
+         'prompt': {'de': 'Warum bietet in TLS 1.3 jeder vollständige Handshake PFS?',
+                    'en': 'Why does every full handshake in TLS 1.3 provide PFS?'},
          'answer': 0,
          'options': {
              'de': [
-                 'Weil jede Sitzung einen ephemeren Schlüsselaustausch nutzt und die statische '
+                 'Weil er einen ephemeren (EC)DHE-Schlüsselaustausch nutzt und die statische '
                  'RSA-Schlüsselübertragung als Option entfallen ist',
                  'Weil TLS 1.3 keine asymmetrische Kryptografie mehr verwendet',
                  'Weil TLS 1.3 nur noch symmetrische Verschlüsselung erlaubt',
                  'Weil PFS in TLS 1.2 bereits verpflichtend war und nur übernommen wurde',
              ],
              'en': [
-                 'Because every session uses an ephemeral key exchange and static RSA key '
+                 'Because it uses an ephemeral (EC)DHE key exchange and static RSA key '
                  'transport has been removed as an option',
                  'Because TLS 1.3 no longer uses asymmetric cryptography at all',
                  'Because TLS 1.3 only permits symmetric encryption',
@@ -608,10 +610,11 @@ ASYMMETRISCH_MODULE = {
          },
          'explanation': {
           'de': ('TLS 1.3 kennt für den Schlüsselaustausch nur noch (EC)DHE, optional kombiniert mit einem PSK; '
-              'der RSA-Schlüsseltransport wurde gestrichen. Asymmetrische Kryptografie bleibt nötig — für die '
+              'der RSA-Schlüsseltransport wurde gestrichen. Ohne Forward Secrecy bleibt allein die reine '
+              'PSK-Wiederaufnahme ohne (EC)DHE (`psk_ke`). Asymmetrische Kryptografie bleibt nötig — für die '
               'Schlüsseleinigung und für die Signatur des Servers.'),
           'en': ('For key exchange TLS 1.3 only supports (EC)DHE, optionally combined with a PSK; RSA key transport '
-              'was removed. Asymmetric cryptography is still needed — for the key agreement and for the '
+              'was removed. Only pure PSK resumption without (EC)DHE (`psk_ke`) lacks forward secrecy. Asymmetric cryptography is still needed — for the key agreement and for the '
               "server's signature."),
          }},
         {'id': 'as6', 'type': 'single',
@@ -644,7 +647,7 @@ ASYMMETRISCH_MODULE = {
                  'Pauschal „ECC ist schneller“ stimmt also nicht: Es kommt auf die Operation an.'),
              'en': ('The server produces one signature per handshake — exactly the operation where RSA is orders '
                  'of magnitude slower. Fast RSA verification benefits the client, not the server. A blanket '
-                 '"ECC is faster" is therefore wrong: it depends on the operation.'),
+                 '“ECC is faster” is therefore wrong: it depends on the operation.'),
             },
         },
         {'id': 'as7', 'type': 'number',
@@ -691,7 +694,7 @@ ASYMMETRISCH_MODULE = {
                  'Forward Secrecy.'),
              'en': ("The two TLS_RSA suites transmit the session secret encrypted with the server's RSA key — "
                  'whoever holds it opens all recordings. With ECDHE_RSA the RSA key is only used for signing; '
-                 'the "RSA" in that name therefore does not indicate a lack of forward secrecy.'),
+                 'the “RSA” in that name therefore does not indicate a lack of forward secrecy.'),
             },
         },
     ]},

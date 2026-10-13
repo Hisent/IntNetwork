@@ -48,7 +48,7 @@ QUALITAET_MODULE = {'key': 'qualitaet-testen',
                              'syntaktisch gültiges, sauber gelintetes Playbook kann trotzdem '
                              'inhaltlich falsch sein; ein erfolgreicher Check-Modus-Lauf ist kein '
                              'Beweis für Idempotenz.',
-                       'en': '## Four quality gates, one goal\n'
+                       'en': '## Four Quality Gates, One Goal\n'
                              '\n'
                              'Before a playbook runs in production, several increasingly '
                              'meaningful checks can be placed in front of it:\n'
@@ -60,7 +60,7 @@ QUALITAET_MODULE = {'key': 'qualitaet-testen',
                              'missing `name:` entries …)?\n'
                              '3. **Check/diff mode** — what *would* change, without anything '
                              'actually happening?\n'
-                             '4. **Role testing** (e.g. with Molecule) — does a role behave as '
+                             '4. **Role testing** (e.g., with Molecule) — does a role behave as '
                              'expected in an isolated environment, including on a second run?\n'
                              '\n'
                              'Each stage checks something different — none replaces another. A '
@@ -73,7 +73,7 @@ QUALITAET_MODULE = {'key': 'qualitaet-testen',
              'id': 'diagram-ci-pipeline',
              'payload': {'kind': 'flow',
                          'title_de': 'Vom Pull Request bis zum Rollout',
-                         'title_en': 'From pull request to rollout',
+                         'title_en': 'From Pull Request to Rollout',
                          'caption_de': 'Jede Stufe fängt eine andere Fehlerklasse ab — billig '
                                        'zuerst, teuer zuletzt.',
                          'caption_en': 'Each stage catches a different class of error — cheap '
@@ -189,7 +189,7 @@ QUALITAET_MODULE = {'key': 'qualitaet-testen',
                              '```bash\n'
                              'ansible-lint site.yml\n'
                              '```',
-                       'en': '## Stage 1+2: syntax check and lint\n'
+                       'en': '## Stage 1+2: Syntax Check and Lint\n'
                              '\n'
                              'The fastest check runs without touching any target system at all:\n'
                              '\n'
@@ -243,7 +243,7 @@ QUALITAET_MODULE = {'key': 'qualitaet-testen',
                      'die Abschlusstabelle, die Recap-Zahlen von converge/idempotence sind ein '
                      'Beispiel. Das Lab enthält weder ansible-lint noch molecule.',
              'payload': {'title_de': 'Lint-Findings lesen, Molecule-Lauf verfolgen',
-                         'title_en': 'Reading lint findings, following a Molecule run',
+                         'title_en': 'Reading Lint Findings, Following a Molecule Run',
                          'intro_de': 'Beginne mit cat site.yml und überlege, was ansible-lint '
                                      'beanstanden wird.',
                          'intro_en': 'Start with cat site.yml and think about what ansible-lint '
@@ -403,7 +403,7 @@ QUALITAET_MODULE = {'key': 'qualitaet-testen',
                              '`--check` simulates the run (a dry run): modules report whether '
                              'they *would* be “changed”, but nothing on the target system '
                              'actually changes. `--diff` additionally shows the concrete file '
-                             'difference for modules that write files (e.g. `template`, '
+                             'difference for modules that write files (e.g., `template`, '
                              '`copy`).\n'
                              '\n'
                              'Limits of this combination:\n'
@@ -472,7 +472,7 @@ QUALITAET_MODULE = {'key': 'qualitaet-testen',
                              'fehlgeschlagener Hosts je Scheibe das Play abbricht; der Wert muss '
                              'überschritten werden, mit `0` stoppt also schon ein einziger '
                              'Fehler.',
-                       'en': '## Stage 4: testing roles with Molecule\n'
+                       'en': '## Stage 4: Testing Roles With Molecule\n'
                              '\n'
                              'For roles (module “Roles: Structure & Reuse”), lint alone '
                              'eventually stops being enough — that is where a testing framework like '
@@ -481,8 +481,8 @@ QUALITAET_MODULE = {'key': 'qualitaet-testen',
                              '\n'
                              'For orientation, without configuration detail: Molecule runs '
                              'through a sequence of steps that roughly spans “set up test '
-                             'environment”, through “apply the role”, to “verify the result and '
-                             'tear down again”. One dedicated step specifically checks '
+                             'environment,” through “apply the role,” to “verify the result and '
+                             'tear down again.” One dedicated step specifically checks '
                              '**idempotency**: the role runs a second time, and that run must not '
                              'report any changes.\n'
                              '\n'
@@ -546,7 +546,7 @@ QUALITAET_MODULE = {'key': 'qualitaet-testen',
             {'type': 'scenario',
              'id': 'scenario-rollout',
              'payload': {'title_de': 'Neue nginx-Konfiguration auf 40 Webserver',
-                         'title_en': 'New nginx configuration on 40 web servers',
+                         'title_en': 'New nginx Configuration on 40 Web Servers',
                          'start': 'start',
                          'nodes': [{'id': 'start',
                                     'text_de': 'Syntax-Check, Lint, Check/Diff gegen die '
@@ -584,7 +584,7 @@ QUALITAET_MODULE = {'key': 'qualitaet-testen',
                                                'hosts. How do you roll out?',
                                     'options': [{'label_de': 'Mit serial: [1, "25%"] und '
                                                              'max_fail_percentage: 0',
-                                                 'label_en': 'With serial: [1, "25%"] and '
+                                                 'label_en': 'With serial: [1, “25%”] and '
                                                              'max_fail_percentage: 0',
                                                  'to': 'serial'},
                                                 {'label_de': 'Alle auf einmal — der Check-Lauf hat '
@@ -647,7 +647,7 @@ QUALITAET_MODULE = {'key': 'qualitaet-testen',
                              'tatsächlich. Falsche `when`-Bedingungen und Vorrangkonflikte '
                              'zeigen sich allerdings oft erst im Check-Lauf oder Rollentest '
                              'gegen realistische Testdaten.',
-                       'en': '## Typical beginner mistakes\n'
+                       'en': '## Typical Beginner Mistakes\n'
                              '\n'
                              '\n'
                              '- Using `command:`/`shell:` instead of a suitable declarative '

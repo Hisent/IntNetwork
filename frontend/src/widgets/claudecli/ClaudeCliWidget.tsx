@@ -8,14 +8,14 @@ import type { Lang } from '@/lib/i18n'
 const STR = {
   de: {
     title: 'Claude-Code-CLI (Demo)', modeDefault: 'Manual', modePlan: 'Plan', modeAccept: 'Accept Edits', modeAuto: 'Auto', cycle: 'Shift+Tab: nächster Modus',
-    modeLabel: 'Modus', hint: 'Virtuelle Shell: help, ls, cat README.md. Slash-Commands mit /help. Jeder andere Text gilt als Aufgabe an Claude und zeigt, was der aktive Modus bewirkt.',
+    modeLabel: 'Modus', hint: 'Virtuelle Shell: help, ls, cat README.md. Slash-Commands mit /help. Jeder andere Text gilt als Aufgabe an Claude und zeigt, was der aktive Modus bewirkt. Die Session startet im Auto-Modus — wie interaktive Sessions ab Claude Code v2.1.283, sofern nichts anderes den Startmodus festlegt.',
     intro: 'Browser-Prototyp — keine echte Host-Shell. Tippe help für Befehle.',
     challenge: 'Wechsle in den Plan-Modus und rufe /context auf.',
     session: 'Session', reset: 'Session zurücksetzen', commandLabel: 'Befehlseingabe',
   },
   en: {
     title: 'Claude Code CLI (demo)', modeDefault: 'Manual', modePlan: 'Plan', modeAccept: 'Accept Edits', modeAuto: 'Auto', cycle: 'Shift+Tab: next mode',
-    modeLabel: 'Mode', hint: 'Virtual shell: help, ls, cat README.md. Try slash commands with /help. Any other text counts as a task for Claude and shows what the active mode does.',
+    modeLabel: 'Mode', hint: 'Virtual shell: help, ls, cat README.md. Try slash commands with /help. Any other text counts as a task for Claude and shows what the active mode does. The session starts in auto mode — like interactive sessions from Claude Code v2.1.283 on, unless something else sets the starting mode.',
     intro: 'Browser prototype — no real host shell. Type help for commands.',
     challenge: 'Switch to plan mode and run /context.',
     session: 'Session', reset: 'Reset session', commandLabel: 'Command input',

@@ -53,7 +53,7 @@ WIRESHARK_MODULE = {
          "payload": {
              "kind": "layers",
              "title_de": "Ein Paket im Detailbaum: außen nach innen",
-             "title_en": "One packet in the detail tree: outside to inside",
+             "title_en": "One Packet in the Detail Tree: Outside to Inside",
              "caption_de": "Rechts: der Anzeigefilter, der auf diese Schicht passt",
              "caption_en": "Right: the display filter that matches this layer",
              "layers": [
@@ -76,7 +76,7 @@ WIRESHARK_MODULE = {
                   "detail_de": "Ganz innen: die Formulardaten samt Passwort. Bei HTTPS stünde hier nur "
                                "„Encrypted Application Data“.",
                   "detail_en": "At the very core: the form data including the password. With HTTPS this "
-                               "would only read “Encrypted Application Data”."},
+                               "would only read “Encrypted Application Data.”"},
              ],
          }},
         {"type": "text", "id": "text-2",
@@ -201,7 +201,7 @@ WIRESHARK_MODULE = {
                  "fehlen. Schalter: -n keine Namensauflösung, -q knappe Ausgabe, -t ohne Zeitstempel, "
                  "-c Anzahl Pakete. Befehle am besten anklicken statt tippen.",
          "payload": {
-             "title_de": "tcpdump auf dem Webserver web01", "title_en": "tcpdump on the web server web01",
+             "title_de": "tcpdump auf dem Webserver web01", "title_en": "tcpdump on the Web Server web01",
              "intro_de": "Du bist per SSH auf web01 (192.168.10.80). Tippe ? für die verfügbaren Befehle.",
              "intro_en": "You are connected to web01 (192.168.10.80) via SSH. Type ? for the available commands.",
              "prompt": "admin@web01:~$",
@@ -374,9 +374,9 @@ WIRESHARK_MODULE = {
                    "be no reply at all; the client would merely repeat its SYN."}},
         {"id": "ws7", "type": "multi",
          "prompt": {"de": "Ein Nutzer öffnet https://bank.example.com/login und meldet sich an. Was kann "
-                          "jemand, der den Verkehr mitschneidet, im Übungs-Mitschnitt trotzdem lesen? (mehrere)",
+                          "jemand, der den Verkehr mitschneidet, im Übungs-Mitschnitt trotzdem lesen? Mehrere Antworten sind richtig.",
                     "en": "A user opens https://bank.example.com/login and signs in. What can someone "
-                          "capturing the traffic still read in the exercise capture? (multiple)"},
+                          "capturing the traffic still read in the exercise capture? Select all that apply."},
          "options": {
              "de": ["Quell- und Ziel-IP-Adresse", "Den Zielport 443",
                     "Den Servernamen bank.example.com im Client Hello (SNI)",
@@ -413,6 +413,6 @@ WIRESHARK_MODULE = {
                    "diese Frage zu viel.",
              "en": "ip.src checks the source address only. ip.addr, by contrast, matches source OR "
                    "destination and therefore also shows all replies to the PC — right for “both "
-                   "directions”, too much for this question."}},
+                   "directions,” too much for this question."}},
     ]},
 }

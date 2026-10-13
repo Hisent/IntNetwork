@@ -24,7 +24,7 @@ POST_QUANTUM_MODULE = {
     'goals_en': [
         ('Explain why a sufficiently large quantum computer breaks RSA and ECC while symmetric schemes and '
          'hashes are far less affected'),
-        ('Put "harvest now, decrypt later" and the resulting urgency for confidentiality versus signatures into '
+        ('Put “harvest now, decrypt later” and the resulting urgency for confidentiality versus signatures into '
          'context'),
         'Match the NIST standards FIPS 203, 204, and 205 to their schemes and predecessor names',
         'Justify why TLS relies on a hybrid rather than a purely post-quantum key exchange',
@@ -38,7 +38,7 @@ POST_QUANTUM_MODULE = {
               'ein — was ein Quantencomputer tatsächlich bedroht, was bereits Standard ist, und was '
               'noch offen ist. Und du ziehst die Fäden aus dem gesamten Lehrgang zusammen: '
               'Automatisierung, Fehlersuche und jetzt die nächste große Verschiebung.',
-        'en': 'Nordwind Logistik\'s management read about "quantum-safe encryption" in a trade '
+        'en': 'Nordwind Logistik\'s management read about “quantum-safe encryption” in a trade '
               'magazine and asks you: does the company need to act immediately? As the closing '
               'module of this course, you give a sober assessment — what a quantum computer '
               'actually threatens, what is already standardized, and what remains open. And you '
@@ -98,7 +98,7 @@ POST_QUANTUM_MODULE = {
                    'über Jahre.\n\n'
                    'Wer heute schon Daten mit langer Geheimhaltungspflicht überwiegend klassisch '
                    'verschlüsselt, sollte diesen Unterschied kennen.',
-             'en': '## "Harvest Now, Decrypt Later"\n\n'
+             'en': '## “Harvest Now, Decrypt Later”\n\n'
                    'The real urgency does not come from the question of when a quantum computer will '
                    'be available, but from a simple consideration: an attacker can **record and '
                    'store** encrypted traffic **today** — and only decrypt it once a sufficiently '
@@ -118,7 +118,7 @@ POST_QUANTUM_MODULE = {
              'kind': 'choice',
              'prompt_de': 'Warum ist bei "Harvest now, decrypt later" der Zeitdruck für '
                           'Vertraulichkeit größer als für Signaturen?',
-             'prompt_en': 'Why does "harvest now, decrypt later" create more time pressure for '
+             'prompt_en': 'Why does “harvest now, decrypt later” create more time pressure for '
                           'confidentiality than for signatures?',
              'answer': 2,
              'options_de': [
@@ -178,7 +178,7 @@ POST_QUANTUM_MODULE = {
          'payload': {
              'kind': 'compare',
              'title_de': 'Klassisch und Post-Quanten im Vergleich',
-             'title_en': 'Classical and post-quantum compared',
+             'title_en': 'Classical and Post-Quantum Compared',
              'columns': [
                     {'title_de': 'Klassisch (X25519 / ECDSA P-256)', 'title_en': 'Classical (X25519 / ECDSA P-256)'},
                     {'title': 'ML-KEM-768'},
@@ -281,7 +281,7 @@ POST_QUANTUM_MODULE = {
              'en': ('## Hybrid Key Exchange in TLS: X25519MLKEM768\n\nFor key exchange, TLS is currently '
                  'converging on a **hybrid** scheme: **X25519MLKEM768** combines the classical Diffie-Hellman '
                  'exchange X25519 **and** the post-quantum mechanism ML-KEM in a single negotiation.\n\nThe '
-                 'reason for "classical AND new" instead of "only new": should ML-KEM unexpectedly turn out to '
+                 'reason for “classical AND new” instead of “only new”: should ML-KEM unexpectedly turn out to '
                  'have a weakness — a new scheme naturally has less real-world track record than decades-old '
                  'cryptography — the connection remains protected by the classical X25519 component, and vice '
                  "versa. A break in either scheme alone does not immediately collapse the whole connection's "
@@ -301,7 +301,7 @@ POST_QUANTUM_MODULE = {
          'payload': {
              'kind': 'sequence',
              'title_de': 'Hybrider Schlüsselaustausch mit X25519MLKEM768',
-             'title_en': 'Hybrid key exchange with X25519MLKEM768',
+             'title_en': 'Hybrid Key Exchange With X25519MLKEM768',
              'actors': [
                     {'id': 'c', 'label': 'Client'},
                     {'id': 's', 'label': 'Server'},
@@ -382,7 +382,7 @@ POST_QUANTUM_MODULE = {
                    'Quantensicherheit, die Authentizitäts-/Signaturseite dagegen noch nicht. Beide '
                    'Seiten post-quantensicher zu machen sind zwei getrennte Baustellen.',
              'en': 'No — only partially. X25519MLKEM768 makes the **key exchange** post-quantum '
-                   'secure, i.e. the negotiation of the symmetric session key. The **server '
+                   'secure, i.e., the negotiation of the symmetric session key. The **server '
                    'certificate**, which authenticates the entire handshake, is not yet covered by '
                    'this — it is still classically signed (typically ECDSA or RSA). So the '
                    'connection\'s confidentiality is already on the path to quantum safety, while the '
@@ -408,7 +408,7 @@ POST_QUANTUM_MODULE = {
                  'Root-Programm auf MTC-Basis angekündigt. Für den Betrieb heißt das heute: beobachten, nicht '
                  'umstellen — und die Automatisierung so bauen, dass ein neuer Zertifikatstyp später kein '
                  'Großprojekt wird.'),
-             'en': ('## And the certificates? Large signatures and Merkle Tree Certificates\n\nThe building blocks '
+             'en': ('## And the Certificates? Large Signatures and Merkle Tree Certificates\n\nThe building blocks '
                  'for the signature side now exist: **RFC 9881** defines how ML-DSA keys and signatures are '
                  'encoded in X.509 certificates (**RFC 9935** does so for ML-KEM keys). In a private PKI you '
                  'can already experiment with this — OpenSSL 3.5 generates ML-DSA certificates without add-on '
@@ -429,7 +429,7 @@ POST_QUANTUM_MODULE = {
              'Testaufbau (ECDSA-Kette, ein Key Share je Lauf).'),
          'payload': {
              'title_de': 'Was der hybride Schlüsselaustausch kostet',
-             'title_en': 'What the hybrid key exchange costs',
+             'title_en': 'What the Hybrid Key Exchange Costs',
              'prompt': 'nordwind$',
              'intro_de': 'Zweimal derselbe Server, einmal hybrid und einmal rein klassisch.',
              'intro_en': 'The same server twice, once hybrid and once purely classical.',
@@ -465,7 +465,7 @@ POST_QUANTUM_MODULE = {
                     },
                     {
                      'text_de': 'Verbinde dich rein klassisch und vergleiche die Zeile „SSL handshake has …“.',
-                     'text_en': 'Connect using only the classical group and compare the "SSL handshake has …" line.',
+                     'text_en': 'Connect using only the classical group and compare the “SSL handshake has …” line.',
                      'command': 'klassisch',
                     },
                     {
@@ -515,11 +515,11 @@ POST_QUANTUM_MODULE = {
                    'announcement itself does not name concrete algorithms, but refers to the detailed '
                    'recommendations in technical guideline TR-02102.\n'
                    '- **NIST (USA):** quantum-vulnerable public-key algorithms (RSA, ECDSA, ECDH) '
-                   'with only 112 bits of security strength (e.g. RSA-2048) are considered '
-                   '**"deprecated"** (use only with deliberate risk acceptance) **after 2030**; '
-                   '**after 2035**, all quantum-vulnerable schemes are **"disallowed"** (no longer '
+                   'with only 112 bits of security strength (e.g., RSA-2048) are considered '
+                   '**“deprecated”** (use only with deliberate risk acceptance) **after 2030**; '
+                   '**after 2035**, all quantum-vulnerable schemes are **“disallowed”** (no longer '
                    'approved). The underlying document (NIST IR 8547) was still only available as a draft (November 2024) in October 2026 '
-                   'and is a report, i.e. a guideline without binding standard status — but it has '
+                   'and is a report, i.e., a guideline without binding standard status — but it has '
                    'practically binding effect through procurement and compliance requirements.\n\n'
                    'For US national security systems, the NSA sets its own, stricter roadmap with '
                    '**CNSA 2.0**: depending on the system class, quantum-safe schemes are to be used '
@@ -569,8 +569,8 @@ POST_QUANTUM_MODULE = {
                    'dieses Blocks erst handhabbar macht: Systeme, die Algorithmen und Zertifikate '
                    'austauschen können, ohne dass jemand von Hand eingreifen muss.',
              'en': '## Crypto-Agility: The Real Lesson\n\n'
-                   'The most important practical takeaway from this module is not "switch all '
-                   'algorithms right now", but: **build systems so that algorithms can be swapped '
+                   'The most important practical takeaway from this module is not “switch all '
+                   'algorithms right now,” but: **build systems so that algorithms can be swapped '
                    'without rewriting everything.** That is exactly the definition of '
                    '**crypto-agility** — a system\'s ability to respond to an algorithm change '
                    'quickly and at reasonable cost.\n\n'
@@ -585,14 +585,14 @@ POST_QUANTUM_MODULE = {
         {'type': 'scenario', 'id': 'scenario-pqc-priorisieren',
          'payload': {
              'title_de': 'Die PQC-Migration priorisieren',
-             'title_en': 'Prioritizing the PQC migration',
+             'title_en': 'Prioritizing the PQC Migration',
              'start': 'start',
              'nodes': [
                     {
                      'id': 'start',
                      'text_de': ('Die Geschäftsführung gibt Budget für „Quantensicherheit“ frei und fragt, womit '
                          'Nordwind anfangen soll. Dein erster Schritt?'),
-                     'text_en': ('Management approves a budget for "quantum safety" and asks where Nordwind should start. '
+                     'text_en': ('Management approves a budget for “quantum safety” and asks where Nordwind should start. '
                          'Your first step?'),
                      'options': [
                             {
@@ -621,7 +621,7 @@ POST_QUANTUM_MODULE = {
                          'von „harvest now, decrypt later“ gar nicht betroffen.'),
                      'text_en': ('Public CAs do not issue ML-DSA certificates, and browsers would not accept them. '
                          'Above all it does not solve the more urgent problem: signatures are not affected by '
-                         '"harvest now, decrypt later" at all.'),
+                         '“harvest now, decrypt later” at all.'),
                     },
                     {
                      'id': 'warten',
@@ -648,8 +648,8 @@ POST_QUANTUM_MODULE = {
                              'to': 'vpn',
                             },
                             {
-                             'label_de': 'C: die Root-CA neu aufsetzen, sie hat die längste Laufzeit',
-                             'label_en': 'C: rebuild the root CA, it has the longest lifetime',
+                             'label_de': 'C: die Root-CA auf ML-DSA umstellen, sie hat die längste Laufzeit',
+                             'label_en': 'C: move the root CA to ML-DSA, it has the longest lifetime',
                              'to': 'rootca',
                             },
                             {
@@ -685,7 +685,7 @@ POST_QUANTUM_MODULE = {
                          '„harvest now, decrypt later“-Szenario. Danach folgen der Webshop (wenig Aufwand) und '
                          'ein Migrationsplan für die Signaturen der internen PKI.'),
                      'text_en': ('Correctly prioritized: long protection period plus recordable traffic is exactly the '
-                         '"harvest now, decrypt later" scenario. Next come the webshop (little effort) and a '
+                         '“harvest now, decrypt later” scenario. Next come the webshop (little effort) and a '
                          "migration plan for the internal PKI's signatures."),
                     },
                 ],
@@ -695,17 +695,17 @@ POST_QUANTUM_MODULE = {
          'note': ('Das Lab braucht OpenSSL 3.5 oder neuer im Runner (Debian trixie liefert 3.5). Ist das Lab '
              'abgeschaltet, die Größen aus der Vergleichstabelle besprechen.'),
          'value': {
-             'de': ('## Selbst ausprobieren: Post-Quanten-Schlüssel anfassen\n\nDas Openssl-Lab unten öffnet mit der '
+             'de': ('## Selbst ausprobieren: Post-Quanten-Schlüssel anfassen\n\nDas OpenSSL-Lab unten öffnet mit der '
                  'Vorlage **Post-Quanten-Schlüssel (ML-KEM, ML-DSA)**. Sie erzeugt einen ML-KEM-768- und einen '
                  'ML-DSA-65-Schlüssel und stellt ein selbstsigniertes ML-DSA-Zertifikat aus. Achte in der '
                  'Ausgabe auf drei Dinge: die Länge des öffentlichen ML-KEM-Schlüssels im PEM-Format, die Zeile '
                  '`Signature Algorithm: ML-DSA-65` und den Umfang von `Signature Value` — und vergleiche das '
                  'mit der Vorlage „ECDSA-/Ed25519-Schlüssel + CSR“.'),
-             'en': ('## Try it yourself: get your hands on post-quantum keys\n\nThe openssl lab below opens with the '
+             'en': ('## Try It Yourself: Get Your Hands on Post-Quantum Keys\n\nThe OpenSSL lab below opens with the '
                  'template **Post-quantum keys (ML-KEM, ML-DSA)**. It generates an ML-KEM-768 and an ML-DSA-65 '
                  'key and issues a self-signed ML-DSA certificate. Look for three things in the output: the '
-                 'length of the public ML-KEM key in PEM format, the line `Signature Algorithm: ML-DSA-65`, and the size of `Signature Value` — and compare that with the template "ECDSA/Ed25519 keys + '
-                 'CSR".'),
+                 'length of the public ML-KEM key in PEM format, the line `Signature Algorithm: ML-DSA-65`, and the size of `Signature Value` — and compare that with the template “ECDSA/Ed25519 keys + '
+                 'CSR”.'),
             },
         },
         {'type': 'widget', 'id': 'openssl-lab',
@@ -754,7 +754,7 @@ POST_QUANTUM_MODULE = {
         {'id': 'pq2', 'type': 'single',
          'prompt': {'de': 'Warum ist "Harvest now, decrypt later" schon heute relevant, obwohl noch '
                          'kein kryptografisch relevanter Quantencomputer existiert?',
-                    'en': 'Why is "harvest now, decrypt later" already relevant today, even though '
+                    'en': 'Why is “harvest now, decrypt later” already relevant today, even though '
                          'no cryptographically relevant quantum computer exists yet?'},
          'answer': 0,
          'options': {
@@ -860,7 +860,7 @@ POST_QUANTUM_MODULE = {
              'de': ('Welche Maßnahmen tragen dazu bei, heute aufgezeichnete Daten gegen eine spätere Entschlüsselung durch '
                  'einen Quantencomputer zu schützen („harvest now, decrypt later“)?'),
              'en': ('Which measures help protect data recorded today against later decryption by a quantum computer '
-                 '("harvest now, decrypt later")?'),
+                 '(“harvest now, decrypt later”)?'),
             },
          'options': {
              'de': [
@@ -870,7 +870,7 @@ POST_QUANTUM_MODULE = {
                     'RSA-Schlüssel von 2048 auf 4096 Bit verlängern',
                 ],
              'en': [
-                    'Hybrid key exchange (e.g. X25519MLKEM768) in TLS and VPNs',
+                    'Hybrid key exchange (e.g., X25519MLKEM768) in TLS and VPNs',
                     'AES-256 instead of AES-128 for symmetric encryption',
                     'Signing server certificates with ML-DSA instead of ECDSA',
                     'Lengthening RSA keys from 2048 to 4096 bits',
@@ -890,8 +890,8 @@ POST_QUANTUM_MODULE = {
          'prompt': {
              'de': ('`openssl s_client` zeigt: „Negotiated TLS1.3 group: X25519MLKEM768“ und „Peer signature type: '
                  'ecdsa_secp256r1_sha256“. Was folgt daraus für die Quantensicherheit dieser Verbindung?'),
-             'en': ('`openssl s_client` shows: "Negotiated TLS1.3 group: X25519MLKEM768" and "Peer signature type: '
-                 'ecdsa_secp256r1_sha256". What does this mean for the quantum safety of this connection?'),
+             'en': ('`openssl s_client` shows: “Negotiated TLS1.3 group: X25519MLKEM768” and “Peer signature type: '
+                 'ecdsa_secp256r1_sha256”. What does this mean for the quantum safety of this connection?'),
             },
          'options': {
              'de': [

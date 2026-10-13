@@ -80,7 +80,7 @@ NAT_MODULE = {
          "payload": {
              "kind": "sequence",
              "title_de": "PAT: ein Paket geht hinaus, die Antwort kommt zurück",
-             "title_en": "PAT: a packet leaves, the reply comes back",
+             "title_en": "PAT: a Packet Leaves, the Reply Comes Back",
              "caption_de": "Öffentliche IP von Nordwind-R1: 203.0.113.10",
              "caption_en": "Public IP of Nordwind-R1: 203.0.113.10",
              "actors": [
@@ -127,9 +127,7 @@ NAT_MODULE = {
                  "verschiedene Ports. Dann denselben Host:Port erneut → Eintrag wird "
                  "wiederverwendet."},
         {"type": "widget", "id": "visual-nat-translation",
-         "note": "DE: Adressen und Ports vor und nach PAT vergleichen und der "
-                 "Übersetzungstabelle zuordnen. EN: Compare addresses and ports before and "
-                 "after PAT, then map them to the translation table."},
+         "note": "Adressen und Ports vor und nach PAT vergleichen und der Übersetzungstabelle zuordnen."},
         {"type": "text", "id": "text-4",
          "value": {
              "de": "## Folgen von NAT\n\n- Nach außen erscheinen alle Geräte "
@@ -152,7 +150,7 @@ NAT_MODULE = {
                   "aktive Verbindung da."),
          "payload": {
              "title_de": "Die NAT-Tabelle auf Nordwind-R1 lesen",
-             "title_en": "Reading the NAT table on Nordwind-R1",
+             "title_en": "Reading the NAT Table on Nordwind-R1",
              "intro_de": ("Du bist per SSH auf dem Internet-Router. Tippe ? für die\n"
                           "verfügbaren Befehle."),
              "intro_en": ("You are connected to the Internet router via SSH. Type ? for\n"
@@ -204,14 +202,14 @@ NAT_MODULE = {
                  "Modul 12 (Firewall).",
          "payload": {
              "title_de": "Das Kundenportal ist von außen nicht erreichbar",
-             "title_en": "The customer portal is unreachable from outside",
+             "title_en": "The Customer Portal Is Unreachable From Outside",
              "start": "start",
              "nodes": [
                  {"id": "start",
-                  "text_de": "Nach einem Router-Tausch melden Kunden: https://portal.nordwind.de "
+                  "text_de": "Nach einem Router-Tausch melden Kunden: https://portal.nordwind-logistik.de "
                              "(203.0.113.10) antwortet nicht mehr. Intern ist der Webserver unter "
                              "192.168.30.80 problemlos erreichbar. Was prüfst du zuerst?",
-                  "text_en": "After a router swap, customers report: https://portal.nordwind.de "
+                  "text_en": "After a router swap, customers report: https://portal.nordwind-logistik.de "
                              "(203.0.113.10) no longer responds. Internally the web server at "
                              "192.168.30.80 is reachable without problems. What do you check first?",
                   "options": [
@@ -279,8 +277,8 @@ NAT_MODULE = {
     ],
     "quiz": {"questions": [
         {"id": "t1", "type": "single",
-         "prompt": {"de": "Welcher Bereich ist eine private IP-Adresse?",
-                    "en": "Which range is a private IP address?"},
+         "prompt": {"de": "Welche Angabe gehört zum privaten IPv4-Adressraum?",
+                    "en": "Which entry belongs to the private IPv4 address space?"},
          "options": {
              "de": ["8.8.8.8", "192.168.0.0/16", "203.0.113.0/24", "1.1.1.1"],
              "en": ["8.8.8.8", "192.168.0.0/16", "203.0.113.0/24", "1.1.1.1"],
@@ -347,8 +345,8 @@ NAT_MODULE = {
                    "reply belongs — so it rewrites a source port. The PCs' MAC addresses do not help: they "
                    "never leave the local network and are not part of the web server's reply."}},
         {"id": "t6", "type": "multi",
-         "prompt": {"de": "Welche Adressen liegen in einem privaten RFC-1918-Bereich? (mehrere)",
-                    "en": "Which addresses lie in a private RFC 1918 range? (multiple)"},
+         "prompt": {"de": "Welche Adressen liegen in einem privaten RFC-1918-Bereich? Mehrere Antworten sind richtig.",
+                    "en": "Which addresses lie in a private RFC 1918 range? Select all that apply."},
          "options": {
              "de": ["172.20.5.1", "172.32.0.1", "10.200.3.4", "100.64.1.1", "192.168.255.254"],
              "en": ["172.20.5.1", "172.32.0.1", "10.200.3.4", "100.64.1.1", "192.168.255.254"],

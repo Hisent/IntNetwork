@@ -66,8 +66,8 @@ X509_MODULE = {
                    'verbleibt.',
              'en': '## A Certificate Is a Signed Statement\n\n'
                    'An **X.509 certificate** binds a public key to an identity - technically '
-                   'it is a statement from a **certificate authority (CA)**: "This public '
-                   'key belongs to this identity." The CA signs this statement with its own '
+                   'it is a statement from a **certificate authority (CA)**: “This public '
+                   'key belongs to this identity.” The CA signs this statement with its own '
                    'private key; anyone who trusts the CA can verify the signature and '
                    'believe the statement.\n\n'
                    'An important distinction: the certificate itself is **public** - it '
@@ -104,12 +104,12 @@ X509_MODULE = {
                    'supports extensions.\n'
                    '- **Serial number** - assigned by the issuing CA, unique per CA. '
                    'Together with the issuer, it uniquely identifies a certificate.\n'
-                   '- **Signature algorithm** - which method the CA used to sign (e.g. '
+                   '- **Signature algorithm** - which method the CA used to sign (e.g., '
                    'SHA-256 with RSA or ECDSA).\n'
                    '- **Issuer** - the issuing CA; determines the position in the chain of '
                    'trust.\n'
                    '- **Subject** - the entity the certificate was issued for.\n'
-                   '- **Validity period** - `notBefore` and `notAfter`, i.e. from when to '
+                   '- **Validity period** - `notBefore` and `notAfter`, i.e., from when to '
                    'when the certificate is valid.\n'
                    '- **Public key** - the public key the certificate is actually about, '
                    'plus the algorithm (RSA, ECDSA, ...).\n\n'
@@ -130,7 +130,7 @@ X509_MODULE = {
          'payload': {
              'kind': 'layers',
              'title_de': 'Aufbau eines X.509-Zertifikats',
-             'title_en': 'Structure of an X.509 certificate',
+             'title_en': 'Structure of an X.509 Certificate',
              'caption_de': 'Die CA signiert das tbsCertificate; Algorithmus und Signaturwert stehen dahinter.',
              'caption_en': 'The CA signs the tbsCertificate; algorithm and signature value follow it.',
              'layers': [
@@ -168,12 +168,12 @@ X509_MODULE = {
                      'detail_de': ('Hier steht, wofür der Schlüssel gilt und für welche Namen. Ist eine Erweiterung als '
                          '„critical“ markiert und der Client kennt sie nicht, muss er das Zertifikat ablehnen.'),
                      'detail_en': ('This says what the key is valid for and for which names. If an extension is marked '
-                         '"critical" and the client does not know it, the client must reject the certificate.'),
+                         '“critical” and the client does not know it, the client must reject the certificate.'),
                     },
                     {
                      'name': 'signatureAlgorithm',
                      'content_de': 'z. B. ecdsa-with-SHA256 oder sha256WithRSAEncryption',
-                     'content_en': 'e.g. ecdsa-with-SHA256 or sha256WithRSAEncryption',
+                     'content_en': 'e.g., ecdsa-with-SHA256 or sha256WithRSAEncryption',
                      'pdu_de': 'Verfahren der CA',
                      'pdu_en': "CA's algorithm",
                      'detail_de': ('Beschreibt Hash und Schlüsseltyp der ausstellenden CA — nicht den Schlüsseltyp des '
@@ -238,8 +238,8 @@ X509_MODULE = {
              'prompt_de': 'Ein Serverzertifikat hat im CN-Feld "shop.nordwind-logistik.de" '
                           'stehen, im SAN aber nur "www.nordwind-logistik.de". Ein Aufruf von '
                           'https://shop.nordwind-logistik.de erfolgt mit Chrome. Was passiert?',
-             'prompt_en': 'A server certificate has "shop.nordwind-logistik.de" in the CN '
-                          'field, but only "www.nordwind-logistik.de" in the SAN. A request '
+             'prompt_en': 'A server certificate has “shop.nordwind-logistik.de” in the CN '
+                          'field, but only “www.nordwind-logistik.de” in the SAN. A request '
                           'to https://shop.nordwind-logistik.de is made with Chrome. What '
                           'happens?',
              'answer': 1,
@@ -254,7 +254,7 @@ X509_MODULE = {
              ],
              'options_en': [
                  'The connection is accepted because the CN matches',
-                 'The connection fails because "shop.nordwind-logistik.de" is not in the SAN '
+                 'The connection fails because “shop.nordwind-logistik.de” is not in the SAN '
                  'list',
                  'The connection is accepted because Chrome falls back to CN when the SAN '
                  'does not match',
@@ -279,9 +279,9 @@ X509_MODULE = {
                  'Client-Zertifikat für mTLS genutzt hat, braucht dafür künftig Zertifikate aus einer privaten '
                  'PKI.'),
              'en': ('## Key Usage and Extended Key Usage\n\nTwo extensions define **what** the key may be used '
-                 'for:\n\n- **Key Usage** - the basic purpose, e.g. digital signature or key encipherment (`keyEncipherment`).\n- '
-                 '**Extended Key Usage (EKU)** - refines the purpose further, e.g. `serverAuth` (TLS server), '
-                 '`clientAuth` (TLS client authentication, e.g. for VPN/IPsec client certificates or '
+                 'for:\n\n- **Key Usage** - the basic purpose, e.g., digital signature or key encipherment (`keyEncipherment`).\n- '
+                 '**Extended Key Usage (EKU)** - refines the purpose further, e.g., `serverAuth` (TLS server), '
+                 '`clientAuth` (TLS client authentication, e.g., for VPN/IPsec client certificates or '
                  '802.1X/EAP-TLS), or `codeSigning` (signing software).\n\nFor operations this means: a '
                  'certificate with EKU `codeSigning` but without `serverAuth` cannot be used as a web server '
                  'certificate, even if issuer and subject would otherwise match. These extensions are a hard '
@@ -383,9 +383,9 @@ X509_MODULE = {
                           'Wildcard-Zertifikat "*.nordwind-logistik.de". Ein Kollege will '
                           'damit auch "intern.support.nordwind-logistik.de" absichern. '
                           'Geht das?',
-             'teaser_en': 'Nordwind runs "shop.nordwind-logistik.de" with the wildcard '
-                          'certificate "*.nordwind-logistik.de". A colleague wants to use it '
-                          'to secure "intern.support.nordwind-logistik.de" too. Does that '
+             'teaser_en': 'Nordwind runs “shop.nordwind-logistik.de” with the wildcard '
+                          'certificate “*.nordwind-logistik.de”. A colleague wants to use it '
+                          'to secure “intern.support.nordwind-logistik.de” too. Does that '
                           'work?',
          },
          'value': {
@@ -404,7 +404,7 @@ X509_MODULE = {
              'Schlüssel sind Wegwerfmaterial.'),
          'payload': {
              'title_de': 'Ein Zertifikat mit openssl x509 lesen',
-             'title_en': 'Reading a certificate with openssl x509',
+             'title_en': 'Reading a Certificate With openssl x509',
              'wrap': False,
              'prompt': 'nordwind$',
              'intro_de': 'www.pem ist das neue Zertifikat für den Kundenportal-Server.',
@@ -606,7 +606,7 @@ X509_MODULE = {
                           '.pfx-Datei. Was sagst du dazu, und wie würdest du es stattdessen '
                           'handhaben?',
              'prompt_en': 'A colleague wants to email the Nordwind website\'s server '
-                          'certificate "for safekeeping" to the backup team - as a .pfx '
+                          'certificate “for safekeeping” to the backup team - as a .pfx '
                           'file. What do you say, and how would you handle it instead?',
          }},
     ],
@@ -634,7 +634,7 @@ X509_MODULE = {
           'de': ('Ein Zertifikat ist die signierte Aussage „dieser öffentliche Schlüssel gehört zu dieser '
               'Identität“. Ein privater Schlüssel steht nie darin — das Zertifikat ist öffentlich und darf von '
               'jedem gelesen werden.'),
-          'en': ('A certificate is the signed statement "this public key belongs to this identity". It never '
+          'en': ('A certificate is the signed statement “this public key belongs to this identity.” It never '
               'contains a private key — the certificate is public and may be read by anyone.'),
          }},
         {'id': 'x2', 'type': 'single',
@@ -692,8 +692,8 @@ X509_MODULE = {
         {'id': 'x4', 'type': 'single',
          'prompt': {'de': 'Deckt das Wildcard-Zertifikat "*.nordwind-logistik.de" auch '
                           '"a.b.nordwind-logistik.de" ab?',
-                    'en': 'Does the wildcard certificate "*.nordwind-logistik.de" also '
-                          'cover "a.b.nordwind-logistik.de"?'},
+                    'en': 'Does the wildcard certificate “*.nordwind-logistik.de” also '
+                          'cover “a.b.nordwind-logistik.de”?'},
          'answer': 1,
          'options': {
              'de': [
@@ -748,8 +748,8 @@ X509_MODULE = {
              'de': ('`openssl x509 -text` zeigt für ein Zertifikat: „Basic Constraints: critical, CA:TRUE, '
                  'pathlen:0“ und „Key Usage: critical, Digital Signature, Certificate Sign, CRL Sign“. Was für '
                  'ein Zertifikat ist das?'),
-             'en': ('`openssl x509 -text` shows for a certificate: "Basic Constraints: critical, CA:TRUE, '
-                 'pathlen:0" and "Key Usage: critical, Digital Signature, Certificate Sign, CRL Sign". What '
+             'en': ('`openssl x509 -text` shows for a certificate: “Basic Constraints: critical, CA:TRUE, '
+                 'pathlen:0” and “Key Usage: critical, Digital Signature, Certificate Sign, CRL Sign”. What '
                  'kind of certificate is this?'),
             },
          'options': {
@@ -780,7 +780,7 @@ X509_MODULE = {
          'prompt': {
              'de': ('Ein Zertifikat hat den SAN „DNS:*.nordwind-logistik.de, DNS:nordwind-logistik.de“. Für welche '
                  'Namen besteht die Hostnamen-Prüfung?'),
-             'en': ('A certificate has the SAN "DNS:*.nordwind-logistik.de, DNS:nordwind-logistik.de". For which '
+             'en': ('A certificate has the SAN “DNS:*.nordwind-logistik.de, DNS:nordwind-logistik.de”. For which '
                  'names does hostname verification pass?'),
             },
          'options': {
@@ -806,7 +806,7 @@ X509_MODULE = {
                  'SAN-Eintrag vom Typ „IP Address“.'),
              'en': ('The asterisk covers exactly one level, and the bare domain is present as its own entry. Two '
                  'levels, a different TLD, or an IP address do not match — an IP would need its own SAN entry '
-                 'of type "IP Address".'),
+                 'of type “IP Address”.'),
             },
         },
         {'id': 'x8', 'type': 'single',
@@ -815,8 +815,8 @@ X509_MODULE = {
                  'Webserver-Zertifikat als Client-Zertifikat vor — der Partner lehnt mit „unsuitable '
                  'certificate purpose“ ab. Warum?'),
              'en': ('A partner requires mTLS. Nordwind presents its public web server certificate issued in May '
-                 '2027 as the client certificate — the partner rejects it with "unsuitable certificate '
-                 'purpose". Why?'),
+                 '2027 as the client certificate — the partner rejects it with “unsuitable certificate '
+                 'purpose”. Why?'),
             },
          'options': {
              'de': [

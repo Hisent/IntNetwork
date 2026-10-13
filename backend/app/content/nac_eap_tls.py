@@ -39,7 +39,7 @@ NAC_EAP_TLS_MODULE = {
     },
     'blocks': [
         {'type': 'text', 'id': 'text-1',
-         'note': 'EAP-TLS wird oft nur als serverseitige Zertifikatspruefung missverstanden '
+         'note': 'EAP-TLS wird oft nur als serverseitige Zertifikatsprüfung missverstanden '
                  '(wie bei PEAP). Klarstellen: bei EAP-TLS braucht auch der Client ein eigenes '
                  'Zertifikat - das ist der entscheidende Unterschied.',
          'value': {
@@ -185,7 +185,7 @@ NAC_EAP_TLS_MODULE = {
             'payload': {
                 'kind': 'sequence',
                 'title_de': 'EAP-TLS: gegenseitige Prüfung per Zertifikat',
-                'title_en': 'EAP-TLS: mutual verification by certificate',
+                'title_en': 'EAP-TLS: Mutual Verification by Certificate',
                 'caption_de': 'Der Switch reicht nur durch; die Prüfung läuft zwischen Client und Server.',
                 'caption_en': 'The switch merely relays; verification runs between client and server.',
                 'actors': [
@@ -225,7 +225,7 @@ NAC_EAP_TLS_MODULE = {
                         'label_en': 'ServerHello + server certificate',
                         'style': 'reply',
                         'detail_de': 'Dazu die Aufforderung „CertificateRequest“: Der Server verlangt ein Client-Zertifikat — das unterscheidet EAP-TLS von PEAP.',
-                        'detail_en': 'Plus a "CertificateRequest": the server demands a client certificate — this is what distinguishes EAP-TLS from PEAP.',
+                        'detail_en': 'Plus a “CertificateRequest”: the server demands a client certificate — this is what distinguishes EAP-TLS from PEAP.',
                     },
                     {
                         'from': 'c',
@@ -241,7 +241,7 @@ NAC_EAP_TLS_MODULE = {
                         'label_de': 'Client-Zertifikat + Signatur',
                         'label_en': 'Client certificate + signature',
                         'detail_de': 'Mit „CertificateVerify“ beweist der Client den Besitz des privaten Schlüssels — das Zertifikat allein wäre kein Nachweis.',
-                        'detail_en': 'With "CertificateVerify" the client proves possession of the private key — the certificate alone would be no proof.',
+                        'detail_en': 'With “CertificateVerify” the client proves possession of the private key — the certificate alone would be no proof.',
                     },
                     {
                         'from': 's',
@@ -321,7 +321,7 @@ NAC_EAP_TLS_MODULE = {
             'note': 'Nur der Ablauf — Produktdetails (Portalnamen, Protokolle wie SCEP/EST) bewusst weggelassen.',
             'value': {
                 'de': '## BYOD-Onboarding: vom Portal zum Zertifikat\n\nAutoenrollment setzt verwaltete Geräte voraus. Für private Geräte (BYOD), die trotzdem per EAP-TLS ins Netz sollen, bieten NAC-Plattformen ein **Onboarding** an (z. B. das BYOD-Portal von Cisco ISE oder ClearPass Onboard). Der Ablauf ist herstellerübergreifend ähnlich:\n\n1. **Erstanmeldung mit Benutzerkonto** — das Gerät verbindet sich mit Benutzername und Passwort (PEAP) an der Firmen-SSID oder über eine offene Onboarding-SSID und erhält nur stark eingeschränkten Zugriff.\n2. **Umleitung ins Onboarding-Portal** — der Nutzer registriert das Gerät; es wird ihm namentlich zugeordnet.\n3. **Zertifikats-Enrollment** — ein Assistent bzw. ein Konfigurationsprofil erzeugt auf dem Gerät ein Schlüsselpaar, lässt ein Client-Zertifikat ausstellen und richtet den Supplicant für EAP-TLS ein (samt vertrauter CA und Servername).\n4. **Neuanmeldung per EAP-TLS** — die NAC-Plattform löst per CoA eine erneute Authentifizierung aus; das Gerät meldet sich nun mit Zertifikat an und landet im BYOD-VLAN (bei Nordwind: VLAN 30).\n\nDer Gewinn: Das Passwort wird genau einmal gebraucht, danach nie wieder übertragen. Und geht das Gerät verloren, wird ein einzelnes Zertifikat gesperrt — das Benutzerkonto bleibt unberührt.',
-                'en': '## BYOD Onboarding: From Portal to Certificate\n\nAutoenrollment presupposes managed devices. For personal devices (BYOD) that should still join via EAP-TLS, NAC platforms offer **onboarding** (e.g. the BYOD portal of Cisco ISE or ClearPass Onboard). The flow is similar across vendors:\n\n1. **First login with a user account** — the device connects with username and password (PEAP) to the corporate SSID or via an open onboarding SSID and only gets heavily restricted access.\n2. **Redirect to the onboarding portal** — the user registers the device; it is assigned to them by name.\n3. **Certificate enrollment** — a wizard or configuration profile generates a key pair on the device, has a client certificate issued, and configures the supplicant for EAP-TLS (including trusted CA and server name).\n4. **Re-login via EAP-TLS** — the NAC platform triggers a re-authentication via CoA; the device now logs in with its certificate and lands in the BYOD VLAN (at Nordwind: VLAN 30).\n\nThe gain: the password is needed exactly once and never transmitted again. And if the device is lost, a single certificate is revoked — the user account remains untouched.',
+                'en': '## BYOD Onboarding: From Portal to Certificate\n\nAutoenrollment presupposes managed devices. For personal devices (BYOD) that should still join via EAP-TLS, NAC platforms offer **onboarding** (e.g., the BYOD portal of Cisco ISE or ClearPass Onboard). The flow is similar across vendors:\n\n1. **First login with a user account** — the device connects with username and password (PEAP) to the corporate SSID or via an open onboarding SSID and only gets heavily restricted access.\n2. **Redirect to the onboarding portal** — the user registers the device; it is assigned to them by name.\n3. **Certificate enrollment** — a wizard or configuration profile generates a key pair on the device, has a client certificate issued, and configures the supplicant for EAP-TLS (including trusted CA and server name).\n4. **Re-login via EAP-TLS** — the NAC platform triggers a re-authentication via CoA; the device now logs in with its certificate and lands in the BYOD VLAN (at Nordwind: VLAN 30).\n\nThe gain: the password is needed exactly once and never transmitted again. And if the device is lost, a single certificate is revoked — the user account remains untouched.',
             },
         },
         {
@@ -329,13 +329,13 @@ NAC_EAP_TLS_MODULE = {
             'id': 'scenario-eap-tls-fehler',
             'payload': {
                 'title_de': 'EAP-TLS schlägt fehl — wo suchst du?',
-                'title_en': 'EAP-TLS fails — where do you look?',
+                'title_en': 'EAP-TLS Fails — Where Do You Look?',
                 'start': 'start',
                 'nodes': [
                     {
                         'id': 'start',
                         'text_de': 'Montagmorgen: Das Notebook von Herrn Demir kommt nicht ins WLAN. Alle anderen Notebooks funktionieren. Das RADIUS-Log zeigt für sein Gerät: „EAP-TLS failed — certificate expired“. Was tust du zuerst?',
-                        'text_en': 'Monday morning: Mr. Demir\'s laptop cannot join the Wi-Fi. All other laptops work. The RADIUS log shows for his device: "EAP-TLS failed — certificate expired". What do you do first?',
+                        'text_en': 'Monday morning: Mr. Demir\'s laptop cannot join the Wi-Fi. All other laptops work. The RADIUS log shows for his device: “EAP-TLS failed — certificate expired”. What do you do first?',
                         'options': [
                             {
                                 'label_de': 'RADIUS-Server neu starten',
@@ -369,7 +369,7 @@ NAC_EAP_TLS_MODULE = {
                     {
                         'id': 'cert',
                         'text_de': 'Das Zertifikat ist laut Anzeige noch vier Monate gültig. Die Uhr des Notebooks stimmt. Trotzdem meldet der Server „expired“. Was prüfst du jetzt?',
-                        'text_en': 'According to the display the certificate is valid for another four months. The laptop\'s clock is correct. Yet the server reports "expired". What do you check now?',
+                        'text_en': 'According to the display the certificate is valid for another four months. The laptop\'s clock is correct. Yet the server reports “expired.” What do you check now?',
                         'options': [
                             {
                                 'label_de': 'Ob im Zertifikatsspeicher ein zweites, älteres Zertifikat liegt, das der Supplicant auswählt',
@@ -445,7 +445,7 @@ NAC_EAP_TLS_MODULE = {
          },
          'explanation': {
              'de': 'Bei EAP-TLS legen beide Seiten ein Zertifikat vor, ein Passwort gibt es nicht. „Nur ein Server-Zertifikat“ beschreibt PEAP — die häufigste Verwechslung.',
-             'en': 'In EAP-TLS both sides present a certificate, there is no password. "Only a server certificate" describes PEAP — the most common confusion.',
+             'en': 'In EAP-TLS both sides present a certificate, there is no password. “Only a server certificate” describes PEAP — the most common confusion.',
          }},
         {'id': 'et2', 'type': 'single',
          'prompt': {'de': 'Warum gilt EAP-TLS als besonders phishing-resistent?',
@@ -574,8 +574,8 @@ NAC_EAP_TLS_MODULE = {
             'id': 'et7',
             'type': 'multi',
             'prompt': {
-                'de': 'Ein Notebook mit EAP-TLS wird gestohlen. Welche Maßnahmen verhindern, dass es sich weiter am Netz anmelden kann? (Mehrere richtig)',
-                'en': 'A laptop using EAP-TLS is stolen. Which measures prevent it from continuing to log in to the network? (Several correct)',
+                'de': 'Ein Notebook mit EAP-TLS wird gestohlen. Welche Maßnahmen verhindern, dass es sich weiter am Netz anmelden kann? Mehrere Antworten sind richtig.',
+                'en': 'A laptop using EAP-TLS is stolen. Which measures prevent it from continuing to log in to the network? Select all that apply.',
             },
             'options': {
                 'de': [

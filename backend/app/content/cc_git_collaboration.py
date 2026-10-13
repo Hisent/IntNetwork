@@ -31,7 +31,7 @@ Arbeite pro Änderung in einem eigenen Branch und halte den Scope klein. Vor der
 - bekannte Risiken, offene Fragen und bewusste Nicht-Ziele.
 
 Der Agent darf einen Branch oder Commit vorbereiten. Merge, Push und Deployment bleiben Team-Entscheidungen. Niemals fremde Änderungen oder Secrets in einen Review-Branch übernehmen, nur weil der Agent sie vorschlägt.""",
-                "en": """## One task, one branch, one review
+                "en": """## One Task, One Branch, One Review
 
 Use a separate branch for each change and keep the scope small. Before handoff, include at least:
 
@@ -59,7 +59,7 @@ Beispiel: git worktree remove ../repo-review
 Das verhindert überschreibende Edits und macht sichtbar, welcher Agent welche Änderung erzeugt hat.
 
 Claude Code kann den Worktree auch selbst anlegen: `claude --worktree feature-auth` (kurz `-w`) startet die Session in einem eigenen Worktree unter `.claude/worktrees/feature-auth/` auf einem neuen Branch `worktree-feature-auth`. Ein Worktree ist ein frischer Checkout – Abhängigkeiten müssen dort neu installiert werden, und nicht versionierte Dateien wie `.env` fehlen zunächst.""",
-                "en": """## Parallel sessions with worktrees
+                "en": """## Parallel Sessions With Worktrees
 
 Two sessions should not work in the same checkout at the same time. A Git worktree gives each session its own directory while all worktrees share one repository.
 
@@ -80,7 +80,7 @@ Claude Code can also create the worktree itself: `claude --worktree feature-auth
                  'sofort auch im Haupt-Checkout sichtbar (git log --all), ohne Push.',
          'payload': {'kind': 'flow',
                      'title_de': 'Ein Repository, zwei Arbeitsverzeichnisse',
-                     'title_en': 'One repository, two working directories',
+                     'title_en': 'One Repository, Two Working Directories',
                      'caption_de': 'Jede Session hat eigene Dateien und einen eigenen Branch; Historie und '
                                    'Objekte liegen nur einmal vor.',
                      'caption_en': 'Each session has its own files and its own branch; history and objects '
@@ -149,7 +149,7 @@ Claude Code can also create the worktree itself: `claude --worktree feature-auth
                   'die Meldung bei bestehendem Worktree. Im git-Lab darunter läuft echtes git – dort scheitern Pfade '
                   'außerhalb des Arbeitsverzeichnisses (../…) aber bewusst an der Sicherheitsgrenze des Runners.'),
          'payload': {'title_de': 'Worktree anlegen, prüfen, entfernen',
-                     'title_en': 'Create, inspect and remove a worktree',
+                     'title_en': 'Create, Inspect and Remove a Worktree',
                      'prompt': 'repo $',
                      'intro_de': 'Simulation mit festen Ausgaben. Tippe help für die Befehle.',
                      'intro_en': 'Simulation with fixed output. Type help for the commands.',
@@ -213,7 +213,7 @@ Claude Code can also create the worktree itself: `claude --worktree feature-auth
                 "de": """## Review-Übergabe
 
 Eine gute Übergabe beantwortet vier Fragen: Was wurde geändert? Warum? Wie wurde es geprüft? Was ist noch offen? Lass einen zweiten, möglichst read-only Blick gegen die Akzeptanzkriterien prüfen. Bei Konflikten nicht einfach „auflösen lassen“: erst beide Seiten verstehen, dann die kleinste korrekte Lösung wählen und die Tests erneut ausführen.""",
-                "en": """## Review handoff
+                "en": """## Review Handoff
 
 A good handoff answers four questions: What changed? Why? How was it checked? What remains open? Have a second, preferably read-only reviewer check against the acceptance criteria. Do not blindly ask an agent to resolve conflicts: understand both sides first, choose the smallest correct solution, and rerun the tests.""",
             },
@@ -254,7 +254,7 @@ A good handoff answers four questions: What changed? Why? How was it checked? Wh
                       "**Was nicht geht:** `clone`, `fetch`, `push` und `pull` scheitern. Der "
                       "Runner hat kein Netzwerk, und zwar bewusst — das ist seine Sicherheitsgrenze, "
                       "kein Fehler. Alles Übrige an Git ist ohnehin lokal.",
-                "en": "## Try it yourself\n\n"
+                "en": "## Try It Yourself\n\n"
                       "The lab below runs real `git`. Your working directory persists between "
                       "runs, so you can work on the same repository across several steps: create "
                       "it, commit, branch off, merge — and deliberately provoke a conflict so that "
@@ -292,9 +292,9 @@ A good handoff answers four questions: What changed? Why? How was it checked? Wh
             },
             {
                 "id": "git2",
-                "explanation": {'de': 'Eine Übergabe beantwortet: Was wurde geändert und warum, wie wurde es geprüft, was ist offen? „Claude hat es geprüft“ ist kein Bestandteil – das ist eine Behauptung ohne Nachweis, und genau den soll das Review unabhängig nachvollziehen können.', 'en': 'A handoff answers: what changed and why, how was it checked, what is open? "Claude checked it" is not part of it – that is a claim without evidence, and evidence is exactly what the review must be able to retrace independently.'},
+                "explanation": {'de': 'Eine Übergabe beantwortet: Was wurde geändert und warum, wie wurde es geprüft, was ist offen? „Claude hat es geprüft“ ist kein Bestandteil – das ist eine Behauptung ohne Nachweis, und genau den soll das Review unabhängig nachvollziehen können.', 'en': 'A handoff answers: what changed and why, how was it checked, what is open? “Claude checked it” is not part of it – that is a claim without evidence, and evidence is exactly what the review must be able to retrace independently.'},
                 "type": "multi",
-                "prompt": {"de": "Was gehört in eine Review-Übergabe? (mehrere)", "en": "What belongs in a review handoff? (multiple)"},
+                "prompt": {"de": "Was gehört in eine Review-Übergabe? Mehrere Antworten sind richtig.", "en": "What belongs in a review handoff? Select all that apply."},
                 "answer": [0, 1, 2],
                 "options": {
                     "de": ["Was und warum geändert wurde", "Tests und Ergebnisse", "Risiken und offene Fragen", "Nur die Aussage „Claude hat es geprüft“"],
@@ -337,8 +337,8 @@ A good handoff answers four questions: What changed? Why? How was it checked? Wh
                                    'separate repository with its own history.'}},
             {'id': 'git5',
              'type': 'multi',
-             'prompt': {'de': 'Welche Aussagen über Git-Worktrees stimmen? (mehrere)',
-                        'en': 'Which statements about Git worktrees are true? (multiple)'},
+             'prompt': {'de': 'Welche Aussagen über Git-Worktrees stimmen? Mehrere Antworten sind richtig.',
+                        'en': 'Which statements about Git worktrees are true? Select all that apply.'},
              'options': {'de': ['Alle Worktrees teilen sich Commits und Branches desselben Repositories',
                                 'Jeder Worktree hat eigene Arbeitsdateien',
                                 'Derselbe Branch kann gleichzeitig in zwei Worktrees ausgecheckt sein',
@@ -355,14 +355,14 @@ A good handoff answers four questions: What changed? Why? How was it checked? Wh
                                    '(„already used by worktree“) – jede Session braucht ihren eigenen Branch.',
                              'en': 'Worktrees separate only the working files; history, branches and objects '
                                    'exist once in the shared repository, so a commit is visible everywhere '
-                                   'immediately. Git refuses to check out the same branch twice ("already used '
-                                   'by worktree") – each session needs its own branch.'}},
+                                   'immediately. Git refuses to check out the same branch twice (“already used '
+                                   'by worktree”) – each session needs its own branch.'}},
             {'id': 'git6',
              'type': 'single',
              'prompt': {'de': 'Der Agent meldet beim Zusammenführen einen Konflikt in auth/session.py und '
                               'bietet an, ihn „einfach aufzulösen“. Was ist das richtige Vorgehen?',
                         'en': 'While merging, the agent reports a conflict in auth/session.py and offers to '
-                              '"just resolve it". What is the right approach?'},
+                              '“just resolve it.” What is the right approach?'},
              'options': {'de': ['Annehmen und direkt pushen, damit der Branch nicht weiter abweicht',
                                 'Immer die eigene Seite übernehmen, weil sie neuer ist',
                                 'Beide Seiten verstehen, die kleinste korrekte Lösung wählen, Tests erneut '

@@ -27,7 +27,7 @@ TLS_PRUEFEN_MODULE = {
               'in Sekunden harte Fakten über Kette, Gültigkeit und ausgehandeltes Protokoll. Dieses '
               'Modul baut dir ein durchgängiges Vorgehen, mit dem du solche Meldungen systematisch '
               'statt zufällig löst.',
-        'en': 'A Nordwind Logistik customer reports: "Your website shows us a certificate warning." '
+        'en': 'A Nordwind Logistik customer reports: “Your website shows us a certificate warning.” '
               'Instead of guessing, you reach for the command line — openssl delivers hard facts '
               'about chain, validity, and negotiated protocol within seconds. This module builds you '
               'a consistent procedure to resolve such reports systematically instead of by chance.',
@@ -87,8 +87,8 @@ TLS_PRUEFEN_MODULE = {
                    'and in which order. If an intermediate is missing here, that is often already the '
                    'entire cause of a trust problem.\n'
                    '- **Verify return code** — the return code of the chain verification; `0 (ok)` '
-                   'means a successfully validated chain, any other code (e.g. `20`, "unable to get '
-                   'local issuer certificate") points to a specific problem.\n'
+                   'means a successfully validated chain, any other code (e.g., `20`, “unable to get '
+                   'local issuer certificate”) points to a specific problem.\n'
                    '- The **negotiated protocol version** and the **negotiated cipher suite** — show '
                    'directly whether the server is actually delivering the expected profile (see the '
                    'configuration module) or whether, say, an outdated protocol is still accepted.',
@@ -116,10 +116,10 @@ TLS_PRUEFEN_MODULE = {
          'note': ('Echte s_client-Ausgaben (OpenSSL 3.6) gegen lokale Testserver mit der Kurs-Test-PKI. Hostnamen '
              'und IP-Adressen (Dokumentationsnetz 203.0.113.0/24) wurden statt 127.0.0.1 eingesetzt, PEM-Block '
              'und Sitzungsdetails gekürzt ([...]); wrap ist aus, die Zeilen stehen in Originalbreite. Der Server "staging" liefert '
-             'dasselbe Zertifikat ohne Intermediate aus. Im Openssl-Lab ist s_client gesperrt.'),
+             'dasselbe Zertifikat ohne Intermediate aus. Im OpenSSL-Lab ist s_client gesperrt.'),
          'payload': {
              'title_de': 'Mit s_client nachsehen statt vermuten',
-             'title_en': 'Look it up with s_client',
+             'title_en': 'Look It Up With s_client',
              'wrap': False,
              'prompt': 'nordwind$',
              'intro_de': ('Zwei Server: www (Produktion) und staging (frisch aufgesetzt,\n'
@@ -325,7 +325,7 @@ TLS_PRUEFEN_MODULE = {
                    'aufbauen.',
              'en': '## Do Key and Certificate Match?\n\n'
                    'A classic operational problem: a certificate was installed, but the private key '
-                   'that goes with it is the wrong one (e.g. after re-issuing with a new key pair). '
+                   'that goes with it is the wrong one (e.g., after re-issuing with a new key pair). '
                    'This can be checked by comparing the modulus (for RSA) or the public key: '
                    'certificate and private key must reference the same public key:\n\n'
                    '```\n'
@@ -432,7 +432,7 @@ TLS_PRUEFEN_MODULE = {
          'payload': {
              'kind': 'flow',
              'title_de': 'Vorgehen bei einer TLS-Störung',
-             'title_en': 'Procedure for a TLS incident',
+             'title_en': 'Procedure for a TLS Incident',
              'nodes': [
                     {
                      'id': 'n1',
@@ -443,7 +443,7 @@ TLS_PRUEFEN_MODULE = {
                      'label_en': 'Reachable?',
                      'detail_de': ('Kommt überhaupt „CONNECTED“? Wenn nicht: DNS, Firewall, Port, Dienst prüfen — das ist '
                          'noch kein Zertifikatsproblem.'),
-                     'detail_en': ('Does "CONNECTED" appear at all? If not: check DNS, firewall, port, service — this is '
+                     'detail_en': ('Does “CONNECTED” appear at all? If not: check DNS, firewall, port, service — this is '
                          'not a certificate problem yet.'),
                     },
                     {
@@ -455,7 +455,7 @@ TLS_PRUEFEN_MODULE = {
                      'label_en': 'Chain complete?',
                      'detail_de': ('Abschnitt „Certificate chain“ in s_client: Liefert der Server Endzertifikat UND '
                          'Intermediate? Typische Codes: 20, 21.'),
-                     'detail_en': ('The "Certificate chain" section in s_client: does the server deliver end-entity '
+                     'detail_en': ('The “Certificate chain” section in s_client: does the server deliver end-entity '
                          'certificate AND intermediate? Typical codes: 20, 21.'),
                     },
                     {
@@ -490,7 +490,7 @@ TLS_PRUEFEN_MODULE = {
                      'label_en': 'Protocol/\nsuite as expected?',
                      'detail_de': ('Zeilen „Protocol“ und „Cipher is“; gezielt mit `-tls1_2` oder `-tls1_3` testen. Hier '
                          'zeigen sich alte Clients und zu strenge oder zu lockere Profile.'),
-                     'detail_en': ('The "Protocol" and "Cipher is" lines; test specifically with `-tls1_2` or `-tls1_3`. '
+                     'detail_en': ('The “Protocol” and “Cipher is” lines; test specifically with `-tls1_2` or `-tls1_3`. '
                          'This is where old clients and too strict or too lax profiles show up.'),
                     },
                     {
@@ -554,9 +554,9 @@ TLS_PRUEFEN_MODULE = {
                     },
                 ],
              'explanation_de': ('Diese fünf Optionen decken den Großteil der Alltagsdiagnose ab. Die letzten drei Befehle '
-                 'arbeiten auf lokalen Dateien und laufen deshalb auch im Openssl-Lab.'),
+                 'arbeiten auf lokalen Dateien und laufen deshalb auch im OpenSSL-Lab.'),
              'explanation_en': ('These five options cover most everyday diagnosis. The last three commands work on local files '
-                 'and therefore also run in the openssl lab.'),
+                 'and therefore also run in the OpenSSL lab.'),
             },
         },
         {'type': 'reveal', 'id': 'reveal-1',
@@ -632,7 +632,7 @@ TLS_PRUEFEN_MODULE = {
                    '5. Are protocol version and cipher suite as expected?',
          }},
         {'type': 'text', 'id': 'text-openssl-lab',
-         'note': ('Erste Begegnung mit dem openssl-Lab. Kurz ansagen, dass es je nach Server-Konfiguration '
+         'note': ('Erste Begegnung mit dem OpenSSL-Lab.Kurz ansagen, dass es je nach Server-Konfiguration '
              'abgeschaltet sein kann — dann bleiben die Befehle Lesestoff und die Aufgaben Denkaufgaben.'),
          'value': {
              'de': ('## Selbst ausprobieren\n\nBis hierhin hast du die Befehle gelesen. Im Labor unten tippst du '
@@ -714,7 +714,7 @@ TLS_PRUEFEN_MODULE = {
          }},
         {'id': 'tp2', 'type': 'single',
          'prompt': {'de': 'Was bedeutet ein "Verify return code" von 0 in der s_client-Ausgabe?',
-                    'en': 'What does a "Verify return code" of 0 mean in the s_client output?'},
+                    'en': 'What does a “Verify return code” of 0 mean in the s_client output?'},
          'answer': 0,
          'options': {
              'de': [
@@ -735,7 +735,7 @@ TLS_PRUEFEN_MODULE = {
               'prüft s_client nur, wenn du `-verify_hostname` angibst — „0 (ok)“ sagt also nichts über den '
               'Namen.'),
           'en': ('Code 0 means: the chain could be verified up to a trust anchor. Note: s_client only checks the '
-              'hostname if you pass `-verify_hostname` — so "0 (ok)" says nothing about the name.'),
+              'hostname if you pass `-verify_hostname` — so “0 (ok)” says nothing about the name.'),
          }},
         {'id': 'tp3', 'type': 'single',
          'prompt': {'de': 'Mit welcher Option zeigt openssl s_client alle vom Server gesendeten Zertifikate vollständig an?',
@@ -760,7 +760,7 @@ TLS_PRUEFEN_MODULE = {
               'Kurzübersicht „Certificate chain“ zeigt die Kette auch ohne diese Option — aber eben nicht die '
               'Zertifikate selbst.'),
           'en': ('`-showcerts` prints all certificates sent by the server as PEM, not just the first. The short '
-              '"Certificate chain" overview shows the chain without this option too — but not the certificates '
+              '“Certificate chain” overview shows the chain without this option too — but not the certificates '
               'themselves.'),
          }},
         {'id': 'tp4', 'type': 'single',
@@ -818,9 +818,9 @@ TLS_PRUEFEN_MODULE = {
              'de': ('Die s_client-Ausgabe eines Servers zeigt unter „Certificate chain“ nur den Eintrag „0 '
                  's:CN=api.nordwind-logistik.de i:CN=Nordwind Issuing CA G1“ und endet mit „Verify return code: '
                  '21 (unable to verify the first certificate)“. Was ist zu tun?'),
-             'en': ('A server\'s s_client output shows under "Certificate chain" only the entry "0 '
-                 's:CN=api.nordwind-logistik.de i:CN=Nordwind Issuing CA G1" and ends with "Verify return code: '
-                 '21 (unable to verify the first certificate)". What needs to be done?'),
+             'en': ('A server\'s s_client output shows under “Certificate chain” only the entry “0 '
+                 's:CN=api.nordwind-logistik.de i:CN=Nordwind Issuing CA G1” and ends with “Verify return code: '
+                 '21 (unable to verify the first certificate)”. What needs to be done?'),
             },
          'options': {
              'de': [
@@ -841,7 +841,7 @@ TLS_PRUEFEN_MODULE = {
              'de': ('Der Server sendet nur ein Zertifikat (Eintrag 0); der Aussteller „Issuing CA G1“ fehlt, also '
                  'kann der Client den Pfad zur Root nicht schließen. Abgelaufen wäre Code 10, ein falscher Name '
                  'Code 62. Die Prüfung abzuschalten beseitigt die Meldung, nicht das Problem.'),
-             'en': ('The server sends only one certificate (entry 0); the issuer "Issuing CA G1" is missing, so '
+             'en': ('The server sends only one certificate (entry 0); the issuer “Issuing CA G1” is missing, so '
                  'the client cannot complete the path to the root. Expired would be code 10, a wrong name code '
                  '62. Disabling verification removes the message, not the problem.'),
             },
@@ -859,7 +859,7 @@ TLS_PRUEFEN_MODULE = {
                  'dieser Spanne ab, meldet openssl „Certificate will expire“ und liefert 1. Bei 47 Tagen '
                  'Laufzeit wäre eine 30-Tage-Schwelle allerdings fast ein Daueralarm.'),
              'en': ('`-checkend` expects seconds: 2592000 ÷ 86400 = 30 days. If the certificate expires within '
-                 'that span, openssl reports "Certificate will expire" and returns 1. With a 47-day lifetime, '
+                 'that span, openssl reports “Certificate will expire” and returns 1. With a 47-day lifetime, '
                  'though, a 30-day threshold would be an almost permanent alarm.'),
             },
         },
@@ -867,7 +867,7 @@ TLS_PRUEFEN_MODULE = {
          'prompt': {
              'de': ('Welche Fragen beantwortet „Verify return code: 0 (ok)“ in der s_client-Ausgabe NICHT, wenn '
                  'nur `-connect` und `-servername` angegeben wurden?'),
-             'en': ('Which questions does "Verify return code: 0 (ok)" in the s_client output NOT answer if only '
+             'en': ('Which questions does “Verify return code: 0 (ok)” in the s_client output NOT answer if only '
                  '`-connect` and `-servername` were given?'),
             },
          'options': {
@@ -892,7 +892,7 @@ TLS_PRUEFEN_MODULE = {
                  'warnt.'),
              'en': ('openssl always checks chain and validity. It only compares the hostname with '
                  '`-verify_hostname`, and the revocation status only with `-crl_check` or an OCSP query. A '
-                 'browser, in contrast, always checks the name — which is why s_client can say "ok" where the '
+                 'browser, in contrast, always checks the name — which is why s_client can say “ok” where the '
                  'browser warns.'),
             },
         },

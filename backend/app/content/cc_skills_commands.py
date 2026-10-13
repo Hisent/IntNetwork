@@ -47,7 +47,7 @@ SKILLS_COMMANDS_MODULE = {'key': 'skills-commands',
                              'Vorteil gegenüber CLAUDE.md: Der Rumpf eines Skills lädt **nur bei '
                              'Nutzung** — langes Referenzmaterial kostet also fast nichts, bis es '
                              'gebraucht wird.',
-                       'en': '## Skills — and what became of custom commands\n'
+                       'en': '## Skills — and What Became of Custom Commands\n'
                              '\n'
                              'A **skill** extends what Claude can do: a `SKILL.md` with '
                              'instructions that Claude loads automatically for matching tasks, or '
@@ -155,7 +155,7 @@ SKILLS_COMMANDS_MODULE = {'key': 'skills-commands',
                              '`$ARGUMENTS` wird zu `src/auth.ts`. Den Namen `review` meidest du: '
                              '`/review` ist ein eingebauter Alias für `/code-review` und führt '
                              'deinen Skill nie aus.',
-                       'en': '## Dynamic context: !`cmd` and $ARGUMENTS\n'
+                       'en': '## Dynamic Context: !`cmd` and $ARGUMENTS\n'
                              '\n'
                              'Two building blocks make skills powerful:\n'
                              '\n'
@@ -184,7 +184,7 @@ SKILLS_COMMANDS_MODULE = {'key': 'skills-commands',
                      'davor.',
              'payload': {'kind': 'sequence',
                          'title_de': 'Wie ein Skill in den Kontext kommt',
-                         'title_en': 'How a skill gets into context',
+                         'title_en': 'How a Skill Gets Into Context',
                          'actors': [{'id': 'u', 'label_de': 'Du', 'label_en': 'You'},
                                     {'id': 'cc', 'label': 'Claude Code'},
                                     {'id': 'm',
@@ -203,7 +203,7 @@ SKILLS_COMMANDS_MODULE = {'key': 'skills-commands',
                                       {'from': 'u',
                                        'to': 'cc',
                                        'label_de': '„Was habe ich geändert?“',
-                                       'label_en': '"What did I change?"',
+                                       'label_en': '“What did I change?”',
                                        'detail_de': 'Du stellst eine passende Frage. Mit '
                                                     '/summarize-changes am Anfang der Nachricht '
                                                     'würdest du den Skill direkt starten.',
@@ -283,12 +283,12 @@ SKILLS_COMMANDS_MODULE = {'key': 'skills-commands',
                              'Projekt; ein gleichnamiger eigener Skill überschreibt sogar einen '
                              '**gebündelten**. Plugin-Skills sind mit `plugin-name:skill-name` '
                              'genamespaced und kollidieren daher nie.',
-                       'en': '## Where skills live\n'
+                       'en': '## Where Skills Live\n'
                              '\n'
                              'The location determines the scope:\n'
                              '\n'
                              '\n'
-                             '- Enterprise — path: Managed Settings; applies to: the entire '
+                             '- Enterprise — path: managed settings; applies to: the entire '
                              'organization\n'
                              '- Personal — path: `~/.claude/skills/<name>/SKILL.md`; applies to: '
                              'all your projects\n'
@@ -317,7 +317,7 @@ SKILLS_COMMANDS_MODULE = {'key': 'skills-commands',
                              'Nützlich außerdem: **Gebündelte Skills**, die es ohne Setup gibt, '
                              'u.a. `/code-review`, `/debug`, `/loop`. Sie sind prompt-basiert und '
                              'werden wie eigene Skills aufgerufen.',
-                       'en': '## Who triggers the skill?\n'
+                       'en': '## Who Triggers the Skill?\n'
                              '\n'
                              'By default, Claude can load a skill **itself** (when the task '
                              'matches the `description`) *and* you can invoke it **manually** with '
@@ -690,12 +690,12 @@ SKILLS_COMMANDS_MODULE = {'key': 'skills-commands',
                                          'en': 'When a skill and a file in .claude/commands/ share '
                                                'a name, the skill runs. The command file just sits '
                                                'there without effect — so clean up the old file '
-                                               'when moving to skills instead of puzzling over "ignored" changes.'}},
+                                               'when moving to skills instead of puzzling over “ignored” changes.'}},
                         {'id': 'sk8',
                          'type': 'multi',
-                         'prompt': {'de': 'Welche Aussagen zum Laden von Skills stimmen? (mehrere)',
+                         'prompt': {'de': 'Welche Aussagen zum Laden von Skills stimmen? Mehrere Antworten sind richtig.',
                                     'en': 'Which statements about how skills load are true? '
-                                          '(multiple)'},
+                                          'Select all that apply.'},
                          'answer': [0, 1],
                          'options': {'de': ['Standardmäßig steht nur die Beschreibung im Kontext, '
                                             'der volle Inhalt erst beim Aufruf',

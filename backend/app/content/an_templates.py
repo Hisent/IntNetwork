@@ -4,7 +4,7 @@
 TEMPLATES_MODULE = {
  'key': 'templates-jinja2',
  'title': 'Templates mit Jinja2',
- 'title_en': 'Templates with Jinja2',
+ 'title_en': 'Templates With Jinja2',
  'order': 308,
  'prerequisites': ['schleifen-handler'],
  'goals': ['Das template-Modul von copy abgrenzen',
@@ -44,7 +44,7 @@ TEMPLATES_MODULE = {
                              '    src: nginx.conf.j2\n'
                              '    dest: /etc/nginx/nginx.conf\n'
                              '```',
-                       'en': '## The template module vs. copy\n'
+                       'en': '## The Template Module vs. copy\n'
                              '\n'
                              '`ansible.builtin.copy` transfers a file **as is** to the managed '
                              'node — no processing, no placeholder substitution.\n'
@@ -65,7 +65,7 @@ TEMPLATES_MODULE = {
              'id': 'diagram-template-weg',
              'payload': {'kind': 'flow',
                          'title_de': 'Der Weg eines Templates',
-                         'title_en': 'The path of a template',
+                         'title_en': 'The Path of a Template',
                          'caption_de': 'Gerendert wird auf dem Control Node — der Zielhost sieht '
                                        'nur das Ergebnis.',
                          'caption_en': 'Rendering happens on the control node — the target host '
@@ -143,7 +143,7 @@ TEMPLATES_MODULE = {
                                     'text_en': 'A notify only fires on changed: the service is '
                                                'reloaded only if something really changed.'}]}},
             {'type': 'text', 'id': 'text-2',
-             'note': 'Wer Jinja zum ersten Mal sieht, verwechselt {{ }} und {% %}. Einmal explizit gegenueberstellen: Ausgabe gegen Steuerung.',
+             'note': 'Wer Jinja zum ersten Mal sieht, verwechselt {{ }} und {% %}. Einmal explizit gegenüberstellen: Ausgabe gegen Steuerung.',
              'value': {'de': '## Jinja2-Grundsyntax\n'
                              '\n'
                              '- `{{ variable }}` — Wert einer Variablen einsetzen\n'
@@ -165,7 +165,7 @@ TEMPLATES_MODULE = {
                              'korrekt geschlossen werden (`{% if %}` braucht `{% endif %}`, '
                              '`{% for %}` braucht `{% endfor %}`) — sonst bricht das Rendern '
                              'ab.',
-                       'en': '## Basic Jinja2 syntax\n'
+                       'en': '## Basic Jinja2 Syntax\n'
                              '\n'
                              '- `{{ variable }}` — insert a variable\'s value\n'
                              '- `{% if condition %} … {% endif %}` — conditional section\n'
@@ -312,7 +312,7 @@ TEMPLATES_MODULE = {
                              'Für die meisten Ansible-Templates reicht es, sich zu merken: '
                              '`{%` und `{%-` sind nicht dasselbe — das Minuszeichen ändert das '
                              'Whitespace-Verhalten, nicht die Logik.',
-                       'en': '## Whitespace control\n'
+                       'en': '## Whitespace Control\n'
                              '\n'
                              'Jinja2 control statements (`{% %}`) can leave blank lines or '
                              'spaces in the rendered result — often unwanted in '
@@ -384,7 +384,7 @@ TEMPLATES_MODULE = {
                              '\n'
                              'Ist das Lab bei euch nicht aktiv, schreibe das gerenderte Ergebnis '
                              'von Hand auf und vergleiche es mit der Lösung im Trainerteil.',
-                       'en': '## Hands-on: rendering a template in the lab\n'
+                       'en': '## Hands-on: Rendering a Template in the Lab\n'
                              '\n'
                              'In the lab widget below the **Templates** template is preselected. '
                              'The lab accepts only a single playbook file, so the playbook itself '
@@ -399,7 +399,7 @@ TEMPLATES_MODULE = {
                              'no diff.\n'
                              '3. Change `http_port` or add a domain and run again: the diff shows '
                              'only the changed lines.\n'
-                             '4. Enter `tls_aktiv=true` under "Extra vars" — now the certificate '
+                             '4. Enter `tls_aktiv=true` under “Extra vars” — now the certificate '
                              'line appears.\n'
                              '\n'
                              'If the lab is not enabled for you, write down the rendered result by '
@@ -575,7 +575,7 @@ TEMPLATES_MODULE = {
                                           'Der Template-Task meldet bei jedem Lauf `changed` und '
                                           'löst jedes Mal den Neustart-Handler aus. Was ist die '
                                           'Ursache?',
-                                    'en': 'A template starts with `# Erzeugt am {{ now() }}`. The '
+                                    'en': 'A template starts with `# Generated on {{ now() }}`. The '
                                           'template task reports `changed` on every run and '
                                           'triggers the restart handler every time. What is the '
                                           'cause?'},

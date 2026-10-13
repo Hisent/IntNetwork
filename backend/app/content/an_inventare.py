@@ -52,9 +52,9 @@ INVENTARE_MODULE = {
                          '**Übergruppe**: `datacenter1` enthält alle Hosts aus `webservers` und '
                          '`dbservers`. Zwei Gruppen sind immer implizit vorhanden: `all` (jeder '
                          'Host) und `ungrouped` (Hosts ohne eigene Gruppe).',
-                   'en': '## Static inventory: INI format\n'
+                   'en': '## Static Inventory: INI Format\n'
                          '\n'
-                         'The classic format is a plain text file with groups in square '
+                         'The classic format is a plain-text file with groups in square '
                          'brackets:\n'
                          '\n'
                          '```ini\n'
@@ -100,7 +100,7 @@ INVENTARE_MODULE = {
                          'gesamte Gruppe. INI und YAML beschreiben dasselbe Modell — YAML wird '
                          'meist gewählt, wenn viele Variablen direkt im Inventar mitgepflegt '
                          'werden sollen.',
-                   'en': '## Static inventory: YAML format\n'
+                   'en': '## Static Inventory: YAML Format\n'
                          '\n'
                          'The same inventory can also be written as YAML — common as soon as '
                          'group variables need to travel along with it:\n'
@@ -127,7 +127,7 @@ INVENTARE_MODULE = {
          'id': 'diagram-gruppenbaum',
          'payload': {'kind': 'flow',
                      'title_de': 'Das INI-Beispiel als Gruppenbaum',
-                     'title_en': 'The INI example as a group tree',
+                     'title_en': 'The INI Example as a Group Tree',
                      'caption_de': 'So zeigt es auch ansible-inventory --graph.',
                      'caption_en': 'This is also what ansible-inventory --graph shows.',
                      'nodes': [{'id': 'all',
@@ -310,7 +310,7 @@ INVENTARE_MODULE = {
                          'Inventory-Plugin-Konfiguration liegt meist in einer eigenen Datei mit '
                          'passender Endung (z. B. `aws_ec2.yml`) und wird über `ansible.cfg` oder '
                          'die CLI eingebunden.',
-                   'en': '## Dynamic inventories\n'
+                   'en': '## Dynamic Inventories\n'
                          '\n'
                          'Instead of maintaining hosts by hand, an **inventory plugin** can query '
                          'the host list fresh from a source on every run — for example, a cloud '
@@ -342,7 +342,7 @@ INVENTARE_MODULE = {
                          'Baumstruktur an, ohne dass ein Playbook ausgeführt werden muss. Nützlich, '
                          'um vor dem eigentlichen Lauf zu kontrollieren, ob ein Pattern wirklich '
                          'die erwarteten Hosts trifft.',
-                   'en': '## Host patterns\n'
+                   'en': '## Host Patterns\n'
                          '\n'
                          'Both ad-hoc commands and playbooks can use a **pattern** instead of a '
                          'single group name, to combine hosts from multiple groups selectively:\n'
@@ -364,7 +364,7 @@ INVENTARE_MODULE = {
                  'host_vars/web02.yml). Im Kurs-Lab nicht ausführbar, weil es nur ansible-playbook '
                  'startet.',
          'payload': {'title_de': 'Inventar prüfen, bevor etwas läuft',
-                     'title_en': 'Check the inventory before anything runs',
+                     'title_en': 'Check the Inventory Before Anything Runs',
                      'intro_de': 'Beginne mit cat hosts.ini. ansible.cfg setzt inventory = '
                                  'hosts.ini.',
                      'intro_en': 'Start with cat hosts.ini. ansible.cfg sets inventory = '
@@ -594,14 +594,14 @@ INVENTARE_MODULE = {
                                'db02. Wer `!` als „nur prod“ liest, landet beim Gegenteil.',
                          'en': '`datacenter1` covers all five hosts through its children; `:!prod` '
                                'removes web01, web02 and db01 again — web03 and db02 remain. '
-                               'Reading `!` as "prod only" gives the opposite.'}},
+                               'Reading `!` as “prod only” gives the opposite.'}},
         {'id': 'in8',
          'type': 'multi',
          'prompt': {'de': 'Ein Kollege sagt: „Mein Play mit `hosts: webserver` läuft, tut aber '
                           'nichts.“ Die Ausgabe enthält `skipping: no hosts matched`. Welche zwei '
                           'Prüfungen führen am schnellsten zur Ursache?',
-                    'en': 'A colleague says: "My play with `hosts: webserver` runs but does '
-                          'nothing." The output contains `skipping: no hosts matched`. Which two '
+                    'en': 'A colleague says: “My play with `hosts: webserver` runs but does '
+                          'nothing.” The output contains `skipping: no hosts matched`. Which two '
                           'checks lead to the cause fastest?'},
          'answer': [0, 3],
          'options': {'de': ['`ansible-inventory --graph`: Wie heißt die Gruppe wirklich?',
@@ -619,7 +619,7 @@ INVENTARE_MODULE = {
                                '(sie heißt `webservers`). Graph und `--list-hosts` zeigen das, '
                                'ohne einen Host anzufassen — SSH-Schlüssel spielen erst eine '
                                'Rolle, wenn überhaupt ein Host ausgewählt wurde.',
-                         'en': '"no hosts matched" is an inventory problem, not a connection '
+                         'en': '“no hosts matched” is an inventory problem, not a connection '
                                'problem: the pattern `webserver` matches no group (it is called '
                                '`webservers`). The graph and `--list-hosts` show that without '
                                'touching any host — SSH keys only matter once a host has been '

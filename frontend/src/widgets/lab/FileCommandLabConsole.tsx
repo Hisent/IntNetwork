@@ -2,6 +2,7 @@ import { useId, type ReactNode } from 'react'
 import { ChallengeBox } from '@/components/ChallengeBox'
 import { LabDisabledBanner } from '@/widgets/lab/LabDisabledBanner'
 import { LabOutputPanel } from '@/widgets/lab/LabOutputPanel'
+import { runMeetsExpectation, type RunExpectation } from '@/widgets/lab/limits'
 import type { FileCommandLabState } from '@/widgets/lab/useFileCommandLab'
 import type { Lang } from '@/lib/i18n'
 
@@ -39,6 +40,8 @@ export interface FileCommandTemplateMeta {
   id: string
   title: { de: string; en: string }
   hint: { de: string; en: string }
+  /** Abweichendes Erfolgskriterium der Aufgabe; ohne Angabe gilt "Rückgabewert 0". */
+  expect?: RunExpectation
 }
 
 interface FileCommandLabConsoleProps {
@@ -62,6 +65,7 @@ export function FileCommandLabConsole({ lang, s, templates, activeHint, banner, 
     templateId, files, commands, labEnabled, kindEnabled, running, result, runError, violation, disabled,
     pickTemplate, addFile, removeFile, updateFile, addCommand, removeCommand, updateCommand, handleRun,
   } = state
+  const expectation = templates.find((tpl) => tpl.id === templateId)?.expect
 
   return (
     <div className="rounded-2xl border bg-white p-5">
@@ -175,7 +179,8 @@ export function FileCommandLabConsole({ lang, s, templates, activeHint, banner, 
         timedOutLabel={s.timedOut}
       />
 
-      <ChallengeBox lang={lang} task={s.challenge} done={result !== null && result.rc === 0} />
+      <ChallengeBox lang={lang} task={expectation ? expectation.task[lang] : s.challenge}
+        done={runMeetsExpectation(result, expectation)} />
     </div>
   )
 }

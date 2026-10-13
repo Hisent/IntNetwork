@@ -3,7 +3,7 @@
 
 NETZWERK_MODULE = {'key': 'netzwerk-automatisierung',
  'title': 'Netzwerk-Automatisierung mit Ansible',
- 'title_en': 'Network Automation with Ansible',
+ 'title_en': 'Network Automation With Ansible',
  'order': 315,
  'prerequisites': ['automation-platform-ueberblick'],
  'goals': ['Erklären, warum Netzwerkmodule auf dem Control Node statt auf dem Gerät laufen',
@@ -47,9 +47,9 @@ NETZWERK_MODULE = {'key': 'netzwerk-automatisierung',
                              'Besonderheiten in diesem Modul — inklusive der Tatsache, dass '
                              'ein Konfigurations-Backup auf dem Control Node landet, nicht auf '
                              'dem Gerät.',
-                       'en': '## The central difference: where does the module run?\n'
+                       'en': '## The Central Difference: Where Does the Module Run?\n'
                              '\n'
-                             'With `ansible.builtin` modules (e.g. `package`, `service`), Python '
+                             'With `ansible.builtin` modules (e.g., `package`, `service`), Python '
                              'code is transferred to the **managed node** and executed there. '
                              'Most network devices (switches, routers, firewalls), however, '
                              '**cannot run Python** — they only offer a CLI, an XML interface, '
@@ -69,10 +69,10 @@ NETZWERK_MODULE = {'key': 'netzwerk-automatisierung',
              'id': 'diagram-server-vs-netzwerk',
              'payload': {'kind': 'compare',
                          'title_de': 'Server-Automatisierung vs. Netzwerk-Automatisierung',
-                         'title_en': 'Server automation vs. network automation',
-                         'columns': [{'title_de': 'Linux-Server', 'title_en': 'Linux server'},
+                         'title_en': 'Server Automation vs. Network Automation',
+                         'columns': [{'title_de': 'Linux-Server', 'title_en': 'Linux Server'},
                                      {'title_de': 'Netzwerkgerät (IOS)',
-                                      'title_en': 'Network device (IOS)'}],
+                                      'title_en': 'Network Device (IOS)'}],
                          'rows': [{'label_de': 'Modul läuft',
                                    'label_en': 'Module runs',
                                    'values_de': ['auf dem Managed Node (Python)',
@@ -121,7 +121,7 @@ NETZWERK_MODULE = {'key': 'netzwerk-automatisierung',
                              'zugehörige Zugangsdaten einmal definiert, statt sie bei jedem '
                              'einzelnen Task neu auszuhandeln — das spart Zeit gegenüber vielen '
                              'einzelnen SSH-Verbindungen pro Task.',
-                       'en': '## Connection types: network_cli, netconf, httpapi\n'
+                       'en': '## Connection Types: network_cli, netconf, httpapi\n'
                              '\n'
                              'Instead of the generic `ssh`/`local` connection type from the '
                              'server world, network devices use specialized, **persistent** '
@@ -145,7 +145,7 @@ NETZWERK_MODULE = {'key': 'netzwerk-automatisierung',
              'payload': {'kind': 'choice',
                          'prompt_de': 'Warum laufen Netzwerkmodule (z. B. `cisco.ios.ios_facts`) '
                                       'auf dem Control Node statt auf dem Zielgerät?',
-                         'prompt_en': "Why do network modules (e.g. `cisco.ios.ios_facts`) run "
+                         'prompt_en': "Why do network modules (e.g., `cisco.ios.ios_facts`) run "
                                       'on the control node instead of on the target device?',
                          'answer': 0,
                          'options_de': ['Weil die meisten Netzwerkgeräte kein Python ausführen '
@@ -186,7 +186,7 @@ NETZWERK_MODULE = {'key': 'netzwerk-automatisierung',
                              'Das ist das Netzwerk-Äquivalent zu `become_method: sudo` — nötig, '
                              'sobald ein Task privilegierten Zugriff braucht (z. B. um die '
                              'laufende Konfiguration zu ändern).',
-                       'en': '## Vendor-specific collections and privilege escalation\n'
+                       'en': '## Vendor-Specific Collections and Privilege Escalation\n'
                              '\n'
                              'Unlike Linux/Windows, where generic modules like `package` or '
                              '`service` work across vendors, network modules are organized '
@@ -212,7 +212,7 @@ NETZWERK_MODULE = {'key': 'netzwerk-automatisierung',
                              '```\n'
                              '\n'
                              'This is the network equivalent of `become_method: sudo` — needed '
-                             'whenever a task requires privileged access (e.g. to change the '
+                             'whenever a task requires privileged access (e.g., to change the '
                              'running configuration).'}},
             {'type': 'cloze',
              'id': 'cloze-netzwerk-inventar',
@@ -312,7 +312,7 @@ NETZWERK_MODULE = {'key': 'netzwerk-automatisierung',
                              'arbeiten die Ressourcenmodule (z. B. `cisco.ios.ios_vlans` mit '
                              '`state: merged`), die den Ist-Zustand strukturiert einlesen und '
                              'nur die Differenz senden.',
-                       'en': '## Gathering facts and backing up configuration\n'
+                       'en': '## Gathering Facts and Backing Up Configuration\n'
                              '\n'
                              'Instead of the generic `ansible.builtin.setup` module, network '
                              'devices use vendor-specific facts modules, e.g.:\n'
@@ -350,7 +350,7 @@ NETZWERK_MODULE = {'key': 'netzwerk-automatisierung',
                              'instead of `interface GigabitEthernet0/1`) never match the device '
                              'text and therefore report `changed` on every run; command modules '
                              'like `ios_command` have no notion of a target state at all. The '
-                             'resource modules (e.g. `cisco.ios.ios_vlans` with `state: merged`) '
+                             'resource modules (e.g., `cisco.ios.ios_vlans` with `state: merged`) '
                              'are truly declarative: they read the current state in structured '
                              'form and send only the difference.'},
              'note': 'Beispiel bewusst als Cisco-IOS-Muster gewählt (Recherche verifiziert), '
@@ -359,7 +359,7 @@ NETZWERK_MODULE = {'key': 'netzwerk-automatisierung',
              'id': 'diagram-network-cli-ablauf',
              'payload': {'kind': 'sequence',
                          'title_de': 'ios_config: wer tut was?',
-                         'title_en': 'ios_config: who does what?',
+                         'title_en': 'ios_config: Who Does What?',
                          'caption_de': 'Der Switch sieht nur CLI-Befehle — die Logik bleibt auf '
                                        'dem Control Node.',
                          'caption_en': 'The switch only sees CLI commands — the logic stays on the '
@@ -428,10 +428,10 @@ NETZWERK_MODULE = {'key': 'netzwerk-automatisierung',
                                       '`cisco.ios.ios_config`'],
                          'items_en': ['Create the inventory entry with `ansible_network_os` and '
                                       '`ansible_connection: ansible.netcommon.network_cli`',
-                                      'Gather facts, e.g. with `cisco.ios.ios_facts`',
+                                      'Gather facts, e.g., with `cisco.ios.ios_facts`',
                                       'Back up the running configuration (`backup: true`), file '
                                       'ends up on the control node',
-                                      'Apply the configuration change, e.g. with '
+                                      'Apply the configuration change, e.g., with '
                                       '`cisco.ios.ios_config`']}},
             {'type': 'terminal',
              'id': 'terminal-ios-playbook',
@@ -441,7 +441,7 @@ NETZWERK_MODULE = {'key': 'netzwerk-automatisierung',
                      'meldet, folgt aus dem netcommon-Quelltext (jede Sicherung ist eine neue '
                      'Datei mit Zeitstempel im Namen).',
              'payload': {'title_de': 'Switch sichern und VLANs setzen (Simulation)',
-                         'title_en': 'Back up a switch and set VLANs (simulation)',
+                         'title_en': 'Back Up a Switch and Set VLANs (Simulation)',
                          'intro_de': 'Simulation: Das Kurs-Lab hat nur ansible-core, cisco.ios '
                                      'läuft dort nicht. help zeigt alle Befehle.',
                          'intro_en': 'Simulation: the course lab has only ansible-core, cisco.ios '

@@ -5,7 +5,7 @@
 WAPI_MODULE = {
     "key": "wapi-automatisierung",
     "title": "Automatisierung mit der Infoblox WAPI (REST-API)",
-    "title_en": "Automation with the Infoblox WAPI (REST API)",
+    "title_en": "Automation With the Infoblox WAPI (REST API)",
     "order": 215,
     "prerequisites": ["extensible-attributes"],
     "goals": [
@@ -120,7 +120,7 @@ WAPI_MODULE = {
             "payload": {
                 "kind": "sequence",
                 "title_de": "Lesen, ändern, löschen: die _ref als roter Faden",
-                "title_en": "Read, change, delete: the _ref as the common thread",
+                "title_en": "Read, Change, Delete: the _ref as the Common Thread",
                 "caption_de": "Jede Anfrage authentifiziert sich neu oder über ein Sitzungs-Cookie; alles läuft über HTTPS.",
                 "caption_en": "Every request authenticates again or through a session cookie; everything runs over HTTPS.",
                 "actors": [
@@ -165,7 +165,7 @@ WAPI_MODULE = {
                         "to": "s",
                         "style": "reply",
                         "label_de": "200 · \"<_ref>\" (kann sich ändern)",
-                        "label_en": "200 · \"<_ref>\" (may change)",
+                        "label_en": "200 · “<_ref>” (may change)",
                         "detail_de": "Zurück kommt die Referenz des Objekts. Sie kann sich durch die Änderung verändert haben — für den nächsten Schritt also die zurückgegebene verwenden.",
                         "detail_en": "The object's reference comes back. It may have changed because of the update — so use the returned one for the next step.",
                     },
@@ -182,7 +182,7 @@ WAPI_MODULE = {
                         "to": "s",
                         "style": "reply",
                         "label_de": "200 · \"<_ref>\" des gelöschten Objekts",
-                        "label_en": "200 · \"<_ref>\" of the deleted object",
+                        "label_en": "200 · “<_ref>” of the deleted object",
                         "detail_de": "Ein POST zum Anlegen hätte stattdessen 201 und die Referenz des neuen Objekts geliefert.",
                         "detail_en": "A POST to create would instead have returned 201 and the reference of the new object.",
                     },
@@ -247,7 +247,7 @@ WAPI_MODULE = {
                    "manuelle Änderung ist über die Oberfläche oft schneller erledigt als über "
                    "ein eigens gepflegtes Skript.",
              "en": "## Typical Automation Use Cases\n\n"
-                   "- **Bulk provisioning** — e.g. creating 40 new branch-office networks with "
+                   "- **Bulk provisioning** — e.g., creating 40 new branch-office networks with "
                    "matching extensible attributes in one pass, instead of one at a time in "
                    "the UI.\n"
                    "- **Synchronization with a source of truth** — a CMDB or ITSM system is "
@@ -265,7 +265,7 @@ WAPI_MODULE = {
             "note": "Optionen, Feldnamen und das Ausgabefeld „ips“ nach der WAPI-Doku; der genaue Wortlaut der Fehlermeldung und die Referenzen sind eine vereinfachte Darstellung. Mit -u api-ro fragt curl das Passwort interaktiv ab — Zugangsdaten gehören nicht in die Shell-Historie. -k (Zertifikatsprüfung aus) ist nur im Labor vertretbar.",
             "payload": {
                 "title_de": "WAPI mit curl: vier Anfragen lesen",
-                "title_en": "WAPI with curl: reading four requests",
+                "title_en": "WAPI With curl: Reading Four Requests",
                 "intro_de": "Vereinfachte Darstellung: Antworten gekürzt, Referenzen und Werte sind Beispiele. Kurzformen: host, netze, alle, frei.",
                 "intro_en": "Simplified view: responses shortened, references and values are examples. Short forms: host, netze, alle, frei.",
                 "prompt": "admin@pc17:~$",
@@ -284,7 +284,7 @@ WAPI_MODULE = {
                         "cmd": "curl -k -u api-ro 'https://gm.nordwind.example/wapi/v2.x/network?comment:=filiale&_return_fields=network,comment&_max_results=2'",
                         "aliases": ["netze"],
                         "desc_de": "Netze mit Kommentar „filiale“, höchstens 2 (Kurzform: netze)",
-                        "desc_en": "networks with comment \"filiale\", at most 2 (short form: netze)",
+                        "desc_en": "networks with comment “filiale”, at most 2 (short form: netze)",
                         "output": "[\n  {\n    \"_ref\": \"network/ZG5zLm5ldHdvcmskMTk4:198.51.100.0/24/default\",\n    \"comment\": \"Filiale\",\n    \"network\": \"198.51.100.0/24\"\n  },\n  {\n    \"_ref\": \"network/ZG5zLm5ldHdvcmskMjAz:203.0.113.0/24/default\",\n    \"comment\": \"FILIALE\",\n    \"network\": \"203.0.113.0/24\"\n  }\n]",
                     },
                     {
@@ -313,7 +313,7 @@ WAPI_MODULE = {
                     {
                         "text_de": "Suche die Filialnetze (netze). Der zweite Kommentar ist großgeschrieben — welcher Modifikator in der Anfrage sorgt dafür, dass er trotzdem gefunden wird?",
                         "explanation_de": "„:=“ vergleicht den ganzen Wert ohne Rücksicht auf Groß-/Kleinschreibung. Ein Kommentar wie „Filiale Kiel“ träfe nicht — für Teiltreffer bräuchte es die Regex-Suche „~=“.",
-                        "explanation_en": "\":=\" compares the whole value case-insensitively. A comment such as \"Filiale Kiel\" would not match — partial matches need the regex search \"~=\".",
+                        "explanation_en": "“:=” compares the whole value case-insensitively. A comment such as “Filiale Kiel” would not match — partial matches need the regex search “~=”.",
                         "text_en": "Search for the branch networks (netze). The second comment is in upper case — which modifier in the request makes sure it is found anyway?",
                         "answers": [":", ":="],
                     },
@@ -433,7 +433,7 @@ WAPI_MODULE = {
                    "einzelner HTTP-Aufrufe. Intern sprechen auch diese Werkzeuge letztlich mit "
                    "WAPI — sie ersetzen sie nicht, sondern kapseln sie in ein Modell, das "
                    "besser zu Infrastructure-as-Code-Workflows passt.",
-             "en": "## Error Handling and How WAPI Differs from Ansible/Terraform\n\n"
+             "en": "## Error Handling and How WAPI Differs From Ansible/Terraform\n\n"
                    "A solid automation script evaluates HTTP status codes specifically "
                    "(success, client error such as an invalid field, server error) instead of "
                    "a blanket “worked or didn't” distinction — and logs enough detail to later "
@@ -571,15 +571,15 @@ WAPI_MODULE = {
                     "Einen Fehler, sobald es mehr als fünf passende A-Records gibt",
                 ],
                 "en": [
-                    "The one A record named exactly \"^web\", with all fields",
-                    "All A records whose name contains \"web\", with the basic fields plus name and ipv4addr",
-                    "At most five A records whose name starts with \"web\", each with _ref, name and ipv4addr",
+                    "The one A record named exactly “^web”, with all fields",
+                    "All A records whose name contains “web”, with the basic fields plus name and ipv4addr",
+                    "At most five A records whose name starts with “web”, each with _ref, name and ipv4addr",
                     "An error as soon as there are more than five matching A records",
                 ],
             },
             "explanation": {
                 "de": "„~=“ ist die Regex-Suche, „^“ verankert am Anfang. _return_fields ohne Plus ersetzt die Grundfelder (die _ref kommt immer mit). Ein positives _max_results kürzt still auf fünf — einen Fehler bei Überschreitung gäbe es nur mit negativem Wert.",
-                "en": "\"~=\" is the regex search, \"^\" anchors at the start. _return_fields without the plus replaces the basic fields (the _ref always comes along). A positive _max_results silently truncates to five — an error on overflow would only occur with a negative value.",
+                "en": "“~=” is the regex search, “^” anchors at the start. _return_fields without the plus replaces the basic fields (the _ref always comes along). A positive _max_results silently truncates to five — an error on overflow would only occur with a negative value.",
             },
         },
         {
@@ -587,7 +587,7 @@ WAPI_MODULE = {
             "type": "single",
             "prompt": {
                 "de": "Ein Abgleich-Skript liest alle Host-Records eines Grids mit rund 40.000 Hosts und bricht mit „Result set too large (> 1000)“ ab. Was ist die saubere Lösung?",
-                "en": "A reconciliation script reads all host records of a Grid with about 40,000 hosts and aborts with \"Result set too large (> 1000)\". What is the clean solution?",
+                "en": "A reconciliation script reads all host records of a Grid with about 40,000 hosts and aborts with “Result set too large (> 1000)”. What is the clean solution?",
             },
             "answer": 3,
             "options": {
@@ -606,15 +606,15 @@ WAPI_MODULE = {
             },
             "explanation": {
                 "de": "Blättern liefert alle Objekte in handhabbaren Seiten. _max_results=1000 unterdrückt nur den Fehler: Das Skript sähe 1000 von 40.000 Hosts, hielte das für vollständig — und würde beim Abgleich die übrigen als „fehlend“ behandeln.",
-                "en": "Paging delivers all objects in manageable pages. _max_results=1000 merely suppresses the error: the script would see 1,000 of 40,000 hosts, assume that is everything — and treat the rest as \"missing\" during reconciliation.",
+                "en": "Paging delivers all objects in manageable pages. _max_results=1000 merely suppresses the error: the script would see 1,000 of 40,000 hosts, assume that is everything — and treat the rest as “missing” during reconciliation.",
             },
         },
         {
             "id": "wa8",
             "type": "multi",
             "prompt": {
-                "de": "Welche Aussagen zur Objekt-Referenz (_ref) treffen zu (mehrere richtig)?",
-                "en": "Which statements about the object reference (_ref) are correct (multiple)?",
+                "de": "Welche Aussagen zur Objekt-Referenz (_ref) treffen zu? Mehrere Antworten sind richtig.",
+                "en": "Which statements about the object reference (_ref) are correct? Select all that apply.",
             },
             "answer": [0, 2, 3],
             "options": {

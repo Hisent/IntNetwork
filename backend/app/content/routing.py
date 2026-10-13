@@ -10,7 +10,7 @@ ROUTING_MODULE = {
         "Longest-Prefix-Match und statisches Routing erklären",
     ],
     "goals_en": [
-        "Tell a router (layer 3) apart from a switch (layer 2)",
+        "Tell a router (Layer 3) apart from a switch (Layer 2)",
         "Read the routing table (connected/static/default)",
         "Explain longest prefix match and static routing",
     ],
@@ -32,8 +32,8 @@ ROUTING_MODULE = {
                    "Netz muss, übernimmt der **Router** (Schicht 3). Er kennt mehrere Netze über "
                    "seine Interfaces und leitet Pakete zwischen ihnen weiter.",
              "en": "## What's a Router For?\n\nA **switch** connects "
-                   "devices on the **same** network (layer 2). As soon as a packet needs to go to "
-                   "**another** network, the **router** (layer 3) takes over. It knows multiple "
+                   "devices on the **same** network (Layer 2). As soon as a packet needs to go to "
+                   "**another** network, the **router** (Layer 3) takes over. It knows multiple "
                    "networks via its interfaces and forwards packets between them.",
          }},
         {"type": "diagram", "id": "diagram-nordwind-r1",
@@ -41,7 +41,7 @@ ROUTING_MODULE = {
                  "bleiben, der Frame wird an jedem Router neu gebaut, die TTL sinkt um 1.",
          "payload": {
              "kind": "flow",
-             "title_de": "Nordwind-R1 zwischen drei Netzen", "title_en": "Nordwind-R1 between three networks",
+             "title_de": "Nordwind-R1 zwischen drei Netzen", "title_en": "Nordwind-R1 Between Three Networks",
              "caption_de": "Ein Paket vom Lager-PC zum Büro-PC",
              "caption_en": "A packet from the warehouse PC to the office PC",
              "nodes": [
@@ -101,7 +101,7 @@ ROUTING_MODULE = {
                    "- **Static (S)**: entered manually — `ip route <network> <mask> <next-hop>`.\n"
                    "- **Default route** `0.0.0.0/0`: the “default gateway” for everything unknown "
                    "(typically toward the Internet). Cisco IOS marks it as `S*` in `show ip route` and "
-                   "lists its next hop as the “gateway of last resort”.",
+                   "lists its next hop as the “gateway of last resort.”",
          }},
         {"type": "text", "id": "text-3",
          "value": {
@@ -121,17 +121,15 @@ ROUTING_MODULE = {
                  "internes Netz, Internet) und die Match-Entscheidung vorlesen. Danach "
                  "in der CLI `show ip route`."},
         {"type": "widget", "id": "visual-route-match",
-         "note": "DE: Mehrere passende Routen vergleichen und per längstem Präfix die "
-                 "gewählte Route bestimmen. EN: Compare matching routes and use longest-prefix "
-                 "matching to identify the selected route."},
+         "note": "Mehrere passende Routen vergleichen und per längstem Präfix die gewählte Route bestimmen."},
         {"type": "widget", "id": "learning-route", "note": "Lokale oder entfernte Zustellung per Switch/Gateway entscheiden."},
         {"type": "debug", "id": "debug-1", "payload": {
             "prompt_de": "Ein PC im Lager-Netz (192.168.10.0/24) erreicht das Internet nicht. Finde den Fehler in der Konfiguration:",
             "prompt_en": "A PC in the warehouse network (192.168.10.0/24) cannot reach the Internet. Find the error in the configuration:",
             "lines_de": ["IP-Adresse:    192.168.10.50", "Subnetzmaske:  255.255.255.0",
-                         "Gateway:       192.168.20.1", "DNS-Server:    192.168.10.1"],
+                         "Gateway:       192.168.20.1", "DNS-Server:    192.168.10.53"],
             "lines_en": ["IP address:    192.168.10.50", "Subnet mask:   255.255.255.0",
-                         "Gateway:       192.168.20.1", "DNS server:    192.168.10.1"],
+                         "Gateway:       192.168.20.1", "DNS server:    192.168.10.53"],
             "wrong": [2],
             "explanation_de": "Das Gateway 192.168.20.1 liegt in einem fremden Netz — der PC kann es "
                               "ohne Router gar nicht erreichen. Es muss eine Adresse aus dem eigenen "
@@ -159,18 +157,20 @@ ROUTING_MODULE = {
          "note": "Klassiker der Routing-Fehlersuche: Der Hinweg stimmt, der Rückweg fehlt. Mit der "
                  "Gruppe vor dem Auflösen sammeln, woran man „Request kommt an, Reply nicht“ erkennt.",
          "payload": {
-             "title_de": "Die Zweigstelle antwortet nicht", "title_en": "The branch office does not answer",
+             "title_de": "Die Zweigstelle antwortet nicht", "title_en": "The Branch Office Does Not Answer",
              "start": "start",
              "nodes": [
                  {"id": "start",
-                  "text_de": "Nordwind bindet eine Zweigstelle an: Ihr Netz 10.0.0.0/8 liegt hinter dem "
+                  "text_de": "Nordwind bindet eine Zweigstelle an: Der Block 10.0.0.0/8, aus dem Nordwind alle "
+                             "Außenstandorte adressiert, liegt hinter dem "
                              "Router R2 — er sitzt in diesem Szenario am Gi0/2-Link an der Stelle des ISP-Routers "
                              "und hat dessen Adresse 203.0.113.2. Auf Nordwind-R1 wurde dafür\n"
                              "ip route 10.0.0.0 255.0.0.0 203.0.113.2\n"
                              "eingetragen. Der Lager-PC 192.168.10.50 pingt den Zweigstellen-Server "
                              "10.0.5.20 — keine Antwort. Sein eigenes Gateway 192.168.10.1 erreicht er. "
                              "Was tust du zuerst?",
-                  "text_en": "Nordwind connects a branch office: its network 10.0.0.0/8 sits behind "
+                  "text_en": "Nordwind connects a branch office: the block 10.0.0.0/8, from which Nordwind "
+                             "addresses all remote sites, sits behind "
                              "router R2 — in this scenario it sits on the Gi0/2 link in place of the ISP router "
                              "and uses that router's address 203.0.113.2. For this,\n"
                              "ip route 10.0.0.0 255.0.0.0 203.0.113.2\n"
@@ -284,7 +284,7 @@ ROUTING_MODULE = {
                    "gerade nicht weiter, und VLANs sind nur ein Sonderfall von „verschiedene Netze“.",
              "en": "Within one network the switch delivers by MAC address; only when source and destination "
                    "IP are on different networks is the router needed. Broadcasts are precisely what it does "
-                   "not forward, and VLANs are just one case of “different networks”."}},
+                   "not forward, and VLANs are just one case of “different networks.”"}},
         {"id": "r2", "type": "single",
          "prompt": {"de": "Ein Ziel passt auf /24 und auf /0. Welche Route nimmt der Router?",
                     "en": "A destination matches /24 and /0. Which route does the router take?"},
@@ -350,9 +350,9 @@ ROUTING_MODULE = {
                    "the table” (C) only wins if it actually matches."}},
         {"id": "r6", "type": "multi",
          "prompt": {"de": "Ein Router leitet ein IPv4-Paket weiter (ohne NAT). Was verändert er dabei? "
-                          "(mehrere)",
+                          "Mehrere Antworten sind richtig.",
                     "en": "A router forwards an IPv4 packet (no NAT). What does it change in the "
-                          "process? (multiple)"},
+                          "process? Select all that apply."},
          "options": {
              "de": ["Quell- und Ziel-MAC im Frame", "Die TTL im IP-Header",
                     "Die Ziel-IP-Adresse", "Die Prüfsumme des IP-Headers"],
