@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef } from 'react'
+import { useExercise } from '@/lib/exerciseState'
 import type { Lang } from '@/lib/i18n'
 import { walkScenario } from './exerciseLogic'
 import type { ScenarioData } from './types'
@@ -11,7 +12,11 @@ const OUTCOME = {
 
 export default function ScenarioBlock({ data, lang }: { data: ScenarioData; lang: Lang }) {
   const de = lang === 'de'
-  const [choices, setChoices] = useState<number[]>([])
+  // erledigt = ein Ausgang erreicht (gleich welcher — das Szenario bewertet nicht)
+  const [choices, setChoices] = useExercise<number[]>([], (c) => {
+    const path = walkScenario(data, c)
+    return !!path[path.length - 1]?.outcome
+  })
   const visited = walkScenario(data, choices)
   const node = visited[visited.length - 1]
   // Nach einer Wahl verschwindet der geklickte Knopf — Fokus auf die neue Situation setzen,

@@ -2,6 +2,7 @@ from concurrent.futures import ThreadPoolExecutor
 
 from fastapi.testclient import TestClient
 from app.main import app
+from app.content.registry import MODULES
 
 
 def _trainer(c):
@@ -175,6 +176,8 @@ def test_check_and_reveal_blocks_round_trip_and_delivery():
         p = {"Authorization": "Bearer " + c.post(
             "/api/join", json={"code": code, "name": "Chk"}).json()["access_token"]}
         pub = c.get("/api/modules/checkmod", headers=p).json()
+        for b in pub["blocks"]:
+            assert b.pop("uid")  # Kennung geht mit raus (Sprungziel, Übungsstand)
         assert pub["blocks"][0] == {"type": "check", "kind": "choice", "prompt": "2+2?", "options": ["3", "4"], "answer": 1}
         assert pub["blocks"][1] == {"type": "reveal", "teaser": "Was passiert?", "value": "Versteckt DE"}
 
@@ -323,6 +326,8 @@ def test_new_block_types_delivery():
         p = {"Authorization": "Bearer " + c.post(
             "/api/join", json={"code": code, "name": "Del"}).json()["access_token"]}
         pub = c.get("/api/modules/delivmod", headers=p).json()
+        for b in pub["blocks"]:
+            assert b.pop("uid")  # Kennung geht mit raus (Sprungziel, Übungsstand)
         assert pub["blocks"][0] == {"type": "order", "prompt": "Sortiere DE", "items": ["eins", "zwei"]}
         assert pub["blocks"][1] == {"type": "debug", "prompt": "Finde DE",
                                     "lines": ["ok", "kaputt"], "wrong": [1], "explanation": "Erkl DE"}
@@ -348,7 +353,8 @@ def test_reseed_restores_delivery_state_and_snapshots_previous():
         after = c.get("/api/trainer/content/modules/dns", headers=h).json()
         assert after["title_de"] != "Kaputt-DNS"
         assert len(after["blocks"]) > 1
-        assert len(after["quiz"]) == 5  # inkl. PTR-Frage d5
+        assert len(after["quiz"]) == len(MODULES["dns"]["quiz"]["questions"])
+        assert "d5" in {q["uid"] for q in after["quiz"]}  # PTR-Frage
         # PTR-Inhalt aus dem aktuellen Seed ist da
         assert any(b["value_de"] and "PTR" in b["value_de"] for b in after["blocks"] if b["type"] == "text")
 
@@ -376,3 +382,26 @@ def test_get_module_reports_has_seed():
         assert c.get("/api/trainer/content/modules/dns", headers=h).json()["has_seed"] is True
         c.post("/api/trainer/content/modules", json={"key": "ohneseed", "title_de": "X"}, headers=h)
         assert c.get("/api/trainer/content/modules/ohneseed", headers=h).json()["has_seed"] is False
+
+
+def test_goals_en_round_trip_validation_and_delivery_language():
+    with TestClient(app) as c:
+        h = _trainer(c)
+        assert c.post("/api/trainer/content/modules", json={"key": "goalmod", "title_de": "Ziele"}, headers=h).status_code == 200
+        body = {**_minimal_module(order=97), "goals": ["Ziel eins", "Ziel zwei"]}
+        # ohne goals_en: gespeichert als "fehlt", Teilnehmer bekommen Deutsch
+        assert c.put("/api/trainer/content/modules/goalmod", json={**body, "goals_en": []}, headers=h).status_code == 200
+        assert c.get("/api/trainer/content/modules/goalmod", headers=h).json()["goals_en"] is None
+        for bad in (["only one"], ["one", " "]):
+            r = c.put("/api/trainer/content/modules/goalmod", json={**body, "goals_en": bad}, headers=h)
+            assert r.status_code == 422 and "Lernziele (EN)" in r.json()["detail"]
+        assert c.put("/api/trainer/content/modules/goalmod",
+                     json={**body, "goals_en": ["Goal one", "Goal two"]}, headers=h).status_code == 200
+        assert c.get("/api/trainer/content/modules/goalmod", headers=h).json()["goals_en"] == ["Goal one", "Goal two"]
+
+        code = c.post("/api/courses", json={"name": "ZielKurs"}, headers=h).json()["join_code"]
+        p = {"Authorization": "Bearer " + c.post(
+            "/api/join", json={"code": code, "name": "Ziel"}).json()["access_token"]}
+        assert c.get("/api/modules/goalmod", headers=p).json()["goals"] == ["Ziel eins", "Ziel zwei"]
+        assert c.patch("/api/me/language", json={"language": "en"}, headers=p).status_code == 200
+        assert c.get("/api/modules/goalmod", headers=p).json()["goals"] == ["Goal one", "Goal two"]

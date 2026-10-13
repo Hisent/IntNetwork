@@ -94,6 +94,12 @@
 }
 
 .wb-module-content {
+  /* width: 100% ist Absicht: mit margin-inline: auto wird das Grid-Element sonst
+     nicht gestreckt, sondern auf fit-content bemessen — ein einziger breiter
+     <pre>-Block (Code-Fence in einem Text-Block) zog die Spalte dann am Handy
+     über den Bildschirm. So gibt die Spalte die Breite vor und überbreite
+     Inhalte (pre, table) scrollen in sich. */
+  width: 100%;
   min-width: 0;
   max-width: 720px;
   margin-inline: auto;
@@ -176,4 +182,20 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+/* Druckansicht eines Moduls (Spickzettel, ModulePage): nur die Inhaltsspalte,
+   volle Seitenbreite, Flächen wie am Bildschirm. Was ausgeblendet wird, tragen
+   die Elemente selbst (print:hidden); der Dunkelmodus wird für den Druck
+   abgeschaltet (lib/printMode.ts). Code-Blöcke hell statt als schwarze Fläche. */
+@media print {
+  .workbench { min-height: 0; background: #fff; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+  .workbench .wb-topbar { display: none; }
+  .workbench .wb-shell { padding: 0; }
+  .workbench .wb-module-grid { display: block; }
+  .workbench .wb-module-content { max-width: none; }
+  .workbench .wb-code { border-color: #cbd5e1; background: #fff; box-shadow: none; }
+  .workbench .wb-code pre { color: #0f172a; white-space: pre-wrap; overflow: visible; }
+  .workbench figure, .workbench .wb-code { break-inside: avoid; }
+  .workbench h2, .workbench h3 { break-after: avoid; }
 }

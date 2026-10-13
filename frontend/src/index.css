@@ -404,6 +404,15 @@ p { text-wrap: pretty; }
     --workshop-accent-ink: #ede9fe;
     --workshop-accent-pale: #3f2f66;
   }
+  [data-theme="dark"] .workshop-theme--pki {
+    --workshop-accent: #e879f9;
+    --workshop-accent-hover: #f0abfc;
+    --workshop-accent-strong: #f0abfc;
+    --workshop-accent-soft: #33143a;
+    --workshop-accent-line: #5b2466;
+    --workshop-accent-ink: #fae8ff;
+    --workshop-accent-pale: #5b2466;
+  }
   [data-theme="dark"] .workshop-theme--nac {
     --workshop-accent: #a5b4fc;
     --workshop-accent-hover: #c7d2fe;

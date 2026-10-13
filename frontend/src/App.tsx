@@ -13,6 +13,7 @@ import { storedLang, t } from '@/lib/i18n'
 const WorkshopPage = lazy(() => import('@/pages/WorkshopPage').then((m) => ({ default: m.WorkshopPage })))
 const LearnPage = lazy(() => import('@/pages/LearnPage').then((m) => ({ default: m.LearnPage })))
 const ModulePage = lazy(() => import('@/pages/ModulePage').then((m) => ({ default: m.ModulePage })))
+const PracticePage = lazy(() => import('@/pages/PracticePage').then((m) => ({ default: m.PracticePage })))
 const CertificatePage = lazy(() => import('@/pages/CertificatePage').then((m) => ({ default: m.CertificatePage })))
 const TrainerPage = lazy(() => import('@/pages/TrainerPage').then((m) => ({ default: m.TrainerPage })))
 const TrainerModulePage = lazy(() => import('@/pages/TrainerModulePage').then((m) => ({ default: m.TrainerModulePage })))
@@ -73,6 +74,7 @@ export default function App() {
             <Route path="/workshops/:key" element={<WorkshopPage />} />
             <Route path="/lernen" element={<LearnPage />} />
             <Route path="/lernen/zertifikat" element={<CertificatePage />} />
+            <Route path="/lernen/ueben" element={<PracticePage />} />
             <Route path="/verifizieren" element={<VerifyPage />} />
             <Route path="/verifizieren/:id" element={<VerifyPage />} />
             <Route path="/lernen/:key" element={<ModulePage />} />

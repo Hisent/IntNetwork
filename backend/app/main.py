@@ -23,6 +23,7 @@ from app.models import trainer as _trainer  # noqa: F401
 from app.models import certificate as _certificate  # noqa: F401
 from app.models import audit_log as _audit_log  # noqa: F401
 from app.models import trainer_credential as _trainer_credential  # noqa: F401
+from app.models import live_poll as _live_poll  # noqa: F401
 
 # Leer (Compose reicht eine ungesetzte Variable als "" durch) oder noch ein
 # "change-me"-Platzhalter (Code-Default bzw. .env.example): beides ist ein
@@ -157,6 +158,7 @@ from app.routers import auth as auth_router  # noqa: E402
 from app.routers import courses as courses_router  # noqa: E402
 from app.routers import join as join_router  # noqa: E402
 from app.routers import modules as modules_router  # noqa: E402
+from app.routers import learning as learning_router  # noqa: E402
 from app.routers import changelog as changelog_router  # noqa: E402
 from app.routers import trainer_modules as trainer_modules_router  # noqa: E402
 from app.routers import features as features_router  # noqa: E402
@@ -171,10 +173,12 @@ from app.routers import certificate as certificate_router  # noqa: E402
 from app.routers import lab as lab_router  # noqa: E402
 from app.routers import trainer_audit as trainer_audit_router  # noqa: E402
 from app.routers import trainer_passkey as trainer_passkey_router  # noqa: E402
+from app.routers import polls as polls_router  # noqa: E402
 _api.include_router(auth_router.router)
 _api.include_router(courses_router.router)
 _api.include_router(join_router.router)
 _api.include_router(modules_router.router)
+_api.include_router(learning_router.router)
 _api.include_router(changelog_router.router)
 _api.include_router(trainer_modules_router.router)
 _api.include_router(features_router.router)
@@ -189,5 +193,6 @@ _api.include_router(certificate_router.router)
 _api.include_router(lab_router.router)
 _api.include_router(trainer_audit_router.router)
 _api.include_router(trainer_passkey_router.router)
+_api.include_router(polls_router.router)
 
 app.include_router(_api)

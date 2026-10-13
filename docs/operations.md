@@ -19,7 +19,11 @@ Kursinhalte liegen im Code (`backend/app/content/*.py`), ausgeliefert wird aus
 der Datenbank. Beim Start gleicht `seed_missing_content()` beides ab
 (`backend/app/content/sync.py`): Jedes mitgelieferte Modul, das kein Trainer
 verändert hat, wird auf den Stand der Quelle gebracht — Texte, Blöcke,
-Quizfragen (samt Erklärungen), Titel, Reihenfolge und Voraussetzungen. Ein
+Quizfragen (samt Erklärungen), Titel, Lernziele (deutsch und, seit der Migration
+`b7c8d9e0f1a2`, englisch in `content_module.goals_en`), Reihenfolge und
+Voraussetzungen. Ein Modul ohne `goals_en` behält seinen bisherigen Hash, gilt
+also weiter als unverändert; kommt `goals_en` mit einem Release dazu, wird es
+wie jede andere Inhaltsänderung eingespielt. Ein
 zweiter Start ändert nichts mehr.
 
 Zugeordnet wird über Kennungen: jeder Block und jede Frage trägt eine je Modul
@@ -95,6 +99,21 @@ Ausgelassene Module und was zu tun ist:
 Inhaltsänderungen brauchen damit keine handgeschriebene Text-Migration in
 `seed.py` mehr. Die vorhandenen Migrationen bleiben für alte Datenbanken
 bestehen und laufen vor dem Sync.
+
+## Live-Abstimmung
+
+Zwei Tabellen (Migration `c8d9e0f1a2b3`): `live_poll` (je Kurs höchstens eine
+nicht geschlossene Zeile) und `live_poll_vote` (eine Zeile je Teilnehmer und
+Abstimmung). Beide hängen per `ON DELETE CASCADE` am Kurs bzw. Teilnehmer; ein
+Aufräumjob ist nicht nötig (wenige Zeilen je Workshop-Tag). Der Zustand liegt
+ausschließlich in der DB, mehrere Worker sind unkritisch.
+
+Last: Jeder Teilnehmer mit offenem, sichtbarem Modul fragt alle 5 s
+`GET /api/modules/{key}/poll` ab (n Teilnehmer ÷ 5 Anfragen/s — 20 Teilnehmer
+≈ 4/s, je eine Handvoll kleiner Lesezugriffe); im Hintergrund-Tab ruht die
+Abfrage. Der Beamer lädt nur während einer laufenden Abstimmung alle 2 s nach.
+Bleibt eine Abstimmung offen (Browser geschlossen), beendet sie der Trainer im
+Beamer-Modus desselben Kurses oder die nächste Abstimmung schließt sie.
 
 ## Monitoring
 

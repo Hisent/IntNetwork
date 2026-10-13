@@ -3,7 +3,7 @@ import Markdown from 'react-markdown'
 import type { Block } from '@/types'
 import { DeclarativeBlock, MD_COMPONENTS, WidgetBlock } from '@/components/Blocks'
 import { isDeclarative } from '@/components/blocks/types'
-import { gapSolution } from '@/components/blocks/exerciseLogic'
+import { gapSolution, resolveGaps } from '@/components/blocks/exerciseLogic'
 
 function NoteBox({ note }: { note: string }) {
   const [open, setOpen] = useState(false)
@@ -96,7 +96,7 @@ export function TrainerBlocks({ blocks }: { blocks: Block[] }) {
               <summary className="cursor-pointer text-xs font-medium text-teal-700">Lösung</summary>
               <ul className="mt-1 list-disc pl-5">
                 {b.type === 'match' && b.pairs.map((p, pi) => <li key={pi}><strong>{p.left}</strong> — {p.right}</li>)}
-                {b.type === 'cloze' && b.gaps.map((g) => <li key={g.id}><span className="font-mono">{g.id}</span>: {gapSolution(g)}</li>)}
+                {b.type === 'cloze' && resolveGaps(b).map((g) => <li key={g.id}><span className="font-mono">{g.id}</span>: {gapSolution(g)}</li>)}
               </ul>
             </details>
           )}

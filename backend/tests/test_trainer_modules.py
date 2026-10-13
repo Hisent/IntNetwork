@@ -3,6 +3,7 @@ from sqlalchemy import inspect
 
 from app.database import engine
 from app.main import app
+from tests.conftest import correct_answers
 
 
 def _trainer(c):
@@ -38,9 +39,9 @@ def test_quiz_stats_aggregate_per_question():
             "/api/join", json={"code": code, "name": "Statistik-Susi"}).json()["access_token"]}
         mod = c.get("/api/modules/vlan", headers=ph).json()
         ids = [q["id"] for q in mod["quiz"]["questions"]]
-        good = {ids[0]: 1, ids[1]: 1, ids[2]: [0, 1, 3], ids[3]: 20}
+        good = correct_answers("vlan", ids)
         c.post("/api/modules/vlan/quiz", json={"answers": good}, headers=ph)
-        c.post("/api/modules/vlan/quiz", json={"answers": {ids[0]: 1}}, headers=ph)
+        c.post("/api/modules/vlan/quiz", json={"answers": {ids[0]: good[ids[0]]}}, headers=ph)
 
         r = c.get("/api/trainer/modules/vlan/quiz-stats", headers=h)
         assert r.status_code == 200
@@ -71,7 +72,7 @@ def test_quiz_stats_filters_by_course():
                 "/api/join", json={"code": code, "name": f"P-{name}"}).json()["access_token"]}
             mod = c.get("/api/modules/vlan", headers=ph).json()
             ids = [q["id"] for q in mod["quiz"]["questions"]]
-            answers = {ids[0]: 1, ids[1]: 1, ids[2]: [0, 1, 3], ids[3]: 20} if answers_kind == "good" else {}
+            answers = correct_answers("vlan", ids) if answers_kind == "good" else {}
             c.post("/api/modules/vlan/quiz", json={"answers": answers}, headers=ph)
             outer[name] = cid
 

@@ -41,7 +41,8 @@ def test_seed_adds_missing_module_to_existing_db():
 
             assert db.query(ContentModule).count() == len(MODULES)
             assert db.query(ContentBlock).filter(ContentBlock.module_key == key).count() > 0
-            assert db.query(ContentQuizQuestion).filter(ContentQuizQuestion.module_key == key).count() == 5
+            assert db.query(ContentQuizQuestion).filter(ContentQuizQuestion.module_key == key).count() == len(
+                MODULES[key]["quiz"]["questions"])
         finally:
             db.close()
 
@@ -58,7 +59,7 @@ def test_seed_populates_all_modules_once():
             blocks = db.query(ContentBlock).filter(ContentBlock.module_key == "vlan").count()
             assert blocks > 0
             questions = db.query(ContentQuizQuestion).filter(ContentQuizQuestion.module_key == "vlan").count()
-            assert questions == 4
+            assert questions == len(MODULES["vlan"]["quiz"]["questions"])
         finally:
             db.close()
 

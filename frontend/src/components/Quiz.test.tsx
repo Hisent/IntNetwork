@@ -28,4 +28,9 @@ describe('Quiz', () => {
     expect(submit).toHaveBeenCalledWith('m', { '7': 0, '8': '3' })
     expect(screen.getAllByText('Erklärung:', { exact: false })).toHaveLength(1)  // Frage B hat keine
   })
+
+  it('bricht lange Wörter ohne Leerzeichen in Frage und Optionen um (kein Seitenüberlauf am Handy)', () => {
+    render(<Quiz moduleKey="m" questions={[{ id: '9', type: 'single', prompt: 'TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384?', options: ['a', 'b'] }]} lang="de" />)
+    expect(screen.getByText('TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384?', { exact: false }).closest('[class*="overflow-wrap:anywhere"]')).toBeTruthy()
+  })
 })

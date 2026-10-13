@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import Markdown from 'react-markdown'
-import { Link, Navigate, useParams } from 'react-router-dom'
+import { Link, Navigate, useLocation, useParams } from 'react-router-dom'
 import { learnApi } from '@/lib/learnApi'
 import { Blocks } from '@/components/Blocks'
 import { BlockComments } from '@/components/BlockComments'
@@ -20,6 +20,8 @@ import { readPercent } from '@/components/workbench/workbenchLogic'
 import { groupModulesBySection, type ModuleSection } from '@/lib/moduleGroups'
 import { modulePositions } from '@/lib/modulePosition'
 import { WorkshopTheme } from '@/components/WorkshopTheme'
+import { PrintContext, usePrintState } from '@/lib/printMode'
+import { ParticipantPoll } from '@/components/LivePoll'
 
 export function ModulePage() {
   const { key = '' } = useParams()
@@ -64,6 +66,18 @@ export function ModulePage() {
   const mods = useQuery({ queryKey: ['modules', lang], queryFn: () => learnApi.listModules().then((r) => r.data), enabled: isParticipant })
   const [justPassed, setJustPassed] = useState(false)
   useEffect(() => setJustPassed(false), [key])
+  const printing = usePrintState()
+
+  // Sprungziel eines Suchtreffers: #b-<Block-Kennung>. Der Block existiert erst,
+  // wenn das Modul geladen ist — der Browser springt deshalb nicht von selbst.
+  const { hash } = useLocation()
+  const loaded = !!mod.data
+  useEffect(() => {
+    if (!loaded || !hash.startsWith('#b-')) return
+    const uid = decodeURIComponent(hash.slice(3))
+    const target = [...document.querySelectorAll<HTMLElement>('[data-uid]')].find((el) => el.dataset.uid === uid)
+    target?.scrollIntoView()
+  }, [loaded, hash, key])
 
   // Nächstes Modul in Kurs-Reihenfolge — Ziel des „Weiter“-Buttons unter dem Quiz.
   const nextModule = useMemo(() => {
@@ -95,6 +109,7 @@ export function ModulePage() {
 
   return (
     <WorkshopTheme theme={me.data?.workshop?.theme}>
+      <PrintContext.Provider value={printing}>
       {/* key: Quiz-Ergebnis, Kurz-Checks und Reflexionen sind Zustand EINES Moduls —
           ohne Remount zeigte ein Wechsel zu einem bereits geladenen Modul das
           Quiz-Ergebnis des vorherigen und schrieb dessen Reflexionstext fort. */}
@@ -118,6 +133,7 @@ export function ModulePage() {
         onToggleRead={(index) => scoped && setRead(toggleRead(participantId, courseId, key, read, index))}
         onQuizResult={(passed) => { setJustPassed(passed); qc.invalidateQueries({ queryKey: ['me'] }) }}
       />
+      </PrintContext.Provider>
     </WorkshopTheme>
   )
 }
@@ -178,6 +194,23 @@ function WorkbenchModuleNav({ lang, current, modules, sections, progress }: { la
   )
 }
 
+// Schmaler Balken am oberen Fensterrand: wie weit ist die Seite gescrollt? Reine
+// Orientierung — „Gelesen“ (markierte Text-Blöcke) bleibt die eigene Anzeige darunter.
+function ScrollProgress() {
+  const [pct, setPct] = useState(0)
+  useEffect(() => {
+    const update = () => {
+      const max = document.documentElement.scrollHeight - window.innerHeight
+      setPct(max > 0 ? Math.min(100, (window.scrollY / max) * 100) : 0)
+    }
+    update()
+    window.addEventListener('scroll', update, { passive: true })
+    window.addEventListener('resize', update)
+    return () => { window.removeEventListener('scroll', update); window.removeEventListener('resize', update) }
+  }, [])
+  return <div aria-hidden="true" className="pointer-events-none fixed inset-x-0 top-0 z-40 h-[3px] print:hidden"><div className="h-full bg-[var(--wb-accent)]" style={{ width: `${pct}%` }} /></div>
+}
+
 export function WorkbenchModuleView({ lang, moduleKey, keyScope, module, modules, sections, progress, read, textIndexes, toc, commentsOn, showGlossary, nextModule, justPassed, setLanguage, onToggleRead, onQuizResult }: WorkbenchModuleProps) {
   const readPct = readPercent(textIndexes, read)
   // Position in der Kursreihenfolge (1..n) statt des internen `order`-Werts
@@ -188,10 +221,13 @@ export function WorkbenchModuleView({ lang, moduleKey, keyScope, module, modules
   )
   return (
     <div className="workbench">
+      <ScrollProgress />
+      {/* Live-Abstimmung des Trainers; direkt in der .workbench-Wurzel (Tokens, inert für die Geschwister) */}
+      <ParticipantPoll moduleKey={moduleKey} lang={lang} />
       <WorkbenchTopbar lang={lang} title={module.title} actions={languageControl} />
-      <div className="h-1 bg-[var(--wb-subtle)]"><div className="h-full bg-[var(--wb-accent)]" style={{ width: `${readPct}%` }} /></div>
+      <div className="h-1 bg-[var(--wb-subtle)] print:hidden"><div className="h-full bg-[var(--wb-accent)]" style={{ width: `${readPct}%` }} /></div>
       <div className="wb-shell">
-        <details id="module-nav" className="wb-surface mb-5 scroll-mt-20 p-3 lg:hidden">
+        <details id="module-nav" className="wb-surface mb-5 scroll-mt-20 p-3 lg:hidden print:hidden">
           <summary className="wb-control flex cursor-pointer items-center px-2 font-semibold">{lang === 'de' ? 'Kursnavigation öffnen' : 'Open course navigation'}</summary>
           <div className="mt-2 max-h-[60dvh] overflow-y-auto border-t border-[var(--wb-border)] pt-3">
             <LangToggle lang={lang} onChange={setLanguage} className="mb-3 flex sm:hidden" />
@@ -200,37 +236,63 @@ export function WorkbenchModuleView({ lang, moduleKey, keyScope, module, modules
         </details>
 
         <div className="wb-module-grid">
-          <aside className="sticky top-20 hidden max-h-[calc(100dvh-6rem)] overflow-y-auto lg:block">
+          <aside className="sticky top-20 hidden max-h-[calc(100dvh-6rem)] overflow-y-auto lg:block print:hidden">
             <WorkbenchSectionTitle>{lang === 'de' ? 'Kursmodule' : 'Course modules'}</WorkbenchSectionTitle>
             <WorkbenchModuleNav lang={lang} current={moduleKey} modules={modules} sections={sections} progress={progress} />
           </aside>
 
           <main id="main-content" tabIndex={-1} className="wb-module-content">
-            <Link to="/lernen" className="wb-control mb-2 inline-flex items-center gap-1 text-sm font-medium text-[var(--wb-muted)] hover:text-[var(--wb-accent)]"><Icon name="arrowLeft" className="h-4 w-4" />{t(lang, 'modules')}</Link>
+            <div className="mb-2 flex items-center justify-between gap-3 print:hidden">
+              <Link to="/lernen" className="wb-control inline-flex items-center gap-1 text-sm font-medium text-[var(--wb-muted)] hover:text-[var(--wb-accent)]"><Icon name="arrowLeft" className="h-4 w-4" />{t(lang, 'modules')}</Link>
+              {/* Druckansicht = Spickzettel: Theorie, Diagramme, eigene Notizen (siehe print:-Klassen und lib/printMode.ts) */}
+              <button type="button" onClick={() => window.print()} className="wb-control inline-flex items-center gap-1.5 text-sm font-medium text-[var(--wb-muted)] hover:text-[var(--wb-accent)]"><Icon name="printer" className="h-4 w-4" />{lang === 'de' ? 'Drucken / PDF' : 'Print / PDF'}</button>
+            </div>
             <p className="text-sm font-semibold text-[var(--wb-accent)]">{lang === 'de' ? `Modul ${position}` : `Module ${position}`}</p>
             <h1 className="mt-2 text-3xl font-bold leading-tight tracking-tight text-[var(--wb-ink)] sm:text-4xl">{module.title}</h1>
             {module.scenario && <div className="wb-scenario mt-5 border-l-2 border-[var(--wb-accent)] pl-4 text-sm leading-relaxed text-[var(--wb-muted)]"><Markdown>{module.scenario}</Markdown></div>}
 
-            {toc.length >= 4 && <details className="wb-surface mt-6 p-4 xl:hidden"><summary className="wb-control flex cursor-pointer items-center font-semibold">{t(lang, 'tocTitle')}</summary><ol className="mt-2 space-y-1">{toc.map((item, index) => <li key={`${item.i}-${index}`}><a href={`#block-${item.i}`} className="wb-control flex items-center text-sm text-[var(--wb-accent)] hover:underline">{item.title}</a></li>)}</ol></details>}
+            {module.goals && module.goals.length > 0 && (
+              <section className="mt-6" aria-labelledby="module-goals">
+                <h2 id="module-goals" className="text-sm font-semibold text-[var(--wb-ink)]">{lang === 'de' ? 'Lernziele' : 'Learning goals'}</h2>
+                <ul className="mt-2 space-y-1.5 text-sm leading-relaxed text-[var(--wb-muted)]">
+                  {module.goals.map((goal, index) => <li key={index} className="flex items-start gap-2"><Icon name="target" className="mt-0.5 h-4 w-4 shrink-0 text-[var(--wb-accent)]" />{goal}</li>)}
+                </ul>
+              </section>
+            )}
+
+            {toc.length >= 4 && <details className="wb-surface mt-6 p-4 xl:hidden print:hidden"><summary className="wb-control flex cursor-pointer items-center font-semibold">{t(lang, 'tocTitle')}</summary><ol className="mt-2 space-y-1">{toc.map((item, index) => <li key={`${item.i}-${index}`}><a href={`#block-${item.i}`} className="wb-control flex items-center text-sm text-[var(--wb-accent)] hover:underline">{item.title}</a></li>)}</ol></details>}
 
             <div className="mt-8">
-              <Blocks blocks={module.blocks} lang={lang} moduleKey={moduleKey} keyScope={keyScope} footer={(block: Block, index) => block.type === 'text' ? <div className="flex flex-col gap-1"><button onClick={() => onToggleRead(index)} className={`wb-control inline-flex items-center gap-1 self-start text-xs font-medium ${read.includes(index) ? 'text-[var(--wb-success)]' : 'text-[var(--wb-muted)] hover:text-[var(--wb-accent)]'}`}>{read.includes(index) && <Icon name="check" className="h-3.5 w-3.5" />}{read.includes(index) ? t(lang, 'read') : t(lang, 'markRead')}</button>{commentsOn && <BlockComments moduleKey={moduleKey} blockIndex={index} lang={lang} />}</div> : null} />
+              <Blocks blocks={module.blocks} lang={lang} moduleKey={moduleKey} keyScope={keyScope} footer={(block: Block, index) => block.type === 'text' ? <div className="flex flex-col gap-1 print:hidden"><button onClick={() => onToggleRead(index)} className={`wb-control inline-flex items-center gap-1 self-start text-xs font-medium ${read.includes(index) ? 'text-[var(--wb-success)]' : 'text-[var(--wb-muted)] hover:text-[var(--wb-accent)]'}`}>{read.includes(index) && <Icon name="check" className="h-3.5 w-3.5" />}{read.includes(index) ? t(lang, 'read') : t(lang, 'markRead')}</button>{commentsOn && <BlockComments moduleKey={moduleKey} blockIndex={index} lang={lang} />}</div> : null} />
             </div>
 
+            {/* nur im Druck: die Begriffe des Moduls als Abschluss des Spickzettels */}
+            {showGlossary && (
+              <section className="mt-8 hidden print:block">
+                <h2 className="text-sm font-semibold text-[var(--wb-ink)]">{lang === 'de' ? 'Begriffe' : 'Terms'}</h2>
+                <dl className="mt-2 space-y-1 text-sm">
+                  {termsForModule(moduleKey).map((term) => <div key={term.key}><dt className="inline font-semibold">{term.label[lang]}: </dt><dd className="inline text-[var(--wb-muted)]">{term.description[lang]}</dd></div>)}
+                </dl>
+              </section>
+            )}
+
+            {/* Quiz, Weiter-Link und Navigation gehören nicht auf den Spickzettel (keine Fragen, keine Lösungen). */}
+            <div className="print:hidden">
             <Quiz moduleKey={moduleKey} questions={module.quiz.questions} lang={lang} onResult={onQuizResult} />
-            <div className="mt-10 border-t border-[var(--wb-border)] pt-6 text-right">
+            </div>
+            <div className="mt-10 border-t border-[var(--wb-border)] pt-6 text-right print:hidden">
               {nextModule ? <Link to={`/lernen/${nextModule.key}`} className={`wb-control inline-flex max-w-full items-center justify-center gap-1.5 rounded-lg px-5 text-center font-semibold ${justPassed ? 'bg-[var(--wb-accent)] text-white hover:bg-[var(--wb-accent-hover)]' : 'border border-[var(--wb-border)] bg-white text-[var(--wb-ink)] hover:border-[var(--wb-accent)]'}`}>{t(lang, 'nextModule')}: {lang === 'de' ? nextModule.title : nextModule.title_en}<Icon name="arrowRight" className="h-4 w-4" /></Link> : <Link to="/lernen" className="wb-control inline-flex items-center gap-1.5 rounded-lg border border-[var(--wb-border)] bg-white px-5 font-semibold">{t(lang, 'backToOverview')}<Icon name="arrowRight" className="h-4 w-4" /></Link>}
             </div>
 
             {/* Auf schmalen Viewports (Sidebar nicht permanent sichtbar) ein
                 kurzer Rückweg zur Kursnavigation, statt vollständigen
                 Hochscrollens nach einer Unterbrechung im Quiz. */}
-            <a href="#module-nav" className="wb-control mt-4 flex items-center justify-center gap-1.5 text-sm font-medium text-[var(--wb-muted)] hover:text-[var(--wb-accent)] lg:hidden">
+            <a href="#module-nav" className="wb-control mt-4 flex items-center justify-center gap-1.5 text-sm font-medium text-[var(--wb-muted)] hover:text-[var(--wb-accent)] lg:hidden print:hidden">
               <Icon name="arrowUp" className="h-4 w-4" />{lang === 'de' ? 'Zur Kursnavigation' : 'To course navigation'}
             </a>
           </main>
 
-          <aside className="sticky top-20 hidden max-h-[calc(100dvh-6rem)] space-y-5 overflow-y-auto xl:block">
+          <aside className="sticky top-20 hidden max-h-[calc(100dvh-6rem)] space-y-5 overflow-y-auto xl:block print:hidden">
             <section className="wb-surface p-4"><WorkbenchProgress value={readPct} label={lang === 'de' ? 'Gelesen' : 'Read'} />{showGlossary && <div className="mt-4"><GlossaryPanel moduleKey={moduleKey} lang={lang} /></div>}</section>
             {toc.length > 0 && <section><WorkbenchSectionTitle>{t(lang, 'tocTitle')}</WorkbenchSectionTitle><nav className="space-y-1">{toc.map((item, index) => <a key={`${item.i}-${index}`} href={`#block-${item.i}`} className="wb-control flex items-center border-l border-[var(--wb-border)] px-3 text-sm text-[var(--wb-muted)] hover:border-[var(--wb-accent)] hover:text-[var(--wb-accent)]">{item.title}</a>)}</nav></section>}
           </aside>

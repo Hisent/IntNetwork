@@ -2,6 +2,7 @@ from concurrent.futures import ThreadPoolExecutor
 
 from fastapi.testclient import TestClient
 from app.main import app
+from tests.conftest import correct_answers
 
 
 def _trainer(c):
@@ -72,8 +73,7 @@ def test_dashboard_aggregates_progress_and_best():
             "/api/join", json={"code": code, "name": "Dana"}).json()["access_token"]}
         mod = c.get("/api/modules/vlan", headers=p).json()
         ids = [q["id"] for q in mod["quiz"]["questions"]]
-        # Reihenfolge/Antworten wie in app/content/vlan.py (vgl. test_modules_quiz)
-        good = {ids[0]: 1, ids[1]: 1, ids[2]: [0, 1, 3], ids[3]: 20}
+        good = correct_answers("vlan", ids)
         assert c.post("/api/modules/vlan/quiz", json={"answers": good}, headers=p).json()["passed"] is True
         # zweiter, schlechterer Versuch darf best nicht verschlechtern
         c.post("/api/modules/vlan/quiz", json={"answers": {ids[0]: 0}}, headers=p)

@@ -7,10 +7,17 @@ export function normalize(input: string, caseSensitive = false): string {
   return caseSensitive ? s : s.toLowerCase()
 }
 
+// `\*` im Muster ist ein wörtlicher Stern (`clear ip nat translation \*`).
+const STAR = '\u0000'
+const hide = (pattern: string) => pattern.replaceAll('\\*', STAR)
+/** Schreibweise eines Befehls, wie der Teilnehmer ihn tippt (ohne Escape). */
+export const literal = (pattern: string) => pattern.replaceAll('\\*', '*')
+const hasWildcard = (pattern: string) => hide(pattern).includes('*')
+
 /** Exakter Vergleich; `*` im Muster steht für beliebigen nichtleeren Text. */
 function patternMatches(pattern: string, input: string): boolean {
-  if (!pattern.includes('*')) return pattern === input
-  const re = pattern.split('*').map((part) => part.replace(/[.+?^${}()|[\]\\]/g, '\\$&')).join('.+')
+  if (!hasWildcard(pattern)) return literal(pattern) === input
+  const re = hide(pattern).split('*').map((part) => part.replace(/[.+?^${}()|[\]\\]/g, '\\$&').replaceAll(STAR, '\\*')).join('.+')
   return new RegExp(`^${re}$`).test(input)
 }
 
@@ -18,7 +25,7 @@ function patternMatches(pattern: string, input: string): boolean {
 function abbrevMatches(pattern: string, input: string): boolean {
   const p = pattern.split(' ')
   const i = input.split(' ')
-  return p.length === i.length && i.every((word, k) => p[k] === '*' || p[k].startsWith(word))
+  return p.length === i.length && i.every((word, k) => p[k] === '*' || literal(p[k]).startsWith(word))
 }
 
 export type CommandMatch = { kind: 'match'; index: number } | { kind: 'ambiguous' } | { kind: 'none' }
@@ -35,21 +42,29 @@ export function findCommand(spec: TerminalData, raw: string): CommandMatch {
 }
 
 export function helpText(spec: TerminalData, lang: Lang): string {
-  const width = Math.max(...spec.commands.map((c) => c.cmd.length))
+  const width = Math.max(...spec.commands.map((c) => literal(c.cmd).length))
   return [
     lang === 'de' ? 'Verfügbare Befehle:' : 'Available commands:',
-    ...spec.commands.map((c) => `  ${c.cmd.padEnd(width)}${c.desc ? `  ${c.desc}` : ''}`.trimEnd()),
+    ...spec.commands.map((c) => `  ${literal(c.cmd).padEnd(width)}${c.desc ? `  ${c.desc}` : ''}`.trimEnd()),
   ].join('\n')
 }
 
-export interface TerminalResult { output: string; index?: number; prompt?: string }
+export interface TerminalResult { output: string; index?: number; prompt?: string; flags?: string[] }
 
-export function runCommand(spec: TerminalData, raw: string, lang: Lang): TerminalResult {
+const NO_FLAGS: readonly string[] = []
+
+/** `flags` = bisher gesetzte Zustands-Flags. Die Ausgabe richtet sich nach dem Stand VOR dem
+ * Befehl (erste `variants`-Zeile mit gesetztem `when`, sonst `output`); danach wirken
+ * `clears`, dann `sets`. `flags` im Ergebnis nur, wenn der Befehl den Zustand ändert. */
+export function runCommand(spec: TerminalData, raw: string, lang: Lang, flags: readonly string[] = NO_FLAGS): TerminalResult {
   if (!raw.trim()) return { output: '' }
   const m = findCommand(spec, raw)
   if (m.kind === 'match') {
     const c = spec.commands[m.index]
-    return { output: c.output, index: m.index, prompt: c.prompt }
+    const output = c.variants?.find((v) => flags.includes(v.when))?.output ?? c.output
+    const result: TerminalResult = { output, index: m.index, prompt: c.prompt }
+    if (c.sets || c.clears) result.flags = [...new Set([...flags.filter((f) => !c.clears?.includes(f)), ...(c.sets ?? [])])]
+    return result
   }
   // ein vom Autor definiertes "help"/"?" gewinnt oben; sonst die generierte Liste
   if (['?', 'help'].includes(normalize(raw))) return { output: helpText(spec, lang) }
@@ -60,13 +75,13 @@ export function runCommand(spec: TerminalData, raw: string, lang: Lang): Termina
 
 /** Befehle, die als Klick-Chip angeboten werden (Muster mit `*` sind nicht klickbar). */
 export function chipCommands(spec: TerminalData): string[] {
-  return spec.commands.filter((c) => c.chip !== false && !c.cmd.includes('*')).map((c) => c.cmd)
+  return spec.commands.filter((c) => c.chip !== false && !hasWildcard(c.cmd)).map((c) => literal(c.cmd))
 }
 
 /** Aufgabe erledigt? `executed` = Indizes ausgeführter Befehle, `answer` = Texteingabe zur Aufgabe. */
 export function taskDone(spec: TerminalData, task: TerminalTask, executed: ReadonlySet<number>, answer = ''): boolean {
   if (task.command !== undefined) {
-    const m = findCommand({ ...spec, abbreviations: false }, task.command)
+    const m = findCommand({ ...spec, abbreviations: false }, literal(task.command))
     return m.kind === 'match' && executed.has(m.index)
   }
   const given = normalize(answer)

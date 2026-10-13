@@ -17,3 +17,20 @@ describe('workshopTheme', () => {
     expect(workshopTheme('something-unknown')).toBe('network')
   })
 })
+
+// Jedes Nicht-Netzwerk-Theme braucht eigene Dunkel-Werte für die Akzentflächen —
+// sonst bleiben sie im Dunkelmodus hell (so geschehen beim PKI-Theme).
+describe('workshop themes in index.css', () => {
+  it('every theme with light accent variables also defines dark ones', async () => {
+    const { readFileSync } = await import('node:fs')
+    const css = readFileSync(new URL('../index.css', import.meta.url), 'utf8')
+    const themes = [...css.matchAll(/^\.workshop-theme--([a-z]+) \{/gm)].map((m) => m[1]).filter((name) => name !== 'network')
+    expect(themes).toEqual(expect.arrayContaining(['claude', 'infoblox', 'ansible', 'pki', 'nac']))
+    for (const name of themes) {
+      const dark = css.match(new RegExp(`\\[data-theme="dark"\\] \\.workshop-theme--${name} \\{([^}]*--workshop-accent-soft[^}]*)\\}`))
+      expect(dark, `dark block for ${name}`).not.toBeNull()
+      for (const variable of ['--workshop-accent:', '--workshop-accent-soft:', '--workshop-accent-line:', '--workshop-accent-ink:', '--workshop-accent-pale:'])
+        expect(dark![1], `${name} ${variable}`).toContain(variable)
+    }
+  })
+})

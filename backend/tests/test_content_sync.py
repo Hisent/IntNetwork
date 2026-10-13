@@ -321,6 +321,30 @@ def test_hash_ignores_ids_and_missing_explanations(db):
     assert sync.content_hash(without_ids) != sync.content_hash(state)
 
 
+def test_goals_en_keeps_old_hash_when_missing_and_syncs_when_added(db, monkeypatch):
+    """Ein Modul OHNE goals_en muss den Hash von vor der Spalte behalten (sonst
+    gälten Bestands-DBs als editiert); kommt goals_en mit einem Release, wird es
+    eingespielt und in der Teilnehmersprache ausgeliefert (Fallback Deutsch)."""
+    without = copy.deepcopy(MODULES[KEY])
+    without.pop("goals_en", None)
+    monkeypatch.setitem(MODULES, KEY, without)
+    seed_missing_content(db)
+    db.commit()
+    state = _state(db)
+    assert state["goals_en"] is None
+    legacy = {k: v for k, v in state.items() if k != "goals_en"}  # Form vor der Spalte
+    assert sync.content_hash(legacy) == sync.content_hash(state) == db.get(Setting, sync.HASH_KEY + KEY).value
+    assert public_module(db, KEY, "en")["goals"] == without["goals"]
+
+    goals_en = [f"Goal {i}" for i in range(len(without["goals"]))]
+    monkeypatch.setitem(MODULES, KEY, {**without, "goals_en": goals_en})
+    assert seed_missing_content(db)["updated"] == [KEY]
+    db.commit()
+    assert public_module(db, KEY, "en")["goals"] == goals_en
+    assert public_module(db, KEY, "de")["goals"] == without["goals"]
+    assert seed_missing_content(db) == {"updated": [], "skipped": {}, "failed": []}
+
+
 # Seedet mit dem Code des alten Stands (cwd = dessen backend/) eine leere DB.
 _SEED_OLD_TREE = """
 import importlib, json, pkgutil, sys
@@ -354,6 +378,7 @@ def _run_old_seed(tmp_path, commit, db_url):
 
 def _add_new_columns(engine):
     """Was im Betrieb Alembic erledigt: Spalten, die das alte Schema nicht kennt."""
+    Base.metadata.create_all(engine)  # neue Tabellen (legt im Betrieb ebenfalls Alembic an)
     with engine.begin() as conn:
         for table in Base.metadata.sorted_tables:
             have = {col["name"] for col in inspect(conn).get_columns(table.name)}
@@ -387,6 +412,7 @@ def test_real_old_database_gets_ids_and_structural_update(tmp_path, monkeypatch,
         commented = {key: _participant_data(db, key, "network", f"OLD{i}", [0, len(_blocks(db, key)) - 1])
                      for i, key in enumerate(extended)}
         question_ids = {key: [q.id for q in _questions(db, key)] for key in old_modules}
+        old_uids = {key: [q["id"] for q in module["quiz"]["questions"]] for key, module in old_modules.items()}
         block_ids = {key: {b.id for b in _blocks(db, key)} for key in old_modules}
         results = {r.module_key: (r.score, r.total, dict(r.answers)) for r in db.query(QuizResult)}
 
@@ -406,8 +432,13 @@ def test_real_old_database_gets_ids_and_structural_update(tmp_path, monkeypatch,
         assert not result["skipped"] and not result["failed"]
         for key in old_modules:
             assert _state(db, key) == sync.source_state(MODULES[key]), key
-            # alle alten Fragen sind dieselben Zeilen geblieben, in derselben Reihenfolge
-            assert [q.id for q in _questions(db, key) if q.uid != "neu1"] == question_ids[key], key
+            # jede alte Frage, die die Quelle noch kennt, ist dieselbe Zeile geblieben (Zuordnung
+            # über die Kennung des alten Quellstands, nicht über Zahlen aus dem heutigen Inhalt);
+            # neue Fragen sind neue Zeilen
+            rows = {q.uid: q.id for q in _questions(db, key)}
+            kept = {uid: qid for uid, qid in zip(old_uids[key], question_ids[key], strict=True) if uid in rows}
+            assert {uid: rows[uid] for uid in kept} == kept, key
+            assert not set(question_ids[key]) & {qid for uid, qid in rows.items() if uid not in kept}, key
             assert block_ids[key] <= {b.id for b in _blocks(db, key)}, key  # keine alte Blockzeile ersetzt
         for key in extended:
             assert _questions(db, key)[0].uid == "neu1" and _blocks(db, key)[0].uid == "zukunft-neu"

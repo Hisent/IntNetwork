@@ -13,8 +13,8 @@ from app.config import settings
 from app.database import Base, engine
 from app.main import app
 
-_HEAD = "a6b7c8d9e0f1"        # add_content_uid_and_quiz_explanation
-_VORGAENGER = "7305d4053e50"  # add_trainer_credential (danach laufen 75aeb8d5399c und a6b7c8d9e0f1 erneut)
+_HEAD = "c8d9e0f1a2b3"        # add_live_poll
+_VORGAENGER = "7305d4053e50"  # add_trainer_credential (danach laufen 75aeb8d5399c, a6b7c8d9e0f1, b7c8d9e0f1a2 und c8d9e0f1a2b3 erneut)
 
 
 def _blocked() -> OperationalError:

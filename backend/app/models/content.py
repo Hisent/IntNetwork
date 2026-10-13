@@ -12,6 +12,8 @@ class ContentModule(Base):
     title_de: Mapped[str] = mapped_column(String)
     title_en: Mapped[str] = mapped_column(String)
     goals: Mapped[list] = mapped_column(JSON, default=list)
+    # Englische Lernziele, gleiche Länge wie goals; None = nur Deutsch (Fallback).
+    goals_en: Mapped[list | None] = mapped_column(JSON, nullable=True)
     scenario_de: Mapped[str] = mapped_column(Text)
     scenario_en: Mapped[str] = mapped_column(Text)
 

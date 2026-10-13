@@ -11,3 +11,10 @@ os.environ.setdefault("DATABASE_URL", "sqlite:///./test_intnetwork.db")
 # Rate-Limiter aus: der TestClient hat eine feste IP und würde sonst nach
 # wenigen Login-/Join-Requests 429en. Eigener Test deckt den Limiter separat ab.
 os.environ.setdefault("RATE_LIMIT_ENABLED", "0")
+
+
+def correct_answers(key, ids):
+    """Richtige Antworten zu den ausgelieferten Frage-ids eines Moduls — aus der
+    Quelle abgeleitet statt hart kodiert, damit Tests einen Inhaltsausbau überstehen."""
+    from app.content.registry import MODULES
+    return {i: q["answer"] for i, q in zip(ids, MODULES[key]["quiz"]["questions"], strict=True)}

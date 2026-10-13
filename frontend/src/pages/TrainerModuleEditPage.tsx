@@ -183,6 +183,11 @@ export function TrainerModuleEditPage() {
               onChange={(e) => setForm({ ...form, goals: e.target.value.split('\n') })} />
           </label>
           <label className="flex flex-col gap-1 text-sm">
+            Lernziele EN (gleiche Zeilenzahl wie oben — oder leer lassen: Teilnehmer sehen dann Deutsch)
+            <textarea className="border rounded-lg px-3 py-1.5" rows={3} value={(form.goals_en ?? []).join('\n')}
+              onChange={(e) => setForm({ ...form, goals_en: e.target.value === '' ? null : e.target.value.split('\n') })} />
+          </label>
+          <label className="flex flex-col gap-1 text-sm">
             Szenario DE
             <textarea className="border rounded-lg px-3 py-1.5" rows={3} value={form.scenario_de}
               onChange={(e) => setForm({ ...form, scenario_de: e.target.value })} />

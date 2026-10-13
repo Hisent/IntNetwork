@@ -26,11 +26,22 @@ export function toggleRead(participantId: number, courseId: number, moduleKey: s
   return next
 }
 
+/** Hat der Teilnehmer in diesem Modul lokal schon etwas getan (gelesen markiert
+ * oder eine Übung angefasst)? Grundlage für den Status „begonnen“ der Lernseite. */
+export function hasLocalProgress(participantId: number, courseId: number, moduleKey: string): boolean {
+  try {
+    return loadRead(participantId, courseId, moduleKey).length > 0
+      || (localStorage.getItem(`intnetwork-exercise-${participantId}-${courseId}-${moduleKey}`) ?? '{}') !== '{}'
+  } catch {
+    return false
+  }
+}
+
 // Alle participantId-tragenden Schlüsselarten (Lese-Fortschritt, Reflexionen,
-// Live-CLI-Session, Lab-Snapshots — siehe Blocks.tsx / ClaudeCliWidget.tsx /
+// Übungsstand — siehe exerciseState.ts —, Live-CLI-Session, Lab-Snapshots — siehe Blocks.tsx / ClaudeCliWidget.tsx /
 // widgets/*lab*). Die participantId
 // steht dabei immer als erstes Zahlen-Segment nach der Art.
-const SCOPED_KEY = /^intnetwork-(?:read|reflect|cli|ansiblelab|gitlab|opensslab)-(\d+)-/
+const SCOPED_KEY = /^intnetwork-(?:read|reflect|exercise|cli|ansiblelab|gitlab|opensslab)-(\d+)-/
 
 // Räumt an geteilten Browsern die Reste anderer Teilnehmer auf: ruft man beim
 // Bekanntwerden der aktuellen participantId auf, entfernt sie alle App-eigenen
