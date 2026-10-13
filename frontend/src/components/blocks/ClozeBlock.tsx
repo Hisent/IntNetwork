@@ -4,15 +4,18 @@ import type { Lang } from '@/lib/i18n'
 import { t } from '@/lib/i18n'
 import { Icon } from '@/components/Icon'
 import { clozeResult, gapSolution, parseCloze, resolveGaps } from './exerciseLogic'
+import { useResultFocus } from './useResultFocus'
 import type { ClozeData } from './types'
 
 export default function ClozeBlock({ data, lang }: { data: ClozeData; lang: Lang }) {
   const de = lang === 'de'
   const parts = useMemo(() => parseCloze(data.text, new Set(data.gaps.map((g) => g.id))), [data])
   const gaps = useMemo(() => resolveGaps(data), [data])
-  const [{ values, checked, solved }, setState] = useExercise(
-    { values: {} as Record<string, string>, checked: false, solved: false },
+  const initial = { values: {} as Record<string, string>, checked: false, solved: false }
+  const [saved, setState] = useExercise(initial,
     (s) => s.checked && Object.values(clozeResult(data, s.values)).every(Boolean))
+  // unbrauchbarer gemerkter Stand (kaputter Speicher) -> leere Lücken statt Absturz
+  const { values, checked, solved } = saved && typeof saved.values === 'object' && saved.values ? saved : initial
   const setChecked = (next: boolean) => setState((s) => ({ ...s, checked: next }))
   const setSolved = (next: boolean) => setState((s) => ({ ...s, solved: next }))
   const result = useMemo(() => clozeResult(data, values), [data, values])
@@ -27,9 +30,10 @@ export default function ClozeBlock({ data, lang }: { data: ClozeData; lang: Lang
   const mark = (ok: boolean) => (ok ? 'border-green-400' : 'border-amber-400')
 
   const gapNumber = (id: string) => data.gaps.findIndex((g) => g.id === id) + 1
+  const root = useResultFocus(checked)
 
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-4">
+    <div ref={root} className="rounded-xl border border-slate-200 bg-white p-4">
       <p className="text-xs font-semibold uppercase tracking-wide text-teal-700 mb-1">{de ? 'Lückentext' : 'Fill the gaps'}</p>
       <p className="font-medium text-slate-800 mb-2">{data.prompt}</p>
       <div className={data.mono
@@ -67,7 +71,7 @@ export default function ClozeBlock({ data, lang }: { data: ClozeData; lang: Lang
           )
         })}
       </div>
-      <div className="mt-3 flex flex-wrap items-center gap-3 text-sm" aria-live="polite">
+      <div className="mt-3 flex flex-wrap items-center gap-3 text-sm">
         {!checked ? (
           <button type="button" onClick={() => setChecked(true)} disabled={!filled}
             className="rounded-lg border border-teal-200 text-teal-700 px-3 py-1.5 text-sm font-medium hover:bg-teal-50 disabled:opacity-50">
@@ -75,7 +79,7 @@ export default function ClozeBlock({ data, lang }: { data: ClozeData; lang: Lang
           </button>
         ) : (
           <>
-            <span className={`inline-flex items-center gap-1 font-medium ${allCorrect ? 'text-green-600' : 'text-amber-600'}`}>
+            <span role="status" tabIndex={-1} className={`inline-flex items-center gap-1 font-medium ${allCorrect ? 'text-green-600' : 'text-amber-600'}`}>
               <Icon name={allCorrect ? 'check' : 'close'} className="h-4 w-4" />
               {allCorrect ? t(lang, 'correct') : `${Object.values(result).filter(Boolean).length} / ${data.gaps.length} ${de ? 'richtig' : 'correct'}`}
             </span>

@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { learnApi } from '@/lib/learnApi'
 import { errMsg } from '@/lib/api'
 import { t, type Lang } from '@/lib/i18n'
+import { formatApiTime } from '@/lib/apiTime'
 
 export function BlockComments({ moduleKey, blockIndex, lang }: { moduleKey: string; blockIndex: number; lang: Lang }) {
   const qc = useQueryClient()
@@ -42,7 +43,7 @@ export function BlockComments({ moduleKey, blockIndex, lang }: { moduleKey: stri
             {items.map((c) => (
               <div key={c.id} className="text-sm">
                 <span className="font-medium text-slate-700">{c.author_name}</span>
-                <span className="text-xs text-slate-400"> · {c.created_at.slice(0, 16).replace('T', ' ')}</span>
+                <span className="text-xs text-slate-400"> · {formatApiTime(c.created_at, lang)}</span>
                 {c.own && (
                   <button
                     onClick={() => del.mutate(c.id)}

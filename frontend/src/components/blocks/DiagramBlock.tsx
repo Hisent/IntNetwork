@@ -44,6 +44,15 @@ function arrowKeys(step: number, total: number, onStep: (s: number) => void) {
   }
 }
 
+/** Gemerkter Schritt, geklemmt auf den aktuellen Inhalt (Content-Update, fremder/kaputter Speicherstand). */
+const clampStep = (step: unknown, total: number) =>
+  Math.min(Math.max(0, total - 1), Math.max(0, Number.isInteger(step) ? (step as number) : 0))
+
+/** Druck (Spickzettel): alle Details untereinander statt nur des angeklickten. */
+function AllDetails({ items }: { items: { head: string; detail?: string }[] }) {
+  return <>{items.filter((it) => it.detail).map((it, i) => <Detail key={i} head={it.head}>{it.detail}</Detail>)}</>
+}
+
 function Detail({ head, children }: { head?: string; children?: ReactNode }) {
   return (
     <div aria-live="polite" className="mt-3 min-h-[3.25rem] rounded-lg border border-teal-100 bg-teal-50 px-3 py-2 text-sm text-teal-900">
@@ -90,7 +99,8 @@ const SEQ_STYLE: Record<SeqStyle, { dash?: string; width: number; open?: boolean
 function Sequence({ d, lang, altId }: { d: SequenceDiagram; lang: Lang; altId: string }) {
   const de = lang === 'de'
   const L = useMemo(() => layoutSequence(d), [d])
-  const [step, setStep] = useExercise(0, () => false)  // Schritt wird gemerkt, zählt aber nicht als Übung
+  const [saved, setStep] = useExercise(0, () => false)  // Schritt wird gemerkt, zählt aber nicht als Übung
+  const step = clampStep(saved, d.messages.length)
   const [showAll, setAll] = useState(false)
   const all = usePrinting() || showAll  // Druck: Endzustand mit allen Nachrichten
   const name = (id: string) => d.actors.find((a) => a.id === id)?.label ?? id
@@ -117,7 +127,7 @@ function Sequence({ d, lang, altId }: { d: SequenceDiagram; lang: Lang; altId: s
             <g key={m.index} role="button" tabIndex={0} aria-current={on ? 'step' : undefined}
               aria-label={`${de ? 'Schritt' : 'Step'} ${m.index + 1}: ${seqRoute(msg, name)}: ${msg.label}`}
               onClick={() => setStep(m.index)} onKeyDown={activate(() => setStep(m.index))}
-              className={`cursor-pointer outline-none ${on ? ACCENT : 'text-slate-500'}`}>
+              className={`cursor-pointer ${on ? ACCENT : 'text-slate-500'}`}>
               {/* unsichtbare Trefferfläche über Beschriftung + Pfeil */}
               <rect x={m.cx - m.w / 2 - 8} y={m.top - 4} width={m.w + 16} height={m.y - m.top + 14} fill="transparent" />
               {m.self ? (
@@ -165,9 +175,11 @@ function Sequence({ d, lang, altId }: { d: SequenceDiagram; lang: Lang; altId: s
         </ul>
       )}
       <Stepper step={step} total={d.messages.length} onStep={setStep} lang={lang} all={all} onAll={() => setAll((a) => !a)} />
-      <Detail head={`${step + 1}. ${seqRoute(current, name)}: ${current.label}`}>
-        {current.detail}
-      </Detail>
+      {current && (
+        <Detail head={`${step + 1}. ${seqRoute(current, name)}: ${current.label}`}>
+          {current.detail}
+        </Detail>
+      )}
     </div>
   )
 }
@@ -191,10 +203,11 @@ function Flow({ d, lang, altId }: { d: FlowDiagram; lang: Lang; altId: string })
   const L = useMemo(() => layoutFlow(d), [d])
   const edges = d.edges ?? []
   const steps = d.steps
-  const [step, setStep] = useExercise(0, () => false)
+  const [saved, setStep] = useExercise(0, () => false)
+  const step = clampStep(saved, steps?.length ?? 0)
   const [sel, setSel] = useState<string | null>(null)
   const printing = usePrinting()  // Druck: alle Elemente gleich sichtbar statt eines hervorgehobenen Schritts
-  const lit = steps && !printing ? new Set(steps[step].highlight) : null
+  const lit = steps?.[step] && !printing ? new Set(steps[step].highlight) : null
   const state = (key: string) => (sel === key || lit?.has(key) ? 'on' : lit ? 'dim' : 'idle')
   const cls = (key: string) => (state(key) === 'on' ? ACCENT : state(key) === 'dim' ? 'text-slate-400 opacity-45' : 'text-slate-500')
   const selNode = d.nodes.find((n) => n.id === sel)
@@ -226,7 +239,7 @@ function Flow({ d, lang, altId }: { d: FlowDiagram; lang: Lang; altId: string })
           const path = pts ? `M${pts.map(([x, y]) => `${x.toFixed(1)} ${y.toFixed(1)}`).join('L')}` : `M${b.x1} ${b.y1}L${b.x2} ${b.y2}`
           return (
             <g key={b.key} {...interactive(b.key, `${name(e.from)} → ${name(e.to)}${e.label ? `: ${e.label}` : ''}`, e.detail)}
-              className={`outline-none ${e.detail ? 'cursor-pointer' : ''} ${cls(b.key)}`}>
+              className={`${e.detail ? 'cursor-pointer' : ''} ${cls(b.key)}`}>
               <path d={path} fill="none" stroke="currentColor" strokeWidth={on ? 3 : 1.8} strokeLinejoin="round"
                 strokeDasharray={e.style === 'dashed' ? '6 5' : undefined} />
               {e.arrow !== 'none' && <path d={head(b.x2, b.y2, ex, ey)} fill="currentColor" />}
@@ -252,7 +265,7 @@ function Flow({ d, lang, altId }: { d: FlowDiagram; lang: Lang; altId: string })
           const textTop = b.cy - (b.lines.length * FLOW.lineH) / 2 + (icon ? FLOW.iconH / 2 : 0)
           return (
             <g key={b.id} {...interactive(b.id, n.label, n.detail)}
-              className={`outline-none ${n.detail ? 'cursor-pointer' : ''} ${cls(b.id)}`}>
+              className={`${n.detail ? 'cursor-pointer' : ''} ${cls(b.id)}`}>
               {n.shape === 'decision' ? (
                 <path d={`M${b.cx} ${y}L${x + b.w} ${b.cy}L${b.cx} ${y + b.h}L${x} ${b.cy}Z`} stroke="currentColor" strokeWidth={on ? 3 : 1.6} strokeLinejoin="round" className="fill-slate-100" />
               ) : (
@@ -270,11 +283,21 @@ function Flow({ d, lang, altId }: { d: FlowDiagram; lang: Lang; altId: string })
       {steps && <Stepper step={step} total={steps.length} onStep={setStep} lang={lang} />}
       {(steps || hasDetails) && (
         <>
-          {steps && <Detail head={`${de ? 'Schritt' : 'Step'} ${step + 1}`}>{steps[step].text}</Detail>}
-          {selNode?.detail && <Detail head={selNode.label}>{selNode.detail}</Detail>}
-          {selEdge?.detail && <Detail head={`${name(selEdge.from)} → ${name(selEdge.to)}${selEdge.label ? `: ${selEdge.label}` : ''}`}>{selEdge.detail}</Detail>}
+          {printing ? (
+            <AllDetails items={[
+              ...(steps ?? []).map((s, i) => ({ head: `${de ? 'Schritt' : 'Step'} ${i + 1}`, detail: s.text })),
+              ...d.nodes.map((n) => ({ head: n.label, detail: n.detail })),
+              ...edges.map((e) => ({ head: `${name(e.from)} → ${name(e.to)}${e.label ? `: ${e.label}` : ''}`, detail: e.detail })),
+            ]} />
+          ) : (
+            <>
+              {steps?.[step] && <Detail head={`${de ? 'Schritt' : 'Step'} ${step + 1}`}>{steps[step].text}</Detail>}
+              {selNode?.detail && <Detail head={selNode.label}>{selNode.detail}</Detail>}
+              {selEdge?.detail && <Detail head={`${name(selEdge.from)} → ${name(selEdge.to)}${selEdge.label ? `: ${selEdge.label}` : ''}`}>{selEdge.detail}</Detail>}
+            </>
+          )}
           {!steps && !selNode && !selEdge && (
-            <p className="mt-3 text-xs text-slate-500">{de ? 'Elemente mit Punkt anklicken (oder Tab + Enter) für Details.' : 'Click elements with a dot (or Tab + Enter) for details.'}</p>
+            <p className="mt-3 text-xs text-slate-500 print:hidden">{de ? 'Elemente mit Punkt anklicken (oder Tab + Enter) für Details.' : 'Click elements with a dot (or Tab + Enter) for details.'}</p>
           )}
         </>
       )}
@@ -287,6 +310,7 @@ function Flow({ d, lang, altId }: { d: FlowDiagram; lang: Lang; altId: string })
 function Layers({ d, lang }: { d: LayersDiagram; lang: Lang }) {
   const de = lang === 'de'
   const [sel, setSel] = useState<number | null>(null)
+  const printing = usePrinting()
   const clickable = d.layers.some((l) => l.detail)
   const current = sel === null ? null : d.layers[sel]
   return (
@@ -311,15 +335,18 @@ function Layers({ d, lang }: { d: LayersDiagram; lang: Lang }) {
           )
         })}
       </ol>
-      {clickable && (current?.detail
-        ? <Detail head={current.name}>{current.detail}</Detail>
-        : <p className="mt-3 text-xs text-slate-500">{de ? 'Schicht anklicken für Details.' : 'Click a layer for details.'}</p>)}
+      {printing
+        ? <AllDetails items={d.layers.map((l) => ({ head: l.name, detail: l.detail }))} />
+        : clickable && (current?.detail
+          ? <Detail head={current.name}>{current.detail}</Detail>
+          : <p className="mt-3 text-xs text-slate-500 print:hidden">{de ? 'Schicht anklicken für Details.' : 'Click a layer for details.'}</p>)}
     </div>
   )
 }
 
 function Compare({ d, lang }: { d: CompareDiagram; lang: Lang }) {
   const [sel, setSel] = useState<number | null>(null)
+  const printing = usePrinting()
   const current = sel === null ? null : d.rows[sel]
   // 4 Spalten sind kompakter gesetzt, damit sie in der Inhaltsspalte (~590 px) ohne waagerechtes Scrollen passen
   const dense = d.columns.length >= 4
@@ -355,9 +382,11 @@ function Compare({ d, lang }: { d: CompareDiagram; lang: Lang }) {
         </tbody>
       </table>
     </div>
-    {d.rows.some((r) => r.detail) && (current?.detail
-      ? <Detail head={current.label}>{current.detail}</Detail>
-      : <p className="mt-3 text-xs text-slate-500">{lang === 'de' ? 'Unterstrichene Zeile anklicken für Details.' : 'Click an underlined row for details.'}</p>)}
+    {printing
+      ? <AllDetails items={d.rows.map((r) => ({ head: r.label, detail: r.detail }))} />
+      : d.rows.some((r) => r.detail) && (current?.detail
+        ? <Detail head={current.label}>{current.detail}</Detail>
+        : <p className="mt-3 text-xs text-slate-500 print:hidden">{lang === 'de' ? 'Unterstrichene Zeile anklicken für Details.' : 'Click an underlined row for details.'}</p>)}
     </>
   )
 }

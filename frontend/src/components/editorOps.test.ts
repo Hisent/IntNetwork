@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { addOption, moveItem, removeAt, removeOption } from './editorOps'
+import { addOption, moveItem, prerequisiteChoices, removeAt, removeOption } from './editorOps'
 
 describe('moveItem', () => {
   it('tauscht mit dem nächsten Element', () => {
@@ -28,5 +28,18 @@ describe('addOption / removeOption', () => {
   })
   it('entfernt die Option am selben Index aus beiden Listen', () => {
     expect(removeOption(['a', 'b'], ['x', 'y'], 0)).toEqual([['b'], ['y']])
+  })
+})
+
+describe('prerequisiteChoices', () => {
+  const all = [
+    { key: 'a', workshop_key: 'network' }, { key: 'b', workshop_key: 'network' },
+    { key: 'x', workshop_key: 'pki' }, { key: 'y', workshop_key: 'pki' },
+  ]
+  it('bietet nur Module desselben Lehrgangs an, ohne das Modul selbst', () => {
+    expect(prerequisiteChoices(all, 'a', 'network', []).map((m) => m.key)).toEqual(['b'])
+  })
+  it('lässt eine bereits gesetzte fremde Voraussetzung sichtbar (zum Abwählen)', () => {
+    expect(prerequisiteChoices(all, 'a', 'network', ['x']).map((m) => m.key)).toEqual(['b', 'x'])
   })
 })

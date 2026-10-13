@@ -15,6 +15,8 @@ import { workshopTheme } from '@/lib/workshopTheme'
 import { slideKeyAction } from '@/lib/slideKeys'
 import { modulePositions } from '@/lib/modulePosition'
 import { LoadError } from '@/components/LoadError'
+import { validPollCourse } from '@/lib/pollCourse'
+import { useDocumentTitle } from '@/lib/i18n'
 
 // Beamer-Modus: Folie 0 = Titel/Szenario/Lernziele, danach ein Block pro Folie.
 // Navigation: Pfeiltasten/Leertaste, Esc beendet. Notizen bleiben einklappbar
@@ -44,12 +46,20 @@ export function TrainerPresentPage() {
 
   const qc = useQueryClient()
   const [params, setParams] = useSearchParams()
-  const cid = Number(params.get('kurs')) || null
   const courses = useQuery({
     queryKey: ['courses'],
     queryFn: () => trainerApi.listCourses().then((r) => r.data),
     enabled: role === 'trainer' && !!token,
   })
+  // ?kurs= nur übernehmen, wenn der Kurs zum Lehrgang dieses Moduls gehört; ein
+  // fremder/unbekannter Wert wird aus der Adresse entfernt (sobald beides geladen ist).
+  const rawCid = params.get('kurs')
+  const cid = mod.data ? validPollCourse(rawCid, courses.data, mod.data.workshop_key) : null
+  const cidRejected = rawCid != null && cid == null && !!mod.data && !!courses.data
+  useEffect(() => {
+    if (cidRejected) setParams({}, { replace: true })
+  }, [cidRejected, setParams])
+  useDocumentTitle(mod.data ? `${mod.data.title} · Präsentation` : undefined)
   const pollKey = ['trainer-poll', cid]
   const poll = useQuery({
     queryKey: pollKey,
@@ -64,8 +74,20 @@ export function TrainerPresentPage() {
   })
   const revealPoll = useMutation({ mutationFn: () => trainerApi.revealPoll(cid!).then((r) => r.data), onSuccess: setPoll })
   const closePoll = useMutation({ mutationFn: () => trainerApi.closePoll(cid!), onSuccess: () => setPoll(null) })
-  const livePoll = cid != null ? poll.data ?? null : null
+  // Schlägt die Abfrage fehl, ist der Stand unbekannt: nicht auf der (veralteten)
+  // Abstimmungsansicht samt Tastensperre stehen bleiben, sondern zurück zu den
+  // Folien und den Fehler dort melden. Die Abfrage läuft weiter und holt sich zurück.
+  const pollFailed = cid != null && poll.isError
+  const livePoll = cid != null && !pollFailed ? poll.data ?? null : null
   const pollRunning = !!livePoll
+  // Tab schließen/neu laden bei offener Abstimmung: sie bliebe für die Teilnehmer
+  // offen. (Im Kurs-Detail lässt sie sich notfalls ebenfalls beenden.)
+  useEffect(() => {
+    if (!pollRunning) return
+    const warn = (e: BeforeUnloadEvent) => e.preventDefault()
+    window.addEventListener('beforeunload', warn)
+    return () => window.removeEventListener('beforeunload', warn)
+  }, [pollRunning])
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
@@ -120,8 +142,13 @@ export function TrainerPresentPage() {
             <p className="mt-4 border-l-4 border-[var(--wb-accent)] pl-4 text-xl leading-relaxed text-[var(--wb-muted)]">{livePoll.explanation}</p>
           )}
         </div>
-        <div className="sticky bottom-0 flex items-center justify-end gap-3 border-t border-[var(--wb-border)] bg-[var(--wb-canvas)] px-6 py-3 text-sm">
-          {(revealPoll.isError || closePoll.isError) && <p role="alert" className="mr-auto text-[var(--wb-ink)]">Aktion fehlgeschlagen — bitte erneut versuchen.</p>}
+        <div className="sticky bottom-0 flex flex-wrap items-center justify-end gap-3 border-t border-[var(--wb-border)] bg-[var(--wb-canvas)] px-6 py-3 text-sm">
+          {/* Verlassen beendet die Abstimmung mit — sonst bliebe sie für die Teilnehmer offen und für den Trainer unsichtbar. */}
+          <button type="button" onClick={() => closePoll.mutate(undefined, { onSuccess: () => navigate(`/trainer/modul/${key}`) })} disabled={closePoll.isPending}
+            className="wb-control mr-auto rounded-lg px-3 text-[var(--wb-muted)] hover:text-[var(--wb-ink)]">
+            ✕ Abstimmung beenden und Präsentation verlassen
+          </button>
+          {(revealPoll.isError || closePoll.isError) && <p role="alert" className="text-[var(--wb-ink)]">Aktion fehlgeschlagen — bitte erneut versuchen.</p>}
           {livePoll.status === 'open' && (
             <button type="button" onClick={() => revealPoll.mutate()} disabled={revealPoll.isPending}
               className="wb-control rounded-lg bg-[var(--wb-accent)] px-5 font-semibold text-white hover:bg-[var(--wb-accent-hover)]">
@@ -143,7 +170,7 @@ export function TrainerPresentPage() {
           {slide === 0 ? (
             <div>
               <BrandLogo className="mb-8 h-10 text-lg" showName />
-              <p className="text-sm font-semibold uppercase tracking-widest text-teal-600 mb-3">
+              <p className="text-sm font-semibold uppercase tracking-widest text-teal-700 mb-3">
                 {position ? `Modul ${position}` : 'Modul'}
               </p>
               <h1 className="text-4xl sm:text-5xl font-bold text-slate-900 leading-tight mb-6">{m.title}</h1>
@@ -182,7 +209,7 @@ export function TrainerPresentPage() {
                   <div className="mt-3"><TrainerBlocks blocks={[pollCheck]} /></div>
                 </details>
               </>
-            ) : <TrainerBlocks blocks={[m.blocks[slide - 1]]} />
+            ) : <TrainerBlocks key={slide} blocks={[m.blocks[slide - 1]]} />  // key: jede Folie beginnt mit frischem Blockzustand
           )}
         </div>
       </div>
@@ -205,10 +232,16 @@ export function TrainerPresentPage() {
           </select>
         )}
         {startPoll.isError && <span role="alert" className="text-slate-900">{errMsg(startPoll.error, 'Abstimmung konnte nicht gestartet werden.')}</span>}
+        {pollFailed && (
+          <span role="alert" className="text-slate-900">
+            Der Stand der Live-Abstimmung konnte nicht geladen werden — eine laufende Abstimmung ist für die Teilnehmer evtl. noch offen.{' '}
+            <button type="button" onClick={() => poll.refetch()} className="font-semibold underline">Erneut versuchen</button>
+          </span>
+        )}
       </div>
 
       <div className="flex items-center justify-between border-t border-slate-100 px-6 py-3 text-sm">
-        <Link to={`/trainer/modul/${key}`} className="text-slate-400 hover:text-slate-600">
+        <Link to={`/trainer/modul/${key}`} className="text-slate-600 hover:text-slate-900">
           ✕ Beenden <span className="text-xs">(Esc)</span>
         </Link>
         <div className="flex items-center gap-3">
@@ -222,7 +255,7 @@ export function TrainerPresentPage() {
             weiter →
           </button>
         </div>
-        <span className="text-xs text-slate-300 hidden sm:block">Pfeiltasten / Leertaste</span>
+        <span className="text-xs text-slate-500 hidden sm:block">Pfeiltasten / Leertaste</span>
       </div>
     </main></WorkshopTheme>
   )

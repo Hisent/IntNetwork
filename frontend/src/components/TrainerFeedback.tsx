@@ -1,6 +1,7 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { trainerApi } from '@/lib/trainerApi'
+import { ConfirmDialog } from '@/components/ConfirmDialog'
 import { groupByModuleBlock, blockSnippet, type TrainerComment } from '@/components/commentGroups'
 
 export function TrainerFeedback({ courseId }: { courseId: number }) {
@@ -44,6 +45,10 @@ function FeedbackModule({
     queryFn: () => trainerApi.trainerModule(moduleKey).then((r) => r.data),
   })
   const [drafts, setDrafts] = useState<Record<number, string>>({})
+  // Löschen ist unwiderruflich und trifft fremde Beiträge — erst nach Rückfrage.
+  const [deleteTarget, setDeleteTarget] = useState<TrainerComment | null>(null)
+  const deleteTriggerRef = useRef<HTMLButtonElement | null>(null)
+  const rootRef = useRef<HTMLDivElement | null>(null)
 
   const add = useMutation({
     mutationFn: (v: { blockIndex: number; body: string }) =>
@@ -56,9 +61,16 @@ function FeedbackModule({
   })
 
   const groups = groupByModuleBlock(comments)
+  const send = (blockIndex: number) => {
+    const body = (drafts[blockIndex] ?? '').trim()
+    if (!body || add.isPending) return
+    // Entwurf erst nach Erfolg leeren — schlägt das Senden fehl,
+    // bleibt der Text zum erneuten Versuch stehen.
+    add.mutate({ blockIndex, body }, { onSuccess: () => setDrafts((d) => ({ ...d, [blockIndex]: '' })) })
+  }
 
   return (
-    <div className="rounded-xl border bg-white p-4">
+    <div ref={rootRef} className="rounded-xl border bg-white p-4">
       <h4 className="text-sm font-semibold text-slate-800 mb-2">{mod.data?.title ?? moduleKey}</h4>
       {(add.isError || del.isError) && <p role="alert" className="mb-2 text-xs text-rose-600">Aktion fehlgeschlagen — bitte erneut versuchen.</p>}
       <div className="flex flex-col gap-3">
@@ -74,7 +86,8 @@ function FeedbackModule({
                 <div key={c.id} className="text-sm mt-1">
                   <span className="font-medium text-slate-700">{c.author_name}</span>
                   <button
-                    onClick={() => del.mutate(c.id)}
+                    onClick={(e) => { deleteTriggerRef.current = e.currentTarget; setDeleteTarget(c) }}
+                    aria-label={`Kommentar von ${c.author_name} löschen`}
                     className="ml-2 text-xs text-rose-600 hover:text-rose-700"
                   >
                     löschen
@@ -83,23 +96,21 @@ function FeedbackModule({
                 </div>
               ))}
               <div className="flex gap-2 mt-2">
-                <input
+                {/* Enter sendet, Umschalt+Enter macht eine neue Zeile */}
+                <textarea
+                  rows={1}
                   value={drafts[g.blockIndex] ?? ''}
                   onChange={(e) => setDrafts((d) => ({ ...d, [g.blockIndex]: e.target.value }))}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) { e.preventDefault(); send(g.blockIndex) }
+                  }}
+                  aria-label={`Antwort zu Block ${g.blockIndex + 1}`}
+                  title="Enter sendet, Umschalt+Enter fügt eine Zeile ein"
                   placeholder="Antwort…"
                   className="flex-1 border rounded-lg px-2 py-1 text-sm"
                 />
                 <button
-                  onClick={() => {
-                    const body = (drafts[g.blockIndex] ?? '').trim()
-                    if (body) {
-                      // Entwurf erst nach Erfolg leeren — schlägt das Senden fehl,
-                      // bleibt der Text zum erneuten Versuch stehen.
-                      add.mutate({ blockIndex: g.blockIndex, body }, {
-                        onSuccess: () => setDrafts((d) => ({ ...d, [g.blockIndex]: '' })),
-                      })
-                    }
-                  }}
+                  onClick={() => send(g.blockIndex)}
                   className="rounded-lg bg-teal-600 hover:bg-teal-700 text-white px-3 text-sm font-medium"
                 >
                   Antworten
@@ -109,6 +120,16 @@ function FeedbackModule({
           )
         })}
       </div>
+      <ConfirmDialog
+        open={deleteTarget !== null}
+        title="Kommentar löschen"
+        description={<>Den Kommentar von „{deleteTarget?.author_name}“ endgültig löschen?</>}
+        confirmLabel="Löschen"
+        triggerRef={deleteTriggerRef}
+        container={rootRef.current?.closest('.workbench')}
+        onConfirm={() => { if (deleteTarget) del.mutate(deleteTarget.id); setDeleteTarget(null) }}
+        onCancel={() => setDeleteTarget(null)}
+      />
     </div>
   )
 }

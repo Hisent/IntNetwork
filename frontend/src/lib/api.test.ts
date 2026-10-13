@@ -7,7 +7,7 @@ const respond = (status: number, body: unknown = {}) =>
 
 afterEach(() => {
   vi.unstubAllGlobals()
-  useAuthStore.setState({ token: null, role: null, displayName: null })
+  useAuthStore.setState({ token: null, role: null, displayName: null, sessionLost: false })
 })
 
 describe('api: abgelaufene Sitzung', () => {
@@ -15,7 +15,19 @@ describe('api: abgelaufene Sitzung', () => {
     useAuthStore.getState().setAuth('tok', 'trainer')
     respond(401, { detail: 'Sitzung abgelaufen, bitte neu anmelden' })
     await expect(api.get('/courses')).rejects.toMatchObject({ response: { status: 401 } })
-    expect(useAuthStore.getState()).toMatchObject({ token: null, role: null })
+    expect(useAuthStore.getState()).toMatchObject({ token: null, role: null, sessionLost: false })
+  })
+
+  it('merkt sich den erzwungenen Rauswurf eines Teilnehmers — nicht das bewusste Abmelden', async () => {
+    useAuthStore.getState().setAuth('tok', 'participant', 'Ada')
+    respond(401, { detail: 'Sitzung abgelaufen' })
+    await expect(api.get('/me')).rejects.toBeTruthy()
+    expect(useAuthStore.getState()).toMatchObject({ token: null, sessionLost: true })
+
+    useAuthStore.getState().setAuth('tok2', 'participant', 'Ada')
+    expect(useAuthStore.getState().sessionLost).toBe(false)
+    useAuthStore.getState().logout()
+    expect(useAuthStore.getState().sessionLost).toBe(false)
   })
 
   it('lässt die Sitzung bei anderen Fehlern und beim Login-401 ohne Token in Ruhe', async () => {

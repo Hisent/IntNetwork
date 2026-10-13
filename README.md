@@ -53,10 +53,20 @@ serverseitig bewertetes Quiz mit.
 - Übungsmodus (`/lernen/ueben`): falsch beantwortete Fragen wiederholen oder gemischt üben — ohne Wertung
 - Suche über Titel, Lernziele, Texte und Glossar der freigeschalteten Module
 - Druckansicht je Modul als Spickzettel (Theorie, Diagramme, eigene Notizen)
-- Trainer-Dashboard mit Kursen, Modul-Aktivierung, Fortschritt, Live-Präsenz und Kommentaren
-- Live-Abstimmung im Präsenz-Workshop: Im Beamer-Modus (Einstieg „▶ Präsentieren“ im Kurs-Detail, `?kurs=<id>`) stellt der Trainer eine Single-Choice-Quizfrage oder einen Auswahl-Check zur Abstimmung; Teilnehmer mit offenem Modul stimmen in einer Einblendung ab (A/B/C/D für alle gleich). Verteilung anonym, Lösung erst nach „Auflösen“, ohne Einfluss auf Quiz, Fortschritt und Zertifikat
-- Modul-Editor mit einer Wiederherstellungsstufe
+- Empfohlene Reihenfolge statt Sperre: Module mit offener Voraussetzung sind ausgegraut, aber über Suche und Link erreichbar; im Kurs abgewählte Voraussetzungen zählen als erfüllt, ein nicht freigeschaltetes oder unbekanntes Modul zeigt eine Meldung mit dem Grund
+- Englische Fassung aller Module (Texte, Quiz, Lernziele)
+- Trainer-Dashboard mit Kursen, Modul-Aktivierung, Fortschritt, Live-Präsenz und Kommentaren (Enter sendet Antworten, Löschen mit Rückfrage)
+- Live-Abstimmung im Präsenz-Workshop: Im Beamer-Modus (Einstieg „▶ Präsentieren“ im Kurs-Detail, `?kurs=<id>`) stellt der Trainer eine Single-Choice-Quizfrage oder einen Auswahl-Check zur Abstimmung; Teilnehmer mit offenem Modul stimmen in einer Einblendung ab (A/B/C/D für alle gleich). Verteilung anonym, Lösung erst nach „Auflösen“, ohne Einfluss auf Quiz, Fortschritt und Zertifikat; eine laufende Abstimmung lässt sich auch im Kurs-Detail mit „Abstimmung beenden“ schließen
+- Modul-Editor mit einer Wiederherstellungsstufe, Statusleiste beim Speichern (Sprung zum fehlerhaften Block, „Serverstand laden“ bei Konflikt) und Schutz ungespeicherter Änderungen; `base_version` ist Pflicht, offene Editor-Tabs nach einem Deploy neu laden
 - Persönlicher Wiederaufnahme-Code beim Beitritt; öffentlich prüfbare Teilnahmebestätigung unter `/verifizieren`
+
+## Dokumentation
+
+- `docs/operations.md`: Betrieb, Content-Sync, Modul-Editor-Sperre, Zeitstempel (UTC), Alembic-Downgrade, Upgrade-Checkliste
+- `docs/lab-sicherheit.md`: Sicherheit des Labs (Runner, Allowlist für `git`/`openssl`, Ergebnis-Token)
+- `docs/content-authoring.md`: Autorenreferenz (Kennungen, Quizfragen, Block-Baukasten)
+- `docs/lernwelt-nordwind.md`: verbindlicher Adress- und Namensplan der Beispiele im Netzwerk-Lehrgang; Prüfung mit `python3 docs/lernwelt-check.py` (läuft auch in der CI)
+- `docs/confluence/`: einfügefertige Confluence-Fassungen (`01-ueberblick.md` bis `06-lernwelt-nordwind.md`); Quelle bleibt das Repository, bei Änderungen an den Dokumenten oben nachziehen
 
 ## Lokal starten
 
@@ -94,6 +104,7 @@ Das Frontend läuft lokal auf `http://localhost:5173`, die API auf `http://local
 ```bash
 cd backend && pytest
 cd frontend && npm run test && npm run build
+python3 docs/lernwelt-check.py   # Adress- und Namensplan der Lernwelt (Standardbibliothek)
 ```
 
 ## Inhalte aktualisieren / Entwicklungsreset

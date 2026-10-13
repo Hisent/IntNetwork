@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { markLockedVisibility } from './lockedModules'
+import { coursePrerequisites, markLockedVisibility, openPrerequisites } from './lockedModules'
 
 describe('markLockedVisibility', () => {
   it('keeps done/unlocked modules always visible', () => {
@@ -40,5 +40,22 @@ describe('markLockedVisibility', () => {
     // Die ersten beiden gesperrten (a, b) verbrauchen das Budget; das freie
     // Modul c zählt nicht mit, d/e bleiben verborgen.
     expect(result.map((r) => r.visible)).toEqual([true, true, true, false, false])
+  })
+})
+
+describe('openPrerequisites', () => {
+  const progress = [{ module_key: 'a', done: true }, { module_key: 'b', done: false }]
+  const course = [{ key: 'a' }, { key: 'b' }, { key: 'c' }]
+  it('nennt nur die noch nicht bestandenen Voraussetzungen', () => {
+    expect(openPrerequisites({ prerequisites: ['a', 'b', 'c'] }, progress, course)).toEqual(['b', 'c'])
+  })
+  it('ist leer, wenn alles bestanden ist oder nichts vorausgesetzt wird', () => {
+    expect(openPrerequisites({ prerequisites: ['a'] }, progress, course)).toEqual([])
+    expect(openPrerequisites({ prerequisites: [] }, [], [])).toEqual([])
+  })
+  it('behandelt im Kurs abgewählte Voraussetzungen als erfüllt', () => {
+    expect(openPrerequisites({ prerequisites: ['gone'] }, progress, course)).toEqual([])
+    expect(openPrerequisites({ prerequisites: ['gone', 'b'] }, progress, course)).toEqual(['b'])
+    expect(coursePrerequisites({ prerequisites: ['gone', 'b'] }, course)).toEqual(['b'])
   })
 })

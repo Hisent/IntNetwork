@@ -25,3 +25,10 @@ docs/*
 !docs/claude-code-curriculum-research.md
 !docs/claude-code-fact-check.md
 !docs/claude-code-workshop-dock.md
+# Autorenreferenz (Quellformat, Kennungen, Baukasten), Lernwelt-Plan samt
+# Pruefskript und die Confluence-Fassungen der Betriebsdoku: Tests,
+# Validator-Meldungen und Inhaltsmodule verweisen darauf.
+!docs/content-authoring.md
+!docs/lernwelt-nordwind.md
+!docs/lernwelt-check.py
+!docs/confluence/

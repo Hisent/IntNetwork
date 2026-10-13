@@ -7,8 +7,15 @@ interface AuthState {
   token: string | null
   role: Role
   displayName: string | null
+  /** Die Teilnehmer-Sitzung wurde vom Server beendet (401: Token ungültig, Code
+   *  zurückgesetzt, Kurs gelöscht) — Start- und Beitrittsseite zeigen dazu einmal
+   *  einen Hinweis. Bewusstes Abmelden setzt es nicht. */
+  sessionLost: boolean
   setAuth: (token: string, role: Role, displayName?: string) => void
   logout: () => void
+  /** Erzwungenes Abmelden nach 401 (lib/api.ts). */
+  expire: () => void
+  dismissSessionLost: () => void
 }
 
 // Entfernt einmalig Tokens aus Versionen vor 1.4, die dauerhaft im Local
@@ -26,8 +33,13 @@ export const useAuthStore = create<AuthState>()(
       token: null,
       role: null,
       displayName: null,
-      setAuth: (token, role, displayName) => set({ token, role, displayName: displayName ?? null }),
-      logout: () => set({ token: null, role: null, displayName: null }),
+      sessionLost: false,
+      setAuth: (token, role, displayName) => set({ token, role, displayName: displayName ?? null, sessionLost: false }),
+      logout: () => set({ token: null, role: null, displayName: null, sessionLost: false }),
+      // Der Hinweistext nennt Kurs-Code und Wiederaufnahme-Code — er gilt nur Teilnehmern;
+      // Trainer landen ohnehin sichtbar auf dem Login.
+      expire: () => set((state) => ({ token: null, role: null, displayName: null, sessionLost: state.role === 'participant' })),
+      dismissSessionLost: () => set({ sessionLost: false }),
     }),
     {
       name: 'intnetwork-auth',

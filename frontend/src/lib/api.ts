@@ -3,7 +3,7 @@ import { useAuthStore } from '@/store/auth'
 // Schlanker fetch-Wrapper in axios-Form ({ data }, Fehler mit
 // response.data.detail) — die Aufrufer bleiben unverändert.
 export interface ApiError extends Error {
-  response?: { status: number; data?: { detail?: string } }
+  response?: { status: number; data?: { detail?: string; code?: string } }
 }
 
 async function request<T>(method: string, url: string, body?: unknown): Promise<{ data: T }> {
@@ -23,7 +23,7 @@ async function request<T>(method: string, url: string, body?: unknown): Promise<
     // Nur wenn der gesendete Token noch der aktuelle ist (kein Rennen mit Neu-Login).
     // ponytail: POST /trainer/password antwortet bei falschem Alt-Passwort ebenfalls
     // mit 401 — hat aktuell keine UI; beim Bau einer solchen hier ausnehmen.
-    if (res.status === 401 && token && useAuthStore.getState().token === token) useAuthStore.getState().logout()
+    if (res.status === 401 && token && useAuthStore.getState().token === token) useAuthStore.getState().expire()
     const err = new Error(`HTTP ${res.status}`) as ApiError
     err.response = { status: res.status, data }
     throw err

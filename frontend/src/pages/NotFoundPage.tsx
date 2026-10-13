@@ -1,11 +1,12 @@
 import { Link } from 'react-router-dom'
 import { BrandLogo } from '@/components/BrandLogo'
 import { LangToggle } from '@/components/workbench/WorkbenchShell'
-import { t, useDocumentLang, usePublicLang } from '@/lib/i18n'
+import { t, useDocumentLang, useDocumentTitle, usePublicLang } from '@/lib/i18n'
 
 export function NotFoundPage() {
   const [lang, setLang] = usePublicLang()
   useDocumentLang(lang)
+  useDocumentTitle(t(lang, 'notFoundTitle'))
   return (
     <main id="main-content" tabIndex={-1} className="min-h-dvh bg-slate-50 flex items-center justify-center p-6">
       <div className="text-center">

@@ -43,6 +43,12 @@
    früher eine Claude-Sonderregel für den Dark Mode; sie ist damit überflüssig
    und würde sich mit dem gemeinsamen Block nur um die Spezifität streiten. */
 
+/* Schrift auf der Akzentfläche: --wb-accent ist im Dunkelmodus hell (#14b8a6 bzw. der
+   Kursakzent), weil es dort überwiegend Text und Links färbt — Weiß darauf erreichte nur
+   2,5:1 (aktive Modulnummer in der Kursnavigation, Hauptknöpfe). Dunkle Schrift erreicht > 7:1;
+   im Hellmodus bleibt Weiß (4,9:1). Nachgerechnet in lib/hintContrast.test.ts. */
+[data-theme="dark"] .workbench .bg-\[var\(--wb-accent\)\].text-white { color: var(--wb-canvas); }
+
 .workbench *:focus-visible {
   outline-color: var(--wb-accent);
   outline-offset: 3px;

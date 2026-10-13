@@ -10,14 +10,19 @@ const OUTCOME = {
   bad: { box: 'border-rose-300 bg-rose-50 text-rose-800', de: 'Riskante Entscheidung', en: 'Risky call' },
 } as const
 
+const START: number[] = []
+
 export default function ScenarioBlock({ data, lang }: { data: ScenarioData; lang: Lang }) {
   const de = lang === 'de'
   // erledigt = ein Ausgang erreicht (gleich welcher — das Szenario bewertet nicht)
-  const [choices, setChoices] = useExercise<number[]>([], (c) => {
+  const [saved, setChoices] = useExercise<number[]>([], (c) => {
     const path = walkScenario(data, c)
     return !!path[path.length - 1]?.outcome
   })
-  const visited = walkScenario(data, choices)
+  // Gemerkter Pfad, den es im aktuellen Szenario nicht (mehr) gibt -> zurück an den Start.
+  const walked = walkScenario(data, Array.isArray(saved) ? saved : [])
+  const choices = Array.isArray(saved) && walked.length === saved.length + 1 ? saved : START
+  const visited = choices === saved ? walked : walked.slice(0, 1)
   const node = visited[visited.length - 1]
   // Nach einer Wahl verschwindet der geklickte Knopf — Fokus auf die neue Situation setzen,
   // sonst landet die Tastatur wieder am Seitenanfang.

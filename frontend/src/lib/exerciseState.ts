@@ -32,27 +32,52 @@ function saveExercise(storageKey: string, uid: string, record: ExerciseRecord): 
   }
 }
 
-// ponytail: Der Stand gilt nur für exakt den Blockinhalt, mit dem er entstand —
-// ändert sich der Block (Content-Update, Sprachwechsel), beginnt die Übung neu,
-// statt alte Indizes auf neue Optionen zu legen. Wer den Stand über Sprachen
-// hinweg halten will, braucht je Blocktyp einen sprachneutralen Fingerabdruck.
-export function fingerprint(value: unknown): string {
-  const text = JSON.stringify(value) ?? ''
-  let hash = 5381
-  for (let i = 0; i < text.length; i++) hash = ((hash << 5) + hash + text.charCodeAt(i)) | 0
-  return `${text.length}.${hash}`
+function hash(text: string): string {
+  let h = 5381
+  for (let i = 0; i < text.length; i++) h = ((h << 5) + h + text.charCodeAt(i)) | 0
+  return `${text.length}.${h}`
 }
 
+// Anzeigetexte, die je Sprache anders ausgeliefert werden (backend/app/services/
+// block_validation.py: alles, was als X_de/X_en im Payload stehen darf). Sie zählen
+// nicht zum Fingerabdruck — nur ihre Anzahl (Textlisten wie options/items/lines).
+const TEXT_KEYS = new Set([
+  'title', 'caption', 'label', 'detail', 'at', 'divider', 'name', 'content', 'pdu', 'text', 'desc', 'intro',
+  'unknown', 'explanation', 'prompt', 'left', 'right', 'output', 'value', 'teaser', 'note', 'options', 'items', 'lines',
+])
+
+// Der Stand gilt nur für die Struktur und Lösung, mit der er entstand (Typ, Anzahl,
+// Indizes, ids, Befehle) — ändert sie sich (Content-Update), beginnt die Übung neu,
+// statt alte Indizes auf neue Optionen zu legen. Reine Textänderungen und der
+// Sprachwechsel lassen ihn stehen: gelöst bleibt in beiden Sprachen gelöst.
+// ponytail: `accept` (Freitext-Lösungen) bleibt im Fingerabdruck — ist es je Sprache
+// verschieden, gilt der Stand dieser einen Lücke weiterhin nur in seiner Sprache.
+export function fingerprint(value: unknown): string {
+  return hash(JSON.stringify(value, (key, v: unknown) => {
+    if (!TEXT_KEYS.has(key)) return v
+    if (typeof v === 'string') return ''
+    return Array.isArray(v) && v.every((x) => typeof x === 'string') ? v.length : v
+  }) ?? '')
+}
+
+/** Fingerabdruck bis v1.43 (ganzer, sprachabhängiger Blockinhalt): damit gespeicherte Stände bleiben gültig. */
+export const legacyFingerprint = (value: unknown): string => hash(JSON.stringify(value) ?? '')
+
+const fits = (saved: ExerciseRecord | undefined, v: string, legacy?: string): saved is ExerciseRecord =>
+  !!saved && (saved.v === v || (legacy !== undefined && saved.v === legacy))
+
 /** Welche gespeicherten Übungen sind erledigt (und passen noch zum Blockinhalt)? */
-export function doneExercises(storageKey: string, versions: Record<string, string>): Set<string> {
+export function doneExercises(storageKey: string, versions: Record<string, string>, legacy: Record<string, string> = {}): Set<string> {
   const saved = loadExercises(storageKey)
-  return new Set(Object.keys(versions).filter((uid) => saved[uid]?.done === true && saved[uid].v === versions[uid]))
+  return new Set(Object.keys(versions).filter((uid) => fits(saved[uid], versions[uid], legacy[uid]) && saved[uid].done === true))
 }
 
 export interface ExerciseSlot {
   storageKey: string
   uid: string
   v: string
+  /** alter Fingerabdruck desselben Blocks — nur zum Lesen bereits gespeicherter Stände */
+  legacy?: string
   onDone: (uid: string, done: boolean) => void
 }
 
@@ -65,7 +90,7 @@ export function useExercise<T>(initial: T | (() => T), isDone: (state: T) => boo
   const slot = useContext(ExerciseSlotContext)
   const [state, setState] = useState<T>(() => {
     const saved = slot ? loadExercises(slot.storageKey)[slot.uid] : undefined
-    if (saved && saved.v === slot!.v) return saved.s as T
+    if (slot && fits(saved, slot.v, slot.legacy)) return saved.s as T
     return typeof initial === 'function' ? (initial as () => T)() : initial
   })
   const untouched = useRef(state)

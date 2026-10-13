@@ -31,6 +31,9 @@ jobs:
       # Versionen fest: ein neues ruff-Release mit zusaetzlichen Regeln soll
       # nicht ungefragt fremde Pull Requests rot faerben.
       - run: pip install ruff==0.17.0 && ruff check .
+      # Lernwelt Nordwind: eine Adresse/ein Name/eine VLAN-Nummer = eine Rolle
+      # (docs/lernwelt-nordwind.md). Nur Standardbibliothek, Exit 1 bei Verstoss.
+      - run: python3 ../docs/lernwelt-check.py
       - run: pytest
       # Ein neuer Advisory stoppt den Merge: die Lock-Datei macht den Befund
       # reproduzierbar und verhindert, dass ein Deploy ihn stillschweigend uebernimmt.

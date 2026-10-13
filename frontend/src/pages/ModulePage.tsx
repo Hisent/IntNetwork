@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import Markdown from 'react-markdown'
 import { Link, Navigate, useLocation, useParams } from 'react-router-dom'
@@ -8,8 +8,11 @@ import { BlockComments } from '@/components/BlockComments'
 import { Quiz } from '@/components/Quiz'
 import { loadRead, pruneOtherParticipants, toggleRead } from '@/lib/readProgress'
 import { PageSkeleton } from '@/components/PageSkeleton'
-import { LoadError } from '@/components/LoadError'
-import { storeLang, t, useDocumentLang, type Lang } from '@/lib/i18n'
+import { LoadError, ModuleMissing } from '@/components/LoadError'
+import { localTitle, storeLang, t, useDocumentLang, useDocumentTitle, type Lang } from '@/lib/i18n'
+import type { ApiError } from '@/lib/api'
+import { jumpToBlock } from '@/lib/blockJump'
+import { openPrerequisites } from '@/lib/lockedModules'
 import { GlossaryPanel } from '@/components/GlossaryPanel'
 import { termsForModule } from '@/lib/glossary'
 import { Icon } from '@/components/Icon'
@@ -35,14 +38,6 @@ export function ModulePage() {
     // Modulwechsel ohne Ladezustand (Modul im Cache) behielte sonst die
     // Scrollposition vom Seitenende des vorherigen Moduls.
     window.scrollTo(0, 0)
-    // Nur melden, solange der Tab sichtbar ist: sonst zeigt die Präsenz im
-    // Trainer-Bereich jeden als aktiv, der das Modul irgendwo im Hintergrund
-    // offen hat. Beim Zurückkehren sofort melden, nicht erst nach 20 s.
-    const beat = () => { if (!document.hidden) learnApi.heartbeat(key).catch(() => {}) }
-    beat()
-    const id = setInterval(beat, 20_000)
-    document.addEventListener('visibilitychange', beat)
-    return () => { clearInterval(id); document.removeEventListener('visibilitychange', beat) }
   }, [key, isParticipant])
 
   const [read, setRead] = useState<number[]>([])
@@ -61,7 +56,14 @@ export function ModulePage() {
   }, [scoped, participantId, courseId, key])
   const lang: Lang = me.data?.language ?? 'de'
   useDocumentLang(lang)
-  const mod = useQuery({ queryKey: ['module', key, lang], queryFn: () => learnApi.getModule(key).then((r) => r.data), enabled: isParticipant })
+  const mod = useQuery({
+    queryKey: ['module', key, lang],
+    queryFn: () => learnApi.getModule(key).then((r) => r.data),
+    enabled: isParticipant,
+    // Sprachwechsel: bis die andere Sprache da ist, bleibt der bisherige Inhalt DESSELBEN Moduls
+    // stehen — sonst ersetzte das Lade-Skelett die Seite (Scrollposition 0, Quiz-Auswahl weg).
+    placeholderData: (previous, previousQuery) => (previousQuery?.queryKey[1] === key ? previous : undefined),
+  })
   const features = useQuery({ queryKey: ['features'], queryFn: () => learnApi.features().then((r) => r.data), enabled: isParticipant })
   const mods = useQuery({ queryKey: ['modules', lang], queryFn: () => learnApi.listModules().then((r) => r.data), enabled: isParticipant })
   const [justPassed, setJustPassed] = useState(false)
@@ -74,10 +76,23 @@ export function ModulePage() {
   const loaded = !!mod.data
   useEffect(() => {
     if (!loaded || !hash.startsWith('#b-')) return
-    const uid = decodeURIComponent(hash.slice(3))
-    const target = [...document.querySelectorAll<HTMLElement>('[data-uid]')].find((el) => el.dataset.uid === uid)
-    target?.scrollIntoView()
+    return jumpToBlock(decodeURIComponent(hash.slice(3)))
   }, [loaded, hash, key])
+  useDocumentTitle(mod.data ? localTitle(mod.data, lang) : undefined)
+
+  // Präsenz erst melden, wenn das Modul wirklich geladen ist — für ein abgewähltes
+  // oder unbekanntes Modul antwortet der Heartbeat nur mit 404.
+  useEffect(() => {
+    if (!key || !isParticipant || !loaded) return
+    // Nur melden, solange der Tab sichtbar ist: sonst zeigt die Präsenz im
+    // Trainer-Bereich jeden als aktiv, der das Modul irgendwo im Hintergrund
+    // offen hat. Beim Zurückkehren sofort melden, nicht erst nach 20 s.
+    const beat = () => { if (!document.hidden) learnApi.heartbeat(key).catch(() => {}) }
+    beat()
+    const id = setInterval(beat, 20_000)
+    document.addEventListener('visibilitychange', beat)
+    return () => { clearInterval(id); document.removeEventListener('visibilitychange', beat) }
+  }, [key, isParticipant, loaded])
 
   // Nächstes Modul in Kurs-Reihenfolge — Ziel des „Weiter“-Buttons unter dem Quiz.
   const nextModule = useMemo(() => {
@@ -88,13 +103,28 @@ export function ModulePage() {
   const sortedModules = useMemo(() => [...(mods.data ?? [])].sort((a, b) => a.order - b.order), [mods.data])
   const setLang = useMutation({
     mutationFn: (l: Lang) => { storeLang(l); return learnApi.setLanguage(l) },
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['me'] })
-      qc.invalidateQueries({ queryKey: ['module'] })
-    },
+    // Nur /me neu laden: die neue Sprache steht im Query-Key des Moduls und löst dessen
+    // (einen) Abruf selbst aus — ein zusätzliches Invalidieren holte es doppelt.
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['me'] }) },
   })
+  // Scroll-Erhalt beim Sprachwechsel: den obersten sichtbaren Block merken und, sobald der
+  // Inhalt in der neuen Sprache steht (andere Textlängen), wieder an dieselbe Stelle rücken.
+  const scrollAnchor = useRef<{ id: string; top: number; lang: Lang } | null>(null)
+  const switchLanguage = (next: Lang) => {
+    const el = [...document.querySelectorAll<HTMLElement>('[id^="block-"]')].find((b) => b.getBoundingClientRect().bottom > 0)
+    scrollAnchor.current = el ? { id: el.id, top: el.getBoundingClientRect().top, lang: next } : null
+    setLang.mutate(next)
+  }
+  useLayoutEffect(() => {
+    const anchor = scrollAnchor.current
+    if (!anchor || anchor.lang !== lang || mod.isPlaceholderData) return
+    scrollAnchor.current = null
+    const el = document.getElementById(anchor.id)
+    if (el) window.scrollBy({ top: el.getBoundingClientRect().top - anchor.top, behavior: 'instant' })
+  }, [lang, mod.isPlaceholderData, mod.data])
 
   if (!isParticipant) return <Navigate to="/" replace />
+  if ((mod.error as ApiError | null)?.response?.status === 404) return <ModuleMissing lang={lang} code={(mod.error as ApiError).response?.data?.code} />
   if (mod.isError || me.isError) return <LoadError lang={lang} onRetry={() => { me.refetch(); mod.refetch() }} />
   if (mod.isLoading || !mod.data) return <PageSkeleton />
 
@@ -129,7 +159,7 @@ export function ModulePage() {
         showGlossary={termsForModule(key).length > 0}
         nextModule={nextModule}
         justPassed={justPassed}
-        setLanguage={(value) => setLang.mutate(value)}
+        setLanguage={switchLanguage}
         onToggleRead={(index) => scoped && setRead(toggleRead(participantId, courseId, key, read, index))}
         onQuizResult={(passed) => { setJustPassed(passed); qc.invalidateQueries({ queryKey: ['me'] }) }}
       />
@@ -164,7 +194,7 @@ export interface WorkbenchModuleProps {
 // unterschiedlichen Ansichten derselben Daten zeigen.
 function WorkbenchModuleNav({ lang, current, modules, sections, progress }: { lang: Lang; current: string; modules: ModuleMeta[]; sections?: ModuleSection[]; progress: ProgressItem[] }) {
   const progressOf = (key: string) => progress.find((item) => item.module_key === key)
-  const unlocked = (module: ModuleMeta) => module.key === current || module.prerequisites.every((key) => progressOf(key)?.done)
+  const unlocked = (module: ModuleMeta) => module.key === current || openPrerequisites(module, progress, modules).length === 0
   const groups = groupModulesBySection(modules, sections)
   // Anzeigeposition (1..n) statt des internen `order`-Sortierschlüssels —
   // sonst zeigt der Claude-Workshop "101" statt "1" (siehe modulePosition.ts).
@@ -181,7 +211,7 @@ function WorkbenchModuleNav({ lang, current, modules, sections, progress }: { la
               const rowClass = `wb-control grid grid-cols-[28px_minmax(0,1fr)] items-center gap-2 rounded-lg px-2 py-1.5 text-sm ${module.key === current ? 'bg-[var(--wb-accent-soft)] font-semibold text-[var(--wb-accent)]' : available ? 'text-[var(--wb-muted)] hover:bg-white hover:text-[var(--wb-ink)]' : 'cursor-not-allowed text-slate-400'}`
               const rowContent = <>
                   <span aria-hidden="true" className={`grid h-6 w-6 place-items-center rounded-md text-[10px] font-bold ${itemProgress?.done ? 'bg-emerald-100 text-[var(--wb-success)]' : module.key === current ? 'bg-[var(--wb-accent)] text-white' : 'bg-white'}`}>{itemProgress?.done ? <Icon name="check" className="h-3.5 w-3.5" /> : positions.get(module.key)}</span>
-                  <span className="min-w-0">{lang === 'de' ? module.title : module.title_en}</span>
+                  <span className="min-w-0">{localTitle(module, lang)}</span>
                 </>
               return available
                 ? <Link key={module.key} to={`/lernen/${module.key}`} aria-current={module.key === current ? 'page' : undefined} className={rowClass}>{rowContent}</Link>
@@ -216,6 +246,10 @@ export function WorkbenchModuleView({ lang, moduleKey, keyScope, module, modules
   // Position in der Kursreihenfolge (1..n) statt des internen `order`-Werts
   // (siehe modulePosition.ts) — betrifft auch den Claude-Workshop (order 101+).
   const position = modulePositions(modules).get(moduleKey) ?? module.order
+  const title = localTitle(module, lang)
+  // noch offene Voraussetzungen, soweit sie zum Kurs gehören
+  const openKeys = openPrerequisites(module, progress, modules)
+  const buildsOn = modules.filter((m) => openKeys.includes(m.key))
   const languageControl = (
     <><LangToggle lang={lang} onChange={setLanguage} className="hidden sm:flex" />{showGlossary && <div className="xl:hidden"><GlossaryPanel moduleKey={moduleKey} lang={lang} /></div>}</>
   )
@@ -224,7 +258,7 @@ export function WorkbenchModuleView({ lang, moduleKey, keyScope, module, modules
       <ScrollProgress />
       {/* Live-Abstimmung des Trainers; direkt in der .workbench-Wurzel (Tokens, inert für die Geschwister) */}
       <ParticipantPoll moduleKey={moduleKey} lang={lang} />
-      <WorkbenchTopbar lang={lang} title={module.title} actions={languageControl} />
+      <WorkbenchTopbar lang={lang} title={title} actions={languageControl} />
       <div className="h-1 bg-[var(--wb-subtle)] print:hidden"><div className="h-full bg-[var(--wb-accent)]" style={{ width: `${readPct}%` }} /></div>
       <div className="wb-shell">
         <details id="module-nav" className="wb-surface mb-5 scroll-mt-20 p-3 lg:hidden print:hidden">
@@ -248,7 +282,15 @@ export function WorkbenchModuleView({ lang, moduleKey, keyScope, module, modules
               <button type="button" onClick={() => window.print()} className="wb-control inline-flex items-center gap-1.5 text-sm font-medium text-[var(--wb-muted)] hover:text-[var(--wb-accent)]"><Icon name="printer" className="h-4 w-4" />{lang === 'de' ? 'Drucken / PDF' : 'Print / PDF'}</button>
             </div>
             <p className="text-sm font-semibold text-[var(--wb-accent)]">{lang === 'de' ? `Modul ${position}` : `Module ${position}`}</p>
-            <h1 className="mt-2 text-3xl font-bold leading-tight tracking-tight text-[var(--wb-ink)] sm:text-4xl">{module.title}</h1>
+            <h1 className="mt-2 text-3xl font-bold leading-tight tracking-tight text-[var(--wb-ink)] sm:text-4xl">{title}</h1>
+            {/* Die Reihenfolge ist Führung, keine Sperre (Suche und Links führen auch hierher) — nur ehrlich sagen, worauf das Modul aufbaut. */}
+            {buildsOn.length > 0 && (
+              <p className="mt-3 text-sm text-[var(--wb-muted)] print:hidden">
+                <Icon name="lock" className="mr-1.5 inline h-4 w-4 align-text-bottom" />{t(lang, 'moduleBuildsOn')}{' '}
+                {buildsOn.map((m, index) => <span key={m.key}>{index > 0 && ', '}<Link to={`/lernen/${m.key}`} className="font-medium text-[var(--wb-accent)] hover:underline">{localTitle(m, lang)}</Link></span>)}
+                {t(lang, 'buildsOnEnd')}.
+              </p>
+            )}
             {module.scenario && <div className="wb-scenario mt-5 border-l-2 border-[var(--wb-accent)] pl-4 text-sm leading-relaxed text-[var(--wb-muted)]"><Markdown>{module.scenario}</Markdown></div>}
 
             {module.goals && module.goals.length > 0 && (
@@ -281,7 +323,7 @@ export function WorkbenchModuleView({ lang, moduleKey, keyScope, module, modules
             <Quiz moduleKey={moduleKey} questions={module.quiz.questions} lang={lang} onResult={onQuizResult} />
             </div>
             <div className="mt-10 border-t border-[var(--wb-border)] pt-6 text-right print:hidden">
-              {nextModule ? <Link to={`/lernen/${nextModule.key}`} className={`wb-control inline-flex max-w-full items-center justify-center gap-1.5 rounded-lg px-5 text-center font-semibold ${justPassed ? 'bg-[var(--wb-accent)] text-white hover:bg-[var(--wb-accent-hover)]' : 'border border-[var(--wb-border)] bg-white text-[var(--wb-ink)] hover:border-[var(--wb-accent)]'}`}>{t(lang, 'nextModule')}: {lang === 'de' ? nextModule.title : nextModule.title_en}<Icon name="arrowRight" className="h-4 w-4" /></Link> : <Link to="/lernen" className="wb-control inline-flex items-center gap-1.5 rounded-lg border border-[var(--wb-border)] bg-white px-5 font-semibold">{t(lang, 'backToOverview')}<Icon name="arrowRight" className="h-4 w-4" /></Link>}
+              {nextModule ? <Link to={`/lernen/${nextModule.key}`} className={`wb-control inline-flex max-w-full items-center justify-center gap-1.5 rounded-lg px-5 text-center font-semibold ${justPassed ? 'bg-[var(--wb-accent)] text-white hover:bg-[var(--wb-accent-hover)]' : 'border border-[var(--wb-border)] bg-white text-[var(--wb-ink)] hover:border-[var(--wb-accent)]'}`}>{t(lang, 'nextModule')}: {localTitle(nextModule, lang)}<Icon name="arrowRight" className="h-4 w-4" /></Link> : <Link to="/lernen" className="wb-control inline-flex items-center gap-1.5 rounded-lg border border-[var(--wb-border)] bg-white px-5 font-semibold">{t(lang, 'backToOverview')}<Icon name="arrowRight" className="h-4 w-4" /></Link>}
             </div>
 
             {/* Auf schmalen Viewports (Sidebar nicht permanent sichtbar) ein

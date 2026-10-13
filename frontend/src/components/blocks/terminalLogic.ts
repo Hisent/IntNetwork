@@ -33,8 +33,11 @@ export type CommandMatch = { kind: 'match'; index: number } | { kind: 'ambiguous
 export function findCommand(spec: TerminalData, raw: string): CommandMatch {
   const input = normalize(raw, spec.case_sensitive)
   const names = spec.commands.map((c) => [c.cmd, ...(c.aliases ?? [])].map((n) => normalize(n, spec.case_sensitive)))
-  const exact = names.findIndex((list) => list.some((n) => patternMatches(n, input)))
-  if (exact >= 0) return { kind: 'match', index: exact }
+  // wörtliche Schreibweisen vor Platzhalter-Mustern: `ping *` darf ein später stehendes `ping 10.0.0.1` nicht verdecken
+  for (const wildcard of [false, true]) {
+    const exact = names.findIndex((list) => list.some((n) => hasWildcard(n) === wildcard && patternMatches(n, input)))
+    if (exact >= 0) return { kind: 'match', index: exact }
+  }
   if (!spec.abbreviations) return { kind: 'none' }
   const hits = names.flatMap((list, index) => (list.some((n) => abbrevMatches(n, input)) ? [index] : []))
   if (hits.length === 1) return { kind: 'match', index: hits[0] }
@@ -67,7 +70,7 @@ export function runCommand(spec: TerminalData, raw: string, lang: Lang, flags: r
     return result
   }
   // ein vom Autor definiertes "help"/"?" gewinnt oben; sonst die generierte Liste
-  if (['?', 'help'].includes(normalize(raw))) return { output: helpText(spec, lang) }
+  if (['?', 'help'].includes(normalize(raw, spec.case_sensitive))) return { output: helpText(spec, lang) }
   if (m.kind === 'ambiguous') return { output: lang === 'de' ? '% Mehrdeutiger Befehl — ? zeigt die Befehlsliste.' : '% Ambiguous command — ? lists the commands.' }
   const fallback = lang === 'de' ? '% Unbekannter Befehl: {cmd} — ? zeigt die Befehlsliste.' : '% Unknown command: {cmd} — ? lists the commands.'
   return { output: (spec.unknown ?? fallback).replaceAll('{cmd}', raw.trim()) }

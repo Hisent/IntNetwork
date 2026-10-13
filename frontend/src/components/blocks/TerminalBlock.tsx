@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { useExercise } from '@/lib/exerciseState'
 import type { Lang } from '@/lib/i18n'
 import { Icon } from '@/components/Icon'
@@ -8,26 +8,35 @@ import type { TerminalData } from './types'
 
 export default function TerminalBlock({ data, lang }: { data: TerminalData; lang: Lang }) {
   const de = lang === 'de'
-  const [prompt, setPrompt] = useState(data.prompt)
-  // Zustands-Flags (sets/clears/variants) gehören wie Prompt und Bildschirm zur Sitzung, nicht zum Übungsstand.
-  const [flags, setFlags] = useState<string[]>([])
   const chips = useMemo(() => chipCommands(data), [data])
   const chipLabels = useMemo(() => Object.fromEntries(data.commands.flatMap((c) => (c.label ? [[literal(c.cmd), c.label]] : []))), [data])
   const tasks = data.tasks ?? []
-  // Gemerkt werden die Aufgaben (ausgeführte Befehle, Antworten), nicht der Bildschirminhalt.
-  const [state, setState] = useExercise({ executed: [] as number[], answers: {} as Record<number, string> },
+  // Gemerkt werden die Aufgaben (ausgeführte Befehle, Antworten) UND der Gerätezustand dahinter
+  // (Flags aus sets/clears, Prompt) — sonst wären nach dem Neuladen Aufgaben abgehakt, deren
+  // Wirkung fehlt, und die Folgeaufgabe nur durch Wiederholen lösbar. Nicht gemerkt: der Bildschirminhalt.
+  const [saved, setState] = useExercise({ executed: [] as number[], answers: {} as Record<number, string>, flags: [] as string[], prompt: null as string | null },
     (s) => tasks.length > 0 && tasks.every((task, i) => taskDone(data, task, new Set(s.executed), s.answers[i])))
+  // Gegen den aktuellen Inhalt und ältere/kaputte Speicherstände absichern (flags/prompt kamen später dazu).
+  const state = useMemo(() => ({
+    executed: Array.isArray(saved?.executed) ? saved.executed.filter((i) => i >= 0 && i < data.commands.length) : [],
+    answers: saved?.answers && typeof saved.answers === 'object' ? saved.answers : {},
+    flags: Array.isArray(saved?.flags) ? saved.flags : [],
+    prompt: typeof saved?.prompt === 'string' ? saved.prompt : null,  // null = Start-Prompt des Inhalts
+  }), [saved, data])
   const executed = useMemo(() => new Set(state.executed), [state.executed])
-  const answers = state.answers
+  const { answers, flags } = state
+  const prompt = state.prompt ?? data.prompt
 
   const run = (cmd: string) => {
     const r = runCommand(data, cmd, lang, flags)
-    if (r.index !== undefined) {
-      const index = r.index
-      setState((s) => (s.executed.includes(index) ? s : { ...s, executed: [...s.executed, index] }))
+    if (r.index !== undefined || r.prompt || r.flags) {
+      setState({
+        ...state,
+        executed: r.index === undefined || state.executed.includes(r.index) ? state.executed : [...state.executed, r.index],
+        flags: r.flags ?? state.flags,
+        prompt: r.prompt || state.prompt,
+      })
     }
-    if (r.prompt) setPrompt(r.prompt)
-    if (r.flags) setFlags(r.flags)
     return r.output
   }
 
@@ -56,7 +65,7 @@ export default function TerminalBlock({ data, lang }: { data: TerminalData; lang
                 <span className="sr-only">{done ? (de ? '(erledigt)' : '(done)') : (de ? '(offen)' : '(open)')}</span>
                 {task.answers && (
                   <input value={answers[i] ?? ''} disabled={done}
-                    onChange={(e) => setState((s) => ({ ...s, answers: { ...s.answers, [i]: e.target.value } }))}
+                    onChange={(e) => setState({ ...state, answers: { ...answers, [i]: e.target.value } })}
                     spellCheck={false} autoComplete="off" autoCapitalize="off"
                     placeholder={de ? 'Antwort' : 'Answer'} aria-label={`${de ? 'Antwort zu' : 'Answer for'}: ${task.text}`}
                     className="w-44 rounded-lg border border-slate-200 px-2 py-1 font-mono text-sm text-slate-700" />

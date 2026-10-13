@@ -52,6 +52,11 @@ export function CourseDetail({ course, workshopTitle, workshops, portalContainer
   const presence = useQuery({ queryKey: ['presence', cid], queryFn: () => trainerApi.coursePresence(cid).then((r) => r.data), refetchInterval: 10_000 })
   const dash = useQuery({ queryKey: ['dashboard', cid], queryFn: () => trainerApi.dashboard(cid).then((r) => r.data) })
   const features = useQuery({ queryKey: ['features'], queryFn: () => trainerApi.features().then((r) => r.data) })
+  // Läuft noch eine Live-Abstimmung (z. B. Präsentation per Zurück/Tab-Schließen
+  // verlassen)? Sie bliebe für die Teilnehmer offen und hier unsichtbar.
+  const pollKey = ['trainer-poll', cid]
+  const poll = useQuery({ queryKey: pollKey, queryFn: () => trainerApi.poll(cid).then((r) => r.data), refetchInterval: 10_000 })
+  const closePoll = useMutation({ mutationFn: () => trainerApi.closePoll(cid), onSuccess: () => qc.setQueryData(pollKey, null) })
   const toggleMod = useMutation({
     mutationFn: (v: { module_key: string; active: boolean }) => trainerApi.setCourseModule(cid, v.module_key, v.active),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['course-modules', cid] }),
@@ -133,8 +138,21 @@ export function CourseDetail({ course, workshopTitle, workshops, portalContainer
         {deleteCourse.isError && <p className="mt-2 text-right text-sm text-rose-600">Löschen fehlgeschlagen.</p>}
       </div>
 
+      {poll.data && (
+        <div role="status" className="wb-surface flex flex-wrap items-center gap-3 border-[var(--wb-accent)] p-4 text-sm">
+          <div className="min-w-0 flex-1">
+            <p className="font-semibold text-[var(--wb-ink)]">Live-Abstimmung läuft{poll.data.status === 'revealed' ? ' (aufgelöst)' : ''} · {poll.data.votes ?? 0} {poll.data.votes === 1 ? 'Stimme' : 'Stimmen'}</p>
+            <p className="mt-0.5 text-[var(--wb-muted)] [overflow-wrap:anywhere]">{poll.data.prompt}</p>
+          </div>
+          <button type="button" onClick={() => closePoll.mutate()} disabled={closePoll.isPending}
+            className="wb-control rounded-lg border border-[var(--wb-border)] px-4 font-semibold text-[var(--wb-ink)] hover:border-[var(--wb-accent)] disabled:opacity-50">
+            Abstimmung beenden
+          </button>
+        </div>
+      )}
+
       {/* Vorher scheiterten Modul-Freischaltung, Freigabe, Code-Reset und Teilnehmer-Löschen lautlos. */}
-      {[toggleMod, setApproval, approve, resetCode, removeParticipant].some((mutation) => mutation.isError) && (
+      {[toggleMod, setApproval, approve, resetCode, removeParticipant, closePoll].some((mutation) => mutation.isError) && (
         <p role="alert" className="rounded-lg border border-rose-300 bg-rose-50 px-3 py-2 text-sm text-rose-700">
           Die letzte Aktion ist fehlgeschlagen und wurde nicht gespeichert — bitte erneut versuchen.
         </p>

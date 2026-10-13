@@ -150,10 +150,10 @@ const TOKEN_RE = new RegExp(
 
 const KNOWN_EXCEPTIONS: Record<string, string> = {
   'bg-teal-600|||text-white':
-    'Marken-Akzent-Button (z.B. "Weiter", "Anmelden"): weißer Text auf teal-600 erreicht ' +
-    'nur ~3.7:1 — vorbestehend, Sichtprüfung offen. Dieselbe Zahl taucht bereits als ' +
-    'dokumentierte Ausnahme in darkContrast.test.ts auf (dort: teal-600 wird im Dark Mode ' +
-    'absichtlich nicht verändert). Ein Redesign der Akzentfarbe wäre ein separates Ticket.',
+    'Marken-Akzent-Button (z.B. "Weiter", "Anmelden"): behoben über die zusammengesetzte Regel ' +
+    '".bg-teal-600.text-white" in index.css (Fläche teal-700, 5.5:1). Dieser Scanner löst nur ' +
+    'Einzelklassen auf und rechnete weiter mit teal-600 (3.7:1) — die wirksamen Werte prüft ' +
+    'hintContrast.test.ts.',
   'focus:bg-teal-600|||focus:text-white':
     'Gleiche Ausnahme wie bg-teal-600/text-white, nur die focus:-Variante (App.tsx-Fehlerknopf) ' +
     '— vorbestehend, Sichtprüfung offen.',
@@ -179,8 +179,8 @@ const KNOWN_EXCEPTIONS: Record<string, string> = {
   // Echte, vom Test neu gefundene Light-Mode-Unterschreitungen (kein
   // Produktivcode geändert, s. Aufgabenstellung — nur dokumentiert):
   'bg-white|||text-slate-400':
-    'Ladefehler-/Skeleton-Platzhaltertext in Blocks.tsx (ErrorBoundary-Fallback) und ' +
-    'CapstoneWidget.tsx: text-slate-400 auf bg-white erreicht nur ~2.63:1 — vorbestehend, ' +
+    'CapstoneWidget.tsx (in Blocks.tsx behoben, s. hintContrast.test.ts): text-slate-400 auf ' +
+    'bg-white erreicht nur ~2.63:1 — vorbestehend, ' +
     'Sichtprüfung offen (Kandidat: auf text-slate-500 oder dunkler anheben).',
   'bg-slate-100|||text-slate-500':
     'VersionBadge.tsx: text-slate-500 auf bg-slate-100 erreicht ~4.35:1, knapp unter AA — ' +

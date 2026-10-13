@@ -57,7 +57,10 @@ Die Sperre hat drei Schichten:
    verboten**, weil sie einen Transport oder Codepfad außerhalb des
    Unterkommandos öffnen: für git `-c` (Konfigurationsinjektion, siehe
    Beispiel oben), `--exec`, `--upload-pack`, `--receive-pack`, `-u`,
-   `--git-dir`, `--work-tree`, sowie jedes Argument, das `ext::`, `fd::` oder
+   `--git-dir`, `--work-tree`, `--template`, `--separate-git-dir` (die
+   letzten vier passierten den Pfadfilter mit einem relativen Pfad;
+   `init --template=<dir>` kopiert Hooks ins Repository) — auch in der von git
+   akzeptierten abgekürzten Form (`--templ=…`) —, sowie jedes Argument, das `ext::`, `fd::` oder
    `file://` enthält; für openssl `-engine`, `-provider`, `-provider-path`, `-config`, `-exec`
    (jeweils Wege, eine beliebige Bibliothek nachzuladen oder ein
    Skript/Programm zu übernehmen).
@@ -94,7 +97,9 @@ kein `\`, kein `..`, nicht absolut):
   `-untrusted`, `-CApath`, `-kfile`, `-outdir`, Positionsargumente von
   `dgst`/`verify` u. a.). Kein Token darf `/`, `\`, `..` oder Steuerzeichen
   enthalten. Einzige Ausnahme sind die Werte von `-subj` (jedes `/`-Segment
-  muss `typ=wert` sein) und `-addext` (muss mit `name=` beginnen, kein `..`).
+  muss `typ=wert` sein) und `-addext` (muss mit `name=` beginnen, kein `..`,
+  kein `file:`-URI, kein `@abschnitt`-/`dirName:`-Verweis in eine
+  Konfigurationsdatei; `email:a@b.de` bleibt erlaubt).
   `-passin`/`-passout`/`-pass` nehmen nur ein inline `pass:...` an. Optionen
   werden vor dem Vergleich normalisiert, weil openssl auch `--flag` und
   `-flag=wert` akzeptiert (`--config=x.cnf` umging sonst Schicht 2).

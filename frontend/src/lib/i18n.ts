@@ -10,6 +10,20 @@ export function useDocumentLang(lang: Lang) {
   }, [lang])
 }
 
+// Tab-Titel je Seite/Modul („<Seite> · IntLab“) — vorher hieß jeder Tab gleich,
+// im Verlauf und bei mehreren offenen Modulen war nichts zu unterscheiden.
+export function useDocumentTitle(title?: string | null) {
+  useEffect(() => {
+    document.title = title ? `${title} · IntLab` : 'IntLab'
+  }, [title])
+}
+
+/** Titel in der Teilnehmersprache: `title` ist deutsch, `title_en` die Übersetzung
+ *  (GET /modules und /modules/{key}); ohne Übersetzung bleibt der deutsche Titel. */
+export function localTitle(module: { title: string; title_en?: string | null }, lang: Lang): string {
+  return lang === 'en' && module.title_en ? module.title_en : module.title
+}
+
 // Sprachwahl dieses Browsers. Vorher hielt jede öffentliche Seite ihren eigenen
 // useState('de'): wer auf der Startseite EN wählte, landete auf der
 // Workshop-Seite und nach dem Beitritt jeweils wieder bei DE.
@@ -48,14 +62,24 @@ export const STRINGS = {
     tagline: 'Netzwerk-Grundlagen — am Beispiel einer echten Firma.',
     sites: 'Standorte',
     open: 'offen',
-    best: 'best',
+    best: 'Bestwert',
     courseProgress: 'Kurs-Fortschritt',
     courseComplete: 'Kurs abgeschlossen!',
     linksTitle: 'Wissenswertes & Vertiefung',
     continueHere: 'Hier weitermachen',
     nextModule: 'Weiter zum nächsten Modul',
     backToOverview: 'Zurück zur Übersicht',
-    lockedOrderHint: 'Module schalten sich der Reihe nach frei — schließe eines ab, um das nächste zu öffnen.',
+    lockedOrderHint: 'Die Module bauen aufeinander auf: Ein Modul wird hier anklickbar, sobald das Quiz seiner Voraussetzung bestanden ist. Das ist eine empfohlene Reihenfolge, keine Sperre — über die Suche oder einen Link erreichst du auch spätere Module.',
+    buildsOn: 'Baut auf',
+    buildsOnEnd: ' auf',
+    moduleBuildsOn: 'Dieses Modul baut auf',
+    moduleMissingTitle: 'Dieses Modul ist nicht verfügbar',
+    moduleMissingBody: 'Es ist in deinem Kurs nicht freigeschaltet oder existiert nicht. Auf der Lernseite findest du alle Module deines Kurses.',
+    moduleNotEnabledBody: 'Dieses Modul ist in deinem Kurs nicht freigeschaltet. Auf der Lernseite findest du alle Module deines Kurses.',
+    moduleUnknownBody: 'Dieses Modul gibt es nicht. Prüfe die Adresse oder öffne es über die Lernseite.',
+    moduleMissingLink: 'Zur Lernseite',
+    sessionLost: 'Deine Sitzung ist nicht mehr gültig. Mit Kurs-Code, Name und Wiederaufnahme-Code kommst du zurück.',
+    dismiss: 'Hinweis schließen',
     showMoreModules: 'Weitere Module anzeigen',
     showFewerModules: 'Weniger anzeigen',
     tocTitle: 'Inhalt',
@@ -153,7 +177,17 @@ export const STRINGS = {
     continueHere: 'Continue here',
     nextModule: 'Continue to the next module',
     backToOverview: 'Back to the overview',
-    lockedOrderHint: 'Modules unlock in order — complete one to open the next.',
+    lockedOrderHint: 'The modules build on each other: a module becomes clickable here once the quiz of its prerequisite is passed. This is a recommended order, not a lock — search results and links still take you to later modules.',
+    buildsOn: 'Builds on',
+    buildsOnEnd: '',
+    moduleBuildsOn: 'This module builds on',
+    moduleMissingTitle: 'This module is not available',
+    moduleMissingBody: 'It is not enabled in your course, or it does not exist. The learning page lists all modules of your course.',
+    moduleNotEnabledBody: 'This module is not enabled in your course. The learning page lists all modules of your course.',
+    moduleUnknownBody: 'This module does not exist. Check the address or open it from the learning page.',
+    moduleMissingLink: 'To the learning page',
+    sessionLost: 'Your session is no longer valid. Use your course code, name and resume code to get back in.',
+    dismiss: 'Dismiss notice',
     showMoreModules: 'Show more modules',
     showFewerModules: 'Show fewer',
     tocTitle: 'Contents',

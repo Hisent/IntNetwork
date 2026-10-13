@@ -6,6 +6,7 @@ import { useAuthStore } from '@/store/auth'
 import { VersionBadge } from '@/components/VersionBadge'
 import { workshopApi } from '@/lib/workshopApi'
 import { BrandLogo } from '@/components/BrandLogo'
+import { useDocumentTitle } from '@/lib/i18n'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { TrainerLogin } from './trainer/TrainerLogin'
 import { CourseList } from './trainer/CourseList'
@@ -22,6 +23,7 @@ import '@/components/workbench/workbench.css'
 
 export function TrainerPage() {
   const { token, role, setAuth, logout } = useAuthStore()
+  useDocumentTitle('Trainer')
   if (role !== 'trainer' || !token) return <TrainerLogin onLogin={(t) => setAuth(t, 'trainer')} />
   return <TrainerDashboard onLogout={logout} />
 }
@@ -38,10 +40,10 @@ function TrainerDashboard({ onLogout }: { onLogout: () => void }) {
   // dieser .workbench-Wurzel definiert (siehe workbench.css). Ein Portal nach
   // document.body (wie GlossaryPanel.tsx es macht) läge außerhalb davon und
   // die Dialogkarte bliebe ohne Hintergrundfarbe.
-  const workbenchRootRef = useRef<HTMLDivElement | null>(null)
+  const workbenchRootRef = useRef<HTMLElement | null>(null)
 
   return (
-    <div id="main-content" tabIndex={-1} className="workbench p-6 sm:p-10" ref={workbenchRootRef}>
+    <main id="main-content" tabIndex={-1} className="workbench p-6 sm:p-10" ref={workbenchRootRef}>
       <div className="mx-auto max-w-6xl">
         <header className="mb-8 flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
@@ -98,6 +100,6 @@ function TrainerDashboard({ onLogout }: { onLogout: () => void }) {
           </div>
         </div>
       </div>
-    </div>
+    </main>
   )
 }

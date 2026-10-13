@@ -2,7 +2,8 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { workshopApi } from '@/lib/workshopApi'
-import { useDocumentLang, usePublicLang } from '@/lib/i18n'
+import { useDocumentLang, useDocumentTitle, usePublicLang } from '@/lib/i18n'
+import { SessionLostNotice } from '@/components/SessionLostNotice'
 import { WorkshopTheme } from '@/components/WorkshopTheme'
 import { BrandLogo } from '@/components/BrandLogo'
 import { ThemeToggle } from '@/components/ThemeToggle'
@@ -69,6 +70,7 @@ function LoadingCards({ label }: { label: string }) {
 export function LandingPage() {
   const [lang, setLang] = usePublicLang()
   useDocumentLang(lang)
+  useDocumentTitle('Workshops')
   const [query, setQuery] = useState('')
   const workshops = useQuery({ queryKey: ['workshops'], queryFn: () => workshopApi.list().then((r) => r.data) })
   const copy = COPY[lang]
@@ -91,6 +93,8 @@ export function LandingPage() {
             <Link to="/trainer" className="ml-2 text-slate-500 hover:text-teal-700">{copy.trainer}</Link>
           </div>
         </header>
+
+        <SessionLostNotice lang={lang} className="mt-6 max-w-3xl" />
 
         <section className="mt-12 grid gap-8 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-end lg:gap-16 lg:pt-12">
           <div className="max-w-3xl">

@@ -34,6 +34,7 @@ hängen:
 
 - **bekannte Kennung** — die Zeile wird überschrieben und behält ihre
   Datenbank-id. Quiz-Abgaben, Fragenstatistik und Kommentare bleiben dran.
+  Ausnahme Fragen mit geändertem Lösungsschlüssel, siehe unten.
 - **neue Kennung** — Block/Frage wird an der Stelle der Quelle eingefügt.
 - **Kennung entfällt** — die Zeile wird gelöscht. Kommentare an einem
   entfallenen Block werden nicht gelöscht, sondern hängen danach am nächsten
@@ -47,10 +48,29 @@ entfallen. Neue Fragen zählen ab der nächsten Abgabe; in der Fragenstatistik
 der Trainer-Ansicht zählt je Frage nur als Versuch, wer sie in seiner Abgabe
 hatte. Wer das Quiz vor dem Deploy geladen hat und danach abgibt, bekommt die
 neuen Fragen als nicht beantwortet gewertet (Abhilfe: Seite neu laden,
-wiederholen). Ändern sich Optionen oder Lösung einer bestehenden Frage, werden
-alte Abgaben in der Statistik gegen die NEUE Lösung gezählt (gespeichert ist
-nur der gewählte Index) — deshalb vergeben Autoren bei inhaltlich anderer
-Frage eine neue Kennung.
+wiederholen).
+
+Geänderter Lösungsschlüssel unter gleicher Kennung (Sync, Speichern im Editor,
+„Auslieferungszustand laden“, Wiederherstellen): Eine Fragezeile wird nur
+wiederverwendet, wenn Fragetyp und Lösung gleich sind und kein weiter
+vorhandener Optionstext (deutsch oder englisch) an einer anderen Position
+steht. Sonst entsteht eine neue Zeile mit neuer Datenbank-id und die alte
+entfällt: alte Abgaben (gespeichert ist nur der gewählte Index) zählen für
+diese Frage dann weder in der Fragenstatistik noch in „Üben: zuletzt falsch“.
+Punktzahl, „bestanden“ und Zertifikate bleiben unberührt. Textkorrekturen an
+Frage, Erklärung und Optionswortlaut sowie eine hinten angefügte oder
+gestrichene Option behalten die Zeile samt Statistik. Nicht erkennbar ist ein
+Umsortieren, bei dem zugleich alle Optionen umformuliert werden — dafür
+vergeben Autoren eine neue Kennung (`docs/content-authoring.md`, Regel 5/6).
+
+Gleichzeitiges Speichern: Die Prüfung „unverändert“ sperrt die Modulzeilen
+(Postgres, `FOR NO KEY UPDATE`) bis zum Commit des Syncs; dieselbe Sperre nimmt
+der Editor beim Speichern. Ein Trainer, der während des Starts speichert,
+wartet kurz und bekommt 409, falls der Sync sein Modul geändert hat. Speichert
+er über einen noch laufenden ALTEN Container (Rolling-Deploy, kennt die Sperre
+nicht), liest der Sync vor dem Einspielen frisch und lässt das Modul als „vom
+Trainer geändert“ aus. Ausgenommen sind Module, die eine Seed-Migration
+desselben Starts selbst angefasst hat.
 
 Datenbanken bis v1.42.0 haben noch keine Kennungen. Beim ersten Start mit
 v1.43.0 legt die Migration `a6b7c8d9e0f1` die Spalten an, und der Sync trägt
@@ -99,6 +119,76 @@ Ausgelassene Module und was zu tun ist:
 Inhaltsänderungen brauchen damit keine handgeschriebene Text-Migration in
 `seed.py` mehr. Die vorhandenen Migrationen bleiben für alte Datenbanken
 bestehen und laufen vor dem Sync.
+
+## Modul-Editor: Speichern, Sperre, Kennungen
+
+- **`base_version` ist Pflicht** (`PUT /api/trainer/content/modules/{key}?base_version=…`,
+  Wert = `version` aus dem GET). Fehlt sie oder ist sie veraltet, antwortet die
+  API mit 409 und speichert nichts. Hintergrund: ein Editor-Tab von vor einem
+  Update kennt neuere Felder (Erklärungen, `goals_en`) nicht und hätte sie beim
+  Speichern still gelöscht. **Rollout:** Trainer mit offenem Editor müssen nach
+  dem Deploy die Seite neu laden; eigene Skripte gegen diese API müssen erst
+  GET, dann PUT mit `base_version` senden.
+- **Atomar:** Speichern, „Auslieferungszustand laden“ und Wiederherstellen
+  sperren unter Postgres die Modulzeile (`SELECT … FOR NO KEY UPDATE`). Zwei
+  gleichzeitige PUTs laufen nacheinander; der zweite scheitert an
+  `base_version` (409). Unter SQLite (nur Entwicklung/Tests) gibt es die
+  Zeilensperre nicht.
+- **Kein Unique-Index auf `(module_key, uid)` (bewusst, Plan):** Die
+  Eindeutigkeit der Kennungen stellt der Code sicher (`_write_rows` vergibt bei
+  doppelt gelieferter Kennung eine neue). Ein Index per Migration könnte an
+  Bestandsdaten scheitern und den Start blockieren. Falls gewünscht: zuerst
+  `SELECT module_key, uid, count(*) FROM content_block WHERE uid IS NOT NULL
+  GROUP BY 1, 2 HAVING count(*) > 1` (ebenso `content_quiz_question`); die
+  Migration legt den Index nur an, wenn beide Abfragen leer sind, und warnt
+  sonst im Log, statt zu scheitern.
+- Leere optionale Textfelder (`note`, `value_de/en`, `widget_id`, Erklärungen,
+  `goals_en`) werden als „nicht gesetzt“ gespeichert; ein unverändertes
+  Speichern macht ein Modul nicht zu einem Trainer-Stand.
+
+## Zeitstempel der API
+
+Alle Zeitfelder (`created_at`, `issued_at`, `last_used_at`) kommen als ISO 8601
+in UTC mit Offset, z. B. `2026-10-13T11:50:00.123456+00:00` (`iso_utc` in
+`backend/app/utils.py`). Die Datenbankspalten bleiben zeitzonenlos und
+enthalten UTC; damit das nicht von der Zeitzone des Postgres-Servers abhängt,
+setzt das Backend für seine Sitzungen `timezone=UTC` (`backend/app/database.py`).
+Prüfen vor dem Deploy: `SHOW timezone;` — stand der Server bisher NICHT auf UTC,
+enthalten Bestandszeilen Ortszeit und werden um den Versatz falsch angezeigt
+(neue Zeilen stimmen).
+
+## Bekannte Eigenschaften (bewusst so)
+
+- **Üben ist ein Lösungs-Orakel für bereits abgegebene Module.**
+  `POST /api/practice/check` sagt je Frage richtig/falsch und liefert die
+  Erklärung — wie das Quiz nach jeder Abgabe, und das Quiz ist beliebig
+  wiederholbar. Wer ein Modul einmal abgegeben hat, kann sich die Lösungen
+  also erarbeiten; das ist konstruktionsbedingt (Lernplattform, keine Prüfung).
+  Mögliche Abhilfe, falls das Zertifikat härter werden soll: Üben erst für
+  BESTANDENE Module öffnen (`_last_answers` in `routers/learning.py`).
+- **Die Reihenfolge-Sperre der Module ist nur Anzeige.** Voraussetzungen
+  (`prerequisites`) sperren Module im Frontend; die API liefert jedes im Kurs
+  freigeschaltete Modul auch ohne erfüllte Voraussetzung aus. Das ist
+  didaktische Führung, keine Zugriffskontrolle — die Zugriffskontrolle ist die
+  Freischaltung je Kurs.
+- **Namen im Kurs sind beim Beitritt erkennbar.** Der Beitritt unter einem
+  vergebenen Namen verlangt den Wiederaufnahme-Code; daran lässt sich mit dem
+  Kurscode ablesen, ob ein Name im Kurs existiert. Der Kurscode ist das
+  Geheimnis des Kurses; Rate-Limit je IP begrenzt das Durchprobieren.
+- **Abgewähltes Modul:** `GET /api/modules/{key}`, `/heartbeat` und `/quiz`
+  antworten mit 404 und einem Feld `code` neben `detail`:
+  `module_not_enabled` (im Kurs abgewählt) bzw. `module_unknown`.
+
+## Alembic-Downgrade
+
+Der Downgrade von `b7c8d9e0f1a2` (entfernt `goals_en`) und `a6b7c8d9e0f1`
+(entfernt Kennungen und Erklärungen) löscht die gespeicherten Sync-Hashes
+(`setting`, Schlüssel `content-sync:*`). Ohne das gälte nach einem erneuten
+Upgrade jedes Modul dauerhaft als „vom Trainer geändert“. Folge: nach
+Downgrade + Upgrade greift die Bootstrap-Regel des Syncs (nie im Editor
+gespeichert oder bekannter Stand bis v1.42.0 = unverändert); Module, die je im
+Editor gespeichert wurden, bleiben vorsichtshalber Trainer-Stand
+(„Auslieferungszustand laden“ holt sie zurück).
 
 ## Live-Abstimmung
 

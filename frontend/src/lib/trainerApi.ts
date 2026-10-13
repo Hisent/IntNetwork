@@ -156,9 +156,11 @@ export const trainerApi = {
   getContentModule: (key: string) => api.get<EditorModule>(`/trainer/content/modules/${key}`),
   createContentModule: (key: string, title_de: string, workshop_key: string) =>
     api.post<EditorModuleMeta>('/trainer/content/modules', { key, title_de, workshop_key }),
+  // base_version geht bei JEDEM Speichern mit (der Server lehnt ein PUT ohne sie mit 409 ab):
+  // fehlt die Version im Formular ausnahmsweise, greift mit dem leeren Wert die normale Konfliktprüfung.
   saveContentModule: (key: string, data: Omit<EditorModule, 'key'>) =>
     api.put<EditorModuleMeta & { version: string }>(
-      `/trainer/content/modules/${key}${data.version ? `?base_version=${encodeURIComponent(data.version)}` : ''}`, data),
+      `/trainer/content/modules/${key}?base_version=${encodeURIComponent(data.version ?? '')}`, data),
   restoreContentModule: (key: string) => api.post<EditorModuleMeta>(`/trainer/content/modules/${key}/restore`),
   reseedContentModule: (key: string) => api.post<EditorModuleMeta>(`/trainer/content/modules/${key}/reseed`),
   listTrainerAccounts: () => api.get<TrainerAccount[]>('/trainer/accounts'),
