@@ -49,7 +49,7 @@ export function Subnet({ lang }: { lang: Lang }) {
                 aria-label={s.octet(i)}
                 className="w-14 border rounded px-1 py-1 text-sm font-mono text-center"
               />
-              {i < 3 && <span className="text-slate-400">.</span>}
+              {i < 3 && <span className="text-slate-500" aria-hidden="true">.</span>}
             </span>
           ))}
         </div>

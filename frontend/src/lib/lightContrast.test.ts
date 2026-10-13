@@ -33,7 +33,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { contrastRatio, parseCssColorToLinearRgb } from './colorContrast'
-import { COLOR_NAMES, collectPairs, parseColorVars, stripComments } from './contrastScan'
+import { COLOR_NAMES, collectPairs, lightPalette, stripComments } from './contrastScan'
 
 const AA_TEXT_CONTRAST = 4.5
 
@@ -84,7 +84,7 @@ const indexCss = fs.readFileSync(INDEX_CSS_PATH, 'utf8')
 const workbenchCss = fs.readFileSync(WORKBENCH_CSS_PATH, 'utf8')
 const tailwindThemeCss = fs.readFileSync(TAILWIND_THEME_CSS_PATH, 'utf8')
 
-const canonicalColorVars = parseColorVars(tailwindThemeCss)
+const canonicalColorVars = lightPalette(tailwindThemeCss, indexCss)
 const wbLightTokens = parseWorkbenchLightTokens(workbenchCss)
 const lightWorkshopThemeVars = parseLightWorkshopThemeVars(indexCss)
 

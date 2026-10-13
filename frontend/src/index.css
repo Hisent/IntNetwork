@@ -6,6 +6,10 @@
 
 @theme {
   --font-sans: 'Outfit Variable', ui-sans-serif, system-ui, sans-serif;
+  /* slate-500 ist die Hinweis-/Beschriftungsstufe der ganzen App. Der Tailwind-Standard (55,4 % L)
+     erreicht auf dem hellen Seitengrund (--wb-canvas) nur 4,43:1, auf slate-100/--wb-subtle 4,35/4,14:1.
+     Mit 52 % L: >= 4,78:1 auf allen hellen Flächen. Der Dunkelmodus setzt slate-500 unten neu. */
+  --color-slate-500: oklch(52% 0.046 257.417);
 }
 
 :root { color-scheme: light; }
@@ -189,6 +193,10 @@ body {
   [data-theme="dark"] .bg-slate-950 .text-teal-300,
   [data-theme="dark"] .bg-slate-950 .hover\:text-teal-100:hover { color: oklch(85.5% 0.138 181.071); }
   [data-theme="dark"] .bg-slate-950 .text-slate-300 { color: oklch(86.9% 0.022 252.894); }
+  /* Kopieren-Knopf im Code-Kopf (bg-slate-950): die Kursfarben-Regel unten legt text-teal-300 auf
+     --workshop-accent-pale — dunkel eine DUNKLE Fläche (1,7–2,3:1 auf dem Terminal). Hier der helle Akzent. */
+  [data-theme="dark"] .workshop-theme:not(.workshop-theme--network) .bg-slate-950 .text-teal-300 { color: var(--workshop-accent-strong); }
+  [data-theme="dark"] .workshop-theme:not(.workshop-theme--network) .bg-slate-950 .hover\:text-teal-100:hover { color: var(--workshop-accent-hover); }
 
   /* bg-white bleibt die Kartenfläche; hover:bg-white (ModulePage-Sidebar)
      braucht denselben Wert, ist aber technisch eine andere Utility-Klasse. */
@@ -438,7 +446,15 @@ p { text-wrap: pretty; }
      Akzentflächen steht dort deshalb dunkle Schrift. Der Netzwerkkurs braucht das nicht:
      seine Fläche bleibt dunkel genug für Weiß (s. „.bg-teal-600.text-white“ oben). */
   [data-theme="dark"] .workshop-theme:not(.workshop-theme--network) .bg-teal-600.text-white,
-  [data-theme="dark"] .workshop-theme:not(.workshop-theme--network) .bg-\[var\(--workshop-accent\)\].text-white { color: #0d1417; }
+  [data-theme="dark"] .bg-\[var\(--workshop-accent\)\].text-white { color: #0d1417; }
+  /* Netzwerkkurs und alles ohne Kursrahmen (Wortmarke "IntLab" im Kopf, Trainerseiten): als Text auf
+     den dunklen Flächen war das Akzent-Teal (#0f766e) nur 3,0–3,4:1. Dunkel gilt deshalb der helle
+     Workbench-Akzent (= --wb-accent dunkel); die Kursfarben der anderen Lehrgänge überschreiben das. */
+  [data-theme="dark"],
+  [data-theme="dark"] .workshop-theme--network {
+    --workshop-accent: #14b8a6;
+    --workshop-accent-hover: #2dd4bf;
+  }
 }
 
 /* Ein Regelblock für ALLE Nicht-Netzwerk-Themes. Quiz.tsx und Blocks.tsx

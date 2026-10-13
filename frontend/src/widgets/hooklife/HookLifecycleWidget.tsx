@@ -46,9 +46,9 @@ export function HookLifecycle({ lang }: { lang: Lang }) {
           <li key={i}
             className={`flex items-center gap-2 rounded-lg border px-3 py-1.5 text-sm ${
               st.fires ? 'border-teal-200 bg-teal-50' : 'border-slate-200'}`}>
-            <span className="font-mono text-xs text-slate-400">{i + 1}.</span>
+            <span className="font-mono text-xs text-slate-700">{i + 1}.</span>
             <span className="font-mono font-medium text-slate-800">{st.event}</span>
-            <span className="text-xs text-slate-500">{st.detail}</span>
+            <span className="text-xs text-slate-700">{st.detail}</span>
             {st.fires && <span className="ml-auto text-xs font-semibold text-teal-700">⚡ {s.fires}</span>}
           </li>
         ))}

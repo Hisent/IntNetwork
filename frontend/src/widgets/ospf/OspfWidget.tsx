@@ -157,8 +157,8 @@ export function Ospf({ lang }: { lang: Lang }) {
               <span className={isDown ? 'text-rose-400 line-through' : 'text-slate-700'}>
                 {LABEL[l.a][lang]} ↔ {LABEL[l.b][lang]}
               </span>
-              <span className="text-slate-500">{s.bandwidth}: {l.mbit.toLocaleString(lang)} Mbit/s</span>
-              <span className="text-slate-500">{s.cost}: {isDown ? '—' : edge.cost}</span>
+              <span className="text-slate-700">{s.bandwidth}: {l.mbit.toLocaleString(lang)} Mbit/s</span>
+              <span className="text-slate-700">{s.cost}: {isDown ? '—' : edge.cost}</span>
               <button
                 onClick={() => toggleLink(l)}
                 className="rounded border px-2 py-0.5 text-[11px] font-medium text-slate-700 hover:bg-slate-50"
@@ -195,7 +195,7 @@ export function Ospf({ lang }: { lang: Lang }) {
         </div>
       )}
       {!hopsDiffer && hopPath && best && (
-        <p className="text-[11px] text-slate-400 mb-1">{s.fewestHops} {s.sameAsCost}.</p>
+        <p className="text-[11px] text-slate-500 mb-1">{s.fewestHops} {s.sameAsCost}.</p>
       )}
 
       <ChallengeBox lang={lang} task={s.challenge} done={changedPathOnce && currentPathChanged} />

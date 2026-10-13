@@ -200,7 +200,7 @@ export function AnsibleLab({ lang }: { lang: Lang }) {
         spellCheck={false} rows={14}
         className="w-full rounded-lg border px-2 py-1.5 font-mono text-xs text-slate-800 mb-1"
       />
-      <p className={`mb-3 text-[11px] ${charCount >= WARN_CHARS ? 'text-amber-700' : 'text-slate-400'}`}>
+      <p className={`mb-3 text-[11px] ${charCount >= WARN_CHARS ? 'text-amber-700' : 'text-slate-500'}`}>
         {charCount.toLocaleString(lang === 'de' ? 'de-DE' : 'en-US')} / {MAX_CHARS.toLocaleString(lang === 'de' ? 'de-DE' : 'en-US')} {s.chars}
         {charCount >= WARN_CHARS && <> — {s.charWarning}</>}
       </p>
@@ -227,8 +227,8 @@ export function AnsibleLab({ lang }: { lang: Lang }) {
           className="rounded-lg border px-3 py-1.5 text-xs text-slate-500 hover:bg-slate-50">
           {s.reset}
         </button>
-        {labEnabled === null && <span className="text-[11px] text-slate-400">{s.statusChecking}</span>}
-        {running !== null && <span className="text-[11px] text-slate-400" role="status">{running === 'run' ? s.running : s.checking}</span>}
+        {labEnabled === null && <span className="text-[11px] text-slate-500">{s.statusChecking}</span>}
+        {running !== null && <span className="text-[11px] text-slate-500" role="status">{running === 'run' ? s.running : s.checking}</span>}
       </div>
 
       <LabOutputPanel
@@ -260,7 +260,7 @@ export function AnsibleLab({ lang }: { lang: Lang }) {
           <p className={`mb-2 rounded px-2 py-1 text-xs ${
             note.kind === 'improved' ? 'bg-green-900/40 text-green-300'
             : note.kind === 'worse' ? 'bg-red-900/40 text-red-300'
-            : 'bg-slate-800 text-slate-300'}`}>
+            : 'bg-slate-800 text-slate-100'}`}>
             {note.message}
           </p>
         )}

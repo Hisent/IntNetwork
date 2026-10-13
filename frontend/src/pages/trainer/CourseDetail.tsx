@@ -350,7 +350,7 @@ function ProgressTable({ dash, requireApproval, onApprove }: {
                     <td key={m.key} className="border-t border-[var(--wb-border)] px-3 py-2 text-center">
                       {cell?.done
                         ? <span className="inline-flex items-center gap-1 text-[var(--wb-success)]"><Icon name="check" className="h-4 w-4" />{cell.best != null ? <span className="text-xs text-[var(--wb-muted)]">{cell.best}%</span> : null}</span>
-                        : <span className="text-[var(--wb-muted)] opacity-50">–</span>}
+                        : <span className="text-[var(--wb-muted)]">–</span>}
                     </td>
                   )
                 })}

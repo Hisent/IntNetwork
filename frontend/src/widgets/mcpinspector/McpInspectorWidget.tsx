@@ -42,7 +42,7 @@ export function McpInspector({ lang }: { lang: Lang }) {
         {s.transport}: <span className="font-mono text-slate-800">{server.transport}</span>
       </div>
 
-      <p className="text-xs font-semibold uppercase tracking-wide text-slate-400 mb-1">{s.tools}</p>
+      <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-1">{s.tools}</p>
       <ul className="mb-3 space-y-1">
         {server.tools.map((t) => (
           <li key={t.name} className="rounded-lg border px-3 py-1.5 text-xs">
@@ -52,7 +52,7 @@ export function McpInspector({ lang }: { lang: Lang }) {
         ))}
       </ul>
 
-      <p className="text-xs font-semibold uppercase tracking-wide text-slate-400 mb-1">{s.resources}</p>
+      <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-1">{s.resources}</p>
       <div className="flex flex-wrap gap-1.5">
         {server.resources.map((r) => (
           <span key={r} className="rounded-lg bg-slate-100 px-2 py-1 text-xs font-mono text-slate-700">{r}</span>

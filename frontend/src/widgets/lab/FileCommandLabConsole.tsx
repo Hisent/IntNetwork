@@ -163,8 +163,8 @@ export function FileCommandLabConsole({ lang, s, templates, activeHint, banner, 
           className="rounded-lg border border-teal-300 bg-teal-50 px-3 py-1.5 text-xs font-medium text-teal-800 hover:bg-teal-100 disabled:cursor-not-allowed disabled:opacity-50">
           {running ? s.running : s.run}
         </button>
-        {labEnabled === null && <span className="text-[11px] text-slate-400">{s.statusChecking}</span>}
-        {running && <span className="text-[11px] text-slate-400" role="status">{s.running}</span>}
+        {labEnabled === null && <span className="text-[11px] text-slate-500">{s.statusChecking}</span>}
+        {running && <span className="text-[11px] text-slate-500" role="status">{s.running}</span>}
       </div>
 
       <LabOutputPanel

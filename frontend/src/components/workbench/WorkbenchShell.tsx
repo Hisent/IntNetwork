@@ -37,7 +37,7 @@ export function LangToggle({ lang, onChange, className = 'flex' }: { lang: Lang;
           type="button"
           onClick={() => onChange(value)}
           aria-pressed={lang === value}
-          className={`wb-control min-w-11 px-2 text-xs font-semibold uppercase ${lang === value ? 'text-teal-700 dark:text-teal-300' : 'text-slate-400'}`}>
+          className={`wb-control min-w-11 px-2 text-xs font-semibold uppercase ${lang === value ? 'text-teal-700 dark:text-teal-300' : 'text-slate-500'}`}>
           {value}
         </button>
       ))}

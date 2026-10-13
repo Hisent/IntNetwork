@@ -26,7 +26,7 @@ function QuizStatsBox({ stats, courseFilter }: { stats: QuizStats; courseFilter:
       <div className="flex items-center justify-between gap-3 mb-1">
         <p className="font-semibold text-slate-700">
           Quiz-Ergebnisse
-          <span className="ml-2 font-normal text-slate-400">{stats.submissions} Abgabe(n)</span>
+          <span className="ml-2 font-normal text-slate-500">{stats.submissions} Abgabe(n)</span>
         </p>
         {courseFilter}
       </div>
@@ -95,12 +95,12 @@ export function TrainerModulePage() {
     <WorkshopTheme theme={workshopTheme(m.workshop_key)}><main id="main-content" tabIndex={-1} className="min-h-dvh bg-slate-50 p-6 sm:p-10">
       <div className="max-w-2xl mx-auto">
         <div className="flex items-center justify-between gap-4">
-          <Link to="/trainer" className="text-sm text-slate-400 hover:text-slate-600">← Trainer</Link>
+          <Link to="/trainer" className="text-sm text-slate-500 hover:text-slate-700">← Trainer</Link>
           <Link to="/"><BrandLogo className="h-8 text-base" showName /></Link>
         </div>
         <div className="flex items-start justify-between gap-3 mt-2 mb-4">
           <h1 className="text-2xl font-bold text-slate-900">
-            {m.title} <span className="text-sm font-normal text-slate-400">· Trainer-Ansicht</span>
+            {m.title} <span className="text-sm font-normal text-slate-500">· Trainer-Ansicht</span>
           </h1>
           <Link to={`/trainer/modul/${key}/praesentieren`}
             className="shrink-0 rounded-lg bg-teal-600 hover:bg-teal-700 text-white px-3 py-1.5 text-sm font-medium">

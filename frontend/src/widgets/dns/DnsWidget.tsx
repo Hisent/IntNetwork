@@ -65,7 +65,7 @@ export function Dns({ lang }: { lang: Lang }) {
                 </span>
                 <span className="text-slate-700">
                   <span className="font-semibold">{step.server[lang]}</span>
-                  <span className="text-slate-400"> — </span>
+                  <span className="text-slate-500" aria-hidden="true"> — </span>
                   <span className="font-mono">{step.answer[lang]}</span>
                 </span>
               </li>

@@ -63,7 +63,7 @@ export function Vpn({ lang }: { lang: Lang }) {
       <p className="text-xs font-semibold text-slate-500 mb-1">{s.step1}</p>
       <div className="rounded-lg border border-slate-200 bg-slate-50 p-3 font-mono text-xs mb-4">
         <span className="text-slate-500">{INNER.src} → {INNER.dst}</span>
-        <span className="mx-2 text-slate-300">|</span>
+        <span className="mx-2 text-slate-500" aria-hidden="true">|</span>
         <span className="text-slate-800">{INNER.payload}</span>
       </div>
 
@@ -79,7 +79,7 @@ export function Vpn({ lang }: { lang: Lang }) {
           {decrypted ? (
             <span>
               <span className="text-slate-500">{INNER.src} → {INNER.dst}</span>
-              <span className="mx-2 text-slate-300">|</span>
+              <span className="mx-2 text-slate-500" aria-hidden="true">|</span>
               <span className="text-slate-800">{INNER.payload}</span>
             </span>
           ) : (

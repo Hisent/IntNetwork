@@ -38,14 +38,14 @@ export function LabOutputPanel({
         {result ? (
           <>
             <pre className="max-h-72 overflow-y-auto whitespace-pre-wrap font-mono text-xs text-slate-100">{result.output}</pre>
-            <p className="mt-2 text-[11px] text-slate-500">
+            <p className="mt-2 text-[11px] text-slate-400">
               {rcLabel}: {result.rc} · {durationLabel}: {result.duration_ms} ms
               {result.truncated && <> · {truncatedLabel}</>}
               {result.timed_out && <> · {timedOutLabel}</>}
             </p>
           </>
         ) : (
-          <p className="font-mono text-xs text-slate-500">{noRunYetLabel}</p>
+          <p className="font-mono text-xs text-slate-400">{noRunYetLabel}</p>
         )}
       </div>
     </>

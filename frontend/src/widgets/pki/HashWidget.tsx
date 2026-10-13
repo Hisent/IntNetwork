@@ -116,7 +116,7 @@ export function HashLab({ lang }: { lang: Lang }) {
 
       <p className="mb-1 text-xs font-semibold text-slate-500">{s.digestLabel}</p>
       <div className="mb-1 rounded-lg border border-slate-200 bg-slate-50 p-3" aria-live="polite">
-        {digest ? <p className="break-all font-mono text-xs text-slate-800">{digest}</p> : <p className="text-xs text-slate-400">{s.computing}</p>}
+        {digest ? <p className="break-all font-mono text-xs text-slate-800">{digest}</p> : <p className="text-xs text-slate-600">{s.computing}</p>}
       </div>
 
       {algo === 'SHA-1' && (

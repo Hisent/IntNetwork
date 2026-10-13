@@ -12,7 +12,7 @@ export function ChallengeBox({ task, done, lang }: { task: string; done: boolean
   return (
     <div className={`mt-3 flex items-start gap-2 border-t pt-3 text-sm transition-colors ${
       done ? 'border-green-200' : 'border-slate-200'}`}>
-      <span className={`shrink-0 ${done ? 'text-green-600' : 'text-slate-400'}`}>
+      <span className={`shrink-0 ${done ? 'text-green-600' : 'text-slate-500'}`}>
         <Icon name={done ? 'check' : 'target'} className="h-4 w-4" />
       </span>
       <p className="min-w-0 break-words text-slate-700">

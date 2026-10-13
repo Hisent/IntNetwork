@@ -28,7 +28,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { contrastRatio, parseCssColorToLinearRgb } from './colorContrast'
-import { COLOR_NAMES, collectPairs, parseColorVars, stripComments } from './contrastScan'
+import { COLOR_NAMES, collectPairs, lightPalette, parseColorVars, stripComments } from './contrastScan'
 
 const AA_TEXT_CONTRAST = 4.5
 
@@ -116,7 +116,7 @@ const tailwindThemeCss = fs.readFileSync(TAILWIND_THEME_CSS_PATH, 'utf8')
 const darkColorVars = parseColorVars(indexCss)
 const darkClassOverrides = parseDarkClassOverrides(indexCss)
 const wbDarkTokens = parseWorkbenchTokens(workbenchCss)
-const canonicalColorVars = parseColorVars(tailwindThemeCss)
+const canonicalColorVars = lightPalette(tailwindThemeCss, indexCss)
 
 function resolveDarkColor(rawClass: string): string | null {
   // 1) exakte Ausnahme-Regel für genau diese (ggf. varianten-behaftete) Klasse

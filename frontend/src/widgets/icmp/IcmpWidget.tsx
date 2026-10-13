@@ -46,7 +46,7 @@ export function Icmp({ lang }: { lang: Lang }) {
 
       <div className="rounded-lg border divide-y text-xs font-mono">
         {probes.length === 0 ? (
-          <div className="px-3 py-2 text-slate-400">{s.noProbe}</div>
+          <div className="px-3 py-2 text-slate-500">{s.noProbe}</div>
         ) : (
           probes.map((p) => (
             <div
@@ -56,7 +56,7 @@ export function Icmp({ lang }: { lang: Lang }) {
               <span className="text-slate-500">{p.ttl}</span>
               <span className="text-slate-700">{p.node?.name[lang]}</span>
               <span className="text-slate-500">{p.node?.ip}</span>
-              <span className="text-slate-400">{p.node?.rttMs} ms</span>
+              <span className="text-slate-700">{p.node?.rttMs} ms</span>
               <span className={p.status === 'reply' ? 'text-teal-700' : 'text-amber-600'}>
                 {p.status === 'reply' ? s.reply : s.exceeded}
               </span>

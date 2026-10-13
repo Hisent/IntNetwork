@@ -59,14 +59,14 @@ export function PermissionSim({ lang }: { lang: Lang }) {
     <div className="rounded-2xl border bg-white p-5">
       <p className="text-sm font-semibold text-slate-700 mb-2">{s.title}</p>
 
-      <p className="text-xs font-semibold uppercase tracking-wide text-slate-400 mb-1">{s.rules}</p>
+      <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-1">{s.rules}</p>
       <ul className="mb-3 text-xs font-mono space-y-0.5">
         {RULES.map((r, i) => (
           <li key={i} className={EFFECT_STYLE[r.effect]}>{r.effect}: {r.tool}({r.glob})</li>
         ))}
       </ul>
 
-      <p className="text-xs font-semibold uppercase tracking-wide text-slate-400 mb-1">{s.calls}</p>
+      <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-1">{s.calls}</p>
       <div className="flex flex-wrap gap-1.5 mb-3">
         {CALLS.map((c, i) => (
           <button key={i} onClick={() => setPicked(c)}
@@ -82,11 +82,11 @@ export function PermissionSim({ lang }: { lang: Lang }) {
         {decision ? (
           <span className={`font-mono font-semibold ${EFFECT_STYLE[decision]}`}>{decision.toUpperCase()}</span>
         ) : (
-          <span className="text-slate-400">{s.pick}</span>
+          <span className="text-slate-500">{s.pick}</span>
         )}
         {result && <p className="mt-1 text-xs text-slate-500">{s.reason[result.reason]}</p>}
       </div>
-      <p className="mt-1 text-[11px] text-slate-400">{s.simplified}</p>
+      <p className="mt-1 text-[11px] text-slate-500">{s.simplified}</p>
 
       <ChallengeBox lang={lang} task={s.challenge} done={decision === 'deny'} />
     </div>

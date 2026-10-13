@@ -103,7 +103,7 @@ export function LandingPage() {
             <p className="mt-6 max-w-2xl text-lg leading-relaxed text-slate-600">{copy.body}</p>
             <label className="relative mt-8 block max-w-xl">
               <span className="sr-only">{copy.search}</span>
-              <input aria-label={copy.search} value={query} onChange={(event) => setQuery(event.target.value)} placeholder={copy.search} className="w-full rounded-xl border border-slate-300 bg-white/90 px-4 py-3.5 pr-12 text-slate-900 shadow-sm outline-none placeholder:text-slate-400 focus:border-teal-600 focus:ring-2 focus:ring-teal-100" />
+              <input aria-label={copy.search} value={query} onChange={(event) => setQuery(event.target.value)} placeholder={copy.search} className="w-full rounded-xl border border-slate-300 bg-white/90 px-4 py-3.5 pr-12 text-slate-900 shadow-sm outline-none placeholder:text-slate-500 focus:border-teal-600 focus:ring-2 focus:ring-teal-100" />
               <Icon name="search" className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
             </label>
           </div>

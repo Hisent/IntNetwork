@@ -123,10 +123,10 @@ export function NacPolicy({ lang }: { lang: Lang }) {
       </div>
 
       <div className={`rounded-lg border-2 p-3 mb-3 ${OUTCOME_STYLE[result.outcome]}`} aria-live="polite">
-        <p className="text-xs font-semibold uppercase tracking-wide opacity-80">{s.outcomeTitle}</p>
+        <p className="text-xs font-semibold uppercase tracking-wide">{s.outcomeTitle}</p>
         <p className="text-lg font-bold mb-1">{s.outcomes[result.outcome]}</p>
         {result.vlan && <p className="text-sm mb-2"><span className="font-semibold">{s.vlanLabel}:</span> {result.vlan[lang]}</p>}
-        <p className="text-xs font-semibold opacity-80">{s.reasonTitle}</p>
+        <p className="text-xs font-semibold">{s.reasonTitle}</p>
         <p className="text-sm">{result.reason[lang]}</p>
       </div>
 

@@ -189,7 +189,7 @@ export function Dot1xFlow({ lang }: { lang: Lang }) {
             }`}
           >
             <p className="text-xs font-semibold text-slate-700">{roleLabel(role)}</p>
-            <p className="text-[10px] text-slate-500">
+            <p className="text-[10px] text-slate-700">
               {role === 'supplicant' ? s.supplicantSub : role === 'authenticator' ? s.authenticatorSub : s.serverSub}
             </p>
           </div>
@@ -225,7 +225,7 @@ export function Dot1xFlow({ lang }: { lang: Lang }) {
       </div>
 
       {reducedMotion && (
-        <p className="text-[11px] text-slate-400 mb-3">{s.reducedMotionNote}</p>
+        <p className="text-[11px] text-slate-500 mb-3">{s.reducedMotionNote}</p>
       )}
 
       <div className="flex flex-wrap gap-2 mb-4">

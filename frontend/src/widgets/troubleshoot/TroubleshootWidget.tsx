@@ -87,7 +87,7 @@ export function Troubleshoot({ lang }: { lang: Lang }) {
       </div>
 
       <div className="rounded-lg bg-slate-900 p-3 font-mono text-xs mb-2 min-h-[5rem]">
-        {p.ran.length === 0 && <p className="text-slate-500">{s.terminalHint}</p>}
+        {p.ran.length === 0 && <p className="text-slate-400">{s.terminalHint}</p>}
         {p.ran.map((cmd) => (
           <div key={cmd} className="mb-2">
             <p className="text-slate-400">C:\&gt; <span className="text-slate-100">{cmd}</span></p>

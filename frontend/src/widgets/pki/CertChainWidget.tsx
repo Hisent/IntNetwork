@@ -149,7 +149,7 @@ export function CertChain({ lang }: { lang: Lang }) {
       <p className="mb-1 text-xs font-semibold text-slate-500">{s.chainLabel}</p>
       <div className="rounded-lg border border-slate-200 bg-slate-50 p-3 mb-3 min-h-[3rem] flex flex-wrap items-center gap-2">
         {chain.length === 0 ? (
-          <p className="text-xs italic text-slate-400">{s.chainEmpty}</p>
+          <p className="text-xs italic text-slate-600">{s.chainEmpty}</p>
         ) : (
           chain.map((c, i) => (
             <span key={c.id} className="flex items-center gap-2">
@@ -159,7 +159,7 @@ export function CertChain({ lang }: { lang: Lang }) {
               >
                 {c.label[lang]}
               </button>
-              {i < chain.length - 1 && <span className="text-slate-400" aria-hidden="true">→</span>}
+              {i < chain.length - 1 && <span className="text-slate-600" aria-hidden="true">→</span>}
             </span>
           ))
         )}
