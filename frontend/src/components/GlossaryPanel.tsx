@@ -88,7 +88,7 @@ export function GlossaryPanel({ moduleKey, lang }: { moduleKey: string; lang: La
                   {all ? copy.contextual : copy.all}
                 </button>
               </div>
-              <button ref={closeButtonRef} onClick={() => setOpen(false)} className="text-sm text-slate-400 hover:text-slate-700" aria-label={lang === 'de' ? 'Schließen' : 'Close'}>✕</button>
+              <button ref={closeButtonRef} onClick={() => setOpen(false)} className="text-sm text-slate-500 hover:text-slate-700" aria-label={lang === 'de' ? 'Schließen' : 'Close'}>✕</button>
             </div>
             <input ref={searchInputRef} value={search} onChange={(event) => setSearch(event.target.value)}
               aria-label={lang === 'de' ? 'Begriff suchen' : 'Search term'}

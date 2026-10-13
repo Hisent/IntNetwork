@@ -48,7 +48,7 @@ function Bitmask({ lang }: { lang: Lang }) {
     </label>
     <div className="mt-3 flex flex-wrap gap-2 font-mono text-xs" aria-live="polite">
       {result.binaryOctets.map((octet, octetIndex) => <div key={octetIndex} className="flex gap-0.5 rounded border border-slate-200 p-1.5">
-        {octet.split('').map((bit, bitIndex) => <span key={bitIndex} className={`flex h-5 w-4 items-center justify-center rounded-sm ${bit === '1' ? 'bg-teal-500 text-white' : 'bg-slate-100 text-slate-400'}`}>{bit}</span>)}
+        {octet.split('').map((bit, bitIndex) => <span key={bitIndex} className={`flex h-5 w-4 items-center justify-center rounded-sm ${bit === '1' ? 'bg-teal-600 text-white' : 'bg-slate-100 text-slate-600'}`}>{bit}</span>)}
       </div>)}
     </div>
     <p className="mt-3 text-sm text-slate-700"><strong>{result.dotted}</strong> = <code>/{prefix}</code> · {result.hosts} {lang === 'de' ? 'nutzbare Hosts' : 'usable hosts'}</p>
@@ -102,7 +102,7 @@ function DhcpRelay({ lang }: { lang: Lang }) {
   return <Frame mode="dhcp-relay" lang={lang} done={doneNoRelay && doneRelay}>
     <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={relayOn} onChange={e => toggle(e.target.checked)}/>{copy[lang].relayOn}</label>
     <ol className="mt-3 space-y-2" aria-live="polite">
-      {steps.map((item, index) => <li key={item} className={`rounded-lg border px-3 py-2 text-sm ${index <= step ? 'border-teal-300 bg-teal-50' : 'border-slate-200 text-slate-400'}`}><strong>{index + 1}.</strong> {item}</li>)}
+      {steps.map((item, index) => <li key={item} className={`rounded-lg border px-3 py-2 text-sm ${index <= step ? 'border-teal-300 bg-teal-50' : 'border-dashed border-slate-300 text-slate-500'}`}><strong>{index + 1}.</strong> {item}</li>)}
     </ol>
     <Button lang={lang} done={atEnd} onClick={advance}/>
     <p className="mt-2 text-xs text-slate-500">{lang === 'de' ? 'Ohne Relay:' : 'Without relay:'} {doneNoRelay ? '✅' : '—'} · {lang === 'de' ? 'Mit Relay:' : 'With relay:'} {doneRelay ? '✅' : '—'}</p>
@@ -164,12 +164,12 @@ function StatefulFirewall({ lang }: { lang: Lang }) {
       <button type="button" aria-pressed={scenario === 'deny-in'} onClick={() => switchScenario('deny-in')} className={`rounded border px-3 py-1.5 ${scenario === 'deny-in' ? 'border-teal-500 bg-teal-50' : 'border-slate-200'}`}>{copy[lang].denyIn}</button>
     </div>
     <ol className="mt-3 space-y-2" aria-live="polite">
-      {steps.map((item, index) => <li key={item} className={`rounded-lg border px-3 py-2 text-sm ${index <= step ? 'border-teal-300 bg-teal-50' : 'border-slate-200 text-slate-400'}`}><strong>{index + 1}.</strong> {item}</li>)}
+      {steps.map((item, index) => <li key={item} className={`rounded-lg border px-3 py-2 text-sm ${index <= step ? 'border-teal-300 bg-teal-50' : 'border-dashed border-slate-300 text-slate-500'}`}><strong>{index + 1}.</strong> {item}</li>)}
     </ol>
     <p className="mt-3 text-xs font-semibold text-slate-500">{copy[lang].stateTable}</p>
     <div className="mt-1 space-y-1" aria-live="polite">
       {table.length === 0
-        ? <p className="text-sm text-slate-400">{copy[lang].empty}</p>
+        ? <p className="text-sm text-slate-500">{copy[lang].empty}</p>
         : table.map(entry => <p key={entry.flow} className={`rounded border px-3 py-2 font-mono text-xs ${entry.highlighted ? 'border-green-400 bg-green-50 font-semibold' : 'border-slate-200'}`}>{entry.flow}</p>)}
     </div>
     <Button lang={lang} done={atEnd} onClick={advance}/>

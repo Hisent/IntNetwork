@@ -74,7 +74,7 @@ function Encapsulation({ lang }: { lang: Lang }) {
   const [step, setStep] = useState(0)
   return <Frame mode="encapsulation" lang={lang} done={step === layers.length - 1}>
     <div className="space-y-2" aria-live="polite">
-      {layers.map(([name, value], index) => <div key={name} className={`rounded-lg border px-3 py-2 transition-all ${index <= step ? 'border-teal-300 bg-teal-50' : 'border-slate-200 text-slate-400'}`} style={{ marginLeft: `${index * 12}px`, marginRight: `${index * 12}px` }}><div className="flex flex-wrap items-baseline justify-between gap-2"><strong className="text-sm text-slate-700">{name}</strong><code className="text-xs">{value}</code></div></div>)}
+      {layers.map(([name, value], index) => <div key={name} className={`rounded-lg border px-3 py-2 transition-all ${index <= step ? 'border-teal-300 bg-teal-50' : 'border-dashed border-slate-300 text-slate-500'}`} style={{ marginLeft: `${index * 12}px`, marginRight: `${index * 12}px` }}><div className="flex flex-wrap items-baseline justify-between gap-2"><strong className="text-sm text-slate-700">{name}</strong><code className="text-xs">{value}</code></div></div>)}
     </div>
     <button onClick={() => setStep(step === layers.length - 1 ? 0 : step + 1)} className="mt-4 rounded-lg bg-teal-600 px-3 py-2 text-sm font-medium text-white">{step === layers.length - 1 ? copy[lang].reset : copy[lang].next}</button>
   </Frame>
@@ -85,7 +85,7 @@ function SubnetMap({ lang }: { lang: Lang }) {
   const slices = useMemo(() => subnetSlices(prefix), [prefix])
   return <Frame mode="subnet-map" lang={lang} done={prefix >= 27}>
     <label className="text-sm font-medium text-slate-600">{lang === 'de' ? 'Präfix' : 'Prefix'}: /{prefix}<input className="ml-3 align-middle accent-teal-600" type="range" min="24" max="28" value={prefix} onChange={event => setPrefix(Number(event.target.value))}/></label>
-    <div className="mt-4 grid gap-1" style={{ gridTemplateColumns: `repeat(${Math.min(slices.length, 4)}, minmax(0, 1fr))` }}>{slices.map(slice => <div key={slice.network} className="min-w-0 rounded border border-teal-200 bg-teal-50 p-2 text-center"><code className="block break-all text-xs text-teal-900">{slice.network}</code><span className="text-xs text-slate-500">{slice.hosts} {lang === 'de' ? 'Hosts' : 'hosts'}</span></div>)}</div>
+    <div className="mt-4 grid gap-1" style={{ gridTemplateColumns: `repeat(${Math.min(slices.length, 4)}, minmax(0, 1fr))` }}>{slices.map(slice => <div key={slice.network} className="min-w-0 rounded border border-teal-200 bg-teal-50 p-2 text-center"><code className="block break-all text-xs text-teal-900">{slice.network}</code><span className="text-xs text-slate-700">{slice.hosts} {lang === 'de' ? 'Hosts' : 'hosts'}</span></div>)}</div>
   </Frame>
 }
 
@@ -98,7 +98,7 @@ function FirewallFlow({ lang }: { lang: Lang }) {
   const finished = step >= decision
   return <Frame mode="firewall-flow" lang={lang} done={finished}>
     <div className="flex flex-wrap gap-3"><label className="text-xs font-medium text-slate-500">{lang === 'de' ? 'Quelle' : 'Source'}<select value={source} onChange={event => { setSource(event.target.value as 'guest'|'office'); setStep(-1) }} className="ml-2 rounded border px-2 py-1 text-sm"><option value="guest">{lang === 'de' ? 'Gäste' : 'Guest'}</option><option value="office">{lang === 'de' ? 'Büro' : 'Office'}</option></select></label><label className="text-xs font-medium text-slate-500">{lang === 'de' ? 'Ziel' : 'Target'}<select value={target} onChange={event => { setTarget(event.target.value as 'erp'|'internet'); setStep(-1) }} className="ml-2 rounded border px-2 py-1 text-sm"><option value="erp">ERP</option><option value="internet">Internet</option></select></label><label className="text-xs font-medium text-slate-500">Port<select value={port} onChange={event => { setPort(Number(event.target.value)); setStep(-1) }} className="ml-2 rounded border px-2 py-1 text-sm"><option value="443">443</option><option value="23">23</option></select></label></div>
-    <div className="mt-4 space-y-2">{rules.map((rule,index) => { const reached = index <= step; const matched = reached && index === decision; return <div key={rule.label.en} className={`flex items-center justify-between rounded-lg border px-3 py-2 text-sm ${matched ? (rule.action === 'ALLOW' ? 'border-green-300 bg-green-50' : 'border-rose-300 bg-rose-50') : reached ? 'border-slate-300 bg-slate-50' : 'border-slate-200 text-slate-400'}`}><span>{index + 1}. {rule.label[lang]}</span><strong>{matched ? rule.action : reached ? (lang === 'de' ? 'kein Treffer' : 'no match') : '—'}</strong></div>})}</div>
+    <div className="mt-4 space-y-2">{rules.map((rule,index) => { const reached = index <= step; const matched = reached && index === decision; return <div key={rule.label.en} className={`flex items-center justify-between rounded-lg border px-3 py-2 text-sm ${matched ? (rule.action === 'ALLOW' ? 'border-green-300 bg-green-50' : 'border-rose-300 bg-rose-50') : reached ? 'border-slate-300 bg-slate-50' : 'border-dashed border-slate-300 text-slate-500'}`}><span>{index + 1}. {rule.label[lang]}</span><strong>{matched ? rule.action : reached ? (lang === 'de' ? 'kein Treffer' : 'no match') : '—'}</strong></div>})}</div>
     <button onClick={() => setStep(finished ? -1 : Math.min(step + 1, decision))} className="mt-3 rounded-lg bg-teal-600 px-3 py-2 text-sm font-medium text-white">{finished ? copy[lang].reset : copy[lang].next}</button>
   </Frame>
 }
@@ -116,7 +116,7 @@ function DnsTree({ lang }: { lang: Lang }) {
   }
   return <Frame mode="dns-tree" lang={lang} done={completed}>
     <label className="flex items-center gap-2 text-sm text-slate-700"><input type="checkbox" checked={cached} onChange={event => { setCached(event.target.checked); setStep(0) }}/>{copy[lang].cache}</label>
-    <div className="mt-5 flex flex-wrap items-center justify-center gap-2" aria-live="polite">{path.map((node,index) => <div key={node} className="flex items-center gap-2"><div className={`rounded-full border px-3 py-2 text-sm ${index <= step ? 'border-teal-400 bg-teal-50 text-teal-900' : 'border-slate-200 text-slate-400'}`}>{node}</div>{index < path.length - 1 && <span className={index < step ? 'text-teal-600' : 'text-slate-300'}>→</span>}</div>)}</div>
+    <div className="mt-5 flex flex-wrap items-center justify-center gap-2" aria-live="polite">{path.map((node,index) => <div key={node} className="flex items-center gap-2"><div className={`rounded-full border px-3 py-2 text-sm ${index <= step ? 'border-teal-400 bg-teal-50 text-teal-900' : 'border-dashed border-slate-300 text-slate-500'}`}>{node}</div>{index < path.length - 1 && <span className={index < step ? 'text-teal-600' : 'text-slate-500'} aria-hidden="true">→</span>}</div>)}</div>
     <button onClick={advance} className="mt-4 rounded-lg bg-teal-600 px-3 py-2 text-sm font-medium text-white">{step === path.length - 1 ? copy[lang].reset : copy[lang].next}</button>
   </Frame>
 }

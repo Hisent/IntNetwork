@@ -64,11 +64,11 @@ function RuleLab({ lang }: { lang: Lang }) {
     <div>
       <p className="text-xs font-semibold text-slate-500 mb-1">{s.yourRules}</p>
       <div className="rounded-lg border divide-y text-xs font-mono mb-3">
-        {rules.length === 0 && <div className="px-3 py-1.5 text-slate-400">{s.noRules}</div>}
+        {rules.length === 0 && <div className="px-3 py-1.5 text-slate-500">{s.noRules}</div>}
         {rules.map((r, i) => (
           <div key={i} className="flex items-center gap-3 px-3 py-1.5">
             <span className={r.action === 'allow' ? 'text-teal-700' : 'text-rose-700'}>{r.action.padEnd(5)}</span>
-            <span className="text-slate-600">{r.proto}/{r.port}</span>
+            <span className="text-slate-700">{r.proto}/{r.port}</span>
             <button onClick={() => setRules((rs) => rs.filter((_, idx) => idx !== i))}
               className="ml-auto text-rose-500 hover:text-rose-700">✕</button>
           </div>
@@ -95,7 +95,7 @@ function RuleLab({ lang }: { lang: Lang }) {
           title={s.anyPort} className="w-20 border rounded px-1 py-0.5 font-mono" />
         <button onClick={add} disabled={!portOk} className="rounded-lg border px-2 py-1 hover:bg-slate-50 disabled:opacity-50">{s.addRule}</button>
         {!portOk && <span role="alert" className="text-rose-700">{s.badPort}</span>}
-        <span className="text-slate-400">{s.anyPort}</span>
+        <span className="text-slate-500">{s.anyPort}</span>
       </div>
 
       <p className="text-xs font-semibold text-slate-500 mb-1">{s.traffic}</p>
@@ -215,10 +215,10 @@ export function Firewall({ lang }: { lang: Lang }) {
             <span className={r.action === 'allow' ? 'text-teal-700' : 'text-rose-700'}>
               {r.action.padEnd(5)}
             </span>
-            <span className="text-slate-600">
+            <span className="text-slate-700">
               {r.proto}/{r.port}
             </span>
-            <span className="text-slate-600">{RULE_DESC[i][lang]}</span>
+            <span className="text-slate-700">{RULE_DESC[i][lang]}</span>
           </div>
         ))}
         <div className={`px-3 py-1.5 ${portOk && decision.ruleIndex === null ? 'bg-amber-50 text-amber-800' : 'text-slate-500'}`}>

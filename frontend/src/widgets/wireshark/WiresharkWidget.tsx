@@ -71,7 +71,7 @@ export function Wireshark({ lang }: { lang: Lang }) {
               : 'border-slate-300'
         }`}
       />
-      <p className="text-xs text-slate-400 mb-3">{invalid ? `✗ ${s.invalid}` : s.filterHint}</p>
+      <p className="text-xs text-slate-500 mb-3">{invalid ? `✗ ${s.invalid}` : s.filterHint}</p>
 
       <div className="rounded-lg border border-slate-200 overflow-x-auto mb-3">
         <table className="w-full text-xs font-mono">

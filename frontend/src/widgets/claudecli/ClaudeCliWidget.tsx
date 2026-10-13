@@ -74,7 +74,7 @@ export function ClaudeCli({ lang }: { lang: Lang }) {
     <div className="rounded-2xl border bg-white p-5">
       <p className="text-sm font-semibold text-slate-700 mb-1">{s.title}</p>
       <p className="text-xs text-slate-500 mb-2">{s.hint}</p>
-      <div className="mb-2 flex items-center justify-between gap-2 text-[11px] text-slate-400">
+      <div className="mb-2 flex items-center justify-between gap-2 text-[11px] text-slate-500">
         <span>{s.session}: <code className="font-mono text-slate-600">{sessionId}</code></span>
         <button type="button" onClick={resetSession} className="rounded border border-slate-200 px-2 py-1 hover:bg-slate-50">{s.reset}</button>
       </div>
@@ -88,7 +88,7 @@ export function ClaudeCli({ lang }: { lang: Lang }) {
             {label}
           </button>
         ))}
-        <span className="ml-1 text-[11px] text-slate-400">{s.cycle}</span>
+        <span className="ml-1 text-[11px] text-slate-500">{s.cycle}</span>
       </div>
 
       <div className="rounded-lg bg-slate-900 p-3 font-mono text-xs text-slate-100">

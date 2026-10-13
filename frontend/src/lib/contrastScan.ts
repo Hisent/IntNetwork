@@ -28,6 +28,14 @@ export function parseColorVars(css: string): Map<string, string> {
   return vars
 }
 
+/** Helle Palette = Tailwind-Standard (theme.css) + die Überschreibungen im @theme-Block von index.css. */
+export function lightPalette(themeCss: string, indexCss: string): Map<string, string> {
+  const vars = parseColorVars(themeCss)
+  const block = stripComments(indexCss).match(/@theme\s*\{([^}]*)\}/)
+  if (block) for (const [k, v] of parseColorVars(block[1])) vars.set(k, v)
+  return vars
+}
+
 // ---------------------------------------------------------------------------
 // className-Literale einsammeln und bg/text-Paare extrahieren.
 // ---------------------------------------------------------------------------

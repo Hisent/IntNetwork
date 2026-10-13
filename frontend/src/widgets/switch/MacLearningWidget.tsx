@@ -86,7 +86,7 @@ export function MacLearning({ lang }: { lang: Lang }) {
         <p className="text-xs font-semibold text-slate-500 mb-1">{s.table}</p>
         <div className="rounded-lg border divide-y text-xs font-mono">
           {Object.keys(table).length === 0
-            ? <div className="px-3 py-2 text-slate-400">{s.empty}</div>
+            ? <div className="px-3 py-2 text-slate-500">{s.empty}</div>
             : Object.entries(table).map(([mac, port]) => (
               <div key={mac} className="flex justify-between px-3 py-1.5">
                 <span className="text-slate-700">{mac}</span><span className="text-slate-500">{s.port} {port}</span>

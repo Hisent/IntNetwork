@@ -38,7 +38,7 @@ export function AuditLogBlock() {
   }
 
   return (
-    <Section title="Protokoll" className="opacity-90">
+    <Section title="Protokoll">
       <QueryState query={first} empty={first.isSuccess && entries.length === 0}>
         <details>
           <summary className="wb-control cursor-pointer select-none text-sm text-[var(--wb-muted)] hover:text-[var(--wb-ink)]">

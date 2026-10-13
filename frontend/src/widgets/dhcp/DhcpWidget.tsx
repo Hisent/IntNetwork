@@ -113,7 +113,7 @@ export function Dhcp({ lang }: { lang: Lang }) {
       <p className="text-xs font-semibold text-slate-500 mb-1">{s.leases} — {s.pool}: {leases.length}/{POOL_SIZE}</p>
       <div className="rounded-lg border divide-y text-xs font-mono max-h-48 overflow-y-auto">
         {leases.length === 0 ? (
-          <div className="px-3 py-2 text-slate-400">{s.none}</div>
+          <div className="px-3 py-2 text-slate-500">{s.none}</div>
         ) : (
           leases.map((l, i) => (
             <div key={l.ip} className="flex justify-between px-3 py-1.5">

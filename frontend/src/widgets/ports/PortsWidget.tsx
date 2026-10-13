@@ -64,7 +64,7 @@ export function Ports({ lang }: { lang: Lang }) {
           {HANDSHAKE.map((step, i) => (
             <li key={i} className="flex items-center gap-3 text-xs">
               <span className="w-14 shrink-0 text-slate-500">{step.from}</span>
-              <span className="text-slate-300">{step.from === 'Client' ? '───▶' : '◀───'}</span>
+              <span className="text-slate-500" aria-hidden="true">{step.from === 'Client' ? '───▶' : '◀───'}</span>
               <span className="rounded bg-teal-100 px-2 py-0.5 font-mono font-semibold text-teal-700">
                 {step.flag}
               </span>

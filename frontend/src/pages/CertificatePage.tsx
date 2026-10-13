@@ -90,7 +90,7 @@ export function CertificatePage() {
           {t(lang, 'certDate')} <b className="text-slate-700">{today}</b>
         </p>
         {cert.data && (
-          <p className="mt-4 text-xs text-slate-400">
+          <p className="mt-4 text-xs text-slate-500">
             {lang === 'de' ? 'Prüf-ID' : 'Verification ID'}: <span className="select-all font-mono text-slate-500">{cert.data.id}</span>
             <br />
             {lang === 'de' ? 'Prüfbar unter' : 'Verify at'} {window.location.origin}/verifizieren/{cert.data.id}

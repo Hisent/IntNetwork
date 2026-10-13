@@ -96,12 +96,12 @@ export function Nat({ lang }: { lang: Lang }) {
 
       <p className="text-xs font-semibold text-slate-500 mb-1">{s.table}</p>
       <div className="rounded-lg border divide-y text-xs font-mono">
-        <div className="flex justify-between px-3 py-1.5 text-slate-400">
+        <div className="flex justify-between px-3 py-1.5 text-slate-500">
           <span>Inside Local</span>
           <span>Inside Global</span>
         </div>
         {table.length === 0 ? (
-          <div className="px-3 py-2 text-slate-400">{s.empty}</div>
+          <div className="px-3 py-2 text-slate-500">{s.empty}</div>
         ) : (
           table.map((e) => (
             <div key={e.insideLocal} className="flex justify-between px-3 py-1.5">

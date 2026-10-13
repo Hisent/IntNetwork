@@ -100,7 +100,7 @@ function Traceroute({ lang }: { lang: Lang }) {
       <ol className="flex flex-col gap-1.5 mb-3">
         {hops.slice(0, step).map((h, i) => (
           <li key={h.label} className="flex items-start gap-3 text-xs animate-fade-up">
-            <span className="w-5 shrink-0 font-mono text-slate-400">{i + 1}.</span>
+            <span className="w-5 shrink-0 font-mono text-slate-500">{i + 1}.</span>
             <span className="w-40 shrink-0 font-mono text-slate-700">
               {lang === 'en' ? h.labelEn ?? h.label : h.label}
               {h.nat && <span className="ml-1 rounded bg-amber-100 px-1 py-0.5 text-[10px] font-semibold text-amber-800">{s.natBadge}</span>}

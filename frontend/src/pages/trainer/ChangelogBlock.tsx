@@ -7,7 +7,7 @@ import { Section, QueryState } from './shared'
 export function ChangelogBlock() {
   const changelog = useQuery({ queryKey: ['changelog'], queryFn: () => trainerApi.changelog().then((r) => r.data) })
   return (
-    <Section title="Änderungslog" className="opacity-90">
+    <Section title="Änderungslog">
       <QueryState query={changelog} empty={changelog.data?.length === 0}>
         <details>
           <summary className="wb-control cursor-pointer select-none text-sm text-[var(--wb-muted)] hover:text-[var(--wb-ink)]">{changelog.data?.length ?? 0} Einträge anzeigen</summary>

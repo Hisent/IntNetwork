@@ -67,7 +67,7 @@ export function OsiModel({ lang }: { lang: Lang }) {
               <span key={idx} className={`rounded px-1.5 py-1 text-[10px] font-mono font-semibold ${PIECE_COLOR[p] ?? 'bg-slate-200'}`}>{p === 'Daten' && lang === 'en' ? 'Data' : p}</span>
             ))}
           </div>
-          <p className="text-[11px] text-slate-400 mt-2">{cur.side === 'tx' ? s.encap : s.decap}</p>
+          <p className="text-[11px] text-slate-500 mt-2">{cur.side === 'tx' ? s.encap : s.decap}</p>
         </div>
 
         <Stack side="rx" activeLayer={cur.side === 'rx' ? cur.layer : null} onPick={setPick} lang={lang} />
@@ -84,7 +84,7 @@ export function OsiModel({ lang }: { lang: Lang }) {
           className="rounded-lg border px-3 py-1.5 text-sm">{s.step}</button>
         <button onClick={() => { setPlaying(false); setI(0) }}
           className="rounded-lg border px-3 py-1.5 text-sm">{s.reset}</button>
-        <span className="text-xs text-slate-400">{s.stepCount} {i + 1}/{steps.length}</span>
+        <span className="text-xs text-slate-500">{s.stepCount} {i + 1}/{steps.length}</span>
       </div>
 
       {pick && (

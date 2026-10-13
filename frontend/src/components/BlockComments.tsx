@@ -39,11 +39,11 @@ export function BlockComments({ moduleKey, blockIndex, lang }: { moduleKey: stri
       {open && (
         <div className="mt-2 rounded-lg border bg-slate-50 p-3">
           <div className="flex flex-col gap-2 mb-2">
-            {items.length === 0 && <p className="text-xs text-slate-400">{t(lang, 'noComments')}</p>}
+            {items.length === 0 && <p className="text-xs text-slate-500">{t(lang, 'noComments')}</p>}
             {items.map((c) => (
               <div key={c.id} className="text-sm">
                 <span className="font-medium text-slate-700">{c.author_name}</span>
-                <span className="text-xs text-slate-400"> · {formatApiTime(c.created_at, lang)}</span>
+                <span className="text-xs text-slate-500"> · {formatApiTime(c.created_at, lang)}</span>
                 {c.own && (
                   <button
                     onClick={() => del.mutate(c.id)}

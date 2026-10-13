@@ -12,7 +12,7 @@ export function TrainerFeedback({ courseId }: { courseId: number }) {
 
   if (!comments.data) return null
   if (comments.data.length === 0)
-    return <p className="text-sm text-slate-400">Noch kein Feedback in diesem Kurs.</p>
+    return <p className="text-sm text-slate-500">Noch kein Feedback in diesem Kurs.</p>
 
   const byModule = new Map<string, TrainerComment[]>()
   for (const c of comments.data) {
@@ -78,7 +78,7 @@ function FeedbackModule({
           const snippet = blockSnippet(mod.data?.blocks[g.blockIndex])
           return (
             <div key={g.blockIndex} className="border-t pt-2">
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-slate-500">
                 Block {g.blockIndex + 1}
                 {snippet && <span> · „{snippet}"</span>}
               </p>

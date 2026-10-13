@@ -172,7 +172,7 @@ export function AeadLab({ lang }: { lang: Lang }) {
             )}
           </>
         ) : (
-          <p className="text-xs text-slate-400">{s.notEncryptedYet}</p>
+          <p className="text-xs text-slate-600">{s.notEncryptedYet}</p>
         )}
       </div>
 

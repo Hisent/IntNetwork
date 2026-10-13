@@ -47,7 +47,7 @@ function CodeBlock({ children }: { children?: ReactNode }) {
   return (
     <div className="wb-code group relative my-3 overflow-hidden rounded-xl border border-slate-800 bg-slate-950 shadow-sm">
       <div className="flex items-center justify-between border-b border-slate-800 px-3 py-2 print:hidden">
-        <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-slate-500">{language ?? 'code'}</span>
+        <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-slate-400">{language ?? 'code'}</span>
         <button type="button" onClick={() => void copy()} aria-label="Code kopieren / Copy code" className="rounded-md px-2 py-1 text-xs font-medium text-teal-300 hover:bg-slate-800 hover:text-teal-100 focus-visible:outline-teal-300">
           {copied ? t(lang, 'copiedCode') : t(lang, 'copyCode')}
         </button>

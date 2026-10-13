@@ -84,9 +84,9 @@ function FieldPuzzle({ lang }: { lang: Lang }) {
         {fields.map((f, i) => (
           <button key={f.key} onClick={() => trySlot(i)}
             className={`rounded-lg border-2 px-3 py-2 text-xs font-medium ${
-              assigned.has(i) ? f.color : 'bg-slate-50 border-dashed border-slate-300 text-slate-400 hover:border-teal-400'}`}>
+              assigned.has(i) ? f.color : 'bg-slate-50 border-dashed border-slate-300 text-slate-500 hover:border-teal-400'}`}>
             <div>{assigned.has(i) ? f.name : '?'}</div>
-            <div className="opacity-70">{f.bytes}</div>
+            <div className="font-normal">{f.bytes}</div>
           </button>
         ))}
       </div>
@@ -162,7 +162,7 @@ export function FrameBuilder({ lang }: { lang: Lang }) {
               <button key={f.key} onClick={() => setSel(f.key)}
                 className={`rounded-lg border-2 px-3 py-2 text-xs font-medium ${f.color} ${sel === f.key ? 'ring-2 ring-teal-500' : ''}`}>
                 <div>{f.name}</div>
-                <div className="opacity-70">{f.bytes}</div>
+                <div className="font-normal">{f.bytes}</div>
               </button>
             ))}
           </div>
