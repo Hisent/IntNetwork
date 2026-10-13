@@ -2,15 +2,15 @@
 # EN von Fach-Übersetzung; note/goals bleiben DE (Trainer-Bereich).
 
 ORCHESTRATION_MODULE = {'key': 'orchestration',
- 'title': 'Agent-Teams, Background-Agents & Workflows',
- 'title_en': 'Agent Teams, Background Agents & Workflows',
+ 'title': 'Agent-Teams, Hintergrund-Sessions & Workflows',
+ 'title_en': 'Agent Teams, Background Sessions & Workflows',
  'order': 113,
  'prerequisites': ['subagents'],
- 'goals': ['Subagents, Background-Agents und Agent-Teams unterscheiden',
+ 'goals': ['Subagents, Hintergrund-Sessions und Agent-Teams unterscheiden',
            'Verstehen, wann Orchestrierung statt eines einzelnen Agenten sinnvoll ist',
            'Fan-out- und Pipeline-Muster einordnen',
            'Dynamische Workflows als deterministische Orchestrierung erkennen'],
- 'goals_en': ['Distinguish subagents, background agents, and agent teams',
+ 'goals_en': ['Distinguish subagents, background sessions, and agent teams',
                'Understand when orchestration makes sense instead of a single agent',
                'Place the fan-out and pipeline patterns',
                'Recognize dynamic workflows as deterministic orchestration'],
@@ -29,7 +29,8 @@ ORCHESTRATION_MODULE = {'key': 'orchestration',
                              'Session*, jeder in eigenem Kontext, geben Zusammenfassungen zurück. '
                              'Ideal, um das Hauptgespräch sauber zu halten und unabhängige '
                              'Teilaufgaben zu parallelisieren.\n'
-                             '- **Background-Agents** — mehrere *vollständige* Sessions '
+                             '- **Hintergrund-Sessions** (Background Sessions; umgangssprachlich auch '
+                             '„Background-Agents“) — mehrere *vollständige* Sessions '
                              'nebeneinander laufen lassen und aus einer Ansicht beobachten (agent '
                              'view, `claude agents`; Research Preview). Ideal, wenn mehrere große, eigenständige Aufgaben '
                              'gleichzeitig laufen sollen.\n'
@@ -38,7 +39,7 @@ ORCHESTRATION_MODULE = {'key': 'orchestration',
                              'koordinierte Zusammenarbeit an einem größeren Ziel. Experimentell '
                              'und standardmäßig deaktiviert.\n'
                              '\n'
-                             'Merke: Subagents = Helfer im selben Gespräch; Background-Agents = '
+                             'Merke: Subagents = Helfer im selben Gespräch; Hintergrund-Sessions = '
                              'viele Gespräche parallel; Agent-Teams = viele Gespräche, die sich '
                              'abstimmen.',
                        'en': '## Three Tiers of Parallelism\n'
@@ -47,7 +48,8 @@ ORCHESTRATION_MODULE = {'key': 'orchestration',
                              'session*, each in its own context, returning summaries. Ideal for '
                              'keeping the main conversation clean and parallelizing independent '
                              'subtasks.\n'
-                             '- **Background agents** — run multiple *full* sessions side by side '
+                             '- **Background sessions** (informally also "background agents") — run '
+                             'multiple *full* sessions side by side '
                              'and monitor them from one view (agent view, `claude agents`; research preview). Ideal when several '
                              'large, self-contained tasks need to run at the same time.\n'
                              '- **Agent teams** — multiple sessions that **communicate with each '
@@ -56,7 +58,7 @@ ORCHESTRATION_MODULE = {'key': 'orchestration',
                              'disabled by default.\n'
                              '\n'
                              'Remember: Subagents = helpers within the same conversation; '
-                             'background agents = many conversations in parallel; agent teams = '
+                             'background sessions = many conversations in parallel; agent teams = '
                              'many conversations that coordinate with each other.'},
              'note': 'Fan-out mehrerer Subagents an einer echten Aufgabe zeigen; über '
                      'Kosten/Nutzen der Parallelität sprechen.'},
@@ -68,10 +70,10 @@ ORCHESTRATION_MODULE = {'key': 'orchestration',
                                       'the same time and monitor them. What fits?',
                          'answer': 1,
                          'options_de': ['Ein einzelner Subagent',
-                                        'Background-Agents (mehrere volle Sessions parallel)',
+                                        'Hintergrund-Sessions (mehrere volle Sessions parallel)',
                                         'Gar nichts, das geht nicht'],
                          'options_en': ['A single subagent',
-                                        'Background agents (multiple full sessions in parallel)',
+                                        'Background sessions (multiple full sessions in parallel)',
                                         "Nothing, that's not possible"]}},
             {'type': 'text', 'id': 'text-2',
              'value': {'de': '## Wann überhaupt orchestrieren?\n'
@@ -383,12 +385,12 @@ ORCHESTRATION_MODULE = {'key': 'orchestration',
                          'prompt_en': 'Statements about orchestration — which one is wrong?',
                          'lines_de': ['Subagents laufen innerhalb einer Session in eigenem '
                                       'Kontext.',
-                                      'Background-Agents sind mehrere vollständige Sessions '
+                                      'Hintergrund-Sessions sind mehrere vollständige Sessions '
                                       'parallel.',
                                       'Agent-Teams sind Sessions, die miteinander kommunizieren.',
                                       'Mehr Agenten sind grundsätzlich immer besser als einer.'],
                          'lines_en': ['Subagents run within a session in their own context.',
-                                      'Background agents are multiple full sessions running in '
+                                      'Background sessions are multiple full sessions running in '
                                       'parallel.',
                                       'Agent teams are sessions that communicate with each other.',
                                       'More agents are always fundamentally better than one.'],
@@ -543,18 +545,18 @@ ORCHESTRATION_MODULE = {'key': 'orchestration',
                                       'subtasks?'}}],
  'quiz': {'questions': [{'id': 'or1',
                          'type': 'single',
-                         'prompt': {'de': 'Was unterscheidet Agent-Teams von Background-Agents?',
-                                    'en': 'What distinguishes agent teams from background agents?'},
+                         'prompt': {'de': 'Was unterscheidet Agent-Teams von Hintergrund-Sessions?',
+                                    'en': 'What distinguishes agent teams from background sessions?'},
                          'answer': 0,
                          'options': {'de': ['Agent-Teams kommunizieren miteinander; '
-                                            'Background-Agents laufen unabhängig parallel',
+                                            'Hintergrund-Sessions laufen unabhängig parallel',
                                             'Agent-Teams sind langsamer',
-                                            'Background-Agents brauchen kein Modell',
+                                            'Hintergrund-Sessions brauchen kein Modell',
                                             'Es gibt keinen Unterschied'],
                                      'en': ['Agent teams communicate with each other; background '
-                                            'agents run independently in parallel',
+                                            'sessions run independently in parallel',
                                             'Agent teams are slower',
-                                            "Background agents don't need a model",
+                                            "Background sessions don't need a model",
                                             'There is no difference']},
                          'explanation': {'de': 'In einem Agent-Team verteilt ein Lead die Arbeit, '
                                                'die Mitglieder teilen eine Aufgabenliste und '

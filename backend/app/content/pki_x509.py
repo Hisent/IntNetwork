@@ -584,11 +584,11 @@ X509_MODULE = {
                     },
                     {
                      'id': 'eku',
-                     'accept': ['serverAuth'],
+                     'accept': ['serverAuth', 'TLS Web Server Authentication', '1.3.6.1.5.5.7.3.1'], 'case_sensitive': True,
                     },
                     {
                      'id': 'typ',
-                     'accept': ['DNS'],
+                     'accept': ['DNS'], 'case_sensitive': True,
                     },
                 ],
              'explanation_de': ('Ein Endzertifikat ist keine CA und signiert nur den Handshake (`digitalSignature`); '

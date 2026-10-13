@@ -268,7 +268,7 @@ TEMPLATES_MODULE = {
                                  '{% [[for]] domain in server_names %}\n'
                                  '    server_name {{ [[var]] }};\n'
                                  '{% [[endfor]] %}\n'
-                                 '{% if tls_aktiv %}\n'
+                                 '{% if tls_aktiv | default(false) %}\n'
                                  '    ssl_certificate /etc/ssl/{{ server_names | [[first]] '
                                  '}}.pem;\n'
                                  '{% endif %}\n'
@@ -334,10 +334,10 @@ TEMPLATES_MODULE = {
             {'type': 'debug', 'id': 'debug-1',
              'payload': {'prompt_de': 'Dieses Template soll für jede Domain eine server_name-'
                                       'Zeile ausgeben, bricht beim Rendern aber mit einem Fehler '
-                                      'ab. Welche Zeile enthält den Fehler?',
+                                      'ab. Vor welcher Zeile fehlt etwas?',
                          'prompt_en': 'This template is supposed to output a server_name line '
                                       'for every domain, but rendering fails with an error. '
-                                      'Which line contains the bug?',
+                                      'Before which line is something missing?',
                          'lines_de': ['server {',
                                       '    listen {{ http_port | default(80) }};',
                                       '{% for domain in server_names %}',
@@ -353,11 +353,14 @@ TEMPLATES_MODULE = {
                                            'geschlossen — es fehlt ein `{% endfor %}` vor der '
                                            'abschließenden `}` in Zeile 5. Jinja2 bricht das '
                                            'Rendern mit einem Syntaxfehler ab, statt die Domains '
-                                           'auszugeben.',
+                                           'auszugeben — sinngemäß: unerwartetes Ende der Vorlage, '
+                                           'erwartet wurde `endfor`.',
                          'explanation_en': 'The `{% for %}` block opened in line 3 is never '
                                            'closed — a `{% endfor %}` is missing before the '
                                            'closing `}` in line 5. Jinja2 aborts rendering with '
-                                           'a syntax error instead of outputting the domains.'}},
+                                           'a syntax error instead of outputting the domains — '
+                                           'in essence: unexpected end of template, `endfor` was '
+                                           'expected.'}},
             {'type': 'text',
              'id': 'text-lab-templates',
              'value': {'de': '## Praxis: Ein Template im Lab rendern\n'
@@ -446,12 +449,12 @@ TEMPLATES_MODULE = {
                         {'id': 'tj2',
                          'explanation': {'de': '`join("-")` verbindet die Elemente mit genau dem '
                                                'angegebenen Trenner: `a-b-c`. `a, b, c` entstünde '
-                                               'mit `join(", ")`, und `[a, b, c]` wäre die Liste '
-                                               'ohne jeden Filter.',
+                                               'mit `join(", ")`; ohne jeden Filter gäbe Ansible '
+                                               "die Liste als `['a', 'b', 'c']` aus.",
                                          'en': '`join("-")` joins the elements with exactly the '
                                                'given separator: `a-b-c`. `a, b, c` would result '
-                                               'from `join(", ")`, and `[a, b, c]` would be the '
-                                               'list without any filter.'},
+                                               'from `join(", ")`; without any filter Ansible would '
+                                               "print the list as `['a', 'b', 'c']`."},
                          'type': 'single',
                          'prompt': {'de': 'Gegeben: {{ liste | join("-") }} mit liste: [a, b, c]. '
                                           'Was ist die gerenderte Ausgabe?',

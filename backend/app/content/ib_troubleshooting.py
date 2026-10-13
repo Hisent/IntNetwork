@@ -298,14 +298,14 @@ IB_TROUBLESHOOTING_MODULE = {
             "explanation_de": "Der Fehler liegt darin, den Switch-Port zu deaktivieren statt "
                               "den DHCP-Dienst aktiv zu stoppen. Für Server A ist ein reines "
                               "Abschalten des Ports nicht von einer Netzwerkstörung zu "
-                              "unterscheiden — er bleibt in Communication Interrupted. Partner "
+                              "unterscheiden — er bleibt in Communications Interrupted. Partner "
                               "Down ist ein manuell gesetzter Zustand und darf erst gesetzt "
                               "werden, wenn der Dienst auf B sicher gestoppt ist; bei einem "
                               "geplanten Ausfall muss der Dienst selbst sauber gestoppt werden.",
             "explanation_en": "The mistake is disabling the switch port instead of actively "
                               "stopping the DHCP service. For server A, simply turning off the "
                               "port is indistinguishable from a network fault — so it stays in "
-                              "Communication Interrupted. Partner Down is a manually set state "
+                              "Communications Interrupted. Partner Down is a manually set state "
                               "and may only be set once the service on B is reliably stopped; "
                               "for a planned outage, the service itself must be stopped "
                               "cleanly.",
@@ -655,15 +655,15 @@ IB_TROUBLESHOOTING_MODULE = {
          }},
         {"id": "ibt3",
          "explanation": {
-             "de": "Ein abgeschalteter Port sieht für den verbleibenden Peer aus wie jede Leitungsstörung: Communication Interrupted. Partner Down setzt ein Admin von Hand — und darf das erst, wenn der DHCP-Dienst des Partners sicher gestoppt ist.",
-             "en": "A disabled port looks to the remaining peer like any link failure: Communication Interrupted. Partner Down is set by an admin by hand — and only permissible once the partner's DHCP service is reliably stopped.",
+             "de": "Ein abgeschalteter Port sieht für den verbleibenden Peer aus wie jede Leitungsstörung: Communications Interrupted. Partner Down setzt ein Admin von Hand — und darf das erst, wenn der DHCP-Dienst des Partners sicher gestoppt ist.",
+             "en": "A disabled port looks to the remaining peer like any link failure: Communications Interrupted. Partner Down is set by an admin by hand — and only permissible once the partner's DHCP service is reliably stopped.",
          },
          "type": "single",
          "prompt": {"de": "Nach einem geplanten Wartungsfenster bleibt ein DHCP-Failover-"
-                          "Partner in Communication Interrupted, obwohl der andere Peer "
+                          "Partner in Communications Interrupted, obwohl der andere Peer "
                           "geplant offline sein sollte. Was wurde wahrscheinlich falsch gemacht?",
                     "en": "After a planned maintenance window, a DHCP failover partner stays "
-                          "in Communication Interrupted although the other peer was meant to be "
+                          "in Communications Interrupted although the other peer was meant to be "
                           "offline. What was most likely done wrong?"},
          "answer": 0,
          "options": {

@@ -459,8 +459,8 @@ GRID_ARCHITEKTUR_MODULE = {
             "id": "terminal-grid-rolle",
             "note": "Format von show status, show network und show version nach dem NIOS CLI Guide; Ausgabe von show network gekürzt (ohne VLAN-, DSCP- und IPv6-Zeilen), Versions- und Seriennummer sind Beispielwerte.",
             "payload": {
-                "title_de": "Auf welchem Knoten bin ich? (NIOS-CLI an Standort B)",
-                "title_en": "Which node am I on? (NIOS CLI at site B)",
+                "title_de": "Auf welchem Knoten bin ich? (NIOS-CLI an Standort A)",
+                "title_en": "Which node am I on? (NIOS CLI at site A)",
                 "intro_de": "Konsole eines Grid-Knotens. Tippe einen Befehl oder klicke ihn an; help zeigt die Liste.",
                 "intro_en": "Console of a Grid node. Type a command or click one; help lists them.",
                 "prompt": "Infoblox >",
@@ -471,7 +471,7 @@ GRID_ARCHITEKTUR_MODULE = {
                         "cmd": "show status",
                         "desc_de": "Grid- und HA-Status dieses Knotens",
                         "desc_en": "Grid and HA status of this node",
-                        "output": "Grid Status: ID Grid Member\nHA Status: Not Configured\nHostname: ns-b.nordwind.example\nGrid Master IP: 192.0.2.10",
+                        "output": "Grid Status: ID Grid Member\nHA Status: Not Configured\nHostname: ns-a.nordwind.example\nGrid Master IP: 192.0.2.10",
                     },
                     {
                         "cmd": "show network",

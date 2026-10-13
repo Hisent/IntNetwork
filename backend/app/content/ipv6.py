@@ -179,7 +179,7 @@ IPV6_MODULE = {
          }},
         {"type": "terminal", "id": "terminal-ipv6-router",
          "note": "Cisco-IOS-Ausgaben, gekürzt (Routing-Tabelle ohne Legende). IOS schreibt IPv6-Adressen "
-                 "in Großbuchstaben — gemeint ist dasselbe. Aha-Moment: Beide Interfaces tragen FE80::1 — "
+                 "in Großbuchstaben — gemeint ist dasselbe. Aha-Moment: Alle drei Interfaces tragen FE80::1 (Gi0/2 ist der Uplink zum Provider, Next-Hop der Default-Route) — "
                  "erlaubt, weil Link-Local nur je Segment eindeutig sein muss.",
          "payload": {
              "title_de": "IPv6 auf dem Router Nordwind-R1 ansehen",
@@ -196,7 +196,10 @@ IPV6_MODULE = {
                             "    2001:DB8:10::1\n"
                             "GigabitEthernet0/1     [up/up]\n"
                             "    FE80::1\n"
-                            "    2001:DB8:20::1"},
+                            "    2001:DB8:20::1\n"
+                            "GigabitEthernet0/2     [up/up]\n"
+                            "    FE80::1\n"
+                            "    2001:DB8:FF::2"},
                  {"cmd": "show ipv6 neighbors",
                   "desc_de": "Neighbor Cache (wie die ARP-Tabelle)", "desc_en": "neighbor cache (like the ARP table)",
                   "output": "IPv6 Address              Age Link-layer Addr State Interface\n"
@@ -213,6 +216,10 @@ IPV6_MODULE = {
                             "     via GigabitEthernet0/1, directly connected\n"
                             "L   2001:DB8:20::1/128 [0/0]\n"
                             "     via GigabitEthernet0/1, receive\n"
+                            "C   2001:DB8:FF::/64 [0/0]\n"
+                            "     via GigabitEthernet0/2, directly connected\n"
+                            "L   2001:DB8:FF::2/128 [0/0]\n"
+                            "     via GigabitEthernet0/2, receive\n"
                             "S   ::/0 [1/0]\n"
                             "     via 2001:DB8:FF::1\n"
                             "L   FF00::/8 [0/0]\n"
@@ -222,8 +229,8 @@ IPV6_MODULE = {
                  {"text_de": "Zeige die Interfaces mit ihren IPv6-Adressen.",
                   "text_en": "Show the interfaces with their IPv6 addresses.",
                   "command": "show ipv6 interface brief"},
-                 {"text_de": "Welche Link-Local-Adresse tragen beide Interfaces?",
-                  "text_en": "Which link-local address do both interfaces carry?",
+                 {"text_de": "Welche Link-Local-Adresse tragen alle drei Interfaces?",
+                  "text_en": "Which link-local address do all three interfaces carry?",
                   "answers": ["fe80::1"],
                   "explanation_de": "Das ist erlaubt: Eine Link-Local-Adresse muss nur je Segment eindeutig sein.",
                   "explanation_en": "That is allowed: a link-local address only has to be unique per segment."},

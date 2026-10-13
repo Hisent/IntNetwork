@@ -503,7 +503,7 @@ POST_QUANTUM_MODULE = {
                    'mit nur 112 Bit Sicherheitsniveau (z. B. RSA-2048) gelten **nach 2030** als '
                    '**"deprecated"** (Einsatz nur noch mit bewusster Risikoakzeptanz), **nach 2035** '
                    'sind alle quantenverwundbaren Verfahren **"disallowed"** (nicht mehr zugelassen). '
-                   'Das zugrundeliegende Dokument (NIST IR 8547) liegt bislang als Entwurf vor und '
+                   'Das zugrundeliegende Dokument (NIST IR 8547) lag im Oktober 2026 weiterhin nur als Entwurf (November 2024) vor und '
                    'ist ein Report, also eine Leitlinie ohne bindende Standardwirkung — entfaltet '
                    'über Beschaffungs- und Compliance-Vorgaben aber praktisch bindende Wirkung.\n\n'
                    'Für die nationalen Sicherheitssysteme der USA gibt die NSA mit **CNSA 2.0** '
@@ -526,7 +526,7 @@ POST_QUANTUM_MODULE = {
                    'with only 112 bits of security strength (e.g. RSA-2048) are considered '
                    '**"deprecated"** (use only with deliberate risk acceptance) **after 2030**; '
                    '**after 2035**, all quantum-vulnerable schemes are **"disallowed"** (no longer '
-                   'approved). The underlying document (NIST IR 8547) is so far available as a draft '
+                   'approved). The underlying document (NIST IR 8547) was still only available as a draft (November 2024) in October 2026 '
                    'and is a report, i.e. a guideline without binding standard status — but it has '
                    'practically binding effect through procurement and compliance requirements.\n\n'
                    'For US national security systems, the NSA sets its own, stricter roadmap with '
@@ -870,9 +870,9 @@ POST_QUANTUM_MODULE = {
         },
         {'id': 'pq7', 'type': 'multi',
          'prompt': {
-             'de': ('Welche Maßnahmen schützen heute aufgezeichnete Daten gegen eine spätere Entschlüsselung durch '
-                 'einen Quantencomputer („harvest now, decrypt later“)?'),
-             'en': ('Which measures protect data recorded today against later decryption by a quantum computer '
+             'de': ('Welche Maßnahmen tragen dazu bei, heute aufgezeichnete Daten gegen eine spätere Entschlüsselung durch '
+                 'einen Quantencomputer zu schützen („harvest now, decrypt later“)?'),
+             'en': ('Which measures help protect data recorded today against later decryption by a quantum computer '
                  '("harvest now, decrypt later")?'),
             },
          'options': {

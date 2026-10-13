@@ -151,7 +151,10 @@ SKILLS_COMMANDS_MODULE = {'key': 'skills-commands',
                              'Testabdeckung.\n'
                              '```\n'
                              '\n'
-                             'Aufruf: `/review src/auth.ts` → `$ARGUMENTS` wird zu `src/auth.ts`.',
+                             'Aufruf (Skill-Verzeichnis `review-file`): `/review-file src/auth.ts` → '
+                             '`$ARGUMENTS` wird zu `src/auth.ts`. Den Namen `review` meidest du: '
+                             '`/review` ist ein eingebauter Alias für `/code-review` und führt '
+                             'deinen Skill nie aus.',
                        'en': '## Dynamic context: !`cmd` and $ARGUMENTS\n'
                              '\n'
                              'Two building blocks make skills powerful:\n'
@@ -170,8 +173,10 @@ SKILLS_COMMANDS_MODULE = {'key': 'skills-commands',
                              'Review the file "$ARGUMENTS" for bugs, security, and test coverage.\n'
                              '```\n'
                              '\n'
-                             'Invocation: `/review src/auth.ts` → `$ARGUMENTS` becomes '
-                             '`src/auth.ts`.'}},
+                             'Invocation (skill directory `review-file`): `/review-file '
+                             'src/auth.ts` → `$ARGUMENTS` becomes `src/auth.ts`. Avoid the name '
+                             '`review`: `/review` is a built-in alias for `/code-review` and '
+                             'never runs your skill.'}},
             {'type': 'diagram',
              'id': 'diagram-skill-laden',
              'note': 'Durchklicken und bei Schritt 1 fragen, was ein Skill kostet, solange ihn '

@@ -165,6 +165,10 @@ TROUBLESHOOTING_MODULE = {
                              "“yes”, the problem lies with the application or its server."},
              ],
          }},
+        {"type": "widget", "id": "troubleshoot-demo",
+         "note": "Drei Störfälle: APIPA/DHCP, DNS-Ausfall, falsches VLAN nach Dosen-Umzug. "
+                 "Teilnehmer sollen erst Befehle ausführen (mind. 2), dann diagnostizieren — "
+                 "gut als Partnerarbeit: einer liest die Ausgaben vor, einer stellt die Diagnose."},
         {"type": "order", "id": "order-1", "payload": {
             "prompt_de": "Bringe die Diagnose-Schritte in die richtige Bottom-up-Reihenfolge:",
             "prompt_en": "Put the diagnostic steps into the correct bottom-up order:",
@@ -179,10 +183,6 @@ TROUBLESHOOTING_MODULE = {
                          "Ping an external IP (ping 8.8.8.8)",
                          "Test name resolution (nslookup)"],
         }},
-        {"type": "widget", "id": "troubleshoot-demo",
-         "note": "Drei Störfälle: APIPA/DHCP, DNS-Ausfall, falsches VLAN nach Dosen-Umzug. "
-                 "Teilnehmer sollen erst Befehle ausführen (mind. 2), dann diagnostizieren — "
-                 "gut als Partnerarbeit: einer liest die Ausgaben vor, einer stellt die Diagnose."},
         {"type": "text", "id": "text-crossplatform-cmds",
          "value": {
              "de": "## Windows vs. Linux/macOS — gleiche Fragen, andere Befehle\n\n"
@@ -549,11 +549,12 @@ TROUBLESHOOTING_MODULE = {
          "options": {
              "de": ["Der Ping zum Standardgateway schlägt fehl",
                     "ipconfig zeigt eine Adresse aus 169.254.0.0/16",
-                    "tracert antwortet bei Hop 1 und 2, danach nur noch Zeitüberschreitungen",
+                    "tracert antwortet bei Hop 1 (eigenes Gateway) und Hop 2 (Provider-Router 203.0.113.9), danach nur "
+                    "noch Zeitüberschreitungen",
                     "Interne Server sind erreichbar, externe Adressen nicht"],
              "en": ["The ping to the default gateway fails",
                     "ipconfig shows an address from 169.254.0.0/16",
-                    "tracert replies at hops 1 and 2, then only timeouts",
+                    "tracert replies at hop 1 (own gateway) and hop 2 (provider router 203.0.113.9), then only timeouts",
                     "Internal servers are reachable, external addresses are not"],
          },
          "answer": [0, 1],

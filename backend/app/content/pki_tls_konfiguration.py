@@ -161,7 +161,7 @@ TLS_KONFIGURATION_MODULE = {
         {'type': 'text', 'id': 'text-3',
          'value': {
              'de': ('## Die drei Mozilla-Profile\n\nDie bekannteste Praxis-Leitlinie stammt von Mozilla („Server '
-                 'Side TLS“) und wird heute unter dem Namen **TLSRef** gepflegt (docs.tlsref.org, aktuell '
+                 'Side TLS“) und wird heute unter dem Namen **TLSRef** gepflegt (docs.tlsref.org, im Oktober 2026 '
                  'Version 6.0); der zugehörige Konfigurations-Generator erzeugt daraus fertige Blöcke für '
                  'gängige Server-Software. Historisch gab es drei Profile:\n\n- **modern** — nur TLS 1.3 mit '
                  'dessen AEAD-Suiten, keine Legacy-Konfiguration nötig. Passt, wenn ausschließlich moderne '
@@ -178,7 +178,7 @@ TLS_KONFIGURATION_MODULE = {
                  '"intermediate" der sicherere Ausgangspunkt.'),
              'en': ('## The Three Mozilla Profiles\n\nThe best-known practical guideline comes from Mozilla '
                  '("Server Side TLS") and is maintained today under the name **TLSRef** (docs.tlsref.org, '
-                 'currently version 6.0); the accompanying configuration generator turns it into ready-made '
+                 'version 6.0 as of October 2026); the accompanying configuration generator turns it into ready-made '
                  'blocks for common server software. Historically there were three profiles:\n\n- **modern** — '
                  'TLS 1.3 only with its AEAD suites, no legacy configuration needed. Fits when only modern '
                  'clients need to be served.\n- **intermediate** — TLS 1.2 and TLS 1.3, but for TLS 1.2 '

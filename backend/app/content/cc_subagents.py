@@ -310,7 +310,7 @@ SUBAGENTS_MODULE = {'key': 'subagents',
                              'So verkürzt sich die Wartezeit: Statt nacheinander laufen die '
                              'Teilaufgaben nebeneinander, und das Hauptgespräch bekommt nur die '
                              'drei Zusammenfassungen. (Für viele *vollständige* Sessions '
-                             'nebeneinander gibt es Background-Agents und Agent-Teams — Modul 13.)',
+                             'nebeneinander gibt es Hintergrund-Sessions und Agent-Teams — Modul 13.)',
                        'en': '## Parallel Execution\n'
                              '\n'
                              'Because each subagent runs in isolation, you can start **several at '
@@ -325,7 +325,7 @@ SUBAGENTS_MODULE = {'key': 'subagents',
                              'This shortens the wait: instead of running one after another, the '
                              'subtasks run side by side, and the main conversation only gets the '
                              'three summaries. (For many *complete* sessions running side by side, '
-                             'there are background agents and agent teams — Module 13.)'}},
+                             'there are background sessions and agent teams — Module 13.)'}},
             {'type': 'order',
              'id': 'order-1',
              'payload': {'prompt_de': 'Einen wiederverwendbaren Subagent einführen — Reihenfolge:',

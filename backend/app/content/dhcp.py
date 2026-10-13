@@ -200,12 +200,12 @@ DHCP_MODULE = {
                             " dns-server 192.168.10.1\n"
                             " lease 1\n"
                             "ip dhcp pool DRUCKER-LAGER\n"
-                            " host 192.168.10.50 255.255.255.0\n"
-                            " client-identifier 0100.1122.3344.f0"},
+                            " host 192.168.10.12 255.255.255.0\n"
+                            " client-identifier 01aa.0000.0010.12"},
                  {"cmd": "show ip dhcp binding", "aliases": ["sh ip dhcp binding", "sh ip dhcp bind"],
                   "desc_de": "vergebene Adressen (Leases)", "desc_en": "assigned addresses (leases)",
                   "output": "IP address      Hardware address  Lease expiration   Type\n"
-                            "192.168.10.50   0011.2233.44f0    Infinite           Manual\n"
+                            "192.168.10.12   aa00.0000.1012    Infinite           Manual\n"
                             "192.168.10.100  0011.2233.440a    Oct 14 2026 08:00  Automatic\n"
                             "192.168.10.101  0011.2233.440b    Oct 14 2026 08:12  Automatic"},
                  {"cmd": "show ip dhcp conflict", "aliases": ["sh ip dhcp conflict", "sh ip dhcp conf"],
@@ -227,7 +227,7 @@ DHCP_MODULE = {
                   "command": "show ip dhcp binding"},
                  {"text_de": "Welche Adresse ist fest für ein Gerät reserviert (Typ Manual)?",
                   "text_en": "Which address is permanently reserved for one device (type Manual)?",
-                  "answers": ["192.168.10.50", ".50", "50"]},
+                  "answers": ["192.168.10.12", ".12", "12"]},
                  {"text_de": "Prüfe die Konflikte. Welche Pool-Adresse war schon belegt, als der Server "
                              "sie vergeben wollte?",
                   "text_en": "Check the conflicts. Which pool address was already in use when the server "
@@ -347,21 +347,21 @@ DHCP_MODULE = {
                    "pool is not the issue: the requests never arrive in the first place. 169.254.x.x is "
                    "what the client assigns itself when no server answers."}},
         {"id": "h7", "type": "single",
-         "prompt": {"de": "Der Lagerdrucker soll immer unter 192.168.10.50 erreichbar sein. Maske, "
+         "prompt": {"de": "Der Lagerdrucker soll immer unter 192.168.10.12 erreichbar sein. Maske, "
                           "Gateway und DNS sollen aber weiterhin zentral gepflegt werden. Welche Lösung "
                           "passt?",
-                    "en": "The warehouse printer should always be reachable at 192.168.10.50. Mask, "
+                    "en": "The warehouse printer should always be reachable at 192.168.10.12. Mask, "
                           "gateway and DNS should still be maintained centrally, though. Which solution "
                           "fits?"},
          "options": {
              "de": ["Eine DHCP-Reservierung für die MAC-Adresse des Druckers",
                     "Die Adresse am Drucker von Hand eintragen",
                     "Die Lease-Dauer für das ganze Netz auf unendlich setzen",
-                    "Den Pool auf die eine Adresse 192.168.10.50 verkleinern"],
+                    "Den Pool auf die eine Adresse 192.168.10.12 verkleinern"],
              "en": ["A DHCP reservation for the printer's MAC address",
                     "Enter the address on the printer by hand",
                     "Set the lease time for the whole network to infinite",
-                    "Shrink the pool to the single address 192.168.10.50"],
+                    "Shrink the pool to the single address 192.168.10.12"],
          },
          "answer": 0,
          "explanation": {

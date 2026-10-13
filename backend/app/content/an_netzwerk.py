@@ -231,7 +231,7 @@ NETZWERK_MODULE = {'key': 'netzwerk-automatisierung',
                          'gaps': [{'id': 'conn',
                                    'options': ['network_cli', 'netconf', 'httpapi'],
                                    'answer': 0},
-                                  {'id': 'os', 'accept': ['cisco.ios.ios']},
+                                  {'id': 'os', 'accept': ['cisco.ios.ios', 'ios']},
                                   {'id': 'become', 'accept': ['true', 'yes']},
                                   {'id': 'method',
                                    'options': ['enable', 'sudo', 'su'],
@@ -759,14 +759,14 @@ NETZWERK_MODULE = {'key': 'netzwerk-automatisierung',
                          'options': {'de': ['Die Collection `cisco.ios`',
                                             'Die Collection `ansible.netcommon`',
                                             'Ein Python-Interpreter auf dem Switch',
-                                            'Das Python-Paket `ansible-pylibssh` für die '
-                                            'SSH-Verbindung',
+                                            'Eine SSH-Bibliothek für Python (empfohlen: '
+                                            '`ansible-pylibssh`)',
                                             'Ein Ansible-Agent auf dem Switch'],
                                      'en': ['The `cisco.ios` collection',
                                             'The `ansible.netcommon` collection',
                                             'A Python interpreter on the switch',
-                                            'The Python package `ansible-pylibssh` for the SSH '
-                                            'connection',
+                                            'An SSH library for Python (recommended: '
+                                            '`ansible-pylibssh`)',
                                             'An Ansible agent on the switch']},
                          'explanation': {'de': 'Alles Nötige liegt auf dem Control Node: die '
                                                'Hersteller-Collection, `ansible.netcommon` mit dem '

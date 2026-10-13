@@ -223,96 +223,6 @@ NETZ_ANGRIFFE_MODULE = {
             "options_en": ["Dynamic ARP Inspection", "DHCP Snooping", "Port Security",
                            "A longer Wi-Fi password"],
         }},
-        {"type": "text", "id": "text-dai-zusammenspiel",
-         "value": {
-             "de": "## Wie die Schutzfunktionen zusammenspielen\n\nWoher weiß der Switch, welche ARP-Antwort "
-                   "echt ist? Von **DHCP Snooping**. Der Switch teilt seine Ports in zwei Klassen:\n\n"
-                   "- **Trusted** — nur der Port in Richtung des echten DHCP-Servers (meist der Uplink). "
-                   "Nur hier dürfen DHCP-Antworten hereinkommen.\n"
-                   "- **Untrusted** — alle Ports mit Endgeräten. Eine DHCP-Antwort von hier wird verworfen.\n\n"
-                   "Nebenbei schreibt der Switch mit, welcher Client an welchem Port welche Adresse bekommen "
-                   "hat: die **Binding-Tabelle** (MAC, IP, VLAN, Port). Genau diese Tabelle nutzt **Dynamic "
-                   "ARP Inspection**: Behauptet ein ARP-Paket an einem untrusted Port ein IP-MAC-Paar, das "
-                   "nicht in der Tabelle steht, wird es verworfen.\n\n"
-                   "Daraus folgen zwei Dinge für die Praxis: DAI funktioniert nur **zusammen** mit DHCP "
-                   "Snooping — und Geräte mit fest eingetragener IP-Adresse (Drucker, Server) brauchen eine "
-                   "ausdrückliche Ausnahme, weil sie nie in der Binding-Tabelle auftauchen.",
-             "en": "## How the Protection Features Work Together\n\nHow does the switch know which ARP "
-                   "reply is genuine? From **DHCP snooping**. The switch divides its ports into two "
-                   "classes:\n\n"
-                   "- **Trusted** — only the port towards the real DHCP server (usually the uplink). Only "
-                   "here may DHCP replies come in.\n"
-                   "- **Untrusted** — all ports with end devices. A DHCP reply from here is discarded.\n\n"
-                   "Along the way the switch records which client received which address on which port: "
-                   "the **binding table** (MAC, IP, VLAN, port). It is exactly this table that **Dynamic "
-                   "ARP Inspection** uses: if an ARP packet on an untrusted port claims an IP–MAC pair that "
-                   "is not in the table, it is discarded.\n\n"
-                   "Two practical consequences follow: DAI only works **together** with DHCP snooping — "
-                   "and devices with a statically configured IP address (printers, servers) need an "
-                   "explicit exception, because they never appear in the binding table.",
-         }},
-        {"type": "terminal", "id": "terminal-snooping-dai",
-         "note": ("Cisco-IOS-Ausgaben vom Büro-Switch, gekürzt: In der Binding-Tabelle fehlt die Spalte „Type“, "
-                  "Spaltenabstände sind verengt, die Logzeile ist umbrochen und abgeschnitten. Die Logzeile liest sich:"
-                  " Absender-MAC / behauptete Absender-IP / … — das Gerät an Gi1/0/12 gibt sich als Gateway "
-                  "192.168.20.1 aus. Gi1/0/48 ist der Uplink zum Kernswitch."),
-         "payload": {
-             "title_de": "DHCP Snooping und DAI am Switch sw-buero1",
-             "title_en": "DHCP snooping and DAI on switch sw-buero1",
-             "intro_de": "Auf sw-buero1 sind DHCP Snooping und Dynamic ARP Inspection für VLAN 20 aktiv. Tippe ? für Hilfe.",
-             "intro_en": "On sw-buero1, DHCP snooping and Dynamic ARP Inspection are active for VLAN 20. Type ? for help.",
-             "prompt": "sw-buero1#", "abbreviations": True,
-             "unknown": "% Invalid input detected: {cmd}",
-             "commands": [
-                 {"cmd": "show ip dhcp snooping",
-                  "desc_de": "Status und vertrauenswürdige Ports", "desc_en": "status and trusted ports",
-                  "output": "Switch DHCP snooping is enabled\n"
-                            "DHCP snooping is configured on following VLANs:\n"
-                            "20\n"
-                            "Interface                  Trusted    Rate limit (pps)\n"
-                            "-----------------------    -------    ----------------\n"
-                            "GigabitEthernet1/0/48      yes        unlimited"},
-                 {"cmd": "show ip dhcp snooping binding",
-                  "desc_de": "gelernte Zuordnungen MAC/IP/Port", "desc_en": "learned MAC/IP/port bindings",
-                  "output": ("MacAddress         IpAddress      Lease  VLAN  Interface\n"
-                             "-----------------  -------------  -----  ----  ---------\n"
-                             "00:1B:44:11:3A:B7  192.168.20.34  84012  20    Gi1/0/5\n"
-                             "00:50:56:A1:0C:22  192.168.20.50  80211  20    Gi1/0/7\n"
-                             "Total number of bindings: 2")},
-                 {"cmd": "show ip arp inspection statistics vlan 20",
-                  "desc_de": "Zähler der ARP-Prüfung", "desc_en": "counters of the ARP inspection",
-                  "output": " Vlan   Forwarded   Dropped   DHCP Drops   ACL Drops\n"
-                            " ----   ---------   -------   ----------   ---------\n"
-                            "   20        1482        37           37           0"},
-                 {"cmd": "show logging | include DAI",
-                  "desc_de": "Logmeldungen der ARP-Prüfung", "desc_en": "log messages of the ARP inspection",
-                  "output": ("%SW_DAI-4-DHCP_SNOOPING_DENY: 1 Invalid ARPs (Res)\n"
-                             "  on Gi1/0/12, vlan 20. ([0050.56c0.0066/192.168.20.1/...])")},
-                 {"cmd": "show mac address-table address 0050.56c0.0066",
-                  "desc_de": "An welchem Port hängt diese MAC?", "desc_en": "which port is this MAC on?",
-                  "output": "          Mac Address Table\n"
-                            "-------------------------------------------\n"
-                            "Vlan    Mac Address       Type        Ports\n"
-                            "----    -----------       --------    -----\n"
-                            "  20    0050.56c0.0066    DYNAMIC     Gi1/0/12"},
-             ],
-             "tasks": [
-                 {"text_de": "Zeige die Binding-Tabelle an.", "text_en": "Display the binding table.",
-                  "command": "show ip dhcp snooping binding"},
-                 {"text_de": "An welchem Port hängt laut Binding-Tabelle der Client 192.168.20.34?",
-                  "text_en": "According to the binding table, which port is client 192.168.20.34 on?",
-                  "answers": ["Gi1/0/5", "GigabitEthernet1/0/5"]},
-                 {"text_de": "Welcher Port ist als einziger „trusted“? (show ip dhcp snooping)",
-                  "text_en": "Which port is the only “trusted” one? (show ip dhcp snooping)",
-                  "answers": ["Gi1/0/48", "GigabitEthernet1/0/48"]},
-                 {"text_de": "Wie viele ARP-Pakete hat DAI in VLAN 20 verworfen?",
-                  "text_en": "How many ARP packets has DAI dropped in VLAN 20?",
-                  "answers": ["37"]},
-                 {"text_de": "An welchem Port sitzt das Gerät, das sich als Gateway ausgibt? (Log ansehen)",
-                  "text_en": "On which port is the device that poses as the gateway? (check the log)",
-                  "answers": ["Gi1/0/12", "GigabitEthernet1/0/12"]},
-             ],
-         }},
         {"type": "scenario", "id": "scenario-arp-spoofing",
          "note": "Reihenfolge eines Vorfalls: erkennen → eingrenzen → eindämmen → dauerhaft verhindern. "
                  "Zum Ende nachfragen: Was ist mit den Passwörtern, die schon mitgelesen wurden?",
@@ -392,6 +302,96 @@ NETZ_ANGRIFFE_MODULE = {
                   "text_en": "From now on the switch discards forged ARP replies at the sender's port — at "
                              "every socket. Do not forget: all passwords that passed through the laptop "
                              "count as known and get changed."},
+             ],
+         }},
+        {"type": "text", "id": "text-dai-zusammenspiel",
+         "value": {
+             "de": "## Wie die Schutzfunktionen zusammenspielen\n\nWoher weiß der Switch, welche ARP-Antwort "
+                   "echt ist? Von **DHCP Snooping**. Der Switch teilt seine Ports in zwei Klassen:\n\n"
+                   "- **Trusted** — nur der Port in Richtung des echten DHCP-Servers (meist der Uplink). "
+                   "Nur hier dürfen DHCP-Antworten hereinkommen.\n"
+                   "- **Untrusted** — alle Ports mit Endgeräten. Eine DHCP-Antwort von hier wird verworfen.\n\n"
+                   "Nebenbei schreibt der Switch mit, welcher Client an welchem Port welche Adresse bekommen "
+                   "hat: die **Binding-Tabelle** (MAC, IP, VLAN, Port). Genau diese Tabelle nutzt **Dynamic "
+                   "ARP Inspection**: Behauptet ein ARP-Paket an einem untrusted Port ein IP-MAC-Paar, das "
+                   "nicht in der Tabelle steht, wird es verworfen.\n\n"
+                   "Daraus folgen zwei Dinge für die Praxis: DAI funktioniert nur **zusammen** mit DHCP "
+                   "Snooping — und Geräte mit fest eingetragener IP-Adresse (Drucker, Server) brauchen eine "
+                   "ausdrückliche Ausnahme, weil sie nie in der Binding-Tabelle auftauchen.",
+             "en": "## How the Protection Features Work Together\n\nHow does the switch know which ARP "
+                   "reply is genuine? From **DHCP snooping**. The switch divides its ports into two "
+                   "classes:\n\n"
+                   "- **Trusted** — only the port towards the real DHCP server (usually the uplink). Only "
+                   "here may DHCP replies come in.\n"
+                   "- **Untrusted** — all ports with end devices. A DHCP reply from here is discarded.\n\n"
+                   "Along the way the switch records which client received which address on which port: "
+                   "the **binding table** (MAC, IP, VLAN, port). It is exactly this table that **Dynamic "
+                   "ARP Inspection** uses: if an ARP packet on an untrusted port claims an IP–MAC pair that "
+                   "is not in the table, it is discarded.\n\n"
+                   "Two practical consequences follow: DAI only works **together** with DHCP snooping — "
+                   "and devices with a statically configured IP address (printers, servers) need an "
+                   "explicit exception, because they never appear in the binding table.",
+         }},
+        {"type": "terminal", "id": "terminal-snooping-dai",
+         "note": ("Cisco-IOS-Ausgaben vom Büro-Switch, gekürzt: In der Binding-Tabelle fehlt die Spalte „Type“, "
+                  "Spaltenabstände sind verengt, die Logzeile ist umbrochen und abgeschnitten. Die Logzeile liest sich:"
+                  " Absender-MAC / behauptete Absender-IP / … — das Gerät an Gi1/0/12 gibt sich als Gateway "
+                  "192.168.20.1 aus. Gi1/0/48 ist der Uplink zum Kernswitch."),
+         "payload": {
+             "title_de": "DHCP Snooping und DAI am Switch sw-buero1",
+             "title_en": "DHCP snooping and DAI on switch sw-buero1",
+             "intro_de": "Nach dem Vorfall: Auf sw-buero1 sind DHCP Snooping und DAI für VLAN 20 jetzt aktiv. Tippe ? für Hilfe.",
+             "intro_en": "After the incident: DHCP snooping and DAI are now active for VLAN 20 on sw-buero1. Type ? for help.",
+             "prompt": "sw-buero1#", "abbreviations": True,
+             "unknown": "% Invalid input detected: {cmd}",
+             "commands": [
+                 {"cmd": "show ip dhcp snooping",
+                  "desc_de": "Status und vertrauenswürdige Ports", "desc_en": "status and trusted ports",
+                  "output": "Switch DHCP snooping is enabled\n"
+                            "DHCP snooping is configured on following VLANs:\n"
+                            "20\n"
+                            "Interface                  Trusted    Rate limit (pps)\n"
+                            "-----------------------    -------    ----------------\n"
+                            "GigabitEthernet1/0/48      yes        unlimited"},
+                 {"cmd": "show ip dhcp snooping binding",
+                  "desc_de": "gelernte Zuordnungen MAC/IP/Port", "desc_en": "learned MAC/IP/port bindings",
+                  "output": ("MacAddress         IpAddress      Lease  VLAN  Interface\n"
+                             "-----------------  -------------  -----  ----  ---------\n"
+                             "00:1B:44:11:3A:B7  192.168.20.34  84012  20    Gi1/0/5\n"
+                             "00:50:56:A1:0C:22  192.168.20.50  80211  20    Gi1/0/7\n"
+                             "Total number of bindings: 2")},
+                 {"cmd": "show ip arp inspection statistics vlan 20",
+                  "desc_de": "Zähler der ARP-Prüfung", "desc_en": "counters of the ARP inspection",
+                  "output": " Vlan   Forwarded   Dropped   DHCP Drops   ACL Drops\n"
+                            " ----   ---------   -------   ----------   ---------\n"
+                            "   20        1482        37           37           0"},
+                 {"cmd": "show logging | include DAI",
+                  "desc_de": "Logmeldungen der ARP-Prüfung", "desc_en": "log messages of the ARP inspection",
+                  "output": ("%SW_DAI-4-DHCP_SNOOPING_DENY: 1 Invalid ARPs (Res)\n"
+                             "  on Gi1/0/12, vlan 20. ([0050.56c0.0066/192.168.20.1/...])")},
+                 {"cmd": "show mac address-table address 0050.56c0.0066",
+                  "desc_de": "An welchem Port hängt diese MAC?", "desc_en": "which port is this MAC on?",
+                  "output": "          Mac Address Table\n"
+                            "-------------------------------------------\n"
+                            "Vlan    Mac Address       Type        Ports\n"
+                            "----    -----------       --------    -----\n"
+                            "  20    0050.56c0.0066    DYNAMIC     Gi1/0/12"},
+             ],
+             "tasks": [
+                 {"text_de": "Zeige die Binding-Tabelle an.", "text_en": "Display the binding table.",
+                  "command": "show ip dhcp snooping binding"},
+                 {"text_de": "An welchem Port hängt laut Binding-Tabelle der Client 192.168.20.34?",
+                  "text_en": "According to the binding table, which port is client 192.168.20.34 on?",
+                  "answers": ["Gi1/0/5", "GigabitEthernet1/0/5"]},
+                 {"text_de": "Welcher Port ist als einziger „trusted“? (show ip dhcp snooping)",
+                  "text_en": "Which port is the only “trusted” one? (show ip dhcp snooping)",
+                  "answers": ["Gi1/0/48", "GigabitEthernet1/0/48"]},
+                 {"text_de": "Wie viele ARP-Pakete hat DAI in VLAN 20 verworfen?",
+                  "text_en": "How many ARP packets has DAI dropped in VLAN 20?",
+                  "answers": ["37"]},
+                 {"text_de": "An welchem Port sitzt das Gerät, das sich als Gateway ausgibt? (Log ansehen)",
+                  "text_en": "On which port is the device that poses as the gateway? (check the log)",
+                  "answers": ["Gi1/0/12", "GigabitEthernet1/0/12"]},
              ],
          }},
         {"type": "text", "id": "text-6",

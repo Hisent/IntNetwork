@@ -99,7 +99,10 @@ ASYMMETRISCH_MODULE = {
                  'Zertifizierungsstellen stellen keine Ed25519-TLS-Zertifikate aus — die Baseline Requirements '
                  'des CA/Browser Forums erlauben nur RSA sowie ECDSA auf P-256, P-384 und P-521. '
                  'Ed25519-Zertifikate gibt es daher nur in privaten PKIs. Für SSH-Schlüssel dagegen ist Ed25519 '
-                 'nach verbreiteter Empfehlung bereits die bevorzugte Wahl.'),
+                 'nach verbreiteter Empfehlung bereits die bevorzugte Wahl.\n\nNoch zwei Namen, die dir '
+                 'begegnen werden: RSA wird nie „roh“ eingesetzt, sondern immer mit einem Padding-Verfahren — '
+                 '**RSA-PSS** ist das moderne Padding für Signaturen, **RSA-OAEP** das für die '
+                 'Verschlüsselung.'),
              'en': ('## RSA vs. ECC: Same Security, Very Different Key Lengths\n\nRSA and ECC (Elliptic Curve '
                  'Cryptography) are both asymmetric schemes, but differ greatly in the key length needed for '
                  'the same "security strength" — i.e. the effort an attacker would need to break the key. Per '
@@ -125,7 +128,9 @@ ASYMMETRISCH_MODULE = {
                  'calls for caution:** public certificate authorities do not issue Ed25519 TLS certificates — '
                  'the CA/Browser Forum Baseline Requirements only permit RSA and ECDSA on P-256, P-384, and '
                  'P-521. Ed25519 certificates therefore exist only in private PKIs. For SSH keys, on the other '
-                 'hand, Ed25519 is already the preferred choice per common recommendation.'),
+                 'hand, Ed25519 is already the preferred choice per common recommendation.\n\nTwo more names '
+                 'you will come across: RSA is never used "raw" but always with a padding scheme — **RSA-PSS** '
+                 'is the modern padding for signatures, **RSA-OAEP** the one for encryption.'),
             },
         },
         {'type': 'diagram', 'id': 'diagram-rsa-ecc-vergleich',

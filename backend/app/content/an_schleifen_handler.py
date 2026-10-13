@@ -66,7 +66,6 @@ SCHLEIFEN_HANDLER_MODULE = {
                              'In the output this task shows up three times — once per list '
                              'element — each with the matching `item` in the log.'}},
             {'type': 'text', 'id': 'text-2',
-             'note': 'Das Handler-Timing ist die haeufigste Fehlerquelle: Handler laufen am Ende des Plays, nicht direkt nach dem Task. Am besten an einem Neustart-Beispiel vorrechnen.',
              'value': {'de': '## with_items — die ältere Syntax\n'
                              '\n'
                              '`with_items` war der ursprüngliche Weg, über eine Liste zu '
@@ -177,9 +176,12 @@ SCHLEIFEN_HANDLER_MODULE = {
              'value': {'de': '## until und retries\n'
                              '\n'
                              'Für Polling-Szenarien — warten, bis eine Bedingung eintritt — gibt '
-                             'es `until` zusammen mit `retries` (Anzahl Versuche) und `delay` '
-                             '(Wartezeit in Sekunden zwischen den Versuchen). Vorausgesetzt ist '
-                             'ein `register`, auf dessen Ergebnis sich `until` bezieht:\n'
+                             'es `until` zusammen mit `retries` (Anzahl der Wiederholungen nach '
+                             'dem ersten Versuch) und `delay` '
+                             '(Wartezeit in Sekunden zwischen den Versuchen). Üblich ist dazu '
+                             'ein `register`, auf dessen Ergebnis sich `until` bezieht — '
+                             'erzwungen wird es nicht: `retries` ohne `until` wiederholt '
+                             'einfach, bis der Task gelingt:\n'
                              '\n'
                              '```yaml\n'
                              '- name: Warten, bis Anwendung erreichbar ist\n'
@@ -197,9 +199,12 @@ SCHLEIFEN_HANDLER_MODULE = {
                        'en': '## until and retries\n'
                              '\n'
                              'For polling scenarios — waiting until a condition becomes true — '
-                             'there is `until` together with `retries` (number of attempts) and '
-                             '`delay` (wait time in seconds between attempts). This requires a '
-                             '`register` whose result `until` refers to:\n'
+                             'there is `until` together with `retries` (number of retries after '
+                             'the first attempt) and '
+                             '`delay` (wait time in seconds between attempts). The usual companion '
+                             'is a `register` whose result `until` refers to — it is not '
+                             'enforced: `retries` without `until` simply repeats until the task '
+                             'succeeds:\n'
                              '\n'
                              '```yaml\n'
                              '- name: Wait until the application is reachable\n'
@@ -214,6 +219,7 @@ SCHLEIFEN_HANDLER_MODULE = {
                              'Ansible keeps retrying the task until `until` is true or `retries` '
                              'is exhausted — after that the task counts as failed.'}},
             {'type': 'text', 'id': 'text-5',
+             'note': 'Das Handler-Timing ist die haeufigste Fehlerquelle: Handler laufen am Ende des Plays, nicht direkt nach dem Task. Am besten an einem Neustart-Beispiel vorrechnen.',
              'value': {'de': '## Handler und notify\n'
                              '\n'
                              '**Handler** sind Tasks in einem eigenen `handlers:`-Abschnitt '

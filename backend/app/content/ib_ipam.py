@@ -477,8 +477,8 @@ IPAM_MODULE = {
                      'en': ['Rogue host', 'Conflict', 'Exclusion range', 'Failover']}},
         {'id': 'ip5',
          "explanation": {
-             "de": "375 von 500 sind 75 %. Entscheidend ist die Bezugsgröße: die bereitgestellten Adressen des Netzes, nicht die theoretische Größe des Präfixes.",
-             "en": "375 out of 500 is 75%. What matters is the base: the addresses the network provides, not the theoretical size of the prefix.",
+             "de": "375 von 500 sind 75 %. Achte bei jedem Prozentwert auf die Bezugsgröße: NIOS weist die Auslastung eines Netzes und die DHCP-Auslastung eines Bereichs als getrennte Werte aus.",
+             "en": "375 out of 500 is 75%. With every percentage, check the base: NIOS reports the utilization of a network and the DHCP utilization of a range as separate values.",
          },
          'type': 'number',
          'prompt': {'de': ('Ein Netzwerk stellt 500 Adressen bereit, 375 sind aktuell '

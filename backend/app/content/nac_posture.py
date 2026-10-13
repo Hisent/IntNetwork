@@ -105,8 +105,8 @@ NAC_POSTURE_MODULE = {
                    'erlaubt (z. B. Update-Server, MDM-Endpunkt).\n\n'
                    'Aus der Quarantäne folgt **Remediation** — der Prozess, mit dem das Problem '
                    'behoben wird (Patch installieren, EDR-Agent neu verbinden, Verschlüsselung '
-                   'aktivieren). Ein Gerät ohne Festplattenverschlüsselung oder ohne aktiven '
-                   'EDR-Agenten landet damit nicht sofort im produktiven Netz, sondern zuerst in '
+                   'aktivieren). Ein als non-compliant eingestuftes Gerät '
+                   'landet damit nicht sofort im produktiven Netz, sondern zuerst in '
                    'diesem eingeschränkten Bereich.\n\n'
                    'In der Praxis wird meist **abgestuft**: Ein kritischer Verstoß (bei Nordwind: '
                    'AV/EDR inaktiv) führt sofort in die Quarantäne. Bei weniger dringenden Mängeln — '
@@ -123,7 +123,7 @@ NAC_POSTURE_MODULE = {
                    'remediation (e.g., update servers, an MDM endpoint).\n\n'
                    'Quarantine is followed by **remediation** — the process of fixing the issue '
                    '(installing a patch, reconnecting the EDR agent, enabling encryption). A '
-                   'device without disk encryption or without an active EDR agent therefore does '
+                   'device classified as non-compliant therefore does '
                    'not land directly in the production network, but first in this restricted '
                    'area.\n\n'
                    'In practice the response is usually **graded**: a critical violation (at Nordwind: '
@@ -200,8 +200,8 @@ NAC_POSTURE_MODULE = {
                         'from': 'sw',
                         'to': 'srv',
                         'label': 'Access-Request',
-                        'detail_de': 'Dieselbe Sitzung, erneut angefragt — jetzt mit bekanntem Posture-Status.',
-                        'detail_en': 'Same session, requested again — now with a known posture status.',
+                        'detail_de': 'Der Switch hat die CoA zuvor mit CoA-ACK bestätigt. Dieselbe Sitzung, erneut angefragt — jetzt mit bekanntem Posture-Status.',
+                        'detail_en': 'The switch has acknowledged the CoA with a CoA-ACK beforehand. Same session, requested again — now with a known posture status.',
                     },
                     {
                         'from': 'srv',

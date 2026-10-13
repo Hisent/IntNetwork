@@ -69,11 +69,14 @@ MODULE_COLLECTIONS_MODULE = {
                          '    state: present\n'
                          '```\n'
                          '\n'
-                         'Der Grund: Kurzformen wie `apt` können mehrdeutig sein, sobald mehrere '
-                         'installierte Collections ein Modul mit demselben Kurznamen anbieten. '
-                         'Der FQCN legt eindeutig fest, welches Modul aus welcher Collection '
-                         'gemeint ist — das macht Playbooks robuster gegen Namenskonflikte und '
-                         'leichter lesbar für andere.',
+                         'Der Grund: Einer Kurzform wie `apt` sieht man nicht an, aus welcher '
+                         'Collection das Modul stammt — Ansible löst sie über eine Suchreihenfolge '
+                         'auf (`ansible.builtin` bzw. die `collections:`-Liste des Plays). Dass '
+                         'mehrere Collections installiert sind, erzeugt für sich noch keine '
+                         'Mehrdeutigkeit; sie entsteht erst über diese Suchliste. Der FQCN legt '
+                         'eindeutig fest, welches Modul aus welcher Collection gemeint ist — das '
+                         'macht Playbooks robuster gegen Namenskonflikte und leichter lesbar, und '
+                         '`ansible-lint` verlangt ihn mit der Regel `fqcn`.',
                    'en': '## FQCN — Fully Qualified Collection Name\n'
                          '\n'
                          'An FQCN has three parts: `namespace.collection.module_name`, e.g. '
@@ -88,11 +91,14 @@ MODULE_COLLECTIONS_MODULE = {
                          '    state: present\n'
                          '```\n'
                          '\n'
-                         'The reason: short forms like `apt` can become ambiguous once several '
-                         'installed collections offer a module with the same short name. The '
-                         'FQCN unambiguously pins down which module from which collection is '
-                         'meant — that makes playbooks more robust against naming conflicts and '
-                         'easier for others to read.'}},
+                         'The reason: a short form like `apt` does not show which collection the '
+                         'module comes from — Ansible resolves it through a search order '
+                         '(`ansible.builtin` or the play\'s `collections:` list). Having several '
+                         'collections installed does not by itself create ambiguity; it only '
+                         'arises through that search list. The FQCN unambiguously pins down '
+                         'which module from which collection is meant — that makes playbooks more '
+                         'robust against naming conflicts and easier to read, and `ansible-lint` '
+                         'requires it with its `fqcn` rule.'}},
         {'type': 'check', 'id': 'check-1',
          'payload': {'kind': 'choice',
                      'prompt_de': 'Ein Modul `mount` liegt in der Collection `posix` unter dem '
@@ -428,11 +434,11 @@ MODULE_COLLECTIONS_MODULE = {
                                 'right_de': 'ein Verzeichnis anlegen oder Rechte und Besitzer '
                                             'setzen',
                                 'right_en': 'create a directory or set permissions and owner'}],
-                     'explanation_de': 'Alle sechs beschreiben einen Zielzustand und sind deshalb '
-                                       'idempotent. Erst wenn kein passendes Modul existiert, '
+                     'explanation_de': 'Alle sechs beschreiben einen Zielzustand: Stimmt er '
+                                       'schon, ändert ein weiterer Lauf nichts. Erst wenn kein passendes Modul existiert, '
                                        'kommen command oder shell in Frage.',
-                     'explanation_en': 'All six describe a target state and are therefore '
-                                       'idempotent. Only when no fitting module exists do command '
+                     'explanation_en': 'All six describe a target state: if it already '
+                                       'holds, another run changes nothing. Only when no fitting module exists do command '
                                        'or shell come into play.'}},
         {'type': 'debug', 'id': 'debug-1',
          'payload': {'prompt_de': 'Aussagen zu Modulen und Collections — welche ist falsch?',
@@ -621,21 +627,21 @@ MODULE_COLLECTIONS_MODULE = {
          'options': {'de': ['ansible.builtin.copy in einem Task',
                             'Der Filter in `{{ name | upper }}`',
                             "`lookup('ansible.builtin.env', 'HOME')`",
-                            'ansible.builtin.service in einem Handler',
+                            'ansible.builtin.service in einem Task',
                             'amazon.aws.aws_ec2 als Inventarquelle'],
                      'en': ['ansible.builtin.copy in a task',
                             'The filter in `{{ name | upper }}`',
                             "`lookup('ansible.builtin.env', 'HOME')`",
-                            'ansible.builtin.service in a handler',
+                            'ansible.builtin.service in a task',
                             'amazon.aws.aws_ec2 as an inventory source']},
          'explanation': {'de': 'Filter, Lookups und Inventory-Plugins erweitern, wie Ansible Daten '
                                'beschafft und umformt — sie laufen auf dem Control Node. `copy` '
-                               'und `service` sind Module: Sie stehen als Aktion in einem Task; '
-                               'auch ein Handler ist nur ein Task.',
+                               'und `service` sind Module: Sie stehen als Aktion in einem Task '
+                               'und erledigen die Arbeit auf dem Zielsystem.',
                          'en': 'Filters, lookups and inventory plugins extend how Ansible obtains '
                                'and transforms data — they run on the control node. `copy` and '
-                               '`service` are modules: they are the action of a task; a handler is '
-                               'just a task too.'}},
+                               '`service` are modules: they are the action of a task and do the '
+                               'work on the target system.'}},
         {'id': 'mc8',
          'type': 'single',
          'prompt': {'de': 'In `requirements.yml` steht `- name: community.general` mit `version: '

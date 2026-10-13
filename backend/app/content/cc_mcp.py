@@ -404,8 +404,9 @@ MCP_MODULE = {'key': 'mcp',
                              '\n'
                              'Ist ein Server verbunden, erscheinen seine Tools unter dem Schema '
                              '**`mcp__<server>__<tool>`**. Das ist auch für Hooks und Permissions '
-                             'relevant (spätere Module) — z.B. matcht `mcp__issues__.*` alle Tools '
-                             'des `issues`-Servers.\n'
+                             'relevant (spätere Module) — als Hook-Matcher trifft '
+                             '`mcp__issues__.*` alle Tools des `issues`-Servers, als '
+                             'Permission-Regel schreibst du `mcp__issues__*`.\n'
                              '\n'
                              'Du sprichst Tools aber normal in Alltagssprache an: „Lege in Jira '
                              'ein Ticket für diesen Bug an” — Claude wählt das passende Tool des '
@@ -415,8 +416,9 @@ MCP_MODULE = {'key': 'mcp',
                              '\n'
                              'Once a server is connected, its tools appear under the scheme '
                              '**`mcp__<server>__<tool>`**. This also matters for hooks and '
-                             'permissions (later modules) — e.g. `mcp__issues__.*` matches all '
-                             'tools of the `issues` server.\n'
+                             'permissions (later modules) — as a hook matcher, '
+                             '`mcp__issues__.*` matches all tools of the `issues` server; as a '
+                             'permission rule you write `mcp__issues__*`.\n'
                              '\n'
                              'However, you address tools in normal everyday language: "Create a '
                              'ticket in Jira for this bug" — Claude picks the matching tool from '
@@ -589,12 +591,16 @@ MCP_MODULE = {'key': 'mcp',
                          'explanation': {'de': 'MCP-Tools erscheinen als mcp__<server>__<tool>, '
                                                'mit doppelten Unterstrichen. Genau diesen Namen '
                                                'brauchst du in Permission-Regeln und '
-                                               'Hook-Matchern, z.B. `mcp__issues__.*` für alle '
-                                               'Tools eines Servers.',
+                                               'Hook-Matchern: für alle Tools eines Servers als '
+                                               'Hook-Matcher `mcp__issues__.*` (regulärer '
+                                               'Ausdruck), als Permission-Regel '
+                                               '`mcp__issues__*`.',
                                          'en': 'MCP tools appear as mcp__<server>__<tool>, with '
                                                'double underscores. That is the name you need in '
-                                               'permission rules and hook matchers, e.g. '
-                                               '`mcp__issues__.*` for all tools of one server.'}},
+                                               'permission rules and hook matchers: for all tools '
+                                               'of one server, `mcp__issues__.*` as a hook matcher '
+                                               '(regular expression) and `mcp__issues__*` as a '
+                                               'permission rule.'}},
                         {'id': 'mcp5',
                          'type': 'single',
                          'prompt': {'de': 'Was stellt ein MCP-Server bereit?',

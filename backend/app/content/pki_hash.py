@@ -384,9 +384,9 @@ HASHFUNKTIONEN_MODULE = {
                     },
                 ],
              'explanation_de': ('Hash: kein Schlüssel. HMAC: ein gemeinsamer Schlüssel. Signatur: erzeugen mit dem privaten, '
-                 'prüfen mit dem öffentlichen Schlüssel — das nächste Modul vertieft das.'),
+                 'prüfen mit dem öffentlichen Schlüssel — Modul 5 dieses Blocks (Digitale Signaturen) vertieft das.'),
              'explanation_en': ('Hash: no key. HMAC: one shared key. Signature: create with the private key, verify with the '
-                 'public key — the next module goes deeper.'),
+                 'public key — module 5 of this block (digital signatures) goes deeper.'),
             },
         },
         {'type': 'text', 'id': 'text-5',

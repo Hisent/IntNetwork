@@ -108,7 +108,7 @@ ZERT_FEHLERSUCHE_MODULE = {
              'columns': [
                     {'title_de': 'Chrome zeigt', 'title_en': 'Chrome shows'},
                     {'title_de': 'openssl / curl melden', 'title_en': 'openssl / curl report'},
-                    {'title_de': 'Erster Prüfschritt', 'title_en': 'First check'},
+                    {'title_de': 'Zuerst prüfen', 'title_en': 'First check'},
                 ],
              'rows': [
                     {
@@ -130,13 +130,13 @@ ZERT_FEHLERSUCHE_MODULE = {
                      'values_en': ['ERR_CERT_COMMON_NAME_INVALID', '62: hostname mismatch', 'read the SAN list'],
                     },
                     {
-                     'label_de': 'Kette unvollständig',
+                     'label_de': 'Kette lückenhaft',
                      'label_en': 'Incomplete chain',
                      'values_de': ['oft nichts (Cache/AIA)', '20/21: unable to get local issuer …', 's_client -showcerts'],
                      'values_en': ['often nothing (cache/AIA)', '20/21: unable to get local issuer …', 's_client -showcerts'],
                     },
                     {
-                     'label_de': 'Selbstsigniert',
+                     'label_de': 'Selbst signiert',
                      'label_en': 'Self-signed',
                      'values_de': ['ERR_CERT_AUTHORITY_INVALID', '18: self-signed certificate', 'Issuer = Subject?'],
                      'values_en': ['ERR_CERT_AUTHORITY_INVALID', '18: self-signed certificate', 'issuer = subject?'],
@@ -147,7 +147,7 @@ ZERT_FEHLERSUCHE_MODULE = {
                      'values_de': [
                             'ERR_CERT_AUTHORITY_INVALID',
                             '20, obwohl der Server die Kette sendet',
-                            'Trust Store des Programms',
+                            'Trust Store des Clients',
                         ],
                      'values_en': [
                             'ERR_CERT_AUTHORITY_INVALID',
@@ -330,8 +330,9 @@ ZERT_FEHLERSUCHE_MODULE = {
                  'gesperrt, etwa nach einem Schlüsselverlust. Das Tückische: Der Fehler zeigt sich '
                  '**uneinheitlich**. Chrome meldet `NET::ERR_CERT_REVOKED`, sofern die Sperre in seinen '
                  'vorverteilten Sperrdaten steht. `openssl verify` und `s_client` melden `certificate revoked` '
-                 '(Code 23) nur, wenn du die Sperrprüfung mit `-crl_check` einschaltest — und `curl` prüft den '
-                 'Sperrstatus standardmäßig gar nicht und verbindet sich klaglos. „In curl geht es, im Browser '
+                 '(Code 23) nur, wenn du die Sperrprüfung mit `-crl_check` einschaltest — und `curl` mit OpenSSL '
+                 '(Linux, macOS) prüft den Sperrstatus standardmäßig gar nicht und verbindet sich klaglos; '
+                 'unter Windows prüft curl mit Schannel ihn dagegen. „In curl geht es, im Browser '
                  'nicht“ ist also das Spiegelbild der unvollständigen Kette. Abhilfe: neues Zertifikat mit '
                  'neuem Schlüssel einspielen — ein Widerruf lässt sich nicht zurücknehmen.\n\n**Falscher '
                  'Verwendungszweck (EKU).** Das Zertifikat ist gültig, aber für einen anderen Zweck '
@@ -347,8 +348,9 @@ ZERT_FEHLERSUCHE_MODULE = {
                  'example after a key loss. The tricky part: the error shows up **inconsistently**. Chrome '
                  'reports `NET::ERR_CERT_REVOKED` if the revocation is in its pre-distributed revocation data. '
                  '`openssl verify` and `s_client` only report `certificate revoked` (code 23) if you switch on '
-                 'revocation checking with `-crl_check` — and `curl` does not check revocation status by '
-                 'default at all and connects without complaint. "Works in curl, fails in the browser" is thus '
+                 'revocation checking with `-crl_check` — and `curl` built on OpenSSL '
+                 '(Linux, macOS) does not check revocation status by default at all and connects without '
+                 'complaint; on Windows, curl with Schannel does check it. "Works in curl, fails in the browser" is thus '
                  'the mirror image of the incomplete chain. Remedy: deploy a new certificate with a new key — a '
                  'revocation cannot be undone.\n\n**Wrong purpose (EKU).** The certificate is valid but was '
                  'issued for a different purpose: a certificate with only `clientAuth` on a web server, or '
@@ -844,10 +846,12 @@ ZERT_FEHLERSUCHE_MODULE = {
          'explanation': {
              'de': ('Kette, Name und Laufzeit sind in Ordnung, deshalb ist curl zufrieden. Den Widerruf kennt nur, '
                  'wer ihn prüft: der Browser über seine vorverteilten Sperrdaten, openssl erst mit '
-                 '`-crl_check`. Ein „verified“ von curl ist also kein Beweis gegen einen Widerruf.'),
+                 '`-crl_check`. Ein „verified“ von curl ist also kein Beweis gegen einen Widerruf. '
+                 '(Das gilt für curl mit OpenSSL; unter Windows prüft curl mit Schannel den Sperrstatus.)'),
              'en': ('Chain, name, and validity are fine, so curl is satisfied. Revocation is only known to those '
                  'who check it: the browser via its pre-distributed revocation data, openssl only with '
-                 '`-crl_check`. A "verified" from curl is therefore no evidence against a revocation.'),
+                 '`-crl_check`. A "verified" from curl is therefore no evidence against a revocation. '
+                 '(This holds for curl built on OpenSSL; on Windows, curl with Schannel does check revocation.)'),
             },
         },
         {'id': 'zf7', 'type': 'multi',

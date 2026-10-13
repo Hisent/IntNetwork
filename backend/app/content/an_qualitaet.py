@@ -100,7 +100,7 @@ QUALITAET_MODULE = {'key': 'qualitaet-testen',
                                     'detail_en': 'Static analysis against rules and profiles; '
                                                  'return code 2 on findings stops the pipeline.'},
                                    {'id': 'mol',
-                                    'row': 0,
+                                    'row': 1,
                                     'col': 3,
                                     'label': 'molecule test',
                                     'detail_de': 'Führt die Rolle in einer Wegwerf-Umgebung '
@@ -108,7 +108,7 @@ QUALITAET_MODULE = {'key': 'qualitaet-testen',
                                     'detail_en': 'Really runs the role in a throwaway environment: '
                                                  'converge, idempotence, verify.'},
                                    {'id': 'check',
-                                    'row': 1,
+                                    'row': 0,
                                     'col': 3,
                                     'label_de': '--check --diff (Staging)',
                                     'label_en': '--check --diff (staging)',
@@ -128,9 +128,9 @@ QUALITAET_MODULE = {'key': 'qualitaet-testen',
                                                  'failure stops before all are affected.'}],
                          'edges': [{'id': 'e1', 'from': 'pr', 'to': 'syntax'},
                                    {'id': 'e2', 'from': 'syntax', 'to': 'lint'},
-                                   {'id': 'e3', 'from': 'lint', 'to': 'mol'},
-                                   {'id': 'e4', 'from': 'mol', 'to': 'check', 'label': 'merge'},
-                                   {'id': 'e5', 'from': 'check', 'to': 'roll'}],
+                                   {'id': 'e3', 'from': 'lint', 'to': 'check'},
+                                   {'id': 'e4', 'from': 'check', 'to': 'mol'},
+                                   {'id': 'e5', 'from': 'mol', 'to': 'roll', 'label': 'merge'}],
                          'steps': [{'highlight': ['pr', 'e1', 'syntax'],
                                     'text_de': 'Stufe 1: Lässt sich das Playbook überhaupt '
                                                'einlesen?',
@@ -140,23 +140,25 @@ QUALITAET_MODULE = {'key': 'qualitaet-testen',
                                                '(FQCN, Namen, Dateirechte, kein unnötiges shell)?',
                                     'text_en': 'Stage 2: does it follow the agreed rules (FQCN, '
                                                'names, file modes, no needless shell)?'},
-                                   {'highlight': ['lint', 'e3', 'mol'],
-                                    'text_de': 'Stufe 3: Tut die Rolle in einer frischen Umgebung, '
-                                               'was sie soll — und ändert der zweite Lauf nichts '
-                                               'mehr?',
-                                    'text_en': 'Stage 3: does the role do what it should in a '
-                                               'fresh environment — and does the second run change '
-                                               'nothing?'},
-                                   {'highlight': ['mol', 'e4', 'check'],
-                                    'text_de': 'Stufe 4: Nach dem Merge zeigt der Trockenlauf '
-                                               'gegen Staging, was sich real ändern würde.',
-                                    'text_en': 'Stage 4: after the merge, the dry run against '
-                                               'staging shows what would really change.'},
-                                   {'highlight': ['check', 'e5', 'roll'],
-                                    'text_de': 'Erst dann der echte Lauf — schrittweise, damit ein '
-                                               'Fehler nicht alle Hosts trifft.',
-                                    'text_en': 'Only then the real run — step by step, so that a '
-                                               'failure does not hit all hosts.'}]}},
+                                   {'highlight': ['lint', 'e3', 'check'],
+                                    'text_de': 'Stufe 3: Check/Diff — der Trockenlauf gegen Staging '
+                                               'zeigt, was sich real ändern würde, ohne etwas zu '
+                                               'ändern.',
+                                    'text_en': 'Stage 3: check/diff — the dry run against staging '
+                                               'shows what would really change, without changing '
+                                               'anything.'},
+                                   {'highlight': ['check', 'e4', 'mol'],
+                                    'text_de': 'Stufe 4: Rollentest — tut die Rolle in einer '
+                                               'frischen Umgebung, was sie soll, und ändert der '
+                                               'zweite Lauf nichts mehr?',
+                                    'text_en': 'Stage 4: role test — does the role do what it '
+                                               'should in a fresh environment, and does the second '
+                                               'run change nothing?'},
+                                   {'highlight': ['mol', 'e5', 'roll'],
+                                    'text_de': 'Erst nach dem Merge der echte Lauf — schrittweise, '
+                                               'damit ein Fehler nicht alle Hosts trifft.',
+                                    'text_en': 'Only after the merge the real run — step by step, '
+                                               'so that a failure does not hit all hosts.'}]}},
             {'type': 'text', 'id': 'text-2',
              'value': {'de': '## Stufe 1+2: Syntax-Check und Lint\n'
                              '\n'
@@ -236,7 +238,9 @@ QUALITAET_MODULE = {'key': 'qualitaet-testen',
              'note': 'ansible-lint 26.10.0 real gegen genau dieses site.yml (10 Findings, hier 5 '
                      'gezeigt, Zusammenfassung gekürzt; Rückgabewert 2 real). Molecule 26.10.0: '
                      'Schrittfolge und Log-Format real, die Matrix ohne die Pfad-/„Missing '
-                     'playbook“-Zusätze, die Recap-Zahlen von converge/idempotence sind ein '
+                     'playbook“-Zusätze; im Log von molecule test fehlen die Schritte ohne Playbook '
+                     '(dependency, cleanup, prepare, side_effect – real je eine WARNING-Zeile) und '
+                     'die Abschlusstabelle, die Recap-Zahlen von converge/idempotence sind ein '
                      'Beispiel. Das Lab enthält weder ansible-lint noch molecule.',
              'payload': {'title_de': 'Lint-Findings lesen, Molecule-Lauf verfolgen',
                          'title_en': 'Reading lint findings, following a Molecule run',
@@ -458,7 +462,16 @@ QUALITAET_MODULE = {'key': 'qualitaet-testen',
                              '\n'
                              'Wichtig für die Abgrenzung: **Lint ist kein Bestandteil der '
                              'Molecule-Testsequenz selbst** — es läuft typischerweise als '
-                             'eigener, vorgeschalteter CI-Schritt.',
+                             'eigener, vorgeschalteter CI-Schritt.\n'
+                             '\n'
+                             'Nach den vier Stufen kommt der Rollout, und dafür gibt es zwei '
+                             'Play-Schlüsselwörter: `serial` teilt die Hosts eines Plays in '
+                             'Scheiben (Batches), die nacheinander vollständig durchlaufen — als '
+                             'Zahl, Prozentwert oder Liste wie `[1, "25%"]` (erst ein Host, dann '
+                             'je ein Viertel). `max_fail_percentage` legt fest, ab welchem Anteil '
+                             'fehlgeschlagener Hosts je Scheibe das Play abbricht; der Wert muss '
+                             'überschritten werden, mit `0` stoppt also schon ein einziger '
+                             'Fehler.',
                        'en': '## Stage 4: testing roles with Molecule\n'
                              '\n'
                              'For roles (module “Roles: Structure & Reuse”), lint alone '
@@ -483,7 +496,15 @@ QUALITAET_MODULE = {'key': 'qualitaet-testen',
                              '\n'
                              'Important distinction: **linting is not part of the Molecule test '
                              'sequence itself** — it typically runs as a separate, earlier CI '
-                             'step.'},
+                             'step.\n'
+                             '\n'
+                             'After the four stages comes the rollout, and two play keywords '
+                             'serve it: `serial` splits the hosts of a play into slices (batches) '
+                             'that each run to completion in turn — as a number, a percentage, or '
+                             'a list such as `[1, "25%"]` (first one host, then a quarter each). '
+                             '`max_fail_percentage` sets the share of failed hosts per slice at '
+                             'which the play aborts; the value must be exceeded, so with `0` a '
+                             'single failure already stops it.'},
              'note': 'Schrittfolge gegen die Molecule-Doku (Configuration, test_sequence) '
                      'geprüft; Lint ist dort kein Schritt.'},
             {'type': 'debug', 'id': 'debug-1',
@@ -528,10 +549,12 @@ QUALITAET_MODULE = {'key': 'qualitaet-testen',
                          'title_en': 'New nginx configuration on 40 web servers',
                          'start': 'start',
                          'nodes': [{'id': 'start',
-                                    'text_de': 'Syntax-Check, Lint und Molecule sind grün. Die '
+                                    'text_de': 'Syntax-Check, Lint, Check/Diff gegen die '
+                                               'Testumgebung und Molecule sind grün. Die '
                                                'Änderung soll auf 40 Webserver hinter einem Load '
                                                'Balancer. Was tust du als Nächstes?',
-                                    'text_en': 'Syntax check, lint and Molecule are green. The '
+                                    'text_en': 'Syntax check, lint, check/diff against the test '
+                                               'environment and Molecule are green. The '
                                                'change is to go to 40 web servers behind a load '
                                                'balancer. What do you do next?',
                                     'options': [{'label_de': 'Direkt auf alle 40 ausrollen — die '

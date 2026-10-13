@@ -112,9 +112,11 @@ DYNAMISCHES_ROUTING_MODULE = {
                  {"from": "r2", "to": "r1", "style": "reply", "label_de": "Hello: „Ich sehe 1.1.1.1“",
                   "label_en": "Hello: “I see 1.1.1.1”",
                   "detail_de": "R2 nennt R1 in seiner Nachbarliste. Beide haben sich gegenseitig gesehen: "
-                               "Zustand 2-Way. Passen Area oder Timer nicht zusammen, endet es hier.",
+                               "Zustand 2-Way. Passen Area oder Timer nicht zusammen, wird schon das Hello "
+                               "verworfen — der Nachbar taucht dann gar nicht erst auf.",
                   "detail_en": "R2 lists R1 among its neighbors. Both have seen each other: state 2-Way. "
-                               "If area or timers do not match, this is where it ends."},
+                               "If area or timers do not match, the Hello itself is dropped — the neighbor "
+                               "then never shows up at all."},
                  {"from": "r1", "to": "r2", "label_de": "DBD: Inhaltsverzeichnis der LSDB",
                   "label_en": "DBD: table of contents of the LSDB",
                   "detail_de": "Database Description: Die Router tauschen nur die Überschriften ihrer LSAs "

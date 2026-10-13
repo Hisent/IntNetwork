@@ -150,18 +150,23 @@ FIREWALL_MODULE = {
          }},
         {"type": "cloze", "id": "cloze-acl-dmz",
          "note": "Cisco-IOS-Syntax (extended ACL). Wildcard-Masken sind hier neu: kurz erklären, dass sie "
-                 "die invertierte Subnetzmaske sind (0 = muss passen).",
+                 "die invertierte Subnetzmaske sind (0 = muss passen). Die ACL hängt bewusst AUSGEHEND am "
+                 "DMZ-Interface: Dort prüft IOS nach der NAT-Übersetzung (Cisco „NAT Order of Operation“), die "
+                 "interne Serveradresse ist also richtig. Eingehend am Internet-Interface wird vor NAT geprüft; "
+                 "dort stünde die öffentliche Adresse 203.0.113.10.",
          "payload": {
-             "prompt_de": "Ergänze die Regeln für Verkehr aus dem Internet zum Webserver 192.168.30.80: "
+             "prompt_de": "Die ACL DMZ-OUT hängt ausgehend am DMZ-Interface und prüft alles, was der Router in die "
+                          "DMZ weiterleitet. Ergänze die Regeln für Verkehr zum Webserver 192.168.30.80: "
                           "HTTPS von überall, SSH nur aus dem Admin-Netz 198.51.100.0/24, alles andere "
                           "verwerfen und protokollieren. Hinweis: IOS schreibt Netze mit Wildcard-Maske — "
                           "der invertierten Subnetzmaske.",
-             "prompt_en": "Complete the rules for traffic from the Internet to the web server 192.168.30.80: "
+             "prompt_en": "The ACL DMZ-OUT is applied outbound on the DMZ interface and checks everything the router "
+                          "forwards into the DMZ. Complete the rules for traffic to the web server 192.168.30.80: "
                           "HTTPS from anywhere, SSH only from the admin network 198.51.100.0/24, drop and "
                           "log everything else. Hint: IOS writes networks with a wildcard mask — the "
                           "inverted subnet mask.",
              "mono": True,
-             "text": "ip access-list extended INET-IN\n"
+             "text": "ip access-list extended DMZ-OUT\n"
                      " permit tcp any host 192.168.30.80 eq [[https]]\n"
                      " permit tcp 198.51.100.0 [[wildcard]] host 192.168.30.80 eq [[ssh]]\n"
                      " [[rest]] ip any any log",
@@ -174,11 +179,16 @@ FIREWALL_MODULE = {
              "explanation_de": "Die Wildcard-Maske 0.0.0.255 lässt das letzte Oktett frei und entspricht "
                                "damit /24. Die letzte Zeile schreibt aus, was IOS am Ende jeder ACL ohnehin "
                                "unsichtbar anfügt (implizites deny) — ausgeschrieben lässt sie sich mit "
-                               "„log“ protokollieren. „allow“ kennt IOS nicht: Dort heißt es permit.",
+                               "„log“ protokollieren. „allow“ kennt IOS nicht: Dort heißt es permit. Die interne "
+                               "Adresse 192.168.30.80 stimmt, weil eine ausgehende ACL erst nach der "
+                               "NAT-Übersetzung prüft; eingehend am Internet-Interface stünde dort die "
+                               "öffentliche Adresse des Servers.",
              "explanation_en": "The wildcard mask 0.0.0.255 leaves the last octet open and thus equals /24. "
                                "The last line spells out what IOS appends invisibly to every ACL anyway "
                                "(implicit deny) — written out, it can be logged with “log”. IOS has no "
-                               "“allow”: the keyword is permit.",
+                               "“allow”: the keyword is permit. The internal address 192.168.30.80 is "
+                               "right because an outbound ACL checks only after NAT translation; inbound "
+                               "on the Internet interface the server's public address would appear there.",
          }},
         {"type": "scenario", "id": "scenario-regelreihenfolge",
          "note": "Kernbotschaft: erst messen (Trefferzähler), dann ändern — und zu breite Regeln "

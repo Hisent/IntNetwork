@@ -560,14 +560,14 @@ HOOKS_MODULE = {'key': 'hooks',
                                    {'left': 'Stop',
                                     'right_de': 'wenn Claude fertig geantwortet hat',
                                     'right_en': 'when Claude finishes responding'}],
-                         'explanation_de': 'Blockieren können nur Events, die vor der Aktion '
-                                           'liegen oder sie aufhalten: PreToolUse, '
-                                           'UserPromptSubmit, PreCompact und Stop. '
-                                           'PostToolUseFailure meldet nur noch.',
-                         'explanation_en': 'Only events that come before the action or can hold it '
-                                           'back are able to block: PreToolUse, UserPromptSubmit, '
-                                           'PreCompact and Stop. PostToolUseFailure only '
-                                           'reports.'}},
+                         'explanation_de': 'Von diesen sechs können nur die Events blockieren, '
+                                           'die vor der Aktion liegen oder sie aufhalten: '
+                                           'PreToolUse, UserPromptSubmit, PreCompact und Stop. '
+                                           'SessionStart und PostToolUseFailure melden nur.',
+                         'explanation_en': 'Of these six, only the events that come before the '
+                                           'action or can hold it back are able to block: '
+                                           'PreToolUse, UserPromptSubmit, PreCompact and Stop. '
+                                           'SessionStart and PostToolUseFailure only report.'}},
             {'type': 'reveal',
              'id': 'reveal-diagnose-lab',
              'payload': {'teaser_de': 'Übungslabor: Probier die Diagnose-Slash-Commands aus und '
@@ -782,27 +782,28 @@ HOOKS_MODULE = {'key': 'hooks',
                                             'hookSpecificOutput.permissionDecision "deny" ausgeben',
                                             'Die Begründung als Klartext auf stdout schreiben und '
                                             'mit Exit 0 enden',
-                                            'Mit Exit 2 enden und JSON mit permissionDecision '
-                                            '"allow" ausgeben, um nur zu warnen'],
+                                            'Mit Exit 1 enden und die Begründung auf stderr '
+                                            'schreiben (ohne `onFailure`-Einstellung)'],
                                      'en': ['Exit with code 2 and write the reason to stderr',
                                             'Exit 0 and print JSON with '
                                             'hookSpecificOutput.permissionDecision "deny"',
                                             'Write the reason as plain text to stdout and exit 0',
-                                            'Exit 2 and print JSON with permissionDecision "allow" '
-                                            'to merely warn']},
+                                            'Exit 1 and write the reason to stderr (without an '
+                                            '`onFailure` setting)']},
                          'explanation': {'de': 'Exit 2 mit stderr und Exit 0 mit '
                                                'permissionDecision „deny“ führen beide zur '
                                                'Verweigerung. Klartext auf stdout bei Exit 0 ist '
-                                               'schlicht ein Erfolg. Die vierte Variante '
-                                               'verweigert zwar auch, warnt aber nicht nur: Exit 2 '
-                                               'blockiert immer, ein „allow“ im JSON kann das '
-                                               'nicht aufheben.',
+                                               'schlicht ein Erfolg. Exit 1 mit stderr ist ein '
+                                               'nicht-blockierender Fehler: Es erscheint nur ein '
+                                               'Hinweis, der Aufruf läuft weiter – blockieren '
+                                               'würde er erst mit `"onFailure": "block"`.',
                                          'en': 'Exit 2 with stderr and exit 0 with '
                                                'permissionDecision "deny" both refuse the call. '
                                                'Plain text on stdout with exit 0 is simply a '
-                                               'success. The fourth variant does not merely warn: '
-                                               'exit 2 always blocks, and an "allow" in the JSON '
-                                               'cannot override it.'}},
+                                               'success. Exit 1 with stderr is a non-blocking '
+                                               'error: only a notice appears and the call goes '
+                                               'ahead – it would block only with '
+                                               '`"onFailure": "block"`.'}},
                         {'id': 'hk8',
                          'type': 'single',
                          'prompt': {'de': 'Ein PostToolUse-Hook mit Matcher `Write|Edit` endet mit '

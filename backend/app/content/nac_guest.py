@@ -120,7 +120,9 @@ NAC_GUEST_MODULE = {
                    'umgeleitet. Es braucht keinen Supplicant, nur einen Browser — genau deshalb '
                    'ist es der passende Weg für Geräte, bei denen niemand 802.1X konfigurieren '
                    'kann oder soll: private Smartphones von Besuchern, Laptops von '
-                   'Lieferantenpartnern.\n\n'
+                   'Lieferantenpartnern. Das Gerät liegt dabei von Anfang an im Gast-VLAN; nach '
+                   'dem Login wird nur die einschränkende Redirect-ACL durch die Gast-ACL ersetzt '
+                   '— ein VLAN-Wechsel würde eine neue IP-Adresse erzwingen.\n\n'
                    'Captive Portal ersetzt damit nicht 802.1X, sondern ergänzt es um einen Weg für '
                    'genau die Geräte, für die 802.1X nicht praktikabel ist.',
              'en': '## Captive Portal vs. 802.1X\n\n'
@@ -132,7 +134,9 @@ NAC_GUEST_MODULE = {
                    'access, but is redirected in the browser to a login/registration page. It '
                    'needs no supplicant, just a browser — which is exactly why it is the right '
                    'path for devices where nobody can or should configure 802.1X: visitors\' '
-                   'private smartphones, laptops from supplier partners.\n\n'
+                   'private smartphones, laptops from supplier partners. The device sits in the '
+                   'guest VLAN from the start; after login only the restrictive redirect ACL is '
+                   'replaced by the guest ACL — a VLAN change would force a new IP address.\n\n'
                    'Captive portal therefore does not replace 802.1X, but complements it with a '
                    'path for exactly those devices where 802.1X is not practical.',
          }},
@@ -142,8 +146,8 @@ NAC_GUEST_MODULE = {
             'note': 'Zentrale Web-Authentifizierung, herstellerneutral vereinfacht: Die MAB-Anfrage dient hier nur dazu, eine Sitzung anzulegen, an die der Redirect gehängt wird. Betriebssysteme erkennen das Portal über eigene Test-Aufrufe und öffnen die Anmeldeseite automatisch.',
             'payload': {
                 'kind': 'sequence',
-                'title_de': 'Captive Portal: vom ersten Frame bis zum Gast-VLAN',
-                'title_en': 'Captive portal: from the first frame to the guest VLAN',
+                'title_de': 'Captive Portal: vom ersten Frame bis zur Gast-Freigabe',
+                'title_en': 'Captive portal: from the first frame to guest access',
                 'actors': [
                     {
                         'id': 'dev',
@@ -182,8 +186,8 @@ NAC_GUEST_MODULE = {
                         'label_de': 'Access-Accept + Redirect',
                         'label_en': 'Access-Accept + redirect',
                         'style': 'reply',
-                        'detail_de': 'Eingeschränkter Zugriff: nur DHCP, DNS und das Portal. Dazu die Portal-URL, auf die der Switch Web-Aufrufe umleiten soll.',
-                        'detail_en': 'Restricted access: only DHCP, DNS, and the portal. Plus the portal URL to which the switch should redirect web requests.',
+                        'detail_de': 'Das Gerät landet sofort im Gast-VLAN 50, zunächst mit einer Redirect-ACL: nur DHCP, DNS und das Portal. Dazu die Portal-URL, auf die der Switch Web-Aufrufe umleiten soll.',
+                        'detail_en': 'The device lands in guest VLAN 50 right away, at first with a redirect ACL: only DHCP, DNS, and the portal. Plus the portal URL to which the switch should redirect web requests.',
                     },
                     {
                         'from': 'dev',
@@ -221,11 +225,11 @@ NAC_GUEST_MODULE = {
                     {
                         'from': 'srv',
                         'to': 'sw',
-                        'label_de': 'Access-Accept (Gast-VLAN 50)',
-                        'label_en': 'Access-Accept (guest VLAN 50)',
+                        'label_de': 'Access-Accept (Gast-ACL)',
+                        'label_en': 'Access-Accept (guest ACL)',
                         'style': 'reply',
-                        'detail_de': 'Antwort auf die erneute Anfrage des Switches: Internet ja, internes Netz nein.',
-                        'detail_en': "Reply to the switch's renewed request: internet yes, internal network no.",
+                        'detail_de': 'Der Switch bestätigt die CoA (CoA-ACK) und fragt für die Sitzung erneut an; dies ist die Antwort darauf: Die Gast-ACL ersetzt die Redirect-ACL — Internet ja, internes Netz nein. Das VLAN bleibt 50, das Gerät behält seine IP-Adresse.',
+                        'detail_en': 'The switch acknowledges the CoA (CoA-ACK) and asks again for the session; this is the reply: the guest ACL replaces the redirect ACL — internet yes, internal network no. The VLAN stays 50, the device keeps its IP address.',
                     },
                 ],
             },
@@ -340,14 +344,14 @@ NAC_GUEST_MODULE = {
                  'Ein Sponsor aus dem Unternehmen prüft und genehmigt die Anfrage',
                  'Ein zeitlich begrenztes Gastkonto wird erstellt und die Zugangsdaten werden '
                  'ausgegeben',
-                 'Das Gastgerät wird dem isolierten Gast-VLAN zugewiesen',
+                 'Das Gastgerät meldet sich an und erhält im isolierten Gast-VLAN den Internetzugang',
                  'Das Konto läuft nach Ablauf der Gültigkeitsdauer automatisch ab',
              ],
              'items_en': [
                  'The guest self-registers through the captive portal',
                  'A sponsor from the company reviews and approves the request',
                  'A time-limited guest account is created and credentials are issued',
-                 'The guest device is assigned to the isolated guest VLAN',
+                 'The guest device logs in and gets internet access in the isolated guest VLAN',
                  'The account automatically expires once the validity period ends',
              ],
          }},

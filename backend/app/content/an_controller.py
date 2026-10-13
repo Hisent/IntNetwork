@@ -44,9 +44,9 @@ CONTROLLER_MODULE = {'key': 'automation-controller-betrieb',
                              '\n'
                              'Erst die Kombination all dieser Teile ergibt einen startbaren Job. '
                              'Fehlt z. B. das Credential, kann der Job zwar angelegt, aber nicht '
-                             'sinnvoll gegen ein Zielsystem ausgeführt werden — je nach '
-                             'Zielsystem schlägt die Verbindung fehl oder der Start wird '
-                             'verweigert.',
+                             'sinnvoll gegen ein Zielsystem ausgeführt werden — in aller Regel '
+                             'scheitert dann die Anmeldung am Zielsystem, weil die Zugangsdaten '
+                             'fehlen.',
                        'en': '## The job template as the basic building block\n'
                              '\n'
                              'A **job template** is the reusable definition of an Ansible run in '
@@ -62,8 +62,9 @@ CONTROLLER_MODULE = {'key': 'automation-controller-betrieb',
                              '\n'
                              'Only the combination of all these parts produces a runnable job. '
                              'If, say, the credential is missing, the job can be created but not '
-                             'meaningfully run against a target system — depending on the target '
-                             'system, the connection fails or the launch is refused.'},
+                             'meaningfully run against a target system — as a rule, logging in '
+                             'to the target system then fails because the credentials are '
+                             'missing.'},
              'note': 'Job-Template = die zentrale Analogie fürs ganze Modul; alle folgenden '
                      'Blöcke bauen darauf auf.'},
             {'type': 'diagram',
@@ -196,13 +197,13 @@ CONTROLLER_MODULE = {'key': 'automation-controller-betrieb',
                          'prompt_en': 'A job template has no credential assigned. What is the '
                                       'most likely consequence at launch?',
                          'answer': 0,
-                         'options_de': ['Die Verbindung zum Zielsystem kann nicht aufgebaut '
-                                        'werden bzw. der Start wird verweigert',
+                         'options_de': ['Die Anmeldung am Zielsystem scheitert in aller Regel, '
+                                        'weil die Zugangsdaten fehlen',
                                         'Der Job läuft trotzdem, nur langsamer',
                                         'Ansible verwendet automatisch das Root-Passwort des '
                                         'Controllers'],
-                         'options_en': ['The connection to the target system cannot be '
-                                        'established, or the launch is refused',
+                         'options_en': ['Logging in to the target system usually fails '
+                                        'because the credentials are missing',
                                         'The job runs anyway, just more slowly',
                                         "Ansible automatically uses the controller's root "
                                         'password']}},
@@ -343,14 +344,14 @@ CONTROLLER_MODULE = {'key': 'automation-controller-betrieb',
                                       'actually run?',
                          'items_de': ['Job A wird gestartet und schlägt fehl',
                                       'Job C wird gestartet, weil A fehlgeschlagen ist',
-                                      'Job B wird NICHT gestartet, da er nur beim Erfolg von A '
-                                      'läuft',
+                                      'Der Workflow überspringt Job B, weil dieser Zweig nur beim '
+                                      'Erfolg von A läuft',
                                       'Job D wird gestartet, da er unabhängig vom Ergebnis immer '
                                       'läuft'],
                          'items_en': ['Job A launches and fails',
                                       'Job C launches, because A failed',
-                                      'Job B does NOT launch, since it only runs when A '
-                                      'succeeds',
+                                      'The workflow skips Job B, because that branch only runs '
+                                      'when A succeeds',
                                       'Job D launches, since it always runs regardless of the '
                                       'outcome']}},
             {'type': 'scenario',

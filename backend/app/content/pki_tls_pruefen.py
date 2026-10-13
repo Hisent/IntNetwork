@@ -516,6 +516,50 @@ TLS_PRUEFEN_MODULE = {
                 ],
             },
         },
+        {'type': 'cloze', 'id': 'cloze-diagnose-befehle',
+         'payload': {
+             'prompt_de': 'Vier Diagnosebefehle — ergänze die fehlenden Optionen.',
+             'prompt_en': 'Four diagnostic commands — fill in the missing options.',
+             'mono': True,
+             'text_de': ('# alle gesendeten Zertifikate anzeigen, mit SNI\nopenssl s_client -connect host:443 -[[sni]] '
+                 'host -[[show]]\n# nur die Laufzeit eines Zertifikats\nopenssl x509 -in cert.pem -noout '
+                 '-[[dates]]\n# Kette gegen einen Vertrauensanker prüfen\nopenssl verify -[[ca]] ca-bundle.pem '
+                 'cert.pem\n# öffentlichen Schlüssel aus dem privaten ableiten (Vergleich mit dem '
+                 'Zertifikat)\nopenssl pkey -in server.key -[[pub]]'),
+             'text_en': ('# show all certificates sent, with SNI\nopenssl s_client -connect host:443 -[[sni]] host '
+                 '-[[show]]\n# just the validity of a certificate\nopenssl x509 -in cert.pem -noout '
+                 '-[[dates]]\n# verify the chain against a trust anchor\nopenssl verify -[[ca]] ca-bundle.pem '
+                 'cert.pem\n# derive the public key from the private one (to compare with the '
+                 'certificate)\nopenssl pkey -in server.key -[[pub]]'),
+             'gaps': [
+                    {
+                     'id': 'sni',
+                     'accept': ['servername'], 'case_sensitive': True,
+                    },
+                    {
+                     'id': 'show',
+                     'accept': ['showcerts'], 'case_sensitive': True,
+                    },
+                    {
+                     'id': 'dates',
+                     'options': ['dates', 'text', 'fingerprint', 'pubkey'],
+                     'answer': 0,
+                    },
+                    {
+                     'id': 'ca',
+                     'accept': ['CAfile', 'trusted', 'CAstore'], 'case_sensitive': True,
+                    },
+                    {
+                     'id': 'pub',
+                     'accept': ['pubout'], 'case_sensitive': True,
+                    },
+                ],
+             'explanation_de': ('Diese fünf Optionen decken den Großteil der Alltagsdiagnose ab. Die letzten drei Befehle '
+                 'arbeiten auf lokalen Dateien und laufen deshalb auch im Openssl-Lab.'),
+             'explanation_en': ('These five options cover most everyday diagnosis. The last three commands work on local files '
+                 'and therefore also run in the openssl lab.'),
+            },
+        },
         {'type': 'reveal', 'id': 'reveal-1',
          'note': 'Diesen Block als Nachschlagewerk ankuendigen: nicht auswendig lernen, sondern wissen, dass die Sammlung existiert und wo man sie wiederfindet.',
          'payload': {
@@ -588,50 +632,6 @@ TLS_PRUEFEN_MODULE = {
                    '4. Is the certificate within its validity period?\n'
                    '5. Are protocol version and cipher suite as expected?',
          }},
-        {'type': 'cloze', 'id': 'cloze-diagnose-befehle',
-         'payload': {
-             'prompt_de': 'Vier Diagnosebefehle — ergänze die fehlenden Optionen.',
-             'prompt_en': 'Four diagnostic commands — fill in the missing options.',
-             'mono': True,
-             'text_de': ('# alle gesendeten Zertifikate anzeigen, mit SNI\nopenssl s_client -connect host:443 -[[sni]] '
-                 'host -[[show]]\n# nur die Laufzeit eines Zertifikats\nopenssl x509 -in cert.pem -noout '
-                 '-[[dates]]\n# Kette gegen einen Vertrauensanker prüfen\nopenssl verify -[[ca]] ca-bundle.pem '
-                 'cert.pem\n# öffentlichen Schlüssel aus dem privaten ableiten (Vergleich mit dem '
-                 'Zertifikat)\nopenssl pkey -in server.key -[[pub]]'),
-             'text_en': ('# show all certificates sent, with SNI\nopenssl s_client -connect host:443 -[[sni]] host '
-                 '-[[show]]\n# just the validity of a certificate\nopenssl x509 -in cert.pem -noout '
-                 '-[[dates]]\n# verify the chain against a trust anchor\nopenssl verify -[[ca]] ca-bundle.pem '
-                 'cert.pem\n# derive the public key from the private one (to compare with the '
-                 'certificate)\nopenssl pkey -in server.key -[[pub]]'),
-             'gaps': [
-                    {
-                     'id': 'sni',
-                     'accept': ['servername'],
-                    },
-                    {
-                     'id': 'show',
-                     'accept': ['showcerts'],
-                    },
-                    {
-                     'id': 'dates',
-                     'options': ['dates', 'text', 'fingerprint', 'pubkey'],
-                     'answer': 0,
-                    },
-                    {
-                     'id': 'ca',
-                     'accept': ['CAfile'],
-                    },
-                    {
-                     'id': 'pub',
-                     'accept': ['pubout'],
-                    },
-                ],
-             'explanation_de': ('Diese fünf Optionen decken den Großteil der Alltagsdiagnose ab. Die letzten drei Befehle '
-                 'arbeiten auf lokalen Dateien und laufen deshalb auch im Openssl-Lab.'),
-             'explanation_en': ('These five options cover most everyday diagnosis. The last three commands work on local files '
-                 'and therefore also run in the openssl lab.'),
-            },
-        },
         {'type': 'text', 'id': 'text-openssl-lab',
          'note': ('Erste Begegnung mit dem openssl-Lab. Kurz ansagen, dass es je nach Server-Konfiguration '
              'abgeschaltet sein kann — dann bleiben die Befehle Lesestoff und die Aufgaben Denkaufgaben.'),
