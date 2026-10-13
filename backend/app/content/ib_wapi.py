@@ -398,7 +398,8 @@ WAPI_MODULE = {
                 "prompt_de": "Das Provisionierungs-Skript soll für die Filiale Kiel das nächste freie /24 unter 10.20.0.0/16 anlegen — aber nur, wenn es noch keines gibt. Vervollständige beide Anfragen.",
                 "prompt_en": "The provisioning script is to create the next free /24 below 10.20.0.0/16 for the Kiel branch — but only if none exists yet. Complete both requests.",
                 "mono": True,
-                "text": "# 1. Gibt es schon ein Netz für Kiel?\nGET  /wapi/v2.x/network?[[stern]]Standort=Kiel&[[felder]]=network,extattrs\n\n# 2. Nur wenn die Antwort [] ist: anlegen\n[[methode]] /wapi/v2.x/network\n{\n  \"network\": \"func:[[func]]:10.20.0.0/16,[[cidr]]\",\n  \"comment\": \"Filiale Kiel\",\n  \"extattrs\": { \"Standort\": { \"value\": \"Kiel\" } }\n}",
+                "text_de": "# 1. Gibt es schon ein Netz für Kiel?\nGET  /wapi/v2.x/network?[[stern]]Standort=Kiel&[[felder]]=network,extattrs\n\n# 2. Nur wenn die Antwort [] ist: anlegen\n[[methode]] /wapi/v2.x/network\n{\n  \"network\": \"func:[[func]]:10.20.0.0/16,[[cidr]]\",\n  \"comment\": \"Filiale Kiel\",\n  \"extattrs\": { \"Standort\": { \"value\": \"Kiel\" } }\n}",
+                "text_en": "# 1. Does a network for Kiel exist already?\nGET  /wapi/v2.x/network?[[stern]]Standort=Kiel&[[felder]]=network,extattrs\n\n# 2. Only if the answer is []: create it\n[[methode]] /wapi/v2.x/network\n{\n  \"network\": \"func:[[func]]:10.20.0.0/16,[[cidr]]\",\n  \"comment\": \"Kiel branch\",\n  \"extattrs\": { \"Standort\": { \"value\": \"Kiel\" } }\n}",
                 "gaps": [
                     {"id": "stern", "accept": ["*"]},
                     {
@@ -613,8 +614,8 @@ WAPI_MODULE = {
             "id": "wa8",
             "type": "multi",
             "prompt": {
-                "de": "Welche Aussagen zur Objekt-Referenz (_ref) treffen zu? Mehrere Antworten sind richtig.",
-                "en": "Which statements about the object reference (_ref) are correct? Select all that apply.",
+                "de": "Welche Aussagen zur Objekt-Referenz (_ref) treffen zu?",
+                "en": "Which statements about the object reference (_ref) are correct?",
             },
             "answer": [0, 2, 3],
             "options": {

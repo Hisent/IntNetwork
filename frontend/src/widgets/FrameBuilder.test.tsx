@@ -35,8 +35,11 @@ describe('FrameBuilder', () => {
     expect(screen.queryByText('Done!')).toBeNull() // VLAN steht noch auf 10
     const vlan = screen.getByRole('spinbutton') as HTMLInputElement
     fireEvent.change(vlan, { target: { value: '' } })
-    expect(vlan.value).toBe('1')
+    expect(vlan.value).toBe('')  // leerbar; der letzte gültige Wert (10) bleibt bis Blur
+    fireEvent.blur(vlan)
+    expect(vlan.value).toBe('10')
     fireEvent.change(vlan, { target: { value: '99999' } })
+    fireEvent.blur(vlan)
     expect(vlan.value).toBe('4094')
     fireEvent.change(vlan, { target: { value: '20' } })
     expect(screen.getByText('Done!')).toBeTruthy()

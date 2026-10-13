@@ -543,9 +543,9 @@ TROUBLESHOOTING_MODULE = {
                    "port. Checking DNS again would be guessing — it demonstrably answered correctly."}},
         {"id": "ts7", "type": "multi",
          "prompt": {"de": "Welche Befunde sprechen dafür, dass die Störung im EIGENEN lokalen Netz liegt "
-                          "und nicht beim Provider? Mehrere Antworten sind richtig.",
+                          "und nicht beim Provider?",
                     "en": "Which findings indicate that the fault lies on your OWN local network and not at "
-                          "the provider? Select all that apply."},
+                          "the provider?"},
          "options": {
              "de": ["Der Ping zum Standardgateway schlägt fehl",
                     "ipconfig zeigt eine Adresse aus 169.254.0.0/16",

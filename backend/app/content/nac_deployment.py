@@ -659,8 +659,8 @@ NAC_DEPLOYMENT_MODULE = {
             'id': 'dp7',
             'type': 'multi',
             'prompt': {
-                'de': 'Nordwind will von Monitor Mode auf Low-Impact Mode wechseln. Was sollte vorher erfüllt sein? Mehrere Antworten sind richtig.',
-                'en': 'Nordwind wants to move from Monitor Mode to Low-Impact Mode. What should be in place beforehand? Select all that apply.',
+                'de': 'Nordwind will von Monitor Mode auf Low-Impact Mode wechseln. Was sollte vorher erfüllt sein?',
+                'en': 'Nordwind wants to move from Monitor Mode to Low-Impact Mode. What should be in place beforehand?',
             },
             'options': {
                 'de': [

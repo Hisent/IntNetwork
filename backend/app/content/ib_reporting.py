@@ -541,8 +541,8 @@ REPORTING_MODULE = {
              "en": "DHCP utilization, DNS query volume and capacity trend lines are the three analyses from the module. The number of Grid Master Candidates is an architecture decision, not a metric that keeps changing in operations.",
          },
          'type': 'multi',
-         'prompt': {'de': 'Welche Auswertungen zählen zu den typischen Betriebs-Kennzahlen aus diesem Modul? Mehrere Antworten sind richtig.',
-                    'en': 'Which analyses count as typical operational metrics from this module? Select all that apply.'},
+         'prompt': {'de': 'Welche Auswertungen zählen zu den typischen Betriebs-Kennzahlen aus diesem Modul?',
+                    'en': 'Which analyses count as typical operational metrics from this module?'},
          'answer': [0, 1, 2],
          'options': {'de': ['DHCP-Auslastung je Netzwerk', 'DNS-Abfragevolumen',
                             'Kapazitätsplanung anhand von Trendlinien',
@@ -607,8 +607,8 @@ REPORTING_MODULE = {
             "id": "ra8",
             "type": "multi",
             "prompt": {
-                "de": "Welche Auswertungen sind nur dann verlässlich, wenn Extensible Attributes konsequent gepflegt sind? Mehrere Antworten sind richtig.",
-                "en": "Which analyses are only reliable if extensible attributes are maintained consistently? Select all that apply.",
+                "de": "Welche Auswertungen sind nur dann verlässlich, wenn Extensible Attributes konsequent gepflegt sind?",
+                "en": "Which analyses are only reliable if extensible attributes are maintained consistently?",
             },
             "answer": [0, 3],
             "options": {

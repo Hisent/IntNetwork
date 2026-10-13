@@ -530,8 +530,8 @@ DHCP_FAILOVER_MODULE = {
              "en": "The hash of the client identifier (the client identifier option, otherwise the MAC address) decides which peer answers; the split sets the shares (default 50%). Both peers are active — “only one answers” describes an HA pair, not a failover pair.",
          },
          'type': 'multi',
-         'prompt': {'de': 'Welche Aussagen zur Lastverteilung in einem Failover-Paar treffen zu? Mehrere Antworten sind richtig.',
-                    'en': 'Which statements about load balancing in a failover pair are true? Select all that apply.'},
+         'prompt': {'de': 'Welche Aussagen zur Lastverteilung in einem Failover-Paar treffen zu?',
+                    'en': 'Which statements about load balancing in a failover pair are true?'},
          'answer': [0, 1, 3],
          'options': {'de': ['Die Zuordnung erfolgt über einen Hash der Client-Kennung',
                             'Der Split ist im Standard 50/50, aber konfigurierbar',
@@ -594,8 +594,8 @@ DHCP_FAILOVER_MODULE = {
             "id": "df8",
             "type": "multi",
             "prompt": {
-                "de": "Welche Aussagen zum Split eines Failover-Paars treffen zu? Mehrere Antworten sind richtig.",
-                "en": "Which statements about the split of a failover pair are correct? Select all that apply.",
+                "de": "Welche Aussagen zum Split eines Failover-Paars treffen zu?",
+                "en": "Which statements about the split of a failover pair are correct?",
             },
             "answer": [0, 2],
             "options": {

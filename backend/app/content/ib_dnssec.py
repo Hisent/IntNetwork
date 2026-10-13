@@ -132,8 +132,8 @@ DNSSEC_MODULE = {
                 "kind": "layers",
                 "title_de": "Die Vertrauenskette: wer bürgt für wen",
                 "title_en": "The Chain of Trust: Who Vouches for Whom",
-                "caption_de": "Von oben nach unten: Jede Ebene macht die darunter prüfbar. Anklicken für Details.",
-                "caption_en": "Top to bottom: each layer makes the one below verifiable. Click for details.",
+                "caption_de": "Von oben nach unten: Jede Ebene macht die darunter prüfbar.",
+                "caption_en": "Top to bottom: each layer makes the one below verifiable.",
                 "layers": [
                     {
                         "name_de": "Trust Anchor im Resolver",
@@ -567,8 +567,8 @@ DNSSEC_MODULE = {
             "id": "ds8",
             "type": "multi",
             "prompt": {
-                "de": "Welche Aussagen zu NSEC, NSEC3 und Algorithmen treffen zu? Mehrere Antworten sind richtig.",
-                "en": "Which statements about NSEC, NSEC3 and algorithms are correct? Select all that apply.",
+                "de": "Welche Aussagen zu NSEC, NSEC3 und Algorithmen treffen zu?",
+                "en": "Which statements about NSEC, NSEC3 and algorithms are correct?",
             },
             "answer": [0, 2],
             "options": {

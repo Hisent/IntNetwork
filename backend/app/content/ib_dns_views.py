@@ -579,8 +579,8 @@ DNS_VIEWS_MODULE = {
             "id": "dv7",
             "type": "multi",
             "prompt": {
-                "de": "Die interne View löst fremde Namen „nur über Forwarder“ auf. Welche Maßnahmen verringern das Risiko, dass ein einzelner Ausfall die gesamte externe Auflösung lahmlegt? Mehrere Antworten sind richtig.",
-                "en": "The internal view resolves external names “via forwarders only”. Which measures reduce the risk that a single failure takes down all external resolution? Select all that apply.",
+                "de": "Die interne View löst fremde Namen „nur über Forwarder“ auf. Welche Maßnahmen verringern das Risiko, dass ein einzelner Ausfall die gesamte externe Auflösung lahmlegt?",
+                "en": "The internal view resolves external names “via forwarders only”. Which measures reduce the risk that a single failure takes down all external resolution?",
             },
             "answer": [0, 2],
             "options": {

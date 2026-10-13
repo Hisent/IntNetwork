@@ -574,8 +574,8 @@ NAC_EAP_TLS_MODULE = {
             'id': 'et7',
             'type': 'multi',
             'prompt': {
-                'de': 'Ein Notebook mit EAP-TLS wird gestohlen. Welche Maßnahmen verhindern, dass es sich weiter am Netz anmelden kann? Mehrere Antworten sind richtig.',
-                'en': 'A laptop using EAP-TLS is stolen. Which measures prevent it from continuing to log in to the network? Select all that apply.',
+                'de': 'Ein Notebook mit EAP-TLS wird gestohlen. Welche Maßnahmen verhindern, dass es sich weiter am Netz anmelden kann?',
+                'en': 'A laptop using EAP-TLS is stolen. Which measures prevent it from continuing to log in to the network?',
             },
             'options': {
                 'de': [

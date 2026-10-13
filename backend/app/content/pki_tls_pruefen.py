@@ -562,10 +562,10 @@ TLS_PRUEFEN_MODULE = {
         {'type': 'reveal', 'id': 'reveal-1',
          'note': 'Diesen Block als Nachschlagewerk ankündigen: nicht auswendig lernen, sondern wissen, dass die Sammlung existiert und wo man sie wiederfindet.',
          'payload': {
-             'teaser_de': 'Befehlssammlung: Klick, um alle Befehle dieses Moduls an einem Ort '
-                          'nachzuschlagen.',
-             'teaser_en': 'Command collection: click to look up all commands from this module in one '
-                          'place.',
+             'teaser_de': 'Befehlssammlung: alle Befehle dieses Moduls an einem Ort zum '
+                          'Nachschlagen.',
+             'teaser_en': 'Command collection: all commands from this module in one place to '
+                          'look up.',
          },
          'value': {
              'de': '## Befehlssammlung zum Nachschlagen\n\n'

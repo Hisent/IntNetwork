@@ -583,9 +583,9 @@ REDUNDANZ_MODULE = {
                    "someone intervenes (or auto-recovery kicks in)."}},
         {"id": "rd8", "type": "multi",
          "prompt": {"de": "Der VRRP-Master fällt aus, der Backup-Router übernimmt. Was bleibt aus Sicht "
-                          "eines Clients unverändert? Mehrere Antworten sind richtig.",
+                          "eines Clients unverändert?",
                     "en": "The VRRP master fails and the backup router takes over. What stays unchanged "
-                          "from a client's point of view? Select all that apply."},
+                          "from a client's point of view?"},
          "options": {
              "de": ["Die eingetragene Gateway-IP-Adresse",
                     "Die MAC-Adresse des Gateways im ARP-Cache",

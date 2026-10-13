@@ -579,8 +579,8 @@ NAC_8021X_MODULE = {
             'id': 'ax7',
             'type': 'multi',
             'prompt': {
-                'de': 'Ein Notebook bekommt am 802.1X-Port keinen Zugang. Ein Mitschnitt am Port zeigt EAPOL-Start und EAP-Response/Identity vom Notebook, danach nichts mehr. Welche Schlüsse sind zulässig? Mehrere Antworten sind richtig.',
-                'en': 'A laptop gets no access on the 802.1X port. A capture on the port shows EAPOL-Start and EAP-Response/Identity from the laptop, then nothing more. Which conclusions are valid? Select all that apply.',
+                'de': 'Ein Notebook bekommt am 802.1X-Port keinen Zugang. Ein Mitschnitt am Port zeigt EAPOL-Start und EAP-Response/Identity vom Notebook, danach nichts mehr. Welche Schlüsse sind zulässig?',
+                'en': 'A laptop gets no access on the 802.1X port. A capture on the port shows EAPOL-Start and EAP-Response/Identity from the laptop, then nothing more. Which conclusions are valid?',
             },
             'options': {
                 'de': [

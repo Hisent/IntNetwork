@@ -82,7 +82,7 @@ export function ClaudeCli({ lang }: { lang: Lang }) {
       <div className="flex gap-1 mb-2 items-center">
         <span className="text-xs text-slate-500 mr-1">{s.modeLabel}:</span>
         {modes.map(([m, label]) => (
-          <button key={m} onClick={() => setMode(m)}
+          <button key={m} aria-pressed={mode === m} onClick={() => setMode(m)}
             className={`rounded-lg border px-2 py-1 text-xs ${
               mode === m ? 'border-teal-300 bg-teal-50 text-teal-800' : 'hover:bg-slate-50'}`}>
             {label}

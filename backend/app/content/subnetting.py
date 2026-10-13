@@ -294,9 +294,9 @@ SUBNETTING_MODULE = {
                    "are misleading — they are only decisive for /24."}},
         {"id": "n7", "type": "multi",
          "prompt": {"de": "Welche dieser Adressen kann man im Netz 192.168.10.64/27 an ein Gerät "
-                          "vergeben? Mehrere Antworten sind richtig.",
+                          "vergeben?",
                     "en": "Which of these addresses can be assigned to a device in the network "
-                          "192.168.10.64/27? Select all that apply."},
+                          "192.168.10.64/27?"},
          "options": {
              "de": ["192.168.10.64", "192.168.10.65", "192.168.10.94", "192.168.10.95", "192.168.10.96"],
              "en": ["192.168.10.64", "192.168.10.65", "192.168.10.94", "192.168.10.95", "192.168.10.96"],

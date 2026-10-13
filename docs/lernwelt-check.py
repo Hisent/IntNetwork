@@ -22,6 +22,8 @@ FORBIDDEN = {
     r"10\.60\.0\.0": "Rechenzentrum ist 10.20.0.0/16",
     r"(Gäste|Gast|[Gg]uest)[^\n]{0,25}VLAN 30|VLAN 30[^\n]{0,12}(Gäste|Gast|[Gg]uest)": "VLAN 30 ist DMZ, Gäste sind VLAN 99",
     r"(DNS|dns)[- ][Ss]erver[ .:]*192\.168\.10\.1" + B: "DNS-Server ist 192.168.10.53",
+    A + r"192\.168\.10\.60" + B: "Lager-Hosts laut Plan: .1 .5 .10 .11 .12 .37 .50 .53 .80 .100-199; .60 gibt es nicht",
+    A + r"203\.0\.113\.8" + B: "außerhalb des Transfernetzes 203.0.113.0/30; externe Beispielziele liegen in 198.51.100.0/24",
 }
 # 2) Eine Rolle je Eintrag: Kontext (±70 Zeichen) darf kein Wort einer FREMDEN Rolle enthalten.
 ROLES = [
@@ -63,6 +65,7 @@ short = lambda f: os.path.relpath(f, R).replace("backend/app/content/", "").repl
 for f, s in texts.items():
     for pat, why in FORBIDDEN.items():
         for m in re.finditer(pat, s):
+            if "not.toContain" in s[s.rfind("\n", 0, m.start()):s.find("\n", m.end())]: continue  # Negativ-Assertion in Tests
             errors.append(f"VERBOTEN {short(f)}:{s.count(chr(10), 0, m.start()) + 1}: {m.group(0)!r} – {why}")
     for pat, want in PAIRS:
         for m in re.finditer(pat, s):

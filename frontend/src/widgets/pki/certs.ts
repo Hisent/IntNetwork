@@ -146,6 +146,12 @@ export function validateChain(chain: Cert[], trustStore: Cert[], now: Date): Cha
 // nicht Jahre später plötzlich "falsch" aussehen, nur weil reale Zeit vergangen ist.
 export const DEMO_NOW = new Date('2026-01-15T00:00:00Z')
 
+/** Sichtbarer Stichtag der Prüfung (die Widgets bewerten gegen DEMO_NOW, nicht gegen "heute"). */
+export function demoNowLabel(lang: 'de' | 'en'): string {
+  const [y, m, d] = DEMO_NOW.toISOString().slice(0, 10).split('-')
+  return lang === 'de' ? `Stand der Prüfung: ${d}.${m}.${y}` : `Checked as of ${y}-${m}-${d}`
+}
+
 export const ROOT_VALID: Cert = {
   id: 'root-valid',
   label: { de: 'Root-Zertifikat (im Trust Store)', en: 'Root certificate (in the trust store)' },

@@ -721,8 +721,8 @@ RPZ_MODULE = {
             "id": "dt8",
             "type": "multi",
             "prompt": {
-                "de": "Wo endet der Schutz einer DNS Firewall? Welche Fälle sieht sie nicht? Mehrere Antworten sind richtig.",
-                "en": "Where does the protection of a DNS firewall end? Which cases does it not see? Select all that apply.",
+                "de": "Wo endet der Schutz einer DNS Firewall? Welche Fälle sieht sie nicht?",
+                "en": "Where does the protection of a DNS firewall end? Which cases does it not see?",
             },
             "answer": [1, 2],
             "options": {

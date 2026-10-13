@@ -400,8 +400,8 @@ SAFE_AI_WORKFLOWS_MODULE = {
                 "explanation": {'de': 'Verifikation heißt, Scope und Diff zu prüfen, einen eigenen Nachweis zu erzeugen und Risiken wie Berechtigungen und externe Effekte zu bewerten. Die Modellantwort ungeprüft zu übernehmen ist das Gegenteil davon: Eine überzeugende Zusammenfassung ist kein Nachweis.', 'en': 'Verification means checking scope and diff, producing your own evidence and assessing risks such as permissions and external effects. Accepting the model response unchecked is the opposite: a convincing summary is not evidence.'},
                 "type": "multi",
                 "prompt": {
-                    "de": "Was gehört zur Verifikation vor einem Merge? Mehrere Antworten sind richtig.",
-                    "en": "What is part of verification before a merge? Select all that apply.",
+                    "de": "Was gehört zur Verifikation vor einem Merge?",
+                    "en": "What is part of verification before a merge?",
                 },
                 "answer": [0, 1, 2],
                 "options": {
@@ -455,10 +455,10 @@ SAFE_AI_WORKFLOWS_MODULE = {
              'type': 'multi',
              'prompt': {'de': 'Ein Log-Ausschnitt soll als Kontext in den Prompt. Er enthält einen '
                               'Bearer-Token, zwei Kunden-E-Mail-Adressen und den Stacktrace. Was gehört zur '
-                              'Vorbereitung? Mehrere Antworten sind richtig.',
+                              'Vorbereitung?',
                         'en': 'A log excerpt is to go into the prompt as context. It contains a bearer token, '
                               'two customer email addresses and the stack trace. What is part of preparing it? '
-                              'Select all that apply.'},
+                              ''},
              'options': {'de': ['Den Token durch einen Platzhalter ersetzen',
                                 'Die E-Mail-Adressen durch erfundene Werte ersetzen',
                                 'Den Stacktrace entfernen, weil er Dateipfade enthält',

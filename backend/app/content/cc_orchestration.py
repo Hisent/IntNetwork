@@ -701,8 +701,8 @@ ORCHESTRATION_MODULE = {'key': 'orchestration',
                         {'id': 'or7',
                          'type': 'multi',
                          'prompt': {'de': 'Für welche Aufgaben ist ein dynamischer Workflow eher '
-                                          'die falsche Wahl? Mehrere Antworten sind richtig.',
-                                    'en': 'For which tasks is a dynamic workflow probably the wrong choice? Select all that apply.'},
+                                          'die falsche Wahl?',
+                                    'en': 'For which tasks is a dynamic workflow probably the wrong choice?'},
                          'answer': [1, 3],
                          'options': {'de': ['Alle 200 Komponenten eines Verzeichnisses nach '
                                             'demselben Schema migrieren',

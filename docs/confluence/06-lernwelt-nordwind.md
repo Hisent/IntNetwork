@@ -69,11 +69,13 @@ Hinweise:
 | 203.0.113.12 | `mail.nordwind-logistik.de` (MX) | W:dns |
 | 203.0.113.25 | Negativbeispiel „Dateiserver ohne VPN direkt im Internet“ | W:vpn |
 | 203.0.113.80 | fremde Bank (`bank.example.com`) | W:wireshark |
-| 198.51.100.7 | fremder Webserver (NAT-Ziel) | nat, W:visuals |
+| 198.51.100.7 | fremder Webserver (NAT-Ziel; zugleich externes Beispielziel „irgendwo im Internet“ in `visual-route-match`, Default-Route 0.0.0.0/0) | nat, W:visuals |
 | 198.51.100.10 | fremder Ziel-Server (ping/tracert) | icmp, W:icmp |
 | 198.51.100.23 | Client von außen / Laptop im Hotel-WLAN | ports, W:vpn |
 | 198.51.100.0/24 | externes Admin-Netz (SSH-Freigabe in der ACL) | firewall |
 | 192.0.2.1 | Backbone-Hop des Providers | W:icmp |
+
+Externe Beispielziele („irgendwo im Internet“) stammen immer aus 198.51.100.0/24, nie aus dem Transfernetz 203.0.113.0/30 und nicht aus den übrigen 203.0.113.x-Adressen dieser Tabelle; `203.0.113.8` und `192.168.10.60` gibt es im Plan nicht (`python3 docs/lernwelt-check.py` meldet sie).
 
 Die Adressen .10–.12 liegen außerhalb des /30-Transfernetzes: Der Provider routet sie über 203.0.113.1 zu Nordwind (so auch im Kommentar des Routing-Widgets).
 

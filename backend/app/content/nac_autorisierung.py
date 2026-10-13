@@ -606,8 +606,8 @@ NAC_AUTORISIERUNG_MODULE = {
             'id': 'az7',
             'type': 'multi',
             'prompt': {
-                'de': 'Welche Aussagen zu VLAN-Zuweisung und dACL treffen zu? Mehrere Antworten sind richtig.',
-                'en': 'Which statements about VLAN assignment and dACL are true? Select all that apply.',
+                'de': 'Welche Aussagen zu VLAN-Zuweisung und dACL treffen zu?',
+                'en': 'Which statements about VLAN assignment and dACL are true?',
             },
             'options': {
                 'de': [

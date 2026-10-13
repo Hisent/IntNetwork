@@ -588,8 +588,8 @@ NETZ_ANGRIFFE_MODULE = {
                    "table there is no valid pair — and whatever is not backed by a binding gets dropped on untrusted "
                    "ports. DAI does not learn on its own. So introduce DHCP snooping first, then DAI."}},
         {"id": "na7", "type": "multi",
-         "prompt": {"de": "Welche Beobachtungen deuten auf ARP-Spoofing hin? Mehrere Antworten sind richtig.",
-                    "en": "Which observations point to ARP spoofing? Select all that apply."},
+         "prompt": {"de": "Welche Beobachtungen deuten auf ARP-Spoofing hin?",
+                    "en": "Which observations point to ARP spoofing?"},
          "options": {
              "de": ["Die Gateway-IP steht im ARP-Cache plötzlich mit einer anderen MAC",
                     "Im ARP-Cache haben das Gateway und ein Client dieselbe MAC-Adresse",

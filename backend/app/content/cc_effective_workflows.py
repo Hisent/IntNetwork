@@ -369,7 +369,7 @@ Better: “After session expiry, /profile returns 500 instead of 401. Reproducti
                 "id": "ew3",
                 "explanation": {'de': 'Reproduktionsschritte, erwartetes Verhalten und die konkrete Fehlermeldung machen aus einer Vermutung eine überprüfbare Beobachtung. „Geht nicht“ enthält keine davon; der Agent müsste raten, was kaputt ist und woran ein Fix zu erkennen wäre.', 'en': 'Reproduction steps, expected behavior and the concrete error message turn a guess into a verifiable observation. “It does not work” contains none of them; the agent would have to guess what is broken and how a fix would be recognized.'},
                 "type": "multi",
-                "prompt": {"de": "Welche Angaben helfen beim Debuggen? Mehrere Antworten sind richtig.", "en": "What information helps with debugging? Select all that apply."},
+                "prompt": {"de": "Welche Angaben helfen beim Debuggen?", "en": "What information helps with debugging?"},
                 "answer": [0, 1, 2],
                 "options": {
                     "de": ["Reproduktionsschritte", "Erwartetes Verhalten", "Fehlermeldung oder passender Log-Ausschnitt", "Nur die Aufforderung „geht nicht“"],
@@ -405,9 +405,9 @@ Better: “After session expiry, /profile returns 500 instead of 401. Reproducti
             {'id': 'ew5',
              'type': 'multi',
              'prompt': {'de': 'Der Agent legt im Plan-Modus einen Plan vor. Welche Beobachtungen sind ein '
-                              'Grund, den Plan vor der Freigabe korrigieren zu lassen? Mehrere Antworten sind richtig.',
+                              'Grund, den Plan vor der Freigabe korrigieren zu lassen?',
                         'en': 'The agent presents a plan in plan mode. Which observations are a reason to have '
-                              'the plan corrected before approving? Select all that apply.'},
+                              'the plan corrected before approving?'},
              'options': {'de': ['Der Plan ändert Dateien, die als Nicht-Ziel genannt waren',
                                 'Der Plan nennt keinen Schritt, mit dem der Erfolg nachgewiesen wird',
                                 'Der Plan nutzt ein bestehendes Muster aus dem Projekt',

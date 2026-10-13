@@ -122,7 +122,7 @@ export function PracticePage() {
                 {/* key: Eingaben der vorherigen Frage nicht mitnehmen */}
                 <div key={q.id} className={`rounded-xl border p-4 ${feedback ? (feedback.correct ? 'border-green-300 bg-green-50/50' : 'border-amber-300 bg-amber-50/50') : 'border-slate-200 bg-white'}`}>
                   <p id={`quiz-${q.id}`} className="mb-2 font-medium text-slate-800">{q.prompt}</p>
-                  <QuestionInput q={q} value={answer} locked={feedback !== null} order={order} onChange={setAnswer} />
+                  <QuestionInput q={q} lang={lang} value={answer} locked={feedback !== null} order={order} onChange={setAnswer} />
                   <div role="status" tabIndex={-1}>
                     {feedback && (
                       <>

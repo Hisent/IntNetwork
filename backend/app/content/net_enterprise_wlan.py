@@ -563,8 +563,8 @@ ENTERPRISE_WLAN_MODULE = {
                    "rejects the next login. There is no shared Wi-Fi passphrase in enterprise mode at "
                    "all — which is exactly why all other devices remain untouched."}},
         {"id": "ew8", "type": "multi",
-         "prompt": {"de": "Welche Aussagen zum schnellen Roaming stimmen? Mehrere Antworten sind richtig.",
-                    "en": "Which statements about fast roaming are true? Select all that apply."},
+         "prompt": {"de": "Welche Aussagen zum schnellen Roaming stimmen?",
+                    "en": "Which statements about fast roaming are true?"},
          "options": {
              "de": ["802.11r verkürzt die Schlüsselaushandlung beim Wechsel des Access Points",
                     "802.11k liefert dem Endgerät eine Liste geeigneter Nachbar-APs",

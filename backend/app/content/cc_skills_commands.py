@@ -693,9 +693,9 @@ SKILLS_COMMANDS_MODULE = {'key': 'skills-commands',
                                                'when moving to skills instead of puzzling over “ignored” changes.'}},
                         {'id': 'sk8',
                          'type': 'multi',
-                         'prompt': {'de': 'Welche Aussagen zum Laden von Skills stimmen? Mehrere Antworten sind richtig.',
+                         'prompt': {'de': 'Welche Aussagen zum Laden von Skills stimmen?',
                                     'en': 'Which statements about how skills load are true? '
-                                          'Select all that apply.'},
+                                          ''},
                          'answer': [0, 1],
                          'options': {'de': ['Standardmäßig steht nur die Beschreibung im Kontext, '
                                             'der volle Inhalt erst beim Aufruf',

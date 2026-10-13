@@ -3,6 +3,7 @@ import {
   checkCert,
   validateChain,
   DEMO_NOW,
+  demoNowLabel,
   HOSTNAME,
   LEAF_VALID,
   LEAF_EXPIRED,
@@ -160,5 +161,12 @@ describe('validateChain', () => {
     for (const c of [...CHAIN_POOL, LEAF_WRONG_NAME, LEAF_SELF_SIGNED]) {
       expect(c.fingerprint).toMatch(/^([0-9A-F]{2}:){31}[0-9A-F]{2}$/)
     }
+  })
+})
+
+describe('demoNowLabel', () => {
+  it('nennt den Stichtag zweisprachig', () => {
+    expect(demoNowLabel('de')).toBe('Stand der Prüfung: 15.01.2026')
+    expect(demoNowLabel('en')).toBe('Checked as of 2026-01-15')
   })
 })

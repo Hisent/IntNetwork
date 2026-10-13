@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { validateChain, CHAIN_POOL, TRUST_STORE, DEMO_NOW, type Cert, type ChainProblem } from '@/widgets/pki/certs'
+import { validateChain, CHAIN_POOL, TRUST_STORE, DEMO_NOW, demoNowLabel, type Cert, type ChainProblem } from '@/widgets/pki/certs'
 import { ChallengeBox } from '@/components/ChallengeBox'
 import type { Lang } from '@/lib/i18n'
 
@@ -123,7 +123,8 @@ export function CertChain({ lang }: { lang: Lang }) {
   return (
     <div className="rounded-2xl border bg-white p-5">
       <p className="text-sm font-semibold text-slate-700 mb-1">{s.title}</p>
-      <p className="text-xs text-slate-500 mb-4">{s.subtitle}</p>
+      <p className="text-xs text-slate-500 mb-1">{s.subtitle}</p>
+      <p className="text-xs text-slate-500 mb-4">{demoNowLabel(lang)}</p>
 
       <p className="mb-1 text-xs font-semibold text-slate-500" id="chain-pool-label">{s.poolLabel}</p>
       <div className="flex flex-wrap gap-2 mb-4" role="group" aria-labelledby="chain-pool-label">

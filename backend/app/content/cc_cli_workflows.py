@@ -329,8 +329,8 @@ CLI_WORKFLOWS_MODULE = {'key': 'cli-workflows',
                          'title_de': 'Was im Kontextfenster liegt',
                          'title_en': 'What Sits in the Context Window',
                          'caption_de': 'Von oben nach unten in der Reihenfolge, in der es '
-                                       'hineinkommt. Schichten anklicken.',
-                         'caption_en': 'Top to bottom in the order it arrives. Click the layers.',
+                                       'hineinkommt.',
+                         'caption_en': 'Top to bottom in the order it arrives.',
                          'layers': [{'name_de': 'Systemprompt',
                                      'name_en': 'System prompt',
                                      'content_de': 'Kerninstruktionen für Verhalten und '
@@ -470,8 +470,9 @@ CLI_WORKFLOWS_MODULE = {'key': 'cli-workflows',
                          'intro_en': 'Start a session in plan mode and look at what occupies the '
                                      'context.',
                          'unknown': 'Unknown command: {cmd}',
-                         'commands': [{'cmd': 'claude -p "Was macht dieses Projekt?"',
-                                       'aliases': ['claude -p "What does this project do?"'],
+                         'commands': [{'cmd': 'claude -p "summarize"',
+                                       'aliases': ['claude -p "Was macht dieses Projekt?"',
+                                                   'claude -p "What does this project do?"'],
                                        'desc_de': 'einmalig, nicht-interaktiv',
                                        'desc_en': 'one-off, non-interactive',
                                        'output': 'A small REST API for booking meeting rooms\n'
@@ -716,9 +717,9 @@ CLI_WORKFLOWS_MODULE = {'key': 'cli-workflows',
                         {'id': 'cli7',
                          'type': 'multi',
                          'prompt': {'de': 'Welche Aussagen zum Umschalten der Modi mit Shift+Tab '
-                                          'stimmen? Mehrere Antworten sind richtig.',
+                                          'stimmen?',
                                     'en': 'Which statements about switching modes with Shift+Tab '
-                                          'are correct? Select all that apply.'},
+                                          'are correct?'},
                          'answer': [0, 1, 2],
                          'options': {'de': ['Der Grundzyklus läuft `default` → `acceptEdits` → '
                                             '`plan`',

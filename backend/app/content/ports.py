@@ -305,8 +305,8 @@ PORTS_MODULE = {
                    "picks the source port at random from the ephemeral range — 32768–60999 by default on "
                    "Linux. The reverse combination (443 → 41872) only appears in the server's reply."}},
         {"id": "p6", "type": "multi",
-         "prompt": {"de": "Welche Zuordnungen von Mail-Ports stimmen? Mehrere Antworten sind richtig.",
-                    "en": "Which mail port assignments are correct? Select all that apply."},
+         "prompt": {"de": "Welche Zuordnungen von Mail-Ports stimmen?",
+                    "en": "Which mail port assignments are correct?"},
          "options": {
              "de": ["587 — Mail-Programm liefert Mail ein (Submission)",
                     "993 — IMAP über TLS",

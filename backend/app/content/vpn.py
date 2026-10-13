@@ -374,9 +374,9 @@ VPN_MODULE = {
                    "this traffic."}},
         {"id": "vp6", "type": "multi",
          "prompt": {"de": "Ein IPsec-Tunnel (IKEv2) kommt nicht zustande; eine Firewall zwischen den Gateways "
-                          "steht im Verdacht. Was muss sie für IPsec durchlassen? Mehrere Antworten sind richtig.",
+                          "steht im Verdacht. Was muss sie für IPsec durchlassen?",
                     "en": "An IPsec tunnel (IKEv2) does not come up; a firewall between the gateways is "
-                          "suspected. What must it let through for IPsec? Select all that apply."},
+                          "suspected. What must it let through for IPsec?"},
          "options": {
              "de": ["UDP 500 (IKE)", "UDP 4500 (NAT-Traversal)", "ESP (IP-Protokoll 50)",
                     "TCP 23 (Telnet)", "UDP 53 (DNS)"],

@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 import { ChallengeBox } from '@/components/ChallengeBox'
 import { shuffledIndices } from '@/components/Quiz'
 import type { Lang } from '@/lib/i18n'
-import { clampVlan } from '@/widgets/cli/switchCli'
+import { VlanInput } from '@/widgets/cli/VlanInput'
 
 interface Field { key: string; name: string; bytes: string; desc: string; color: string }
 
@@ -169,7 +169,7 @@ export function FrameBuilder({ lang }: { lang: Lang }) {
 
           {tagOn && (
             <label className="block mt-3 text-xs text-slate-600">{s.vlanId}
-              <input type="number" min={1} max={4094} value={vlanId} onChange={(e) => setVlanId(clampVlan(Number(e.target.value)))}
+              <VlanInput value={vlanId} onChange={setVlanId}
                 className="ml-2 w-20 border rounded px-1" />
             </label>
           )}

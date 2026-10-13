@@ -1,4 +1,5 @@
 import type { Question } from '@/types'
+import { t } from '@/lib/i18n'
 import { isCorrect } from '@/components/quizSolutions'
 
 export function TrainerQuiz({ questions }: { questions: Question[] }) {
@@ -9,6 +10,7 @@ export function TrainerQuiz({ questions }: { questions: Question[] }) {
         {questions.map((q) => (
           <div key={q.id}>
             <p className="font-medium text-slate-800 mb-2">{q.prompt}</p>
+            {q.type === 'multi' && <p className="mb-2 text-sm text-slate-500">{t('de', 'multiHint')}</p>}
             {q.type === 'number' ? (
               <p className="text-sm">
                 <span className="text-slate-500">Antwort: </span>

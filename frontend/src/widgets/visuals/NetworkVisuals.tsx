@@ -59,7 +59,7 @@ function Topology({ lang }: { lang: Lang }) {
     </div>
     {/* Farben als Tailwind-Klassen statt fester Hex-Werte: nur so greifen die
         Dark-Mode-Palette und der Kursfarben-Override aus index.css. */}
-    <svg viewBox="0 0 620 235" role="img" aria-label={`${service.toUpperCase()}: ${active.join(' → ')}`} className="mt-3 w-full">
+    <svg viewBox="0 0 620 235" role="img" aria-label={`${lang === 'de' ? 'Pfad' : 'Path'} ${service.toUpperCase()}: ${active.map((id) => nodes.find((n) => n[0] === id)?.[3] ?? id).join(' → ')}`} className="mt-3 w-full">
       {edges.map(([a,b]) => <line key={`${a}-${b}`} x1={pos[a].x} y1={pos[a].y} x2={pos[b].x} y2={pos[b].y} className={edgeActive(a,b) ? 'stroke-teal-600' : 'stroke-slate-300'} strokeWidth={edgeActive(a,b) ? 5 : 2} />)}
       {nodes.map(([id,x,y,label]) => <g key={id}><circle cx={x} cy={y} r="28" className={active.includes(id) ? 'fill-teal-100 stroke-teal-600' : 'fill-slate-50 stroke-slate-400'} strokeWidth="2"/><text x={x} y={y + 4} textAnchor="middle" fontSize="12" className="fill-slate-700">{label}</text></g>)}
     </svg>

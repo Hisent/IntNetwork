@@ -624,8 +624,8 @@ BETRIEB_MODULE = {
             "id": "bt7",
             "type": "multi",
             "prompt": {
-                "de": "Nach einem Hardwaredefekt wird das Grid-Backup von vor 14 Tagen eingespielt. Der Restore meldet Erfolg. Was musst du danach ausdrücklich prüfen oder nacharbeiten? Mehrere Antworten sind richtig.",
-                "en": "After a hardware failure the Grid backup from 14 days ago is restored. The restore reports success. What must you explicitly check or redo afterwards? Select all that apply.",
+                "de": "Nach einem Hardwaredefekt wird das Grid-Backup von vor 14 Tagen eingespielt. Der Restore meldet Erfolg. Was musst du danach ausdrücklich prüfen oder nacharbeiten?",
+                "en": "After a hardware failure the Grid backup from 14 days ago is restored. The restore reports success. What must you explicitly check or redo afterwards?",
             },
             "answer": [0, 2, 3],
             "options": {

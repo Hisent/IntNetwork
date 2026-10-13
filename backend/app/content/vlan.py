@@ -244,7 +244,7 @@ VLAN_MODULE = {
                    "which device is meant — not which VLAN it is in; a Layer 2 switch does not read IP "
                    "headers or port numbers for this at all."}},
         {"id": "v3", "type": "multi",
-         "prompt": {"de": "Was stimmt über VLANs? Mehrere Antworten sind richtig.", "en": "What's true about VLANs? Select all that apply."},
+         "prompt": {"de": "Was stimmt über VLANs?", "en": "What's true about VLANs?"},
          "options": {
              "de": ["Eigene Broadcast-Domäne", "Brauchen Router für VLAN-übergreifend",
                     "Access-Port taggt Frames", "Trennen Geräte logisch"],

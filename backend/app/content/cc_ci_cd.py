@@ -653,8 +653,8 @@ CI_CD_MODULE = {'key': 'ci-cd',
                         {'id': 'ci4',
                          'type': 'multi',
                          'prompt': {'de': 'Welche Kosten fallen bei der GitHub-Action an? '
-                                          'Mehrere Antworten sind richtig.',
-                                    'en': 'Which costs does the GitHub Action incur? Select all that apply.'},
+                                          '',
+                                    'en': 'Which costs does the GitHub Action incur?'},
                          'answer': [0, 1],
                          'options': {'de': ['GitHub-Actions-Minuten',
                                             'API-Tokens',
@@ -736,10 +736,10 @@ CI_CD_MODULE = {'key': 'ci-cd',
                          'type': 'multi',
                          'prompt': {'de': 'Jemand kommentiert in einem Issue, aber Claude reagiert '
                                           'nicht. Welche Ursachen kommen laut Doku in Frage? '
-                                          'Mehrere Antworten sind richtig.',
+                                          '',
                                     'en': 'Someone comments on an issue, but Claude does not '
                                           'respond. Which causes are possible according to the '
-                                          'docs? Select all that apply.'},
+                                          'docs?'},
                          'answer': [0, 2, 3],
                          'options': {'de': ['Die Claude GitHub App ist auf dem Repo nicht '
                                             'installiert',
