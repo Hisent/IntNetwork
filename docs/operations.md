@@ -286,6 +286,8 @@ Containers ohnehin leer.
 | `ANSIBLE-LAB DEAKTIVIERT … fehlt security_opt no-new-privileges?` | `no-new-privileges` wurde entfernt | wieder eintragen |
 | `Job-Slot uid … GESPERRT` | Prozesse eines Laufs ließen sich nicht beenden | Runner-Container neu starten |
 | `WARNUNG: fs.protected_hardlinks=0` (oder `protected_symlinks`) | Kernel-Schalter des Hosts ist aus | auf dem Host `sysctl -w fs.protected_hardlinks=1 fs.protected_symlinks=1` und dauerhaft eintragen; das Lab läuft auch ohne weiter |
+| `… nicht übergebbar (…) - entfernt` | Ein Lauf hat etwas hinterlassen, das der Worker nicht übernehmen kann (typisch: Datei mit setuid-Bit) | nichts zu tun, der Eintrag ist weg |
+| `Arbeitsverzeichnis … wird verworfen, der nächste Lauf beginnt leer` | Das Arbeitsverzeichnis ließ sich nach einem Lauf nicht zurücknehmen | nichts zu tun; der Übungsstand dieser Person ist weg. Gehäuft: Teilnehmerkreis ansehen |
 | `… Einträge entfernt (Spezialdatei oder mehrfach verlinkt)` | Ein Lauf hat FIFOs, Sockets oder Hardlinks im Arbeitsverzeichnis hinterlassen | nichts zu tun; tritt es gehäuft auf, den Teilnehmerkreis ansehen |
 
 In allen `DEAKTIVIERT`-Fällen läuft der Runner weiter: Ansible-Aufträge enden

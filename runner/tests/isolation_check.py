@@ -59,7 +59,8 @@ class Warteschlange:
         except OSError as err:
             pruefe(f"{name}: Auftrag ablegen", False, f"{err!r} (uid {os.getuid()}, gid {os.getgid()})")
             return {"rc": -1, "output": ""}
-        ende = time.monotonic() + self.frist
+        beginn = time.monotonic()
+        ende = beginn + self.frist
         while time.monotonic() < ende:
             try:
                 ergebnis = json.loads(ausgang.read_text(encoding="utf-8"))
@@ -69,10 +70,18 @@ class Warteschlange:
             ausgang.unlink(missing_ok=True)
             pruefe(f"{name}: Ergebnis traegt das Token des Auftrags", ergebnis.get("token") == token)
             pruefe(f"{name}: Auftragsdatei wurde beim Beanspruchen entfernt", not eingang.exists())
+            # Eine Zeile je Auftrag: die id steht auch im Runner-Log ("Lauf
+            # fehlgeschlagen: <id> ..."), die Zeiten zeigen, wo ein Lauf gewartet hat.
+            print(f"        {name}: Auftrag {auftrags_id} rc={ergebnis.get('rc')} "
+                  f"lauf={ergebnis.get('duration_ms')}ms gesamt={time.monotonic() - beginn:.1f}s", flush=True)
+            if str(ergebnis.get("output", "")).startswith("Interner Fehler im Lab-Runner"):
+                print(f"        -> WORKER-FEHLER: {ergebnis['output'][:300]}\n"
+                      f"           Runner-Log: 'Lauf fehlgeschlagen: {auftrags_id}', davor ggf. 'GESPERRT'", flush=True)
             return ergebnis
         eingang.unlink(missing_ok=True)
         pruefe(f"{name}: Ergebnis innerhalb von {self.frist:.0f}s", False,
-               "kein out/<id>.json - laeuft der Runner? (docker logs <runner-container>)")
+               f"kein out/{auftrags_id}.json - laeuft der Runner? (docker logs <runner-container>)")
+        self.frist = min(self.frist, 10)  # antwortet der Runner nicht, nicht jeden weiteren Auftrag aussitzen
         return {"rc": -1, "output": ""}
 
 

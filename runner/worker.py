@@ -151,6 +151,7 @@ SYSCTL_FS = Path("/proc/sys/fs")
 _slots = threading.Condition()
 _freie_uids: list[int] = []
 _belegte_arbeitsplaetze: set[Path] = set()
+_gesperrte_arbeitsplaetze: set[Path] = set()
 _isolation_aktiv = False
 _isolation_fehler = "Die Startprüfung der Trennung ist nicht gelaufen."
 
@@ -273,6 +274,20 @@ def _sonderbits_loeschen(name: str, dir_fd: int) -> None:
         os.close(fd)
 
 
+def _eintrag_uebergeben(name: str, dir_fd: int, uid: int) -> int:
+    """Ein Eintrag aus _uebergeben. Liefert 1, wenn er entfernt wurde, sonst 0."""
+    st = os.stat(name, dir_fd=dir_fd, follow_symlinks=False)
+    art = stat.S_IFMT(st.st_mode)
+    if art not in (stat.S_IFREG, stat.S_IFDIR, stat.S_IFLNK) or (
+            art == stat.S_IFREG and st.st_nlink > 1):
+        os.unlink(name, dir_fd=dir_fd)
+        return 1
+    if art != stat.S_IFLNK and st.st_mode & 0o7000:
+        _sonderbits_loeschen(name, dir_fd)
+    os.chown(name, uid, uid, dir_fd=dir_fd, follow_symlinks=False)
+    return 0
+
+
 def _uebergeben(pfad: Path, uid: int | None, oben: int | None = None) -> None:
     """Gibt `pfad` samt Inhalt der uid (Verzeichnis: 0700). Ohne Trennung nichts.
     `oben` weicht nur bei der Rücknahme ab: der Inhalt bleibt bei der Job-uid,
@@ -285,7 +300,9 @@ def _uebergeben(pfad: Path, uid: int | None, oben: int | None = None) -> None:
       - Dateien mit mehr als einem Hardlink: entfernt statt übergeben - der
         zweite Name kann auf eine fremde Datei desselben Dateisystems zeigen,
         ein chown gäbe sie dem Lauf (Hardlinks überleben einen Lauf also nicht);
-      - setuid/setgid/sticky: gelöscht.
+      - setuid/setgid/sticky: gelöscht;
+      - alles, was sich trotzdem nicht übergeben lässt: entfernt und geloggt.
+    Nur wenn auch das Entfernen scheitert, wirft die Funktion.
     """
     if uid is None:
         return
@@ -302,16 +319,20 @@ def _uebergeben(pfad: Path, uid: int | None, oben: int | None = None) -> None:
         os.fchown(wurzel, oben, oben)
         for _wurzel, ordner, dateien, fd in os.fwalk(".", dir_fd=wurzel):
             for name in ordner + dateien:
-                st = os.stat(name, dir_fd=fd, follow_symlinks=False)
-                art = stat.S_IFMT(st.st_mode)
-                if art not in (stat.S_IFREG, stat.S_IFDIR, stat.S_IFLNK) or (
-                        art == stat.S_IFREG and st.st_nlink > 1):
-                    os.unlink(name, dir_fd=fd)
-                    entfernt += 1
-                    continue
-                if art != stat.S_IFLNK and st.st_mode & 0o7000:
-                    _sonderbits_loeschen(name, fd)
-                os.chown(name, uid, uid, dir_fd=fd, follow_symlinks=False)
+                try:
+                    entfernt += _eintrag_uebergeben(name, fd, uid)
+                except OSError as fehler:
+                    # Was sich nicht übergeben lässt, kommt weg - ein Lauf darf den
+                    # Worker mit keiner Hinterlassenschaft am Aufräumen hindern.
+                    # Bekannter Fall (CI-Lauf vom 13.10.2026, EPERM): root OHNE
+                    # CAP_FOWNER kann eine setuid-Datei nicht per chown übernehmen,
+                    # weil der Kernel dabei die Bits löscht und dafür
+                    # Eigentümerrechte verlangt.
+                    try:
+                        os.unlink(name, dir_fd=fd)
+                    except OSError:
+                        raise OSError(fehler.errno, f"{name!r}: {fehler.strerror}") from None
+                    log(f"{pfad.name}: {name!r} nicht übergebbar ({fehler.strerror}) - entfernt.")
     finally:
         os.close(wurzel)
     if entfernt:
@@ -423,26 +444,48 @@ def _slot_aufraeumen(arbeitsplatz: Path, laufverzeichnis: Path | None, uid: int)
 
     Zustand in Ruhe: das Verzeichnis selbst gehört root (0700), sein Inhalt
     weiter der letzten Job-uid - ohne Sonderbits, ohne Spezialdateien. Root
-    gehört darin nichts; der nächste Lauf bekommt alles an seine uid."""
+    gehört darin nichts; der nächste Lauf bekommt alles an seine uid.
+
+    False (Slot bleibt gesperrt) gibt es nur noch, wenn sich Prozesse nicht
+    beenden lassen oder ein Arbeitsverzeichnis weder zurückzunehmen noch zu
+    löschen ist. Was ein Lauf im Arbeitsverzeichnis hinterlässt, darf den Slot
+    nicht kosten: acht präparierte Läufe legten sonst das Lab für alle still.
+    """
     try:
         if not _job_prozesse_beenden(uid):
             raise OSError("Prozesse der uid lassen sich nicht beenden")
-        _uebergeben(arbeitsplatz, uid, oben=0)
-        # Erst jetzt: solange ein Prozess der uid lebt, könnte er das ihm
-        # gehörende Laufverzeichnis im Sticky-/tmp gegen einen Symlink tauschen.
-        if laufverzeichnis is not None:
-            _loeschen(laufverzeichnis)
-        for ort in GEMEINSAME_SCHREIBORTE:
-            if not ort.is_dir():
-                continue
-            for eintrag in list(os.scandir(ort)):
-                if eintrag.stat(follow_symlinks=False).st_uid == uid:
-                    _loeschen(Path(eintrag.path))
-        return True
     except OSError as fehler:
         log(f"Job-Slot uid {uid} GESPERRT, Aufräumen fehlgeschlagen: {fehler}. Der Slot und "
             f"{arbeitsplatz.name} bleiben bis zum Neustart des Runners außer Betrieb.")
         return False
+    sauber = True
+    try:
+        _uebergeben(arbeitsplatz, uid, oben=0)
+    except OSError as fehler:
+        log(f"Arbeitsverzeichnis {arbeitsplatz.name} lässt sich nicht zurücknehmen ({fehler}) - "
+            f"es wird verworfen, der nächste Lauf beginnt leer.")
+        _loeschen(arbeitsplatz)
+        if os.path.lexists(arbeitsplatz):
+            log(f"Job-Slot uid {uid} GESPERRT: {arbeitsplatz.name} lässt sich auch nicht löschen. "
+                f"Slot und Arbeitsverzeichnis bleiben bis zum Neustart außer Betrieb.")
+            sauber = False
+    # Erst jetzt: solange ein Prozess der uid lebt, könnte er das ihm gehörende
+    # Laufverzeichnis im Sticky-/tmp gegen einen Symlink tauschen.
+    if laufverzeichnis is not None:
+        _loeschen(laufverzeichnis)
+    for ort in GEMEINSAME_SCHREIBORTE:
+        try:
+            eintraege = list(os.scandir(ort))
+        except OSError:
+            continue  # gibt es hier nicht
+        for eintrag in eintraege:
+            try:
+                eigen = eintrag.stat(follow_symlinks=False).st_uid == uid
+            except OSError:
+                continue  # ein anderer Lauf hat ihn gerade entfernt
+            if eigen:
+                _loeschen(Path(eintrag.path))
+    return sauber
 
 
 @contextmanager
@@ -464,9 +507,14 @@ def _job(kennung: str):
             shutil.rmtree(laufverzeichnis, ignore_errors=True)
         return
     with _slots:
-        if not _slots.wait_for(
-                lambda: _freie_uids and arbeitsplatz not in _belegte_arbeitsplaetze,
-                timeout=TIMEOUT_SECONDS + 10):
+        frei = _slots.wait_for(
+            lambda: arbeitsplatz in _gesperrte_arbeitsplaetze
+            or (_freie_uids and arbeitsplatz not in _belegte_arbeitsplaetze),
+            timeout=TIMEOUT_SECONDS + 10)
+        if arbeitsplatz in _gesperrte_arbeitsplaetze:
+            # Sofort, nicht erst nach der Wartezeit: es wird nicht mehr frei.
+            raise RuntimeError("Das Arbeitsverzeichnis ist bis zum Neustart des Runners gesperrt.")
+        if not frei:
             raise RuntimeError("Kein freier Job-Slot (alle belegt oder gesperrt).")
         # Vorn nehmen, hinten zurückgeben: die uids rotieren, ein Arbeitsverzeichnis
         # hängt nie an einer bestimmten uid.
@@ -476,16 +524,19 @@ def _job(kennung: str):
     try:
         # Im try: scheitert schon das Anlegen (tmpfs voll), muss der Slot zurück.
         laufverzeichnis = Path(tempfile.mkdtemp(prefix="lauf-"))
+        arbeitsplatz.mkdir(exist_ok=True)  # falls der letzte Lauf es verwerfen musste
         _uebergeben(arbeitsplatz, uid)
         _uebergeben(laufverzeichnis, uid)
         yield arbeitsplatz, laufverzeichnis, uid
     finally:
-        # Schlägt das Aufräumen fehl, bleiben uid UND Arbeitsverzeichnis gesperrt.
-        if _slot_aufraeumen(arbeitsplatz, laufverzeichnis, uid):
-            with _slots:
+        frei = _slot_aufraeumen(arbeitsplatz, laufverzeichnis, uid)
+        with _slots:
+            if frei:
                 _freie_uids.append(uid)
                 _belegte_arbeitsplaetze.discard(arbeitsplatz)
-                _slots.notify_all()
+            else:
+                _gesperrte_arbeitsplaetze.add(arbeitsplatz)  # uid und Verzeichnis bleiben weg
+            _slots.notify_all()
 
 
 def _workspace(kennung: str) -> Path:
@@ -1249,7 +1300,7 @@ def _bearbeiten(auftrags_id: str, auftrag: dict) -> None:
     try:
         ergebnis = _ausfuehren(auftrag)
     except Exception as fehler:  # noqa: BLE001 - der Arbeiter darf nie sterben
-        log("Lauf fehlgeschlagen:", fehler)
+        log("Lauf fehlgeschlagen:", auftrags_id, fehler)
         ergebnis = {"rc": 1, "output": f"Interner Fehler im Lab-Runner: {fehler}",
                     "truncated": False, "duration_ms": 0, "timed_out": False}
     if token is not None:

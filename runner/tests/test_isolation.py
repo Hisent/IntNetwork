@@ -10,8 +10,10 @@ from __future__ import annotations
 
 import os
 import signal
+import stat
 import sys
 import threading
+import time
 from pathlib import Path
 
 import pytest
@@ -34,6 +36,7 @@ def aktiv(monkeypatch, tmp_path):
     monkeypatch.setattr(worker, "_isolation_aktiv", True)
     monkeypatch.setattr(worker, "_freie_uids", [10002, 10003])
     monkeypatch.setattr(worker, "_belegte_arbeitsplaetze", set())
+    monkeypatch.setattr(worker, "_gesperrte_arbeitsplaetze", set())
     monkeypatch.setattr(worker, "WORKSPACE_ROOT", tmp_path / "ws")
     monkeypatch.setattr(worker, "GEMEINSAME_SCHREIBORTE", ())
     monkeypatch.setattr(worker, "_prozesse_der_uid", lambda uid: [])
@@ -130,6 +133,79 @@ def test_slot_bleibt_gesperrt_wenn_prozesse_ueberleben(aktiv, monkeypatch):
     assert aktiv == []  # kein chown mehr: das Verzeichnis bleibt, wie es ist
     assert laufverzeichnis.exists()  # nicht anfassen, solange Prozesse der uid leben
     laufverzeichnis.rmdir()
+    # Der naechste Auftrag fuer dieses Verzeichnis scheitert SOFORT, nicht erst
+    # nach TIMEOUT+10 s (im CI-Lauf vom 13.10.2026: fuenfmal 40 s).
+    beginn = time.monotonic()
+    with pytest.raises(RuntimeError, match="gesperrt"), worker._job("anna"):
+        pytest.fail("Lauf im gesperrten Arbeitsverzeichnis gestartet")
+    assert time.monotonic() - beginn < 2
+    with worker._job("bernd") as (_, _, andere_uid):  # die uebrigen Slots arbeiten weiter
+        assert andere_uid != uid
+
+
+def test_setuid_datei_kostet_weder_slot_noch_arbeitsverzeichnis(aktiv, monkeypatch, capsys):
+    """CI-Lauf vom 13.10.2026: nach einem Lauf, der eine setuid-Datei hinterliess,
+    scheiterte das Aufraeumen mit EPERM, der Slot war weg - ein Denial of
+    Service fuer alle, ausloesbar durch jeden Teilnehmer. Nachgestellt: der
+    Kernel verweigert root (ohne CAP_FOWNER) das chown auf genau diese Datei."""
+    def fchown(fd, uid, gid):
+        if os.fstat(fd).st_mode & 0o6000 and not stat.S_ISDIR(os.fstat(fd).st_mode):
+            raise PermissionError(1, "Operation not permitted")
+        aktiv.append((os.fstat(fd).st_ino, uid, gid))
+
+    monkeypatch.setattr(worker.os, "fchown", fchown)
+    with worker._job("anna") as (arbeitsplatz, _, uid):
+        (arbeitsplatz / "suid-datei").write_text("#!/bin/sh\n")
+        os.chmod(arbeitsplatz / "suid-datei", 0o6755)
+        (arbeitsplatz / "klebrig").mkdir()
+        os.chmod(arbeitsplatz / "klebrig", 0o3777)
+        (arbeitsplatz / "stand.txt").write_text("bleibt")
+
+    assert sorted(p.name for p in arbeitsplatz.iterdir()) == ["klebrig", "stand.txt"]
+    assert (arbeitsplatz / "klebrig").stat().st_mode & 0o7777 == 0o777
+    assert uid in worker._freie_uids and worker._belegte_arbeitsplaetze == set()
+    assert worker._gesperrte_arbeitsplaetze == set()
+    log = capsys.readouterr().err
+    assert "'suid-datei' nicht übergebbar (Operation not permitted) - entfernt" in log
+    assert "GESPERRT" not in log
+    with worker._job("anna") as (wieder, _, _):  # derselbe Arbeitsplatz, naechster Lauf
+        assert (wieder / "stand.txt").read_text() == "bleibt"
+
+
+def test_nicht_zuruecknehmbares_arbeitsverzeichnis_wird_verworfen_statt_den_slot_zu_sperren(
+        aktiv, monkeypatch, capsys):
+    def chown(pfad, uid, gid, **kw):
+        if str(pfad) == "boese":
+            raise PermissionError(1, "Operation not permitted")
+
+    monkeypatch.setattr(worker.os, "chown", chown)
+    with worker._job("anna") as (arbeitsplatz, _, uid):
+        (arbeitsplatz / "boese").mkdir()  # ein Verzeichnis: laesst sich auch nicht per unlink entfernen
+        (arbeitsplatz / "boese" / "drin").write_text("x")
+
+    assert not arbeitsplatz.exists()
+    assert uid in worker._freie_uids and worker._gesperrte_arbeitsplaetze == set()
+    log = capsys.readouterr().err
+    assert "lässt sich nicht zurücknehmen" in log and "'boese'" in log and "GESPERRT" not in log
+    with worker._job("anna") as (neu, _, _):
+        assert list(neu.iterdir()) == []  # beginnt leer
+
+
+def test_aufraeumen_scheitert_nicht_an_eintraegen_die_ein_anderer_lauf_gerade_loescht(
+        aktiv, monkeypatch, tmp_path):
+    class Verschwunden:
+        path = str(tmp_path / "weg")
+
+        def stat(self, follow_symlinks=True):
+            raise FileNotFoundError(2, "No such file or directory")
+
+    monkeypatch.setattr(worker, "GEMEINSAME_SCHREIBORTE", (tmp_path,))
+    echtes_scandir = os.scandir  # os.fwalk braucht das echte
+    monkeypatch.setattr(worker.os, "scandir",
+                        lambda ort: [Verschwunden()] if ort == tmp_path else echtes_scandir(ort))
+    platz = tmp_path / "platz"
+    platz.mkdir()
+    assert worker._slot_aufraeumen(platz, None, 10002) is True
 
 
 def test_aufraeumen_entfernt_nur_hinterlassenschaften_der_eigenen_uid(aktiv, monkeypatch, tmp_path):

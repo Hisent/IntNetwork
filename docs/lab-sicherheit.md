@@ -309,6 +309,17 @@ Worker beenden und dessen Speicher lesen.
   seine uid. Zu setuid-Bits im Besonderen: Linux löscht sie bei jedem `chown`
   auf eine Datei, auch für root (seit 2.2.13); der Worker verlässt sich nicht
   darauf und löscht sie selbst, und `/tmp` ist `nosuid` eingehängt.
+- **Nichts, was ein Lauf hinterlässt, darf das Aufräumen blockieren.** Lässt
+  sich ein Eintrag nicht übergeben, wird er entfernt und geloggt
+  (`… nicht übergebbar (…) - entfernt`). Der bekannte Fall: Eine Datei mit
+  setuid-/setgid-Bit kann root ohne `CAP_FOWNER` nicht per `chown` übernehmen
+  (`EPERM`) — sie wird deshalb entfernt statt entschärft. Lässt sich ein
+  Arbeitsverzeichnis gar nicht zurücknehmen, wird es verworfen (`… wird
+  verworfen, der nächste Lauf beginnt leer`); die Job-uid bleibt nutzbar.
+  Gesperrt wird ein Slot nur noch, wenn Prozesse nicht zu beenden sind oder
+  ein Verzeichnis sich weder zurücknehmen noch löschen lässt. Hintergrund: Im
+  ersten Container-Test (13.10.2026) kostete ein Lauf mit einer setuid-Datei
+  den Slot dauerhaft — acht solche Läufe hätten das Lab für alle stillgelegt.
 - **Zeitgrenze und Aufräumen.** Bei Zeitüberschreitung beendet der Worker
   die Prozessgruppe (`CAP_KILL`). Nach **jedem** Lauf beendet er zusätzlich
   alle Prozesse der Job-uid (`_job_prozesse_beenden`: erst `SIGSTOP`, dann
