@@ -18,6 +18,7 @@ DECLARATIVE_TYPES = {"diagram", "terminal", "match", "cloze", "scenario"}
 SEQ_STYLES = {"request", "reply", "broadcast", "multicast", "encrypted"}
 FLOW_SHAPES = {"host", "switch", "router", "firewall", "server", "cloud", "database", "user",
                "process", "decision"}
+UNEXPECTED_TYPE = "ungültiger Datentyp im Payload (Feld nicht eingrenzbar)"
 ID_RE = re.compile(r"^[a-z0-9][a-z0-9_-]*$")
 # [[id]] statt {{id}}: Jinja-/Ansible-Beispiele enthalten selbst {{ var }}
 GAP_RE = re.compile(r"\[\[([a-z0-9][a-z0-9_-]*)\]\]")
@@ -118,8 +119,20 @@ def _id(d: dict, where: str, seen: set[str], name: str = "id") -> str:
 
 
 def _choice(d: dict, name: str, where: str, allowed: set[str]) -> None:
-    if name in d and d[name] not in allowed:
+    if name in d and (not isinstance(d[name], str) or d[name] not in allowed):
         _fail(_join(where, name), f"'{d[name]}' ist nicht erlaubt (erlaubt: {', '.join(sorted(allowed))})")
+
+
+def _known(ref, ids: set[str]) -> bool:
+    """Verweis auf eine bekannte id -- eine Liste/ein Objekt an der Stelle ist nicht hashbar."""
+    return isinstance(ref, str) and ref in ids
+
+
+def _optional_list(d: dict, name: str, where: str) -> list:
+    value = d.get(name, [])
+    if not isinstance(value, list):
+        _fail(_join(where, name), "muss eine Liste sein")
+    return value
 
 
 def _flag(d: dict, name: str, where: str) -> None:
@@ -184,13 +197,13 @@ def _diagram(pl: dict) -> None:
                 _fail(w, f"Rasterzelle row={cell[0]}/col={cell[1]} ist doppelt belegt")
             cells.add(cell)
         nodes = set(ids)
-        for i, e in enumerate(pl.get("edges") or []):
+        for i, e in enumerate(_optional_list(pl, "edges", "")):
             w = f"edges[{i}]"
             _obj(e, w, {"id", "from", "to", "label", "detail", "style", "arrow"})
             if "id" in e:
                 _id(e, w, ids)
             for end in ("from", "to"):
-                if e.get(end) not in nodes:
+                if not _known(e.get(end), nodes):
                     _fail(f"{w}.{end}", f"unbekannter Knoten '{e.get(end)}'")
             if e["from"] == e["to"]:
                 _fail(w, "Kante von einem Knoten zu sich selbst wird nicht gezeichnet")
@@ -198,8 +211,6 @@ def _diagram(pl: dict) -> None:
             _text(e, "detail", w, required=False)
             _choice(e, "style", w, {"solid", "dashed"})
             _choice(e, "arrow", w, {"end", "both", "none"})
-        if not isinstance(pl.get("edges", []), list):
-            _fail("edges", "muss eine Liste sein")
         if "steps" in pl:
             for i, s in enumerate(_items(pl, "steps", "", 2, 12)):
                 w = f"steps[{i}]"
@@ -209,7 +220,7 @@ def _diagram(pl: dict) -> None:
                 if not isinstance(hl, list) or not hl:
                     _fail(f"{w}.highlight", "braucht mindestens eine Knoten-/Kanten-id")
                 for ref in hl:
-                    if ref not in ids:
+                    if not _known(ref, ids):
                         _fail(f"{w}.highlight", f"unbekannte Knoten-/Kanten-id '{ref}'")
     elif kind == "compare":
         _obj(pl, "", {"kind", "title", "caption", "columns", "rows"})
@@ -275,9 +286,7 @@ def _terminal(pl: dict) -> None:
     for i, c in enumerate(_items(pl, "commands", "", 1, 30)):
         w = f"commands[{i}]"
         _obj(c, w, {"cmd", "aliases", "output", "desc", "prompt", "chip", "label", "sets", "clears", "variants"})
-        names = [c.get("cmd"), *(c.get("aliases") or [])]
-        if not isinstance(c.get("aliases", []), list):
-            _fail(f"{w}.aliases", "muss eine Liste sein")
+        names = [c.get("cmd"), *_optional_list(c, "aliases", w)]
         for name in names:
             if not isinstance(name, str) or not name.strip():
                 _fail(f"{w}.cmd", "cmd und aliases müssen nichtleerer Text sein")
@@ -306,7 +315,8 @@ def _terminal(pl: dict) -> None:
             _fail(f"{w}.prompt", "muss nichtleerer Text sein")
         _flag(c, "chip", w)
         _text(c, "label", w, required=False, max_len=32)
-    for i, t in enumerate(pl.get("tasks") or []):
+    tasks = _optional_list(pl, "tasks", "") if pl.get("tasks") is not None else []
+    for i, t in enumerate(tasks):
         w = f"tasks[{i}]"
         _obj(t, w, {"text", "command", "answers", "explanation"})
         _text(t, "text", w)
@@ -317,7 +327,7 @@ def _terminal(pl: dict) -> None:
             _fail(f"{w}.command", f"'{t['command']}' ist kein cmd/alias aus commands")
         if "answers" in t:
             _text_list(t, "answers", w, 1, 10)
-    if len(pl.get("tasks") or []) > 6:
+    if len(tasks) > 6:
         _fail("tasks", "höchstens 6 Aufgaben")
 
 
@@ -394,7 +404,7 @@ def _scenario(pl: dict) -> None:
     for i, n in enumerate(nodes):
         _obj(n, f"nodes[{i}]", {"id", "text", "options", "outcome"})
         _id(n, f"nodes[{i}]", ids)
-    if pl.get("start") not in ids:
+    if not _known(pl.get("start"), ids):
         _fail("start", f"unbekannter Knoten '{pl.get('start')}'")
     targets: dict[str, list[str]] = {}
     for i, n in enumerate(nodes):
@@ -410,7 +420,7 @@ def _scenario(pl: dict) -> None:
             ow = f"{w}.options[{j}]"
             _obj(o, ow, {"label", "to"})
             _text(o, "label", ow, max_len=180)
-            if o.get("to") not in ids:
+            if not _known(o.get("to"), ids):
                 _fail(f"{ow}.to", f"unbekannter Zielknoten '{o.get('to')}'")
             targets[n["id"]].append(o["to"])
     reachable = {pl["start"]}
@@ -450,6 +460,10 @@ def validate_block(block_type: str, payload) -> None:
         _VALIDATORS[block_type](payload)
     except ValueError as e:
         errors.append(str(e))
+    except (TypeError, KeyError, AttributeError, IndexError):
+        # Netz unter den Einzelprüfungen: ein falscher JSON-Typ an unerwarteter
+        # Stelle ist ein Eingabefehler (422), kein Serverfehler.
+        errors.append(UNEXPECTED_TYPE)
     finally:
         _too_long.reset(token)
     if errors:

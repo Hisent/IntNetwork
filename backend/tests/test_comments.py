@@ -121,3 +121,18 @@ def test_comments_gated_by_feature():
         assert c.post("/api/modules/switching/comments",
                       json={"block_index": 0, "body": "x"}, headers=p).status_code == 403
         c.put("/api/trainer/features", json={"comments": True}, headers=h)
+
+
+def test_timestamps_carry_utc_offset():
+    """Zeitstempel ohne Zonenangabe liest der Browser als Ortszeit — ein Kommentar
+    von 13:50 stand als 11:50 da. Die API liefert ISO 8601 mit Offset."""
+    from datetime import datetime, timedelta, timezone
+    with TestClient(app) as c:
+        h = _trainer(c)
+        p = _join(c, _course(c, h, "KursZeit"), "Z1")
+        c.post("/api/modules/switching/comments", json={"block_index": 0, "body": "Wann?"}, headers=p)
+        stamps = [c.get("/api/modules/switching/comments", headers=p).json()[0]["created_at"],
+                  c.get("/api/trainer/audit", headers=h).json()[0]["created_at"]]
+        for stamp in stamps:
+            assert stamp.endswith("+00:00"), stamp
+            assert abs(datetime.now(timezone.utc) - datetime.fromisoformat(stamp)) < timedelta(minutes=5)

@@ -312,12 +312,18 @@ ERLAUBTE_SUBBEFEHLE = {"git": GIT_ERLAUBTE_SUBBEFEHLE, "openssl": OPENSSL_ERLAUB
 GIT_VERBOTENE_FLAGS = {
     "-c", "--config-env", "--exec", "--exec-path", "-C", "--upload-pack",
     "--receive-pack", "-u", "--git-dir", "--work-tree",
+    "--template", "--separate-git-dir",
 }
 # "-c name=wert"/"--config-env name=ENV" injizieren Konfiguration, die bei einem
 # SPÄTEREN, harmlos aussehenden Unterkommando Code ausführt (core.hooksPath,
 # core.sshCommand, core.fsmonitor, core.editor/pager, diff.external, alias.*);
 # "--exec-path" setzt das git-Programmverzeichnis, "-C" wechselt vor dem Lauf
-# das Verzeichnis (Ausbruch). Keine Lab-Vorlage braucht eines davon.
+# das Verzeichnis (Ausbruch). "init --template=<dir>" kopiert <dir>/hooks/* ins
+# neue Repository (Code beim nächsten commit), "--separate-git-dir"/"--git-dir"/
+# "--work-tree" verlegen Repository bzw. Arbeitsbaum - alle drei passierten den
+# Pfadfilter mit einem RELATIVEN Pfad. Keine Lab-Vorlage braucht eines davon.
+# git nimmt lange Optionen auch eindeutig ABGEKÜRZT an ("--templ=x"): geprüft
+# wird deshalb jeder Präfix einer verbotenen langen Option.
 # Argument-Substrings, die einen shell-ausführenden bzw. entfernten Transport
 # adressieren - unabhängig davon, in welchem Token sie stehen (shlex kann
 # "ext::sh -c evil" durch Anführungszeichen in EIN Token packen).
@@ -359,8 +365,10 @@ def _werkzeug_argv_pruefen(tokens: list[str], art: str) -> str | None:
 
     verbotene_muster = VERBOTENE_MUSTER.get(art, ())
     for token in tokens:
+        name = token.split("=", 1)[0]
         for flag in verbotene_flags:
-            if token == flag or (flag.startswith("--") and token.startswith(flag + "=")):
+            if token == flag or (flag.startswith("--") and len(name) > 2 and name.startswith("--")
+                                 and (art == "git" and flag.startswith(name) or name == flag)):
                 return (f"Unzulässiges Flag {token!r} für {art} abgelehnt "
                          f"(Allowlist statt Blockliste, siehe docs/lab-sicherheit.md).")
         for muster in verbotene_muster:
@@ -410,10 +418,13 @@ def _werkzeug_argv_pruefen(tokens: list[str], art: str) -> str | None:
 # ihn anders liest als wir (z.B. "dgst -out -subj /queue/x": dort ist "-subj"
 # der Wert von -out und "/queue/x" eine Eingabedatei): bei -subj muss jedes
 # "/"-Segment "typ=wert" sein, -addext muss mit "name=" beginnen (also relativ)
-# und darf kein ".." enthalten.
+# und darf kein ".." und keine Datei-/Abschnittsreferenz enthalten.
 OPENSSL_FREITEXT_MUSTER = {
     "-subj": re.compile(r"(/[A-Za-z0-9.]+=[^/]*)+"),
-    "-addext": re.compile(r"[A-Za-z0-9.]+ ?=(?!.*\.\.).*"),
+    # Defensiv (nicht ausnutzbar, -config ist gesperrt): kein "file:"-URI, kein
+    # "@abschnitt"-Verweis in eine Konfigurationsdatei (am Wertanfang oder nach
+    # , : ; Leerzeichen - "email:a@b.de" bleibt erlaubt), kein "dirName:abschnitt".
+    "-addext": re.compile(r"[A-Za-z0-9.]+ ?=(?!.*\.\.)(?!(?:.*[,:;\s])?@)(?!.*(?i:file:|dirname:)).*"),
 }
 # Wert ist eine Passwort-QUELLE: "pass:wert" (inline, erlaubt), "file:pfad"/
 # "env:name"/"fd:n" (Datei- bzw. Umgebungszugriff, verboten). Keine der

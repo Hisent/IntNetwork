@@ -29,6 +29,11 @@ def upgrade() -> None:
 
 
 def downgrade() -> None:
+    # Mit den Spalten geht Inhalt verloren (goals_en); die gespeicherten
+    # Sync-Hashes (app/content/sync.py, HASH_KEY) passen dann zu keinem Modul
+    # mehr und jedes gälte dauerhaft als "vom Trainer geändert". Ohne Hash
+    # greift wieder die Bootstrap-Regel des Syncs.
+    op.execute("DELETE FROM setting WHERE key LIKE 'content-sync:%'")
     if _has_column():
         with op.batch_alter_table("content_module", schema=None) as batch_op:
             batch_op.drop_column("goals_en")

@@ -9,6 +9,7 @@ from app.services.comment_validation import require_comment_target, require_visi
 from app.services.deps import get_participant
 from app.services.features import require_comments_enabled as _guard
 from app.services.ratelimit import rate_limit
+from app.utils import iso_utc
 
 router = APIRouter(tags=["comments"])
 
@@ -16,7 +17,7 @@ router = APIRouter(tags=["comments"])
 def _serialize(c: Comment, own: bool) -> dict:
     return {"id": c.id, "block_index": c.block_index, "body": c.body,
             "author_kind": c.author_kind, "author_name": c.author_name,
-            "created_at": c.created_at.isoformat(), "own": own}
+            "created_at": iso_utc(c.created_at), "own": own}
 
 
 class CommentReq(BaseModel):

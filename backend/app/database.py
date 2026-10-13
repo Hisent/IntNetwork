@@ -27,9 +27,13 @@ else:
     # nächsten Deploy (genau so hing v1.24 beim Start). Postgres beendet solche
     # Sessions jetzt nach 60s selbst. pool_pre_ping fängt Connections ab, die ein
     # DB-Neustart unter uns geschlossen hat.
+    # timezone=UTC: die DateTime-Spalten sind zeitzonenlos und sollen UTC enthalten
+    # (utc_now). Postgres rechnet einen Wert MIT Zone beim Schreiben in die
+    # Sitzungs-Zeitzone um — stünde der Server z.B. auf Europe/Berlin, landete
+    # Ortszeit in der Spalte und die API (iso_utc) gäbe sie als UTC aus.
     engine = create_engine(
         settings.database_url,
-        connect_args={"options": "-c idle_in_transaction_session_timeout=60000"},
+        connect_args={"options": "-c idle_in_transaction_session_timeout=60000 -c timezone=UTC"},
         pool_pre_ping=True,
     )
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)

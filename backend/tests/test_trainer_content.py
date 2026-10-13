@@ -3,6 +3,7 @@ from concurrent.futures import ThreadPoolExecutor
 from fastapi.testclient import TestClient
 from app.main import app
 from app.content.registry import MODULES
+from tests.conftest import put_module
 
 
 def _trainer(c):
@@ -27,7 +28,7 @@ def test_content_endpoints_require_trainer():
         assert c.get("/api/trainer/content/modules").status_code in (401, 403)
         assert c.get("/api/trainer/content/modules/vlan").status_code in (401, 403)
         assert c.post("/api/trainer/content/modules", json={"key": "x", "title_de": "X"}).status_code in (401, 403)
-        assert c.put("/api/trainer/content/modules/vlan", json=_minimal_module()).status_code in (401, 403)
+        assert put_module(c, "/api/trainer/content/modules/vlan", json=_minimal_module()).status_code in (401, 403)
 
 
 def test_create_get_update_round_trip():
@@ -42,7 +43,7 @@ def test_create_get_update_round_trip():
         assert got.json()["blocks"] == []
         assert got.json()["quiz"] == []
 
-        updated = c.put("/api/trainer/content/modules/testmod", json=_minimal_module(order=99), headers=h)
+        updated = put_module(c, "/api/trainer/content/modules/testmod", json=_minimal_module(order=99), headers=h)
         assert updated.status_code == 200
 
         got2 = c.get("/api/trainer/content/modules/testmod", headers=h).json()
@@ -65,7 +66,7 @@ def test_create_rejects_bad_key_and_duplicate():
 def test_update_rejects_unknown_module():
     with TestClient(app) as c:
         h = _trainer(c)
-        assert c.put("/api/trainer/content/modules/does-not-exist", json=_minimal_module(), headers=h).status_code == 404
+        assert put_module(c, "/api/trainer/content/modules/does-not-exist", json=_minimal_module(), headers=h).status_code == 404
 
 
 def test_update_rejects_invalid_widget_id():
@@ -74,7 +75,7 @@ def test_update_rejects_invalid_widget_id():
         c.post("/api/trainer/content/modules", json={"key": "widgetmod", "title_de": "X"}, headers=h)
         body = _minimal_module()
         body["blocks"] = [{"type": "widget", "widget_id": "nope-demo"}]
-        assert c.put("/api/trainer/content/modules/widgetmod", json=body, headers=h).status_code == 422
+        assert put_module(c, "/api/trainer/content/modules/widgetmod", json=body, headers=h).status_code == 422
 
 
 def test_update_rejects_self_and_unknown_prerequisite():
@@ -83,9 +84,9 @@ def test_update_rejects_self_and_unknown_prerequisite():
         c.post("/api/trainer/content/modules", json={"key": "premod", "title_de": "X"}, headers=h)
         body = _minimal_module()
         body["prerequisites"] = ["premod"]
-        assert c.put("/api/trainer/content/modules/premod", json=body, headers=h).status_code == 422
+        assert put_module(c, "/api/trainer/content/modules/premod", json=body, headers=h).status_code == 422
         body["prerequisites"] = ["nope"]
-        assert c.put("/api/trainer/content/modules/premod", json=body, headers=h).status_code == 422
+        assert put_module(c, "/api/trainer/content/modules/premod", json=body, headers=h).status_code == 422
 
 
 def test_update_rejects_out_of_range_answer_index():
@@ -95,7 +96,7 @@ def test_update_rejects_out_of_range_answer_index():
         body = _minimal_module()
         body["quiz"] = [{"qtype": "single", "prompt_de": "F?", "prompt_en": "Q?",
                          "options_de": ["A", "B"], "options_en": ["A", "B"], "answer": 5}]
-        assert c.put("/api/trainer/content/modules/answermod", json=body, headers=h).status_code == 422
+        assert put_module(c, "/api/trainer/content/modules/answermod", json=body, headers=h).status_code == 422
 
 
 def test_update_rejects_inconsistent_quiz_translations_and_answer_types():
@@ -106,20 +107,20 @@ def test_update_rejects_inconsistent_quiz_translations_and_answer_types():
 
         body = _minimal_module()
         body["quiz"][0]["options_en"] = ["A"]
-        assert c.put(url, json=body, headers=h).status_code == 422
+        assert put_module(c, url, json=body, headers=h).status_code == 422
 
         body = _minimal_module()
         body["quiz"][0]["answer"] = [1]
-        assert c.put(url, json=body, headers=h).status_code == 422
+        assert put_module(c, url, json=body, headers=h).status_code == 422
 
         body = _minimal_module()
         body["quiz"][0]["qtype"] = "multi"
         body["quiz"][0]["answer"] = []
-        assert c.put(url, json=body, headers=h).status_code == 422
+        assert put_module(c, url, json=body, headers=h).status_code == 422
 
         body = _minimal_module()
         body["quiz"] = [{"qtype": "number", "prompt_de": "F?", "prompt_en": "Q?", "answer": [42]}]
-        assert c.put(url, json=body, headers=h).status_code == 422
+        assert put_module(c, url, json=body, headers=h).status_code == 422
 
 
 def test_concurrent_create_same_key_never_500s():
@@ -147,7 +148,7 @@ def test_update_accepts_number_question_without_options():
         c.post("/api/trainer/content/modules", json={"key": "nummod", "title_de": "X"}, headers=h)
         body = _minimal_module()
         body["quiz"] = [{"qtype": "number", "prompt_de": "Wie viel?", "prompt_en": "How much?", "answer": 42}]
-        assert c.put("/api/trainer/content/modules/nummod", json=body, headers=h).status_code == 200
+        assert put_module(c, "/api/trainer/content/modules/nummod", json=body, headers=h).status_code == 200
         got = c.get("/api/trainer/content/modules/nummod", headers=h).json()
         assert got["quiz"][0]["answer"] == 42
         assert got["quiz"][0]["options_de"] is None
@@ -165,7 +166,7 @@ def test_check_and_reveal_blocks_round_trip_and_delivery():
             {"type": "reveal", "value_de": "Versteckt DE", "value_en": "Hidden EN",
              "payload": {"teaser_de": "Was passiert?", "teaser_en": "What happens?"}},
         ]
-        assert c.put("/api/trainer/content/modules/checkmod", json=body, headers=h).status_code == 200
+        assert put_module(c, "/api/trainer/content/modules/checkmod", json=body, headers=h).status_code == 200
 
         got = c.get("/api/trainer/content/modules/checkmod", headers=h).json()
         assert got["blocks"][0]["payload"]["answer"] == 1
@@ -190,11 +191,11 @@ def test_check_block_validation():
         body["blocks"] = [{"type": "check", "payload": {
             "prompt_de": "F?", "prompt_en": "Q?",
             "options_de": ["a", "b"], "options_en": ["a", "b"], "answer": 5}}]
-        assert c.put("/api/trainer/content/modules/checkval", json=body, headers=h).status_code == 422
+        assert put_module(c, "/api/trainer/content/modules/checkval", json=body, headers=h).status_code == 422
         body["blocks"] = [{"type": "check", "payload": {"prompt_de": "F?", "prompt_en": "Q?"}}]
-        assert c.put("/api/trainer/content/modules/checkval", json=body, headers=h).status_code == 422
+        assert put_module(c, "/api/trainer/content/modules/checkval", json=body, headers=h).status_code == 422
         body["blocks"] = [{"type": "reveal", "value_de": "x", "value_en": "y", "payload": {}}]
-        assert c.put("/api/trainer/content/modules/checkval", json=body, headers=h).status_code == 422
+        assert put_module(c, "/api/trainer/content/modules/checkval", json=body, headers=h).status_code == 422
 
 
 def test_get_module_reports_has_snapshot():
@@ -205,7 +206,7 @@ def test_get_module_reports_has_snapshot():
         fresh = c.get("/api/trainer/content/modules/snapmod", headers=h).json()
         assert fresh["has_snapshot"] is False
 
-        c.put("/api/trainer/content/modules/snapmod", json=_minimal_module(order=1), headers=h)
+        put_module(c, "/api/trainer/content/modules/snapmod", json=_minimal_module(order=1), headers=h)
         after_first_put = c.get("/api/trainer/content/modules/snapmod", headers=h).json()
         assert after_first_put["has_snapshot"] is True
 
@@ -235,11 +236,11 @@ def test_restore_swaps_and_supports_redo():
 
         version_a = _minimal_module(order=1)
         version_a["title_de"] = "Version A"
-        c.put("/api/trainer/content/modules/swapmod", json=version_a, headers=h)
+        put_module(c, "/api/trainer/content/modules/swapmod", json=version_a, headers=h)
 
         version_b = _minimal_module(order=1)
         version_b["title_de"] = "Version B"
-        c.put("/api/trainer/content/modules/swapmod", json=version_b, headers=h)
+        put_module(c, "/api/trainer/content/modules/swapmod", json=version_b, headers=h)
 
         current = c.get("/api/trainer/content/modules/swapmod", headers=h).json()
         assert current["title_de"] == "Version B"
@@ -266,7 +267,7 @@ def test_new_block_types_validation():
         def put_with(block):
             body = _minimal_module()
             body["blocks"] = [block]
-            return c.put(url, json=body, headers=h)
+            return put_module(c, url, json=body, headers=h)
 
         # Rechen-Check: answer muss Zahl sein
         assert put_with({"type": "check", "payload": {
@@ -320,7 +321,7 @@ def test_new_block_types_delivery():
             {"type": "check", "payload": {
                 "kind": "number", "prompt_de": "Wieviel?", "prompt_en": "How many?", "answer": 62}},
         ]
-        assert c.put("/api/trainer/content/modules/delivmod", json=body, headers=h).status_code == 200
+        assert put_module(c, "/api/trainer/content/modules/delivmod", json=body, headers=h).status_code == 200
 
         code = c.post("/api/courses", json={"name": "DelivKurs"}, headers=h).json()["join_code"]
         p = {"Authorization": "Bearer " + c.post(
@@ -345,7 +346,7 @@ def test_reseed_restores_delivery_state_and_snapshots_previous():
                    "title_de": "Kaputt-DNS",
                    "blocks": [{"type": "text", "value_de": "nur noch das", "value_en": "only this"}],
                    "quiz": []}
-        assert c.put("/api/trainer/content/modules/dns", json=mangled, headers=h).status_code == 200
+        assert put_module(c, "/api/trainer/content/modules/dns", json=mangled, headers=h).status_code == 200
 
         r = c.post("/api/trainer/content/modules/dns/reseed", headers=h)
         assert r.status_code == 200
@@ -390,12 +391,12 @@ def test_goals_en_round_trip_validation_and_delivery_language():
         assert c.post("/api/trainer/content/modules", json={"key": "goalmod", "title_de": "Ziele"}, headers=h).status_code == 200
         body = {**_minimal_module(order=97), "goals": ["Ziel eins", "Ziel zwei"]}
         # ohne goals_en: gespeichert als "fehlt", Teilnehmer bekommen Deutsch
-        assert c.put("/api/trainer/content/modules/goalmod", json={**body, "goals_en": []}, headers=h).status_code == 200
+        assert put_module(c, "/api/trainer/content/modules/goalmod", json={**body, "goals_en": []}, headers=h).status_code == 200
         assert c.get("/api/trainer/content/modules/goalmod", headers=h).json()["goals_en"] is None
         for bad in (["only one"], ["one", " "]):
-            r = c.put("/api/trainer/content/modules/goalmod", json={**body, "goals_en": bad}, headers=h)
+            r = put_module(c, "/api/trainer/content/modules/goalmod", json={**body, "goals_en": bad}, headers=h)
             assert r.status_code == 422 and "Lernziele (EN)" in r.json()["detail"]
-        assert c.put("/api/trainer/content/modules/goalmod",
+        assert put_module(c, "/api/trainer/content/modules/goalmod",
                      json={**body, "goals_en": ["Goal one", "Goal two"]}, headers=h).status_code == 200
         assert c.get("/api/trainer/content/modules/goalmod", headers=h).json()["goals_en"] == ["Goal one", "Goal two"]
 

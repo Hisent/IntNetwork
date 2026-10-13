@@ -10,7 +10,7 @@ from app.models.progress import Progress
 from app.models.workshop import Workshop
 from app.services.course_membership import active_module_keys
 from app.services.deps import get_participant
-from app.utils import generate_certificate_id
+from app.utils import generate_certificate_id, iso_utc
 
 router = APIRouter(tags=["certificate"])
 
@@ -22,7 +22,7 @@ def _out(cert: Certificate) -> dict:
         "course_name": cert.course_name,
         "workshop_title": cert.workshop_title,
         "module_count": cert.module_count,
-        "issued_at": cert.issued_at.isoformat(),
+        "issued_at": iso_utc(cert.issued_at),
     }
 
 

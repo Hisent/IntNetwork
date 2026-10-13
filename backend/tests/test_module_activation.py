@@ -67,3 +67,23 @@ def test_deactivation_survives_restart_seed():
         restart()
         assert active()["vlan"] is True
         assert c.delete(f"/api/courses/{cid}", headers=h).status_code == 200
+
+
+def test_closed_module_answers_404_with_machine_readable_code():
+    """Das Frontend unterscheidet "im Kurs abgewählt" von "gibt es nicht" am Feld
+    `code` neben `detail` — für Modul, Heartbeat und Quiz-Abgabe gleich."""
+    with TestClient(app) as c:
+        h = _trainer(c)
+        code = c.post("/api/courses", json={"name": "KursCode"}, headers=h).json()["join_code"]
+        cid = next(x["id"] for x in c.get("/api/courses", headers=h).json() if x["join_code"] == code)
+        c.put(f"/api/courses/{cid}/modules", headers=h, json={"module_key": "vlan", "active": False})
+        p = {"Authorization": "Bearer " + c.post("/api/join", json={"code": code, "name": "C1"}).json()["access_token"]}
+
+        for key, expected in (("vlan", "module_not_enabled"), ("gibt-es-nicht", "module_unknown")):
+            for r in (c.get(f"/api/modules/{key}", headers=p), c.post(f"/api/modules/{key}/heartbeat", headers=p),
+                      c.post(f"/api/modules/{key}/quiz", json={"answers": {}}, headers=p)):
+                assert r.status_code == 404 and r.json()["code"] == expected, (key, r.text)
+                assert isinstance(r.json()["detail"], str)
+        # offenes Modul: Titel in beiden Sprachen (title = deutsch, title_en = Übersetzung)
+        paket = c.get("/api/modules/paket", headers=p).json()
+        assert paket["title"] and paket["title_en"] and paket["title"] != paket["title_en"]

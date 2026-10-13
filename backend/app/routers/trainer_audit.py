@@ -4,12 +4,13 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models.audit_log import AuditLog
 from app.services.deps import get_trainer
+from app.utils import iso_utc
 
 router = APIRouter(prefix="/trainer/audit", tags=["trainer-audit"])
 
 
 def _serialize(a: AuditLog) -> dict:
-    return {"id": a.id, "created_at": a.created_at.isoformat(), "trainer_email": a.trainer_email,
+    return {"id": a.id, "created_at": iso_utc(a.created_at), "trainer_email": a.trainer_email,
             "action": a.action, "target": a.target, "detail": a.detail}
 
 
