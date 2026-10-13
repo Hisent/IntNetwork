@@ -32,9 +32,17 @@ export function parseCloze(text: string, ids?: ReadonlySet<string>): ClozePart[]
   return parts
 }
 
-/** Auswahl-Lücke: value = Options-Index als Text. Freitext: gegen `accept`, tolerant je Konfiguration. */
+/** Lücken mit aufgelöster Auswahlliste: ohne eigene `options`/`accept` gilt die Liste des Blocks. */
+export function resolveGaps(data: ClozeData): ClozeGap[] {
+  return data.gaps.map((g) => (g.options || g.accept || !data.options ? g : { ...g, options: data.options }))
+}
+
+const answers = (gap: ClozeGap): number[] => (gap.answer === undefined ? [] : [gap.answer].flat())
+
+/** Auswahl-Lücke: value = Options-Index als Text (`answer` = ein Index oder mehrere gültige).
+ * Freitext: gegen `accept`, tolerant je Konfiguration. */
 export function gapCorrect(gap: ClozeGap, value: string): boolean {
-  if (gap.options) return value !== '' && Number(value) === gap.answer
+  if (gap.options) return value !== '' && answers(gap).includes(Number(value))
   const norm = (s: string) => {
     const t = gap.strict_whitespace ? s : s.trim().replace(/\s+/g, ' ')
     return gap.case_sensitive ? t : t.toLowerCase()
@@ -43,12 +51,12 @@ export function gapCorrect(gap: ClozeGap, value: string): boolean {
 }
 
 export function clozeResult(data: ClozeData, values: Record<string, string>): Record<string, boolean> {
-  return Object.fromEntries(data.gaps.map((g) => [g.id, gapCorrect(g, values[g.id] ?? '')]))
+  return Object.fromEntries(resolveGaps(data).map((g) => [g.id, gapCorrect(g, values[g.id] ?? '')]))
 }
 
-/** Musterlösung einer Lücke für die Anzeige. */
+/** Musterlösung einer (aufgelösten) Lücke für die Anzeige; mehrere gültige Optionen als „a / b“. */
 export function gapSolution(gap: ClozeGap): string {
-  return gap.options ? gap.options[gap.answer ?? 0] ?? '' : gap.accept?.[0] ?? ''
+  return gap.options ? answers(gap).map((a) => gap.options![a] ?? '').join(' / ') : gap.accept?.[0] ?? ''
 }
 
 // --- scenario ----------------------------------------------------------------

@@ -2,6 +2,7 @@ from fastapi.testclient import TestClient
 
 from app.database import SessionLocal
 from app.main import app
+from tests.conftest import correct_answers
 from app.models.comment import Comment
 from app.models.course import Course
 from app.models.course_module import CourseModule
@@ -31,7 +32,7 @@ def test_delete_course_cascades_participants_progress_quiz_comments():
 
         mod = c.get("/api/modules/vlan", headers=p_auth).json()
         ids = [q["id"] for q in mod["quiz"]["questions"]]
-        answers = {ids[0]: 1, ids[1]: 1, ids[2]: [0, 1, 3], ids[3]: 20}
+        answers = correct_answers("vlan", ids)
         assert c.post("/api/modules/vlan/quiz", json={"answers": answers}, headers=p_auth).status_code == 200
         assert c.post("/api/modules/vlan/comments", json={"block_index": 0, "body": "Frage"},
                       headers=p_auth).status_code == 200

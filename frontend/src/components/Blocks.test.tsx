@@ -13,4 +13,9 @@ describe('Markdown code rendering', () => {
     expect(html.match(/aria-label="Code kopieren \/ Copy code"/g)).toHaveLength(1)
     expect(html).toContain('>console</span>')
   })
+
+  it('lets long unbreakable inline code wrap instead of widening the page', () => {
+    const html = renderToStaticMarkup(<Markdown components={MD_COMPONENTS}>{'`_paging=1&_return_as_object=1&_max_results=1000`'}</Markdown>)
+    expect(html).toMatch(/<code class="[^"]*\[overflow-wrap:anywhere\]/)
+  })
 })

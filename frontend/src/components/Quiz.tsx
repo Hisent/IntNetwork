@@ -15,7 +15,7 @@ interface Result {
   explanations?: Record<string, string>  // je Frage-id, erst nach der Bewertung vom Server
 }
 
-function isAnswered(q: Question, value: unknown): boolean {
+export function isAnswered(q: Question, value: unknown): boolean {
   if (q.type === 'multi') return Array.isArray(value) && value.length > 0
   if (q.type === 'number') return value !== undefined && value !== ''
   return value !== undefined
@@ -48,6 +48,36 @@ function hintFor(type: Question['type'], termLabels: string[], lang: Lang, level
     : 'Read every option literally: find the statement that fits the core term and eliminate clear contradictions.'
 }
 
+/** Eingabe EINER Frage (Zahl, Radio oder Checkboxen) — geteilt von Quiz und Übungsmodus.
+ * Die Überschrift der Frage trägt `id="quiz-<frage-id>"` (Beschriftung der Gruppe). */
+export function QuestionInput({ q, value, locked, order, onChange }: {
+  q: Question; value: unknown; locked: boolean; order?: number[]; onChange: (value: unknown) => void
+}) {
+  if (q.type === 'number') {
+    return (
+      <input type="number" disabled={locked} className="border rounded-lg px-3 py-1.5 w-32 disabled:bg-slate-100"
+        aria-label={q.prompt} value={(value as string) ?? ''} onChange={(e) => onChange(e.target.value)} />
+    )
+  }
+  const picked = (value as number[]) ?? []
+  return (
+    <div role={q.type === 'single' ? 'radiogroup' : 'group'} aria-labelledby={`quiz-${q.id}`} className="flex flex-col gap-1.5">
+      {(order ?? q.options.map((_, i) => i)).map((i) => (
+        <label key={i} className={`flex items-center gap-2 ${locked ? 'text-slate-500' : 'text-slate-700 cursor-pointer'}`}>
+          <input
+            type={q.type === 'single' ? 'radio' : 'checkbox'}
+            name={q.id}
+            disabled={locked}
+            checked={q.type === 'single' ? value === i : picked.includes(i)}
+            onChange={() => onChange(q.type === 'single' ? i : picked.includes(i) ? picked.filter((o) => o !== i) : [...picked, i])}
+          />
+          {q.options[i]}
+        </label>
+      ))}
+    </div>
+  )
+}
+
 export function Quiz({ moduleKey, questions, lang, onResult }: {
   moduleKey: string; questions: Question[]; lang: Lang; onResult?: (passed: boolean) => void
 }) {
@@ -59,11 +89,6 @@ export function Quiz({ moduleKey, questions, lang, onResult }: {
   const [hintLevels, setHintLevels] = useState<Record<string, number>>({})
 
   const set = (id: string, value: unknown) => setAnswers((a) => ({ ...a, [id]: value }))
-  const toggleMulti = (id: string, optIndex: number) =>
-    setAnswers((a) => {
-      const cur = (a[id] as number[]) ?? []
-      return { ...a, [id]: cur.includes(optIndex) ? cur.filter((o) => o !== optIndex) : [...cur, optIndex] }
-    })
 
   async function submit() {
     setError('')
@@ -144,7 +169,7 @@ export function Quiz({ moduleKey, questions, lang, onResult }: {
           const correct = result?.details[q.id]
           const ring = locked ? (correct ? 'border-green-300 bg-green-50/50' : 'border-amber-300 bg-amber-50/50') : 'border-slate-200 bg-white'
           return (
-            <div key={q.id} className={`rounded-xl border ${ring} p-4 transition-colors`}>
+            <div key={q.id} className={`rounded-xl border ${ring} p-4 transition-colors [overflow-wrap:anywhere]`}>
               <div className="flex items-start justify-between gap-3 mb-2">
                 <p id={`quiz-${q.id}`} className="font-medium text-slate-800">
                   <span className="text-slate-400 mr-1.5">{qi + 1}.</span>{q.prompt}
@@ -155,27 +180,8 @@ export function Quiz({ moduleKey, questions, lang, onResult }: {
                   </span>
                 )}
               </div>
-              {q.type === 'number' ? (
-                <input type="number" disabled={locked} className="border rounded-lg px-3 py-1.5 w-32 disabled:bg-slate-100"
-                  aria-label={q.prompt}
-                  value={(answers[q.id] as string) ?? ''}
-                  onChange={(e) => set(q.id, e.target.value)} />
-              ) : (
-                <div role={q.type === 'single' ? 'radiogroup' : 'group'} aria-labelledby={`quiz-${q.id}`} className="flex flex-col gap-1.5">
-                  {(optionOrder[q.id] ?? q.options.map((_, i) => i)).map((i) => (
-                    <label key={i} className={`flex items-center gap-2 ${locked ? 'text-slate-500' : 'text-slate-700 cursor-pointer'}`}>
-                      <input
-                        type={q.type === 'single' ? 'radio' : 'checkbox'}
-                        name={q.id}
-                        disabled={locked}
-                        checked={q.type === 'single' ? answers[q.id] === i : ((answers[q.id] as number[]) ?? []).includes(i)}
-                        onChange={() => (q.type === 'single' ? set(q.id, i) : toggleMulti(q.id, i))}
-                      />
-                      {q.options[i]}
-                    </label>
-                  ))}
-                </div>
-              )}
+              <QuestionInput q={q} value={answers[q.id]} locked={locked} order={optionOrder[q.id]}
+                onChange={(value) => set(q.id, value)} />
               {result?.explanations?.[q.id] && (
                 <p className="mt-3 flex items-start gap-1.5 rounded-lg bg-white/70 px-3 py-2 text-sm leading-relaxed text-slate-700">
                   <Icon name="lightbulb" className="mt-0.5 h-4 w-4 shrink-0 text-teal-700" />

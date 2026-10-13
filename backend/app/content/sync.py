@@ -55,7 +55,8 @@ _BASELINE_FILE = json.loads(Path(__file__).with_name("sync_baseline.json").read_
 BASELINE: dict[str, list[str]] = _BASELINE_FILE["hashes"]
 STRUCTURE: dict[str, dict[str, list[list[str]]]] = _BASELINE_FILE["structure"]
 
-_MODULE_FIELDS = ("title_de", "title_en", "order", "prerequisites", "goals", "scenario_de", "scenario_en")
+_MODULE_FIELDS = ("title_de", "title_en", "order", "prerequisites", "goals", "goals_en",
+                  "scenario_de", "scenario_en")
 # Inhaltsfelder je Zeile; das erste ist der Typ. Die Kennung (uid) kommt dazu.
 BLOCK_FIELDS = ("type", "value_de", "value_en", "widget_id", "note", "payload")
 QUESTION_FIELDS = ("qtype", "prompt_de", "prompt_en", "options_de", "options_en", "answer",
@@ -105,7 +106,7 @@ def source_state(seed: dict) -> dict:
     return json.loads(json.dumps({
         "title_de": seed["title"], "title_en": seed.get("title_en", seed["title"]),
         "order": seed["order"], "prerequisites": seed.get("prerequisites", []),
-        "goals": seed.get("goals", []),
+        "goals": seed.get("goals", []), "goals_en": seed.get("goals_en") or None,
         "scenario_de": seed["scenario"]["de"], "scenario_en": seed["scenario"]["en"],
         "blocks": blocks, "quiz": quiz,
     }))
@@ -123,10 +124,10 @@ def db_state(m: ContentModule, blocks: list[ContentBlock], questions: list[Conte
 
 def content_hash(state: dict) -> str:
     """Hash über den INHALT: Kennungen zählen nicht mit (kein Trainer kann sie
-    ändern), eine fehlende Erklärung auch nicht. Damit hat ein Stand ohne
-    Erklärungen denselben Hash wie unter v1.42.0 — gespeicherte Hashes und
-    sync_baseline.json bleiben gültig."""
-    slim = {**state,
+    ändern), eine fehlende Erklärung und fehlende englische Lernziele (goals_en)
+    auch nicht. Damit hat ein Stand ohne Erklärungen/goals_en denselben Hash wie
+    unter v1.42.0 — gespeicherte Hashes und sync_baseline.json bleiben gültig."""
+    slim = {**{k: v for k, v in state.items() if k != "goals_en" or v},
             "blocks": [{k: v for k, v in b.items() if k != "uid"} for b in state["blocks"]],
             "quiz": [{k: v for k, v in q.items()
                       if k != "uid" and not (k.startswith("explanation_") and v is None)}

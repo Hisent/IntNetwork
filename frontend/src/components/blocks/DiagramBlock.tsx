@@ -1,6 +1,8 @@
 import { useId, useMemo, useState, type KeyboardEvent, type ReactNode } from 'react'
 import type { Lang } from '@/lib/i18n'
-import { FLOW, SEQ, diagramAlt, edgeKey, layoutFlow, layoutSequence } from './diagramLayout'
+import { useExercise } from '@/lib/exerciseState'
+import { usePrinting } from '@/lib/printMode'
+import { FLOW, SEQ, diagramAlt, edgeKey, layoutFlow, layoutSequence, seqRoute, textWidth } from './diagramLayout'
 import type { CompareDiagram, DiagramData, FlowDiagram, FlowShape, LayersDiagram, SequenceDiagram, SeqStyle } from './types'
 
 // Farben: Linien/Text über slate-Utilities (kippen im Dark Mode über die
@@ -18,7 +20,7 @@ function Stepper({ step, total, onStep, lang, all, onAll }: {
 }) {
   const de = lang === 'de'
   return (
-    <div className="mt-3 flex flex-wrap items-center gap-2">
+    <div className="mt-3 flex flex-wrap items-center gap-2 print:hidden">
       <button type="button" className={BTN} disabled={step === 0} onClick={() => onStep(step - 1)}>← {de ? 'Zurück' : 'Back'}</button>
       <button type="button" className={BTN} disabled={step === total - 1} onClick={() => onStep(step + 1)}>{de ? 'Weiter' : 'Next'} →</button>
       <span className="text-sm tabular-nums text-slate-500">{de ? 'Schritt' : 'Step'} {step + 1} / {total}</span>
@@ -81,16 +83,19 @@ const SEQ_STYLE: Record<SeqStyle, { dash?: string; width: number; open?: boolean
   request: { width: 1.8, de: 'Anfrage', en: 'Request' },
   reply: { dash: '7 5', width: 1.8, open: true, de: 'Antwort', en: 'Reply' },
   broadcast: { dash: '2 5', width: 3, de: 'Broadcast (an alle)', en: 'Broadcast (to all)' },
+  multicast: { dash: '12 4 2 4', width: 3, de: 'Multicast (an eine Gruppe)', en: 'Multicast (to a group)' },
   encrypted: { width: 4, de: 'verschlüsselt', en: 'encrypted' },
 }
 
 function Sequence({ d, lang, altId }: { d: SequenceDiagram; lang: Lang; altId: string }) {
   const de = lang === 'de'
   const L = useMemo(() => layoutSequence(d), [d])
-  const [step, setStep] = useState(0)
-  const [all, setAll] = useState(false)
+  const [step, setStep] = useExercise(0, () => false)  // Schritt wird gemerkt, zählt aber nicht als Übung
+  const [showAll, setAll] = useState(false)
+  const all = usePrinting() || showAll  // Druck: Endzustand mit allen Nachrichten
   const name = (id: string) => d.actors.find((a) => a.id === id)?.label ?? id
   const current = d.messages[step]
+  const dividerX = (L.gutter + L.width) / 2
   const used = [...new Set(d.messages.filter((m) => m.from !== m.to).map((m) => m.style ?? 'request'))]
 
   return (
@@ -108,11 +113,9 @@ function Sequence({ d, lang, altId }: { d: SequenceDiagram; lang: Lang; altId: s
           const msg = d.messages[m.index]
           const on = m.index === step
           const st = SEQ_STYLE[msg.style ?? 'request']
-          const dir = m.x2 > m.x1 ? 1 : -1
-          const tip = m.x2 - dir * 2
           return (
             <g key={m.index} role="button" tabIndex={0} aria-current={on ? 'step' : undefined}
-              aria-label={`${de ? 'Schritt' : 'Step'} ${m.index + 1}: ${m.self ? name(msg.from) : `${name(msg.from)} → ${name(msg.to)}`}: ${msg.label}`}
+              aria-label={`${de ? 'Schritt' : 'Step'} ${m.index + 1}: ${seqRoute(msg, name)}: ${msg.label}`}
               onClick={() => setStep(m.index)} onKeyDown={activate(() => setStep(m.index))}
               className={`cursor-pointer outline-none ${on ? ACCENT : 'text-slate-500'}`}>
               {/* unsichtbare Trefferfläche über Beschriftung + Pfeil */}
@@ -121,14 +124,32 @@ function Sequence({ d, lang, altId }: { d: SequenceDiagram; lang: Lang; altId: s
                 <rect x={m.cx - m.w / 2} y={m.top} width={m.w} height={m.y - m.top} rx={6} strokeWidth={on ? 2.5 : 1.5} stroke="currentColor" className="fill-slate-50" />
               ) : (
                 <>
-                  <line x1={m.x1} y1={m.y} x2={tip - dir * 8} y2={m.y} stroke="currentColor" strokeWidth={st.width + (on ? 0.8 : 0)} strokeDasharray={st.dash} />
-                  <path d={`M${tip - dir * 11} ${m.y - 6}L${tip} ${m.y}L${tip - dir * 11} ${m.y + 6}${st.open ? '' : 'Z'}`}
-                    stroke="currentColor" strokeWidth={1.8} fill={st.open ? 'none' : 'currentColor'} strokeLinejoin="round" />
+                  {m.xs.map((x2, k) => {
+                    const dir = x2 > m.x1 ? 1 : -1
+                    const tip = x2 - dir * 2
+                    return (
+                      <g key={k}>
+                        <line x1={m.x1} y1={m.y} x2={tip - dir * 8} y2={m.y} stroke="currentColor" strokeWidth={st.width + (on ? 0.8 : 0)} strokeDasharray={st.dash} />
+                        <path d={`M${tip - dir * 11} ${m.y - 6}L${tip} ${m.y}L${tip - dir * 11} ${m.y + 6}${st.open ? '' : 'Z'}`}
+                          stroke="currentColor" strokeWidth={1.8} fill={st.open ? 'none' : 'currentColor'} strokeLinejoin="round" />
+                      </g>
+                    )
+                  })}
                   <circle cx={m.x1} cy={m.y} r={3.5} fill="currentColor" />
                 </>
               )}
               <Lines lines={m.lines} x={m.cx} y={m.top + (m.self ? 6 : 0) + SEQ.labelFont - 1} lineH={SEQ.lineH}
                 size={m.self ? SEQ.noteFont : SEQ.labelFont} weight={on ? 700 : 500} className={on ? 'fill-slate-950' : 'fill-slate-700'} />
+              {msg.at && (
+                <text x={6} y={(m.self ? (m.top + m.y) / 2 : m.y) + 4} fontSize={SEQ.atFont} fontWeight={on ? 700 : 500} className={`tabular-nums ${on ? 'fill-slate-950' : 'fill-slate-500'}`}>{msg.at}</text>
+              )}
+              {m.dividerY !== undefined && msg.divider && (
+                <g className="text-slate-400">
+                  <line x1={L.gutter + 6} y1={m.dividerY + 9} x2={L.width - 6} y2={m.dividerY + 9} stroke="currentColor" strokeWidth={1.2} strokeDasharray="1 4" strokeLinecap="round" />
+                  <rect x={dividerX - textWidth(msg.divider, SEQ.noteFont) / 2 - 8} y={m.dividerY} width={textWidth(msg.divider, SEQ.noteFont) + 16} height={18} rx={9} className="fill-slate-50" stroke="currentColor" strokeWidth={1} />
+                  <text x={dividerX} y={m.dividerY + 13.5} textAnchor="middle" fontSize={SEQ.noteFont} fontWeight={600} className="fill-slate-600">{msg.divider}</text>
+                </g>
+              )}
             </g>
           )
         })}
@@ -144,7 +165,7 @@ function Sequence({ d, lang, altId }: { d: SequenceDiagram; lang: Lang; altId: s
         </ul>
       )}
       <Stepper step={step} total={d.messages.length} onStep={setStep} lang={lang} all={all} onAll={() => setAll((a) => !a)} />
-      <Detail head={`${step + 1}. ${current.from === current.to ? name(current.from) : `${name(current.from)} → ${name(current.to)}`}: ${current.label}`}>
+      <Detail head={`${step + 1}. ${seqRoute(current, name)}: ${current.label}`}>
         {current.detail}
       </Detail>
     </div>
@@ -170,9 +191,10 @@ function Flow({ d, lang, altId }: { d: FlowDiagram; lang: Lang; altId: string })
   const L = useMemo(() => layoutFlow(d), [d])
   const edges = d.edges ?? []
   const steps = d.steps
-  const [step, setStep] = useState(0)
+  const [step, setStep] = useExercise(0, () => false)
   const [sel, setSel] = useState<string | null>(null)
-  const lit = steps ? new Set(steps[step].highlight) : null
+  const printing = usePrinting()  // Druck: alle Elemente gleich sichtbar statt eines hervorgehobenen Schritts
+  const lit = steps && !printing ? new Set(steps[step].highlight) : null
   const state = (key: string) => (sel === key || lit?.has(key) ? 'on' : lit ? 'dim' : 'idle')
   const cls = (key: string) => (state(key) === 'on' ? ACCENT : state(key) === 'dim' ? 'text-slate-400 opacity-45' : 'text-slate-500')
   const selNode = d.nodes.find((n) => n.id === sel)
@@ -191,19 +213,25 @@ function Flow({ d, lang, altId }: { d: FlowDiagram; lang: Lang; altId: string })
           const e = edges[i]
           const on = state(b.key) === 'on'
           // Pfeilspitzen von Hand statt <marker>: marker erben currentColor nicht in allen Browsern
-          const len = Math.hypot(b.x2 - b.x1, b.y2 - b.y1) || 1
-          const ux = (b.x2 - b.x1) / len
-          const uy = (b.y2 - b.y1) / len
-          const head = (x: number, y: number, dir: 1 | -1) =>
-            `M${x} ${y}L${x - dir * (ux * 10 - uy * 5)} ${y - dir * (uy * 10 + ux * 5)}L${x - dir * (ux * 10 + uy * 5)} ${y - dir * (uy * 10 - ux * 5)}Z`
+          // Spitze (x,y), Pfeil zeigt aus Richtung (fx,fy); bei Bögen ist das der vorletzte Stützpunkt
+          const pts = b.points
+          const head = (x: number, y: number, fx: number, fy: number) => {
+            const len = Math.hypot(x - fx, y - fy) || 1
+            const ux = (x - fx) / len
+            const uy = (y - fy) / len
+            return `M${x} ${y}L${x - (ux * 10 - uy * 5)} ${y - (uy * 10 + ux * 5)}L${x - (ux * 10 + uy * 5)} ${y - (uy * 10 - ux * 5)}Z`
+          }
+          const [ex, ey] = pts ? pts[pts.length - 3] ?? pts[0] : [b.x1, b.y1]
+          const [sx, sy] = pts ? pts[2] ?? pts[pts.length - 1] : [b.x2, b.y2]
+          const path = pts ? `M${pts.map(([x, y]) => `${x.toFixed(1)} ${y.toFixed(1)}`).join('L')}` : `M${b.x1} ${b.y1}L${b.x2} ${b.y2}`
           return (
             <g key={b.key} {...interactive(b.key, `${name(e.from)} → ${name(e.to)}${e.label ? `: ${e.label}` : ''}`, e.detail)}
               className={`outline-none ${e.detail ? 'cursor-pointer' : ''} ${cls(b.key)}`}>
-              <line x1={b.x1} y1={b.y1} x2={b.x2} y2={b.y2} stroke="currentColor" strokeWidth={on ? 3 : 1.8}
+              <path d={path} fill="none" stroke="currentColor" strokeWidth={on ? 3 : 1.8} strokeLinejoin="round"
                 strokeDasharray={e.style === 'dashed' ? '6 5' : undefined} />
-              {e.arrow !== 'none' && <path d={head(b.x2, b.y2, 1)} fill="currentColor" />}
-              {e.arrow === 'both' && <path d={head(b.x1, b.y1, -1)} fill="currentColor" />}
-              {e.detail && <line x1={b.x1} y1={b.y1} x2={b.x2} y2={b.y2} stroke="transparent" strokeWidth={18} />}
+              {e.arrow !== 'none' && <path d={head(b.x2, b.y2, ex, ey)} fill="currentColor" />}
+              {e.arrow === 'both' && <path d={head(b.x1, b.y1, sx, sy)} fill="currentColor" />}
+              {e.detail && <path d={path} fill="none" stroke="transparent" strokeWidth={18} />}
               {b.label && (
                 <>
                   <rect x={b.label.cx - b.label.w / 2} y={b.label.cy - b.label.h / 2} width={b.label.w} height={b.label.h} rx={4}
@@ -290,8 +318,11 @@ function Layers({ d, lang }: { d: LayersDiagram; lang: Lang }) {
   )
 }
 
-function Compare({ d }: { d: CompareDiagram }) {
+function Compare({ d, lang }: { d: CompareDiagram; lang: Lang }) {
+  const [sel, setSel] = useState<number | null>(null)
+  const current = sel === null ? null : d.rows[sel]
   return (
+    <>
     <div className="overflow-x-auto">
       <table className="w-full border-separate border-spacing-x-2 border-spacing-y-0 text-left text-sm" style={{ minWidth: 140 + d.columns.length * 150 }}>
         <thead>
@@ -305,15 +336,26 @@ function Compare({ d }: { d: CompareDiagram }) {
         <tbody>
           {d.rows.map((r, ri) => (
             <tr key={ri}>
-              <th scope="row" className="border-t border-slate-200 py-2 pr-2 align-top text-xs font-semibold uppercase tracking-wide text-slate-500">{r.label}</th>
+              <th scope="row" className="border-t border-slate-200 py-2 pr-2 align-top text-xs font-semibold uppercase tracking-wide text-slate-500">
+                {r.detail ? (
+                  <button type="button" aria-pressed={sel === ri} onClick={() => setSel(sel === ri ? null : ri)}
+                    className={`text-left font-semibold uppercase tracking-wide underline decoration-dotted underline-offset-4 ${sel === ri ? ACCENT : 'hover:text-slate-700'}`}>
+                    {r.label}
+                  </button>
+                ) : r.label}
+              </th>
               {r.values.map((v, ci) => (
-                <td key={ci} className={`border-x border-t border-slate-200 bg-slate-50 px-3 py-2 align-top text-slate-700 ${ri === d.rows.length - 1 ? 'rounded-b-lg border-b' : ''}`}>{v}</td>
+                <td key={ci} className={`border-x border-t border-slate-200 bg-slate-50 px-3 py-2 align-top text-slate-700 ${r.mono ? 'whitespace-pre-wrap break-words font-mono text-[0.8125rem]' : ''} ${ri === d.rows.length - 1 ? 'rounded-b-lg border-b' : ''}`}>{v}</td>
               ))}
             </tr>
           ))}
         </tbody>
       </table>
     </div>
+    {d.rows.some((r) => r.detail) && (current?.detail
+      ? <Detail head={current.label}>{current.detail}</Detail>
+      : <p className="mt-3 text-xs text-slate-500">{lang === 'de' ? 'Unterstrichene Zeile anklicken für Details.' : 'Click an underlined row for details.'}</p>)}
+    </>
   )
 }
 
@@ -323,14 +365,15 @@ export default function DiagramBlock({ data, lang }: { data: DiagramData; lang: 
   const svg = data.kind === 'sequence' || data.kind === 'flow'
   return (
     <figure className="rounded-xl border border-slate-200 bg-white p-4">
-      <figcaption className="mb-3">
+      {/* overflow-wrap: ein Titel wie TLS_ECDHE_RSA_WITH_… hat keine Leerzeichen und sprengte sonst die Handy-Seite */}
+      <figcaption className="mb-3 [overflow-wrap:anywhere]">
         <p className="font-semibold text-slate-800">{data.title}</p>
         {data.caption && <p className="text-sm text-slate-500">{data.caption}</p>}
       </figcaption>
       {data.kind === 'sequence' && <Sequence d={data} lang={lang} altId={altId} />}
       {data.kind === 'flow' && <Flow d={data} lang={lang} altId={altId} />}
       {data.kind === 'layers' && <Layers d={data} lang={lang} />}
-      {data.kind === 'compare' && <Compare d={data} />}
+      {data.kind === 'compare' && <Compare d={data} lang={lang} />}
       {/* Textalternative der Grafik für Screenreader; layers/compare sind bereits echtes HTML */}
       {svg && <ol id={altId} className="sr-only">{diagramAlt(data).map((line, i) => <li key={i}>{line}</li>)}</ol>}
     </figure>

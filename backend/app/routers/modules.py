@@ -2,10 +2,12 @@ import json
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, field_validator
+from sqlalchemy import func
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.database import get_db
+from app.models.content import ContentBlock, ContentQuizQuestion
 from app.models.participant import Participant
 from app.models.progress import Progress
 from app.models.quiz_result import QuizResult
@@ -19,10 +21,29 @@ from app.utils import utc_now
 router = APIRouter(prefix="/modules", tags=["modules"])
 
 
+def estimated_minutes(db: Session, keys: set[str]) -> dict[str, int]:
+    """Geschätzte Bearbeitungszeit je Modul, aus dem Umfang berechnet (kein
+    Pflegefeld): Lesetext ~1000 Zeichen/min, je interaktivem Block 2 min, je
+    Quizfrage 1 min; auf 5 min gerundet.
+    ponytail: Faustformel über den deutschen Text; wenn Autoren abweichende
+    Zeiten brauchen, ein optionales Feld je Modul ergänzen, das hier gewinnt."""
+    raw: dict[str, float] = dict.fromkeys(keys, 0.0)
+    for key, type_, n, chars in (db.query(ContentBlock.module_key, ContentBlock.type, func.count(),
+                                          func.sum(func.length(ContentBlock.value_de)))
+                                 .filter(ContentBlock.module_key.in_(keys))
+                                 .group_by(ContentBlock.module_key, ContentBlock.type)):
+        raw[key] += (chars or 0) / 1000 if type_ == "text" else 2 * n
+    for key, n in (db.query(ContentQuizQuestion.module_key, func.count())
+                   .filter(ContentQuizQuestion.module_key.in_(keys)).group_by(ContentQuizQuestion.module_key)):
+        raw[key] += n
+    return {key: max(5, round(minutes / 5) * 5) for key, minutes in raw.items()}
+
+
 @router.get("")
 def list_modules(db: Session = Depends(get_db), p: Participant = Depends(get_participant)):
     active = active_module_keys(db, p.course_id)
-    return [m for m in module_meta(db) if m["key"] in active]
+    minutes = estimated_minutes(db, active)
+    return [{**m, "minutes": minutes[m["key"]]} for m in module_meta(db) if m["key"] in active]
 
 
 @router.get("/{key}")

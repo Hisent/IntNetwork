@@ -1,5 +1,5 @@
 import { api } from '@/lib/api'
-import type { ModuleMeta, TrainerModuleDetail } from '@/types'
+import type { LivePoll, ModuleMeta, TrainerModuleDetail } from '@/types'
 import type { TrainerComment } from '@/components/commentGroups'
 
 export interface Course { id: number; name: string; join_code: string; workshop_key: string | null; participant_count?: number; require_approval?: boolean; /** nur im Dashboard: ausgestellte Zertifikate dieses Kurses */ certificate_count?: number }
@@ -65,6 +65,7 @@ export interface EditorModule {
   order: number
   prerequisites: string[]
   goals: string[]
+  goals_en?: string[] | null
   scenario_de: string
   scenario_en: string
   blocks: EditorBlock[]
@@ -145,6 +146,12 @@ export const trainerApi = {
     api.post(`/trainer/courses/${cid}/modules/${key}/comments`, { block_index, body }),
   deleteTrainerComment: (id: number) => api.delete(`/trainer/comments/${id}`),
   coursePresence: (cid: number) => api.get<PresenceEntry[]>(`/trainer/courses/${cid}/presence`),
+  // Live-Abstimmung (höchstens eine je Kurs); null = keine laufende
+  poll: (cid: number) => api.get<LivePoll | null>(`/trainer/courses/${cid}/poll`),
+  startPoll: (cid: number, module_key: string, source: 'quiz' | 'check', ref: string) =>
+    api.post<LivePoll>(`/trainer/courses/${cid}/poll`, { module_key, source, ref }),
+  revealPoll: (cid: number) => api.post<LivePoll>(`/trainer/courses/${cid}/poll/reveal`),
+  closePoll: (cid: number) => api.delete(`/trainer/courses/${cid}/poll`),
   listContentModules: () => api.get<EditorModuleMeta[]>('/trainer/content/modules'),
   getContentModule: (key: string) => api.get<EditorModule>(`/trainer/content/modules/${key}`),
   createContentModule: (key: string, title_de: string, workshop_key: string) =>

@@ -47,14 +47,14 @@ def test_module_meta_has_prereqs_and_order():
             db.close()
 
 
-def test_public_module_strips_notes_and_goals():
+def test_public_module_strips_notes_and_answers():
     with TestClient(app):
         db = SessionLocal()
         try:
             pub = registry.public_module(db, "switching")
-            assert "goals" not in pub
+            assert pub["goals"]  # Lernziele gehen (in der Teilnehmersprache) mit raus
             for b in pub["blocks"]:
-                assert "note" not in b
+                assert "note" not in b and b["uid"]
             for q in pub["quiz"]["questions"]:
                 assert "answer" not in q
         finally:

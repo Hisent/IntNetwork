@@ -48,7 +48,13 @@ serverseitig bewertetes Quiz mit.
 - Deutsch/Englisch für Teilnehmer, deutschsprachiger Trainer-Bereich
 - Heller und dunkler Modus (folgt anfangs der Systemeinstellung)
 - Interaktive Widgets, Visualisierungen und Lernphasen
+- Lernziele je Modul, geschätzte Bearbeitungszeit, Status (offen/begonnen/bestanden) und „Hier weitermachen“
+- Übungsstand der Mini-Übungen bleibt im Browser erhalten („x von y Übungen erledigt“)
+- Übungsmodus (`/lernen/ueben`): falsch beantwortete Fragen wiederholen oder gemischt üben — ohne Wertung
+- Suche über Titel, Lernziele, Texte und Glossar der freigeschalteten Module
+- Druckansicht je Modul als Spickzettel (Theorie, Diagramme, eigene Notizen)
 - Trainer-Dashboard mit Kursen, Modul-Aktivierung, Fortschritt, Live-Präsenz und Kommentaren
+- Live-Abstimmung im Präsenz-Workshop: Im Beamer-Modus (Einstieg „▶ Präsentieren“ im Kurs-Detail, `?kurs=<id>`) stellt der Trainer eine Single-Choice-Quizfrage oder einen Auswahl-Check zur Abstimmung; Teilnehmer mit offenem Modul stimmen in einer Einblendung ab (A/B/C/D für alle gleich). Verteilung anonym, Lösung erst nach „Auflösen“, ohne Einfluss auf Quiz, Fortschritt und Zertifikat
 - Modul-Editor mit einer Wiederherstellungsstufe
 - Persönlicher Wiederaufnahme-Code beim Beitritt; öffentlich prüfbare Teilnahmebestätigung unter `/verifizieren`
 

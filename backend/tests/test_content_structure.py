@@ -61,6 +61,10 @@ def _modul_fehler(key: str, m: dict) -> list[str]:
         out.append("scenario de/en fehlt")
     if not m.get("goals"):
         out.append("goals leer")
+    if "goals_en" in m:
+        en = m["goals_en"]
+        if not isinstance(en, list) or len(en) != len(m.get("goals") or []) or any(_leer(g) for g in en):
+            out.append("goals_en braucht je Lernziel genau eine nichtleere Übersetzung")
 
     workshop = workshop_for_order(m["order"])
     if not any(s["from"] <= m["order"] <= s["to"] for s in WORKSHOPS[workshop]["sections"]):
@@ -131,6 +135,16 @@ def test_structure_check_demands_unique_ids_on_blocks_and_questions():
     errors = "\n".join(_modul_fehler("arp", m))
     assert "Block 0 (text): id fehlt" in errors and f"Block-id '{m['blocks'][1]['id']}' 2-fach" in errors
     assert f"Frage-id '{m['quiz']['questions'][0]['id']}' 2-fach" in errors and "Frage 2" in errors
+
+
+def test_structure_check_demands_complete_goals_en():
+    m = copy.deepcopy(MODULES["arp"])
+    m["goals_en"] = ["only one"] + [""] * (len(m["goals"]) - 1)
+    assert any("goals_en" in e for e in _modul_fehler("arp", m))
+    m["goals_en"] = [f"goal {i}" for i in range(len(m["goals"]))]
+    assert not any("goals_en" in e for e in _modul_fehler("arp", m))
+    m["goals_en"] = m["goals_en"][:-1]
+    assert any("goals_en" in e for e in _modul_fehler("arp", m))
 
 
 def test_readme_module_counts_match_code():

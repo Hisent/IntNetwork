@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { assignPair, clozeResult, gapCorrect, gapSolution, matchResult, parseCloze, walkScenario } from './exerciseLogic'
+import { assignPair, clozeResult, gapCorrect, gapSolution, matchResult, parseCloze, resolveGaps, walkScenario } from './exerciseLogic'
 import type { ClozeData, ScenarioData } from './types'
 
 describe('match', () => {
@@ -51,6 +51,32 @@ describe('cloze', () => {
   it('liefert Ergebnis je Lücke und die Musterlösung', () => {
     expect(clozeResult(cloze, { mode: 'access' })).toEqual({ mode: true, vlan: false })
     expect(cloze.gaps.map(gapSolution)).toEqual(['access', '20'])
+  })
+})
+
+describe('cloze: gemeinsame Optionsliste und mehrere gültige Optionen', () => {
+  const shared: ClozeData = {
+    prompt: 'p', text: '[[a]] [[b]] [[c]] [[d]]', options: ['TCP', 'UDP', 'ICMP'],
+    gaps: [
+      { id: 'a', answer: 0 },
+      { id: 'b', answer: [0, 1] },
+      { id: 'c', options: ['ja', 'nein'], answer: 1 },
+      { id: 'd', accept: ['53'] },
+    ],
+  }
+  it('gibt Lücken ohne eigene Optionen die Liste des Blocks, lässt die anderen unberührt', () => {
+    const gaps = resolveGaps(shared)
+    expect(gaps.map((g) => g.options)).toEqual([['TCP', 'UDP', 'ICMP'], ['TCP', 'UDP', 'ICMP'], ['ja', 'nein'], undefined])
+    expect(resolveGaps(cloze)).toEqual(cloze.gaps)
+  })
+  it('wertet jede der gültigen Optionen als richtig', () => {
+    expect(clozeResult(shared, { a: '0', b: '1', c: '1', d: '53' })).toEqual({ a: true, b: true, c: true, d: true })
+    expect(clozeResult(shared, { a: '1', b: '0', c: '0', d: '' })).toEqual({ a: false, b: true, c: false, d: false })
+    expect(clozeResult(shared, { b: '2' }).b).toBe(false)
+    expect(clozeResult(shared, { b: '' }).b).toBe(false)
+  })
+  it('nennt als Musterlösung alle gültigen Optionen', () => {
+    expect(resolveGaps(shared).map(gapSolution)).toEqual(['TCP', 'TCP / UDP', 'nein', '53'])
   })
 })
 

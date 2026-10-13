@@ -1,4 +1,5 @@
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
+import { useExercise } from '@/lib/exerciseState'
 import type { Lang } from '@/lib/i18n'
 import { t } from '@/lib/i18n'
 import { Icon } from '@/components/Icon'
@@ -14,10 +15,11 @@ export default function MatchBlock({ data, lang }: { data: MatchData; lang: Lang
   const de = lang === 'de'
   const n = data.pairs.length
   // order[k] = Paar-Index der Beschreibung an Anzeigeposition k
-  const [order, setOrder] = useState(() => shuffledIndices(n))
-  const [assignment, setAssignment] = useState<(number | null)[]>(() => Array(n).fill(null))
-  const [active, setActive] = useState<number | null>(0)
-  const [checked, setChecked] = useState(false)
+  const fresh = () => ({ order: shuffledIndices(n), assignment: Array<number | null>(n).fill(null), active: 0 as number | null, checked: false })
+  const [{ order, assignment, active, checked }, setState] = useExercise(fresh,
+    (s) => s.checked && matchResult(s.assignment).every(Boolean))
+  const setActive = (next: number | null) => setState((s) => ({ ...s, active: next }))
+  const setChecked = (next: boolean) => setState((s) => ({ ...s, checked: next }))
   const result = useMemo(() => matchResult(assignment), [assignment])
   const letterOf = (pair: number) => LETTERS[order.indexOf(pair)]
   const complete = assignment.every((r) => r !== null)
@@ -26,11 +28,10 @@ export default function MatchBlock({ data, lang }: { data: MatchData; lang: Lang
   const pick = (right: number) => {
     if (checked || active === null) return
     const next = assignPair(assignment, active, right)
-    setAssignment(next)
     const open = next.findIndex((r, i) => r === null && i !== active)
-    setActive(open >= 0 ? open : null)
+    setState((s) => ({ ...s, assignment: next, active: open >= 0 ? open : null }))
   }
-  const reset = () => { setOrder(shuffledIndices(n)); setAssignment(Array(n).fill(null)); setActive(0); setChecked(false) }
+  const reset = () => setState(fresh())
 
   return (
     <div className="rounded-xl border border-slate-200 bg-white p-4">
@@ -38,7 +39,7 @@ export default function MatchBlock({ data, lang }: { data: MatchData; lang: Lang
       <p className="font-medium text-slate-800 mb-1">{data.prompt}</p>
       <p className="text-xs text-slate-400 mb-3">{de ? 'Erst einen Begriff wählen, dann die passende Beschreibung.' : 'Pick a term first, then its matching description.'}</p>
       <div className="grid gap-4 sm:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
-        <ul className="flex flex-col gap-1.5" aria-label={de ? 'Begriffe' : 'Terms'}>
+        <ul className="flex min-w-0 flex-col gap-1.5" aria-label={de ? 'Begriffe' : 'Terms'}>
           {data.pairs.map((p, i) => {
             const r = assignment[i]
             return (
@@ -48,7 +49,7 @@ export default function MatchBlock({ data, lang }: { data: MatchData; lang: Lang
                     checked ? (result[i] ? 'border-green-300 bg-green-50 text-green-800' : 'border-amber-300 bg-amber-50 text-amber-800')
                     : active === i ? 'border-teal-600 bg-teal-50 text-teal-900'
                     : 'border-slate-200 text-slate-700 hover:bg-slate-50'}`}>
-                  <span className="min-w-0 flex-1 font-medium">{p.left}</span>
+                  <span className="min-w-0 flex-1 font-medium [overflow-wrap:anywhere]">{p.left}</span>
                   <span className="shrink-0 font-mono text-xs" aria-hidden="true">{r === null ? '→ ?' : `→ ${letterOf(r)}`}</span>
                   <span className="sr-only">{r === null ? (de ? 'noch nicht zugeordnet' : 'not matched yet') : `${de ? 'zugeordnet' : 'matched to'} ${letterOf(r)}`}</span>
                   {checked && (
@@ -62,7 +63,7 @@ export default function MatchBlock({ data, lang }: { data: MatchData; lang: Lang
             )
           })}
         </ul>
-        <ul className="flex flex-col gap-1.5" aria-label={de ? 'Beschreibungen' : 'Descriptions'}>
+        <ul className="flex min-w-0 flex-col gap-1.5" aria-label={de ? 'Beschreibungen' : 'Descriptions'}>
           {order.map((pair, k) => {
             const used = assignment.includes(pair)
             return (
@@ -71,7 +72,7 @@ export default function MatchBlock({ data, lang }: { data: MatchData; lang: Lang
                   className={`flex w-full items-start gap-2 rounded-lg border px-3 py-1.5 text-left text-sm ${
                     used ? 'border-slate-200 bg-slate-50 text-slate-500' : 'border-slate-200 text-slate-700 hover:bg-slate-50'}`}>
                   <span className="shrink-0 font-mono text-xs font-semibold text-teal-700 mt-0.5">{LETTERS[k]}</span>
-                  <span className="min-w-0 flex-1">{data.pairs[pair].right}</span>
+                  <span className="min-w-0 flex-1 [overflow-wrap:anywhere]">{data.pairs[pair].right}</span>
                 </button>
               </li>
             )

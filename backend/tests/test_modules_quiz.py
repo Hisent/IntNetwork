@@ -2,6 +2,7 @@ from concurrent.futures import ThreadPoolExecutor
 
 from fastapi.testclient import TestClient
 from app.main import app
+from tests.conftest import correct_answers
 from app.services import ratelimit
 
 
@@ -23,11 +24,9 @@ def test_module_delivery_hides_answers_and_grades():
         for q in mod["quiz"]["questions"]:
             assert "answer" not in q
 
-        # Reihenfolge/Antworten entsprechen dem Content in app/content/vlan.py:
-        # v1 single->1, v2 single->1, v3 multi->[0,1,3], v4 number->20
-        good = {ids[0]: 1, ids[1]: 1, ids[2]: [0, 1, 3], ids[3]: 20}
+        good = correct_answers("vlan", ids)
         r = c.post("/api/modules/vlan/quiz", json={"answers": good}, headers=h).json()
-        assert r["score"] == 4 and r["total"] == 4 and r["passed"] is True
+        assert r["score"] == r["total"] == len(ids) and r["passed"] is True
 
         me = c.get("/api/me", headers=h).json()
         vlan = next(p for p in me["progress"] if p["module_key"] == "vlan")
@@ -49,7 +48,7 @@ def test_concurrent_quiz_submit_never_500s():
         h = {"Authorization": f"Bearer {tok}"}
         mod = c.get("/api/modules/vlan", headers=h).json()
         ids = [q["id"] for q in mod["quiz"]["questions"]]
-        good = {ids[0]: 1, ids[1]: 1, ids[2]: [0, 1, 3], ids[3]: 20}
+        good = correct_answers("vlan", ids)
 
         results = []
 

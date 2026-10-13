@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Link, Navigate } from 'react-router-dom'
 import { learnApi } from '@/lib/learnApi'
@@ -13,6 +13,8 @@ import { modulePositions } from '@/lib/modulePosition'
 import { markLockedVisibility } from '@/lib/lockedModules'
 import { WorkshopTheme } from '@/components/WorkshopTheme'
 import { Icon } from '@/components/Icon'
+import { SearchBox } from '@/components/SearchBox'
+import { hasLocalProgress, pruneOtherParticipants } from '@/lib/readProgress'
 
 type Group = { key: string; title: string; mods: ModuleMeta[] }
 
@@ -37,6 +39,17 @@ export function LearnPage() {
     },
   })
 
+  // „Begonnen“ kommt aus zwei Quellen: einer Quiz-Abgabe (Server) oder lokalen
+  // Lese-/Übungsspuren in diesem Browser (readProgress/exerciseState).
+  const participantId = me.data?.participant_id
+  const courseId = me.data?.course_id
+  const [startedLocally, setStartedLocally] = useState<string[]>([])
+  useEffect(() => {
+    if (participantId == null || courseId == null || !mods.data) return
+    pruneOtherParticipants(participantId)
+    setStartedLocally(mods.data.filter((m) => hasLocalProgress(participantId, courseId, m.key)).map((m) => m.key))
+  }, [participantId, courseId, mods.data])
+
   if (role !== 'participant') return <Navigate to="/" replace />
   if (me.isError || mods.isError) return <LoadError lang={lang} onRetry={() => { me.refetch(); mods.refetch() }} />
   if (me.isLoading || mods.isLoading) return <PageSkeleton />
@@ -55,8 +68,11 @@ export function LearnPage() {
 
   const sorted = [...(mods.data ?? [])].sort((a, b) => a.order - b.order)
   const isLocked = (m: ModuleMeta) => m.prerequisites.length > 0 && !prereqsMet(m.prerequisites)
-  // „Hier weitermachen“: erstes offenes, nicht gesperrtes Modul in Kurs-Reihenfolge
-  const continueAt = sorted.find((m) => !isDone(m.key) && !isLocked(m))
+  const isStarted = (key: string) => progressOf(key)?.best != null || startedLocally.includes(key)
+  // „Hier weitermachen“: zuerst ein angefangenes, noch nicht bestandenes Modul,
+  // sonst das erste offene, nicht gesperrte in Kurs-Reihenfolge.
+  const open = sorted.filter((m) => !isDone(m.key) && !isLocked(m))
+  const continueAt = open.find((m) => isStarted(m.key)) ?? open[0]
   const grouped: Group[] = groupModulesBySection(sorted, me.data?.workshop?.sections)
     .map((g) => ({ key: g.key, title: lang === 'de' ? g.title_de : g.title_en, mods: g.modules }))
   const workshopTitle = me.data?.workshop?.title[lang] ?? 'IntLab'
@@ -76,6 +92,7 @@ export function LearnPage() {
         doneCount={doneCount}
         donePct={donePct}
         continueAt={continueAt}
+        startedKeys={sorted.filter((m) => isStarted(m.key)).map((m) => m.key)}
         titleOf={titleOf}
         workshopTitle={workshopTitle}
         workshopSummary={workshopSummary}
@@ -97,6 +114,7 @@ export interface WorkbenchLearnProps {
   doneCount: number
   donePct: number
   continueAt?: ModuleMeta
+  startedKeys?: string[]
   titleOf: (key: string) => string
   workshopTitle: string
   workshopSummary: string
@@ -104,7 +122,7 @@ export interface WorkbenchLearnProps {
   setLanguage: (lang: Lang) => void
 }
 
-export function WorkbenchLearnView({ lang, displayName, modules, groups, progress, company, links, doneCount, donePct, continueAt, titleOf, workshopTitle, workshopSummary, completionText, setLanguage }: WorkbenchLearnProps) {
+export function WorkbenchLearnView({ lang, displayName, modules, groups, progress, company, links, doneCount, donePct, continueAt, startedKeys = [], titleOf, workshopTitle, workshopSummary, completionText, setLanguage }: WorkbenchLearnProps) {
   const progressOf = (key: string) => progress.find((item) => item.module_key === key)
   // Anzeigeposition (1..n) statt des internen `order`-Sortierschlüssels —
   // sonst zeigt der Claude-Workshop "Modul 101" statt "Modul 1" (siehe modulePosition.ts).
@@ -129,6 +147,13 @@ export function WorkbenchLearnView({ lang, displayName, modules, groups, progres
   )
   const langControl = <LangToggle lang={lang} onChange={setLanguage} />
 
+  // Status je Modul: bestanden (Quiz) > begonnen (Abgabe oder lokale Spuren) > offen.
+  const statusOf = (module: ModuleMeta, locked: boolean) => {
+    if (progressOf(module.key)?.done) return lang === 'de' ? 'Quiz bestanden' : 'Quiz passed'
+    if (locked) return lang === 'de' ? 'Voraussetzung offen' : 'Prerequisite open'
+    return startedKeys.includes(module.key) ? (lang === 'de' ? 'begonnen' : 'started') : t(lang, 'open')
+  }
+
   const renderModuleRow = (module: ModuleMeta) => {
     const itemProgress = progressOf(module.key)
     const locked = isLocked(module)
@@ -138,7 +163,11 @@ export function WorkbenchLearnView({ lang, displayName, modules, groups, progres
           {itemProgress?.done ? <Icon name="check" className="h-4 w-4" /> : positions.get(module.key)}
         </span>
         <span className="min-w-0 font-medium text-[var(--wb-ink)]">{lang === 'de' ? module.title : module.title_en}</span>
-        <span className="text-xs tabular-nums text-[var(--wb-muted)]">{itemProgress?.best != null ? `${t(lang, 'best')} ${itemProgress.best}%` : locked ? (lang === 'de' ? 'Voraussetzung offen' : 'Prerequisite open') : t(lang, 'open')}</span>
+        <span className="text-xs tabular-nums text-[var(--wb-muted)]">
+          {module.minutes != null && <span>{lang === 'de' ? `ca. ${module.minutes} Min.` : `approx. ${module.minutes} min`} · </span>}
+          {statusOf(module, locked)}
+          {itemProgress?.best != null && ` · ${t(lang, 'best')} ${itemProgress.best}%`}
+        </span>
         {module.prerequisites.length > 0 && <span className="min-w-0 text-xs text-[var(--wb-muted)] sm:col-start-2">{t(lang, 'prerequisitesHint')}: {module.prerequisites.map(titleOf).join(', ')}</span>}
       </>
     return locked
@@ -177,12 +206,18 @@ export function WorkbenchLearnView({ lang, displayName, modules, groups, progres
           <main id="main-content" tabIndex={-1} className="min-w-0">
             {continueAt && (
               <Link to={`/lernen/${continueAt.key}`} className="wb-surface wb-surface--highlight group mb-8 block border-[var(--wb-accent)] p-5 hover:border-[var(--wb-accent)]">
-                <span className="text-xs font-semibold uppercase tracking-[0.14em] text-teal-200">{t(lang, 'continueHere')}</span>
+                <span className="text-xs font-semibold uppercase tracking-[0.14em] opacity-80">{t(lang, 'continueHere')}</span>
                 <span className="mt-2 flex items-center justify-between gap-4 text-xl font-semibold">
                   {lang === 'de' ? continueAt.title : continueAt.title_en}<Icon name="arrowRight" className="h-4 w-4 text-teal-300 transition-transform group-hover:translate-x-1" />
                 </span>
+                {/* opacity statt teal-Stufe: die Karte ist in beiden Modi dunkel, die teal-Palette kippt im Dunkelmodus */}
+                <span className="mt-1 block text-sm opacity-80">
+                  {statusOf(continueAt, false)}{continueAt.minutes != null && ` · ${lang === 'de' ? `ca. ${continueAt.minutes} Min.` : `approx. ${continueAt.minutes} min`}`}
+                </span>
               </Link>
             )}
+
+            <SearchBox lang={lang} modules={modules} />
 
             {hasLocked && <p className="mb-5 max-w-[65ch] text-sm text-[var(--wb-muted)]">{t(lang, 'lockedOrderHint')}</p>}
 
@@ -222,6 +257,11 @@ export function WorkbenchLearnView({ lang, displayName, modules, groups, progres
           </main>
 
           <aside className="min-w-0 space-y-5 xl:sticky xl:top-20 xl:self-start">
+            <section className="wb-surface p-5">
+              <WorkbenchSectionTitle>{lang === 'de' ? 'Üben & Wiederholen' : 'Practice & review'}</WorkbenchSectionTitle>
+              <p className="text-sm leading-relaxed text-[var(--wb-muted)]">{lang === 'de' ? 'Falsch beantwortete Fragen wiederholen oder gemischt üben — ohne Wertung.' : 'Review questions you got wrong or practise a mix — ungraded.'}</p>
+              <Link to="/lernen/ueben" className="wb-control mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-[var(--wb-accent)] hover:underline">{lang === 'de' ? 'Übungsmodus starten' : 'Start practice mode'}<Icon name="arrowRight" className="h-4 w-4" /></Link>
+            </section>
             {company && <section className="wb-surface p-5"><WorkbenchSectionTitle>{company.name}</WorkbenchSectionTitle><p className="text-sm leading-relaxed text-[var(--wb-muted)]">{company.blurb}</p><p className="mt-4 text-xs font-semibold text-[var(--wb-ink)]">{t(lang, 'sites')}</p><p className="mt-1 text-sm text-[var(--wb-muted)]">{company.sites.join(', ')}</p><div className="mt-3 flex flex-wrap gap-2">{company.devices.map((device) => <span key={device} className="rounded-md bg-[var(--wb-subtle)] px-2 py-1 text-xs text-[var(--wb-muted)]">{device}</span>)}</div></section>}
             {links.length > 0 && <details className="wb-surface p-5"><summary className="wb-control flex cursor-pointer items-center font-semibold">{t(lang, 'linksTitle')}</summary><div className="mt-3 space-y-4">{links.map((category) => <div key={category.category.de}><p className="text-xs font-semibold text-[var(--wb-muted)]">{category.category[lang]}</p>{category.items.map((item) => <a key={item.url} href={item.url} target="_blank" rel="noreferrer" className="wb-control flex items-center text-sm font-medium text-[var(--wb-accent)] hover:underline">{item.title}<Icon name="external" className="ml-auto h-3.5 w-3.5" /></a>)}</div>)}</div></details>}
           </aside>

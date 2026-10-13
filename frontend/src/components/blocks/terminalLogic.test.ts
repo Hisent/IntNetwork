@@ -88,3 +88,55 @@ describe('Chips und Aufgaben', () => {
     expect(taskDone(spec, spec.tasks![1], new Set(), '15.3')).toBe(false)
   })
 })
+
+describe('wörtlicher Stern (\\*)', () => {
+  const nat: TerminalData = {
+    prompt: 'r1#', abbreviations: true,
+    commands: [
+      { cmd: 'clear ip nat translation \\*', output: '' },
+      { cmd: 'ls \\*.log *', output: 'x' },
+    ],
+    tasks: [{ text: 'Tabelle leeren', command: 'clear ip nat translation \\*' }],
+  }
+  it('trifft nur den getippten Stern, nicht beliebigen Text', () => {
+    expect(findCommand(nat, 'clear ip nat translation *')).toEqual({ kind: 'match', index: 0 })
+    expect(findCommand(nat, 'clear ip nat translation inside')).toEqual({ kind: 'none' })
+    expect(findCommand(nat, 'cl ip nat tr *')).toEqual({ kind: 'match', index: 0 })
+  })
+  it('mischt wörtlichen Stern und Platzhalter in einem Muster', () => {
+    expect(findCommand(nat, 'ls *.log /var')).toEqual({ kind: 'match', index: 1 })
+    expect(findCommand(nat, 'ls a.log /var')).toEqual({ kind: 'none' })
+  })
+  it('zeigt Chip und Hilfe ohne Escape und hakt die Aufgabe ab', () => {
+    expect(chipCommands(nat)).toEqual(['clear ip nat translation *'])
+    expect(helpText(nat, 'de')).toContain('  clear ip nat translation *\n')
+    expect(taskDone(nat, nat.tasks![0], new Set([0]))).toBe(true)
+  })
+})
+
+describe('Zustand (sets / clears / variants)', () => {
+  const pc: TerminalData = {
+    prompt: 'PC>',
+    commands: [
+      { cmd: 'arp -a', output: 'leer', variants: [{ when: 'failed', output: 'kaputt' }, { when: 'pinged', output: '10.0.0.1' }] },
+      { cmd: 'ping 10.0.0.1', output: 'Reply', sets: ['pinged'] },
+      { cmd: 'arp -d', output: '', clears: ['pinged'] },
+      { cmd: 'toggle', output: 'aus', sets: ['on'], clears: ['on'], variants: [{ when: 'on', output: 'an' }] },
+    ],
+  }
+  it('liefert ohne Flags die Standardausgabe und meldet keine Zustandsänderung', () => {
+    expect(runCommand(pc, 'arp -a', 'de')).toEqual({ output: 'leer', index: 0, prompt: undefined })
+  })
+  it('setzt Flags, wählt die erste passende Variante und löscht wieder', () => {
+    const afterPing = runCommand(pc, 'ping 10.0.0.1', 'de', []).flags!
+    expect(afterPing).toEqual(['pinged'])
+    expect(runCommand(pc, 'arp -a', 'de', afterPing).output).toBe('10.0.0.1')
+    expect(runCommand(pc, 'arp -a', 'de', ['pinged', 'failed']).output).toBe('kaputt')
+    expect(runCommand(pc, 'ping 10.0.0.1', 'de', afterPing).flags).toEqual(['pinged'])
+    expect(runCommand(pc, 'arp -d', 'de', ['other', 'pinged']).flags).toEqual(['other'])
+  })
+  it('wählt die Ausgabe nach dem Stand VOR dem Befehl; clears wirkt vor sets', () => {
+    expect(runCommand(pc, 'toggle', 'de', [])).toMatchObject({ output: 'aus', flags: ['on'] })
+    expect(runCommand(pc, 'toggle', 'de', ['on'])).toMatchObject({ output: 'an', flags: ['on'] })
+  })
+})

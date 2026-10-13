@@ -83,10 +83,17 @@ class ModuleIn(BaseModel):
     order: int
     prerequisites: list[str] = []
     goals: list[str] = []
+    # Englische Lernziele, optional; wenn gesetzt: je Ziel genau eine Übersetzung.
+    goals_en: list[str] | None = None
     scenario_de: str
     scenario_en: str
     blocks: list[BlockIn]
     quiz: list[QuestionIn]
+
+    @field_validator("goals_en")
+    @classmethod
+    def _leer_ist_keine(cls, v: list[str] | None) -> list[str] | None:
+        return v or None  # [] wie "fehlt": sonst wiche der Hash vom Auslieferungsstand ab
 
 
 class ModuleCreateIn(BaseModel):
@@ -113,6 +120,9 @@ def _validate(db: Session, key: str, data: ModuleIn) -> None:
             raise HTTPException(status_code=422, detail=f"Modul kann nicht eigene Voraussetzung sein: {p}")
         if not db.query(ContentModule).filter(ContentModule.key == p).first():
             raise HTTPException(status_code=422, detail=f"Unbekannte Voraussetzung: {p}")
+    if data.goals_en and (len(data.goals_en) != len(data.goals) or not all(g.strip() for g in data.goals_en)):
+        raise HTTPException(status_code=422, detail="Lernziele (EN): je deutschem Lernziel genau eine "
+                                                    "nichtleere Übersetzung — oder das Feld ganz leer lassen")
     for b in data.blocks:
         if b.type == "widget":
             if b.widget_id not in VALID_WIDGET_IDS:

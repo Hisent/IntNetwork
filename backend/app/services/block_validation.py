@@ -4,12 +4,18 @@
 Jedes Textfeld X darf sprachneutral als `X` ODER zweisprachig als `X_de` + `X_en`
 im Payload stehen. `localize` löst das für die Auslieferung zu `X` auf;
 `validate_block` wirft ValueError mit Feldpfad (der Aufrufer ergänzt Blocktyp und id).
+Längenfehler werden je Block gesammelt und gemeinsam gemeldet (mit `; ` getrennt) --
+wer DE kürzt, soll nicht erst im nächsten Lauf erfahren, dass EN auch zu lang ist.
 """
 import re
+from contextvars import ContextVar
+
+# Sammelstelle der Längenfehler des gerade geprüften Blocks (je Aufruf von validate_block neu)
+_too_long: ContextVar[list[str]] = ContextVar("too_long")
 
 DECLARATIVE_TYPES = {"diagram", "terminal", "match", "cloze", "scenario"}
 
-SEQ_STYLES = {"request", "reply", "broadcast", "encrypted"}
+SEQ_STYLES = {"request", "reply", "broadcast", "multicast", "encrypted"}
 FLOW_SHAPES = {"host", "switch", "router", "firewall", "server", "cloud", "database", "user",
                "process", "decision"}
 ID_RE = re.compile(r"^[a-z0-9][a-z0-9_-]*$")
@@ -67,8 +73,9 @@ def _text(d: dict, name: str, where: str, required: bool = True, max_len: int | 
     for v in values:
         if not isinstance(v, str) or not v.strip():
             _fail(path, "DE und EN müssen beide nichtleerer Text sein")
+    for suffix, v in zip([""] if neutral is not None else ["_de", "_en"], values, strict=True):
         if max_len and len(v) > max_len:
-            _fail(path, f"zu lang ({len(v)} > {max_len} Zeichen)")
+            _too_long.get().append(f"{path}{suffix}: zu lang ({len(v)} > {max_len} Zeichen)")
     return True
 
 
@@ -134,13 +141,20 @@ def _diagram(pl: dict) -> None:
             _text(a, "label", w, max_len=28)
         for i, m in enumerate(_items(pl, "messages", "", 1, 14)):
             w = f"messages[{i}]"
-            _obj(m, w, {"from", "to", "label", "detail", "style"})
-            for end in ("from", "to"):
-                if m.get(end) not in actors:
-                    _fail(f"{w}.{end}", f"unbekannter Akteur '{m.get(end)}'")
+            _obj(m, w, {"from", "to", "label", "detail", "style", "at", "divider"})
+            # `to` als Liste = dieselbe Nachricht parallel an mehrere Empfänger
+            to = m.get("to")
+            if isinstance(to, list) and (not (2 <= len(to) <= 4) or len(set(map(str, to))) != len(to) or m.get("from") in to):
+                _fail(f"{w}.to", "als Liste: 2 bis 4 verschiedene Empfänger, ohne den Absender")
+            for end, refs in (("from", [m.get("from")]), ("to", to if isinstance(to, list) else [to])):
+                for ref in refs:
+                    if not isinstance(ref, str) or ref not in actors:
+                        _fail(f"{w}.{end}", f"unbekannter Akteur '{ref}'")
             _text(m, "label", w, max_len=70)
             _text(m, "detail", w, required=False)
             _choice(m, "style", w, SEQ_STYLES)
+            _text(m, "at", w, required=False, max_len=8)
+            _text(m, "divider", w, required=False, max_len=40)
     elif kind == "layers":
         _obj(pl, "", {"kind", "title", "caption", "layers"})
         for i, layer in enumerate(_items(pl, "layers", "", 2, 8)):
@@ -206,8 +220,10 @@ def _diagram(pl: dict) -> None:
             _text(c, "title", w, max_len=40)
         for i, r in enumerate(_items(pl, "rows", "", 1, 10)):
             w = f"rows[{i}]"
-            _obj(r, w, {"label", "values"})
+            _obj(r, w, {"label", "values", "mono", "detail"})
             _text(r, "label", w, max_len=40)
+            _flag(r, "mono", w)
+            _text(r, "detail", w, required=False)
             _text_list(r, "values", w, len(columns), len(columns))
     else:
         _fail("kind", f"'{kind}' unbekannt (erlaubt: sequence, layers, flow, compare)")
@@ -221,8 +237,29 @@ def _norm(cmd: str) -> str:
     return " ".join(cmd.split()).lower()
 
 
+WIDE_LINE = 120  # längste Ausgabezeile bei wrap: false (waagerecht scrollend)
+
+
+def _flags(d: dict, name: str, where: str) -> list[str]:
+    """Liste von Zustands-Flags (sets/clears)."""
+    value = d.get(name, [])
+    if not isinstance(value, list) or (name in d and not value) or len(value) > 4 \
+            or any(not isinstance(f, str) or not ID_RE.match(f) for f in value) or len(set(value)) != len(value):
+        _fail(_join(where, name), "braucht 1 bis 4 verschiedene Flag-Namen (a-z, 0-9, -, _)")
+    return value
+
+
+def _output(d: dict, where: str) -> list[str]:
+    # leere Ausgabe ist erlaubt (Konfigurationsbefehle antworten nicht), das Feld muss aber da sein
+    outs = [d[k] for k in ("output", "output_de", "output_en") if k in d]
+    if ("output" in d) == ("output_de" in d or "output_en" in d) or \
+            ("output" not in d and len(outs) != 2) or any(not isinstance(o, str) for o in outs):
+        _fail(f"{where}.output", "fehlt (output oder output_de + output_en, jeweils Text)")
+    return outs
+
+
 def _terminal(pl: dict) -> None:
-    _obj(pl, "", {"title", "prompt", "intro", "unknown", "abbreviations", "case_sensitive",
+    _obj(pl, "", {"title", "prompt", "intro", "unknown", "abbreviations", "case_sensitive", "wrap",
                   "commands", "tasks"})
     _text(pl, "title", "", required=False, max_len=90)
     if not isinstance(pl.get("prompt"), str) or not pl["prompt"].strip():
@@ -231,10 +268,13 @@ def _terminal(pl: dict) -> None:
     _text(pl, "unknown", "", required=False)
     _flag(pl, "abbreviations", "")
     _flag(pl, "case_sensitive", "")
+    _flag(pl, "wrap", "")
     known: set[str] = set()
+    settable = {f for c in (pl["commands"] if isinstance(pl.get("commands"), list) else []) if isinstance(c, dict)
+                for f in (c.get("sets") if isinstance(c.get("sets"), list) else []) if isinstance(f, str)}
     for i, c in enumerate(_items(pl, "commands", "", 1, 30)):
         w = f"commands[{i}]"
-        _obj(c, w, {"cmd", "aliases", "output", "desc", "prompt", "chip"})
+        _obj(c, w, {"cmd", "aliases", "output", "desc", "prompt", "chip", "label", "sets", "clears", "variants"})
         names = [c.get("cmd"), *(c.get("aliases") or [])]
         if not isinstance(c.get("aliases", []), list):
             _fail(f"{w}.aliases", "muss eine Liste sein")
@@ -244,19 +284,33 @@ def _terminal(pl: dict) -> None:
             if _norm(name) in known:
                 _fail(f"{w}.cmd", f"'{name}' ist doppelt vergeben")
             known.add(_norm(name))
-        # leere Ausgabe ist erlaubt (Konfigurationsbefehle antworten nicht), das Feld muss aber da sein
-        outs = [c[k] for k in ("output", "output_de", "output_en") if k in c]
-        if ("output" in c) == ("output_de" in c or "output_en" in c) or \
-                ("output" not in c and len(outs) != 2) or any(not isinstance(o, str) for o in outs):
-            _fail(f"{w}.output", "fehlt (output oder output_de + output_en, jeweils Text)")
+        outputs = [(f"{w}.output", _output(c, w))]
+        _flags(c, "sets", w)
+        for f in _flags(c, "clears", w):
+            if f not in settable:
+                _fail(f"{w}.clears", f"Flag '{f}' wird von keinem Befehl gesetzt (sets)")
+        if "variants" in c:
+            for j, v in enumerate(_items(c, "variants", w, 1, 4)):
+                vw = f"{w}.variants[{j}]"
+                _obj(v, vw, {"when", "output"})
+                if not isinstance(v.get("when"), str) or v["when"] not in settable:
+                    _fail(f"{vw}.when", f"Flag '{v.get('when')}' wird von keinem Befehl gesetzt (sets)")
+                outputs.append((f"{vw}.output", _output(v, vw)))
+        if pl.get("wrap") is False:
+            for path, outs in outputs:
+                widest = max((len(line) for o in outs for line in o.split("\n")), default=0)
+                if widest > WIDE_LINE:
+                    _too_long.get().append(f"{path}: Zeile zu lang ({widest} > {WIDE_LINE} Zeichen)")
         _text(c, "desc", w, required=False, max_len=80)
         if "prompt" in c and (not isinstance(c["prompt"], str) or not c["prompt"].strip()):
             _fail(f"{w}.prompt", "muss nichtleerer Text sein")
         _flag(c, "chip", w)
+        _text(c, "label", w, required=False, max_len=32)
     for i, t in enumerate(pl.get("tasks") or []):
         w = f"tasks[{i}]"
-        _obj(t, w, {"text", "command", "answers"})
+        _obj(t, w, {"text", "command", "answers", "explanation"})
         _text(t, "text", w)
+        _text(t, "explanation", w, required=False)
         if ("command" in t) == ("answers" in t):
             _fail(w, "braucht genau eines von command oder answers")
         if "command" in t and (not isinstance(t["command"], str) or _norm(t["command"]) not in known):
@@ -289,24 +343,31 @@ def _match(pl: dict) -> None:
 # --- cloze -------------------------------------------------------------------
 
 def _cloze(pl: dict) -> None:
-    _obj(pl, "", {"prompt", "text", "mono", "gaps", "explanation"})
+    _obj(pl, "", {"prompt", "text", "mono", "options", "gaps", "explanation"})
     _text(pl, "prompt", "")
     _text(pl, "text", "")
     _text(pl, "explanation", "", required=False)
     _flag(pl, "mono", "")
+    shared = any(k in pl for k in ("options", "options_de", "options_en"))
+    shared_n = _text_list(pl, "options", "", 2, 8) if shared else 0
     ids: set[str] = set()
     for i, g in enumerate(_items(pl, "gaps", "", 1, 10)):
         w = f"gaps[{i}]"
         _obj(g, w, {"id", "options", "answer", "accept", "case_sensitive", "strict_whitespace"})
         _id(g, w, ids)
-        has_options = any(k in g for k in ("options", "options_de", "options_en"))
+        own = any(k in g for k in ("options", "options_de", "options_en"))
+        # ohne eigene options/accept gilt die gemeinsame Liste des Blocks (options auf Blockebene)
+        has_options = own or (shared and "accept" not in g)
         if has_options == ("accept" in g):
             _fail(w, "braucht genau eines von options (+ answer) oder accept -- eine Lücke ohne Lösung ist nicht prüfbar")
         if has_options:
-            n = _text_list(g, "options", w, 2, 6)
+            n = _text_list(g, "options", w, 2, 6) if own else shared_n
             ans = g.get("answer")
-            if isinstance(ans, bool) or not isinstance(ans, int) or not (0 <= ans < n):
-                _fail(f"{w}.answer", "muss gültiger Options-Index sein")
+            valid = ans if isinstance(ans, list) else [ans]
+            if not valid or any(isinstance(a, bool) or not isinstance(a, int) or not (0 <= a < n) for a in valid):
+                _fail(f"{w}.answer", "muss gültiger Options-Index sein (oder eine Liste davon, wenn mehrere Optionen richtig sind)")
+            if len(set(valid)) != len(valid) or len(valid) >= n:
+                _fail(f"{w}.answer", "Liste gültiger Optionen: keine doppelten, und nicht alle Optionen")
         else:
             _text_list(g, "accept", w, 1, 12)
             _flag(g, "case_sensitive", w)
@@ -348,7 +409,7 @@ def _scenario(pl: dict) -> None:
         for j, o in enumerate(_items(n, "options", w, 2, 4)):
             ow = f"{w}.options[{j}]"
             _obj(o, ow, {"label", "to"})
-            _text(o, "label", ow, max_len=120)
+            _text(o, "label", ow, max_len=180)
             if o.get("to") not in ids:
                 _fail(f"{ow}.to", f"unbekannter Zielknoten '{o.get('to')}'")
             targets[n["id"]].append(o["to"])
@@ -383,4 +444,13 @@ _VALIDATORS = {"diagram": _diagram, "terminal": _terminal, "match": _match,
 def validate_block(block_type: str, payload) -> None:
     if not isinstance(payload, dict) or not payload:
         raise ValueError("payload fehlt")
-    _VALIDATORS[block_type](payload)
+    errors: list[str] = []
+    token = _too_long.set(errors)
+    try:
+        _VALIDATORS[block_type](payload)
+    except ValueError as e:
+        errors.append(str(e))
+    finally:
+        _too_long.reset(token)
+    if errors:
+        raise ValueError("; ".join(errors))

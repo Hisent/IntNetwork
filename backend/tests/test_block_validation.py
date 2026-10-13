@@ -54,8 +54,37 @@ SCENARIO = {
               {"id": "gut", "text": "Sauber gelöst.", "outcome": "good"},
               {"id": "schlecht", "text": "Ausfall.", "outcome": "bad"}],
 }
+# Erweiterungen (alle Felder optional): je Blocktyp ein Beispiel, das sie zusammen nutzt
+SEQUENCE_X = {**SEQUENCE, "messages": [
+    {"from": "c", "to": "s", "label": "Hello", "style": "multicast", "at": "0 s",
+     "divider_de": "Wartezeit", "divider_en": "Timeout"},
+    {"from": "s", "to": "c", "label": "Hello", "at_de": "30 s", "at_en": "30 s"}],
+    "actors": [*SEQUENCE["actors"], {"id": "r", "label": "Router"}]}
+SEQUENCE_X["messages"].append({"from": "c", "to": ["s", "r"], "label": "an alle Router"})
+FLOW_X = {**FLOW, "edges": [{"id": "link", "from": "pc", "to": "sw", "label": "hin"},
+                            {"from": "pc", "to": "sw", "label": "doppelt"},
+                            {"from": "sw", "to": "pc", "label": "zurück"}]}
+COMPARE_X = {**COMPARE, "rows": [{"label": "Befehl", "mono": True, "values": ["show aaa", "show tacacs"],
+                                  "detail_de": "Anzeige", "detail_en": "Display"}]}
+TERMINAL_X = {
+    "prompt": "PC>", "wrap": False,
+    "commands": [{"cmd": "ping 10.0.0.1", "output": "Reply", "sets": ["pinged"], "label_de": "Ping", "label_en": "ping"},
+                 {"cmd": "arp -a", "output": "(leer)", "variants": [{"when": "pinged", "output_de": "10.0.0.1 da", "output_en": "10.0.0.1 present"}]},
+                 {"cmd": "arp -d \\*", "output": "", "clears": ["pinged"]},
+                 {"cmd": "show wide", "output": "x" * 120}],
+    "tasks": [{"text": "Leeren", "command": "arp -d \\*", "explanation_de": "Cache leer", "explanation_en": "Cache empty"}],
+}
+CLOZE_X = {"prompt": "Ergänze", "text": "[[a]] und [[b]] und [[c]]",
+           "options_de": ["eins", "zwei", "drei"], "options_en": ["one", "two", "three"],
+           "gaps": [{"id": "a", "answer": 0}, {"id": "b", "answer": [1, 2]},
+                    {"id": "c", "options": ["x", "y", "z"], "answer": [0, 2]}]}
+SCENARIO_X = {**SCENARIO, "nodes": [
+    {**SCENARIO["nodes"][0], "options": [{"label": "x" * 180, "to": "b"}, {"label": "Neustart", "to": "schlecht"}]},
+    *SCENARIO["nodes"][1:]]}
+EXTENDED = [("diagram", SEQUENCE_X), ("diagram", FLOW_X), ("diagram", COMPARE_X), ("terminal", TERMINAL_X),
+            ("cloze", CLOZE_X), ("scenario", SCENARIO_X)]
 VALID = [("diagram", SEQUENCE), ("diagram", LAYERS), ("diagram", FLOW), ("diagram", COMPARE),
-         ("terminal", TERMINAL), ("match", MATCH), ("cloze", CLOZE), ("scenario", SCENARIO)]
+         ("terminal", TERMINAL), ("match", MATCH), ("cloze", CLOZE), ("scenario", SCENARIO)] + EXTENDED
 
 
 @pytest.mark.parametrize("block_type,payload", VALID, ids=lambda v: v if isinstance(v, str) else v.get("kind", ""))
@@ -125,6 +154,39 @@ INVALID = [
     ("cloze", CLOZE, _set(["text_en"], "hosts: [[ziel]]"), "text_en: Lücke 'state' kommt im Text nicht als [[state]] vor"),
     ("cloze", CLOZE, _set(["text_de"], "hosts: [[ziel]] [[state]] [[port]]"), "text_de: Platzhalter [[port]] hat keine Lücke"),
     ("cloze", CLOZE, _set(["gaps", 1, "id"], "ziel"), "gaps[1].id: 'ziel' doppelt"),
+    # Erweiterungen
+    ("diagram", SEQUENCE_X, _set(["messages", 2, "to"], ["s", "x"]), "messages[2].to: unbekannter Akteur 'x'"),
+    ("diagram", SEQUENCE_X, _set(["messages", 2, "to"], ["s", "c"]), "messages[2].to: als Liste: 2 bis 4 verschiedene Empfänger"),
+    ("diagram", SEQUENCE_X, _set(["messages", 2, "to"], ["s"]), "messages[2].to: als Liste: 2 bis 4 verschiedene Empfänger"),
+    ("terminal", TERMINAL_X, _set(["commands", 0, "label_de"], "x" * 33), "commands[0].label_de: zu lang (33 > 32"),
+    ("diagram", SEQUENCE_X, _set(["messages", 0, "at"], "nach 30 s"), "messages[0].at: zu lang (9 > 8"),
+    ("diagram", SEQUENCE_X, _drop(["messages", 0, "divider_en"]), "messages[0].divider: DE und EN"),
+    ("diagram", SEQUENCE_X, _set(["messages", 0, "divider"], "x"), "messages[0].divider: entweder divider oder"),
+    ("diagram", SEQUENCE_X, _set(["messages", 1, "note"], "x"), "messages[1].note: unbekanntes Feld"),
+    ("diagram", COMPARE_X, _set(["rows", 0, "mono"], "ja"), "rows[0].mono: muss true/false sein"),
+    ("diagram", COMPARE_X, _drop(["rows", 0, "detail_en"]), "rows[0].detail: DE und EN"),
+    ("diagram", COMPARE_X, _set(["columns", 0, "mono"], True), "columns[0].mono: unbekanntes Feld"),
+    ("terminal", TERMINAL_X, _set(["wrap"], "nein"), "wrap: muss true/false sein"),
+    ("terminal", TERMINAL_X, _set(["commands", 3, "output"], "ok\n" + "x" * 121), "commands[3].output: Zeile zu lang (121 > 120"),
+    ("terminal", TERMINAL_X, _set(["commands", 0, "sets"], "pinged"), "commands[0].sets: braucht 1 bis 4 verschiedene Flag-Namen"),
+    ("terminal", TERMINAL_X, _set(["commands", 0, "sets"], ["Pinged!"]), "commands[0].sets: braucht 1 bis 4 verschiedene Flag-Namen"),
+    ("terminal", TERMINAL_X, _set(["commands", 1, "variants", 0, "when"], "pingt"), "commands[1].variants[0].when: Flag 'pingt' wird von keinem Befehl gesetzt"),
+    ("terminal", TERMINAL_X, _drop(["commands", 1, "variants", 0, "output_en"]), "commands[1].variants[0].output: fehlt"),
+    ("terminal", TERMINAL_X, _set(["commands", 1, "variants", 0, "prompt"], "x"), "commands[1].variants[0].prompt: unbekanntes Feld"),
+    ("terminal", TERMINAL_X, _set(["commands", 1, "variants"], []), "commands[1].variants: braucht 1 bis 4"),
+    ("terminal", TERMINAL_X, _set(["commands", 2, "clears"], ["weg"]), "commands[2].clears: Flag 'weg' wird von keinem Befehl gesetzt"),
+    ("terminal", TERMINAL_X, _drop(["tasks", 0, "explanation_en"]), "tasks[0].explanation: DE und EN"),
+    ("terminal", TERMINAL_X, _set(["tasks", 0, "command"], "arp -d *"), "tasks[0].command: 'arp -d *' ist kein cmd/alias"),
+    ("terminal", TERMINAL_X, _set(["tasks", 0, "hint"], "x"), "tasks[0].hint: unbekanntes Feld"),
+    ("cloze", CLOZE_X, _set(["options_en"], ["one", "two"]), "options: options_de und options_en müssen gleich lang"),
+    ("cloze", CLOZE_X, _set(["gaps", 0, "answer"], 3), "gaps[0].answer: muss gültiger Options-Index"),
+    ("cloze", CLOZE_X, _drop(["gaps", 0, "answer"]), "gaps[0].answer: muss gültiger Options-Index"),
+    ("cloze", CLOZE_X, _set(["gaps", 1, "answer"], []), "gaps[1].answer: muss gültiger Options-Index"),
+    ("cloze", CLOZE_X, _set(["gaps", 1, "answer"], [1, 1]), "gaps[1].answer: Liste gültiger Optionen"),
+    ("cloze", CLOZE_X, _set(["gaps", 2, "answer"], [0, 1, 2]), "gaps[2].answer: Liste gültiger Optionen"),
+    ("cloze", CLOZE_X, _set(["gaps", 1, "answer"], [1, True]), "gaps[1].answer: muss gültiger Options-Index"),
+    ("cloze", CLOZE, _set(["gaps", 0], {"id": "ziel", "answer": 0}), "gaps[0]: braucht genau eines von options (+ answer) oder accept"),
+    ("scenario", SCENARIO_X, _set(["nodes", 0, "options", 0, "label"], "x" * 181), "nodes[0].options[0].label: zu lang (181 > 180"),
     ("scenario", SCENARIO, _set(["start"], "anfang"), "start: unbekannter Knoten 'anfang'"),
     ("scenario", SCENARIO, _set(["nodes", 0, "options", 1, "to"], "nirgendwo"), "nodes[0].options[1].to: unbekannter Zielknoten 'nirgendwo'"),
     ("scenario", SCENARIO, _set(["nodes", 0, "options", 1, "to"], "b"), "nodes[3]: 'schlecht' ist vom Start aus nicht erreichbar"),
@@ -141,6 +203,22 @@ def test_author_errors_name_the_field(block_type, template, change, expected):
     with pytest.raises(ValueError) as err:
         validate_block(block_type, _broken(template, change))
     assert expected in str(err.value)
+
+
+def test_all_length_errors_of_a_block_are_reported_together():
+    """DE und EN zu lang, dazu ein weiteres Feld und ein Strukturfehler: alles in einer Meldung."""
+    bad = _broken(SCENARIO, lambda d: (
+        d["nodes"][0]["options"][0].pop("label"),
+        d["nodes"][0]["options"][0].update(label_de="d" * 181, label_en="e" * 190),
+        d.update(title="t" * 91),
+        d["nodes"][2].update(outcome="super")))
+    with pytest.raises(ValueError) as err:
+        validate_block("scenario", bad)
+    for part in ("nodes[0].options[0].label_de: zu lang (181 > 180 Zeichen)",
+                 "nodes[0].options[0].label_en: zu lang (190 > 180 Zeichen)", "title: zu lang (91 > 90 Zeichen)",
+                 "nodes[2].outcome: 'super' ist nicht erlaubt"):
+        assert part in str(err.value)
+    validate_block("scenario", SCENARIO)  # die Sammlung ist je Aufruf frisch
 
 
 def test_scenario_rejects_endless_loop():
@@ -217,6 +295,14 @@ def test_editor_round_trip_and_localized_delivery(scratch_module):
         assert seen[5]["pairs"][0] == {"left": "DNS", "right": "Namen"}
         assert seen[6]["gaps"][1]["answer"] == 0 and "[[ziel]]" in seen[6]["text"]
         assert seen[7]["nodes"][2]["outcome"] == "good"
+        # neue optionale Felder: sprachaufgelöst und vollständig ausgeliefert
+        assert seen[8]["messages"][0] == {"from": "c", "to": "s", "label": "Hello", "style": "multicast",
+                                          "at": "0 s", "divider": "Wartezeit"}
+        assert seen[10]["rows"][0]["mono"] is True and seen[10]["rows"][0]["detail"] == "Anzeige"
+        assert seen[11]["wrap"] is False and seen[11]["commands"][0]["sets"] == ["pinged"]
+        assert seen[11]["commands"][1]["variants"] == [{"when": "pinged", "output": "10.0.0.1 da"}]
+        assert seen[11]["tasks"][0]["explanation"] == "Cache leer"
+        assert seen[12]["options"] == ["eins", "zwei", "drei"] and seen[12]["gaps"][1] == {"id": "b", "answer": [1, 2]}
 
 
 def test_editor_rejects_broken_block_with_type_id_and_field(scratch_module):

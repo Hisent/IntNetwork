@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { Link } from 'react-router-dom'
 import { trainerApi, type Course } from '@/lib/trainerApi'
 import { TrainerFeedback } from '@/components/TrainerFeedback'
 import { ConfirmDialog } from '@/components/ConfirmDialog'
@@ -187,11 +188,18 @@ export function CourseDetail({ course, workshopTitle, workshops, portalContainer
                     const m = courseModulesByKey.get(meta.key)
                     if (!m) return null
                     return (
-                      <label key={m.key} className="flex items-center gap-2 text-sm text-[var(--wb-ink)]">
-                        <input type="checkbox" checked={m.active} disabled={toggleMod.isPending}
-                          onChange={(e) => toggleMod.mutate({ module_key: m.key, active: e.target.checked })} />
-                        {m.title}
-                      </label>
+                      <div key={m.key} className="flex items-center gap-2">
+                        <label className="flex min-w-0 flex-1 items-center gap-2 text-sm text-[var(--wb-ink)]">
+                          <input type="checkbox" checked={m.active} disabled={toggleMod.isPending}
+                            onChange={(e) => toggleMod.mutate({ module_key: m.key, active: e.target.checked })} />
+                          {m.title}
+                        </label>
+                        {/* Einstieg in den Beamer-Modus MIT Kurs: nur so gibt es dort die Live-Abstimmung */}
+                        {m.active && (
+                          <Link to={`/trainer/modul/${m.key}/praesentieren?kurs=${cid}`} title="Präsentieren (mit Live-Abstimmung)" aria-label={`${m.title} präsentieren`}
+                            className="shrink-0 rounded-lg px-2 py-1 text-xs text-[var(--wb-muted)] hover:bg-[var(--wb-subtle)] hover:text-[var(--wb-ink)]">▶ Präsentieren</Link>
+                        )}
+                      </div>
                     )
                   })}
                 </div>

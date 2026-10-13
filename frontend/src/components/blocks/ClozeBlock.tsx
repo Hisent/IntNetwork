@@ -1,20 +1,24 @@
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
+import { useExercise } from '@/lib/exerciseState'
 import type { Lang } from '@/lib/i18n'
 import { t } from '@/lib/i18n'
 import { Icon } from '@/components/Icon'
-import { clozeResult, gapSolution, parseCloze } from './exerciseLogic'
+import { clozeResult, gapSolution, parseCloze, resolveGaps } from './exerciseLogic'
 import type { ClozeData } from './types'
 
 export default function ClozeBlock({ data, lang }: { data: ClozeData; lang: Lang }) {
   const de = lang === 'de'
   const parts = useMemo(() => parseCloze(data.text, new Set(data.gaps.map((g) => g.id))), [data])
-  const [values, setValues] = useState<Record<string, string>>({})
-  const [checked, setChecked] = useState(false)
-  const [solved, setSolved] = useState(false)
+  const gaps = useMemo(() => resolveGaps(data), [data])
+  const [{ values, checked, solved }, setState] = useExercise(
+    { values: {} as Record<string, string>, checked: false, solved: false },
+    (s) => s.checked && Object.values(clozeResult(data, s.values)).every(Boolean))
+  const setChecked = (next: boolean) => setState((s) => ({ ...s, checked: next }))
+  const setSolved = (next: boolean) => setState((s) => ({ ...s, solved: next }))
   const result = useMemo(() => clozeResult(data, values), [data, values])
   const allCorrect = checked && Object.values(result).every(Boolean)
   const filled = data.gaps.every((g) => (values[g.id] ?? '').trim() !== '')
-  const set = (id: string, v: string) => setValues((s) => ({ ...s, [id]: v }))
+  const set = (id: string, v: string) => setState((s) => ({ ...s, values: { ...s.values, [id]: v } }))
 
   // Auf der dunklen Code-Fläche (mono) andere Feldfarben als im Fließtext.
   const field = data.mono
@@ -33,7 +37,7 @@ export default function ClozeBlock({ data, lang }: { data: ClozeData; lang: Lang
         : 'whitespace-pre-wrap text-slate-700 leading-9'}>
         {parts.map((part, i) => {
           if ('text' in part) return <span key={i}>{part.text}</span>
-          const gap = data.gaps.find((g) => g.id === part.gap)
+          const gap = gaps.find((g) => g.id === part.gap)
           if (!gap) return null
           const ok = result[gap.id]
           const label = `${de ? 'Lücke' : 'Gap'} ${gapNumber(gap.id)}`
@@ -77,7 +81,7 @@ export default function ClozeBlock({ data, lang }: { data: ClozeData; lang: Lang
             </span>
             {!allCorrect && (
               <>
-                <button type="button" onClick={() => { setChecked(false); setSolved(false) }} className="text-xs text-slate-500 underline hover:text-slate-700">
+                <button type="button" onClick={() => setState((s) => ({ ...s, checked: false, solved: false }))} className="text-xs text-slate-500 underline hover:text-slate-700">
                   {t(lang, 'tryAgainShort')}
                 </button>
                 {!solved && (

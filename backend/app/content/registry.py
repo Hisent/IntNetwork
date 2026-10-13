@@ -145,7 +145,9 @@ def _module_dict(m: ContentModule, blocks: list[ContentBlock], questions: list[C
         "key": m.key, "title": m.title_de, "title_en": m.title_en,
         "workshop_key": m.workshop_key,
         "order": m.order,
-        "prerequisites": m.prerequisites, "goals": m.goals,
+        "prerequisites": m.prerequisites,
+        # Lernziele in der gewünschten Sprache; ohne (vollständige) Übersetzung Deutsch.
+        "goals": m.goals_en if lang == "en" and m.goals_en and len(m.goals_en) == len(m.goals) else m.goals,
         "scenario": _pick(m.scenario_de, m.scenario_en, lang),
         "blocks": [], "quiz": {"questions": []},
     }
@@ -188,6 +190,8 @@ def _module_dict(m: ContentModule, blocks: list[ContentBlock], questions: list[C
             bd = {**localize(b.payload or {}, lang), "type": b.type}
         else:
             bd = {"type": "widget", "id": b.widget_id}
+        # Stabile Kennung: Sprungziel der Suche und Schlüssel des lokal gemerkten Übungsstands.
+        bd["uid"] = b.uid
         if b.note:
             bd["note"] = b.note
         out["blocks"].append(bd)
@@ -214,7 +218,6 @@ def public_module(db: Session, key: str, lang: str = "de") -> dict | None:
         return None
     m, blocks, questions = loaded
     out = _module_dict(m, blocks, questions, lang)
-    out.pop("goals", None)
     for b in out["blocks"]:
         b.pop("note", None)
     for q in out["quiz"]["questions"]:
