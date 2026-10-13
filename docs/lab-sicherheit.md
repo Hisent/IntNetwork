@@ -359,8 +359,12 @@ aufrufen — die Antwort ist `{"enabled": false}`.
 - **Basis-Image und OpenSSL:** Der Runner baut auf `python:3.12-slim-trixie`
   (Debian 13, in `runner/Dockerfile` ausdrücklich benannt). Das Paket `openssl`
   ist dort **OpenSSL 3.5** (LTS-Zweig; geprüft am 12.10.2026:
-  `3.5.7-1~deb13u3`) — die Befehle des PKI-Lehrgangs brauchen ≥ 3.0. Nach einem
-  Wechsel des Debian-Release im Container nachprüfen:
+  `3.5.7-1~deb13u3`). **Mindestversion: OpenSSL 3.5** — die Vorlage
+  „Post-Quanten-Schlüssel“ des OpenSSL-Labs erzeugt ML-KEM-768- und
+  ML-DSA-65-Schlüssel (`genpkey -algorithm ML-KEM-768` / `ML-DSA-65`), die es
+  erst ab 3.5 gibt; ältere Versionen brechen dort mit „Algorithm … not found“
+  ab. Alle übrigen Befehle des PKI-Lehrgangs laufen ab 3.0. Nach einem Wechsel
+  des Debian-Release im Container nachprüfen:
   `docker exec <runner-container> openssl version`.
 
 - **Logs:** Der Runner schreibt nach stderr (`docker logs <runner-container>`),

@@ -17,10 +17,12 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import shlex
 import sys
 import time
 from concurrent.futures import Future, ThreadPoolExecutor
+from pathlib import Path
 
 import pytest
 
@@ -996,6 +998,69 @@ def test_werkzeug_argv_pruefen_ignoriert_nicht_gelistete_art():
     # "ansible" baut seine eigene, feste Kommandozeile und laeuft nie ueber
     # _run_werkzeug - die Pruefung soll dafuer trotzdem nicht greifen (None).
     assert worker._werkzeug_argv_pruefen(["irgendwas"], "ansible") is None
+
+
+# Die Vorlagen der Lab-Widgets werden direkt aus den templates.ts-Dateien des
+# Frontends gelesen: so kann keine Vorlage dazukommen, die der Runner ablehnt,
+# ohne dass dieser Test rot wird.
+_WIDGETS = Path(__file__).resolve().parents[2] / "frontend" / "src" / "widgets"
+_VORLAGEN_DATEIEN = {"openssl": _WIDGETS / "opensslab" / "templates.ts",
+                     "git": _WIDGETS / "gitlab" / "templates.ts"}
+
+
+def _vorlagen_aus_ts(pfad: Path) -> dict[str, list[str]]:
+    """{Vorlagen-id: [Befehle]} aus einer templates.ts. Kleiner, strenger Parser:
+    je Vorlage `id: '…'` gefolgt von `commands: [ … ]` aus reinen String-Literalen
+    ('…' oder "…") und //-Kommentaren. Alles andere (Verkettung, Template-Strings,
+    Variablen) bricht mit Fehler ab, statt still Befehle zu übersehen."""
+    text = pfad.read_text(encoding="utf-8")
+    vorlagen: dict[str, list[str]] = {}
+    for treffer in re.finditer(r"\bcommands:\s*\[", text):
+        ids = re.findall(r"""^\s*id:\s*(['"])([\w-]+)\1,""", text[:treffer.start()], flags=re.M)
+        assert ids, f"{pfad.name}: commands ohne vorangehende id"
+        vorlage, befehle, i = ids[-1][1], [], treffer.end()
+        assert vorlage not in vorlagen, f"{pfad.name}: zweite commands-Liste für {vorlage}"
+        while text[i] != "]":
+            if text[i].isspace() or text[i] == ",":
+                i += 1
+            elif text.startswith("//", i):
+                i = text.index("\n", i)
+            elif text[i] in "'\"":
+                ende = i + 1
+                while text[ende] != text[i]:
+                    ende += 2 if text[ende] == "\\" else 1
+                befehl = text[i + 1:ende]
+                assert "\\" not in befehl, f"{pfad.name}/{vorlage}: Escape-Sequenz im Befehl wird nicht unterstützt"
+                befehle.append(befehl)
+                i = ende + 1
+            else:
+                raise AssertionError(f"{pfad.name}/{vorlage}: unerwartetes Zeichen {text[i]!r} in commands")
+        vorlagen[vorlage] = befehle
+    assert len(vorlagen) == len(re.findall(r"""^\s*id:\s*['"]""", text, flags=re.M)), f"{pfad.name}: Vorlage ohne commands"
+    return vorlagen
+
+
+_VORLAGEN = {art: _vorlagen_aus_ts(pfad) for art, pfad in _VORLAGEN_DATEIEN.items() if pfad.exists()}
+
+
+def test_vorlagen_aus_dem_frontend_werden_gefunden():
+    if not _VORLAGEN:
+        pytest.skip("Frontend-Quellen nicht vorhanden (Runner-Image ohne Repo)")
+    # Stichprobe gegen den Parser selbst: bekannte Vorlagen samt bekanntem Befehl
+    assert _VORLAGEN["openssl"]["schluessel-csr"][0] == "genrsa -out server.key 2048"
+    assert _VORLAGEN["openssl"]["pqc-schluessel"][0] == "genpkey -algorithm ML-KEM-768 -out mlkem.key"
+    assert _VORLAGEN["git"]["init-commit"] == ["init", "add .", "commit -m start"]
+    assert len(_VORLAGEN["openssl"]) >= 10 and len(_VORLAGEN["git"]) >= 4
+
+
+@pytest.mark.parametrize("art,vorlage", [(art, v) for art, vorlagen in _VORLAGEN.items() for v in vorlagen])
+def test_jeder_vorlagenbefehl_des_frontends_besteht_die_runner_pruefung(art, vorlage):
+    befehle = _VORLAGEN[art][vorlage]
+    assert worker._befehle_pruefen(befehle) is None  # Anzahl und Länge
+    for befehl in befehle:
+        argv = worker._argv_bauen(befehl, art, art)
+        assert argv is not None
+        assert worker._werkzeug_argv_pruefen(argv[1:], art) is None, f"{vorlage}: {befehl}"
 
 
 def shlex_split_wie_argv_bauen(befehl: str) -> list[str]:
