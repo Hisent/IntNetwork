@@ -18,7 +18,7 @@ TLS_HANDSHAKE_MODULE = {
         ('Name the three tasks of the TLS handshake: server authentication, agreement on a session key, '
          'switching to symmetric encryption'),
         'Compare the flow of TLS 1.2 and TLS 1.3 and explain the round trip saved',
-        'Explain why SNI is transmitted in plain text and what ECH changes about that',
+        'Explain why SNI is transmitted in cleartext and what ECH changes about that',
         'Put session resumption and 0-RTT, including the replay risk, into context',
         'Correctly state the status of TLS 1.0/1.1 per RFC 8996',
     ],
@@ -36,7 +36,7 @@ TLS_HANDSHAKE_MODULE = {
     },
     'blocks': [
         {'type': 'text', 'id': 'text-1',
-         'note': 'Haeufigste Verwechslung: TLS wird mit "Verschluesselung" gleichgesetzt. Klarstellen, dass der Handshake zuerst Authentifizierung und Schluesseleinigung leistet - die symmetrische Verschluesselung der Nutzdaten kommt erst danach.',
+         'note': 'Häufigste Verwechslung: TLS wird mit "Verschlüsselung" gleichgesetzt. Klarstellen, dass der Handshake zuerst Authentifizierung und Schlüsseleinigung leistet - die symmetrische Verschlüsselung der Nutzdaten kommt erst danach.',
          'value': {
              'de': '## Was ein TLS-Handshake eigentlich erledigt\n\n'
                    'Ein TLS-Handshake löst drei Aufgaben, bevor auch nur ein Byte Nutzdaten verschlüsselt '
@@ -51,7 +51,7 @@ TLS_HANDSHAKE_MODULE = {
                    'Alles, was in diesem Modul folgt, ist die Frage: Wie genau läuft dieser Ablauf auf '
                    'der Leitung ab — und was hat sich zwischen TLS 1.2 und TLS 1.3 daran geändert?',
              'en': '## What a TLS Handshake Actually Does\n\n'
-                   'A TLS handshake solves three tasks before a single byte of application data gets '
+                   'A TLS handshake accomplishes three tasks before a single byte of application data gets '
                    'encrypted:\n\n'
                    '- **Server authentication** — the client checks the server certificate against its '
                    'chain of trust (see the X.509 certificates module).\n'
@@ -83,8 +83,8 @@ TLS_HANDSHAKE_MODULE = {
                    'Wichtig für die Einschätzung des Sicherheitsniveaus: Das Server-Zertifikat wird in '
                    '`Certificate` **im Klartext** auf die Leitung gelegt — ein passiver Mitleser sieht '
                    'es, bevor überhaupt ein Sitzungsschlüssel steht.',
-             'en': '## TLS 1.2: Two Roundtrips\n\n'
-                   'A complete TLS 1.2 handshake typically needs two roundtrips:\n\n'
+             'en': '## TLS 1.2: Two Round Trips\n\n'
+                   'A complete TLS 1.2 handshake typically needs two round trips:\n\n'
                    '```\n'
                    'Client                                              Server\n'
                    '  ClientHello                 -------->\n'
@@ -99,7 +99,7 @@ TLS_HANDSHAKE_MODULE = {
                    '                                          Finished\n'
                    '```\n\n'
                    'Important for assessing the security level: the server certificate goes over the '
-                   'wire in `Certificate` **in plain text** — a passive eavesdropper sees it before a '
+                   'wire in `Certificate` **in cleartext** — a passive eavesdropper sees it before a '
                    'session key even exists.',
          }},
         {'type': 'text', 'id': 'text-3',
@@ -120,25 +120,25 @@ TLS_HANDSHAKE_MODULE = {
                  'Juli 2026 ersetzt **RFC 9846** diese Fassung (Klarstellungen und Korrekturen, dasselbe '
                  'Protokoll). Weil sich dabei Abschnittsnummern verschoben haben, gehört zu jedem Zitat die '
                  'RFC-Nummer.'),
-             'en': ('## TLS 1.3 (RFC 8446): One Roundtrip, Encrypted from ServerHello On\n\nTLS 1.3 reduces the '
-                 'full handshake to **one roundtrip**: the client sends its key share (`key_share`) '
-                 'speculatively already in the first `ClientHello` — assuming client and server will agree on a '
+             'en': ('## TLS 1.3 (RFC 8446): One Round Trip, Encrypted from ServerHello On\n\nTLS 1.3 reduces the '
+                 'full handshake to **one round trip**: the client speculatively sends its key share (`key_share`) '
+                 'in the very first `ClientHello` — assuming client and server will agree on a '
                  'common Diffie-Hellman group anyway. The server can respond directly with `ServerHello`, and '
                  'from that point on **everything else is encrypted** — including the server certificate. A '
                  'passive eavesdropper (without ECH, see below) only sees the server IP and the SNI hostname in '
-                 'the first `ClientHello`, not the certificate anymore.\n\nTLS 1.3 also removes some of the '
-                 'biggest legacy baggage of TLS 1.2:\n\n- **Static RSA key transport** — as a result, Forward '
-                 'Secrecy is no longer optional in TLS 1.3, but guaranteed for **every** full handshake.\n- '
+                 'the first `ClientHello`, no longer the certificate.\n\nTLS 1.3 also removes some of the '
+                 'biggest legacy baggage of TLS 1.2:\n\n- **Static RSA key transport** — as a result, forward '
+                 'secrecy is no longer optional in TLS 1.3, but guaranteed for **every** full handshake.\n- '
                  '**Compression** at the TLS layer (attack surface for compression side channels).\n- '
                  '**Renegotiation** during an ongoing session.\n- The weak cipher suites (RC4, 3DES, CBC modes '
-                 'without AEAD) — TLS 1.3 only knows AEAD ciphers.\n\nOn sources: TLS 1.3 was published in 2018 '
-                 'as RFC 8446; since July 2026 **RFC 9846** replaces that version (clarifications and '
+                 'without AEAD) — TLS 1.3 supports only AEAD ciphers.\n\nOn sources: TLS 1.3 was published in 2018 '
+                 'as RFC 8446; since July 2026, **RFC 9846** has replaced that version (clarifications and '
                  'corrections, the same protocol). Because section numbers shifted in the process, every '
                  'citation should include the RFC number.'),
             },
         },
         {'type': 'diagram', 'id': 'diagram-tls12-vs-13',
-         'note': 'Als Zusammenfassung der beiden Textbloecke davor nutzen: Zeile fuer Zeile fragen, '
+         'note': 'Als Zusammenfassung der beiden Textblöcke davor nutzen: Zeile für Zeile fragen, '
                  'welche Spalte die bessere Eigenschaft hat und warum.',
          'payload': {
              'kind': 'compare',
@@ -166,7 +166,7 @@ TLS_HANDSHAKE_MODULE = {
              ],
          }},
         {'type': 'widget', 'id': 'tls-handshake-demo',
-         'note': 'Beide Handshakes Schritt fuer Schritt durchklicken lassen und den Unterschied bei den Roundtrips sowie den Zeitpunkt der Verschluesselung (ab wann ist das Zertifikat nicht mehr im Klartext sichtbar) explizit benennen lassen.'},
+         'note': 'Beide Handshakes Schritt für Schritt durchklicken lassen und den Unterschied bei den Roundtrips sowie den Zeitpunkt der Verschlüsselung (ab wann ist das Zertifikat nicht mehr im Klartext sichtbar) explizit benennen lassen.'},
         {'type': 'match', 'id': 'match-handshake-nachrichten',
          'payload': {
              'prompt_de': 'Welche TLS-1.3-Nachricht erledigt was?',
@@ -195,7 +195,7 @@ TLS_HANDSHAKE_MODULE = {
                     {
                      'left': 'Finished',
                      'right_de': 'Prüfcode über den gesamten Handshake: nichts wurde unterwegs verändert',
-                     'right_en': 'check code over the entire handshake: nothing was altered in transit',
+                     'right_en': 'integrity check over the entire handshake: nothing was altered in transit',
                     },
                     {
                      'left': 'NewSessionTicket',
@@ -228,7 +228,7 @@ TLS_HANDSHAKE_MODULE = {
          'payload': {
              'kind': 'choice',
              'prompt_de': 'Wie viele Roundtrips benötigt ein vollständiger TLS-1.3-Handshake typischerweise, bevor Anwendungsdaten fließen?',
-             'prompt_en': 'How many roundtrips does a complete TLS 1.3 handshake typically need before application data flows?',
+             'prompt_en': 'How many round trips does a complete TLS 1.3 handshake typically need before application data flows?',
              'answer': 1,
              'options_de': [
                  '0 — Anwendungsdaten fließen sofort ohne jeden Handshake',
@@ -238,9 +238,9 @@ TLS_HANDSHAKE_MODULE = {
              ],
              'options_en': [
                  '0 — application data flows immediately without any handshake',
-                 '1 roundtrip — the client already sends its key share in the first ClientHello',
-                 '2 roundtrips — same as TLS 1.2',
-                 '3 roundtrips — TLS 1.3 needs extra confirmations because of ECDHE',
+                 '1 round trip — the client already sends its key share in the first ClientHello',
+                 '2 round trips — same as TLS 1.2',
+                 '3 round trips — TLS 1.3 needs extra confirmations because of ECDHE',
              ],
          }},
         {'type': 'text', 'id': 'text-4',
@@ -260,11 +260,11 @@ TLS_HANDSHAKE_MODULE = {
                    'von Firefox und Chrome unterstützen ECH standardmäßig; '
                    'Firefox setzt dafür aktiviertes DNS over HTTPS (DoH) voraus. Wirksam wird ECH '
                    'ohnehin nur, wenn der angefragte Server es ebenfalls unterstützt.',
-             'en': '## SNI: The Hostname in Plain Text\n\n'
+             'en': '## SNI: The Hostname in Cleartext\n\n'
                    'For a server that hosts several HTTPS domains on the same IP address (virtual '
                    'hosting) to know which certificate to present at all, the client sends the '
                    'desired hostname along in the `ClientHello` — the **Server Name Indication '
-                   '(SNI)**. This field is transmitted in plain text, since it has to be processed '
+                   '(SNI)**. This field is transmitted in cleartext, since it has to be processed '
                    'before a session key even exists. A network observer (e.g. an ISP) can therefore '
                    'still see which hostname a client is requesting — even if the rest of the traffic '
                    'is fully encrypted by TLS 1.3.\n\n'
@@ -287,7 +287,7 @@ TLS_HANDSHAKE_MODULE = {
                    'client and server can agree on the application protocol above TLS before any '
                    'actual data exchange — typically, whether they will speak HTTP/1.1 or HTTP/2. '
                    'Without ALPN, this agreement would have to happen after the handshake, which would '
-                   'cost an extra roundtrip.',
+                   'cost an extra round trip.',
          }},
         {'type': 'text', 'id': 'text-6',
          'value': {
@@ -315,17 +315,17 @@ TLS_HANDSHAKE_MODULE = {
                  'mode**: after the handshake completes, the server issues one or more tickets as a separate '
                  'message, which the client presents on the next connection.\n\nOn resumption, the client can '
                  'already send encrypted application data in its very first message — **0-RTT**. This saves '
-                 'another roundtrip, but carries a replay risk: an attacker can record the 0-RTT message and '
+                 'another round trip, but carries a replay risk: an attacker can record the 0-RTT message and '
                  'resend it to the server, which may process it a second time. That is why only '
                  '**non-state-changing** requests may run over 0-RTT (the classic example: an HTTP GET, not a '
                  'POST that, say, triggers a payment). In addition, 0-RTT data is protected only by a key '
                  "derived from the ticket and therefore has **no forward secrecy**. For that reason Germany's "
-                 'BSI advises in TR-02102-2 to neither send nor accept 0-RTT data.'),
+                 'BSI recommends in TR-02102-2 neither sending nor accepting 0-RTT data.'),
             },
         },
         {'type': 'diagram', 'id': 'diagram-tls13-wiederaufnahme',
-         'note': ('Ergaenzt das Handshake-Widget um den Fall, den es nicht zeigt: Wiederaufnahme per PSK mit 0-RTT. '
-             'Die eckigen/geschweiften Klammern sind hier weggelassen; "verschluesselt" zeigt der dicke Pfeil.'),
+         'note': ('Ergänzt das Handshake-Widget um den Fall, den es nicht zeigt: Wiederaufnahme per PSK mit 0-RTT. '
+             'Die eckigen/geschweiften Klammern sind hier weggelassen; "verschlüsselt" zeigt der dicke Pfeil.'),
          'payload': {
              'kind': 'sequence',
              'title_de': 'TLS 1.3: Wiederaufnahme mit Ticket und 0-RTT',
@@ -425,7 +425,7 @@ TLS_HANDSHAKE_MODULE = {
              ],
          }},
         {'type': 'diagram', 'id': 'diagram-mtls',
-         'note': ('Zweiter Fall, den das Widget nicht zeigt: gegenseitige Authentifizierung. Bruecke zu EKU '
+         'note': ('Zweiter Fall, den das Widget nicht zeigt: gegenseitige Authentifizierung. Brücke zu EKU '
              'clientAuth (Modul X.509) und zu 802.1X/EAP-TLS.'),
          'payload': {
              'kind': 'sequence',
@@ -496,22 +496,22 @@ TLS_HANDSHAKE_MODULE = {
          'value': {
              'de': '## TLS 1.0/1.1: formal Geschichte\n\n'
                    'RFC 8996 hat TLS 1.0, TLS 1.1 und DTLS 1.0 formal deprecatet und in den '
-                   '„Historic"-Status versetzt. Die geforderte Mindestversion ist seither **TLS 1.2 '
+                   '„Historic“-Status versetzt. Die geforderte Mindestversion ist seither **TLS 1.2 '
                    'oder höher** — ein Fallback auf TLS 1.0/1.1 ist untersagt. Für die Praxis bedeutet '
                    'das: Server, die diese alten Versionen noch anbieten, sind nicht nur kryptografisch '
                    'schwach, sondern schlicht nicht mehr konform zum aktuellen Standard.',
              'en': '## TLS 1.0/1.1: Formally History\n\n'
                    'RFC 8996 formally deprecated TLS 1.0, TLS 1.1, and DTLS 1.0 and moved them to '
-                   '"Historic" status. The required minimum version since then is **TLS 1.2 or '
+                   '"Historic" status. Since then, the required minimum version has been **TLS 1.2 or '
                    'higher** — falling back to TLS 1.0/1.1 is prohibited. In practice this means: '
                    'servers that still offer these old versions are not just cryptographically weak, '
                    'they are simply no longer compliant with the current standard.',
          }},
         {'type': 'terminal', 'id': 'terminal-handshake-lesen',
          'note': ('Echte Ausgaben von openssl s_client (OpenSSL 3.6) gegen einen lokalen Testserver mit der '
-             'Kurs-Test-PKI; Hostname statt 127.0.0.1 eingesetzt, Zertifikats-PEM und Sitzungsdetails gekuerzt '
+             'Kurs-Test-PKI; Hostname statt 127.0.0.1 eingesetzt, Zertifikats-PEM und Sitzungsdetails gekürzt '
              '([...]). Bei -tls1_1 bricht schon der eigene Client ab ("no protocols available": OpenSSLs '
-             'Standard-Sicherheitsstufe laesst TLS 1.1 nicht mehr zu). Im Openssl-Lab ist s_client gesperrt '
+             'Standard-Sicherheitsstufe lässt TLS 1.1 nicht mehr zu). Im Openssl-Lab ist s_client gesperrt '
              '(kein Netz), deshalb hier als Simulation.'),
          'payload': {
              'title_de': 'Den Handshake in der s_client-Ausgabe lesen',
@@ -597,7 +597,7 @@ TLS_HANDSHAKE_MODULE = {
     'quiz': {'questions': [
         {'id': 'th1', 'type': 'single',
          'prompt': {'de': 'Welche drei Aufgaben löst ein TLS-Handshake, bevor Nutzdaten fließen?',
-                    'en': 'Which three tasks does a TLS handshake solve before application data flows?'},
+                    'en': 'Which three tasks does a TLS handshake accomplish before application data flows?'},
          'answer': 1,
          'options': {
              'de': [
@@ -635,7 +635,7 @@ TLS_HANDSHAKE_MODULE = {
              'en': [
                  'There is no difference, the certificate is transmitted identically in both versions',
                  'In TLS 1.3 the certificate is dropped entirely, only the session key is checked',
-                 'In TLS 1.2 the certificate goes over the wire in plain text, in TLS 1.3 it is encrypted from ServerHello onward',
+                 'In TLS 1.2 the certificate goes over the wire in cleartext, in TLS 1.3 it is encrypted from ServerHello onward',
                  'In TLS 1.3 the certificate is transmitted before the ClientHello',
              ],
          },
@@ -657,7 +657,7 @@ TLS_HANDSHAKE_MODULE = {
                  'Das verwendete Passwort des Nutzers',
              ],
              'en': [
-                 'The requested hostname in plain text',
+                 'The requested hostname in cleartext',
                  'The content of the transmitted application data',
                  'The server\'s private key',
                  'The user\'s password',
@@ -696,7 +696,7 @@ TLS_HANDSHAKE_MODULE = {
          }},
         {'id': 'th5', 'type': 'single',
          'prompt': {'de': 'Was gilt seit RFC 8996 für TLS 1.0 und TLS 1.1?',
-                    'en': 'What applies to TLS 1.0 and TLS 1.1 since RFC 8996?'},
+                    'en': 'What has been the status of TLS 1.0 and TLS 1.1 since RFC 8996?'},
          'answer': 1,
          'options': {
              'de': [
@@ -707,7 +707,7 @@ TLS_HANDSHAKE_MODULE = {
              ],
              'en': [
                  'They remain permitted as a fallback if TLS 1.2 is unavailable',
-                 'They are formally deprecated and moved to Historic status, the minimum version is TLS 1.2',
+                 'They are formally deprecated and have been moved to Historic status; the minimum version is TLS 1.2',
                  'They were technically replaced by TLS 1.3 and no longer exist as a protocol',
                  'They remain permitted only for internal networks',
              ],
@@ -749,7 +749,7 @@ TLS_HANDSHAKE_MODULE = {
                  'Gruppe (wie entsteht das Geheimnis) und Cipher Suite (wie werden die Daten geschützt). Die '
                  'Suite nennt nur AEAD und Hash — SHA-384 dient der Schlüsselableitung, nicht der '
                  'Verschlüsselung.'),
-             'en': ('TLS 1.3 negotiates three things separately: signature scheme (who is the server), group (how '
+             'en': ('TLS 1.3 negotiates three things separately: signature scheme (who the server is), group (how '
                  'the secret is created), and cipher suite (how the data is protected). The suite only names '
                  'AEAD and hash — SHA-384 is used for key derivation, not for encryption.'),
             },

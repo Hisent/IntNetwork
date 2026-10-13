@@ -39,6 +39,23 @@ describe('osiModel', () => {
     expect(LAYERS.find((l) => l.nr === 5)!.example).toBe('RPC, NetBIOS')
   })
 
+  it('EN: kein deutsches Beispiel (Schicht 1), Captions in beiden Sprachen vollständig', () => {
+    for (const l of LAYERS) expect(l.exampleEn ?? l.example).not.toMatch(/Kabel|Funk|[äöüß]/)
+    expect(LAYERS.find((l) => l.nr === 1)!.exampleEn).toBe('Cable, radio')
+    for (const s of buildSteps()) {
+      expect(s.caption.de.length).toBeGreaterThan(0)
+      expect(s.caption.en).not.toMatch(/[äöüß]|Schicht|Empfänger/)
+    }
+  })
+  it('Encapsulation und Decapsulation sind spiegelbildlich', () => {
+    const steps = buildSteps()
+    const at = (side: 'tx' | 'rx', nr: number) => steps.find((x) => x.side === side && x.layer === nr)!.pieces
+    expect(at('rx', 1)).toEqual(at('tx', 1)) // auf dem Medium: vollständiger Frame
+    expect(at('rx', 2)).toEqual(at('tx', 3)) // nach L2: IP-Paket
+    expect(at('rx', 3)).toEqual(at('tx', 4)) // nach L3: TCP-Segment
+    expect(at('rx', 4)).toEqual(at('tx', 5)) // nach L4: Daten
+    expect(LAYERS.find((l) => l.nr === 3)!.pdu).toEqual({ de: 'Paket', en: 'Packet' }) // Challenge-Antwort
+  })
   it('Empfänger Schicht 7 hat wieder nur Daten', () => {
     const s = buildSteps().at(-1)!
     expect(s.side).toBe('rx')

@@ -342,7 +342,7 @@ PLAYBOOKS_MODULE = {
                          '- **changed** — the task made an actual change.\n'
                          '- **failed** — the task failed (shown as `fatal: … FAILED!` on the '
                          'task line, as `failed=` in the recap).\n'
-                         '- **skipped** — the task was skipped (e.g., by a condition).\n'
+                         '- **skipped** — the task was skipped (e.g. by a condition).\n'
                          '\n'
                          'The `PLAY RECAP` at the end summarizes these counters per host — the '
                          'quickest way to see whether, and where, something failed.\n'
@@ -374,7 +374,7 @@ PLAYBOOKS_MODULE = {
                                    'detail_de': 'Vorher hat der Control Node Inventar und Playbook '
                                                 'gelesen. Task 1 geht an alle Hosts des Plays — '
                                                 'erst wenn alle fertig sind, folgt Task 2.',
-                                   'detail_en': 'Before this the control node read the inventory '
+                                   'detail_en': 'Before this, the control node has read the inventory '
                                                 'and the playbook. Task 1 goes to all hosts of the '
                                                 'play — only when all are done does task 2 '
                                                 'follow.'},

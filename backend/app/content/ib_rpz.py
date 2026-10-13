@@ -21,7 +21,7 @@ RPZ_MODULE = {
         "Distinguish local RPZ rules from externally sourced threat intelligence feeds",
         "Tell RPZ, DNSSEC and a classic firewall apart as different layers of protection",
         "Explain why DNS is an effective, early control point against malware and phishing",
-        "Roughly place the role of Infoblox Threat Defense as a product building on this",
+        "Roughly describe the role of Infoblox Threat Defense as a product that builds on this",
     ],
     'scenario': {
         'de': 'Bei Nordwind Logistik hat sich ein Mitarbeiter-Notebook mit Malware infiziert. '
@@ -50,7 +50,7 @@ RPZ_MODULE = {
                    'eigentlichen Ziel überhaupt zustande kommt — nicht erst, wenn Schadverkehr '
                    'bereits fließt.',
              'en': '## RPZ — a Firewall at the DNS Level\n\n'
-                   'A **Response Policy Zone (RPZ)** works like a firewall, except that it filters '
+                   'A **response policy zone (RPZ)** works like a firewall, except that it filters '
                    'not packets but **DNS answers**. When a client asks for a domain known to be '
                    'malicious, RPZ can:\n\n'
                    '- **block** the answer (the client gets no valid address),\n'
@@ -83,7 +83,7 @@ RPZ_MODULE = {
                    'intelligence providers, which automatically bring in newly detected malicious '
                    'domains.\n\n'
                    'In practice, both usually run in parallel: local rules for company-specific '
-                   'cases, feeds for breadth and currency against new threats that no single '
+                   'cases, feeds for breadth and timeliness against new threats that no single '
                    'company could detect on its own.',
          }},
         {
@@ -95,7 +95,7 @@ RPZ_MODULE = {
                 "title_de": "Wie eine Anfrage durch die RPZs läuft",
                 "title_en": "How a query passes through the RPZs",
                 "caption_de": "Die RPZs werden in ihrer Reihenfolge geprüft; der erste Treffer entscheidet.",
-                "caption_en": "The RPZs are checked in their order; the first hit decides.",
+                "caption_en": "The RPZs are checked in order; the first hit decides.",
                 "nodes": [
                     {
                         "id": "client",
@@ -179,7 +179,7 @@ RPZ_MODULE = {
                     {
                         "highlight": ["lokal", "p2", "feed", "hit", "block"],
                         "text_de": "Anders bei login-nordwind.example: kein Treffer lokal, aber der Feed kennt die Domain als Phishing. Der Client erhält eine Sperre oder Umleitung.",
-                        "text_en": "Different for login-nordwind.example: no local hit, but the feed knows the domain as phishing. The client receives a block or a redirect.",
+                        "text_en": "Different for login-nordwind.example: no local hit, but the feed lists the domain as phishing. The client receives a block or a redirect.",
                     },
                     {
                         "highlight": ["feed", "frei", "echt"],
@@ -205,7 +205,7 @@ RPZ_MODULE = {
                  'RPZ und klassische Firewalls filtern beide ausschließlich Portnummern',
              ],
              'options_en': [
-                 'RPZ intervenes already at DNS name resolution, a classic firewall filters at the '
+                 'RPZ already intervenes at DNS name resolution, a classic firewall filters at the '
                  'packet/connection level',
                  'RPZ completely replaces every network firewall',
                  'RPZ can only filter reverse zones',
@@ -218,7 +218,7 @@ RPZ_MODULE = {
             "note": "Regeltypen laut NIOS-Doku „Configuring Rules for RPZs“.",
             "payload": {
                 "prompt_de": "NIOS kennt mehrere Regeltypen für RPZs. Was bekommt der Client jeweils?",
-                "prompt_en": "NIOS knows several rule types for RPZs. What does the client get in each case?",
+                "prompt_en": "NIOS has several rule types for RPZs. What does the client get in each case?",
                 "pairs": [
                     {
                         "left": "Passthru",
@@ -289,9 +289,9 @@ RPZ_MODULE = {
                    'a legitimate service is suddenly unreachable, without anything having changed '
                    'about the service itself.\n\n'
                    'This is why RPZ operation always needs a way to grant **justified exceptions** '
-                   '— a specifically maintained allowance for individual domains that ended up on '
-                   'a blocklist by mistake, without disabling the rule or the whole feed. Monitoring '
-                   '/reporting of RPZ hits is therefore not just proof of effectiveness, but also '
+                   '— a deliberately maintained allow rule for individual domains that ended up on '
+                   'a blocklist by mistake, without disabling the rule or the whole feed. Monitoring/'
+                   'reporting of RPZ hits is therefore not just proof of effectiveness, but also '
                    'the tool that first makes such false positives visible.',
          }},
         {
@@ -396,7 +396,7 @@ RPZ_MODULE = {
                     {
                         "id": "start",
                         "text_de": "Der Versand meldet: partnerportal.example ist seit heute früh nicht erreichbar, 40 Leute können keine Sendungen buchen. Von deinem Mobiltelefon im Mobilfunknetz funktioniert die Seite. Was prüfst du zuerst?",
-                        "text_en": "Shipping reports: partnerportal.example has been unreachable since early morning, 40 people cannot book shipments. From your phone on the mobile network the site works. What do you check first?",
+                        "text_en": "Shipping reports: partnerportal.example has been unreachable since early this morning, 40 people cannot book shipments. From your phone on the mobile network the site works. What do you check first?",
                         "options": [
                             {
                                 "label_de": "Die Firewall-Regeln für ausgehenden HTTPS-Verkehr.",
@@ -430,7 +430,7 @@ RPZ_MODULE = {
                     {
                         "id": "dns",
                         "text_de": "Intern liefert der Resolver NXDOMAIN, und das Reporting zeigt seit 6:02 Uhr RPZ-Treffer der Feed-RPZ für partnerportal.example. Der Partner bestätigt telefonisch: Die Domain ist sauber, der Hoster hatte am Wochenende einen Vorfall auf einem Nachbarsystem. Was jetzt?",
-                        "text_en": "Internally the resolver returns NXDOMAIN, and reporting shows RPZ hits of the feed RPZ for partnerportal.example since 6:02 a.m. The partner confirms by phone: the domain is clean, the hoster had an incident on a neighbouring system over the weekend. What now?",
+                        "text_en": "Internally the resolver returns NXDOMAIN, and reporting shows RPZ hits from the feed RPZ for partnerportal.example since 6:02 a.m. The partner confirms by phone: the domain is clean, the hosting provider had an incident on a neighboring system over the weekend. What now?",
                         "options": [
                             {
                                 "label_de": "Die Feed-RPZ unter alle anderen RPZs sortieren.",
@@ -481,7 +481,7 @@ RPZ_MODULE = {
                          'large number of random-looking domain names, most of which do not '
                          'exist at all (e.g. `xj3ka9qplw.net`, '
                          '`q0pz71mvdt.com`, …). What does this pattern suggest, and which '
-                         'protection mechanism would ideally catch it? Try it yourself first.',
+                         'protection mechanism would ideally catch it? Think it over yourself first.',
          },
          'value': {
              'de': 'Das Muster zufällig aussehender, wechselnder Domainnamen ist typisch für eine '
@@ -533,7 +533,7 @@ RPZ_MODULE = {
                    'wants to investigate a specific hit more closely (IOC research).\n\n'
                    'Why DNS is such an effective control point: almost all malware has to resolve a '
                    'name before the actual malicious traffic begins — the DNS level is therefore an '
-                   'early, well-instrumentable point to stop attacks before they take effect at '
+                   'early, easily instrumented point to stop attacks before they take effect at '
                    'all.',
          }},
         {'type': 'reflect', 'id': 'reflect-1',
@@ -556,7 +556,7 @@ RPZ_MODULE = {
          },
          'type': 'single',
          'prompt': {'de': 'Was macht eine Response Policy Zone (RPZ) grundsätzlich?',
-                    'en': 'What does a Response Policy Zone (RPZ) fundamentally do?'},
+                    'en': 'What does a response policy zone (RPZ) fundamentally do?'},
          'answer': 0,
          'options': {
              'de': [
@@ -644,7 +644,7 @@ RPZ_MODULE = {
              'en': [
                  'A failed zone transfer',
                  'An expired DNSSEC signature',
-                 'A misconfigured Name Server Group',
+                 'A misconfigured name server group',
                  'Domain Generation Algorithm (DGA) malware',
              ],
          }},
@@ -705,7 +705,7 @@ RPZ_MODULE = {
             "type": "single",
             "prompt": {
                 "de": "dig liefert für gewinnspiel.example die Antwort „gewinnspiel.example. 5 IN CNAME sperrseite.nordwind-intern.de.“, gefolgt von einer internen Adresse. Welcher RPZ-Regeltyp hat gegriffen?",
-                "en": "dig returns for gewinnspiel.example the answer \"gewinnspiel.example. 5 IN CNAME sperrseite.nordwind-intern.de.\", followed by an internal address. Which RPZ rule type applied?",
+                "en": "For gewinnspiel.example, dig returns the answer \"gewinnspiel.example. 5 IN CNAME sperrseite.nordwind-intern.de.\", followed by an internal address. Which RPZ rule type applied?",
             },
             "answer": 2,
             "options": {
@@ -735,13 +735,13 @@ RPZ_MODULE = {
                 "en": [
                     "An infected laptop that resolves a known malicious domain through the internal resolver",
                     "Malware that contacts its target directly via a hard-coded IP address",
-                    "A client that uses a foreign resolver, for example via DNS over HTTPS in the browser",
+                    "A client that uses a third-party resolver, for example via DNS over HTTPS in the browser",
                     "A phishing link whose domain is listed in the subscribed feed",
                 ],
             },
             "explanation": {
                 "de": "RPZ wirkt nur auf Anfragen, die der eigene rekursive Server beantwortet. Ohne Namensauflösung — oder mit einem fremden Resolver — gibt es nichts zu filtern. Deshalb ergänzt die DNS Firewall die klassische Firewall, sie ersetzt sie nicht.",
-                "en": "RPZ only acts on queries answered by your own recursive server. Without name resolution — or with a foreign resolver — there is nothing to filter. That is why the DNS firewall complements the classic firewall and does not replace it.",
+                "en": "RPZ only acts on queries answered by your own recursive server. Without name resolution — or with a third-party resolver — there is nothing to filter. That is why the DNS firewall complements the classic firewall and does not replace it.",
             },
         },
     ]},

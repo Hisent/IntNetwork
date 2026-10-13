@@ -23,12 +23,12 @@ ENTERPRISE_WLAN_MODULE = {
         "Tell WPA2/WPA3-Enterprise from -Personal: individual login instead of a shared "
         "passphrase",
         "Name the three roles of 802.1X: supplicant, authenticator, authentication server",
-        "Place RADIUS as the authentication server and understand EAP as the umbrella term for "
+        "Identify RADIUS as the authentication server and understand EAP as the umbrella term for "
         "the proof of identity",
         "Explain the operational advantage of enterprise Wi-Fi over a shared passphrase",
         "Separate a guest network from the company network via VLAN",
-        "Place roaming between access points as well as controller-based and autonomous access "
-        "points",
+        "Explain roaming between access points and distinguish controller-based from autonomous "
+        "access points",
     ],
     "scenario": {
         "de": "Im Nordwind-Büro nutzen bisher alle dasselbe WPA2-Passwort für das WLAN (Modul "
@@ -53,7 +53,7 @@ ENTERPRISE_WLAN_MODULE = {
                    "ändern, um sie sicher auszusperren. **WPA2/WPA3-Enterprise** löst das "
                    "anders: Es gibt kein geteiltes Passwort mehr, sondern jede Person meldet "
                    "sich mit **eigenen** Zugangsdaten oder einem eigenen Zertifikat an.",
-             "en": "## From a Shared Password to Individual Login\n\nAt home (module 14), a "
+             "en": "## From a Shared Passphrase to Individual Login\n\nAt home (module 14), a "
                    "single shared passphrase is enough (**WPA2/WPA3-Personal**). In a "
                    "company, that quickly becomes a problem: if a departing person knows the "
                    "passphrase, you'd have to change it for **everyone** to reliably lock "
@@ -182,7 +182,7 @@ ENTERPRISE_WLAN_MODULE = {
                                "for this session — and, if desired, the VLAN for this user."},
                  {"from": "a", "to": "s", "label": "EAP-Success",
                   "detail_de": "Der AP meldet dem Laptop den Erfolg.",
-                  "detail_en": "The AP reports the success to the laptop."},
+                  "detail_en": "The AP reports success to the laptop."},
                  {"from": "a", "to": "s", "style": "encrypted", "label_de": "4-Wege-Handshake → Daten fließen",
                   "label_en": "4-way handshake → data flows",
                   "detail_de": "Aus dem Schlüsselmaterial leiten Laptop und AP die Funkschlüssel ab. Jede "
@@ -354,7 +354,7 @@ ENTERPRISE_WLAN_MODULE = {
                   "text_de": "Erster Arbeitstag: Das Notebook der neuen Kollegin fragt beim Firmen-WLAN "
                              "(WPA3-Enterprise, PEAP) immer wieder nach den Zugangsdaten. Alle anderen im "
                              "Raum sind verbunden. Wo siehst du zuerst nach?",
-                  "text_en": "First day at work: the new colleague's notebook keeps asking for credentials "
+                  "text_en": "First day at work: the new colleague's laptop keeps asking for credentials "
                              "on the company Wi-Fi (WPA3-Enterprise, PEAP). Everyone else in the room is "
                              "connected. Where do you look first?",
                   "options": [
@@ -383,9 +383,9 @@ ENTERPRISE_WLAN_MODULE = {
                       {"label_de": "Ihr für heute die Zugangsdaten eines Kollegen geben",
                        "label_en": "Give her a colleague's credentials for today", "to": "fremd"},
                       {"label_de": "Am Notebook die Prüfung des Server-Zertifikats abschalten",
-                       "label_en": "Disable server certificate validation on the notebook", "to": "zert"},
+                       "label_en": "Disable server certificate validation on the laptop", "to": "zert"},
                       {"label_de": "Das Konto in die Gruppe aufnehmen und das Onboarding ergänzen",
-                       "label_en": "Add the account to the group and amend the onboarding", "to": "gruppe"}]},
+                       "label_en": "Add the account to the group and update the onboarding", "to": "gruppe"}]},
                  {"id": "fremd", "outcome": "bad",
                   "text_de": "Damit ist nicht mehr nachvollziehbar, wer im Netz was getan hat — und beim "
                              "Sperren eines Kontos träfe es zwei Personen. Individuelle Zugänge sind der "
@@ -398,14 +398,14 @@ ENTERPRISE_WLAN_MODULE = {
                              "Ohne die Prüfung würde das Notebook seine Zugangsdaten künftig auch einem "
                              "gefälschten Access Point anbieten.",
                   "text_en": "The server rejected the account; the certificate has nothing to do with it. "
-                             "Without validation the notebook would in future offer its credentials to a "
-                             "fake access point as well."},
+                             "Without validation, the laptop would from now on offer its credentials to "
+                             "a fake access point as well."},
                  {"id": "gruppe", "outcome": "good",
                   "text_de": "Ursache behoben — an genau einer Stelle, ohne ein einziges Gerät anzufassen. "
                              "Und mit dem ergänzten Onboarding passiert es beim nächsten Neuzugang nicht "
                              "wieder.",
                   "text_en": "Cause fixed — in exactly one place, without touching a single device. And "
-                             "with the amended onboarding it will not happen again with the next new hire."},
+                             "with the updated onboarding it will not happen again with the next new hire."},
              ],
          }},
         {"type": "reflect", "id": "reflect-1", "payload": {
@@ -469,7 +469,7 @@ ENTERPRISE_WLAN_MODULE = {
          "answer": 0,
          "explanation": {
              "de": "Der RADIUS-Server prüft die Anmeldung zentral, oft gegen ein Verzeichnis wie Active Directory. Der Access Point reicht nur durch: So muss kein AP Benutzerkonten kennen, und ein gesperrtes Konto gilt sofort überall.",
-             "en": "The RADIUS server checks the login centrally, often against a directory such as Active Directory. The access point merely passes things through: no AP needs to know user accounts, and a blocked account applies everywhere immediately."}},
+             "en": "The RADIUS server checks the login centrally, often against a directory such as Active Directory. The access point merely passes things through: that way no AP needs to know user accounts, and blocking an account takes effect everywhere immediately."}},
         {"id": "ew4", "type": "single",
          "prompt": {"de": "Warum ist schnelles Roaming zwischen Access Points für Telefonie "
                          "(VoIP) wichtig?",
@@ -489,7 +489,7 @@ ENTERPRISE_WLAN_MODULE = {
          "answer": 1,
          "explanation": {
              "de": "Eine volle 802.1X-Anmeldung mit mehreren Runden zum RADIUS-Server dauert spürbar lange — für ein Telefonat ein hörbarer Aussetzer. Fast Roaming kürzt genau diesen Schritt ab. Eine feste IP braucht VoIP dafür nicht; die Adresse bleibt beim Wechsel innerhalb derselben SSID ohnehin erhalten.",
-             "en": "A full 802.1X login with several rounds to the RADIUS server takes noticeably long — an audible gap in a phone call. Fast roaming shortens exactly that step. VoIP does not need a fixed IP for this; the address is kept anyway when moving within the same SSID."}},
+             "en": "A full 802.1X login with several rounds to the RADIUS server takes a noticeable amount of time — an audible gap in a phone call. Fast roaming shortens exactly that step. VoIP does not need a fixed IP for this; the address is kept anyway when moving within the same SSID."}},
         {"id": "ew5", "type": "single",
          "prompt": {"de": "Wie trennt man ein Gastnetz sinnvoll vom Firmennetz?",
                     "en": "How do you sensibly separate a guest network from the company "
@@ -508,15 +508,15 @@ ENTERPRISE_WLAN_MODULE = {
              "de": "Ein eigenes VLAN trennt die Gäste auf Schicht 2 vom Firmennetz; eine Firewall-Regel "
                    "erlaubt ihnen dann nur den Weg ins Internet. Ein längeres Passwort ändert nichts "
                    "daran, WOHIN ein angemeldetes Gerät kommt.",
-             "en": "A VLAN of its own separates guests from the company network at layer 2; a firewall "
-                   "rule then allows them only the way to the Internet. A longer passphrase changes "
+             "en": "A VLAN of its own separates guests from the company network at Layer 2; a firewall "
+                   "rule then lets them reach only the Internet. A longer passphrase changes "
                    "nothing about WHERE an authenticated device can go."}},
         {"id": "ew6", "type": "single",
          "prompt": {"de": "Vor dem Gebäude betreibt ein Angreifer einen Access Point mit der SSID des "
                           "Firmen-WLANs. Die Notebooks nutzen PEAP, die Prüfung des Server-Zertifikats "
                           "ist aber abgeschaltet. Was kann passieren?",
                     "en": "Outside the building an attacker runs an access point with the company Wi-Fi's "
-                          "SSID. The notebooks use PEAP, but server certificate validation is switched "
+                          "SSID. The laptops use PEAP, but server certificate validation is switched "
                           "off. What can happen?"},
          "options": {
              "de": ["Nichts — ohne den echten RADIUS-Server kommt keine Anmeldung zustande",
@@ -525,9 +525,9 @@ ENTERPRISE_WLAN_MODULE = {
                     "Der Angreifer erhält automatisch das Zertifikat des RADIUS-Servers",
                     "Der Angreifer kann nur das Gast-WLAN stören"],
              "en": ["Nothing — without the real RADIUS server no login takes place",
-                    "A notebook builds the TLS tunnel to the attacker and hands over its credentials",
+                    "A laptop builds the TLS tunnel to the attacker and hands over its credentials",
                     "The attacker automatically obtains the RADIUS server's certificate",
-                    "The attacker can only disturb the guest Wi-Fi"],
+                    "The attacker can only disrupt the guest Wi-Fi"],
          },
          "answer": 1,
          "explanation": {
@@ -542,7 +542,7 @@ ENTERPRISE_WLAN_MODULE = {
         {"id": "ew7", "type": "single",
          "prompt": {"de": "Nordwind nutzt EAP-TLS. Ein Außendienst-Notebook wird gestohlen. Wie sperrst du "
                           "genau dieses Gerät aus dem WLAN aus?",
-                    "en": "Nordwind uses EAP-TLS. A field notebook is stolen. How do you lock exactly this "
+                    "en": "Nordwind uses EAP-TLS. A field employee's laptop is stolen. How do you lock exactly this "
                           "device out of the Wi-Fi?"},
          "options": {
              "de": ["Das WLAN-Passwort für alle ändern",
@@ -550,7 +550,7 @@ ENTERPRISE_WLAN_MODULE = {
                     "Die SSID umbenennen",
                     "Alle Access Points auf einen anderen Kanal stellen"],
              "en": ["Change the Wi-Fi passphrase for everyone",
-                    "Revoke this notebook's client certificate",
+                    "Revoke this laptop's client certificate",
                     "Rename the SSID",
                     "Move all access points to a different channel"],
          },

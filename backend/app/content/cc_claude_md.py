@@ -23,7 +23,7 @@ CLAUDE_MD_MODULE = {'key': 'claude-md',
               'en': 'Every session starts with a fresh context window — the model "forgets" '
                     "between sessions. So you don't have to keep re-explaining project knowledge, "
                     'there are two memory mechanisms: **CLAUDE.md** (what *you* write down) and '
-                    '**Auto-Memory** (what *Claude* notes for itself). Both are loaded at the '
+                    '**auto memory** (what *Claude* notes for itself). Both are loaded at the '
                     'start of every session. This module makes your project knowledge persistent.'},
  'blocks': [{'type': 'text', 'id': 'text-1',
              'value': {'de': '## Was ist CLAUDE.md?\n'
@@ -293,7 +293,7 @@ CLAUDE_MD_MODULE = {'key': 'claude-md',
                              '`` wird *nicht* importiert, sondern bleibt wörtlich.',
                        'en': '## Imports with @path\n'
                              '\n'
-                             "CLAUDE.md can pull in other files — they're loaded together at "
+                             "CLAUDE.md can pull in other files — they're loaded along with it at "
                              'startup:\n'
                              '\n'
                              '```text\n'
@@ -368,7 +368,7 @@ CLAUDE_MD_MODULE = {'key': 'claude-md',
                              '\n'
                              'The import is also the way to go for older versions and for sessions '
                              'that cannot load `AGENTS.md` directly. Your `~/.claude/CLAUDE.md`, a '
-                             'managed `CLAUDE.md`, and `.claude/rules/` load in addition in every '
+                             'managed `CLAUDE.md`, and `.claude/rules/` are loaded in addition in any '
                              'case.\n'
                              '\n'
                              '> Pitfall: a `CLAUDE.local.md` counts as a CLAUDE.md too. If you '
@@ -418,7 +418,7 @@ CLAUDE_MD_MODULE = {'key': 'claude-md',
                                            '`paths` ist das einzige Frontmatter-Feld, das Claude '
                                            'Code dort auswertet. `**` steht für beliebig viele '
                                            'Verzeichnisebenen.',
-                         'explanation_en': '`@path` imports a file; it is loaded along at startup. '
+                         'explanation_en': '`@path` imports a file; it is loaded along with it at startup. '
                                            'Rules live under `.claude/rules/`, and `paths` is the '
                                            'only frontmatter field Claude Code reads there. `**` '
                                            'stands for any number of directory levels.'}},
@@ -443,22 +443,22 @@ CLAUDE_MD_MODULE = {'key': 'claude-md',
                              'du die geladenen CLAUDE.md- und Memory-Dateien; mit `/context` siehst '
                              'du die Kontextfensternutzung — wie viele Tokens Systemprompt, Dateien, '
                              'Tools und Verlauf gerade belegen.',
-                       'en': '## CLAUDE.md vs. Auto-Memory\n'
+                       'en': '## CLAUDE.md vs. auto memory\n'
                              '\n'
-                             "Besides CLAUDE.md, there's **Auto-Memory**: notes Claude writes for "
+                             "Besides CLAUDE.md, there's **auto memory**: notes Claude writes for "
                              '*itself* (your preferences and corrections, project context that '
                              "can't be derived from the code). Both are loaded at the start of a "
                              'session.\n'
                              '\n'
                              '\n'
-                             '- Who writes it — CLAUDE.md: you; Auto-Memory: Claude\n'
-                             '- Content — CLAUDE.md: rules & standards; Auto-Memory: insights & '
+                             '- Who writes it — CLAUDE.md: you; auto memory: Claude\n'
+                             '- Content — CLAUDE.md: rules & standards; auto memory: insights & '
                              'patterns\n'
-                             '- Control — CLAUDE.md: manually maintained; Auto-Memory: automatic, '
+                             '- Control — CLAUDE.md: manually maintained; auto memory: automatic, '
                              'per repo\n'
                              '\n'
                              'If you say "remember: we use pnpm, not npm", that goes into '
-                             'Auto-Memory. If you want it *team-shared*, instead explicitly say '
+                             'auto memory. If you want it *team-shared*, instead explicitly say '
                              '"add this to CLAUDE.md". Use `/memory` to view and edit the loaded '
                              'CLAUDE.md and memory files; use `/context` to see context-window usage '
                              '— how many tokens the system prompt, files, tools and history currently '
@@ -606,7 +606,7 @@ CLAUDE_MD_MODULE = {'key': 'claude-md',
                                             'In die README'],
                                      'en': ['In CLAUDE.md as a request',
                                             'In a hook (enforced execution)',
-                                            'In Auto-Memory',
+                                            'In auto memory',
                                             'In the README']},
                          'explanation': {'de': 'CLAUDE.md ist Kontext, keine erzwungene '
                                                'Konfiguration: Claude versucht zu folgen, '
@@ -623,16 +623,16 @@ CLAUDE_MD_MODULE = {'key': 'claude-md',
                          'prompt': {'de': 'Was ist der wesentliche Unterschied zwischen CLAUDE.md '
                                           'und Auto-Memory?',
                                     'en': "What's the essential difference between CLAUDE.md and "
-                                          'Auto-Memory?'},
+                                          'auto memory?'},
                          'answer': 0,
                          'options': {'de': ['CLAUDE.md schreibst du, Auto-Memory schreibt Claude '
                                             'sich selbst',
                                             'Auto-Memory wird nie geladen',
                                             'CLAUDE.md gilt nur in CI',
                                             'Es gibt keinen Unterschied'],
-                                     'en': ['You write CLAUDE.md; Claude writes Auto-Memory for '
+                                     'en': ['You write CLAUDE.md; Claude writes auto memory for '
                                             'itself',
-                                            'Auto-Memory is never loaded',
+                                            'Auto memory is never loaded',
                                             'CLAUDE.md only applies in CI',
                                             'There is no difference']},
                          'explanation': {'de': 'CLAUDE.md pflegst du mit Regeln und Standards, '
@@ -699,7 +699,7 @@ CLAUDE_MD_MODULE = {'key': 'claude-md',
                                          'en': 'By default Claude Code reads `AGENTS.md` only when '
                                                'there is no CLAUDE.md in the working directory or '
                                                'above it. With the import, `AGENTS.md` stays the '
-                                               'one file all tools share; alternatively you set '
+                                               'one file all tools share; alternatively, you can configure '
                                                'under `/config` that both are loaded.'}},
                         {'id': 'cm7',
                          'type': 'multi',
@@ -732,8 +732,8 @@ CLAUDE_MD_MODULE = {'key': 'claude-md',
                                                'Permissions und Hooks.',
                                          'en': 'Path-specific rules load on demand and are '
                                                'summarized away during compaction until a matching '
-                                               'file is touched again. They are not an access '
-                                               'lock: rules are instructions in context; '
+                                               'file is touched again. They do not block '
+                                               'access: rules are instructions in context; '
                                                'enforcement happens via permissions and hooks.'}},
                         {'id': 'cm8',
                          'type': 'single',

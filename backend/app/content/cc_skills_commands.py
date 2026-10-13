@@ -297,7 +297,7 @@ SKILLS_COMMANDS_MODULE = {'key': 'skills-commands',
                              '- Plugin — path: `<plugin>/skills/<name>/SKILL.md`; applies to: '
                              'wherever the plugin is active\n'
                              '\n'
-                             'When names collide, Enterprise wins over Personal wins over Project; '
+                             'When names collide, Enterprise wins over Personal, and Personal wins over Project; '
                              'a custom skill with the same name even overrides a **bundled** one. '
                              'Plugin skills are namespaced with `plugin-name:skill-name`, so they '
                              'never collide.'}},
@@ -448,8 +448,7 @@ SKILLS_COMMANDS_MODULE = {'key': 'skills-commands',
                                    {'left': 'context: fork',
                                     'right_de': 'Der Skill läuft isoliert in einem Subagent, ohne '
                                                 'den Gesprächsverlauf',
-                                    'right_en': 'The skill runs isolated in a subagent, without '
-                                                'the conversation history'},
+                                    'right_en': 'The skill runs in isolation in a subagent, without the conversation history'},
                                    {'left': 'paths',
                                     'right_de': 'Claude lädt den Skill nur bei Arbeit an passenden '
                                                 'Dateien automatisch',
@@ -536,8 +535,7 @@ SKILLS_COMMANDS_MODULE = {'key': 'skills-commands',
                                          'en': 'Custom commands have been merged into skills: '
                                                'files in .claude/commands/ keep working and create '
                                                'the same / commands. Nothing was removed — but for '
-                                               'new work a skill is the better choice because it '
-                                               'can bring supporting files.'}},
+                                               'new work a skill is the better choice because it can come with supporting files.'}},
                         {'id': 'sk2',
                          'type': 'single',
                          'prompt': {'de': 'Was bewirkt `` !`git status` `` in einer SKILL.md?',
@@ -661,7 +659,7 @@ SKILLS_COMMANDS_MODULE = {'key': 'skills-commands',
                                                '— der Skill verhält sich dann wie ohne das Feld. '
                                                'An der Schreibweise von true liegt es nicht.',
                                          'en': 'Field names must match exactly, hyphens included. '
-                                               'Claude Code does not know a field with underscores '
+                                               'Claude Code does not recognize a field with underscores '
                                                'and silently skips it — the skill then behaves as '
                                                'if the field were absent. The spelling of true is '
                                                'not the problem.'}},
@@ -692,8 +690,7 @@ SKILLS_COMMANDS_MODULE = {'key': 'skills-commands',
                                          'en': 'When a skill and a file in .claude/commands/ share '
                                                'a name, the skill runs. The command file just sits '
                                                'there without effect — so clean up the old file '
-                                               'when moving to skills instead of wondering about '
-                                               '"ignored" changes.'}},
+                                               'when moving to skills instead of puzzling over "ignored" changes.'}},
                         {'id': 'sk8',
                          'type': 'multi',
                          'prompt': {'de': 'Welche Aussagen zum Laden von Skills stimmen? (mehrere)',
@@ -721,8 +718,7 @@ SKILLS_COMMANDS_MODULE = {'key': 'skills-commands',
                                                'als gedacht: Sie endet, sobald du die nächste '
                                                'Nachricht schickst.',
                                          'en': 'Descriptions are always there; the content enters '
-                                               'the conversation as a single message when invoked '
-                                               'and stays; the file is not re-read. The '
+                                               'the conversation as a single message when invoked and stays there. The file is not re-read. The '
                                                'allowed-tools grant is shorter than you might '
                                                'think: it clears as soon as you send your next '
                                                'message.'}}]}}

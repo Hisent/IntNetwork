@@ -46,3 +46,20 @@ export function evaluate(rules: Rule[], pkt: Packet): Decision {
   }
   return { action: 'deny', ruleIndex: null }
 }
+
+// Ziel-Traffic für den Regel-Baukasten: was soll durch, was nicht. NTP (UDP 123) sorgt dafür,
+// dass ein zu breites „allow UDP/any" nicht als Lösung für „genau HTTPS und DNS" durchgeht.
+export const SAMPLES: { label: string; pkt: Packet; expected: Action }[] = [
+  { label: 'HTTPS (TCP 443)', pkt: { proto: 'TCP', port: 443 }, expected: 'allow' },
+  { label: 'DNS (UDP 53)', pkt: { proto: 'UDP', port: 53 }, expected: 'allow' },
+  { label: 'Telnet (TCP 23)', pkt: { proto: 'TCP', port: 23 }, expected: 'deny' },
+  { label: 'RDP (TCP 3389)', pkt: { proto: 'TCP', port: 3389 }, expected: 'deny' },
+  { label: 'HTTP (TCP 80)', pkt: { proto: 'TCP', port: 80 }, expected: 'deny' },
+  { label: 'NTP (UDP 123)', pkt: { proto: 'UDP', port: 123 }, expected: 'deny' },
+]
+
+/** Baukasten-Aufgabe gelöst: jedes Muster-Paket wird wie gewünscht behandelt, mit 1–2 Regeln. */
+export function labSolved(rules: Rule[]): boolean {
+  return rules.length > 0 && rules.length <= 2
+    && SAMPLES.every((s) => evaluate(rules, s.pkt).action === s.expected)
+}

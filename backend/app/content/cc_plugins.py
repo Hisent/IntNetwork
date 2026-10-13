@@ -178,9 +178,9 @@ PLUGINS_MODULE = {'key': 'plugins',
                              '```json\n'
                              '{\n'
                              '  "name": "my-plugin",\n'
-                             '  "description": "Team-Standards fürs Reviewen und Deployen",\n'
+                             '  "description": "Team standards for reviewing and deploying",\n'
                              '  "version": "1.0.0",\n'
-                             '  "author": { "name": "Dein Team" }\n'
+                             '  "author": { "name": "Your team" }\n'
                              '}\n'
                              '```\n'
                              '\n'
@@ -309,8 +309,7 @@ PLUGINS_MODULE = {'key': 'plugins',
                                     'text_en': 'Validate the plugin in the directory ./my-plugin.',
                                     'command': 'claude plugin validate ./my-plugin'},
                                    {'text_de': 'Welches Feld vermisst der Validator im Manifest?',
-                                    'text_en': 'Which field does the validator miss in the '
-                                               'manifest?',
+                                    'text_en': 'Which field does the validator report as missing from the manifest?',
                                     'answers': ['version']},
                                    {'text_de': 'Prüfe noch einmal so, dass eine CI-Pipeline an der '
                                                'Warnung scheitert.',
@@ -354,7 +353,7 @@ PLUGINS_MODULE = {'key': 'plugins',
                              '- **`claude-plugins-official`** — curated by Anthropic, registered '
                              'automatically on first interactive start.\n'
                              '- **`claude-community`** — community submissions; lives in the repo '
-                             '`anthropics/claude-plugins-community` and has to be added yourself.\n'
+                             '`anthropics/claude-plugins-community` and you have to add it yourself.\n'
                              '\n'
                              'Manage and install them via the `/plugin` command, or add your own/a '
                              'team marketplace:\n'
@@ -379,7 +378,7 @@ PLUGINS_MODULE = {'key': 'plugins',
                          'items_en': ['Create the plugin directory + `.claude-plugin/plugin.json`',
                                       'Add skills/agents/hooks in the root directory',
                                       'Test locally with `--plugin-dir` and use `/reload-plugins`',
-                                      'Put it in a (optionally private) marketplace and have it '
+                                      'Put it in an (optionally private) marketplace and have it '
                                       'installed']}},
             {'type': 'debug',
              'id': 'debug-1',
@@ -564,14 +563,14 @@ PLUGINS_MODULE = {'key': 'plugins',
                                                'subagentStatusLine take effect; every other key is '
                                                'dropped. So a plugin cannot grant itself '
                                                'permissions — and plugin defaults are the lowest '
-                                               "layer, the user's own settings win."}},
+                                               "layer; the user's own settings take precedence."}},
                         {'id': 'pl7',
                          'type': 'single',
                          'prompt': {'de': 'Die CI-Pipeline soll fehlschlagen, wenn im Manifest '
                                           'eures Plugins die `version` fehlt. Welcher Aufruf '
                                           'leistet das?',
                                     'en': 'The CI pipeline should fail when `version` is missing '
-                                          "from your plugin's manifest. Which call does that?"},
+                                          "from your plugin's manifest. Which command does that?"},
                          'answer': 1,
                          'options': {'de': ['`claude plugin validate ./my-plugin`',
                                             '`claude plugin validate ./my-plugin --strict`',

@@ -23,7 +23,7 @@ PKI_ARCHITEKTUR_MODULE = {
         'Distinguish the roles of root CA, intermediate/issuing CA, and end-entity certificate in the chain of trust',
         'Justify why the root CA is kept offline and only issues intermediates',
         'Name the steps of chain validation in the correct order',
-        'Explain why operating system, browser, and Java/Python each bring their own trust stores',
+        'Explain why the operating system, the browser, and Java/Python each bring their own trust store',
         'Put cross-signing and its practical purpose during a root transition into context',
         'Tell a public CA apart from an internal enterprise CA',
     ],
@@ -37,16 +37,16 @@ PKI_ARCHITEKTUR_MODULE = {
               'die Java-Anwendung des Lagerverwaltungssystems meldet einen Vertrauensfehler.',
         'en': 'Nordwind Logistik\'s IT department is building an internal PKI for machine '
               'and service certificates in the warehouse. Before the first certificate '
-              'chain goes live, you clarify with the team why a chain even consists of '
-              'multiple stages - and why the topmost stage, the root, is almost never '
+              'chain goes live, you clarify with the team why a chain consists of '
+              'multiple tiers at all - and why the topmost tier, the root, is almost never '
               'online. At the same time, a familiar problem shows up: in the browser, an '
               'internal test page opens without a warning, but the warehouse management '
               'system\'s Java application reports a trust error.',
     },
     'blocks': [
         {'type': 'text', 'id': 'text-1',
-         'note': 'Diese Rollenteilung ist die Basis fuer den Rest des Moduls - ohne sie '
-                 'ergibt der naechste Block (Root offline) keinen Sinn.',
+         'note': 'Diese Rollenteilung ist die Basis für den Rest des Moduls - ohne sie '
+                 'ergibt der nächste Block (Root offline) keinen Sinn.',
          'value': {
              'de': '## Root-CA, Intermediate-CA, Endzertifikat\n\n'
                    'Eine typische Vertrauenskette besteht aus drei Stufen:\n\n'
@@ -104,7 +104,7 @@ PKI_ARCHITEKTUR_MODULE = {
          }},
         {'type': 'diagram', 'id': 'diagram-vertrauenskette',
          'note': 'Jede Stufe anklicken lassen und fragen: Wer signiert dieses Zertifikat, und wo '
-                 'liegt der zugehoerige private Schluessel?',
+                 'liegt der zugehörige private Schlüssel?',
          'payload': {
              'kind': 'layers',
              'title_de': 'Vertrauenskette: drei Stufen, von oben nach unten signiert',
@@ -139,7 +139,7 @@ PKI_ARCHITEKTUR_MODULE = {
          }},
         {'type': 'widget', 'id': 'cert-chain',
          'note': 'Am Widget die drei Stufen konkret durchklicken lassen, bevor die '
-                 'Kettenpruefung im naechsten Block abstrakt wird.'},
+                 'Kettenprüfung im nächsten Block abstrakt wird.'},
         {'type': 'order', 'id': 'order-1',
          'payload': {
              'prompt_de': ('Bringe die Schritte einer Zertifikatskettenprüfung (Chain Validation) durch einen Client in '
@@ -157,10 +157,10 @@ PKI_ARCHITEKTUR_MODULE = {
                      'Handshake ab'),
                 ],
              'items_en': [
-                    'Client names the desired hostname in the ClientHello (SNI)',
+                    'Client states the requested hostname in the ClientHello (SNI)',
                     'Server replies with the matching end-entity certificate and the intermediate certificates',
                     'Client builds a path from what was delivered up to a root that is in its trust store',
-                    ('Client checks the path it found link by link: signature, validity period, CA permission, '
+                    ('Client checks the path it found link by link: signature, validity period, permission to act as a CA, '
                      'and — if configured — revocation status'),
                     ('If the path is valid, the client compares the requested hostname with the end-entity '
                      "certificate's SAN list"),
@@ -169,9 +169,9 @@ PKI_ARCHITEKTUR_MODULE = {
             },
         },
         {'type': 'diagram', 'id': 'diagram-pfadvalidierung',
-         'note': ('Ergaenzt die Sortieraufgabe: Schritte einzeln durchklicken. Die Reihenfolge "erst Pfad bauen, '
-             'dann Glied fuer Glied pruefen, zuletzt Hostname" folgt RFC 5280 Abschnitt 6.1 (der '
-             'Hostnamen-Abgleich liegt ausserhalb der Pfadvalidierung, RFC 9525).'),
+         'note': ('Ergänzt die Sortieraufgabe: Schritte einzeln durchklicken. Die Reihenfolge "erst Pfad bauen, '
+             'dann Glied für Glied prüfen, zuletzt Hostname" folgt RFC 5280 Abschnitt 6.1 (der '
+             'Hostnamen-Abgleich liegt außerhalb der Pfadvalidierung, RFC 9525).'),
          'payload': {
              'kind': 'flow',
              'title_de': 'Pfadvalidierung: wie der Client die Kette prüft',
@@ -236,7 +236,7 @@ PKI_ARCHITEKTUR_MODULE = {
                      'text_de': ('Zuletzt: Steht der angefragte Hostname im SAN des Endzertifikats, und passt der '
                          'Verwendungszweck (serverAuth)? Erst dann gilt der Server als authentifiziert.'),
                      'text_en': ("Finally: is the requested hostname in the end-entity certificate's SAN, and does the "
-                         'purpose (serverAuth) fit? Only then is the server considered authenticated.'),
+                         'purpose (serverAuth) match? Only then is the server considered authenticated.'),
                     },
                 ],
             },
@@ -259,7 +259,7 @@ PKI_ARCHITEKTUR_MODULE = {
                     'Die Intermediate-CA wurde widerrufen',
                 ],
              'options_en': [
-                    'Java fundamentally does not support TLS',
+                    'Java does not support TLS at all',
                     ('The internal root CA is present in the OS/browser trust store, but not in the separate '
                      'Java trust store (cacerts)'),
                     'The certificate has expired',
@@ -269,8 +269,8 @@ PKI_ARCHITEKTUR_MODULE = {
         },
         {'type': 'terminal', 'id': 'terminal-verify-kette',
          'note': ('Echte Ausgaben von openssl verify (OpenSSL 3.6) gegen die Kurs-Test-PKI; die langen '
-             'Subject-Zeilen sind umbrochen. Dieselbe Uebung laeuft real im Openssl-Lab mit der Vorlage '
-             '"Mini-CA mit Intermediate + Kettenpruefung".'),
+             'Subject-Zeilen sind umbrochen. Dieselbe Übung läuft real im Openssl-Lab mit der Vorlage '
+             '"Mini-CA mit Intermediate + Kettenprüfung".'),
          'payload': {
              'title_de': 'Die Kette mit openssl verify prüfen',
              'title_en': 'Checking the chain with openssl verify',
@@ -290,7 +290,7 @@ PKI_ARCHITEKTUR_MODULE = {
                     {
                      'cmd': 'openssl verify -CAfile root.pem -untrusted issuing.pem www.pem',
                      'desc_de': 'Intermediate als Zwischenglied mitgeben',
-                     'desc_en': 'pass the intermediate as a link',
+                     'desc_en': 'supply the intermediate as the connecting link',
                      'output': 'www.pem: OK',
                     },
                     {
@@ -306,7 +306,7 @@ PKI_ARCHITEKTUR_MODULE = {
                     {
                      'cmd': 'openssl verify -CAfile issuing.pem www.pem',
                      'desc_de': 'nur die Issuing-CA als Anker angeben',
-                     'desc_en': 'give only the issuing CA as anchor',
+                     'desc_en': 'specify only the issuing CA as the anchor',
                      'output': ('C=DE, O=Nordwind Logistik GmbH,\n  CN=Nordwind Issuing CA G1\nerror 2 at 1 depth '
                          'lookup: unable to get issuer\n  certificate\nerror www.pem: verification failed'),
                     },
@@ -364,16 +364,16 @@ PKI_ARCHITEKTUR_MODULE = {
                  'Umgebungsvariable `REQUESTS_CA_BUNDLE`).\n\nFür den Betrieb heißt das: Eine neue interne '
                  'Root-CA muss in **alle** relevanten Trust Stores verteilt werden - Betriebssystem-Rollout '
                  'allein reicht nicht.'),
-             'en': ('## Trust Stores: OS, Browser, Java/Python\n\nOperating system, browser, and runtimes '
+             'en': ('## Trust Stores: OS, Browser, Java/Python\n\nOperating systems, browsers, and runtimes '
                  'sometimes bring their **own** certificate stores - this is the cause of the classic "no '
                  'warning in the browser, but the Java application complains". (Incidentally, no current '
                  'browser shows a green padlock anymore: in May 2023 Chrome announced it would replace the lock '
                  'icon with a neutral one, because it was mistaken for a seal of quality for the website.) The '
-                 'stores at a glance:\n\n- **Windows/macOS** - own, OS-managed store (Windows Certificate Store '
+                 'stores at a glance:\n\n- **Windows/macOS** - their own OS-managed store (Windows Certificate Store '
                  'or macOS Keychain).\n- **Firefox** - its own, cross-platform root store (NSS), independent of '
                  'the operating system, with its own inclusion policies. As a result, Firefox sometimes trusts '
                  'different CAs than Chrome on the same machine.\n- **Chrome** - formerly the OS trust store, '
-                 'now by default its own Chrome Root Store on Windows, macOS, Linux, and Android (only not on '
+                 'now by default its own Chrome Root Store on Windows, macOS, Linux, and Android (except on '
                  'iOS). Chrome still honors roots installed locally in the operating system - such as an '
                  'internal CA distributed via Group Policy.\n- **Java** - its own trust store `cacerts`, '
                  'completely separate from the OS store. An internal root CA present in the Windows store must '
@@ -543,7 +543,7 @@ PKI_ARCHITEKTUR_MODULE = {
                      'outcome': 'ok',
                      'text_de': ('Besser als vorher, aber wer den Server übernimmt, kann Datei und Passwort '
                          'mitschneiden. Ein CA-Schlüssel gehört in ein HSM, das ihn nie herausgibt.'),
-                     'text_en': ('Better than before, but whoever takes over the server can capture file and password. '
+                     'text_en': ('Better than before, but whoever takes over the server can capture both the file and the password. '
                          'A CA key belongs in an HSM that never releases it.'),
                     },
                     {
@@ -624,7 +624,7 @@ PKI_ARCHITEKTUR_MODULE = {
               'Store (eine mitgeschickte Root würde er ohnehin nicht als Anker akzeptieren). Der private '
               'Schlüssel verlässt den Server nie.'),
           'en': ('The server sends the end-entity certificate and the intermediates; the client has the root in '
-              'its own trust store (it would not accept a root sent along as an anchor anyway). The private key '
+              'its own trust store (it would not accept a root that is sent along as a trust anchor anyway). The private key '
               'never leaves the server.'),
          }},
         {'id': 'pa3', 'type': 'single',
@@ -674,7 +674,7 @@ PKI_ARCHITEKTUR_MODULE = {
              'en': [
                  'Java does not support TLS 1.3',
                  'Java maintains its own trust store (cacerts), separate from the OS store',
-                 'Java applications fundamentally do not verify certificates',
+                 'Java applications never verify certificates',
                  'The browser ignores root CAs entirely',
              ],
          },
@@ -683,7 +683,7 @@ PKI_ARCHITEKTUR_MODULE = {
               'per Gruppenrichtlinie verteilte interne Root kommt dort nicht an. TLS 1.3 unterstützt Java seit '
               'Version 11 — daran liegt es nicht.'),
           'en': ("Java validates against its own `cacerts` store, not the operating system's. An internal root "
-              'distributed via Group Policy does not arrive there. Java has supported TLS 1.3 since version 11 '
+              'distributed via Group Policy does not end up there. Java has supported TLS 1.3 since version 11 '
               '— that is not the reason.'),
          }},
         {'id': 'pa5', 'type': 'single',
@@ -704,7 +704,7 @@ PKI_ARCHITEKTUR_MODULE = {
                  'Its root must be actively distributed into the trust stores of all '
                  'relevant systems',
                  'It cannot issue intermediate CAs',
-                 'It fundamentally does not support encryption',
+                 'It does not support encryption at all',
                  'The CA/Browser Forum forbids it from signing internal hostnames',
              ],
          },
@@ -775,7 +775,7 @@ PKI_ARCHITEKTUR_MODULE = {
                  'und `requests` (CA-Bundle aus `certifi`) bringen eigene Speicher mit und müssen gesondert '
                  'versorgt werden — der Klassiker hinter „im Browser geht es“.'),
              'en': ('Chrome and Edge honor roots installed locally in the operating system. Java (`cacerts`) and '
-                 '`requests` (CA bundle from `certifi`) ship their own stores and have to be supplied '
+                 '`requests` (CA bundle from `certifi`) ship their own stores and have to be provisioned '
                  'separately — the classic behind "it works in the browser".'),
             },
         },

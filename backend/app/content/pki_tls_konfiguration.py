@@ -16,7 +16,7 @@ TLS_KONFIGURATION_MODULE = {
     ],
     'goals_en': [
         'Read a cipher suite in TLS 1.2 and TLS 1.3 and name its components',
-        'Distinguish the Mozilla profiles (modern/intermediate/old) and choose one with good reason',
+        'Distinguish the three Mozilla profiles (modern/intermediate/old) and choose one with good reason',
         'Correctly configure HSTS including max-age, includeSubDomains, and preload',
         'Recognize which ciphers, protocols, and schemes must no longer appear in a server configuration',
         'Put mixed content, OCSP stapling, and complete certificate chains into context as practical points',
@@ -33,7 +33,7 @@ TLS_KONFIGURATION_MODULE = {
     },
     'blocks': [
         {'type': 'text', 'id': 'text-1',
-         'note': 'Teilnehmende oft daran erinnern, dass eine Cipher Suite kein einzelner Algorithmus ist, sondern ein Buendel aus mehreren Verfahren. Den Namen Baustein fuer Baustein an der Tafel/im Chat zerlegen, bevor es weitergeht.',
+         'note': 'Teilnehmende oft daran erinnern, dass eine Cipher Suite kein einzelner Algorithmus ist, sondern ein Bündel aus mehreren Verfahren. Den Namen Baustein für Baustein an der Tafel/im Chat zerlegen, bevor es weitergeht.',
          'value': {
              'de': '## Eine Cipher Suite in TLS 1.2 lesen\n\n'
                    'Eine TLS-1.2-Cipher-Suite wie `TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256` benennt vier '
@@ -64,8 +64,8 @@ TLS_KONFIGURATION_MODULE = {
                    'encryption run over a modern AEAD cipher?',
          }},
         {'type': 'diagram', 'id': 'diagram-cipher-suite-aufbau',
-         'note': ('Baustein fuer Baustein anklicken lassen. Danach fragen: Welche Schichten bleiben in einer '
-             'TLS-1.3-Suite uebrig? (Nur die beiden unteren.)'),
+         'note': ('Baustein für Baustein anklicken lassen. Danach fragen: Welche Schichten bleiben in einer '
+             'TLS-1.3-Suite übrig? (Nur die beiden unteren.)'),
          'payload': {
              'kind': 'layers',
              'title_de': 'TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256, zerlegt',
@@ -194,8 +194,8 @@ TLS_KONFIGURATION_MODULE = {
             },
         },
         {'type': 'text', 'id': 'text-bsi-tr02102',
-         'note': ('Fuer deutsche Teilnehmer aus Behoerden, KRITIS und regulierten Branchen ist die TR-02102 die '
-             'massgebliche Referenz. Wichtig: "nicht empfohlen" heisst nicht "gebrochen".'),
+         'note': ('Für deutsche Teilnehmer aus Behörden, KRITIS und regulierten Branchen ist die TR-02102 die '
+             'maßgebliche Referenz. Wichtig: "nicht empfohlen" heißt nicht "gebrochen".'),
          'value': {
              'de': ('## Die deutsche Referenz: BSI TR-02102-2\n\nNeben der Mozilla-Leitlinie gibt es für '
                  'Deutschland eine zweite, oft verbindlichere Referenz: die Technische Richtlinie **BSI '
@@ -216,7 +216,7 @@ TLS_KONFIGURATION_MODULE = {
                  'Hybride Post-Quanten-Gruppen empfiehlt das BSI in TLS noch nicht; angekündigt sind '
                  '`SecP256r1MLKEM768` und `SecP384r1MLKEM1024`, sobald der zugehörige RFC verabschiedet ist. '
                  'Klassische Schlüsseleinigung allein wird nur noch bis Ende 2031 empfohlen.'),
-             'en': ('## The German reference: BSI TR-02102-2\n\nBesides the Mozilla guideline there is a second, '
+             'en': ('## The German Reference: BSI TR-02102-2\n\nBesides the Mozilla guideline there is a second, '
                  'often more binding reference for Germany: the technical guideline **BSI TR-02102-2** ("Use of '
                  'TLS", version 2026-01). Its key statements:\n\n- **Prefer TLS 1.3.** TLS 1.2 is only '
                  'recommended until the end of 2031, because no quantum-safe key agreement schemes are being '
@@ -239,8 +239,8 @@ TLS_KONFIGURATION_MODULE = {
         },
         {'type': 'diagram', 'id': 'diagram-mozilla-bsi',
          'note': ('Quellen: docs.tlsref.org/server-side-tls.html (Version 6.0) und BSI TR-02102-2 Version 2026-01 '
-             '(Tabellen 2, 3, 10, 13, 14). Beide Dokumente werden jaehrlich bzw. laufend aktualisiert - vor '
-             'einer Abnahme die aktuelle Fassung pruefen.'),
+             '(Tabellen 2, 3, 10, 13, 14). Beide Dokumente werden jährlich bzw. laufend aktualisiert - vor '
+             'einer Abnahme die aktuelle Fassung prüfen.'),
          'payload': {
              'kind': 'compare',
              'title_de': 'Mozilla/TLSRef „intermediate“ und BSI TR-02102-2',
@@ -324,7 +324,7 @@ TLS_KONFIGURATION_MODULE = {
                  'die Domain in die HSTS-Preload-Liste der Browser aufgenommen wird (dazu mehr im nächsten '
                  'Block).'),
              'en': ('## HSTS: Enforcing HTTPS (RFC 6797)\n\nThe **Strict-Transport-Security** header instructs the '
-                 'browser to only ever address a domain over HTTPS — even if a user accidentally types '
+                 'browser to only ever access a domain over HTTPS — even if a user accidentally types '
                  '`http://`, it switches to HTTPS automatically before any request even goes out '
                  'unencrypted:\n\n```\nStrict-Transport-Security: max-age=31536000; includeSubDomains; '
                  'preload\n```\n\n- **max-age** — how long the directive is valid, in seconds; `31536000` '
@@ -355,7 +355,7 @@ TLS_KONFIGURATION_MODULE = {
                    'directly into the browser — so the browser enforces HTTPS for that domain **before '
                    'the very first request**, with no prior header ever having been received.\n\n'
                    'That is exactly the trap: once a domain has landed in a browser\'s preload list, '
-                   'reversing it is **practically difficult** — removal has to be requested and takes '
+                   'reversing it is **difficult in practice** — removal has to be requested and takes '
                    'time to reach users through new browser releases. So anyone enabling preload should '
                    'be certain that **all** subdomains really are permanently HTTPS-capable before the '
                    'header gets set.',
@@ -444,7 +444,7 @@ TLS_KONFIGURATION_MODULE = {
                 ],
              'lines_en': [
                     'The ssl_protocols line still enables TLS 1.0 and TLS 1.1, which are formally deprecated',
-                    'The configured cipher suites use exclusively ECDHE and AES-GCM, which is unproblematic',
+                    'The configured cipher suites use exclusively ECDHE and AES-GCM, which is fine',
                     ('With a one-year max-age and includeSubDomains, the HSTS header meets two preload '
                      'requirements, but the preload directive is still missing'),
                     'This configuration is already fully compliant with a modern Mozilla profile overall',
@@ -471,7 +471,7 @@ TLS_KONFIGURATION_MODULE = {
         {'type': 'cloze', 'id': 'cloze-nginx-tls',
          'payload': {
              'prompt_de': 'Ein nginx-TLS-Block nach dem Intermediate-Profil (TLSRef 6.0) — ergänze die Lücken.',
-             'prompt_en': 'An nginx TLS block following the intermediate profile (TLSRef 6.0) — fill the gaps.',
+             'prompt_en': 'An nginx TLS block following the intermediate profile (TLSRef 6.0) — fill in the gaps.',
              'mono': True,
              'text': ('ssl_certificate     /etc/nginx/tls/[[cert]];\nssl_certificate_key '
                  '/etc/nginx/tls/privkey.pem;\nssl_protocols TLSv1.2 [[proto]];\nssl_ecdh_curve '
@@ -521,7 +521,7 @@ TLS_KONFIGURATION_MODULE = {
                    '- **Zertifikatskette vollständig ausliefern** — der Server muss neben dem '
                    'Leaf-Zertifikat auch die Intermediate-Zertifikate mitschicken, sonst scheitert die '
                    'Prüfung bei Clients, die das Intermediate nicht bereits im lokalen Cache haben.',
-             'en': '## Briefly Also: OCSP Stapling and the Complete Chain\n\n'
+             'en': '## Also, Briefly: OCSP Stapling and the Complete Chain\n\n'
                    'Two more points that should be checked in every server configuration:\n\n'
                    '- **Enable OCSP stapling, provided the CA still offers OCSP** — the server '
                    'delivers the revocation information directly along with the handshake, instead of '
@@ -614,7 +614,7 @@ TLS_KONFIGURATION_MODULE = {
                      'outcome': 'good',
                      'text_de': ('So sieht verantwortlicher Umgang mit Altlasten aus: Hauptdienst sauber, Ausnahme '
                          'isoliert, begründet und mit Enddatum.'),
-                     'text_en': ('This is what responsible handling of legacy looks like: main service clean, exception '
+                     'text_en': ('This is what responsible handling of legacy systems looks like: main service clean, exception '
                          'isolated, justified, and with an end date.'),
                     },
                 ],

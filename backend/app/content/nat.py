@@ -84,7 +84,7 @@ NAT_MODULE = {
              "caption_de": "Öffentliche IP von Nordwind-R1: 203.0.113.10",
              "caption_en": "Public IP of Nordwind-R1: 203.0.113.10",
              "actors": [
-                 {"id": "pc", "label_de": "PC-Büro 192.168.20.8", "label_en": "PC-Office 192.168.20.8"},
+                 {"id": "pc", "label_de": "PC-Büro 192.168.20.8", "label_en": "Office PC 192.168.20.8"},
                  {"id": "r1", "label_de": "Router R1 (NAT)", "label_en": "Router R1 (NAT)"},
                  {"id": "web", "label_de": "Webserver 198.51.100.7", "label_en": "Web server 198.51.100.7"},
              ],
@@ -92,8 +92,8 @@ NAT_MODULE = {
                  {"from": "pc", "to": "r1", "label": "192.168.20.8:51000 → 198.51.100.7:443",
                   "detail_de": "Der PC sendet mit seiner privaten Adresse und einem zufälligen Quellport. "
                                "So käme das Paket im Internet nie zurück: 192.168.20.8 ist dort nicht routbar.",
-                  "detail_en": "The PC sends with its private address and a random source port. Like this, "
-                               "no reply could ever return: 192.168.20.8 is not routable on the Internet."},
+                  "detail_en": "The PC sends with its private address and a random source port. In this form, "
+                               "no reply could ever come back: 192.168.20.8 is not routable on the Internet."},
                  {"from": "r1", "to": "r1", "label_de": "Eintrag anlegen: :51000 ↔ :40000",
                   "label_en": "Create entry: :51000 ↔ :40000",
                   "detail_de": "Der Router merkt sich in der Übersetzungstabelle: Inside Local "
@@ -186,8 +186,8 @@ NAT_MODULE = {
                   "command": "show ip nat translations"},
                  {"text_de": "Zwei PCs nutzen denselben Quellport 51000. Unter welchem öffentlichen Port läuft "
                              "die Verbindung von 192.168.20.9?",
-                  "text_en": "Two PCs use the same source port 51000. Under which public port does the "
-                             "connection from 192.168.20.9 run?",
+                  "text_en": "Two PCs use the same source port 51000. Which public port does the "
+                             "connection from 192.168.20.9 use?",
                   "answers": ["40001", "203.0.113.10:40001"]},
                  {"text_de": "An welche interne Adresse leitet der Router eingehende Verbindungen auf "
                              "203.0.113.10:443 weiter?",
@@ -258,7 +258,7 @@ NAT_MODULE = {
                   "text_de": "Der statische Eintrag steht jetzt in der Tabelle. Von außen läuft die Verbindung "
                              "aber weiter in einen Timeout. Welche zweite Stelle muss stimmen?",
                   "text_en": "The static entry is now in the table. From outside, however, the connection "
-                             "still times out. Which second place has to be right?",
+                             "still times out. What else has to be configured correctly?",
                   "options": [
                       {"label_de": "Die Firewall: eingehend TCP 443 zum Webserver erlauben",
                        "label_en": "The firewall: allow inbound TCP 443 to the web server", "to": "firewall"},
@@ -398,7 +398,7 @@ NAT_MODULE = {
              "de": "100.64.0.0/10 ist der Bereich für Carrier-Grade-NAT: Vor dem eigenen Router sitzt ein "
                    "weiteres NAT beim Provider, auf dem es keine passende Weiterleitung gibt. Link-Local "
                    "wäre 169.254.0.0/16 — das sieht ähnlich „ungewohnt“ aus, bedeutet aber etwas anderes.",
-             "en": "100.64.0.0/10 is the carrier-grade NAT range: in front of your own router sits another "
+             "en": "100.64.0.0/10 is the carrier-grade NAT range: in front of your own router there is another "
                    "NAT at the provider, which has no matching forwarding entry. Link-local would be "
                    "169.254.0.0/16 — it looks similarly “unusual” but means something else."}},
     ]},

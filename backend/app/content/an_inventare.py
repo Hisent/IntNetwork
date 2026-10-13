@@ -12,7 +12,7 @@ INVENTARE_MODULE = {
               'Zweck dynamischer Inventare erklären',
               'Host-Patterns für Ad-hoc-Kommandos und Playbooks anwenden'],
     'goals_en': ['Read an INI and a YAML inventory and identify groups and hosts',
-                 'Place group variables (group_vars) and host variables (host_vars)',
+                 'Explain where group variables (group_vars) and host variables (host_vars) fit in',
                  'Explain the purpose of dynamic inventories',
                  'Apply host patterns to ad-hoc commands and playbooks'],
     'scenario': {'de': 'Bevor Ansible irgendetwas ausführen kann, muss es wissen, welche Systeme '
@@ -28,7 +28,7 @@ INVENTARE_MODULE = {
                        'how to target specific subsets of hosts.'},
     'blocks': [
         {'type': 'text', 'id': 'text-1',
-         'note': 'Der Sprung von statischen zu dynamischen Inventaren ueberfordert am Anfang. Erst sicherstellen, dass Gruppen und Variablen sitzen, dynamisch nur kurz anreissen.',
+         'note': 'Der Sprung von statischen zu dynamischen Inventaren überfordert am Anfang. Erst sicherstellen, dass Gruppen und Variablen sitzen, dynamisch nur kurz anreißen.',
          'value': {'de': '## Statisches Inventar: INI-Format\n'
                          '\n'
                          'Das klassische Format ist eine einfache Textdatei mit Gruppen in '
@@ -220,7 +220,7 @@ INVENTARE_MODULE = {
                                        'ansible_host ist die Verbindungsadresse, falls der '
                                        'Inventarname nicht per DNS auflösbar ist.',
                      'explanation_en': 'children nests subgroups, hosts lists the hosts of a '
-                                       'group, vars sets variables for the whole group. '
+                                       'group, and vars sets variables for the whole group. '
                                        'ansible_host is the connection address if the inventory '
                                        'name does not resolve via DNS.'}},
         {'type': 'text', 'id': 'text-3',
@@ -345,7 +345,7 @@ INVENTARE_MODULE = {
                    'en': '## Host patterns\n'
                          '\n'
                          'Both ad-hoc commands and playbooks can use a **pattern** instead of a '
-                         'single group name, to combine hosts from multiple groups on purpose:\n'
+                         'single group name, to combine hosts from multiple groups selectively:\n'
                          '\n'
                          '- `webservers:dbservers` — union: all hosts from both groups\n'
                          '- `webservers:&dbservers` — intersection: only hosts that are in '
@@ -492,8 +492,8 @@ INVENTARE_MODULE = {
                                'diesen Host. `group_vars/webservers.yml` träfe auch web02, '
                                '`group_vars/all.yml` jeden Host — beide sind dafür zu breit.',
                          'en': 'Ansible automatically loads `host_vars/<hostname>.yml` for exactly '
-                               'this host. `group_vars/webservers.yml` would also hit web02, '
-                               '`group_vars/all.yml` every host — both are too broad for this.'},
+                               'this host. `group_vars/webservers.yml` would also apply to web02, '
+                               'and `group_vars/all.yml` to every host — both are too broad for this.'},
          'type': 'single',
          'prompt': {'de': 'Welche Datei lädt Ansible automatisch nur für den Host `web01`, '
                           'sodass ihre Variablen nur dort gelten?',
@@ -510,7 +510,7 @@ INVENTARE_MODULE = {
                                'Datei. Gruppen und Formate gibt es in beiden — der Unterschied '
                                'liegt allein in der Herkunft der Daten.',
                          'en': 'A dynamic inventory fetches the host list fresh on every run '
-                               'through an inventory plugin, a static one is a maintained file. '
+                               'through an inventory plugin; a static one is a maintained file. '
                                'Groups and formats exist in both — the only difference is where '
                                'the data comes from.'},
          'type': 'single',
@@ -533,7 +533,7 @@ INVENTARE_MODULE = {
                                'ist die Vereinigung (alle Hosts beider Gruppen), `web:!prod` '
                                'schließt prod gerade aus.',
                          'en': '`:&` forms the intersection. The tempting mistake `web:prod` is '
-                               'the union (all hosts of both groups), `web:!prod` excludes prod.'},
+                               'the union (all hosts of both groups), and `web:!prod` excludes prod.'},
          'type': 'single',
          'prompt': {'de': 'Welches Pattern liefert nur Hosts, die sowohl in `web` als auch in '
                           '`prod` stehen?',
@@ -546,7 +546,7 @@ INVENTARE_MODULE = {
                                'es als Baum — es verbindet sich mit keinem Host. `ansible-playbook '
                                '--check` braucht dagegen ein Playbook und baut Verbindungen auf.',
                          'en': '`ansible-inventory --graph` only evaluates the inventory and shows '
-                               'it as a tree — it connects to no host. `ansible-playbook --check`, '
+                               'it as a tree — it does not connect to any host.`ansible-playbook --check`, '
                                'by contrast, needs a playbook and opens connections.'},
          'type': 'single',
          'prompt': {'de': 'Womit prüfst du das geladene Inventar samt Gruppenstruktur, ohne ein '
@@ -574,8 +574,8 @@ INVENTARE_MODULE = {
                                'behalten die 8080 der Gruppe — prüfen lässt sich das mit '
                                '`ansible-inventory --host web03`.',
                          'en': 'Host variables beat group variables: the more specific source '
-                               'wins, so 8443. web01 and web02 without a host_vars file of their '
-                               "own keep the group's 8080 — you can check this with "
+                               'wins, so 8443. web01 and web02, which have no host_vars file of their '
+                               "own, keep the group's 8080 — you can check this with "
                                '`ansible-inventory --host web03`.'}},
         {'id': 'in7',
          'type': 'single',

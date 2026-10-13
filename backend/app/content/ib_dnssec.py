@@ -15,7 +15,7 @@ DNSSEC_MODULE = {
         'Typische Betriebsfehler (abgelaufene Signaturen, misslungener Rollover) benennen können',
     ],
     "goals_en": [
-        "Correctly place the purpose of DNSSEC (authenticity/integrity, not confidentiality)",
+        "Correctly characterize the purpose of DNSSEC (authenticity/integrity, not confidentiality)",
         "Distinguish signing a zone from validation by a resolver",
         "Explain KSK and ZSK as well as the principle of key rollover",
         "Tell TSIG/GSS-TSIG apart from DNSSEC",
@@ -27,8 +27,8 @@ DNSSEC_MODULE = {
               'auf DNSSEC. Bevor es losgeht, klärst du, was DNSSEC tatsächlich leistet — und was '
               'ausdrücklich nicht.',
         'en': 'Nordwind Logistik wants to protect the zone `nordwind-intern.de` against '
-              'manipulation — an attacker should not be able to slip in forged answers. The choice '
-              'falls on DNSSEC. Before starting, you clarify what DNSSEC actually delivers — and '
+              'manipulation — an attacker should not be able to slip in forged answers. The company '
+              'opts for DNSSEC. Before starting, you clarify what DNSSEC actually delivers — and '
               'what it explicitly does not.',
     },
     'blocks': [
@@ -68,7 +68,7 @@ DNSSEC_MODULE = {
                    'wird — signieren ohne validierende Gegenstelle liefert keinen zusätzlichen '
                    'Schutz für den jeweiligen Client.',
              'en': '## Signing and Validation — Two Separate Roles\n\n'
-                   'DNSSEC has two sides, and both must be configured DNSSEC-capable:\n\n'
+                   'DNSSEC has two sides, and both must be configured for DNSSEC:\n\n'
                    '- **Signing** — happens on the **authoritative server**: the zone gets '
                    'cryptographic signatures attached to its records.\n'
                    '- **Validation** — happens on the **recursive resolver**: it checks the '
@@ -371,7 +371,7 @@ DNSSEC_MODULE = {
                     {
                         "left": "Trust Anchor",
                         "right_de": "bildet den Startpunkt der Prüfung im Resolver",
-                        "right_en": "forms the starting point of checking in the resolver",
+                        "right_en": "forms the starting point of validation in the resolver",
                     },
                 ],
             },
@@ -479,7 +479,7 @@ DNSSEC_MODULE = {
                  'TSIG/GSS-TSIG secures zone transfers and dynamic DNS updates, DNSSEC signs the '
                  'zone data itself',
                  'DNSSEC completely replaces TSIG in every NIOS version',
-                 'TSIG only works together with Anycast',
+                 'TSIG only works together with anycast',
              ],
          }},
         {'id': 'ds5',
@@ -541,7 +541,7 @@ DNSSEC_MODULE = {
             "type": "single",
             "prompt": {
                 "de": "dig über den validierenden Resolver liefert für einen Namen SERVFAIL. Dieselbe Abfrage mit +cd (checking disabled) liefert NOERROR und die erwartete Adresse. Was folgt daraus?",
-                "en": "dig through the validating resolver returns SERVFAIL for a name. The same query with +cd (checking disabled) returns NOERROR and the expected address. What follows?",
+                "en": "dig through the validating resolver returns SERVFAIL for a name. The same query with +cd (checking disabled) returns NOERROR and the expected address. What follows from this?",
             },
             "answer": 3,
             "options": {

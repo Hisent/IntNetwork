@@ -12,7 +12,7 @@ const STR = {
     step: 'Schritt', of: 'von',
     prev: 'Zurück', next: 'Nächster Schritt',
     client: 'Client', server: 'Server',
-    encrypted: 'verschlüsselt', plaintext: 'im Klartext',
+    encrypted: 'verschlüsselt', partial: 'teils verschlüsselt (nur Finished)', plaintext: 'im Klartext',
     roundtrip: 'Roundtrip',
     summaryTitle: 'Zusammenfassung',
     summary12: 'TLS 1.2 überträgt das Server-Zertifikat im Klartext und braucht zwei Roundtrips, '
@@ -31,7 +31,7 @@ const STR = {
     step: 'Step', of: 'of',
     prev: 'Back', next: 'Next step',
     client: 'Client', server: 'Server',
-    encrypted: 'encrypted', plaintext: 'in cleartext',
+    encrypted: 'encrypted', partial: 'partly encrypted (Finished only)', plaintext: 'in cleartext',
     roundtrip: 'Roundtrip',
     summaryTitle: 'Summary',
     summary12: 'TLS 1.2 sends the server certificate in cleartext and needs two roundtrips '
@@ -121,7 +121,7 @@ export function TlsHandshake({ lang }: { lang: Lang }) {
           <span className={`ml-2 rounded px-1.5 py-0.5 text-[10px] ${
             step.encrypted ? 'bg-teal-200 text-teal-800' : 'bg-amber-200 text-amber-800'
           }`}>
-            {step.encrypted ? `🔒 ${s.encrypted}` : `🔓 ${s.plaintext}`}
+            {step.partial ? `🔒 ${s.partial}` : step.encrypted ? `🔒 ${s.encrypted}` : `🔓 ${s.plaintext}`}
           </span>
         </p>
         <p className="font-mono text-sm text-slate-800 mb-1">{step.name}</p>

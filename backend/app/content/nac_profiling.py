@@ -342,7 +342,7 @@ NAC_PROFILING_MODULE = {
             'id': 'text-mac-randomisierung',
             'value': {
                 'de': '## Stolperstein: zufällige MAC-Adressen\n\nProfiling hängt am Schlüssel **MAC-Adresse** — und genau der ist bei modernen Endgeräten im WLAN nicht mehr stabil. iOS (ab Version 14), Android (ab Version 10) und Windows können sich mit einer **zufälligen MAC-Adresse** anmelden; bei iOS und Android ist das die Voreinstellung, und zwar mit einer eigenen Adresse je WLAN. Neuere Versionen wechseln sie in schwach gesicherten Netzen zusätzlich regelmäßig.\n\nDie Folgen für das Profiling:\n\n- **Die OUI sagt nichts mehr aus.** Zufällige Adressen sind als „lokal verwaltet“ markiert — erkennbar am zweiten Hex-Zeichen 2, 6, A oder E (z. B. `da:a1:19:…`). Eine Herstellersuche läuft ins Leere.\n- **Ein Gerät, mehrere Datensätze.** Dasselbe Smartphone erscheint je SSID (und nach einem Adresswechsel erneut) als neues, unbekanntes Gerät.\n- **MAC-basierte Listen altern.** Registrierungen, die an der MAC-Adresse hängen, passen irgendwann nicht mehr.\n\nFür verkabelte Drucker, Kameras und Scanner ändert sich nichts — sie nutzen ihre feste Hardware-Adresse. Für Smartphones und Notebooks gilt: Die Identität gehört an ein **Zertifikat oder Benutzerkonto** (802.1X), nicht an die MAC-Adresse; für verwaltete Geräte lässt sich die Randomisierung für die Firmen-SSID per MDM-Profil abschalten.',
-                'en': '## Pitfall: Randomized MAC Addresses\n\nProfiling hinges on the key **MAC address** — and for modern endpoints on Wi-Fi that key is no longer stable. iOS (from version 14), Android (from version 10), and Windows can join with a **randomized MAC address**; on iOS and Android this is the default, with a separate address per Wi-Fi network. Newer versions additionally rotate it regularly on weakly secured networks.\n\nThe consequences for profiling:\n\n- **The OUI no longer tells you anything.** Random addresses are flagged as "locally administered" — recognizable by the second hex character 2, 6, A, or E (e.g. `da:a1:19:…`). A vendor lookup comes up empty.\n- **One device, several records.** The same smartphone appears per SSID (and again after an address change) as a new, unknown device.\n- **MAC-based lists age.** Registrations tied to the MAC address eventually stop matching.\n\nNothing changes for wired printers, cameras, and scanners — they use their fixed hardware address. For smartphones and notebooks: identity belongs on a **certificate or user account** (802.1X), not on the MAC address; for managed devices randomization can be turned off for the corporate SSID via an MDM profile.',
+                'en': '## Pitfall: Randomized MAC Addresses\n\nProfiling hinges on the key **MAC address** — and for modern endpoints on Wi-Fi that key is no longer stable. iOS (from version 14), Android (from version 10), and Windows can join with a **randomized MAC address**; on iOS and Android this is the default, with a separate address per Wi-Fi network. Newer versions additionally rotate it regularly on weakly secured networks.\n\nThe consequences for profiling:\n\n- **The OUI no longer tells you anything.** Random addresses are flagged as "locally administered" — recognizable by the second hex character 2, 6, A, or E (e.g. `da:a1:19:…`). A vendor lookup comes up empty.\n- **One device, several records.** The same smartphone appears per SSID (and again after an address change) as a new, unknown device.\n- **MAC-based lists age.** Registrations tied to the MAC address eventually stop matching.\n\nNothing changes for wired printers, cameras, and scanners — they use their fixed hardware address. For smartphones and laptops: identity belongs on a **certificate or user account** (802.1X), not on the MAC address; for managed devices randomization can be turned off for the corporate SSID via an MDM profile.',
             },
         },
         {'type': 'debug', 'id': 'debug-1',
@@ -354,7 +354,7 @@ NAC_PROFILING_MODULE = {
              'prompt_en': 'An alert reports: "Device with the MAC address of a registered label '
                          'printer has shown, for the past hour, a DHCP fingerprint and traffic '
                          'pattern matching a full Windows laptop." Which of the following '
-                         'statements about this picture is false?',
+                         'statements about this situation is false?',
              'lines_de': [
                  'Das Muster passt zu MAC-Spoofing kombiniert mit einem falschen Geräteprofil',
                  'MAB allein hätte diesen Wechsel nicht erkannt, da es nur die MAC-Adresse prüft',
@@ -386,8 +386,7 @@ NAC_PROFILING_MODULE = {
          'payload': {
              'prompt_de': 'Bringe die Schritte, mit denen ein NAC-System ein Geräteprofil '
                          'aufbaut, in eine sinnvolle Reihenfolge.',
-             'prompt_en': 'Put the steps by which a NAC system builds a device profile into a '
-                         'sensible order.',
+             'prompt_en': 'Put the steps by which a NAC system builds a device profile into a logical order.',
              'items_de': [
                  'Gerät verbindet sich am Port, DHCP-Fingerprint und MAC-Adresse werden erfasst',
                  'MAC-OUI wird ausgewertet, um den Hersteller einzugrenzen',
@@ -417,7 +416,7 @@ NAC_PROFILING_MODULE = {
                     {
                         'id': 'start',
                         'text_de': 'Alarm: Die MAC-Adresse eines registrierten Etikettendruckers zeigt seit einer Stunde den DHCP-Fingerprint eines Windows-Notebooks. Das Gerät ist per MAB im IoT-VLAN. Was tust du?',
-                        'text_en': 'Alert: the MAC address of a registered label printer has shown the DHCP fingerprint of a Windows notebook for an hour. The device is in the IoT VLAN via MAB. What do you do?',
+                        'text_en': 'Alert: the MAC address of a registered label printer has shown the DHCP fingerprint of a Windows laptop for an hour. The device is in the IoT VLAN via MAB. What do you do?',
                         'options': [
                             {
                                 'label_de': 'Nichts — MAB hat die MAC-Adresse ja erfolgreich geprüft',
@@ -474,7 +473,7 @@ NAC_PROFILING_MODULE = {
                         'id': 'aus',
                         'outcome': 'bad',
                         'text_de': 'Der Alarm war berechtigt. Ohne Profiling wäre das Notebook unbemerkt im IoT-VLAN geblieben.',
-                        'text_en': 'The alert was justified. Without profiling the notebook would have stayed in the IoT VLAN unnoticed.',
+                        'text_en': 'The alert was justified. Without profiling the laptop would have stayed in the IoT VLAN unnoticed.',
                     },
                     {
                         'id': 'geheim',
@@ -554,7 +553,7 @@ NAC_PROFILING_MODULE = {
          }},
         {'id': 'pf3', 'type': 'single',
          'prompt': {'de': 'Wie stärkt Profiling die Absicherung von MAB?',
-                    'en': 'How does profiling strengthen the safeguarding of MAB?'},
+                    'en': 'How does profiling help safeguard MAB?'},
          'answer': 2,
          'options': {
              'de': [
@@ -628,7 +627,7 @@ NAC_PROFILING_MODULE = {
          },
          'explanation': {
              'de': 'Der Widerspruch zwischen behauptetem Typ und Verhalten ist ein starkes Indiz, aber kein Beweis — ein Gerätetausch ohne Inventarpflege sähe genauso aus. Untersuchen ja, blind trennen oder ignorieren nein.',
-             'en': 'The contradiction between claimed type and behavior is strong evidence, but not proof — a device swap without inventory maintenance would look the same. Investigate yes, blindly disconnect or ignore no.',
+             'en': 'The contradiction between claimed type and behavior is strong evidence, but not proof — a device swap without inventory maintenance would look the same. Investigate, yes; blindly disconnect or ignore, no.',
          }},
         {
             'id': 'pf6',
@@ -646,7 +645,7 @@ NAC_PROFILING_MODULE = {
                 ],
                 'en': [
                     "The NAC system's OUI database is corrupted",
-                    'It is a randomized (locally administered) MAC address of a smartphone or notebook',
+                    'It is a randomized (locally administered) MAC address of a smartphone or laptop',
                     'The device has no network card at all',
                     'The device is a switch, switches have no OUI',
                 ],

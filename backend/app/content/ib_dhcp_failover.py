@@ -1,6 +1,6 @@
 # Infoblox-Lehrgang, Block DHCP & IPAM — Modul 2: DHCP-Failover.
 # Schwerpunkt: Abgrenzung Grid-HA-Paar vs. DHCP-Failover-Paar (häufige Verwechslung in der
-# Praxis) und das korrekte „Partner Down”-Vorgehen (Dienst aktiv stoppen, nicht Switch-Port trennen).
+# Praxis) und das korrekte „Partner Down“-Vorgehen (Dienst aktiv stoppen, nicht Switch-Port trennen).
 
 DHCP_FAILOVER_MODULE = {
     'key': 'dhcp-failover',
@@ -12,17 +12,17 @@ DHCP_FAILOVER_MODULE = {
         'Erklären, dass ein DHCP-Failover-Paar zwei unabhängige Grid-Member verbindet — kein Grid-HA-Paar',
         'Die Lastverteilung per Hash über die Client-MAC-Adresse und den konfigurierbaren Split beschreiben',
         'Die Zustände eines Failover-Paars und MCLT als Kompromiss zwischen Lease-Dauer und Recovery-Zeit einordnen',
-        'Das korrekte Vorgehen bei einem geplanten „Partner Down” nennen können',
+        'Das korrekte Vorgehen bei einem geplanten „Partner Down“ nennen können',
     ],
     "goals_en": [
         "Explain that a DHCP failover pair connects two independent Grid members — it is not a Grid HA pair",
         "Describe load balancing by a hash of the client MAC address and the configurable split",
-        "Place the states of a failover pair and the MCLT as a trade-off between lease duration and recovery time",
+        "Explain the states of a failover pair and understand the MCLT as a trade-off between lease duration and recovery time",
         "Name the correct procedure for a planned \"Partner Down\"",
     ],
     'scenario': {
         'de': ('Ein Kollege plant Wartungsarbeiten an einem Grid Member und sagt: „Kein '
-               'Problem, wir haben ja ein HA-Paar für DHCP.” Tatsächlich ist der '
+               'Problem, wir haben ja ein HA-Paar für DHCP.“ Tatsächlich ist der '
                'DHCP-Dienst über ein Failover-Paar abgesichert — zwei unterschiedliche '
                'Konzepte, die in der Praxis gern verwechselt werden. Dieses Modul klärt '
                'den Unterschied und das korrekte Vorgehen bei einem geplanten Ausfall.'),
@@ -77,14 +77,14 @@ DHCP_FAILOVER_MODULE = {
                     '\n'
                     'Ein Grid kann beides gleichzeitig haben, aber es sind getrennte '
                     'Konzepte mit getrennter Kommunikation. Wer „wir haben doch ein '
-                    'HA-Paar” sagt und dabei die beiden DHCP-Server meint, vermischt zwei '
+                    'HA-Paar“ sagt und dabei die beiden DHCP-Server meint, vermischt zwei '
                     'unterschiedliche Ausfallkonzepte.'),
-             'en': ('## Distinction: Grid-HA Pair vs. DHCP Failover Pair\n'
+             'en': ('## Distinction: Grid HA Pair vs. DHCP Failover Pair\n'
                     '\n'
                     'These two terms are frequently mixed up in practice — yet they are '
                     'different mechanisms:\n'
                     '\n'
-                    '- **Grid-HA pair** — protects **a single Grid node** (the Grid '
+                    '- **Grid HA pair** — protects **a single Grid node** (the Grid '
                     'Master or a member). Two '
                     'devices, active/passive: the passive partner only takes over if the '
                     'active one fails; it does not answer any requests of its own during '
@@ -95,7 +95,7 @@ DHCP_FAILOVER_MODULE = {
                     '\n'
                     'A Grid can have both at once, but they are separate concepts with '
                     'separate communication. Saying “we have an HA pair” while actually '
-                    'meaning the two DHCP servers conflates two different failure '
+                    'meaning the two DHCP servers conflates two different redundancy '
                     'concepts.'),
          }},
         {'type': 'check', 'id': 'check-1',
@@ -109,7 +109,7 @@ DHCP_FAILOVER_MODULE = {
                            'construct correctly called?'),
              'answer': 1,
              'options_de': ['Grid-HA-Paar', 'DHCP-Failover-Paar', 'Grid Master Candidate'],
-             'options_en': ['Grid-HA pair', 'DHCP failover pair', 'Grid Master Candidate'],
+             'options_en': ['Grid HA pair', 'DHCP failover pair', 'Grid Master Candidate'],
          }},
         {'type': 'text', 'id': 'text-3',
          'value': {
@@ -155,19 +155,19 @@ DHCP_FAILOVER_MODULE = {
                     '\n'
                     'Die **MCLT (Maximum Client Lead Time)** ist die Zeitspanne, um die '
                     'ein Peer eine Lease höchstens vergeben oder verlängern darf, ohne '
-                    'dass der Partner davon weiß. Nach dem Wechsel in „Partner Down” '
+                    'dass der Partner davon weiß. Nach dem Wechsel in „Partner Down“ '
                     'wartet der verbleibende Server deshalb erst die MCLT ab, bevor er '
-                    'die Adressen des Partners als eigene betrachtet. Ein kürzeres MCLT '
+                    'die Adressen des Partners als eigene betrachtet. Eine kürzere MCLT '
                     'beschleunigt die Erholung des Adressraums nach einem echten '
                     'Ausfall, erzeugt aber mehr Erneuerungs-Last, solange die Peers '
-                    'nicht kommunizieren; ein längeres MCLT bedeutet eine langsamere '
+                    'nicht kommunizieren; eine längere MCLT bedeutet eine langsamere '
                     'volle Übernahme.'),
              'en': ('## States of a Failover Pair and MCLT\n'
                     '\n'
                     'A failover pair moves through several states during operation, '
                     'including:\n'
                     '\n'
-                    '- **Normal** — both peers are reachable and in sync, load '
+                    '- **Normal** — both peers are reachable and in sync; load '
                     'balancing runs according to the split.\n'
                     '- **Communications Interrupted** — the connection between the '
                     'peers is disrupted, but neither server can be sure whether the '
@@ -256,7 +256,7 @@ DHCP_FAILOVER_MODULE = {
                         "label_de": "Partner Down: wartet die MCLT ab",
                         "label_en": "Partner Down: waits out the MCLT",
                         "detail_de": "B könnte kurz vor dem Ausfall noch Leases vergeben haben, von denen A nichts weiß — höchstens für die Dauer der MCLT. Danach verfügt A über den gesamten Bereich.",
-                        "detail_en": "Shortly before failing, B may have handed out leases A does not know about — for the MCLT at most. After that A has the whole range at its disposal.",
+                        "detail_en": "Shortly before failing, B may have handed out leases A does not know about — for the duration of the MCLT at most. After that A has the whole range at its disposal.",
                     },
                     {
                         "from": "b",
@@ -327,7 +327,7 @@ DHCP_FAILOVER_MODULE = {
              'items_de': [
                  'Wartungsfenster ankündigen und Zeitpunkt festlegen',
                  'DHCP-Dienst auf dem betroffenen Member aktiv stoppen',
-                 'Verbleibenden Server manuell in den Zustand „Partner Down” versetzen',
+                 'Verbleibenden Server manuell in den Zustand „Partner Down“ versetzen',
                  'Wartung am betroffenen Member durchführen',
                  'Dienst wieder starten und die Synchronisation abwarten, bevor der Normalbetrieb gilt',
              ],
@@ -342,8 +342,8 @@ DHCP_FAILOVER_MODULE = {
         {'type': 'reveal', 'id': 'reveal-1',
          'payload': {
              'teaser_de': ('Störungsbericht: Nach einem Switch-Ausfall bleibt der '
-                          'zweite DHCP-Server im Zustand „Communications Interrupted”, '
-                          'statt in „Partner Down” zu wechseln und den vollen '
+                          'zweite DHCP-Server im Zustand „Communications Interrupted“, '
+                          'statt in „Partner Down“ zu wechseln und den vollen '
                           'Adresspool zu übernehmen. Woran liegt das — und was ist der '
                           'korrekte nächste Schritt? Erst selbst überlegen.'),
              'teaser_en': ('Incident report: after a switch failure, the second DHCP '
@@ -356,17 +356,17 @@ DHCP_FAILOVER_MODULE = {
              'de': ('Ein getrennter Switch-Port unterbricht nur die *Verbindung* '
                     'zwischen den Peers — der DHCP-Dienst auf dem eigentlich '
                     'ausgefallenen Server läuft aus seiner eigenen Sicht weiter, er '
-                    '„glaubt”, normal erreichbar zu sein. Der verbleibende Server kann '
+                    '„glaubt“, normal erreichbar zu sein. Der verbleibende Server kann '
                     'daher nicht sicher unterscheiden, ob der Partner wirklich '
                     'ausgefallen ist oder nur die Netzwerkverbindung gestört ist, und '
-                    'bleibt vorsichtshalber in „Communications Interrupted”.\n'
+                    'bleibt vorsichtshalber in „Communications Interrupted“.\n'
                     '\n'
                     'Der korrekte Weg bei einem geplanten Ausfall: den DHCP-Dienst auf '
                     'dem betroffenen Server **aktiv stoppen**, nicht nur den '
-                    'Switch-Port trennen. Erst wenn der Dienst dort sicher gestoppt ist, darf der verbleibende Server von Hand in „Partner Down” gesetzt werden und den vollen Adressraum übernehmen — von selbst wechselt er nicht.'),
+                    'Switch-Port trennen. Erst wenn der Dienst dort sicher gestoppt ist, darf der verbleibende Server von Hand in „Partner Down“ gesetzt werden und den vollen Adressraum übernehmen — von selbst wechselt er nicht.'),
              'en': ('A disconnected switch port only interrupts the *connection* '
-                    'between the peers — the DHCP service on the server that has '
-                    'actually gone down keeps running from its own point of view; it '
+                    'between the peers — the DHCP service on the supposedly '
+                    'failed server keeps running from its own point of view; it '
                     '“believes” it is still reachable normally. The remaining server '
                     'therefore cannot reliably tell whether the partner has truly '
                     'failed or only the network link is disrupted, and stays in '
@@ -411,7 +411,7 @@ DHCP_FAILOVER_MODULE = {
                         "id": "restart",
                         "outcome": "bad",
                         "text_de": "Hamburg war der Peer, der funktioniert. Jetzt bekommen die Hamburger Clients kurzzeitig gar keine Antwort — und an der Ursache hat sich nichts geändert.",
-                        "text_en": "Hamburg was the peer that works. Now the Hamburg clients briefly get no answer at all — and nothing has changed about the cause.",
+                        "text_en": "Hamburg was the peer that was working. Now the Hamburg clients briefly get no answer at all — and nothing has changed about the cause.",
                     },
                     {
                         "id": "blind",
@@ -422,7 +422,7 @@ DHCP_FAILOVER_MODULE = {
                     {
                         "id": "pruefen",
                         "text_de": "Der Münchner Standort bestätigt per Telefon: Die Appliance läuft, Clients vor Ort bekommen Adressen. Ausgefallen ist die WAN-Strecke, der Provider nennt zwei bis drei Stunden. In beiden Bereichen ist noch reichlich Platz. Und nun?",
-                        "text_en": "The Munich site confirms by phone: the appliance is up, local clients get addresses. What failed is the WAN link, the provider says two to three hours. Both ranges still have plenty of room. And now?",
+                        "text_en": "The Munich site confirms by phone: the appliance is up, local clients get addresses. The WAN link has failed; the provider estimates two to three hours. Both ranges still have plenty of room. What now?",
                         "options": [
                             {
                                 "label_de": "Auf beiden Peers Partner Down setzen, damit jeder Standort den vollen Bereich nutzen kann.",
@@ -431,7 +431,7 @@ DHCP_FAILOVER_MODULE = {
                             },
                             {
                                 "label_de": "Nichts umstellen: beide in Communications Interrupted lassen, Strecke und Füllstand beobachten.",
-                                "label_en": "Change nothing: leave both in Communications Interrupted, watch the link and the fill level.",
+                                "label_en": "Change nothing: leave both in Communications Interrupted, watch the link and range utilization.",
                                 "to": "lassen",
                             },
                             {
@@ -451,13 +451,13 @@ DHCP_FAILOVER_MODULE = {
                         "id": "stopp",
                         "outcome": "ok",
                         "text_de": "Formal sauber — der gestoppte Dienst macht Partner Down zulässig. Aber ohne WAN erreichen die Münchner Clients Hamburg gar nicht: Du hast dem Standort, der noch funktionierte, den DHCP-Dienst genommen. Für einen Leitungsausfall ist das der falsche Hebel.",
-                        "text_en": "Formally clean — the stopped service makes Partner Down permissible. But without the WAN the Munich clients cannot reach Hamburg at all: you took the DHCP service away from the site that was still working. For a link failure this is the wrong lever.",
+                        "text_en": "Formally clean — the stopped service makes Partner Down permissible. But without the WAN the Munich clients cannot reach Hamburg at all: you took the DHCP service away from the site that was still working. For a link failure this is the wrong tool.",
                     },
                     {
                         "id": "lassen",
                         "outcome": "good",
                         "text_de": "Richtig. Genau für diesen Fall gibt es den Zustand: Beide Peers versorgen ihre Clients weiter, jeder aus seinem Anteil, mit kurzen Leases. Ist die Strecke zurück, gleichen sie sich ab und laufen wieder in Normal. Partner Down wäre erst ein Thema, wenn ein Peer wirklich und für länger ausfällt.",
-                        "text_en": "Correct. The state exists for exactly this case: both peers keep serving their clients, each from its share, with short leases. Once the link is back they resynchronize and run in Normal again. Partner Down would only become a topic if a peer really fails for a longer time.",
+                        "text_en": "Correct. The state exists for exactly this case: both peers keep serving their clients, each from its share, with short leases. Once the link is back they resynchronize and run in Normal again. Partner Down would only come into play if a peer has really failed for an extended period.",
                     },
                 ],
             },
@@ -468,7 +468,7 @@ DHCP_FAILOVER_MODULE = {
                            'Verwechslung von Grid-HA-Paar und DHCP-Failover-Paar zu '
                            'falschen Annahmen im Ernstfall führen könnte.'),
              'prompt_en': ('Name a scenario from your own operations where confusing '
-                           'a Grid-HA pair with a DHCP failover pair could lead to '
+                           'a Grid HA pair with a DHCP failover pair could lead to '
                            'wrong assumptions in an actual incident.'),
          }},
     ],
@@ -480,23 +480,23 @@ DHCP_FAILOVER_MODULE = {
          },
          'type': 'single',
          'prompt': {'de': 'Was unterscheidet ein DHCP-Failover-Paar grundlegend von einem Grid-HA-Paar?',
-                    'en': 'What fundamentally distinguishes a DHCP failover pair from a Grid-HA pair?'},
+                    'en': 'What fundamentally distinguishes a DHCP failover pair from a Grid HA pair?'},
          'answer': 1,
          'options': {'de': ['Es gibt keinen Unterschied, beide meinen dasselbe',
                             'Ein Failover-Paar ist Active/Active und bedient gemeinsam einen Adresspool, ein Grid-HA-Paar ist Active/Passive und sichert einen einzelnen Grid-Knoten (z. B. den Grid Master) ab',
                             'Ein Failover-Paar sichert nur DNS ab, kein DHCP',
                             'Ein Grid-HA-Paar existiert nur bei virtuellen Appliances'],
                      'en': ['There is no difference, both mean the same thing',
-                            'A failover pair is active/active and jointly serves an address pool; a Grid-HA pair is active/passive and protects a single Grid node (e.g. the Grid Master)',
+                            'A failover pair is active/active and jointly serves an address pool; a Grid HA pair is active/passive and protects a single Grid node (e.g. the Grid Master)',
                             'A failover pair only protects DNS, not DHCP',
-                            'A Grid-HA pair only exists for virtual appliances']}},
+                            'A Grid HA pair only exists for virtual appliances']}},
         {'id': 'df2',
          "explanation": {
              "de": "Die MCLT begrenzt, wie weit ein Peer dem anderen „vorauseilen“ darf: um höchstens diese Spanne darf eine Lease länger laufen, als der Partner weiß. Sie ist keine Mindest-Lease-Zeit und hat mit dem Grid Master nichts zu tun.",
              "en": "The MCLT limits how far one peer may \"run ahead\" of the other: a lease may run at most this much longer than the partner knows. It is not a minimum lease time and has nothing to do with the Grid Master.",
          },
          'type': 'single',
-         'prompt': {'de': 'Wofür steht MCLT und welchen Zweck erfüllt es?',
+         'prompt': {'de': 'Wofür steht MCLT und welchen Zweck erfüllt sie?',
                     'en': 'What does MCLT stand for and what purpose does it serve?'},
          'answer': 0,
          'options': {'de': ['Maximum Client Lead Time — Zeitspanne, um die ein Peer eine Lease höchstens vergeben oder verlängern darf, ohne dass der Partner davon weiß',
@@ -553,7 +553,7 @@ DHCP_FAILOVER_MODULE = {
             "type": "single",
             "prompt": {
                 "de": "Die WAN-Strecke zwischen zwei Failover-Peers fällt aus; beide Appliances laufen und vergeben weiter Leases. Ein Admin setzt einen der beiden Peers auf Partner Down. Welches Risiko entsteht?",
-                "en": "The WAN link between two failover peers fails; both appliances are up and keep handing out leases. An admin sets one of the two peers to Partner Down. Which risk arises?",
+                "en": "The WAN link between two failover peers fails; both appliances are up and keep handing out leases. An admin sets one of the two peers to Partner Down. What risk does this create?",
             },
             "answer": 1,
             "options": {
@@ -585,7 +585,7 @@ DHCP_FAILOVER_MODULE = {
             "answer": 60,
             "explanation": {
                 "de": "Ohne Kontakt zum Partner darf ein Peer eine Lease nur um die MCLT verlängern — hier 60 Minuten statt 480. Deshalb steigt in diesem Zustand die Zahl der Verlängerungen, und deshalb ist eine sehr kurze MCLT kein Gratis-Gewinn.",
-                "en": "Without contact to the partner, a peer may extend a lease only by the MCLT — here 60 minutes instead of 480. That is why the number of renewals rises in this state, and why a very short MCLT is not a free win.",
+                "en": "Without contact with the partner, a peer may extend a lease only by the MCLT — here 60 minutes instead of 480. That is why the number of renewals rises in this state, and why a very short MCLT is not a free win.",
             },
         },
         {

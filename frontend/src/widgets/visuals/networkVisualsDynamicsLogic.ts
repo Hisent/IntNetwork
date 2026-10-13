@@ -4,7 +4,8 @@ export function maskFromPrefix(prefix: number): { binaryOctets: string[]; dotted
   const binaryOctets = Array.from({ length: 4 }, (_, i) => maskBits.slice(i * 8, i * 8 + 8).join(''))
   const dotted = binaryOctets.map(octet => parseInt(octet, 2)).join('.')
   const hostBits = 32 - prefix
-  const hosts = hostBits <= 1 ? 0 : Math.max(0, 2 ** hostBits - 2)
+  // RFC 3021: /31 = 2 nutzbare Adressen (Punkt-zu-Punkt), /32 = 1 Host-Adresse
+  const hosts = hostBits <= 1 ? 2 ** hostBits : 2 ** hostBits - 2
   return { binaryOctets, dotted, hosts }
 }
 

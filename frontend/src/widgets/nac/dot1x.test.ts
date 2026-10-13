@@ -154,3 +154,23 @@ describe('Pfade', () => {
     }
   })
 })
+
+describe('Review 2026-10: Zweisprachigkeit und Layer', () => {
+  it('kein Schrittname behält in EN deutsche Wörter', async () => {
+    const { stepName } = await import('./dot1x')
+    for (const id of DOT1X_PATH_IDS) {
+      for (const step of DOT1X_PATHS[id].steps) {
+        expect(stepName(step, 'de')).toBe(step.name)
+        expect(stepName(step, 'en')).not.toMatch(/Erster|Keine|Alle|Gast|bleibt|Antwort|z\. B\./)
+      }
+    }
+  })
+
+  it('"Port authorized" ist auf jedem Pfad eine lokale Aktion des Switches, kein EAPOL-Frame', () => {
+    for (const id of DOT1X_PATH_IDS) {
+      for (const step of DOT1X_PATHS[id].steps.filter((s) => s.name.startsWith('Port'))) {
+        expect(step.layer).toBe('local')
+      }
+    }
+  })
+})

@@ -6,6 +6,8 @@ export interface DnsStep {
 export interface DnsResult {
   steps: DnsStep[]
   ip: string | null
+  /** der tatsächlich aufgelöste (normalisierte) Name; leer = keine Eingabe, keine Anfrage */
+  name: string
 }
 
 // Autoritative Zone der Firma (vereinfacht).
@@ -21,8 +23,15 @@ const CNAME: Record<string, string> = {
 }
 
 /** Iterative Auflösung aus Sicht des Resolvers: Root → TLD → autoritativ. */
-export function resolve(name: string): DnsResult {
+export function resolve(input: string): DnsResult {
+  const res = lookup(input)
+  return { ...res, name: input.trim().toLowerCase().replace(/\.$/, '') }
+}
+
+function lookup(name: string): Omit<DnsResult, 'name'> {
   const q = name.trim().toLowerCase().replace(/\.$/, '')
+  // leere Eingabe: es gibt nichts zu fragen (früher: „NXDOMAIN — TLD „.“ …")
+  if (!q) return { steps: [], ip: null }
   const root = { de: 'Root-Server (.)', en: 'Root server (.)' }
   const tld = q.split('.').pop()
   // Die Simulation kennt nur .de und darunter nur die Nordwind-Zone.

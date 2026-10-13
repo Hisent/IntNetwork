@@ -45,6 +45,18 @@ export const SCENARIO = {
   direct: { src: '198.51.100.23', dst: '203.0.113.25', payload: 'Gehaltsliste.xlsx' } as Packet,
 }
 
+/** Dateiname der Nutzlast je Sprache — in der EN-Oberfläche stand sonst „Gehaltsliste.xlsx". */
+const PAYLOAD = { de: 'Gehaltsliste.xlsx', en: 'payroll.xlsx' } as const
+
+/** Szenario mit sprachabhängigem Dateinamen; Adressen bleiben identisch. */
+export function scenarioFor(lang: 'de' | 'en') {
+  return {
+    ...SCENARIO,
+    inner: { ...SCENARIO.inner, payload: PAYLOAD[lang] },
+    direct: { ...SCENARIO.direct, payload: PAYLOAD[lang] },
+  }
+}
+
 /** Sicht eines Angreifers im offenen WLAN. `plain` ist das Paket, das OHNE VPN über das
  * WLAN ginge (Klartext); mit VPN bleiben nur die Tunnel-Endpunkte als Metadaten und ein
  * verschlüsselter Block. */

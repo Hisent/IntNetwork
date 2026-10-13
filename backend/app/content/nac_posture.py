@@ -144,7 +144,7 @@ NAC_POSTURE_MODULE = {
                     {
                         'id': 'dev',
                         'label_de': 'Notebook + Agent',
-                        'label_en': 'Notebook + agent',
+                        'label_en': 'Laptop + agent',
                     },
                     {
                         'id': 'sw',
@@ -307,8 +307,7 @@ NAC_POSTURE_MODULE = {
                    '- **Agentless** — device state is determined from the outside, without NAC-specific '
                    'software on the endpoint: by querying existing systems (typically the compliance '
                    'record of an MDM/UEM platform via API) or network-based (profiling, scans). It '
-                   'reaches further and saves software on the endpoint, but goes less deep than an '
-                   'agent — and is only as good as its source: without an MDM little remains for the '
+                   'reaches further and saves software on the endpoint, but is less thorough than an agent — and is only as good as its source: without an MDM little remains for the '
                    'state question.',
          }},
         {'type': 'text', 'id': 'text-5',
@@ -351,7 +350,7 @@ NAC_POSTURE_MODULE = {
                     {
                         'id': 'start',
                         'text_de': 'Dienstag nach dem Patch-Tag: 180 von 300 Notebooks haben das neue Sicherheitsupdate noch nicht installiert. EDR, Firewall und Verschlüsselung sind überall aktiv. Wie reagiert die Posture-Regel?',
-                        'text_en': 'Tuesday after patch day: 180 of 300 notebooks have not installed the new security update yet. EDR, firewall, and encryption are active everywhere. How does the posture rule react?',
+                        'text_en': 'Tuesday after patch day: 180 of 300 laptops have not installed the new security update yet. EDR, firewall, and encryption are active everywhere. How does the posture rule react?',
                         'options': [
                             {
                                 'label_de': 'Alle 180 sofort in die Quarantäne',
@@ -385,7 +384,7 @@ NAC_POSTURE_MODULE = {
                     {
                         'id': 'frist',
                         'text_de': 'Nach 7 Tagen sind noch 6 Notebooks ungepatcht. Was passiert mit ihnen?',
-                        'text_en': 'After 7 days, 6 notebooks are still unpatched. What happens to them?',
+                        'text_en': 'After 7 days, 6 laptops are still unpatched. What happens to them?',
                         'options': [
                             {
                                 'label_de': 'Frist stillschweigend um weitere 30 Tage verlängern',
@@ -408,7 +407,7 @@ NAC_POSTURE_MODULE = {
                         'id': 'verlaengern',
                         'outcome': 'bad',
                         'text_de': 'Eine Frist, die nie endet, ist keine. Genau die sechs Geräte, die sich nicht von selbst aktualisieren, brauchen jetzt den Anstoß.',
-                        'text_en': 'A deadline that never ends is none. It is exactly the six devices that do not update by themselves that need the push now.',
+                        'text_en': 'A deadline that never ends is no deadline. It is exactly the six devices that do not update by themselves that need the push now.',
                     },
                     {
                         'id': 'sperren',
@@ -563,7 +562,7 @@ NAC_POSTURE_MODULE = {
             'type': 'single',
             'prompt': {
                 'de': 'Ein Notebook meldet sich korrekt per 802.1X an, erreicht in den ersten Sekunden aber nur DHCP, DNS und den Policy-Server; kurz darauf funktioniert alles. Was ist die plausibelste Erklärung?',
-                'en': 'A notebook logs in correctly via 802.1X but for the first few seconds only reaches DHCP, DNS, and the policy server; shortly afterwards everything works. What is the most plausible explanation?',
+                'en': 'A laptop logs in correctly via 802.1X but for the first few seconds only reaches DHCP, DNS, and the policy server; shortly afterwards everything works. What is the most plausible explanation?',
             },
             'options': {
                 'de': [

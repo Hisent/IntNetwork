@@ -353,7 +353,7 @@ PORTS_MODULE = {
                    "beide Clients hinter derselben öffentlichen Adresse sitzen — dann sorgt NAT/PAT für "
                    "unterschiedliche Quell-Ports.",
              "en": "A connection is defined by all four values: source IP, source port, destination IP, "
-                   "destination port. A different source IP alone makes it unique. It only gets tight "
+                   "destination port. A different source IP alone makes it unique. It only gets tricky "
                    "when both clients sit behind the same public address — then NAT/PAT ensures "
                    "different source ports."}},
     ]},

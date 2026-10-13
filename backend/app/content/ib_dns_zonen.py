@@ -33,7 +33,7 @@ DNS_ZONEN_MODULE = {
     },
     'blocks': [
         {'type': 'text', 'id': 'text-1',
-         'note': 'Das Host-Objekt ist der Punkt, an dem Umsteiger aus der BIND-Welt stolpern: Es buendelt A-, PTR- und optional DHCP-Daten in einem Objekt. Am besten einmal am Whiteboard gegenueberstellen.',
+         'note': 'Das Host-Objekt ist der Punkt, an dem Umsteiger aus der BIND-Welt stolpern: Es bündelt A-, PTR- und optional DHCP-Daten in einem Objekt. Am besten einmal am Whiteboard gegenüberstellen.',
          'value': {
              'de': '## Forward- und Reverse-Zonen\n\n'
                    'Eine **Zone** ist der autoritative Zuständigkeitsbereich für einen Namensraum — '
@@ -57,9 +57,9 @@ DNS_ZONEN_MODULE = {
                    '- **Forward-mapping zone** — answers "name → IP", e.g. `nordwind-intern.de`.\n'
                    '- **Reverse-mapping zone** — answers "IP → name" (PTR resolution), built on '
                    '`in-addr.arpa` (IPv4) or `ip6.arpa` (IPv6).\n\n'
-                   'Both zone types still need SOA and NS records as the zone head — NIOS does not '
+                   'Both zone types still need SOA and NS records at the zone apex — NIOS does not '
                    'change that. What changes: you create the zone once as an object and assign it '
-                   'a Name Server Group, instead of manually copying zone files to several servers.',
+                   'a name server group, instead of manually copying zone files to several servers.',
          }},
         {'type': 'text', 'id': 'text-2',
          'value': {
@@ -157,7 +157,7 @@ DNS_ZONEN_MODULE = {
                  'Weil Host-Objekte nur für IPv6-Adressen gelten',
              ],
              'options_en': [
-                 'Because NIOS fundamentally forbids PTR records',
+                 'Because NIOS does not allow PTR records at all',
                  'Because the host object manages the A and PTR entries as one linked unit and '
                  'keeps them consistent automatically',
                  'Because PTR records can only be created through DHCP lease assignment',
@@ -184,20 +184,20 @@ DNS_ZONEN_MODULE = {
                    'beliebige Clients. Zwischen Grid-Membern geschieht der Abgleich dagegen standardmäßig '
                    'über die Grid-Replikation statt über Zonentransfers.',
              'en': '## Name Server Groups\n\n'
-                   'A **Name Server Group** is a reusable template that defines which servers are '
+                   'A **name server group** is a reusable template that defines which servers are '
                    'responsible for a zone — useful when many zones share the same pattern of '
                    'responsibilities. Three variants occur in practice:\n\n'
                    '- **Internal only** — exclusively Grid members act as name servers for the '
                    'zone.\n'
-                   '- **With external secondaries** — the Grid members remain primary, an external '
+                   '- **With external secondaries** — the Grid members remain primary, and an external '
                    'server (e.g. at the ISP) runs as an additional secondary for redundancy.\n'
                    '- **With external primaries** — the zone is held primary externally (e.g. at a '
-                   'provider), one or more Grid members run as secondary.\n\n'
+                   'provider), and one or more Grid members run as secondary.\n\n'
                    'Secondary servers outside the Grid (and Grid members that load from an external '
                    'primary) receive their zone data through a **zone transfer**: either as '
                    'a full copy (**AXFR**) or — if both sides support it — only the changes since the '
-                   'last known state (**IXFR**). Who is allowed to load a zone via zone transfer '
-                   'must be explicitly permitted — the usual approach is to allow exactly the IP '
+                   'last known state (**IXFR**). Permission to load a zone via zone transfer '
+                   'must be granted explicitly — the usual approach is to allow exactly the IP '
                    'address of that particular secondary server, not arbitrary clients. Between Grid '
                    'members, by contrast, zone data is synchronized by default through Grid '
                    'replication rather than zone transfers.',
@@ -207,7 +207,7 @@ DNS_ZONEN_MODULE = {
             "id": "text-delegation",
             "value": {
                 "de": "## Delegation: eine Teilzone abgeben\n\nNicht jede Subdomain muss in derselben Zone liegen. Soll das Labor-Team `lab.nordwind-intern.de` selbst verwalten, wird dieser Teil des Namensraums **delegiert**: Die Elternzone `nordwind-intern.de` enthält dann für `lab` keine einzelnen Records mehr, sondern nur noch den Verweis auf die zuständigen Server.\n\nDazu braucht die Elternzone zwei Dinge:\n\n- **NS-Records** für die Teilzone — sie nennen die Nameserver, die für `lab.nordwind-intern.de` autoritativ sind.\n- **Glue-Records** (A/AAAA), wenn diese Nameserver selbst *innerhalb* der delegierten Zone heißen (z. B. `ns1.lab.nordwind-intern.de`). Ohne Glue müsste ein Resolver den Namen des Servers auflösen, um den Server zu fragen, der diesen Namen kennt.\n\n```text\nlab.nordwind-intern.de.      IN NS  ns1.lab.nordwind-intern.de.\nns1.lab.nordwind-intern.de.  IN A   10.20.40.53\n```\n\nDie Elternzone ist für die delegierten Namen **nicht autoritativ**: Sie beantwortet eine Frage nach `host7.lab.nordwind-intern.de` mit einem Verweis (Referral), nicht mit der Adresse. In NIOS ist eine Delegation ein eigenes Objekt unterhalb der Elternzone, kein von Hand gepflegter NS-Record. Wichtig für die Abgrenzung: Delegation verteilt **Zuständigkeit** auf andere Server, ein Zonentransfer kopiert **dieselbe Zone** auf weitere Server.",
-                "en": "## Delegation: Handing Off a Subzone\n\nNot every subdomain has to live in the same zone. If the lab team is to manage `lab.nordwind-intern.de` itself, that part of the namespace is **delegated**: the parent zone `nordwind-intern.de` then no longer holds individual records for `lab`, only the pointer to the responsible servers.\n\nThe parent zone needs two things for that:\n\n- **NS records** for the subzone — they name the name servers that are authoritative for `lab.nordwind-intern.de`.\n- **Glue records** (A/AAAA) if those name servers are themselves named *inside* the delegated zone (e.g. `ns1.lab.nordwind-intern.de`). Without glue, a resolver would have to resolve the server's name in order to ask the server that knows that name.\n\n```text\nlab.nordwind-intern.de.      IN NS  ns1.lab.nordwind-intern.de.\nns1.lab.nordwind-intern.de.  IN A   10.20.40.53\n```\n\nThe parent zone is **not authoritative** for the delegated names: it answers a question for `host7.lab.nordwind-intern.de` with a referral, not with the address. In NIOS a delegation is an object of its own below the parent zone, not a hand-maintained NS record. Important for the distinction: delegation spreads **responsibility** across other servers, a zone transfer copies **the same zone** to further servers.",
+                "en": "## Delegation: Handing Off a Subzone\n\nNot every subdomain has to live in the same zone. If the lab team is to manage `lab.nordwind-intern.de` itself, that part of the namespace is **delegated**: the parent zone `nordwind-intern.de` then no longer holds individual records for `lab`, only the pointer to the responsible servers.\n\nThe parent zone needs two things for that:\n\n- **NS records** for the subzone — they name the name servers that are authoritative for `lab.nordwind-intern.de`.\n- **Glue records** (A/AAAA) if those name servers are themselves named *inside* the delegated zone (e.g. `ns1.lab.nordwind-intern.de`). Without glue, a resolver would have to resolve the server's name in order to ask the server that knows that name.\n\n```text\nlab.nordwind-intern.de.      IN NS  ns1.lab.nordwind-intern.de.\nns1.lab.nordwind-intern.de.  IN A   10.20.40.53\n```\n\nThe parent zone is **not authoritative** for the delegated names: it answers a question for `host7.lab.nordwind-intern.de` with a referral, not with the address. In NIOS a delegation is an object of its own below the parent zone, not a hand-maintained NS record. Important for the distinction: delegation spreads **responsibility** across other servers, whereas a zone transfer copies **the same zone** to further servers.",
             },
         },
         {'type': 'debug', 'id': 'debug-1',
@@ -250,7 +250,7 @@ DNS_ZONEN_MODULE = {
                 "title_de": "Eine Änderung, zwei Wege: Grid-Replikation und Zonentransfer",
                 "title_en": "One change, two paths: Grid replication and zone transfer",
                 "caption_de": "Innerhalb des Grids repliziert die Datenbank; nach außen spricht das Grid klassisches DNS.",
-                "caption_en": "Inside the Grid the database replicates; towards the outside the Grid speaks classic DNS.",
+                "caption_en": "Inside the Grid the database replicates; to the outside world the Grid speaks classic DNS.",
                 "actors": [
                     {"id": "gm", "label": "Grid Master"},
                     {"id": "mem", "label_de": "Grid-Member (primär)", "label_en": "Grid member (primary)"},
@@ -420,7 +420,7 @@ DNS_ZONEN_MODULE = {
                     {"id": "ns", "options": ["CNAME", "NS", "PTR", "SOA"], "answer": 1},
                 ],
                 "explanation_de": "Die letzten beiden Zeilen bilden zusammen die Delegation: Der NS-Record gibt lab.nordwind-intern.de ab, der A-Record darunter ist der Glue-Record für den Nameserver, der selbst in der delegierten Zone liegt.",
-                "explanation_en": "The last two lines together form the delegation: the NS record hands off lab.nordwind-intern.de, the A record below is the glue record for the name server that itself lives inside the delegated zone.",
+                "explanation_en": "The last two lines together form the delegation: the NS record hands off lab.nordwind-intern.de, and the A record below is the glue record for the name server that itself lives inside the delegated zone.",
             },
         },
         {'type': 'reveal', 'id': 'reveal-1',
@@ -430,9 +430,9 @@ DNS_ZONEN_MODULE = {
                          'ISP-Sekundärserver absichern. Welche Name-Server-Group-Variante passt, '
                          'und was muss der ISP dafür bekommen dürfen? Erst selbst überlegen.',
              'teaser_en': 'Lab: Nordwind currently runs the zone `nordwind-intern.de` only in its '
-                         'own Grid, but wants to secure redundant resolution via an ISP secondary '
-                         'server. Which Name Server Group variant fits, and what must the ISP be '
-                         'allowed to do? Try it yourself first.',
+                         'own Grid, but wants to make resolution redundant by adding an ISP secondary '
+                         'server. Which name server group variant fits, and what must the ISP be '
+                         'allowed to do? Think it through yourself first.',
          },
          'value': {
              'de': 'Passend ist die Variante **mit externen Sekundären**: Die Grid-Member bleiben '
@@ -443,8 +443,8 @@ DNS_ZONEN_MODULE = {
                    'Sekundärservers, nicht für beliebige Clients.',
              'en': 'The fitting variant is **with external secondaries**: the Grid members remain '
                    'primary for the zone, and the external ISP server is additionally registered as '
-                   'a secondary. For it to load the zone, it must be permitted a zone transfer '
-                   '(AXFR/IXFR) from the responsible Grid members — usually as a narrowly scoped '
+                   'a secondary. For it to load the zone, the responsible Grid members must allow it '
+                   'a zone transfer (AXFR/IXFR) — usually as a narrowly scoped '
                    'permission for exactly that secondary server\'s IP address, not for arbitrary '
                    'clients.',
          }},
@@ -453,8 +453,8 @@ DNS_ZONEN_MODULE = {
              'prompt_de': 'Nenne ein Beispiel aus deinem eigenen Netz (oder ein plausibles '
                          'Beispiel), bei dem ein Host-Objekt die Konsistenz zwischen A- und '
                          'PTR-Eintrag konkret vor einem Fehler bewahrt hätte.',
-             'prompt_en': 'Name an example from your own network (or a plausible example) where a '
-                         'host object would have concretely prevented an error in the consistency '
+             'prompt_en': 'Give an example from your own network (or a plausible example) where a '
+                         'host object would have prevented a specific mismatch '
                          'between the A and PTR entries.',
          }},
     ],
@@ -518,7 +518,7 @@ DNS_ZONEN_MODULE = {
              ],
              'en': [
                  'Host objects resolve faster than individual records',
-                 'Host objects do not require a zone head (SOA/NS)',
+                 'Host objects do not require zone apex records (SOA/NS)',
                  'Host objects automatically keep the A and PTR entries consistent',
                  'Host objects only work together with DNSSEC',
              ],
@@ -526,13 +526,13 @@ DNS_ZONEN_MODULE = {
         {'id': 'dz4',
          "explanation": {
              "de": "Liegt die primäre Zone außerhalb und das Grid lädt sie nur, ist das die Variante „mit externen Primären“. Die Verwechslung mit „externen Sekundären“ ist naheliegend: Dort wäre es umgekehrt — das Grid ist primär, der fremde Server lädt.",
-             "en": "If the primary zone lives outside and the Grid only loads it, that is the \"with external primaries\" variant. Confusing it with \"external secondaries\" is tempting: there it is the other way round — the Grid is primary and the foreign server loads.",
+             "en": "If the primary zone lives outside and the Grid only loads it, that is the \"with external primaries\" variant. Confusing it with \"external secondaries\" is tempting: there it is the other way around — the Grid is primary and the external server loads.",
          },
          'type': 'single',
          'prompt': {'de': 'Welche Name-Server-Group-Variante passt, wenn eine Zone extern (z. B. '
                          'bei einem Provider) primär gehalten wird und der Grid nur als Sekundär '
                          'dient?',
-                    'en': 'Which Name Server Group variant fits when a zone is held primary '
+                    'en': 'Which name server group variant fits when a zone is held primary '
                          'externally (e.g. at a provider) and the Grid only serves as secondary?'},
          'answer': 2,
          'options': {
@@ -598,7 +598,7 @@ DNS_ZONEN_MODULE = {
             "type": "single",
             "prompt": {
                 "de": "dig zeigt für nordwind-intern.de auf dem Grid-Member den Serial 413, auf dem externen ISP-Sekundär seit Stunden 398. Die Grid-Member untereinander sind aktuell. Wo liegt die Ursache am ehesten?",
-                "en": "dig shows serial 413 for nordwind-intern.de on the Grid member, but 398 on the external ISP secondary for hours. The Grid members among themselves are current. Where is the cause most likely?",
+                "en": "dig shows serial 413 for nordwind-intern.de on the Grid member, but the external ISP secondary has been at 398 for hours. The Grid members are in sync with each other. What is the most likely cause?",
             },
             "answer": 1,
             "options": {
@@ -639,12 +639,12 @@ DNS_ZONEN_MODULE = {
                     "Between Grid members, zone data is synchronized through Grid replication by default.",
                     "An external secondary also receives its data through Grid replication once it is listed in the name server group.",
                     "An external secondary compares the SOA serial and requests IXFR or AXFR when needed.",
-                    "Who may load a zone by zone transfer has to be permitted explicitly.",
+                    "Permission to load a zone by zone transfer has to be granted explicitly.",
                 ],
             },
             "explanation": {
                 "de": "Die Grid-Replikation endet an der Grid-Grenze: Ein fremder Server ist kein Member und spricht nur DNS. Der Eintrag in der Name Server Group macht ihn zum Nameserver der Zone, ersetzt aber weder den Zonentransfer noch dessen Freigabe.",
-                "en": "Grid replication ends at the Grid boundary: a foreign server is not a member and only speaks DNS. Listing it in the name server group makes it a name server of the zone but replaces neither the zone transfer nor its permission.",
+                "en": "Grid replication ends at the Grid boundary: an outside server is not a member and only speaks DNS. Listing it in the name server group makes it a name server of the zone but replaces neither the zone transfer nor its permission.",
             },
         },
     ]},

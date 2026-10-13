@@ -11,7 +11,7 @@ LLM_GRUNDLAGEN_MODULE = {'key': 'llm-grundlagen',
            'Tokenisierung und Kontextfenster verstehen und ihre Grenzen kennen',
            'Verstehen, warum Kontext-Qualität die Antwortqualität bestimmt'],
  'goals_en': ['Explain how an LLM generates text (predicting the next token)',
-              'Roughly place the role of the Transformer and attention',
+              'Understand the role of the Transformer and attention at a high level',
               'Understand tokenization and the context window and know their limits',
               'Understand why context quality determines answer quality'],
  'scenario': {'de': 'Bevor wir Claude Code sinnvoll steuern, brauchen wir ein mentales Modell '
@@ -38,7 +38,7 @@ LLM_GRUNDLAGEN_MODULE = {'key': 'llm-grundlagen',
                              'erstaunlich viele: Code schreiben, Fehler erklären, Texte '
                              'zusammenfassen. Wichtig fürs mentale Modell:\n'
                              '\n'
-                             '- Das Modell **rechnet Wahrscheinlichkeiten**, es „weiß” nichts im '
+                             '- Das Modell **rechnet Wahrscheinlichkeiten**, es „weiß“ nichts im '
                              'menschlichen Sinn.\n'
                              '- Gleiche Eingabe kann leicht **unterschiedliche** Ausgaben liefern '
                              '(Sampling / Temperatur).\n'
@@ -57,7 +57,7 @@ LLM_GRUNDLAGEN_MODULE = {'key': 'llm-grundlagen',
                              '\n'
                              '- The model **computes probabilities**; it doesn\'t "know" anything '
                              'in the human sense.\n'
-                             '- The same input can yield **different** outputs (sampling / '
+                             '- The same input can yield slightly **different** outputs (sampling / '
                              'temperature).\n'
                              '- It can produce **plausible-sounding nonsense** (*hallucination*) — '
                              'which is why we verify results.'},
@@ -70,7 +70,7 @@ LLM_GRUNDLAGEN_MODULE = {'key': 'llm-grundlagen',
                              '\n'
                              'Moderne LLMs beruhen auf der **Transformer**-Architektur (2017). Ihr '
                              'Kern ist der **Attention-Mechanismus**: Jedes Token kann beim '
-                             'Verarbeiten auf *alle anderen* Tokens im Kontext „schauen” und '
+                             'Verarbeiten auf *alle anderen* Tokens im Kontext „schauen“ und '
                              'gewichten, welche gerade relevant sind. So erfasst das Modell '
                              'Zusammenhänge über weite Distanzen — etwa dass sich ein `return` '
                              'weit unten auf eine Funktionssignatur weit oben bezieht.\n'
@@ -199,12 +199,12 @@ LLM_GRUNDLAGEN_MODULE = {'key': 'llm-grundlagen',
              'id': 'tokenizer-demo',
              'note': 'Teilnehmende einen deutschen Satz und ein Code-Snippet eingeben lassen — '
                      'sichtbar machen, dass Umlaute und Bezeichner in mehrere Tokens zerfallen. '
-                     'Vergleich „Größe“ gegen „Groesse“ zeigen; dazusagen, dass die Demo eine '
+                     'Vergleich „Größe“ gegen „Größe“ zeigen; dazusagen, dass die Demo eine '
                      'Heuristik ist und keine exakten Token-Zahlen eines echten Modells liefert.'},
             {'type': 'check', 'id': 'check-1',
              'payload': {'kind': 'choice',
                          'prompt_de': 'Grob geschätzt: Wie viele Tokens sind ~750 Wörter Text?',
-                         'prompt_en': 'Roughly estimated: how many tokens is ~750 words of text?',
+                         'prompt_en': 'As a rough estimate: how many tokens are ~750 words of text?',
                          'answer': 1,
                          'options_de': ['~100 Tokens', '~1000 Tokens', '~10.000 Tokens'],
                          'options_en': ['~100 tokens', '~1000 tokens', '~10,000 tokens']}},
@@ -213,7 +213,7 @@ LLM_GRUNDLAGEN_MODULE = {'key': 'llm-grundlagen',
                              '\n'
                              'Das **Kontextfenster** ist die maximale Menge Tokens, die das Modell '
                              'in *einem* Durchgang berücksichtigen kann — Eingabe **und** Ausgabe '
-                             'zusammen. Alles, was Claude Code gerade „im Kopf” hat, liegt darin: '
+                             'zusammen. Alles, was Claude Code gerade „im Kopf“ hat, liegt darin: '
                              'System-Prompt, deine `CLAUDE.md`, der bisherige Gesprächsverlauf, '
                              'gelesene Dateien und Tool-Ergebnisse.\n'
                              '\n'
@@ -246,13 +246,12 @@ LLM_GRUNDLAGEN_MODULE = {'key': 'llm-grundlagen',
                          'prompt_en': 'Match each term to what it describes.',
                          'pairs': [{'left': 'Token',
                                     'right_de': 'Textbaustein, oft ein Wortteil, in dem das Modell rechnet',
-                                    'right_en': 'Piece of text, often part of a word, that the model computes '
-                                                'in'},
+                                    'right_en': 'Unit of text, often part of a word, that the model works with'},
                                    {'left_de': 'Kontextfenster',
                                     'left_en': 'Context window',
                                     'right_de': 'Obergrenze an Tokens, die das Modell auf einmal '
                                                 'berücksichtigt',
-                                    'right_en': 'Upper limit of tokens the model takes into account at once'},
+                                    'right_en': 'Maximum number of tokens the model takes into account at once'},
                                    {'left': 'Attention',
                                     'right_de': 'Mechanismus, der Tokens nach Relevanz miteinander verknüpft',
                                     'right_en': 'Mechanism that links tokens to each other by relevance'},
@@ -282,7 +281,7 @@ LLM_GRUNDLAGEN_MODULE = {'key': 'llm-grundlagen',
                          'items_en': ['Input text is split into tokens',
                                       'The model calculates probabilities for the next token',
                                       'A token is selected and appended',
-                                      'The extended text goes back into the model — until stop']}},
+                                      'The extended text goes back into the model — until it stops']}},
             {'type': 'reflect', 'id': 'reflect-1',
              'payload': {'prompt_de': 'Denk an eine Aufgabe, die du zuletzt an eine KI gestellt '
                                       'hast. Welche Informationen hätte das Modell im '
@@ -293,7 +292,7 @@ LLM_GRUNDLAGEN_MODULE = {'key': 'llm-grundlagen',
                                       'it really well — and how much of that did you actually '
                                       'provide?'}},
             {'type': 'reveal', 'id': 'reveal-1',
-             'payload': {'teaser_de': 'Kurzfrage zum Selbst-Prüfen: Warum liefert dasselbe Prompt '
+             'payload': {'teaser_de': 'Kurzfrage zum Selbst-Prüfen: Warum liefert derselbe Prompt '
                                       'manchmal unterschiedliche Antworten? Formuliere eine '
                                       'Erklärung in einem Satz, dann aufdecken.',
                          'teaser_en': 'Quick self-check question: Why does the same prompt '
@@ -310,7 +309,7 @@ LLM_GRUNDLAGEN_MODULE = {'key': 'llm-grundlagen',
                              'usually chosen and the output is nearly deterministic; higher '
                              'temperature brings more variation.'}}],
  'quiz': {'questions': [{'id': 'llm1',
-                         'explanation': {'de': 'Ein LLM lernt im Training genau eine Aufgabe: aus dem bisherigen Text das nächste Token vorherzusagen. Der naheliegende Irrtum ist das Bild vom Nachschlagewerk – das Modell schlägt nichts in einer Datenbank nach, sondern rechnet Wahrscheinlichkeiten, und kann deshalb auch Falsches flüssig formulieren.', 'en': 'During training an LLM learns exactly one task: predicting the next token from the text so far. The obvious misconception is the reference-work picture – the model does not look anything up in a database, it computes probabilities, and can therefore phrase wrong things fluently too.'},
+                         'explanation': {'de': 'Ein LLM lernt im Training genau eine Aufgabe: aus dem bisherigen Text das nächste Token vorherzusagen. Der naheliegende Irrtum ist das Bild vom Nachschlagewerk – das Modell schlägt nichts in einer Datenbank nach, sondern rechnet Wahrscheinlichkeiten, und kann deshalb auch Falsches flüssig formulieren.', 'en': 'During training an LLM learns exactly one task: predicting the next token from the text so far. The obvious misconception is the image of a reference work – the model does not look anything up in a database, it computes probabilities, and can therefore also state wrong things fluently.'},
                          'type': 'single',
                          'prompt': {'de': 'Worauf ist ein LLM grundlegend trainiert?',
                                     'en': 'What is an LLM fundamentally trained to do?'},
@@ -386,15 +385,14 @@ LLM_GRUNDLAGEN_MODULE = {'key': 'llm-grundlagen',
                                           'ganz am Anfang im Chat genannt hast. Was ist die plausibelste Erklärung und die '
                                           'passende Reaktion?',
                                     'en': 'In a very long session Claude no longer follows a rule you stated in chat at '
-                                          'the very beginning. What is the most plausible explanation and the fitting '
-                                          'response?'},
+                                          'the very beginning. What is the most plausible explanation and the appropriate response?'},
                          'options': {'de': ['Das Modell wurde zwischenzeitlich neu trainiert; man kann nichts tun',
                                             'Das Kontextfenster ist endlich: Frühe Inhalte wurden verdichtet oder gehen im '
                                             'Rauschen unter – dauerhafte Regeln gehören in die CLAUDE.md',
                                             'Attention funktioniert nur für die letzten zehn Nachrichten',
                                             'Die Regel war zu kurz; längere Regeln wirken grundsätzlich stärker'],
                                      'en': ['The model was retrained in the meantime; nothing can be done',
-                                            'The context window is finite: early content was condensed or drowns in noise '
+                                            'The context window is finite: early content has been condensed or is drowned out by noise '
                                             '– durable rules belong in CLAUDE.md',
                                             'Attention only works for the last ten messages',
                                             'The rule was too short; longer rules always have more impact']},

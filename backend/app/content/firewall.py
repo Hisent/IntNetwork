@@ -12,7 +12,7 @@ FIREWALL_MODULE = {
     "goals_en": [
         "Name the job of a firewall at the network border",
         "Explain rule order and default deny",
-        "Place the stateful principle: replies to allowed connections need no rule of their own",
+        "Understand the stateful principle: replies to allowed connections need no rule of their own",
     ],
     "scenario": {
         "de": "Nordwind hängt am Internet. Der Webserver soll erreichbar sein, "
@@ -34,7 +34,7 @@ FIREWALL_MODULE = {
                    "genau die Bausteine aus dem Transport-Modul.",
              "en": "## What a Firewall Does\n\nA **firewall** sits at "
                    "the border between networks (typically internal network ↔ Internet) and checks every "
-                   "packet against a **ruleset**: allow, or deny. "
+                   "packet against a **rule set**: **allow** it or drop it (**deny**). "
                    "Decisions are usually based on **IP**, **protocol** (TCP/UDP) and **port** — "
                    "exactly the building blocks from the transport module.",
          }},
@@ -48,8 +48,8 @@ FIREWALL_MODULE = {
              "en": "## Rules: Order Matters\n\nMany classic firewalls — including "
                    "our simulator — check rules **from top to bottom**: the **first matching** "
                    "rule decides. Other products use priorities, zones or different logic. So always "
-                   "know the concrete rule engine; an overly broad early allow rule can make a later "
-                   "deny rule pointless.",
+                   "know the specific rule engine in use; an overly broad early allow rule can make a later "
+                   "deny rule ineffective.",
          }},
         {"type": "text", "id": "text-3",
          "value": {
@@ -102,7 +102,7 @@ FIREWALL_MODULE = {
                    "**DMZ** (demilitarized zone) for servers that must be reachable from outside — at "
                    "Nordwind the web server of the customer portal (`192.168.30.80`).\n\n"
                    "The idea behind it: a server reachable from the Internet is the most likely way in. If "
-                   "it sits in a zone of its own, the firewall also decides about the path **DMZ → LAN** — "
+                   "it sits in a zone of its own, the firewall also controls the path **DMZ → LAN** — "
                    "and that stays closed except for specifically opened ports. Rules therefore always "
                    "apply to a **direction between two zones**.",
          }},
@@ -145,7 +145,7 @@ FIREWALL_MODULE = {
                   "text_de": "DMZ → LAN: gesperrt bis auf gezielte Ausnahmen (etwa der Datenbank-Port). Ein "
                              "gekaperter Webserver kommt so nicht frei ins Büronetz.",
                   "text_en": "DMZ → LAN: closed except for specific exceptions (such as the database port). "
-                             "A hijacked web server thus cannot roam the office network."},
+                             "A compromised web server thus cannot move freely into the office network."},
              ],
          }},
         {"type": "cloze", "id": "cloze-acl-dmz",
@@ -184,7 +184,7 @@ FIREWALL_MODULE = {
                                "NAT-Übersetzung prüft; eingehend am Internet-Interface stünde dort die "
                                "öffentliche Adresse des Servers.",
              "explanation_en": "The wildcard mask 0.0.0.255 leaves the last octet open and thus equals /24. "
-                               "The last line spells out what IOS appends invisibly to every ACL anyway "
+                               "The last line spells out what IOS invisibly appends to the end of every ACL anyway "
                                "(implicit deny) — written out, it can be logged with “log”. IOS has no "
                                "“allow”: the keyword is permit. The internal address 192.168.30.80 is "
                                "right because an outbound ACL checks only after NAT translation; inbound "
@@ -205,7 +205,7 @@ FIREWALL_MODULE = {
                              "20 deny TCP any → any Port 23\n"
                              "sonst: Default Deny\nWas tust du zuerst?",
                   "text_en": "An audit shows: Telnet (TCP 23) to the web server in the DMZ is possible from "
-                             "the Internet. The ruleset (first matching rule decides):\n"
+                             "the Internet. The rule set (first matching rule decides):\n"
                              "10 allow TCP any → 192.168.30.80 ports 1–1024\n"
                              "20 deny TCP any → any port 23\n"
                              "otherwise: default deny\nWhat do you do first?",
@@ -223,7 +223,7 @@ FIREWALL_MODULE = {
                  {"id": "neustart", "outcome": "bad",
                   "text_de": "Das Regelwerk ist nach dem Neustart dasselbe — und während des Neustarts "
                              "ist das Kundenportal nicht erreichbar.",
-                  "text_en": "The ruleset is the same after the restart — and during the restart the "
+                  "text_en": "The rule set is the same after the restart — and during the restart the "
                              "customer portal is unreachable."},
                  {"id": "zaehler",
                   "text_de": "Regel 10 zählt bei jedem Telnet-Versuch hoch, Regel 20 steht bei 0 Treffern. "
@@ -305,7 +305,7 @@ FIREWALL_MODULE = {
         {"id": "f5", "type": "single",
          "prompt": {"de": "Ein Regelwerk (erste passende Regel entscheidet): Regel 1 „allow TCP, beliebiger "
                           "Port“, Regel 2 „deny TCP 23“. Was passiert mit einem Telnet-Paket (TCP 23)?",
-                    "en": "A ruleset (first matching rule decides): rule 1 “allow TCP, any port”, rule 2 "
+                    "en": "A rule set (first matching rule decides): rule 1 “allow TCP, any port”, rule 2 "
                           "“deny TCP 23”. What happens to a Telnet packet (TCP 23)?"},
          "options": {
              "de": ["Regel 2 blockiert es, weil sie genauer ist",
@@ -315,7 +315,7 @@ FIREWALL_MODULE = {
              "en": ["Rule 2 blocks it because it is more specific",
                     "Rule 1 allows it — rule 2 is never reached",
                     "Default deny blocks it",
-                    "Both rules cancel out, the packet is dropped"],
+                    "Both rules cancel each other out, and the packet is dropped"],
          },
          "answer": 1,
          "explanation": {
@@ -347,11 +347,11 @@ FIREWALL_MODULE = {
                    "dann nicht, wenn es Port 443 nutzt. Die Regel erlaubt Port 443 nur in Richtung Internet.",
              "en": "The state entry covers exactly one connection: same addresses and ports, just in the "
                    "opposite direction. A new SYN from outside belongs to no existing connection — not even "
-                   "when it uses port 443. The rule allows port 443 only towards the Internet."}},
+                   "when it uses port 443. The rule allows port 443 only toward the Internet."}},
         {"id": "f7", "type": "single",
          "prompt": {"de": "Der Webserver in der DMZ wird über eine Lücke in der Web-Anwendung gekapert. "
                           "Welche Regel begrenzt den Schaden für das Büronetz am wirksamsten?",
-                    "en": "The web server in the DMZ is hijacked through a flaw in the web application. "
+                    "en": "The web server in the DMZ is compromised through a vulnerability in the web application. "
                           "Which rule limits the damage to the office network most effectively?"},
          "options": {
              "de": ["Internet → DMZ: nur TCP 443 erlauben",
@@ -375,7 +375,7 @@ FIREWALL_MODULE = {
          "prompt": {"de": "Regelwerk (erste passende Regel entscheidet, sonst Default Deny): 1 allow TCP 443 · "
                           "2 allow TCP 22 · 3 deny TCP 23 · 4 allow UDP 53. Ein Paket UDP 443 (HTTP/3 über "
                           "QUIC) trifft ein. Was passiert?",
-                    "en": "Ruleset (first matching rule decides, otherwise default deny): 1 allow TCP 443 · "
+                    "en": "Rule set (first matching rule decides, otherwise default deny): 1 allow TCP 443 · "
                           "2 allow TCP 22 · 3 deny TCP 23 · 4 allow UDP 53. A UDP 443 packet (HTTP/3 over "
                           "QUIC) arrives. What happens?"},
          "options": {

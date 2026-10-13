@@ -30,7 +30,7 @@ MCP_MODULE = {'key': 'mcp',
                              '\n'
                              '**MCP** ist ein offener Standard, um KI-Werkzeuge mit externen '
                              'Datenquellen und Diensten zu verbinden. Ein **MCP-Server** stellt '
-                             'Claude Code **Tools** (Aktionen, z.B. „Issue anlegen”) und '
+                             'Claude Code **Tools** (Aktionen, z.B. „Issue anlegen“) und '
                              '**Resources** (Daten, z.B. ein Dokument) bereit.\n'
                              '\n'
                              'Der beste Auslöser, einen Server anzubinden: Immer wenn du Daten aus '
@@ -38,16 +38,14 @@ MCP_MODULE = {'key': 'mcp',
                              'Monitoring-Dashboard, Datenbank. Danach kann Claude direkt darauf '
                              'zugreifen. Beispiele:\n'
                              '\n'
-                             '- „Implementiere das Feature aus JIRA ENG-4521 und öffne einen PR.”\n'
+                             '- „Implementiere das Feature aus JIRA ENG-4521 und öffne einen PR.“\n'
                              '- „Finde in der PostgreSQL-DB 10 Nutzer, die Feature X genutzt '
-                             'haben.”\n'
-                             '- „Aktualisiere die E-Mail-Vorlage nach den neuen Figma-Designs.”',
+                             'haben.“\n'
+                             '- „Aktualisiere die E-Mail-Vorlage nach den neuen Figma-Designs.“',
                        'en': '## What is MCP?\n'
                              '\n'
                              '**MCP** is an open standard for connecting AI tools to external data '
-                             'sources and services. An **MCP server** provides Claude Code with '
-                             '**Tools** (actions, e.g. "create an issue") and **Resources** (data, '
-                             'e.g. a document).\n'
+                             'sources and services. An **MCP server** provides Claude Code with **tools** (actions, e.g. "create an issue") and **resources** (data, e.g. a document).\n'
                              '\n'
                              'The best trigger for connecting a server: whenever you *copy* data '
                              'from another tool into the chat — issue tracker, monitoring '
@@ -409,7 +407,7 @@ MCP_MODULE = {'key': 'mcp',
                              'Permission-Regel schreibst du `mcp__issues__*`.\n'
                              '\n'
                              'Du sprichst Tools aber normal in Alltagssprache an: „Lege in Jira '
-                             'ein Ticket für diesen Bug an” — Claude wählt das passende Tool des '
+                             'ein Ticket für diesen Bug an“ — Claude wählt das passende Tool des '
                              'verbundenen Servers. **Resources** (Daten) referenzierst du bei '
                              'vielen Servern per `@`-Mention.',
                        'en': '## Using tools & resources — the naming scheme\n'
@@ -420,10 +418,9 @@ MCP_MODULE = {'key': 'mcp',
                              '`mcp__issues__.*` matches all tools of the `issues` server; as a '
                              'permission rule you write `mcp__issues__*`.\n'
                              '\n'
-                             'However, you address tools in normal everyday language: "Create a '
+                             'You still address tools in plain everyday language: "Create a '
                              'ticket in Jira for this bug" — Claude picks the matching tool from '
-                             'the connected server. You reference **Resources** (data) with many '
-                             'servers via an `@`-mention.'}},
+                             'the connected server. With many servers, you reference **resources** (data) via an `@` mention.'}},
             {'type': 'order',
              'id': 'order-1',
              'payload': {'prompt_de': 'Einen team-geteilten MCP-Server einrichten — Reihenfolge:',
@@ -530,9 +527,7 @@ MCP_MODULE = {'key': 'mcp',
                                                'ein eigener MCP-Server.',
                                          'en': 'MCP is an open standard that connects AI tools to '
                                                'external tools and data sources. It is neither a '
-                                               'product nor a service: connecting Jira, a database '
-                                               'or Figma is the job of an individual MCP server '
-                                               'each.'}},
+                                               'product nor a service: connecting to Jira, a database or Figma is each the job of a separate MCP server.'}},
                         {'id': 'mcp2',
                          'type': 'multi',
                          'prompt': {'de': 'Welche MCP-Transporte unterstützt Claude Code? (SSE ist '
@@ -554,8 +549,7 @@ MCP_MODULE = {'key': 'mcp',
                          'type': 'single',
                          'prompt': {'de': 'Welche Datei teilt MCP-Server im project-Scope über das '
                                           'Repo?',
-                                    'en': 'Which file shares MCP servers across the repo in the '
-                                          'project scope?'},
+                                    'en': 'Which file shares MCP servers via the repo in the project scope?'},
                          'answer': 0,
                          'options': {'de': ['.mcp.json',
                                             'mcp.config.js',
@@ -611,7 +605,7 @@ MCP_MODULE = {'key': 'mcp',
                                             'Ausschließlich Git-Branches',
                                             'Nur Log-Dateien'],
                                      'en': ['Only themes',
-                                            'Tools (actions) and Resources (data)',
+                                            'Tools (actions) and resources (data)',
                                             'Only Git branches',
                                             'Only log files']},
                          'explanation': {'de': 'Ein MCP-Server stellt Tools bereit, mit denen '
@@ -619,8 +613,7 @@ MCP_MODULE = {'key': 'mcp',
                                                '@-Mention als Daten referenzierst. Auf einen Zweck '
                                                'wie Git-Branches oder Log-Dateien ist das '
                                                'Protokoll nicht festgelegt.',
-                                         'en': 'An MCP server provides tools that Claude acts with '
-                                               'and resources that you reference as data via '
+                                         'en': 'An MCP server provides tools that Claude uses to act and resources that you reference as data via '
                                                '@-mention. The protocol is not tied to one purpose '
                                                'such as Git branches or log files.'}},
                         {'id': 'mcp6',
@@ -688,7 +681,7 @@ MCP_MODULE = {'key': 'mcp',
                          'prompt': {'de': 'Eine Kollegin klont ein Repo mit eingecheckter '
                                           '.mcp.json. Was gilt? (mehrere)',
                                     'en': 'A colleague clones a repo with a checked-in .mcp.json. '
-                                          'What applies? (multiple)'},
+                                          'Which statements are true? (multiple)'},
                          'answer': [0, 1, 2],
                          'options': {'de': ['In einer interaktiven Session fragt Claude Code nach '
                                             'Freigabe, bevor es die Server nutzt',

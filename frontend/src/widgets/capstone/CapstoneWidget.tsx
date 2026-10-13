@@ -48,8 +48,8 @@ const STEPS: Step[] = [
 ]
 
 const COPY = {
-  de: { title: 'Abschlussfallakte — neuer Standort', subtitle: 'Plane den Standort, sichere ihn ab und grenze anschließend eine Störung ein.', next: 'Nächster Schritt', retry: 'Noch einmal versuchen', solved: 'Fallakte abgeschlossen', challenge: 'Triff alle vier Entscheidungen richtig.' },
-  en: { title: 'Capstone case file — new site', subtitle: 'Plan the site, secure it and then narrow down an incident.', next: 'Next step', retry: 'Try again', solved: 'Case file completed', challenge: 'Make all four decisions correctly.' },
+  de: { title: 'Abschlussfallakte — neuer Standort', subtitle: 'Plane den Standort, sichere ihn ab und grenze anschließend eine Störung ein.', next: 'Nächster Schritt', retry: 'Noch einmal versuchen', solved: 'Fallakte abgeschlossen', progress: 'Fortschritt', challenge: 'Triff alle vier Entscheidungen richtig.' },
+  en: { title: 'Capstone case file — new site', subtitle: 'Plan the site, secure it and then narrow down an incident.', next: 'Next step', retry: 'Try again', solved: 'Case file completed', progress: 'Progress', challenge: 'Make all four decisions correctly.' },
 } as const
 
 export function Capstone({ lang }: { lang: Lang }) {
@@ -69,7 +69,7 @@ export function Capstone({ lang }: { lang: Lang }) {
     <div className="rounded-2xl border border-teal-200 bg-teal-50/40 p-5">
       <p className="mb-1 text-sm font-semibold text-teal-900">{s.title}</p>
       <p className="mb-4 text-xs text-slate-600">{s.subtitle}</p>
-      <div className="mb-4 flex gap-1.5" aria-label="Fortschritt">
+      <div className="mb-4 flex gap-1.5" aria-label={s.progress}>
         {STEPS.map((_, i) => <div key={i} className={i < step || complete ? 'h-1.5 flex-1 rounded bg-teal-600' : i === step ? 'h-1.5 flex-1 rounded bg-teal-300' : 'h-1.5 flex-1 rounded bg-slate-200'} />)}
       </div>
       {!complete ? <>

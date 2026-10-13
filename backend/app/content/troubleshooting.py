@@ -37,7 +37,7 @@ TROUBLESHOOTING_MODULE = {
                    "neue Geräte sind die üblichen Verdächtigen.",
              "en": "## Think First, Then Type\n\nGood troubleshooting doesn't start at "
                    "the computer, it starts with **questions**:\n\n- **What exactly** doesn't "
-                   "work? (“The internet is broken” usually means: one specific application fails.)\n"
+                   "work? (“The Internet is broken” usually means: one specific application fails.)\n"
                    "- **Who** is affected — one person, one department, everyone? A single case "
                    "points to the PC or its wall socket, a mass outage to central infrastructure "
                    "(DHCP, DNS, router).\n"
@@ -46,7 +46,7 @@ TROUBLESHOOTING_MODULE = {
          }},
         {"type": "check", "id": "check-1", "payload": {
             "prompt_de": "Ein Kollege ruft an: „Das Internet ist weg!“ Was ist deine erste Frage?",
-            "prompt_en": "A colleague calls: “The internet is gone!” What is your first question?",
+            "prompt_en": "A colleague calls: “The Internet is gone!” What is your first question?",
             "options_de": ["Sind nur Sie betroffen — oder auch die Kollegen?",
                            "Haben Sie den Router schon neu gestartet?",
                            "Welchen Browser benutzen Sie?"],
@@ -68,7 +68,7 @@ TROUBLESHOOTING_MODULE = {
                    "- **`tracert <Ziel>`** — „Wo bleibt das Paket hängen?“: zeigt jeden Router "
                    "(Hop) auf dem Weg zum Ziel.",
              "en": "## Your Toolbox\n\nFour typical diagnostic commands "
-                   "(the examples use Windows):\n\n- **`ipconfig`** — “Who am I?”: own IP, "
+                   "(the examples use Windows):\n\n- **`ipconfig`** — “Who am I?”: your own IP, "
                    "subnet mask, gateway, DNS server. On Linux, the usual counterpart is "
                    "**`ip addr`**; on macOS, use **`ifconfig`** or **`networksetup`**.\n"
                    "- **`ping <IP>`** — “Can I reach you?”: checks reachability — first the "
@@ -92,12 +92,12 @@ TROUBLESHOOTING_MODULE = {
              "en": "## Bottom-Up Through the Layers\n\nWork your way **from the bottom "
                    "up** through the layer model — each step rules out one source of error:\n\n"
                    "1. **Physical**: cable plugged in, Wi-Fi connected, link LED on?\n"
-                   "2. **Own IP configuration**: `ipconfig` — real address or 169.254.x.x?\n"
+                   "2. **Your own IP configuration**: `ipconfig` — real address or 169.254.x.x?\n"
                    "3. **Gateway**: `ping 192.168.x.1` — can I get out of my own network?\n"
                    "4. **Internet**: `ping 8.8.8.8` — does the path to the outside hold?\n"
                    "5. **DNS**: `nslookup` — do names become addresses?\n\n"
                    "**Rule of thumb**: `ping 8.8.8.8` works but no website loads → the network "
-                   "is fine, **name resolution** is stuck.",
+                   "is fine, **name resolution** is failing.",
          }},
         {"type": "diagram", "id": "diagram-diagnosepfad",
          "note": "Links die Frage, rechts die Fehlerquelle, wenn die Antwort „nein“ lautet. Jedes „ja“ "
@@ -141,13 +141,13 @@ TROUBLESHOOTING_MODULE = {
                  {"highlight": ["q1", "n1", "f1"],
                   "text_de": "Schicht 1: Ohne Link oder WLAN-Verbindung ist jeder weitere Befehl sinnlos. "
                              "Erst Kabel, Dose und Port prüfen.",
-                  "text_en": "Layer 1: without link or Wi-Fi association every further command is "
+                  "text_en": "Layer 1: without a link or Wi-Fi association, every further command is "
                              "pointless. Check cable, socket and port first."},
                  {"highlight": ["j1", "q2", "n2", "f2"],
                   "text_de": "ipconfig: Eine 169.254-Adresse heißt, dass kein DHCP-Server geantwortet hat — "
                              "der Server, das VLAN des Ports oder das DHCP-Relay kommen in Frage.",
                   "text_en": "ipconfig: a 169.254 address means no DHCP server answered — the server, the "
-                             "port's VLAN or the DHCP relay come into question."},
+                             "port's VLAN or the DHCP relay are the possible causes."},
                  {"highlight": ["j2", "q3", "n3", "f3"],
                   "text_de": "Gateway-Ping: Scheitert er trotz gültiger Adresse, stimmt etwas im eigenen "
                              "Netz nicht — Maske, eingetragenes Gateway oder VLAN.",
@@ -178,7 +178,7 @@ TROUBLESHOOTING_MODULE = {
                          "Eine externe IP anpingen (ping 8.8.8.8)",
                          "Die Namensauflösung testen (nslookup)"],
             "items_en": ["Check cable/Wi-Fi (physical)",
-                         "Look at own IP configuration (ipconfig)",
+                         "Look at your own IP configuration (ipconfig)",
                          "Ping the gateway",
                          "Ping an external IP (ping 8.8.8.8)",
                          "Test name resolution (nslookup)"],
@@ -206,7 +206,7 @@ TROUBLESHOOTING_MODULE = {
                    "The diagnostic logic is the same everywhere; only the tools have "
                    "different names. Knowing both worlds keeps you effective in a mixed "
                    "network:\n\n"
-                   "- **Own IP & interfaces** — Windows: `ipconfig` · Linux: `ip addr` "
+                   "- **Your own IP & interfaces** — Windows: `ipconfig` · Linux: `ip addr` "
                    "(older: `ifconfig`) · macOS: `ifconfig`.\n"
                    "- **Routing table / gateway** — Windows: `route print` · Linux: "
                    "`ip route` · macOS: `netstat -rn`.\n"
@@ -235,14 +235,14 @@ TROUBLESHOOTING_MODULE = {
                  "abgeschnitten). 203.0.113.9 ist der Router des Providers.",
          "payload": {
              "title_de": "Störfall: „Das Internet ist weg“ — bei allen",
-             "title_en": "Incident: “The internet is gone” — for everyone",
+             "title_en": "Incident: “The Internet is gone” — for everyone",
              "intro_de": "Du sitzt am PC von Frau Berg im Büro-VLAN. Tippe ? für die verfügbaren Befehle.",
              "intro_en": "You are at Ms. Berg's PC on the office VLAN. Type ? for the available commands.",
              "prompt": "C:\\Users\\berg>",
              "unknown": "'{cmd}' is not recognized as an internal or external command.",
              "commands": [
                  {"cmd": "ipconfig /all",
-                  "desc_de": "eigene IP-Konfiguration", "desc_en": "own IP configuration",
+                  "desc_de": "eigene IP-Konfiguration", "desc_en": "your own IP configuration",
                   "output": "Ethernet adapter Ethernet:\n\n"
                             "   Physical Address. . . : 00-1B-44-11-3A-B7\n"
                             "   DHCP Enabled. . . . . : Yes\n"
@@ -284,7 +284,7 @@ TROUBLESHOOTING_MODULE = {
              ],
              "tasks": [
                  {"text_de": "Prüfe die eigene IP-Konfiguration.",
-                  "text_en": "Check the own IP configuration.",
+                  "text_en": "Check your own IP configuration.",
                   "command": "ipconfig /all"},
                  {"text_de": "Pinge das Standardgateway an.",
                   "text_en": "Ping the default gateway.",
@@ -321,9 +321,9 @@ TROUBLESHOOTING_MODULE = {
                               "192.168.10.192–207. Das Gateway .1 liegt damit außerhalb des "
                               "eigenen Netzes und ist unerreichbar. Richtig wäre hier /24 "
                               "(255.255.255.0) — dann liegen .200 und .1 im selben Netz.",
-            "explanation_en": "The mask 255.255.255.240 (/28) makes the own network tiny: "
-                              "192.168.10.192–207. That puts the gateway .1 outside the own "
-                              "network, so it is unreachable. Correct here would be /24 "
+            "explanation_en": "The mask 255.255.255.240 (/28) makes the local network tiny: "
+                              "192.168.10.192–207. That puts the gateway .1 outside the local "
+                              "network, so it is unreachable. The correct mask here is /24 "
                               "(255.255.255.0) — then .200 and .1 share the same network.",
         }},
         {"type": "scenario", "id": "scenario-drucker",
@@ -349,13 +349,13 @@ TROUBLESHOOTING_MODULE = {
                  {"id": "druckerneu", "outcome": "bad",
                   "text_de": "Die Kollegen drucken problemlos — der Drucker ist nicht die Ursache. Der "
                              "Neustart unterbricht nur deren Druckaufträge.",
-                  "text_en": "The colleagues print without problems — the printer is not the cause. The "
+                  "text_en": "Her colleagues print without problems — the printer is not the cause. The "
                              "restart only interrupts their print jobs."},
                  {"id": "switchneu", "outcome": "bad",
                   "text_de": "Ein einzelner betroffener Arbeitsplatz zeigt nicht auf zentrale Technik. Der "
                              "Neustart trennt das ganze Büro vom Netz, ohne etwas zu klären.",
                   "text_en": "A single affected workstation does not point to central infrastructure. The "
-                             "restart cuts the whole office off the network without clarifying anything."},
+                             "restart cuts the whole office off from the network without clarifying anything."},
                  {"id": "ping",
                   "text_de": "Der Ping wird beantwortet. Drucken geht trotzdem nicht. Was folgt daraus?",
                   "text_en": "The ping is answered. Printing still fails. What follows from that?",
@@ -372,8 +372,8 @@ TROUBLESHOOTING_MODULE = {
                   "text_de": "Im Drucker-Anschluss steht 192.168.20.16. Auf Nachfrage: Der Drucker hat "
                              "letzte Woche die neue Adresse .60 bekommen; die Kollegen wurden umgestellt, "
                              "Frau Berg war im Urlaub. Wie löst du es?",
-                  "text_en": "The printer port says 192.168.20.16. On asking: last week the printer got the "
-                             "new address .60; the colleagues were updated, Ms. Berg was on vacation. How "
+                  "text_en": "The printer port says 192.168.20.16. When you ask: last week the printer got the "
+                             "new address .60; her colleagues' PCs were updated, Ms. Berg was on vacation. How "
                              "do you solve it?",
                   "options": [
                       {"label_de": "Dem Drucker wieder die alte Adresse .16 geben",
@@ -390,7 +390,7 @@ TROUBLESHOOTING_MODULE = {
                  {"id": "adresse", "outcome": "ok",
                   "text_de": "Das Ticket ist gelöst. Beim nächsten Adresswechsel wiederholt sich das "
                              "Problem aber an jedem PC, der gerade nicht erreichbar ist.",
-                  "text_en": "The ticket is solved. But at the next address change the problem repeats on "
+                  "text_en": "The ticket is resolved. But at the next address change, the problem repeats on "
                              "every PC that happens to be unreachable."},
                  {"id": "name", "outcome": "good",
                   "text_de": "Ursache behoben statt Symptom: Ändert sich die Adresse wieder, wird nur der "
@@ -420,14 +420,14 @@ TROUBLESHOOTING_MODULE = {
                          "Arbeit): Bist du systematisch vorgegangen oder hast du geraten? Welche "
                          "Schicht war am Ende schuld — und mit welchem Befehl hättest du das "
                          "schneller herausgefunden?",
-            "prompt_en": "Think of your last own network problem (at home or at work): did you "
+            "prompt_en": "Think of the last network problem you had yourself (at home or at work): did you "
                          "proceed systematically or did you guess? Which layer was to blame in "
                          "the end — and which command would have revealed that faster?",
         }},
         {"type": "text", "id": "text-5",
          "value": {
              "de": "## Abschlussfallakte: Neuer Standort\n\nJetzt verbindest du die Themen des Kurses: Du planst passende Teilnetze, trennst Gäste sicher vom Büro und verfolgst ein Paket vom Namen bis zum Gateway. Zum Schluss grenzt du einen Störfall anhand von Beweisen ein.",
-             "en": "## Capstone Case File: New Site\n\nNow you connect the course topics: plan suitable subnets, safely separate guests from the office and follow a packet from its name to the gateway. Finally, narrow down an incident using evidence.",
+             "en": "## Capstone Case File: New Site\n\nNow you connect the course topics: you plan suitable subnets, securely separate guests from the office and follow a packet from its name to the gateway. Finally, you narrow down an incident using evidence.",
          }},
         {"type": "check", "id": "check-3", "payload": {
             "prompt_de": "Bevor du startest: Welcher Hinweis grenzt einen Fehler am stärksten auf DNS ein?",
@@ -456,7 +456,7 @@ TROUBLESHOOTING_MODULE = {
                     "Der PC hat keinen DHCP-Server erreicht und sich selbst eine Notadresse gegeben",
                     "Der DNS-Server hat diese Adresse zugeteilt",
                     "Alles in Ordnung — das ist eine normale Firmenadresse"],
-             "en": ["The PC has a public internet address",
+             "en": ["The PC has a public Internet address",
                     "The PC could not reach a DHCP server and assigned itself a fallback address",
                     "The DNS server assigned this address",
                     "Everything is fine — that is a normal company address"],
@@ -464,7 +464,7 @@ TROUBLESHOOTING_MODULE = {
          "answer": 1,
          "explanation": {
              "de": "169.254.0.0/16 ist der APIPA-Bereich: Windows vergibt sich daraus selbst eine Adresse, wenn auf die DHCP-Anfrage niemand antwortet. Die Adresse sieht „gültig“ aus, ist aber weder öffentlich noch routbar — der PC erreicht damit nur andere APIPA-Geräte im selben Segment.",
-             "en": "169.254.0.0/16 is the APIPA range: Windows assigns itself an address from it when nobody answers the DHCP request. The address looks “valid” but is neither public nor routable — with it the PC only reaches other APIPA devices on the same segment."}},
+             "en": "169.254.0.0/16 is the APIPA range: Windows assigns itself an address from it when nobody answers the DHCP request. The address looks “valid” but is neither public nor routable — with it, the PC can only reach other APIPA devices on the same segment."}},
         {"id": "ts2", "type": "single",
          "prompt": {"de": "ping 8.8.8.8 funktioniert, aber www.nordwind.de lädt nicht. Wo suchst du zuerst?",
                     "en": "ping 8.8.8.8 works, but www.nordwind.de does not load. Where do you look first?"},
@@ -478,17 +478,17 @@ TROUBLESHOOTING_MODULE = {
              "en": "The successful ping to an external IP proves cable, IP configuration, gateway and Internet path in one step. What is missing is the translation of the name into an address — DNS. It cannot be the gateway or the cable, otherwise the ping would not get through."}},
         {"id": "ts3", "type": "single",
          "prompt": {"de": "Nur ein einziger PC hat kein Netz, alle Nachbarn arbeiten normal. Wo liegt das Problem am wahrscheinlichsten?",
-                    "en": "Only a single PC has no network, all neighbors work fine. Where is the problem most likely?"},
+                    "en": "Only a single PC has no network; all neighbors work fine. Where is the problem most likely?"},
          "options": {
              "de": ["Am zentralen Router", "Beim Internet-Provider",
                     "Lokal: am PC, seinem Kabel oder seinem Switch-Port", "Am DNS-Server"],
-             "en": ["At the central router", "At the internet provider",
+             "en": ["At the central router", "At the Internet provider",
                     "Local: at the PC, its cable or its switch port", "At the DNS server"],
          },
          "answer": 2,
          "explanation": {
              "de": "Zentrale Komponenten wie Router, Provider oder DNS-Server würden alle treffen, die sie nutzen. Arbeiten die Nachbarn normal, bleibt nur, was dieser eine PC allein hat: das Gerät selbst, sein Kabel, seine Dose, sein Switch-Port.",
-             "en": "Central components such as router, provider or DNS server would hit everyone who uses them. If the neighbors work normally, only what this one PC has to itself remains: the device, its cable, its socket, its switch port."}},
+             "en": "Central components such as the router, the provider or the DNS server would affect everyone who uses them. If the neighbors work normally, only what this one PC has to itself remains: the device, its cable, its wall socket, its switch port."}},
         {"id": "ts4", "type": "single",
          "prompt": {"de": "Welcher Befehl zeigt dir jeden Router (Hop) auf dem Weg zu einem Ziel?",
                     "en": "Which command shows you every router (hop) on the way to a target?"},
@@ -502,7 +502,7 @@ TROUBLESHOOTING_MODULE = {
              "en": "tracert sends packets with increasing TTL; every router at which the TTL expires reports back — that is how the list of hops is built. ping only tells you WHETHER the target replies, not WHERE the path ends."}},
         {"id": "ts5", "type": "single",
          "prompt": {"de": "Warum lohnt sich die Frage „Wer ist alles betroffen?“ ganz am Anfang?",
-                    "en": "Why is the question “Who else is affected?” worth asking at the very beginning?"},
+                    "en": "Why is the question “Who is affected?” worth asking at the very beginning?"},
          "options": {
              "de": ["Sie beruhigt den Anrufer",
                     "Einzelfall deutet auf den PC, Massenausfall auf zentrale Technik — das halbiert den Suchraum sofort",
@@ -554,7 +554,7 @@ TROUBLESHOOTING_MODULE = {
                     "Interne Server sind erreichbar, externe Adressen nicht"],
              "en": ["The ping to the default gateway fails",
                     "ipconfig shows an address from 169.254.0.0/16",
-                    "tracert replies at hop 1 (own gateway) and hop 2 (provider router 203.0.113.9), then only timeouts",
+                    "tracert replies at hop 1 (your own gateway) and hop 2 (provider router 203.0.113.9), then only timeouts",
                     "Internal servers are reachable, external addresses are not"],
          },
          "answer": [0, 1],

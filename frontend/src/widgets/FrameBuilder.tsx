@@ -126,7 +126,10 @@ export function FrameBuilder({ lang }: { lang: Lang }) {
       key: 'tag', name: s.tagName, bytes: '4 B', color: 'bg-purple-100 border-purple-500 text-purple-800',
       desc: s.tagDesc(vlanId),
     }
-    return [base[0], base[1], tag, ...base.slice(2)]
+    // Mit Tag sinkt die Mindest-Nutzlast von 46 auf 42 Byte: die Mindestgröße des Frames bleibt
+    // 64 Byte, die Maximalgröße wächst von 1518 auf 1522 Byte (wie im Modultext).
+    const rest = base.slice(2).map((f) => (f.key === 'payload' ? { ...f, bytes: '42–1500 B' } : f))
+    return [base[0], base[1], tag, ...rest]
   }, [tagOn, vlanId, lang, s])
 
   const selected = fields.find((f) => f.key === sel)

@@ -49,7 +49,7 @@ NAC_GUEST_MODULE = {
              'en': '## Why Guest Access Needs Its Own Approach\n\n'
                    'Guests, suppliers, and visitors typically have no 802.1X supplicant configured '
                    'and should not receive a certificate or a permanent account either. Yet they '
-                   'often need short-term network access — usually just internet, never internal '
+                   'often need short-term network access — usually just Internet, never internal '
                    'systems.\n\n'
                    'Guest access is therefore not a special case of the mechanisms covered so far, '
                    'but its own access path with its own rules: its own registration, its own '
@@ -229,7 +229,7 @@ NAC_GUEST_MODULE = {
                         'label_en': 'Access-Accept (guest ACL)',
                         'style': 'reply',
                         'detail_de': 'Der Switch bestätigt die CoA (CoA-ACK) und fragt für die Sitzung erneut an; dies ist die Antwort darauf: Die Gast-ACL ersetzt die Redirect-ACL — Internet ja, internes Netz nein. Das VLAN bleibt 50, das Gerät behält seine IP-Adresse.',
-                        'detail_en': 'The switch acknowledges the CoA (CoA-ACK) and asks again for the session; this is the reply: the guest ACL replaces the redirect ACL — internet yes, internal network no. The VLAN stays 50, the device keeps its IP address.',
+                        'detail_en': 'The switch acknowledges the CoA (CoA-ACK) and asks again for the session; this is the reply: the guest ACL replaces the redirect ACL — Internet yes, internal network no. The VLAN stays 50, the device keeps its IP address.',
                     },
                 ],
             },
@@ -330,7 +330,7 @@ NAC_GUEST_MODULE = {
             'id': 'text-gast-mac-randomisierung',
             'value': {
                 'de': '## Private WLAN-Adressen: warum Gäste „vergessen“ werden\n\nEin Captive Portal merkt sich einen angemeldeten Gast über die **MAC-Adresse** seines Geräts. Smartphones und Notebooks verwenden im WLAN aber zunehmend zufällige Adressen: je Netz eine eigene, und in offenen oder schwach gesicherten Netzen — also genau in typischen Gast-WLANs — wechseln aktuelle iOS-Versionen sie standardmäßig alle zwei Wochen.\n\nDas erklärt typische Gast-Beschwerden und hat Folgen für das Design:\n\n- **Erneute Anmeldung trotz gültigem Konto** — nach einem Adresswechsel erkennt das Portal das Gerät nicht wieder. Das ist kein Fehler, sondern das Verhalten des Endgeräts.\n- **Gerätelimits zählen falsch** — „höchstens drei Geräte je Gast“ läuft voll, weil dasselbe Gerät mehrfach gezählt wird.\n- **Dauerhafte Freischaltungen per MAC taugen nicht** — wer Lieferanten langfristig anbinden will, braucht ein Konto oder Zertifikat statt einer MAC-Liste.\n\nDie Gegenmaßnahme ist nicht, Gäste zum Abschalten der Funktion aufzufordern, sondern die Gültigkeit realistisch zu planen: Die Anmeldung gilt für ein Gerät mit der Adresse, die es gerade hat.',
-                'en': '## Private Wi-Fi Addresses: Why Guests Get "Forgotten"\n\nA captive portal remembers a logged-in guest by the **MAC address** of their device. But smartphones and notebooks increasingly use random addresses on Wi-Fi: a separate one per network, and on open or weakly secured networks — precisely typical guest Wi-Fi — current iOS versions rotate them every two weeks by default.\n\nThis explains typical guest complaints and has consequences for the design:\n\n- **Login required again despite a valid account** — after an address change the portal no longer recognizes the device. This is not a fault but the behavior of the endpoint.\n- **Device limits count wrongly** — "at most three devices per guest" fills up because the same device is counted several times.\n- **Permanent approvals by MAC are unsuitable** — anyone who wants to connect suppliers long term needs an account or certificate instead of a MAC list.\n\nThe countermeasure is not to ask guests to turn the feature off, but to plan validity realistically: the login applies to one device with the address it currently has.',
+                'en': '## Private Wi-Fi Addresses: Why Guests Get "Forgotten"\n\nA captive portal remembers a logged-in guest by the **MAC address** of their device. But smartphones and laptops increasingly use random addresses on Wi-Fi: a separate one per network, and on open or weakly secured networks — precisely typical guest Wi-Fi — current iOS versions rotate them every two weeks by default.\n\nThis explains typical guest complaints and has consequences for the design:\n\n- **Login required again despite a valid account** — after an address change the portal no longer recognizes the device. This is not a fault but the behavior of the endpoint.\n- **Device limits are miscounted** — "at most three devices per guest" fills up because the same device is counted several times.\n- **Permanent approvals by MAC are unsuitable** — anyone who wants to connect suppliers long term needs an account or certificate instead of a MAC list.\n\nThe countermeasure is not to ask guests to turn the feature off, but to plan validity realistically: the login applies to one device with the address it currently has.',
             },
         },
         {'type': 'order', 'id': 'order-1',
@@ -351,7 +351,7 @@ NAC_GUEST_MODULE = {
                  'The guest self-registers through the captive portal',
                  'A sponsor from the company reviews and approves the request',
                  'A time-limited guest account is created and credentials are issued',
-                 'The guest device logs in and gets internet access in the isolated guest VLAN',
+                 'The guest device logs in and gets Internet access in the isolated guest VLAN',
                  'The account automatically expires once the validity period ends',
              ],
          }},

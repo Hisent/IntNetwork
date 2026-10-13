@@ -27,7 +27,7 @@ BETRIEB_MODULE = {
               "chaotisch, weil niemand auf die Reihenfolge geachtet hat. Bevor du selbst Hand "
               "anlegst, willst du genau verstehen, was ein Backup wirklich sichert, was ein "
               "Restore wirklich zurückbringt — und was eben nicht.",
-        "en": "You are taking over operations for a grown Infoblox grid. The previous "
+        "en": "You are taking over operations for an Infoblox Grid that has grown over time. The previous "
               "administrator never rehearsed a restore, and the last few upgrades were chaotic "
               "because nobody paid attention to the order of steps. Before you touch anything "
               "yourself, you want to understand exactly what a backup really captures, what a "
@@ -46,20 +46,20 @@ BETRIEB_MODULE = {
                    "einplanen: Sie ist ein eigener, optionaler Bestandteil des Backups und wird "
                    "nicht automatisch mitgesichert, nur weil das Grid gesichert wird.",
              "en": "## Backup Strategy: Regular, Automated, at the Right Time\n\n"
-                   "A grid backup should not be a manual one-off, but a **scheduled, automated "
+                   "A Grid backup should not be a manual one-off, but a **scheduled, automated "
                    "task** — hourly, daily or weekly depending on how often things change. It "
                    "matters that the backup preferably runs **outside peak load hours**, so the "
                    "database snapshot does not slow down live operations.\n\n"
                    "Anyone using the Discovery feature should plan for the Discovery database "
                    "explicitly: it is a separate, optional part of the backup and is not "
-                   "automatically included just because the grid itself is being backed up.",
+                   "automatically included just because the Grid itself is being backed up.",
          },
          "note": "Gut geeignet für ein kurzes Blitzlicht: Wer im Raum hat schon einmal ein "
                  "echtes Restore geübt (nicht nur ein Backup angelegt)?"},
         {"type": "check", "id": "check-1", "payload": {
             "kind": "choice",
             "prompt_de": "Wann sollte ein geplantes Grid-Backup bevorzugt laufen?",
-            "prompt_en": "When should a scheduled grid backup preferably run?",
+            "prompt_en": "When should a scheduled Grid backup preferably run?",
             "answer": 0,
             "options_de": ["Automatisiert, regelmäßig und außerhalb der Hauptlastzeit",
                            "Nur einmalig direkt nach der Ersteinrichtung",
@@ -97,14 +97,14 @@ BETRIEB_MODULE = {
         {"type": "debug", "id": "debug-1", "payload": {
             "prompt_de": "Ein Kollege zeigt dir das Ergebnis-Protokoll eines Grid-Restores. Eine "
                          "Zeile ist inhaltlich falsch — finde sie:",
-            "prompt_en": "A colleague shows you the result log of a grid restore. One line is "
+            "prompt_en": "A colleague shows you the result log of a Grid restore. One line is "
                          "factually wrong — find it:",
             "lines_de": ["Restore aus dem Backup vom 14.03. auf den Grid Master abgeschlossen.",
                          "Netzwerk-, DNS- und DHCP-Konfiguration wurden wiederhergestellt.",
                          "Extensible Attributes und Admin-Berechtigungen wurden wiederhergestellt.",
                          "Alle Scheduled Tasks und offenen Approval-Workflows sind nach dem "
                          "Restore automatisch wieder aktiv."],
-            "lines_en": ["Restore from the 03/14 backup onto the grid master completed.",
+            "lines_en": ["Restore from the 03/14 backup onto the Grid Master completed.",
                          "Network, DNS and DHCP configuration were restored.",
                          "Extensible attributes and admin permissions were restored.",
                          "All scheduled tasks and open approval workflows are automatically "
@@ -160,7 +160,7 @@ BETRIEB_MODULE = {
                    "jeweils aktuellen NIOS-Version ab und gehören in die aktuelle "
                    "Herstellerdokumentation, nicht in einen starren Kurstext.",
              "en": "## Before an Upgrade: What to Check\n\n"
-                   "Before kicking off a grid upgrade, several items belong on the checklist:\n\n"
+                   "Before kicking off a Grid upgrade, several items belong on the checklist:\n\n"
                    "- **Compatibility**: read the release notes and confirm the planned version "
                    "jump is a supported upgrade path.\n"
                    "- **Current backup**: taken immediately before the upgrade, not “last "
@@ -169,7 +169,7 @@ BETRIEB_MODULE = {
                    "version, and do the hardware or virtual resources meet the new version's "
                    "minimum requirements?\n"
                    "- **Maintenance window**: plan it early and communicate it to those "
-                   "affected, since grid members briefly interrupt services while they "
+                   "affected, since Grid members briefly interrupt services while they "
                    "themselves are upgrading.\n\n"
                    "These checks are deliberately kept general — the exact minimum requirements "
                    "and supported upgrade paths depend on the current NIOS version and belong "
@@ -225,7 +225,7 @@ BETRIEB_MODULE = {
                         "label_de": "Gruppe 1: Pilotstandort",
                         "label_en": "Group 1: pilot site",
                         "detail_de": "Ein unkritischer Standort zuerst: Zeigt sich ein Problem, betrifft es wenige.",
-                        "detail_en": "An uncritical site first: if a problem shows up, it affects few.",
+                        "detail_en": "A non-critical site first: if a problem shows up, it affects few.",
                     },
                     {
                         "id": "g2",
@@ -283,7 +283,7 @@ BETRIEB_MODULE = {
         {"type": "order", "id": "order-1", "payload": {
             "prompt_de": "Bringe die Vorbereitung und Durchführung eines Grid-Upgrades in die "
                          "richtige Reihenfolge:",
-            "prompt_en": "Put the preparation and execution of a grid upgrade into the correct "
+            "prompt_en": "Put the preparation and execution of a Grid upgrade into the correct "
                          "order:",
             "items_de": ["Release Notes lesen und unterstützten Upgrade-Pfad prüfen",
                          "Lizenz- und Kapazitätsbedarf der Zielversion prüfen",
@@ -296,7 +296,7 @@ BETRIEB_MODULE = {
                          "Plan the maintenance window and communicate it to those affected",
                          "Review upgrade groups and the reporting member group, set order and time windows",
                          "Immediately before the upgrade: take a current backup and verify it succeeded",
-                         "Perform the upgrade, then check grid status"],
+                         "Perform the upgrade, then check the Grid status"],
         }},
         {
             "type": "terminal",
@@ -382,7 +382,7 @@ BETRIEB_MODULE = {
                    "your NIOS version offers for this is covered in its upgrade documentation.\n\n"
                    "Additional practice: before major structural changes to reporting (for "
                    "example moving from a single indexer to a cluster), an **explicit reporting "
-                   "backup** is recommended, independent of the regular grid backup.",
+                   "backup** is recommended, independent of the regular Grid backup.",
          }},
         {
             "type": "scenario",
@@ -395,7 +395,7 @@ BETRIEB_MODULE = {
                     {
                         "id": "start",
                         "text_de": "Du planst das Upgrade eines Grids mit zwölf Membern. Das Wartungsfenster ist Donnerstag 21 bis 23 Uhr. Heute ist Montag, die Software liegt bereit. Wie nutzt du die Tage bis dahin?",
-                        "text_en": "You are planning the upgrade of a Grid with twelve members. The maintenance window is Thursday 9 to 11 p.m. Today is Monday, the software is at hand. How do you use the days until then?",
+                        "text_en": "You are planning the upgrade of a Grid with twelve members. The maintenance window is Thursday 9 to 11 p.m. Today is Monday, and the software is ready. How do you use the days until then?",
                         "options": [
                             {
                                 "label_de": "Gar nicht — Upload, Verteilung und Upgrade passen zusammen in die zwei Stunden.",
@@ -447,7 +447,7 @@ BETRIEB_MODULE = {
                         "id": "gleich",
                         "outcome": "bad",
                         "text_de": "Beide Peers starten gleichzeitig neu — für diese Minuten gibt es in beiden Netzen keinen DHCP-Server. Genau die Redundanz, für die das Paar existiert, hast du im Upgrade ausgehebelt.",
-                        "text_en": "Both peers restart at the same time — for those minutes there is no DHCP server in either network. You disabled exactly the redundancy the pair exists for during the upgrade.",
+                        "text_en": "Both peers restart at the same time — for those minutes there is no DHCP server in either network. During the upgrade, you disabled exactly the redundancy the pair exists for.",
                     },
                     {
                         "id": "getrennt",
@@ -534,7 +534,7 @@ BETRIEB_MODULE = {
         {"id": "bt3",
          "explanation": {
              "de": "Solange kein Reporting-Member erreichbar ist, kann niemand die Ereignisse der anderen Member entgegennehmen — die Daten dieses Zeitraums fehlen später in jeder Auswertung. Mit Lizenzen oder einer Master-Wahl hat die Empfehlung nichts zu tun.",
-             "en": "As long as no reporting member is reachable, nobody can receive the other members' events — the data of that period is later missing from every evaluation. The recommendation has nothing to do with licenses or a master election.",
+             "en": "As long as no reporting member is reachable, nobody can receive the other members' events — the data of that period is later missing from every analysis. The recommendation has nothing to do with licenses or a master election.",
          },
          "type": "single",
          "prompt": {"de": "Warum empfiehlt die Infoblox-Doku für Reporting-Cluster, Reporting-Member "
@@ -548,11 +548,11 @@ BETRIEB_MODULE = {
                     "Weil Reporting-Member keine Upgrades benötigen",
                     "Weil das Lizenzmodell pro Gruppe unterschiedliche Kosten hat",
                     "Damit der Grid Master automatisch neu gewählt wird"],
-             "en": ["So that not all reporting members go offline at the same time and reporting "
+             "en": ["So that not all reporting members go offline at the same time and no reporting "
                     "data is lost",
                     "Because reporting members never need upgrades",
                     "Because the license model has different costs per group",
-                    "So the grid master is automatically re-elected"],
+                    "So the Grid Master is automatically re-elected"],
          }},
         {"id": "bt4",
          "explanation": {
@@ -561,7 +561,7 @@ BETRIEB_MODULE = {
          },
          "type": "single",
          "prompt": {"de": "Wann sollte ein geplantes Grid-Backup laufen?",
-                    "en": "When should a scheduled grid backup run?"},
+                    "en": "When should a scheduled Grid backup run?"},
          "answer": 1,
          "options": {
              "de": ["Nur bei einer Störung, als Reaktion",
@@ -581,7 +581,7 @@ BETRIEB_MODULE = {
          "type": "multi",
          "prompt": {"de": "Welche der folgenden Punkte gehören zur Vorbereitung eines "
                           "Grid-Upgrades?",
-                    "en": "Which of the following belong to preparing a grid upgrade?"},
+                    "en": "Which of the following belong to preparing a Grid upgrade?"},
          "answer": [0, 1, 2],
          "options": {
              "de": ["Release Notes und unterstützten Upgrade-Pfad prüfen",
@@ -591,7 +591,7 @@ BETRIEB_MODULE = {
              "en": ["Check the release notes and the supported upgrade path",
                     "Take a current backup and verify it succeeded",
                     "Plan and communicate a maintenance window",
-                    "Upgrade all grid members simultaneously without announcement"],
+                    "Upgrade all Grid members simultaneously without announcement"],
          }},
         {
             "id": "bt6",

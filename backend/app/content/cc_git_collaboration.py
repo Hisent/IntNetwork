@@ -15,8 +15,8 @@ GIT_COLLABORATION_MODULE = {
         "Prepare a review with diff, tests and a clear handoff",
     ],
     "scenario": {
-        "de": "Mehrere Sessions oder Personen werden erst dann produktiv, wenn jede Änderung einen klaren Platz und eine klare Übergabe hat. Git schützt dabei nicht vor schlechten Änderungen, macht sie aber sichtbar und rückgängig.",
-        "en": "Several sessions or people become productive when every change has a clear place and handoff. Git does not prevent bad changes, but it makes them visible and reversible.",
+        "de": "Mehrere Sessions oder Personen werden erst dann produktiv, wenn jede Änderung einen klaren Platz und eine klare Übergabe hat. Git schützt dabei nicht vor schlechten Änderungen, macht sie aber sichtbar und umkehrbar.",
+        "en": "Several sessions or people only become productive once every change has a clear place and a clear handoff. Git does not prevent bad changes, but it makes them visible and reversible.",
     },
     "blocks": [
         {
@@ -69,9 +69,9 @@ Each session then checks its own diff and tests. After merging, remove the workt
 
 Example: git worktree remove ../repo-review
 
-This prevents overwriting edits and makes it clear which agent produced which change.
+This prevents edits from overwriting each other and makes it clear which agent produced which change.
 
-Claude Code can also create the worktree itself: `claude --worktree feature-auth` (short `-w`) starts the session in its own worktree under `.claude/worktrees/feature-auth/` on a new branch `worktree-feature-auth`. A worktree is a fresh checkout – dependencies have to be installed there again, and untracked files such as `.env` are missing at first.""",
+Claude Code can also create the worktree itself: `claude --worktree feature-auth` (`-w` for short) starts the session in its own worktree under `.claude/worktrees/feature-auth/` on a new branch `worktree-feature-auth`. A worktree is a fresh checkout – dependencies have to be installed there again, and untracked files such as `.env` are missing at first.""",
             },
         },
         {'type': 'diagram',
@@ -140,7 +140,7 @@ Claude Code can also create the worktree itself: `claude --worktree feature-auth
                                            'sofort in beiden sichtbar, zusammengeführt wird per Merge nach '
                                            'Review.',
                                 'text_en': 'Both share one repository: commits and branches are '
-                                           'immediately visible in both; they are combined by merge after '
+                                           'immediately visible in both; merging happens after '
                                            'review.'}]}},
         {'type': 'terminal',
          'id': 'terminal-git-worktree',
@@ -235,7 +235,7 @@ A good handoff answers four questions: What changed? Why? How was it checked? Wh
                 ],
                 "wrong": [1],
                 "explanation_de": "Ein gemeinsamer Checkout ist bei parallelen Schreibvorgängen die Konfliktquelle. Eigene Worktrees trennen die Arbeitsverzeichnisse.",
-                "explanation_en": "A shared checkout is the conflict source when sessions write in parallel. Separate worktrees isolate the working directories.",
+                "explanation_en": "A shared checkout is the source of conflicts when sessions write in parallel. Separate worktrees isolate the working directories.",
             },
             "note": "Die Gruppe soll anschließend die vier Informationen einer Review-Übergabe formulieren.",
         },
@@ -254,11 +254,11 @@ A good handoff answers four questions: What changed? Why? How was it checked? Wh
                       "**Was nicht geht:** `clone`, `fetch`, `push` und `pull` scheitern. Der "
                       "Runner hat kein Netzwerk, und zwar bewusst — das ist seine Sicherheitsgrenze, "
                       "kein Fehler. Alles Übrige an Git ist ohnehin lokal.",
-                "en": "## Try It Yourself\n\n"
+                "en": "## Try it yourself\n\n"
                       "The lab below runs real `git`. Your working directory persists between "
                       "runs, so you can work on the same repository across several steps: create "
-                      "it, commit, branch off, merge — and deliberately provoke a conflict to see "
-                      "the conflict markers for real once.\n\n"
+                      "it, commit, branch off, merge — and deliberately provoke a conflict so that "
+                      "you have seen real conflict markers at least once.\n\n"
                       "**What does not work:** `clone`, `fetch`, `push` and `pull` fail. The "
                       "runner has no network, deliberately so — that is its security boundary, "
                       "not a fault. Everything else in Git is local anyway.",
@@ -267,13 +267,13 @@ A good handoff answers four questions: What changed? Why? How was it checked? Wh
         {
             "type": "widget",
             "id": "git-lab",
-            "note": "Laeuft im Runner. Ohne freigegebene Art \"git\" zeigt das Widget einen Hinweis.",
+            "note": "Läuft im Runner. Ohne freigegebene Art \"git\" zeigt das Widget einen Hinweis.",
         },
         {
             "type": "reflect", "id": "reflect-1",
             "payload": {
                 "prompt_de": "Welche Änderung in eurem Team wäre klein genug für einen eigenen Branch und ein kurzes Review?",
-                "prompt_en": "Which change in your team would be small enough for its own branch and a short review?",
+                "prompt_en": "Which change on your team would be small enough for its own branch and a short review?",
             },
         },
     ],

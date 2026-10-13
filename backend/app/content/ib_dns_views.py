@@ -28,11 +28,11 @@ DNS_VIEWS_MODULE = {
         'en': 'Nordwind Logistik runs `app.nordwind-intern.de` — internal clients should get the '
               'internal IP, but external visitors to the marketing site under the same domain name '
               'should get an entirely different, public IP. One DNS server, two answers, depending '
-              'on who is asking. This is exactly what DNS Views in NIOS are for.',
+              'on who is asking. This is exactly what DNS views in NIOS are for.',
     },
     'blocks': [
         {'type': 'text', 'id': 'text-1',
-         'note': 'Split-DNS live an der eigenen Umgebung zeigen, falls moeglich: dieselbe Abfrage aus dem internen Netz und von aussen. Der Aha-Effekt kommt fast immer ueber den direkten Vergleich.',
+         'note': 'Split-DNS live an der eigenen Umgebung zeigen, falls möglich: dieselbe Abfrage aus dem internen Netz und von außen. Der Aha-Effekt kommt fast immer über den direkten Vergleich.',
          'value': {
              'de': '## Wozu DNS Views?\n\n'
                    'Eine **DNS View** ist eine eigenständige, in sich geschlossene Sicht auf einen '
@@ -44,7 +44,7 @@ DNS_VIEWS_MODULE = {
                    'Internet mit öffentlichen IP-Adressen — beide für dieselbe Domain, aber mit '
                    'komplett getrenntem Record-Satz.',
              'en': '## What Are DNS Views For?\n\n'
-                   'A **DNS View** is a self-contained, independent view of a zone name. Two views '
+                   'A **DNS view** is a self-contained, independent view of a zone name. Two views '
                    'can contain the same zone name (e.g. `nordwind-intern.de`) but serve different '
                    'records — depending on which view the incoming connection is matched to.\n\n'
                    'The classic case is **split DNS**: an `internal` view for clients on your own '
@@ -203,7 +203,7 @@ DNS_VIEWS_MODULE = {
         {'type': 'check', 'id': 'check-1',
          'payload': {
              'kind': 'choice',
-             'prompt_de': 'Zwei Views sind konfiguriert: `intern` (match: 10.0.0.0/8) und `extern` '
+             'prompt_de': 'Zwei Views sind konfiguriert: `internal` (match: 10.0.0.0/8) und `external` '
                           '(match: any). In welcher Reihenfolge müssen sie stehen, damit interne '
                           'Clients die interne Antwort bekommen?',
              'prompt_en': 'Two views are configured: `internal` (match: 10.0.0.0/8) and `external` '
@@ -211,8 +211,8 @@ DNS_VIEWS_MODULE = {
                           'the internal answer?',
              'answer': 0,
              'options_de': [
-                 'Zuerst `intern`, dann `extern`',
-                 'Zuerst `extern`, dann `intern`',
+                 'Zuerst `internal`, dann `external`',
+                 'Zuerst `external`, dann `internal`',
                  'Die Reihenfolge ist beliebig, NIOS prüft immer alle Views parallel',
                  'Beide Views müssen denselben Namen tragen',
              ],
@@ -250,13 +250,13 @@ DNS_VIEWS_MODULE = {
                     {
                         "cmd": "dig @10.20.30.53 www.example.org +short",
                         "desc_de": "fremder Name über die interne Adresse",
-                        "desc_en": "foreign name via the internal address",
+                        "desc_en": "external name via the internal address",
                         "output": "198.51.100.44",
                     },
                     {
                         "cmd": "dig @203.0.113.53 www.example.org",
                         "desc_de": "fremder Name über die externe Adresse",
-                        "desc_en": "foreign name via the external address",
+                        "desc_en": "external name via the external address",
                         "output": ";; ->>HEADER<<- opcode: QUERY, status: REFUSED, id: 40213\n;; flags: qr rd; QUERY: 1, ANSWER: 0, AUTHORITY: 0,\n;;        ADDITIONAL: 1\n;; WARNING: recursion requested but not available\n\n;; QUESTION SECTION:\n;www.example.org.          IN   A\n\n;; SERVER: 203.0.113.53#53(203.0.113.53) (UDP)",
                     },
                 ],
@@ -268,7 +268,7 @@ DNS_VIEWS_MODULE = {
                      "text_en": "Which address does the internal view return for app.nordwind-intern.de?",
                      "answers": ["10.20.30.5"]},
                     {"text_de": "Mit welchem Status beantwortet die externe View die Frage nach einem fremden Namen?",
-                     "text_en": "With which status does the external view answer the question for a foreign name?",
+                     "text_en": "With which status does the external view answer a query for a name outside its own zones?",
                      "answers": ["REFUSED", "refused"],
                      "explanation_de": "REFUSED ist hier gewollt: Die externe View ist rein autoritativ, Rekursion gibt es nur intern.",
                      "explanation_en": "REFUSED is intended here: the external view is authoritative only; recursion exists only internally."},
@@ -291,23 +291,23 @@ DNS_VIEWS_MODULE = {
                    '**per view** — the more specific the level, the more precisely you can control '
                    'where a view forwards requests it cannot answer locally (conditional '
                    'forwarding: specific domains to specific forwarders).\n\n'
-                   'It gets risky with the **"resolve via forwarders only"** option: if no own '
-                   'recursion fallback is active and the configured forwarder fails, the view can '
+                   'It gets risky with the **"resolve via forwarders only"** option: if no recursion '
+                   'fallback of its own is active and the configured forwarder fails, the view can '
                    'no longer resolve anything at all — there is no automatic fallback to its own '
-                   'recursive resolution. The additional **match-recursive-only** option belongs in the same planning: a view with this option accepts only **recursive** queries from the matching clients; non-recursive queries from the same clients fall through to the next matching view. It works together with the match lists of the views and requires recursion to be enabled for that view — typical use: one recursive and one purely authoritative view on the same member.',
+                   'recursive resolution. The additional **match-recursive-only** option should be planned together with this: a view with this option accepts only **recursive** queries from the matching clients; non-recursive queries from the same clients fall through to the next matching view. It works together with the match lists of the views and requires recursion to be enabled for that view — typical use: one recursive and one purely authoritative view on the same member.',
          }},
         {
             "type": "scenario",
             "id": "scenario-vpn-falsche-antwort",
             "payload": {
                 "title_de": "Homeoffice: „Das Intranet zeigt auf die falsche Adresse“",
-                "title_en": "Home office: \"The intranet points to the wrong address\"",
+                "title_en": "Working from home: \"The intranet points to the wrong address\"",
                 "start": "start",
                 "nodes": [
                     {
                         "id": "start",
                         "text_de": "Seit der Umstellung des VPN-Gateways melden Homeoffice-Nutzer: app.nordwind-intern.de löst auf 203.0.113.80 auf statt auf 10.20.30.5. Im Büro funktioniert alles. Der Member bedient die Views internal (match-clients 10.0.0.0/8) und external (any), in dieser Reihenfolge. Was tust du zuerst?",
-                        "text_en": "Since the VPN gateway was changed, home-office users report: app.nordwind-intern.de resolves to 203.0.113.80 instead of 10.20.30.5. In the office everything works. The member serves the views internal (match-clients 10.0.0.0/8) and external (any), in this order. What do you do first?",
+                        "text_en": "Since the VPN gateway was replaced, users working from home have been reporting: app.nordwind-intern.de resolves to 203.0.113.80 instead of 10.20.30.5. In the office everything works. The member serves the views internal (match-clients 10.0.0.0/8) and external (any), in this order. What do you do first?",
                         "options": [
                             {
                                 "label_de": "Den A-Record in der internen View prüfen und neu anlegen.",
@@ -316,7 +316,7 @@ DNS_VIEWS_MODULE = {
                             },
                             {
                                 "label_de": "Feststellen, mit welcher Quelladresse die VPN-Clients beim Member ankommen.",
-                                "label_en": "Find out with which source address the VPN clients reach the member.",
+                                "label_en": "Find out which source address the VPN clients use to reach the member.",
                                 "to": "quelle",
                             },
                             {
@@ -387,7 +387,7 @@ DNS_VIEWS_MODULE = {
                          'VPN-Tunnel eine interne IP zugewiesen, ihre ursprüngliche Verbindung kommt '
                          'aber technisch aus einem Adressbereich, der auf den ersten Blick wie '
                          '„extern“ aussieht (dem VPN-Einwahlbereich). Überlege: Wenn die '
-                         '`intern`-View nur nach der physischen internen IP-Range matcht — was '
+                         '`internal`-View nur nach der physischen internen IP-Range matcht — was '
                          'passiert dann mit einem VPN-Client, und wie müsste match-clients erweitert '
                          'werden, damit auch er die interne Antwort bekommt?',
              'prompt_en': 'A real edge case: remote-access VPN clients are assigned an internal IP '
@@ -428,7 +428,7 @@ DNS_VIEWS_MODULE = {
          },
          'type': 'single',
          'prompt': {'de': 'Wozu dienen DNS Views?',
-                    'en': 'What are DNS Views used for?'},
+                    'en': 'What are DNS views used for?'},
          'answer': 1,
          'options': {
              'de': [
@@ -497,7 +497,7 @@ DNS_VIEWS_MODULE = {
         {'id': 'dv4',
          "explanation": {
              "de": "„Nur über Forwarder“ schaltet die eigene Rekursion als Rückfallebene ab: Antwortet der einzige Forwarder nicht, bleibt die Anfrage unbeantwortet. Ein automatisches Umschalten auf die Root-Server gibt es in diesem Modus gerade nicht.",
-             "en": "\"Forwarders only\" switches off the server's own recursion as a fallback: if the single forwarder does not answer, the query stays unanswered. An automatic switch to the root servers is exactly what this mode does not do.",
+             "en": "\"Forwarders only\" switches off the server's own recursion as a fallback: if the only forwarder does not answer, the query stays unanswered. An automatic switch to the root servers is exactly what this mode does not do.",
          },
          'type': 'single',
          'prompt': {'de': 'Was ist das Risiko der Option „nur über Forwarder auflösen“, wenn nur '
@@ -529,21 +529,21 @@ DNS_VIEWS_MODULE = {
          'type': 'single',
          'prompt': {'de': 'Ein VPN-Client bekommt intern zwar eine Adresse aus dem internen '
                          'Bereich zugewiesen, seine Anfrage matcht aber technisch nicht die '
-                         '`intern`-View. Was ist die wahrscheinlichste Ursache?',
+                         '`internal`-View. Was ist die wahrscheinlichste Ursache?',
                     'en': 'A VPN client is assigned an address from the internal range, but its '
                          'request technically does not match the `internal` view. What is the most '
                          'likely cause?'},
          'answer': 0,
          'options': {
              'de': [
-                 'match-clients der `intern`-View berücksichtigt den VPN-Einwahlbereich nicht',
+                 'match-clients der `internal`-View berücksichtigt den VPN-Einwahlbereich nicht',
                  'DNSSEC ist für VPN-Clients grundsätzlich deaktiviert',
                  'VPN-Clients können grundsätzlich keine DNS-Anfragen stellen',
                  'Die Zone wurde nicht per Zonentransfer repliziert',
              ],
              'en': [
                  'The internal view\'s match-clients does not account for the VPN dial-in range',
-                 'DNSSEC is fundamentally disabled for VPN clients',
+                 'DNSSEC is always disabled for VPN clients',
                  'VPN clients cannot send DNS requests at all',
                  'The zone was not replicated via zone transfer',
              ],
@@ -580,7 +580,7 @@ DNS_VIEWS_MODULE = {
             "type": "multi",
             "prompt": {
                 "de": "Die interne View löst fremde Namen „nur über Forwarder“ auf. Welche Maßnahmen verringern das Risiko, dass ein einzelner Ausfall die gesamte externe Auflösung lahmlegt (mehrere richtig)?",
-                "en": "The internal view resolves foreign names \"via forwarders only\". Which measures reduce the risk that a single failure takes down all external resolution (multiple)?",
+                "en": "The internal view resolves external names \"via forwarders only\". Which measures reduce the risk that a single failure takes down all external resolution (multiple)?",
             },
             "answer": [0, 2],
             "options": {
@@ -594,12 +594,12 @@ DNS_VIEWS_MODULE = {
                     "Configure at least two forwarders that do not share a site or uplink",
                     "Raise the TTL of your own zones",
                     "Decide deliberately whether \"forwarders only\" is needed, or allow the server's own recursion as a fallback",
-                    "Sort the external view before the internal one",
+                    "Place the external view before the internal one",
                 ],
             },
             "explanation": {
                 "de": "Redundante Forwarder und eine bewusst gewählte Rückfallebene treffen das Problem. Die TTL der eigenen Zonen betrifft nur Antworten, für die der Server selbst autoritativ ist — nicht die Auflösung fremder Namen. Und die View-Reihenfolge entscheidet über die Zuordnung, nicht über die Erreichbarkeit der Forwarder.",
-                "en": "Redundant forwarders and a deliberately chosen fallback address the problem. The TTL of your own zones only affects answers the server is authoritative for — not the resolution of foreign names. And view order decides the assignment, not whether forwarders are reachable.",
+                "en": "Redundant forwarders and a deliberately chosen fallback address the problem. The TTL of your own zones only affects answers the server is authoritative for — not the resolution of external names. And view order decides the assignment, not whether forwarders are reachable.",
             },
         },
         {

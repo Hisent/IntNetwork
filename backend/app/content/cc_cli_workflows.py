@@ -10,7 +10,7 @@ CLI_WORKFLOWS_MODULE = {'key': 'cli-workflows',
            'Wichtige eingebaute Slash-Commands kennen und nutzen',
            'Sessions fortsetzen, wieder aufnehmen und den Kontext im Blick behalten',
            'Mit /context und /compact das Kontextfenster bewusst managen'],
- 'goals_en': ['Use plan mode and accept-edits mode deliberately',
+ 'goals_en': ['Use plan mode and Accept Edits mode deliberately',
                'Know and use the important built-in slash commands',
                'Continue and resume sessions and keep an eye on the context',
                'Manage the context window deliberately with /context and /compact'],
@@ -25,7 +25,7 @@ CLI_WORKFLOWS_MODULE = {'key': 'cli-workflows',
  'blocks': [{'type': 'text', 'id': 'text-1',
              'value': {'de': '## Modi: von vorsichtig bis autonom\n'
                              '\n'
-                             'Claude Code kann unterschiedlich „mutig” agieren. Die wichtigsten '
+                             'Claude Code kann unterschiedlich „mutig“ agieren. Die wichtigsten '
                              'Modi (umschaltbar u.a. mit **Shift+Tab** in der Session):\n'
                              '\n'
                              '- **Manueller Modus** (Config-Wert `default`, in der Oberfläche '
@@ -62,10 +62,10 @@ CLI_WORKFLOWS_MODULE = {'key': 'cli-workflows',
                        'en': '## Modes: from cautious to autonomous\n'
                              '\n'
                              'Claude Code can act with varying degrees of "boldness." The most '
-                             'important modes (toggleable with **Shift+Tab** in the session, among '
-                             'others):\n'
+                             'important modes (you can switch between them in the session with '
+                             '**Shift+Tab**, among other ways):\n'
                              '\n'
-                             '- **Manual mode** (config value `default`, labelled "Manual" in the '
+                             '- **Manual mode** (config value `default`, labeled "Manual" in the '
                              'UI) — Claude asks for permission before making changes and '
                              'running commands.\n'
                              '- **Plan mode** — Claude **only plans** and changes nothing: it '
@@ -73,7 +73,7 @@ CLI_WORKFLOWS_MODULE = {'key': 'cli-workflows',
                              'Perfect for larger or sensitive tasks.\n'
                              '- **Accept Edits** (`acceptEdits`) — file changes and a limited set '
                              'of workspace file commands are applied without asking. Other Bash '
-                             'commands or access outside the workspace still ask.\n'
+                             'commands or access outside the workspace still require approval.\n'
                              '- **Auto mode** (`auto`) — a classifier reviews actions instead of '
                              'you. In current versions, interactive sessions may already start in '
                              'this mode depending on version, plan, and organization policy — '
@@ -126,7 +126,7 @@ CLI_WORKFLOWS_MODULE = {'key': 'cli-workflows',
                                                  '⏵⏵ accept edits on'],
                                    'values_en': ['reads, file edits, common filesystem commands '
                                                  '(mkdir, mv, cp …)',
-                                                 'iterating on code you review afterwards',
+                                                 'iterating on code you review afterward',
                                                  '⏵⏵ accept edits on']},
                                   {'label': 'plan',
                                    'values_de': ['Lesen und Erkunden; Edits bleiben bis zur '
@@ -321,8 +321,8 @@ CLI_WORKFLOWS_MODULE = {'key': 'cli-workflows',
                              'frees up space. The project-wide CLAUDE.md survives compacting (it '
                              'gets re-read).\n'
                              '\n'
-                             'When a conversation is topically finished, **`/clear`** (a complete '
-                             'restart of the history) is often cleaner than carrying it along.'}},
+                             'When the topic of a conversation is closed, **`/clear`** (a complete '
+                             'restart of the history) is often cleaner than dragging it along.'}},
             {'type': 'diagram',
              'id': 'diagram-kontextfenster',
              'payload': {'kind': 'layers',
@@ -380,7 +380,7 @@ CLI_WORKFLOWS_MODULE = {'key': 'cli-workflows',
                                     {'name_de': 'Deine Prompts und der Verlauf',
                                      'name_en': 'Your prompts and the history',
                                      'content_de': 'Alles, was du schreibst und Claude antwortet',
-                                     'content_en': 'Everything you write and Claude answers',
+                                     'content_en': 'Everything you write and everything Claude replies',
                                      'pdu_de': 'wächst',
                                      'pdu_en': 'grows',
                                      'detail_de': '/compact ersetzt diesen Teil durch eine '
@@ -402,7 +402,7 @@ CLI_WORKFLOWS_MODULE = {'key': 'cli-workflows',
                                                   'Subagent in seinem eigenen Kontextfenster '
                                                   'erledigen.',
                                      'detail_en': 'Usually the biggest item. Focused @-mentions '
-                                                  'keep it small; a subagent can do large research '
+                                                  'keep it small; a subagent can handle extensive research '
                                                   'in its own context window.'}]}},
             {'type': 'text',
              'id': 'text-context-budget',
@@ -434,7 +434,7 @@ CLI_WORKFLOWS_MODULE = {'key': 'cli-workflows',
                              'um jeden Preis.',
                        'en': '## Managing context and usage deliberately\n'
                              '\n'
-                             'A limit is not just a fixed token number: the context window, model, '
+                             'A limit is not just a fixed token count: the context window, model, '
                              'plan, and current usage all matter. There is no guarantee that you '
                              'will never hit a limit, but you can spot an unwieldy session early.\n'
                              '\n'
@@ -571,7 +571,7 @@ CLI_WORKFLOWS_MODULE = {'key': 'cli-workflows',
                                            'erhalten — sie wird weder gelöscht noch verändert.',
                          'explanation_en': '`/compact` only condenses the conversation history to '
                                            'free up space in the context window. The project-wide '
-                                           'CLAUDE.md is then re-read afterward and remains intact '
+                                           'CLAUDE.md is re-read afterward and remains intact '
                                            '— it is neither deleted nor changed.'}},
             {'type': 'widget',
              'id': 'cli-simulator',
@@ -602,8 +602,8 @@ CLI_WORKFLOWS_MODULE = {'key': 'cli-workflows',
                                                'übernommen werden Edits dagegen in `acceptEdits`.',
                                          'en': 'In plan mode Claude reads, explores and presents a '
                                                'plan; changes to your files stay blocked until you '
-                                               'approve. Edits are applied immediately in '
-                                               '`acceptEdits`, by contrast.'}},
+                                               'approve. By contrast, edits are applied immediately in '
+                                               '`acceptEdits`.'}},
                         {'id': 'cli2',
                          'type': 'single',
                          'prompt': {'de': 'Womit siehst du, was aktuell das Kontextfenster belegt?',
@@ -636,7 +636,7 @@ CLI_WORKFLOWS_MODULE = {'key': 'cli-workflows',
                                                'Gespräch geht weiter. Es ist kein Git-Befehl und '
                                                'ändert keine Dateien im Projekt.',
                                          'en': '`/compact` replaces the history so far with a '
-                                               'summary and thus frees space, and the conversation '
+                                               'summary, which frees up space; the conversation '
                                                'continues. It is not a Git command and changes no '
                                                'files in the project.'}},
                         {'id': 'cli4',
@@ -658,9 +658,9 @@ CLI_WORKFLOWS_MODULE = {'key': 'cli-workflows',
                                                'im aktuellen Verzeichnis. `--resume` wäre die '
                                                'Auswahl aus einer Liste; `--new`, `--reset` und '
                                                '`--fresh` gibt es nicht.',
-                                         'en': '`--continue` (short `-c`) loads the most recent '
+                                         'en': '`--continue` (`-c` for short) loads the most recent '
                                                'conversation in the current directory. `--resume` '
-                                               'would be the pick from a list; `--new`, `--reset` '
+                                               'would let you pick from a list; `--new`, `--reset` '
                                                'and `--fresh` do not exist.'}},
                         {'id': 'cli5',
                          'type': 'single',
@@ -671,7 +671,7 @@ CLI_WORKFLOWS_MODULE = {'key': 'cli-workflows',
                                             'Um einen Nutzer zu markieren',
                                             'Um das Modell zu wechseln',
                                             'Um einen Hook auszulösen'],
-                                     'en': ['To specifically reference files/directories',
+                                     'en': ['To reference specific files/directories',
                                             'To mention/tag a user',
                                             'To switch the model',
                                             'To trigger a hook']},

@@ -1,6 +1,8 @@
 export interface Layer {
   nr: number; de: string; en: string; task: { de: string; en: string }
   example: string; pdu: { de: string; en: string }
+  /** nur gesetzt, wenn das Beispiel kein sprachneutraler Protokollname ist */
+  exampleEn?: string
 }
 
 export const LAYERS: Layer[] = [
@@ -24,7 +26,7 @@ export const LAYERS: Layer[] = [
     example: 'Ethernet, 802.1Q', pdu: { de: 'Frame', en: 'Frame' } },
   { nr: 1, de: 'Bitübertragung', en: 'Physical',
     task: { de: 'Bits über das Medium', en: 'Bits over the medium' },
-    example: 'Kabel, Funk', pdu: { de: 'Bits', en: 'Bits' } },
+    example: 'Kabel, Funk', exampleEn: 'Cable, radio', pdu: { de: 'Bits', en: 'Bits' } },
 ]
 
 export interface Step { side: 'tx' | 'rx'; layer: number; pieces: string[]; caption: { de: string; en: string } }

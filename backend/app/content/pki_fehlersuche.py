@@ -36,9 +36,9 @@ ZERT_FEHLERSUCHE_MODULE = {
     },
     'blocks': [
         {'type': 'text', 'id': 'text-1',
-         'note': 'Vor den Einzelbildern die Systematik setzen: erst die Ebene klaeren (Zertifikat, '
+         'note': 'Vor den Einzelbildern die Systematik setzen: erst die Ebene klären (Zertifikat, '
                  'Kette, Trust Store, Client-Uhr, Netzwerkpfad), dann erst ins Detail gehen. Sonst '
-                 'wird geraten statt geprueft.',
+                 'wird geraten statt geprüft.',
          'value': {
              'de': '## Erst die Ebene klären, dann ins Detail\n\n'
                    'Eine TLS-Fehlermeldung sagt selten sofort, was zu tun ist — aber sie grenzt fast '
@@ -82,25 +82,25 @@ ZERT_FEHLERSUCHE_MODULE = {
              'en': ('## Overview: The Most Common Fault Patterns\n\nEight patterns recur again and again in '
                  'operations:\n\n- **Incomplete chain** — the server sends only the leaf certificate, without '
                  'the necessary intermediate certificates.\n- **Name mismatch** — the requested hostname is not '
-                 'in the SAN list, or access happens via an IP address instead of the hostname.\n- **Expired** '
+                 'in the SAN list, or the server is accessed via an IP address instead of the hostname.\n- **Expired** '
                  '— the current date is outside the validity period.\n- **Clock skew on the client** — the '
                  "client's system time is wrong, so an otherwise valid certificate appears not-yet-valid or "
                  'already expired.\n- **Self-signed / unknown CA** — no issuer from the trust store appears in '
                  "the chain.\n- **Internal CA missing from a given system's trust store** — the internal root "
                  'is known, but not imported everywhere (more on this shortly).\n- **Revoked** — the CA has '
-                 'revoked the certificate; this only shows where the revocation status is actually checked.\n- '
+                 'revoked the certificate; this only shows up where the revocation status is actually checked.\n- '
                  '**Wrong purpose (EKU)** — the certificate is valid but was not issued for this use, such as a '
                  'client certificate on a web server.\n\nThe next blocks go deeper on the most important of '
                  'these, with cause and check.'),
             },
         },
         {'type': 'widget', 'id': 'cert-errors',
-         'note': 'Widget zeigt typische Zertifikatsfehler interaktiv. Direkt nach dem Ueberblick '
-                 'einsetzen, bevor es in die Einzelfaelle geht — gute Gelegenheit, die Teilnehmer '
+         'note': 'Widget zeigt typische Zertifikatsfehler interaktiv. Direkt nach dem Überblick '
+                 'einsetzen, bevor es in die Einzelfälle geht — gute Gelegenheit, die Teilnehmer '
                  'selbst zuordnen zu lassen.'},
         {'type': 'diagram', 'id': 'diagram-fehlerbilder',
-         'note': ('Nachschlagetabelle. Die openssl-Codes stammen aus echten Laeufen; Browser-Codes sind die von '
-             'Chrome. Fuer "falscher EKU" ist kein eigener Chrome-Code belegt, deshalb dort nur allgemein.'),
+         'note': ('Nachschlagetabelle. Die openssl-Codes stammen aus echten Läufen; Browser-Codes sind die von '
+             'Chrome. Für "falscher EKU" ist kein eigener Chrome-Code belegt, deshalb dort nur allgemein.'),
          'payload': {
              'kind': 'compare',
              'title_de': 'Acht Fehlerbilder auf einen Blick',
@@ -151,7 +151,7 @@ ZERT_FEHLERSUCHE_MODULE = {
                         ],
                      'values_en': [
                             'ERR_CERT_AUTHORITY_INVALID',
-                            '20 although the server sends the chain',
+                            '20, although the server sends the chain',
                             "the program's trust store",
                         ],
                     },
@@ -192,7 +192,7 @@ ZERT_FEHLERSUCHE_MODULE = {
                  'Trust Store des Clients.'),
              'en': ('## Incomplete Chain: Works in the Browser, Fails in the Application\n\nThe classic point of '
                  'confusion: the browser opens the page without a warning, but `curl` or a Java application '
-                 'report a chain error such as `unable to get local issuer certificate`. The difference lies in '
+                 'reports a chain error such as `unable to get local issuer certificate`. The difference lies in '
                  'how the clients behave:\n\n- Browsers often **repair a missing intermediate certificate '
                  'themselves** — either from cached intermediates seen in earlier connections, or via the **AIA '
                  'extension** (Authority Information Access) in the certificate, which points to where the '
@@ -205,7 +205,7 @@ ZERT_FEHLERSUCHE_MODULE = {
                  'chain. Either the **server does not deliver the intermediate** (then every strict client is '
                  'affected), or the **client lacks the root in its trust store** (then only this client is '
                  'affected, typical for internal CAs). You can tell them apart with `openssl s_client '
-                 "-showcerts`: if the server sends end-entity certificate and intermediate, the client's trust "
+                 "-showcerts`: if the server sends both the end-entity certificate and the intermediate, the client's trust "
                  'store is the problem.'),
             },
         },
@@ -252,12 +252,12 @@ ZERT_FEHLERSUCHE_MODULE = {
                    'of the SAN list (Subject Alternative Names). Two common triggers:\n\n'
                    '- The SAN list simply was not kept complete at issuance time (e.g. a new '
                    'subdomain went live but was never added to the certificate).\n'
-                   '- Access happens **via an IP address instead of the hostname** — a certificate '
+                   '- The server is accessed **via an IP address instead of the hostname** — a certificate '
                    'issued only for hostnames does not cover an IP address, even if that IP clearly '
                    'belongs to the right server.\n\n'
                    'Chrome typically shows `NET::ERR_CERT_COMMON_NAME_INVALID` for this. Important '
                    'for troubleshooting: the CN field no longer counts here — modern browsers check '
-                   'only the SAN list, a matching CN field alone has not been sufficient for years.',
+                   'only the SAN list; a matching CN field alone has not been sufficient for years.',
          }},
         {'type': 'text', 'id': 'text-5',
          'value': {
@@ -277,11 +277,11 @@ ZERT_FEHLERSUCHE_MODULE = {
                    'auswendig gelernten Fehlertext zu verlassen.',
              'en': '## Expired Certificates and Client Clock Skew\n\n'
                    'An expired certificate is the simplest case: the current date is past the '
-                   'certificate\'s `notAfter` field — clearly diagnosable, clearly fixed (renew it).\n\n'
+                   'certificate\'s `notAfter` field — straightforward to check, straightforward to fix (renew it).\n\n'
                    'Harder to spot is **clock skew on the client**: if a client\'s system clock is '
                    'significantly wrong, an otherwise valid certificate can appear to that client as '
                    '**not yet valid** or as **already expired** — even though nothing is wrong with '
-                   'the server configuration. This picture is then easily mistaken for a genuine '
+                   'the server configuration. This pattern is then easily mistaken for a genuine '
                    'expiry problem.\n\n'
                    'Practical check: verify the affected client\'s system time before suspecting the '
                    'certificate itself. The most reliable way to demonstrate this in your own '
@@ -322,8 +322,8 @@ ZERT_FEHLERSUCHE_MODULE = {
                    'itself, but **which** trust store the particular program actually uses.',
          }},
         {'type': 'text', 'id': 'text-widerruf-eku',
-         'note': ('Beide Bilder sind tueckisch, weil Kette, Name und Laufzeit in Ordnung sind - die ueblichen drei '
-             'Pruefungen finden nichts.'),
+         'note': ('Beide Bilder sind tückisch, weil Kette, Name und Laufzeit in Ordnung sind - die üblichen drei '
+             'Prüfungen finden nichts.'),
          'value': {
              'de': ('## Widerrufen und falscher Verwendungszweck\n\nZwei Fehlerbilder, bei denen Kette, Name und '
                  'Laufzeit stimmen und trotzdem etwas faul ist:\n\n**Widerrufen.** Die CA hat das Zertifikat '
@@ -343,7 +343,7 @@ ZERT_FEHLERSUCHE_MODULE = {
                  'öffentliches Zertifikat, das bisher nebenbei als Client-Zertifikat diente. Prüfschritt: '
                  '`openssl x509 -in cert.pem -noout -purpose` oder der Abschnitt „Extended Key Usage“ in der '
                  'Textausgabe.'),
-             'en': ('## Revoked and wrong purpose\n\nTwo fault patterns where chain, name, and validity are right '
+             'en': ('## Revoked and Wrong Purpose\n\nTwo fault patterns where chain, name, and validity are right '
                  'and something is wrong anyway:\n\n**Revoked.** The CA has revoked the certificate, for '
                  'example after a key loss. The tricky part: the error shows up **inconsistently**. Chrome '
                  'reports `NET::ERR_CERT_REVOKED` if the revocation is in its pre-distributed revocation data. '
@@ -363,10 +363,10 @@ ZERT_FEHLERSUCHE_MODULE = {
             },
         },
         {'type': 'terminal', 'id': 'terminal-curl-fehler',
-         'note': ('Echte curl-Meldungen (curl 8.21 mit OpenSSL 3.6) gegen fuenf lokale Testserver mit der '
-             'Kurs-Test-PKI; die Hostnamen der Befehle sind erfunden, die Meldungen unveraendert (nur '
-             'umbrochen). Aeltere curl-Versionen formulieren "curl: (60) SSL certificate problem: ..." ohne den '
-             'Zusatz "OpenSSL verify result" und ohne Code in Klammern (geprueft mit curl 8.7).'),
+         'note': ('Echte curl-Meldungen (curl 8.21 mit OpenSSL 3.6) gegen fünf lokale Testserver mit der '
+             'Kurs-Test-PKI; die Hostnamen der Befehle sind erfunden, die Meldungen unverändert (nur '
+             'umbrochen). Ältere curl-Versionen formulieren "curl: (60) SSL certificate problem: ..." ohne den '
+             'Zusatz "OpenSSL verify result" und ohne Code in Klammern (geprüft mit curl 8.7).'),
          'payload': {
              'title_de': 'Fünf Server, fünf curl-Fehler',
              'title_en': 'Five servers, five curl errors',
@@ -461,7 +461,7 @@ ZERT_FEHLERSUCHE_MODULE = {
                           '\'unable to find valid certification path\' gegen den internen '
                           'API-Server. Im Browser auf demselben Rechner funktioniert alles normal." '
                           'Vier Interpretationen dazu — welche ist falsch?',
-             'prompt_en': 'A ticket describes: "Since today, our Java batch job reports \'unable to '
+             'prompt_en': 'A ticket reads: "Since today, our Java batch job reports \'unable to '
                           'find valid certification path\' against the internal API server. In the '
                           'browser on the same machine, everything works normally." Four '
                           'interpretations — which one is false?',
@@ -478,7 +478,7 @@ ZERT_FEHLERSUCHE_MODULE = {
                  'The internal CA is presumably present in the Windows trust store, but not in the '
                  'Java `cacerts` store',
                  'The browser checks a different trust store in this case than the Java batch job',
-                 'Since it happens "since today", the cause must necessarily be a DNS view rollout',
+                 'Since it has been happening "since today", the cause must necessarily be the rollout of a new DNS view',
                  'A sensible next step is to check the Java environment\'s `cacerts` store for the '
                  'internal root CA',
              ],
@@ -556,10 +556,10 @@ ZERT_FEHLERSUCHE_MODULE = {
                    'vertrauenswürdigen (internen) CA signiert ist. Genau das ist der Zielkonflikt: '
                    'Pinning schützt vor echtem MITM, blockiert aber auch legitime '
                    'TLS-Inspection-Infrastruktur.',
-             'en': '## The Enterprise Case: the TLS-Breaking Firewall\n\n'
-                   'In many companies, outbound traffic passes through a **TLS-breaking firewall or '
+             'en': '## The Enterprise Case: the TLS-Inspecting Firewall\n\n'
+                   'In many companies, outbound traffic passes through a **TLS-inspecting firewall or '
                    'proxy**: the device terminates the TLS connection, inspects the decrypted content '
-                   '(e.g. for malware or data-loss-prevention rules), and then builds a new TLS '
+                   '(e.g. for malware or data-loss-prevention rules), and then establishes a new TLS '
                    'connection using a **certificate from the internal company CA**. The client thus '
                    'never sees the destination\'s original certificate, only one freshly issued by the '
                    'internal CA.\n\n'
@@ -579,8 +579,8 @@ ZERT_FEHLERSUCHE_MODULE = {
              'prompt_de': 'Eine mobile App mit Certificate Pinning funktioniert im Büro-WLAN nicht '
                           'mehr, seit dort eine TLS-Inspection-Firewall aktiv ist — im Mobilfunknetz '
                           'läuft sie problemlos. Was ist die wahrscheinlichste Erklärung?',
-             'prompt_en': 'A mobile app with certificate pinning stops working on the office Wi-Fi '
-                          'since a TLS inspection firewall became active there — over the mobile '
+             'prompt_en': 'A mobile app with certificate pinning has stopped working on the office '
+                          'Wi-Fi since a TLS inspection firewall was activated there — over the mobile '
                           'network it works fine. What is the most likely explanation?',
              'answer': 2,
              'options_de': [
@@ -595,7 +595,7 @@ ZERT_FEHLERSUCHE_MODULE = {
                  'The mobile network encrypts more strongly than Wi-Fi',
                  'The app\'s pin expects the original key, but the firewall replaces the certificate '
                  'with one from the internal CA — the pin no longer matches',
-                 'The office Wi-Fi fundamentally blocks all TLS connections',
+                 'The office Wi-Fi blocks all TLS connections without exception',
              ],
          }},
         {'type': 'scenario', 'id': 'scenario-ticket-nach-zertifikatswechsel',
@@ -610,7 +610,7 @@ ZERT_FEHLERSUCHE_MODULE = {
                          'ein Python-Skript und ein Java-Batchjob mit Kettenfehlern; im Browser funktioniert '
                          'die API-Dokumentation unter derselben Adresse. Was tust du zuerst?'),
                      'text_en': ('Yesterday the certificate of api.nordwind-logistik.de was renewed. Since then a '
-                         'Python script and a Java batch job fail with chain errors; in the browser the API '
+                         'Python script and a Java batch job have been failing with chain errors; in the browser the API '
                          'documentation at the same address works. What do you do first?'),
                      'options': [
                             {
@@ -671,7 +671,7 @@ ZERT_FEHLERSUCHE_MODULE = {
                      'text_de': ('Es würde funktionieren, verteilt aber die Reparatur auf jeden einzelnen Client — und '
                          'der nächste neue Client hat dasselbe Problem. Der Fehler liegt am Server.'),
                      'text_en': ('It would work, but it spreads the repair across every single client — and the next '
-                         'new client has the same problem. The fault is on the server.'),
+                         'new client will have the same problem. The fault is on the server.'),
                     },
                     {
                      'id': 'kette',
@@ -711,9 +711,9 @@ ZERT_FEHLERSUCHE_MODULE = {
                     'curl unterstützt TLS 1.3 grundsätzlich nicht',
                     'Das Zertifikat ist self-signed und der Browser ignoriert das'],
              'en': ['The client machine has the wrong system time',
-                    'The server does not send a complete certificate chain, the browser compensates '
-                    'via cache/AIA itself',
-                    'curl fundamentally does not support TLS 1.3',
+                    'The server does not send a complete certificate chain; the browser compensates '
+                    'on its own via cache/AIA',
+                    'curl does not support TLS 1.3 at all',
                     'The certificate is self-signed and the browser ignores that'],
          },
          'explanation': {
@@ -725,7 +725,7 @@ ZERT_FEHLERSUCHE_MODULE = {
         {'id': 'zf2', 'type': 'single',
          'prompt': {'de': 'Ein Zugriff erfolgt über die IP-Adresse eines Servers statt über seinen '
                          'Hostnamen, und der Browser meldet einen Namensfehler. Warum?',
-                    'en': 'Access happens via a server\'s IP address instead of its hostname, and the '
+                    'en': 'A server is accessed via its IP address instead of its hostname, and the '
                          'browser reports a name error. Why?'},
          'answer': 0,
          'options': {
@@ -734,7 +734,7 @@ ZERT_FEHLERSUCHE_MODULE = {
                     'Das CN-Feld wurde falsch befüllt, unabhängig von der SAN-Liste',
                     'Der Server hat kein gültiges Zertifikat installiert'],
              'en': ['The certificate only covers hostnames in the SAN list, not IP addresses',
-                    'IP addresses are fundamentally not supported by TLS',
+                    'TLS does not support IP addresses at all',
                     'The CN field was filled in incorrectly, regardless of the SAN list',
                     'The server has no valid certificate installed'],
          },
@@ -780,7 +780,7 @@ ZERT_FEHLERSUCHE_MODULE = {
                     'Die interne CA ist technisch ungültig',
                     'Windows und Java benutzen immer denselben Trust Store, hier liegt ein Bug vor',
                     'Java verwendet seinen eigenen `cacerts`-Store, getrennt vom OS-Trust-Store'],
-             'en': ['Java fundamentally does not support TLS',
+             'en': ['Java does not support TLS at all',
                     'The internal CA is technically invalid',
                     'Windows and Java always use the same trust store, this is a bug',
                     'Java uses its own `cacerts` store, separate from the OS trust store'],
@@ -796,7 +796,7 @@ ZERT_FEHLERSUCHE_MODULE = {
         {'id': 'zf5', 'type': 'single',
          'prompt': {'de': 'Eine App mit Certificate Pinning bricht ab, sobald eine '
                          'TLS-aufbrechende Unternehmensfirewall aktiv ist. Warum?',
-                    'en': 'An app with certificate pinning fails as soon as a TLS-breaking company '
+                    'en': 'An app with certificate pinning fails as soon as a TLS-inspecting company '
                          'firewall is active. Why?'},
          'answer': 1,
          'options': {
@@ -808,7 +808,7 @@ ZERT_FEHLERSUCHE_MODULE = {
              'en': ['Because pinning is fundamentally incompatible with firewalls',
                     'Because the firewall replaces the certificate with one from the internal CA, '
                     'which does not match the expected pin',
-                    'Because the firewall fundamentally blocks the app\'s connection',
+                    'Because the firewall always blocks the app\'s connection',
                     'Because pinning only works on desktop systems'],
          },
          'explanation': {
@@ -816,8 +816,8 @@ ZERT_FEHLERSUCHE_MODULE = {
               'Zertifikat trägt einen anderen — die App bricht ab, auch wenn das Gerät der Firmen-CA vertraut. '
               'Ohne Inspection (Mobilfunk) funktioniert es deshalb.'),
           'en': ('Pinning accepts only the expected key. The certificate re-issued by the firewall carries a '
-              'different one — the app aborts even if the device trusts the corporate CA. Without inspection '
-              '(mobile network) it therefore works.'),
+              'different one — the app aborts even if the device trusts the corporate CA. That is '
+              'why it works without inspection (mobile network).'),
          }},
         {'id': 'zf6', 'type': 'single',
          'prompt': {

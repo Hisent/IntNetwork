@@ -52,3 +52,36 @@ describe('Link-Aggregation', () => {
     expect(singleFlowBandwidth(1000)).toBe(1000)
   })
 })
+
+describe('electRoot — Bridge-ID = Priorität, dann MAC', () => {
+  it('Priorität schlägt MAC: höchste MAC gewinnt mit der niedrigsten Priorität', () => {
+    expect(electRoot([
+      { name: 'A', priority: 0, mac: 'FF:FF:FF:FF:FF:FF' },
+      { name: 'B', priority: 4096, mac: '00:00:00:00:00:01' },
+    ])).toEqual({ root: 'A', reason: 'priority' })
+  })
+  it('MAC-Vergleich ist numerisch und unabhängig von Groß-/Kleinschreibung', () => {
+    expect(electRoot([
+      { name: 'A', priority: 32768, mac: '00:11:22:33:44:0a' },
+      { name: 'B', priority: 32768, mac: '00:11:22:33:44:09' },
+    ])).toEqual({ root: 'B', reason: 'mac' })
+    expect(electRoot([
+      { name: 'A', priority: 4096, mac: '00:0A:00:00:00:00' },
+      { name: 'B', priority: 4096, mac: '00:09:ff:ff:ff:ff' },
+    ]).root).toBe('B')
+  })
+  it('Gleichstand nur unter den Besten: ein dritter Switch mit höherer Priorität spielt keine Rolle', () => {
+    expect(electRoot([
+      { name: 'A', priority: 8192, mac: '00:00:00:00:00:02' },
+      { name: 'B', priority: 8192, mac: '00:00:00:00:00:03' },
+      { name: 'C', priority: 32768, mac: '00:00:00:00:00:01' },
+    ])).toEqual({ root: 'A', reason: 'mac' })
+  })
+})
+
+describe('Link-Aggregation', () => {
+  it('Summenbandbreite linear, Einzelfluss bleibt bei einer Leitung', () => {
+    expect([1, 2, 3, 4].map((n) => aggregateBandwidth(n, 1000))).toEqual([1000, 2000, 3000, 4000])
+    expect(singleFlowBandwidth(1000)).toBe(1000)
+  })
+})

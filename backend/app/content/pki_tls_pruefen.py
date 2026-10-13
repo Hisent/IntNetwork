@@ -34,7 +34,7 @@ TLS_PRUEFEN_MODULE = {
     },
     'blocks': [
         {'type': 'text', 'id': 'text-1',
-         'note': 'Dieses Modul ist bewusst sehr praktisch. Wenn moeglich live im Terminal mitlaufen lassen statt nur die Befehle vorzulesen - der Wert liegt im Lesen der tatsaechlichen Ausgabe, nicht im Auswendiglernen der Optionen.',
+         'note': 'Dieses Modul ist bewusst sehr praktisch. Wenn möglich live im Terminal mitlaufen lassen statt nur die Befehle vorzulesen - der Wert liegt im Lesen der tatsächlichen Ausgabe, nicht im Auswendiglernen der Optionen.',
          'value': {
              'de': '## Das Arbeitspferd: openssl s_client\n\n'
                    'Der wichtigste Diagnosebefehl für TLS-Verbindungen ist:\n\n'
@@ -115,7 +115,7 @@ TLS_PRUEFEN_MODULE = {
         {'type': 'terminal', 'id': 'terminal-s-client-diagnose',
          'note': ('Echte s_client-Ausgaben (OpenSSL 3.6) gegen lokale Testserver mit der Kurs-Test-PKI. Hostnamen '
              'und IP-Adressen (Dokumentationsnetz 203.0.113.0/24) wurden statt 127.0.0.1 eingesetzt, PEM-Block '
-             'und Sitzungsdetails gekuerzt ([...]); wrap ist aus, die Zeilen stehen in Originalbreite. Der Server "staging" liefert '
+             'und Sitzungsdetails gekürzt ([...]); wrap ist aus, die Zeilen stehen in Originalbreite. Der Server "staging" liefert '
              'dasselbe Zertifikat ohne Intermediate aus. Im Openssl-Lab ist s_client gesperrt.'),
          'payload': {
              'title_de': 'Mit s_client nachsehen statt vermuten',
@@ -424,8 +424,7 @@ TLS_PRUEFEN_MODULE = {
                    'installation and TLS/SSL server configuration and rates it with a letter grade '
                    '(A–F).\n'
                    '- **Certificate Transparency search** — searching public CT logs for all '
-                   'certificates issued for a domain; useful for tracking down certificates issued '
-                   'unnoticed or old forgotten ones.',
+                   'certificates issued for a domain; useful for tracking down certificates issued without your knowledge, or old forgotten ones.',
          }},
         {'type': 'diagram', 'id': 'diagram-diagnose-ablauf',
          'note': ('Zum Nachschlagen: jeden Knoten anklicken, dahinter stehen Befehl und typischer Fehlercode. Die '
@@ -561,7 +560,7 @@ TLS_PRUEFEN_MODULE = {
             },
         },
         {'type': 'reveal', 'id': 'reveal-1',
-         'note': 'Diesen Block als Nachschlagewerk ankuendigen: nicht auswendig lernen, sondern wissen, dass die Sammlung existiert und wo man sie wiederfindet.',
+         'note': 'Diesen Block als Nachschlagewerk ankündigen: nicht auswendig lernen, sondern wissen, dass die Sammlung existiert und wo man sie wiederfindet.',
          'payload': {
              'teaser_de': 'Befehlssammlung: Klick, um alle Befehle dieses Moduls an einem Ort '
                           'nachzuschlagen.',
@@ -672,7 +671,7 @@ TLS_PRUEFEN_MODULE = {
             },
         },
         {'type': 'widget', 'id': 'openssl-lab',
-         'note': 'Laeuft im Runner, nicht im Browser. Ohne freigegebene Art "openssl" zeigt das '
+         'note': 'Läuft im Runner, nicht im Browser. Ohne freigegebene Art "openssl" zeigt das '
                  'Widget einen Hinweis statt eines Fehlers.'},
         {'type': 'reflect', 'id': 'reflect-1',
          'payload': {

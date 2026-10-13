@@ -11,14 +11,14 @@ HOOKS_MODULE = {'key': 'hooks',
            'Einen Hook in settings.json mit Matcher konfigurieren',
            'Exit-Codes (0/2) und Blockierverhalten verstehen'],
  'goals_en': ['Understand what hooks are and how they differ from CLAUDE.md',
-              'Place the most important lifecycle events',
+              'Know when the most important lifecycle events fire',
               'Configure a hook with a matcher in settings.json',
               'Understand exit codes (0/2) and blocking behavior'],
  'scenario': {'de': 'CLAUDE.md ist eine Bitte — Hooks sind eine Garantie. Ein **Hook** ist ein '
                     'Shell-Kommando (oder HTTP-/MCP-Tool-/Prompt-/Agent-Aufruf), das Claude Code '
                     'an festen Punkten im Lebenszyklus **automatisch** ausführt: nach jedem Edit '
                     'formatieren, vor jedem Commit linten, gefährliche Kommandos blockieren. Weil '
-                    'Hooks unabhängig davon laufen, was das Modell „entscheidet”, sind sie das '
+                    'Hooks unabhängig davon laufen, was das Modell „entscheidet“, sind sie das '
                     'Mittel der Wahl für erzwungene Regeln.',
               'en': 'CLAUDE.md is a request — hooks are a guarantee. A **hook** is a shell command '
                     '(or an HTTP/MCP-tool/prompt/agent call) that Claude Code executes '
@@ -48,7 +48,7 @@ HOOKS_MODULE = {'key': 'hooks',
                              '\n'
                              'In Module 5 we learned: CLAUDE.md is **context**, not enforced '
                              'configuration — Claude *tries* to follow it. If something **must** '
-                             'happen with a guarantee, use a hook. Hooks execute commands at fixed '
+                             'be guaranteed to happen, use a hook. Hooks execute commands at fixed '
                              'lifecycle events, **regardless** of what Claude decides.\n'
                              '\n'
                              'What hooks are typically used for:\n'
@@ -80,14 +80,14 @@ HOOKS_MODULE = {'key': 'hooks',
                              'riskanter Kommandos, `SessionStart` fürs Beilegen von Kontext.',
                        'en': '## The Lifecycle Events\n'
                              '\n'
-                             'Hooks fire in three rhythms:\n'
+                             'Hooks fire at three cadences:\n'
                              '\n'
                              '**Once per session:** `SessionStart`, `SessionEnd`.\n'
                              '\n'
                              '**Once per turn:** `UserPromptSubmit` (before Claude processes the '
                              'prompt), `Stop` (when Claude finishes responding).\n'
                              '\n'
-                             '**On every tool call (agent loop):**\n'
+                             '**On every tool call (agentic loop):**\n'
                              '- `PreToolUse` — *before* execution; **can block**.\n'
                              '- `PostToolUse` — after successful execution.\n'
                              '- `PermissionRequest` — when a permission dialog appears.\n'
@@ -216,7 +216,7 @@ HOOKS_MODULE = {'key': 'hooks',
                              'Anführungszeichen.',
                        'en': '## Configuration & Matchers\n'
                              '\n'
-                             'Hooks live in `settings.json` (scopes like CLAUDE.md: '
+                             'Hooks live in `settings.json` (scopes as with CLAUDE.md: '
                              '`~/.claude/settings.json` for you, `.claude/settings.json` shared '
                              'with the team, `.claude/settings.local.json` private) or in a plugin '
                              '(`hooks/hooks.json`). The **matcher** determines *when* the hook '
@@ -425,13 +425,13 @@ HOOKS_MODULE = {'key': 'hooks',
                              'Hook: Läuft ein Command-Hook in den Timeout, geht der Tool-Aufruf '
                              'ohne `"onFailure": "block"` durch den normalen Berechtigungsablauf '
                              'weiter.',
-                       'en': '## Secure hooks themselves\n'
+                       'en': '## Securing the Hooks Themselves\n'
                              '\n'
                              'Command hooks execute shell commands with your **full user '
                              'permissions**: they can modify, delete, or access any file your '
                              'account can access. Hook commands run **outside the sandbox**. So '
                              'review and test every hook command before adding it to your '
-                             'configuration — the same goes for hooks from an untrusted repository '
+                             'configuration — the same goes for hooks from a third-party repository '
                              'or plugin.\n'
                              '\n'
                              '**Workspace trust:** in an interactive session, Claude Code holds '
@@ -439,7 +439,7 @@ HOOKS_MODULE = {'key': 'hooks',
                              'dialog for the folder. With `claude -p` and in the SDK there is no '
                              "such dialog — hooks from a repository's `.claude/settings.json` run "
                              'there even in a folder you have never trusted. Before a `claude -p` '
-                             'run over code you did not write, review its `.claude/` settings or '
+                             'run over third-party code, review its `.claude/` settings or '
                              'turn hooks off for that run: `--settings \'{"disableAllHooks": '
                              "true}'`.\n"
                              '\n'
@@ -627,7 +627,7 @@ HOOKS_MODULE = {'key': 'hooks',
                      'betonen.'},
             {'type': 'reflect',
              'id': 'reflect-1',
-             'payload': {'prompt_de': 'Welche Regel in deinem Team wird heute nur „hoffentlich” '
+             'payload': {'prompt_de': 'Welche Regel in deinem Team wird heute nur „hoffentlich“ '
                                       'eingehalten und wäre als Hook (z.B. '
                                       'Lint/Format/Testschranke) besser aufgehoben?',
                          'prompt_en': 'Which rule on your team is only "hopefully" followed today '
@@ -643,7 +643,7 @@ HOOKS_MODULE = {'key': 'hooks',
                                             'Wenn es nur eine unverbindliche Empfehlung ist',
                                             'Nie, Hooks sind veraltet',
                                             'Nur für Kommentare'],
-                                     'en': ['When something must happen with a guarantee at a '
+                                     'en': ['When something must be guaranteed to happen at a '
                                             'fixed point',
                                             "When it's just a non-binding recommendation",
                                             'Never, hooks are deprecated',
@@ -773,7 +773,7 @@ HOOKS_MODULE = {'key': 'hooks',
                          'type': 'multi',
                          'prompt': {'de': 'Ein PreToolUse-Hook soll einen Tool-Aufruf verweigern. '
                                           'Welche Wege funktionieren? (mehrere)',
-                                    'en': 'A PreToolUse hook should refuse a tool call. Which ways '
+                                    'en': 'A PreToolUse hook should refuse a tool call. Which approaches '
                                           'work? (multiple)'},
                          'answer': [0, 1],
                          'options': {'de': ['Mit Exit-Code 2 enden und die Begründung auf stderr '
@@ -834,5 +834,5 @@ HOOKS_MODULE = {'key': 'hooks',
                                          'en': 'PostToolUse fires after the successful tool call '
                                                'and can no longer prevent or undo it. Exit 2 does '
                                                'show stderr to Claude, though — that is how a lint '
-                                               'hook gets the model to fix the errors. Preventing '
-                                               'needs PreToolUse.'}}]}}
+                                               'hook gets the model to fix the errors. To prevent '
+                                               'the edit, you need PreToolUse.'}}]}}

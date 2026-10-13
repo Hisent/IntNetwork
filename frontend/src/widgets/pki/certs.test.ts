@@ -145,4 +145,20 @@ describe('validateChain', () => {
     expect(r.ok).toBe(false)
     expect(r.problem).toBe('incomplete')
   })
+
+  it('eine Kette ohne Serverzertifikat am Anfang gilt nicht als gültig (Review 2026-10)', () => {
+    for (const chain of [[ROOT_VALID], [INTERMEDIATE_VALID, ROOT_VALID], [ROOT_VALID, INTERMEDIATE_VALID, LEAF_VALID]]) {
+      expect(validateChain(chain, TRUST_STORE, DEMO_NOW)).toEqual({ ok: false, problem: 'no-leaf' })
+    }
+  })
+
+  it('Kette ohne Intermediate (Leaf direkt an Root) liefert issuer-mismatch', () => {
+    expect(validateChain([LEAF_VALID, ROOT_VALID], TRUST_STORE, DEMO_NOW).problem).toBe('issuer-mismatch')
+  })
+
+  it('SHA-256-Fingerabdrücke aller Beispielzertifikate haben 32 Bytes', () => {
+    for (const c of [...CHAIN_POOL, LEAF_WRONG_NAME, LEAF_SELF_SIGNED]) {
+      expect(c.fingerprint).toMatch(/^([0-9A-F]{2}:){31}[0-9A-F]{2}$/)
+    }
+  })
 })

@@ -7,10 +7,10 @@ const PRESETS = ['www.nordwind-logistik.de', 'mail.nordwind-logistik.de', 'gibts
 
 const STR = {
   de: { title: 'DNS-Auflösung', domain: 'Domain', resolveBtn: 'Auflösen', result: 'Ergebnis',
-    noIp: 'Ergebnis: keine IP — Name nicht auflösbar.',
+    noIp: 'Ergebnis: keine IP — Name nicht auflösbar.', empty: 'Bitte einen Namen eingeben, z.B. www.nordwind-logistik.de.',
     challenge: 'Löse einen Namen auf, den es nicht gibt — schau, an welcher Station die Auflösung scheitert.' },
   en: { title: 'DNS Resolution', domain: 'Domain', resolveBtn: 'Resolve', result: 'Result',
-    noIp: 'Result: no IP — name could not be resolved.',
+    noIp: 'Result: no IP — name could not be resolved.', empty: 'Please enter a name, e.g. www.nordwind-logistik.de.',
     challenge: "Resolve a name that doesn't exist — see at which station the resolution fails." },
 } as const
 
@@ -29,6 +29,7 @@ export function Dns({ lang }: { lang: Lang }) {
           <input
             value={name}
             onChange={(e) => setName(e.target.value)}
+            onKeyDown={(e) => { if (e.key === 'Enter') setRes(resolve(name)) }}
             spellCheck={false}
             className="ml-1 w-64 border rounded px-2 py-1 text-sm font-mono"
           />
@@ -53,7 +54,8 @@ export function Dns({ lang }: { lang: Lang }) {
         ))}
       </div>
 
-      {res && (
+      {res && res.steps.length === 0 && <p role="alert" className="text-xs text-rose-700">{s.empty}</p>}
+      {res && res.steps.length > 0 && (
         <>
           <ol className="space-y-2 mb-3">
             {res.steps.map((step, i) => (
@@ -72,7 +74,7 @@ export function Dns({ lang }: { lang: Lang }) {
           <p className="text-xs text-slate-600">
             {res.ip ? (
               <>
-                {s.result}: <span className="font-mono text-slate-800">{name}</span> →{' '}
+                {s.result}: <span className="font-mono text-slate-800">{res.name}</span> →{' '}
                 <span className="font-mono text-teal-700">{res.ip}</span>
               </>
             ) : (
@@ -82,7 +84,7 @@ export function Dns({ lang }: { lang: Lang }) {
         </>
       )}
 
-      <ChallengeBox lang={lang} task={s.challenge} done={res !== null && !res.ip} />
+      <ChallengeBox lang={lang} task={s.challenge} done={res !== null && res.steps.length > 0 && !res.ip} />
     </div>
   )
 }

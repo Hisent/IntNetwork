@@ -149,7 +149,7 @@ NAC_AUTORISIERUNG_MODULE = {
                    'the standard outcome: the **quarantine VLAN** (for non-compliant but '
                    'generally known devices) or the **guest VLAN** (for unknown or external '
                    'devices). Both typically only allow restricted access — for example to the '
-                   'internet but not to internal resources, or only to the servers needed for '
+                   'Internet but not to internal resources, or only to the servers needed for '
                    'remediation.\n\n'
                    'For Nordwind Logistik, this is the catch-all layer: a device that matches '
                    'no other authorization rule does not end up openly in the production '
@@ -271,13 +271,13 @@ NAC_AUTORISIERUNG_MODULE = {
                 'pairs': [
                     {
                         'left_de': 'Firmen-Notebook, EAP-TLS, konform',
-                        'left_en': 'Company notebook, EAP-TLS, compliant',
+                        'left_en': 'Company laptop, EAP-TLS, compliant',
                         'right_de': 'VLAN 20 (Mitarbeiter) mit vollem Zugriff',
                         'right_en': 'VLAN 20 (employees) with full access',
                     },
                     {
                         'left_de': 'Firmen-Notebook, nicht konform',
-                        'left_en': 'Company notebook, non-compliant',
+                        'left_en': 'Company laptop, non-compliant',
                         'right_de': 'VLAN 99 (Quarantäne), nur Update-Server',
                         'right_en': 'VLAN 99 (quarantine), update servers only',
                     },
@@ -291,7 +291,7 @@ NAC_AUTORISIERUNG_MODULE = {
                         'left_de': 'Besucher-Smartphone am Portal',
                         'left_en': 'Visitor smartphone at the portal',
                         'right_de': 'VLAN 50 (Gast), nur Richtung Internet',
-                        'right_en': 'VLAN 50 (guest), toward the internet only',
+                        'right_en': 'VLAN 50 (guest), toward the Internet only',
                     },
                     {
                         'left_de': 'Privates Tablet nach Onboarding',
@@ -324,9 +324,9 @@ NAC_AUTORISIERUNG_MODULE = {
                  'Zuweisung in dasselbe VLAN wie die Etikettendrucker in der Lagerhalle',
              ],
              'options_en': [
-                 'Full access to the internal production network, like an employee notebook',
+                 'Full access to the internal production network, like an employee laptop',
                  'Assignment to a guest VLAN with heavily restricted access, typically only '
-                 'toward the internet',
+                 'toward the Internet',
                  'Assignment of a Security Group Tag with full TrustSec trust status',
                  'Assignment to the same VLAN as the label printers in the warehouse',
              ],
@@ -626,7 +626,7 @@ NAC_AUTORISIERUNG_MODULE = {
             'answer': [0, 1, 3],
             'explanation': {
                 'de': 'Vorab auf dem Switch liegen muss nur die named ACL (Filter-Id); die downloadable ACL liefert der Server mit. Dass ein VLAN-Wechsel eine neue Adresse erfordert, ist der Grund, warum für nachträgliche Änderungen oft die dACL getauscht wird.',
-                'en': 'Only the named ACL (Filter-Id) has to exist on the switch beforehand; the downloadable ACL is delivered by the server. That a VLAN change requires a new address is the reason why the dACL is often swapped for later changes.',
+                'en': 'Only the named ACL (Filter-Id) has to exist on the switch beforehand; the downloadable ACL is delivered by the server. That a VLAN change requires a new address is the reason why, for later changes, the dACL is often swapped instead of the VLAN.',
             },
         },
     ]},

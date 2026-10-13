@@ -62,7 +62,9 @@ function showMacTable(ports: Port[]): string {
   const lines = ['Vlan    Mac Address       Ports', '----    -----------       -----']
   ports.forEach((p, i) => {
     if (p.mode === 'access') {
-      const mac = `0011.22${String(i + 1).padStart(2, '0')}.00${String(p.vlan).padStart(2, '0')}`
+      // Die MAC gehört zum angeschlossenen Gerät, nicht zum VLAN: Sie bleibt gleich, wenn der
+      // Port das VLAN wechselt (früher hing sie an der VLAN-ID und wurde ab VLAN 100 ungültig).
+      const mac = `0011.2233.44${String(i + 1).padStart(2, '0')}`
       lines.push(`${String(p.vlan).padEnd(8)}${mac}    ${iface(i)}`)
     }
   })
@@ -78,12 +80,13 @@ const help = (lang: 'de' | 'en') => [
 ].join('\n')
 
 export function runSwitchCommand(ports: Port[], raw: string, lang: 'de' | 'en' = 'de'): string {
-  const cmd = raw.trim().toLowerCase().replace(/\s+/g, ' ')
+  // IOS-Kurzform: sh / sho / show
+  const cmd = raw.trim().toLowerCase().replace(/\s+/g, ' ').replace(/^sh(o|ow)? /, 'show ')
   if (!cmd) return ''
   if (cmd === '?' || cmd === 'help') return help(lang)
   if (cmd === 'show vlan' || cmd === 'show vlan brief') return showVlan(ports)
   if (cmd === 'show running-config' || cmd === 'show run') return showRunningConfig(ports)
   if (cmd === 'show interfaces status' || cmd === 'show int status') return showInterfacesStatus(ports)
-  if (cmd === 'show mac address-table') return showMacTable(ports)
+  if (cmd === 'show mac address-table' || cmd === 'show mac add') return showMacTable(ports)
   return `% Invalid input detected\n${lang === 'de' ? 'Tippe ? für die Befehlsliste.' : 'Type ? for the command list.'}`
 }

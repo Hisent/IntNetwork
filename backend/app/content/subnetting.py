@@ -12,7 +12,7 @@ SUBNETTING_MODULE = {
     "goals_en": [
         "Split an IP address into its network and host parts",
         "Determine network address, broadcast address and usable hosts from the prefix",
-        "Recognise whether a destination is on the same network or has to go via the router",
+        "Recognize whether a destination is on the same network or has to go via the router",
     ],
     "scenario": {
         "de": "Nordwind wächst: Lager, Büro und Gäste-WLAN sollen eigene "
@@ -76,7 +76,7 @@ SUBNETTING_MODULE = {
                    "- `/27` = `255.255.255.224` — 30 hosts\n"
                    "- `/28` = `255.255.255.240` — 14 hosts\n"
                    "- `/30` = `255.255.255.252` — 2 hosts\n\n"
-                   "In config masks (`ipconfig`, routers) you almost always encounter the "
+                   "In configuration screens (`ipconfig`, routers) you almost always encounter the "
                    "decimal form — you should be able to read both notations fluently.",
          }},
         {"type": "check", "id": "check-mask-notation", "payload": {
@@ -197,7 +197,7 @@ SUBNETTING_MODULE = {
                    "this by calculating the network part for **its own IP** and the **destination IP** "
                    "(IP address AND mask).\n\n"
                    "- **Same result:** Both devices are in the same subnet. The packet goes directly "
-                   "to the destination host; the switch forwards it at Layer 2.\n"
+                   "to the destination host; the switch forwards it at layer 2.\n"
                    "- **Different result:** The destination is in another subnet. The packet first "
                    "goes to the **default gateway** (the router), which forwards it.\n\n"
                    "Example: `192.168.10.37/24` reaches `192.168.10.80` directly. For "
@@ -257,7 +257,7 @@ SUBNETTING_MODULE = {
              "de": "Der Switch stellt nur innerhalb des eigenen Netzes zu. Für ein fremdes Netz übergibt der "
                    "Host den Frame an sein Standard-Gateway, das weiterleitet. Ein Broadcast würde nicht "
                    "helfen: Er endet am Router.",
-             "en": "The switch only delivers within the local network. For a foreign network the host hands "
+             "en": "The switch only delivers within the local network. For another network the host hands "
                    "the frame to its default gateway, which forwards it. A broadcast would not help: it "
                    "stops at the router."}},
         {"id": "n5", "type": "number",
@@ -293,7 +293,7 @@ SUBNETTING_MODULE = {
                    "— sie entscheiden nur bei /24.",
              "en": "With /26 the block size is 64: .70 lies in network .64–.127, .130 in network "
                    ".128–.191. Different networks, so via the gateway. The identical first three octets "
-                   "are misleading — they only decide for /24."}},
+                   "are misleading — they are only decisive for /24."}},
         {"id": "n7", "type": "multi",
          "prompt": {"de": "Welche dieser Adressen kann man im Netz 192.168.10.64/27 an ein Gerät "
                           "vergeben? (mehrere)",
@@ -309,7 +309,7 @@ SUBNETTING_MODULE = {
                    "(Broadcast), vergebbar sind .65 bis .94. Die .96 ist bereits die Netzadresse des "
                    "nächsten /27.",
              "en": "/27 has a block size of 32: the network runs from .64 (network address) to .95 "
-                   "(broadcast), assignable are .65 to .94. The .96 is already the network address of "
+                   "(broadcast); .65 to .94 are assignable. Address .96 is already the network address of "
                    "the next /27."}},
     ]},
 }

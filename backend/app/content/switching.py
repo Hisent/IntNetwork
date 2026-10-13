@@ -30,8 +30,8 @@ SWITCHING_MODULE = {
                    "sein; Virtualisierung, Zufalls-MACs und Spoofing können Ausnahmen erzeugen. "
                    "Ein Switch arbeitet mit diesen Adressen — nicht mit IPs.",
              "en": "## MAC Addresses\n\nA network card has a **MAC address** "
-                   "(Layer 2). Within one Layer-2 domain it should be unique; virtualisation, "
-                   "randomised MACs and spoofing can create exceptions. A switch works with these "
+                   "(layer 2). Within one layer-2 domain it should be unique; virtualization, "
+                   "randomized MACs and spoofing can create exceptions. A switch works with these "
                    "addresses, not with IPs.",
          },
          "note": "Analogie: MAC = fest eingebaute Seriennummer der Netzwerkkarte, "

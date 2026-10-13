@@ -56,4 +56,20 @@ describe('runCommand', () => {
     expect(result.output).toContain('README.md')
     expect(runTerminalCommand(result.state, 'pwd', 'en').output).toBe('/workspace')
   })
+
+  it('only shell commands go to the virtual shell; free text is a task for Claude (review 2026-10)', async () => {
+    const { isTerminalCommand } = await import('./claudeCli')
+    for (const cmd of ['ls', 'cat README.md', '  echo hi > a.txt', 'clear']) expect(isTerminalCommand(cmd)).toBe(true)
+    for (const cmd of ['fix the failing test', '/context', '', 'lsx']) expect(isTerminalCommand(cmd)).toBe(false)
+  })
+
+  it('cat and touch ignore inherited object properties and survive extreme input', () => {
+    const state = createTerminalState()
+    for (const name of ['constructor', 'toString', '__proto__']) {
+      expect(runTerminalCommand(state, 'cat ' + name, 'en').output).toBe('File not found: ' + name)
+      expect(runTerminalCommand(state, 'touch ' + name, 'en').state.files[name]).toBe('')
+    }
+    expect(typeof runTerminalCommand(state, 'echo ' + 'x'.repeat(100_000), 'en').output).toBe('string')
+    expect(runTerminalCommand(state, '   ', 'en').output).toBe('')
+  })
 })

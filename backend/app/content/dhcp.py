@@ -58,8 +58,8 @@ DHCP_MODULE = {
                    "port **68**. How Offer and Ack reach the client is decided by the "
                    "**broadcast flag** in its request: if it is set, the server sends them as a "
                    "broadcast to `255.255.255.255`; if it is not set, as unicast to the client's "
-                   "MAC address and the offered IP. Clients set the flag when they cannot accept "
-                   "unicast packets yet as long as their IP is not configured.",
+                   "MAC address and the offered IP. The flag is set by clients that cannot yet accept "
+                   "unicast packets as long as their IP is not configured.",
          }},
         {"type": "diagram", "id": "diagram-dora",
          "note": "Schritt für Schritt durchklicken. Bei Schritt 3 fragen: Warum sendet der Client "
@@ -140,7 +140,7 @@ DHCP_MODULE = {
                    "period of time** (lease time) and must be renewed before it expires, "
                    "otherwise it becomes free again — so addresses aren't permanently lost. The range the server assigns from is "
                    "called the **pool** (e.g. `192.168.10.100–199`). Important devices like printers or "
-                   "servers often get a **reservation**: DHCP assigns them the same address based on "
+                   "servers often get a **reservation**: DHCP always assigns them the same address based on "
                    "their client ID/MAC. Alternatively, an address can be configured statically on the device.",
          }},
         {"type": "diagram", "id": "diagram-adressvergabe",
@@ -155,7 +155,7 @@ DHCP_MODULE = {
                  {"title_de": "Statisch am Gerät", "title_en": "Static on the device"},
              ],
              "rows": [
-                 {"label_de": "Konfiguriert wird", "label_en": "Configured",
+                 {"label_de": "Konfiguriert wird", "label_en": "What is configured",
                   "values_de": ["nur der Pool am Server", "ein Eintrag je Gerät am Server",
                                 "jedes Gerät einzeln von Hand"],
                   "values_en": ["only the pool on the server", "one entry per device on the server",
@@ -249,7 +249,7 @@ DHCP_MODULE = {
                    "die Lease-Dauer). Die MAC-Adresse bringt das Gerät selbst mit — sie ist das, woran der "
                    "Server es erkennt, nicht etwas, das er vergibt.",
              "en": "DHCP delivers the complete IP configuration: address, mask, gateway, DNS server (and the "
-                   "lease time). The device brings its own MAC address — that is how the server recognises "
+                   "lease time). The device brings its own MAC address — that is how the server recognizes "
                    "it, not something the server assigns."}},
         {"id": "h2", "type": "single",
          "prompt": {"de": "Wofür steht DORA?", "en": "What does DORA stand for?"},
@@ -264,7 +264,7 @@ DHCP_MODULE = {
              "de": "Discover, Offer, Request, Ack — abwechselnd Client, Server, Client, Server. Die "
                    "Reihenfolge trägt die Logik: suchen, anbieten, annehmen, bestätigen.",
              "en": "Discover, Offer, Request, Ack — alternating client, server, client, server. The order "
-                   "carries the logic: search, offer, accept, confirm."}},
+                   "reflects the logic: search, offer, accept, confirm."}},
         {"id": "h3", "type": "single",
          "prompt": {"de": "Wie startet ein Client die Suche nach einem DHCP-Server?",
                     "en": "How does a client start looking for a DHCP server?"},
@@ -278,7 +278,7 @@ DHCP_MODULE = {
                    "ansprechen und ruft per Broadcast. DNS oder ein Unicast an den Router setzen eine "
                    "fertige IP-Konfiguration voraus, die er ja gerade erst bekommen will.",
              "en": "The client has no IP yet and knows no server — so it cannot address anyone specifically "
-                   "and calls out by broadcast. DNS or a unicast to the router presuppose a finished IP "
+                   "and calls out by broadcast. DNS or a unicast to the router requires a complete IP "
                    "configuration, which is exactly what it is trying to obtain."}},
         {"id": "h4", "type": "single",
          "prompt": {"de": "Was ist ein Lease?", "en": "What is a lease?"},
@@ -369,8 +369,8 @@ DHCP_MODULE = {
                    "übrigen Parameter weiter vom Server. Die statische Konfiguration am Gerät hält die "
                    "Adresse zwar auch fest, aber Gateway- oder DNS-Änderungen müsste man dann an jedem "
                    "solchen Gerät einzeln nachziehen.",
-             "en": "With a reservation the printer always receives the same address via DHCP — and all "
-                   "other parameters still from the server. Static configuration on the device also "
+             "en": "With a reservation the printer always receives the same address via DHCP — and still "
+                   "gets all other parameters from the server. Static configuration on the device also "
                    "pins the address, but gateway or DNS changes would then have to be repeated on every "
                    "such device individually."}},
     ]},

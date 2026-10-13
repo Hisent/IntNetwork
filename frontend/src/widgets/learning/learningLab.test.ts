@@ -14,4 +14,13 @@ describe('LearningLab logic', () => {
     expect(isValidAddressFilter('(ip.dst==192.168.20.34)||(ip.src==192.168.20.34)')).toBe(true)
     expect(isValidAddressFilter('ip.addr == 192.168.20.35')).toBe(false)
   })
+
+  it('accepts the word operators eq/or and rejects one-sided or malformed filters', () => {
+    expect(isValidAddressFilter('ip.addr eq 192.168.20.34')).toBe(true)
+    expect(isValidAddressFilter('ip.src == 192.168.20.34 or ip.dst == 192.168.20.34')).toBe(true)
+    expect(isValidAddressFilter('  IP.ADDR==192.168.20.34  ')).toBe(true)
+    for (const bad of ['', 'ip.src == 192.168.20.34', 'ip.dst == 192.168.20.34', 'ip.src == 192.168.20.34 && ip.dst == 192.168.20.34',
+      'ip.addr = 192.168.20.34', 'ip.addr == 192.168.20.340', 'tcp.port == 192.168.20.34', 'x'.repeat(10000)])
+      expect(isValidAddressFilter(bad)).toBe(false)
+  })
 })

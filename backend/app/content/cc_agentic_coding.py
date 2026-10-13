@@ -125,7 +125,7 @@ AGENTIC_CODING_MODULE = {'key': 'agentic-coding',
                                                     'Tool-Aufruf liefert neue Information für den '
                                                     'nächsten Schritt.',
                                        'detail_en': 'The result lands in the context window. Every '
-                                                    'tool use provides new information for the '
+                                                    'tool call provides new information for the '
                                                     'next step.'},
                                       {'from': 'c',
                                        'to': 'c',
@@ -142,7 +142,7 @@ AGENTIC_CODING_MODULE = {'key': 'agentic-coding',
                                        'detail_de': 'Handeln: Datei lesen, dann gezielt ändern. Je '
                                                     'nach Berechtigungsmodus fragt Claude Code '
                                                     'vorher um Erlaubnis.',
-                                       'detail_en': 'Take action: read the file, then change it. '
+                                       'detail_en': 'Take action: read the file, then make a targeted change. '
                                                     'Depending on the permission mode, Claude Code '
                                                     'asks first.'},
                                       {'from': 'c',

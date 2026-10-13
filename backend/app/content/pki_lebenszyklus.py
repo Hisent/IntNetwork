@@ -41,7 +41,7 @@ LEBENSZYKLUS_MODULE = {
     },
     'blocks': [
         {'type': 'text', 'id': 'text-1',
-         'note': 'Diesen Block als Landkarte fuer das gesamte Modul nutzen - jeder folgende '
+         'note': 'Diesen Block als Landkarte für das gesamte Modul nutzen - jeder folgende '
                  'Block vertieft einen der hier genannten Schritte.',
          'value': {
              'de': '## Der Lebenszyklus im Überblick\n\n'
@@ -60,7 +60,7 @@ LEBENSZYKLUS_MODULE = {
                    'anfordern.\n\n'
                    'Die folgenden Blöcke gehen die einzelnen Stationen im Detail durch.',
              'en': '## The Lifecycle at a Glance\n\n'
-                   'A certificate always passes through the same stations in operation:\n\n'
+                   'A certificate always passes through the same steps in operation:\n\n'
                    '1. **Generate a key pair** - private and public key, locally on the '
                    'target system.\n'
                    '2. **Create a CSR** (Certificate Signing Request) - contains the public '
@@ -73,11 +73,11 @@ LEBENSZYKLUS_MODULE = {
                    '6. **Monitoring** - keep an eye on the expiration date.\n'
                    '7. **Renewal** - request a new certificate in good time before '
                    'expiration.\n\n'
-                   'The following blocks go through each station in detail.',
+                   'The following blocks go through each step in detail.',
          }},
         {'type': 'diagram', 'id': 'diagram-lebenszyklus',
          'note': ('Als Landkarte nutzen: Schritte durchklicken, dabei betonen, dass die Erneuerung wieder oben '
-             'einsteigt - der Zyklus endet nie, er wird nur kuerzer.'),
+             'einsteigt - der Zyklus endet nie, er wird nur kürzer.'),
          'payload': {
              'kind': 'flow',
              'title_de': 'Der Zertifikats-Lebenszyklus als Kreislauf',
@@ -131,8 +131,7 @@ LEBENSZYKLUS_MODULE = {
                      'highlight': ['csr', 'e2', 'val'],
                      'text_de': ('Die CA prüft je nach Typ die Kontrolle über die Domain (DV) oder zusätzlich die '
                          'Organisation (OV/EV).'),
-                     'text_en': ('Depending on the type, the CA checks control over the domain (DV) or additionally the '
-                         'organization (OV/EV).'),
+                     'text_en': ('Depending on the type, the CA checks control over the domain (DV) or, in addition, the organization (OV/EV).'),
                     },
                     {
                      'highlight': ['val', 'e3', 'iss'],
@@ -144,21 +143,20 @@ LEBENSZYKLUS_MODULE = {
                      'highlight': ['iss', 'e4', 'inst'],
                      'text_de': ('Auf dem Server werden Zertifikat UND Intermediate eingespielt — die häufigste '
                          'Fehlerquelle ist die unvollständige Kette.'),
-                     'text_en': ('Certificate AND intermediate are installed on the server — the most common source of '
-                         'error is the incomplete chain.'),
+                     'text_en': ('Certificate AND intermediate are installed on the server — the most common source of error is an incomplete chain.'),
                     },
                     {
                      'highlight': ['inst', 'e5', 'mon'],
                      'text_de': ('Ab jetzt läuft die Uhr: Ablaufdatum überwachen, von außen und unabhängig vom '
                          'Erneuerungsmechanismus.'),
-                     'text_en': ('The clock is now ticking: monitor the expiry date, from outside and independently of '
+                     'text_en': ('The clock is now ticking: monitor the expiration date, from outside and independently of '
                          'the renewal mechanism.'),
                     },
                     {
                      'highlight': ['mon', 'e6', 'ren', 'e7', 'csr'],
                      'text_de': ('Rechtzeitig vor Ablauf (Faustregel: nach zwei Dritteln der Laufzeit) beginnt der '
                          'Zyklus mit einem neuen CSR von vorn — bei 47 Tagen etwa alle 31 Tage.'),
-                     'text_en': ('In good time before expiry (rule of thumb: after two thirds of the lifetime) the '
+                     'text_en': ('In good time before expiration (rule of thumb: after two thirds of the lifetime) the '
                          'cycle starts over with a new CSR — at 47 days roughly every 31 days.'),
                     },
                 ],
@@ -194,7 +192,7 @@ LEBENSZYKLUS_MODULE = {
                    'generated locally, signs the CSR locally, and stays local. Only the CSR '
                    'with the public key goes to the CA. A workflow where the private key is '
                    'sent by email or ticket to a CA or another team is no longer a CSR '
-                   'workflow - it is an operational error (see further below).',
+                   'workflow - it is an operational error (see below).',
          }},
         {'type': 'order', 'id': 'order-1',
          'payload': {
@@ -245,8 +243,7 @@ LEBENSZYKLUS_MODULE = {
                    'register or similar).\n'
                    '- **EV (Extended Validation)** - the most thorough check of '
                    'organization, legal existence, and operational activity.\n\n'
-                   'A sober fact for practice: **in current browsers, EV delivers barely '
-                   'any visible difference** compared to DV/OV - the once-prominent green '
+                   'The sober reality in practice: **in current browsers, EV makes barely any visible difference** compared to DV/OV - the once-prominent green '
                    'company name in the address bar has practically disappeared. Today, '
                    'the extra effort for EV is justified more by compliance or industry '
                    'reasons than by a security or visibility gain in the browser.',
@@ -255,7 +252,7 @@ LEBENSZYKLUS_MODULE = {
          'payload': {
              'kind': 'choice',
              'prompt_de': 'Was prüft eine CA bei einer reinen Domain Validation (DV)?',
-             'prompt_en': 'What does a CA check for a pure Domain Validation (DV)?',
+             'prompt_en': 'What does a CA check in a pure domain validation (DV)?',
              'answer': 1,
              'options_de': [
                  'Handelsregistereintrag und rechtliche Existenz der Organisation',
@@ -272,14 +269,14 @@ LEBENSZYKLUS_MODULE = {
          }},
         {'type': 'text', 'id': 'text-4',
          'note': ('Stufen 200/100/47 Tage stehen so in den Baseline Requirements des CA/Browser Forums (Abschnitt '
-             '1.2.2 "Relevant Dates"); die erste Stufe (200 Tage) gilt seit dem 15. Maerz 2026.'),
+             '1.2.2 "Relevant Dates"); die erste Stufe (200 Tage) gilt seit dem 15. März 2026.'),
          'value': {
              'de': ('## Der Stufenplan zur Laufzeitverkürzung (Ballot SC-081v3)\n\nDas CA/Browser Forum hat mit '
                  '**Ballot SC-081v3** (verabschiedet am 11. April 2025) einen mehrstufigen Plan zur Verkürzung '
                  'der maximalen TLS-Zertifikatslaufzeit beschlossen - ausgehend von zuvor 398 Tagen:\n\n- seit '
                  '**15. März 2026**: 200 Tage\n- ab **15. März 2027**: 100 Tage\n- ab **15. März 2029**: 47 '
                  'Tage\n\nDie erste Stufe ist also bereits in Kraft. Die Stufen sind in den Baseline '
-                 'Requirements des CA/Browser Forums festgeschrieben (Abschnitt „Relevant Dates").\n\nParallel '
+                 'Requirements des CA/Browser Forums festgeschrieben (Abschnitt „Relevant Dates“).\n\nParallel '
                  'dazu sinkt auch die Wiederverwendbarkeit von Domain-Validierungsdaten im selben Takt: von 398 '
                  'auf 200 Tage (seit 2026), 100 Tage (ab 2027) und schließlich 10 Tage (ab 2029).\n\nEinzelne '
                  "CAs gehen schneller vor als vorgeschrieben: Let's Encrypt bietet seit Mai 2026 wahlweise "
@@ -287,16 +284,16 @@ LEBENSZYKLUS_MODULE = {
                  'Februar 2028 auf 45 Tage.\n\n**Konsequenz für den Betrieb:** Bei Laufzeiten von wenigen '
                  'Wochen ist manuelle Erneuerung schlicht nicht mehr durchhaltbar. Automatisierung (z. B. via '
                  'ACME) wird vom Komfort-Feature zur Betriebsnotwendigkeit.'),
-             'en': ('## The Roadmap for Shortening Validity Periods (Ballot SC-081v3)\n\nThe CA/Browser Forum '
+             'en': ('## The Staged Plan for Shortening Validity Periods (Ballot SC-081v3)\n\nThe CA/Browser Forum '
                  'adopted **Ballot SC-081v3** (passed on April 11, 2025), a multi-stage plan to shorten the '
                  'maximum TLS certificate validity period - starting from the previous 398 days:\n\n- since '
                  '**March 15, 2026**: 200 days\n- from **March 15, 2027**: 100 days\n- from **March 15, 2029**: '
                  '47 days\n\nSo the first stage is already in force. The stages are laid down in the CA/Browser '
                  'Forum Baseline Requirements ("Relevant Dates" section).\n\nIn parallel, the reusability of '
-                 'domain validation data drops in the same rhythm: from 398 to 200 days (since 2026), 100 days '
+                 'domain validation data drops on the same schedule: from 398 to 200 days (since 2026), 100 days '
                  '(from 2027), and finally 10 days (from 2029).\n\nIndividual CAs move faster than required: '
-                 "Let's Encrypt has offered optional 45-day certificates since May 2026, lowers its default "
-                 'lifetime from 90 to 64 days in February 2027, and to 45 days in February '
+                 "Let's Encrypt has offered optional 45-day certificates since May 2026, will lower its default "
+                 'lifetime from 90 to 64 days in February 2027 and to 45 days in February '
                  '2028.\n\n**Consequence for operations:** with validity periods of just a few weeks, manual '
                  'renewal is simply no longer sustainable. Automation (e.g. via ACME) turns from a convenience '
                  'feature into an operational necessity.'),
@@ -305,7 +302,7 @@ LEBENSZYKLUS_MODULE = {
         {'type': 'diagram', 'id': 'diagram-laufzeit-stufen',
          'note': ('Zahlen aus den Baseline Requirements (Ballot SC-081v3). Die Zeile "Erneuerungen pro Jahr" ist '
              'gerechnet (365 / Laufzeit, aufgerundet) und geht von voll ausgenutzter Laufzeit aus - in der '
-             'Praxis wird frueher erneuert.'),
+             'Praxis wird früher erneuert.'),
          'payload': {
              'kind': 'compare',
              'title_de': 'Stufenplan für öffentliche TLS-Zertifikate',
@@ -340,7 +337,7 @@ LEBENSZYKLUS_MODULE = {
                      'label_de': 'Von Hand machbar?',
                      'label_en': 'Feasible by hand?',
                      'values_de': ['ja', 'mühsam', 'kaum', 'nein'],
-                     'values_en': ['yes', 'tedious', 'hardly', 'no'],
+                     'values_en': ['yes', 'tedious', 'barely', 'no'],
                     },
                 ],
             },
@@ -381,7 +378,7 @@ LEBENSZYKLUS_MODULE = {
                    'fehlenden Zertifikate zwischenspeichern) funktionieren trotzdem, andere '
                    'melden `unable to get local issuer certificate`.\n'
                    '- **Privater Schlüssel per E-Mail verschickt** - z. B. eine '
-                   '.pfx-Datei an ein anderes Team, „damit es schneller geht". Damit ist '
+                   '.pfx-Datei an ein anderes Team, „damit es schneller geht“. Damit ist '
                    'der Schlüssel nicht mehr ausschließlich in der Hand des Zielsystems - '
                    'ein Bruch des Grundprinzips, dass der private Schlüssel die Maschine '
                    'nie verlässt.',
@@ -397,7 +394,7 @@ LEBENSZYKLUS_MODULE = {
                    '`unable to get local issuer certificate`.\n'
                    '- **Private key sent by email** - e.g. a .pfx file to another team, "to '
                    'speed things up". This means the key is no longer exclusively in the '
-                   'hands of the target system - a break of the basic principle that the '
+                   'hands of the target system - a violation of the basic principle that the '
                    'private key never leaves the machine.',
          }},
         {'type': 'scenario', 'id': 'scenario-47-tage-planen',
@@ -410,12 +407,11 @@ LEBENSZYKLUS_MODULE = {
                      'id': 'start',
                      'text_de': ('Nordwind betreibt 120 öffentliche TLS-Zertifikate, bisher einmal jährlich von Hand '
                          'erneuert. Die IT-Leitung fragt nach einem Plan bis 2029. Womit beginnst du?'),
-                     'text_en': ('Nordwind runs 120 public TLS certificates, so far renewed by hand once a year. IT '
-                         'management asks for a plan up to 2029. Where do you start?'),
+                     'text_en': ('Nordwind runs 120 public TLS certificates, so far renewed by hand once a year. IT management asks for a plan through 2029. Where do you start?'),
                      'options': [
                             {
                              'label_de': 'Einen Kalender mit allen Ablaufterminen pflegen und mehr Personal einplanen',
-                             'label_en': 'Maintain a calendar of all expiry dates and plan for more staff',
+                             'label_en': 'Maintain a calendar of all expiration dates and plan for more staff',
                              'to': 'kalender',
                             },
                             {
@@ -437,8 +433,7 @@ LEBENSZYKLUS_MODULE = {
                      'outcome': 'bad',
                      'text_de': ('Bei 47 Tagen sind das rund 960 Erneuerungen im Jahr — etwa vier pro Arbeitstag, jede '
                          'mit Ausfallrisiko. Mehr Personal skaliert hier nicht.'),
-                     'text_en': ('At 47 days that is roughly 960 renewals a year — about four per working day, each '
-                         'with outage risk. More staff does not scale here.'),
+                     'text_en': ('At 47 days that is roughly 960 renewals a year — about four per working day, each carrying a risk of outage. More staff does not scale here.'),
                     },
                     {
                      'id': 'vorrat',
@@ -446,15 +441,14 @@ LEBENSZYKLUS_MODULE = {
                      'text_de': ('Die Obergrenze richtet sich nach dem Ausstellungsdatum: Mehr als 200 Tage (ab März '
                          '2027: 100) stellt keine öffentliche CA mehr aus. Auf Vorrat kaufen verschiebt das '
                          'Problem um Monate, nicht um Jahre.'),
-                     'text_en': ('The cap follows the issuance date: no public CA issues more than 200 days (from March '
-                         '2027: 100) anymore. Buying in advance postpones the problem by months, not years.'),
+                     'text_en': ('The cap depends on the issuance date: no public CA issues certificates valid for more than 200 days (from March 2027: 100) anymore. Buying in advance postpones the problem by months, not years.'),
                     },
                     {
                      'id': 'inventar',
                      'text_de': ('Das Inventar zeigt: 95 Zertifikate liegen auf Webservern und Loadbalancern mit '
                          'ACME-Unterstützung, 25 auf Altgeräten ohne. Wie gehst du vor?'),
                      'text_en': ('The inventory shows: 95 certificates sit on web servers and load balancers with ACME '
-                         'support, 25 on legacy devices without. How do you proceed?'),
+                         'support, 25 on legacy devices without it. How do you proceed?'),
                      'options': [
                             {
                              'label_de': ('Die 95 jetzt auf ACME umstellen; für die 25 Ersatz, vorgeschalteten Proxy '
@@ -465,7 +459,7 @@ LEBENSZYKLUS_MODULE = {
                             },
                             {
                              'label_de': 'Mit allem warten, bis 2029 die 47 Tage wirklich gelten',
-                             'label_en': 'Wait with everything until the 47 days really apply in 2029',
+                             'label_en': 'Hold off on everything until the 47 days actually apply in 2029',
                              'to': 'warten',
                             },
                         ],
@@ -475,8 +469,7 @@ LEBENSZYKLUS_MODULE = {
                      'outcome': 'bad',
                      'text_de': ('Die 100-Tage-Stufe greift schon im März 2027 und vervierfacht den Aufwand. Wer bis '
                          '2029 wartet, übt die Automatisierung unter maximalem Druck.'),
-                     'text_en': ('The 100-day stage already applies in March 2027 and quadruples the effort. Whoever '
-                         'waits until 2029 practices automation under maximum pressure.'),
+                     'text_en': ('The 100-day stage takes effect as early as March 2027 and quadruples the effort. Whoever waits until 2029 will be learning automation under maximum pressure.'),
                     },
                     {
                      'id': 'stufen',
@@ -484,9 +477,7 @@ LEBENSZYKLUS_MODULE = {
                      'text_de': ('Genau so: früh automatisieren, wo es geht, und die schwierigen Fälle mit Vorlauf '
                          'lösen. Dazu gehört eine Ablaufüberwachung, die unabhängig vom ACME-Client prüft, ob '
                          'die Erneuerung wirklich angekommen ist.'),
-                     'text_en': ('Exactly: automate early where possible and solve the hard cases with lead time. This '
-                         'includes expiry monitoring that checks independently of the ACME client whether the '
-                         'renewal actually arrived.'),
+                     'text_en': ('Exactly right: automate early where possible and solve the hard cases with lead time. This includes expiration monitoring that checks independently of the ACME client whether the renewal actually went through.'),
                     },
                 ],
             },
@@ -502,18 +493,16 @@ LEBENSZYKLUS_MODULE = {
                  'signieren** bzw. **Mini-CA mit Intermediate + Kettenprüfung** — hier spielst du selbst die CA '
                  'und stellst aus dem CSR ein Zertifikat aus.\n\nPrüfe im CSR: Steht dort ein privater '
                  'Schlüssel? Eine Laufzeit? Ein Issuer? Was fehlt, legt erst die CA fest.'),
-             'en': ('## Try it yourself: from key to CSR\n\nYou can walk through the first two stations of the '
-                 'lifecycle yourself in the openssl lab below:\n\n- **Generate key + CSR** — the classic way '
+             'en': ('## Try it yourself: from key to CSR\n\nYou can walk through the first two steps of the lifecycle yourself in the openssl lab below:\n\n- **Generate key + CSR** — the classic way '
                  'with an RSA key.\n- **ECDSA/Ed25519 keys + CSR** — the same with elliptic curves; look for '
                  'the line `Certificate request self-signature verify OK` and the `Requested Extensions` '
                  'section with the SAN entries.\n- **Create your own CA and sign** or **Mini CA with '
                  'intermediate + chain check** — here you play the CA yourself and issue a certificate from the '
-                 'CSR.\n\nCheck in the CSR: is there a private key? A lifetime? An issuer? Whatever is missing '
-                 'is only set by the CA.'),
+                 'CSR.\n\nCheck the CSR: does it contain a private key? A lifetime? An issuer? Whatever is missing is set only by the CA.'),
             },
         },
         {'type': 'widget', 'id': 'openssl-lab',
-         'note': ('Vorlage "ECDSA-/Ed25519-Schluessel + CSR" waehlen lassen. Laeuft im Runner; ohne freigegebene Art '
+         'note': ('Vorlage "ECDSA-/Ed25519-Schlüssel + CSR" wählen lassen. Läuft im Runner; ohne freigegebene Art '
              '"openssl" zeigt das Widget einen Hinweis.'),
         },
         {'type': 'reflect', 'id': 'reflect-1',
@@ -523,7 +512,7 @@ LEBENSZYKLUS_MODULE = {
                           'sein, damit Erneuerung kein manueller Vorgang mehr ist?',
              'prompt_en': 'From March 2029, the maximum certificate validity period will be '
                           'only 47 days. What would Nordwind Logistik need to have built by '
-                          'then so renewal is no longer a manual process?',
+                          'then so that renewal is no longer a manual process?',
          }},
     ],
     'quiz': {'questions': [
@@ -598,7 +587,7 @@ LEBENSZYKLUS_MODULE = {
              ],
              'en': [
                  'EV still clearly displays the company name in the address bar',
-                 'EV delivers barely any visible difference compared to DV/OV',
+                 'EV makes barely any visible difference compared to DV/OV',
                  'Browsers fundamentally reject EV certificates',
                  'EV now completely replaces domain validation',
              ],
@@ -614,8 +603,7 @@ LEBENSZYKLUS_MODULE = {
         {'id': 'lz4', 'type': 'single',
          'prompt': {'de': 'Auf welchen Zielwert soll die maximale TLS-Zertifikatslaufzeit '
                           'laut Ballot SC-081v3 ab März 2029 sinken?',
-                    'en': 'To what target value should the maximum TLS certificate validity '
-                          'period drop from March 2029, according to Ballot SC-081v3?'},
+                    'en': 'According to Ballot SC-081v3, to what target value is the maximum TLS certificate validity period set to drop from March 2029?'},
          'answer': 2,
          'options': {
              'de': [
@@ -640,7 +628,7 @@ LEBENSZYKLUS_MODULE = {
         {'id': 'lz5', 'type': 'single',
          'prompt': {'de': 'Welches der folgenden Verhaltensweisen ist ein klassischer '
                           'Betriebsfehler beim Zertifikatsmanagement?',
-                    'en': 'Which of the following behaviors is a classic operational error '
+                    'en': 'Which of the following practices is a classic operational error '
                           'in certificate management?'},
          'answer': 1,
          'options': {
@@ -676,7 +664,7 @@ LEBENSZYKLUS_MODULE = {
              'de': ('Maßgeblich ist das Ausstellungsdatum: Ab dem 15. März 2027 gilt die 100-Tage-Stufe. 200 Tage '
                  'galten nur für Ausstellungen zwischen dem 15. März 2026 und dem 14. März 2027, 47 Tage gelten '
                  'erst ab dem 15. März 2029.'),
-             'en': ('The issuance date decides: from March 15, 2027 the 100-day stage applies. 200 days only '
+             'en': ('The issuance date is what counts: from March 15, 2027 the 100-day stage applies. 200 days only '
                  'applied to issuance between March 15, 2026 and March 14, 2027; 47 days apply only from March '
                  '15, 2029.'),
             },
@@ -715,7 +703,7 @@ LEBENSZYKLUS_MODULE = {
         {'id': 'lz8', 'type': 'multi',
          'prompt': {
              'de': 'Welche Angaben legt die CA bei der Ausstellung fest — sie stehen also NICHT verbindlich im CSR?',
-             'en': 'Which items does the CA determine at issuance — meaning they are NOT bindingly contained in the CSR?',
+             'en': 'Which items does the CA determine at issuance — meaning they are NOT fixed by the CSR?',
             },
          'options': {
              'de': [

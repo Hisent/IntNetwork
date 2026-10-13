@@ -12,9 +12,9 @@ VAULT_MODULE = {'key': 'ansible-vault',
            'Vault-IDs und Passwortdateien als Konzept einordnen',
            'Beurteilen, welche Geheimnisse niemals im Klartext ins Repo gehören'],
  'goals_en': ['Explain what ansible-vault is meant for and what it does NOT replace',
-              'Recognise encrypted values (`!vault` tag) in YAML',
+              'Recognize encrypted values (`!vault` tag) in YAML',
               'Choose the fitting ansible-vault subcommands for a given job',
-              'Place vault IDs and password files as a concept',
+              'Understand vault IDs and password files as concepts',
               'Judge which secrets never belong in the repo in plain text'],
  'scenario': {'de': 'Ein Rollen-Repo für die Webserver-Automatisierung wächst: Neben '
                     'Paketnamen und Portnummern tauchen jetzt auch ein Datenbank-Passwort und '
@@ -44,7 +44,7 @@ VAULT_MODULE = {'key': 'ansible-vault',
                              'sind dedizierte Werkzeuge (z. B. ein Vault-/Secrets-Dienst oder die '
                              'Credential-Verwaltung einer Automatisierungsplattform) zuständig. '
                              'Ansible Vault löst genau ein Problem: „Wie bekomme ich Geheimnisse '
-                             'sicher ins Repo, ohne sie im Klartext zu committen?”',
+                             'sicher ins Repo, ohne sie im Klartext zu committen?“',
                        'en': "## What Vault is for — and what it isn't\n"
                              '\n'
                              '`ansible-vault` encrypts files or individual values (passwords, API '
@@ -446,7 +446,7 @@ VAULT_MODULE = {'key': 'ansible-vault',
                              '`@prompt` asks for the password interactively; a path after the `@` '
                              'points to a **password file** (a text file containing only the '
                              'password, kept outside the repo, with restricted file permissions). '
-                             'Multiple `--vault-id` entries can be active at once — Ansible picks '
+                             'Multiple `--vault-id` entries can be active at once — Ansible tries '
                              'the one matching the label stored in the encrypted file.\n'
                              '\n'
                              'A default path to the password file can be set in `ansible.cfg` '
@@ -550,8 +550,8 @@ VAULT_MODULE = {'key': 'ansible-vault',
                              'nötige Passwort ab.',
                        'en': '## Interplay with credentials in the platform\n'
                              '\n'
-                             'When automation runs through an automation platform (Automation '
-                             'Controller, covered in later modules), its **credential '
+                             'When automation runs through an automation platform (automation '
+                             'controller, covered in later modules), its **credential '
                              'management** takes over part of what a vault password file does on '
                              'the command line: the vault password is stored there as its own '
                              'credential type, centrally, encrypted, and with fine-grained access '
@@ -579,7 +579,7 @@ VAULT_MODULE = {'key': 'ansible-vault',
                                          'en': '`encrypt` replaces the whole file with ciphertext '
                                                '— afterwards not even the YAML structure is '
                                                'readable. Single values are encrypted by '
-                                               '`encrypt_string`; `view` would only display.'},
+                                               '`encrypt_string`; `view` would only display it.'},
                          'type': 'single',
                          'prompt': {'de': 'Was verschlüsselt der Befehl '
                                           '`ansible-vault encrypt vars/secrets.yml`?',
@@ -729,7 +729,7 @@ VAULT_MODULE = {'key': 'ansible-vault',
                                                'Control Node. Die Datei vorher dauerhaft zu '
                                                'entschlüsseln, wäre genau der Fehler, den Vault '
                                                'verhindern soll.',
-                                         'en': 'Ansible found encrypted content but was given not '
+                                         'en': 'Ansible found encrypted content but was not given '
                                                'a single password to try. Supplying a password '
                                                'source is enough — decryption then happens in '
                                                'memory on the control node. Decrypting the file '
@@ -764,6 +764,6 @@ VAULT_MODULE = {'key': 'ansible-vault',
                                          'en': '`decrypt` writes the file back in plain text — the '
                                                'commit carries it into the repo. And a secret '
                                                'given as a command-line argument ends up in the '
-                                               'shell history; `--stdin-name` exists for that. '
+                                               'shell history; use `--stdin-name` to avoid that. '
                                                '`edit` and `view` leave the file encrypted on '
                                                'disk.'}}]}}

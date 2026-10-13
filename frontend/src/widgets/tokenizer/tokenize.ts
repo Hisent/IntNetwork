@@ -31,3 +31,11 @@ export function tokenize(text: string): Tok[] {
 export function tokenCount(text: string): number {
   return tokenize(text).length
 }
+
+export const EXAMPLES = {
+  sentence: 'Größere Änderungen brauchen präzise Anweisungen für Claude Code.',
+  code: 'function add(a, b) { return a + b; }',
+}
+
+/** Schwelle der Widget-Aufgabe — über beiden Beispielen, damit sie eigenes Tippen verlangt. */
+export const CHALLENGE_TOKENS = 40

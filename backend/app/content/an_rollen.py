@@ -15,10 +15,10 @@ ROLLEN_MODULE = {
            'Begründen, wann sich eine eigene Rolle lohnt'],
  'goals_en': ['Name the standard directory structure of a role and explain the purpose of each '
               'directory',
-              'Place ansible-galaxy init as the way to generate a role skeleton',
+              'Explain ansible-galaxy init as the way to generate a role skeleton',
               'Tell roles: in the playbook apart from include_role/import_role',
               'Distinguish defaults from vars by their precedence',
-              'Justify when a role of its own is worthwhile'],
+              'Explain when a separate role is worthwhile'],
  'scenario': {'de': 'Ein einzelnes Playbook ist über die Zeit auf 40 Tasks angewachsen: '
                     'Webserver-Setup, Datenbank-Setup und Monitoring-Agent, alles in einer '
                     'Datei, mit kopierten Task-Blöcken für unterschiedliche Projekte. Eine '
@@ -157,12 +157,12 @@ ROLLEN_MODULE = {
                              '`meta/main.yml` kann zusätzlich Abhängigkeiten zu anderen Rollen '
                              'deklarieren (`dependencies:`) — diese werden vor der eigenen Rolle '
                              'ausgeführt.',
-                       'en': '## defaults vs. vars — priority decides\n'
+                       'en': '## defaults vs. vars — precedence decides\n'
                              '\n'
-                             '- `defaults/main.yml` — the **lowest** priority of all variable '
+                             '- `defaults/main.yml` — the **lowest** precedence of all variable '
                              'sources. Meant for default values that role users are expected to '
                              'deliberately override (e.g. `http_port: 80`).\n'
-                             '- `vars/main.yml` — noticeably **higher** priority, meant for '
+                             '- `vars/main.yml` — much **higher** precedence, meant for '
                              'role-internal values that should not be accidentally overridden '
                              'from the outside.\n'
                              '\n'
@@ -362,7 +362,7 @@ ROLLEN_MODULE = {
                                                  'entscheidet einmal übers Einbinden'],
                                    'values_en': ['applies to every task of the role',
                                                  'applies to every task of the role',
-                                                 'decides once about including']},
+                                                 'decides once whether to include']},
                                   {'label': '--list-tasks',
                                    'values_de': ['zeigt die Rollen-Tasks',
                                                  'zeigt die Rollen-Tasks',
@@ -523,7 +523,7 @@ ROLLEN_MODULE = {
                                                'Verzeichnisnamens. Andere Namen oder Orte findet '
                                                'es nicht von selbst.',
                                          'en': '`tasks/main.yml` is the fixed entry point of a '
-                                               'role; Ansible loads it by the directory name. It '
+                                               'role; Ansible loads it based on the directory name. It '
                                                'does not find other names or locations on its own.'},
                          'type': 'single',
                          'prompt': {'de': 'Wo erwartet Ansible die Tasks einer Rolle?',
@@ -545,7 +545,7 @@ ROLLEN_MODULE = {
                          'type': 'single',
                          'prompt': {'de': 'Welche Variablenquelle hat die niedrigere Priorität: '
                                           'defaults oder vars?',
-                                    'en': 'Which variable source has the lower priority: '
+                                    'en': 'Which variable source has the lower precedence: '
                                           'defaults or vars?'},
                          'answer': 0,
                          'options': {'de': ['defaults', 'vars', 'Beide sind gleich',
@@ -583,8 +583,8 @@ ROLLEN_MODULE = {
                                                'beliebig oft verwenden und ersetzen `roles:` '
                                                'nicht.',
                                          'en': '`include_role` is evaluated only at runtime and '
-                                               'therefore supports `loop`; `import_role` is built '
-                                               'in while parsing. Both can be used as often as you '
+                                               'therefore supports `loop`; `import_role` is inserted '
+                                               'at parse time. Both can be used as often as you '
                                                'like and do not replace `roles:`.'},
                          'type': 'single',
                          'prompt': {'de': 'Was unterscheidet include_role von import_role vor '
@@ -611,7 +611,7 @@ ROLLEN_MODULE = {
                                                'Die Zahl der Hosts ist dafür unerheblich, und mit '
                                                'Vault hat die Entscheidung nichts zu tun.',
                                          'en': 'A role pays off as soon as reuse, division of '
-                                               'labour or clarity come into play. The number of '
+                                               'labor or clarity come into play. The number of '
                                                'hosts is irrelevant for this, and the decision has '
                                                'nothing to do with Vault.'},
                          'type': 'single',
@@ -695,8 +695,8 @@ ROLLEN_MODULE = {
                                                'ihn vervielfachen könnte.',
                                          'en': 'Ansible aborts with "You cannot use loops on '
                                                "'import_role' statements. You should use "
-                                               '\'include_role\' instead." (reproduced for real). '
-                                               'An import is built in while parsing — at that '
+                                               '\'include_role\' instead." (verified in a real run). '
+                                               'An import is inserted at parse time — at that '
                                                'point there is no loop yet that could multiply '
                                                'it.'}},
                         {'id': 'ro8',
@@ -725,8 +725,8 @@ ROLLEN_MODULE = {
                                                'Stelle eingebunden.',
                                          'en': 'The order of the keys in the play does not matter: '
                                                'Ansible always runs `pre_tasks`, then `roles`, '
-                                               'then `tasks`, then `post_tasks` (reproduced for '
-                                               'real). If something must run before a role, it '
+                                               'then `tasks`, then `post_tasks` (verified in a real '
+                                               'run). If something must run before a role, it '
                                                'belongs in `pre_tasks` — or the role is included '
                                                'at the right place with '
                                                '`import_role`/`include_role`.'}}]}}

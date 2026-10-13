@@ -72,6 +72,7 @@ export function checkCert(cert: Cert, hostname: string, now: Date): CertCheckRes
 }
 
 export type ChainProblem =
+  | 'no-leaf'
   | 'incomplete'
   | 'issuer-mismatch'
   | 'not-a-ca'
@@ -87,6 +88,8 @@ export interface ChainResult {
 /**
  * Prüft eine vom Teilnehmer zusammengeklickte Kette (Reihenfolge Leaf → ... → Root).
  * Reihenfolge der Prüfungen (erste zutreffende gewinnt):
+ *  0. Beginnt die Kette mit einem Endzertifikat (CA:FALSE)? Sonst no-leaf — geprüft
+ *     wird der Weg vom Serverzertifikat zur Root; "nur die Root" ist keine Kette.
  *  1. Passt Issuer von Glied i zum Subject von Glied i+1? Sonst issuer-mismatch.
  *  2. Darf jedes ausstellende Glied (alles oberhalb des Leaf) überhaupt Zertifikate
  *     ausstellen? Basic Constraints CA:TRUE (sonst not-a-ca) und Key Usage
@@ -100,6 +103,7 @@ export interface ChainResult {
  */
 export function validateChain(chain: Cert[], trustStore: Cert[], now: Date): ChainResult {
   if (chain.length === 0) return { ok: false, problem: 'incomplete' }
+  if (chain[0].isCa) return { ok: false, problem: 'no-leaf' }
 
   for (let i = 0; i < chain.length - 1; i++) {
     if (chain[i].issuer !== chain[i + 1].subject) {

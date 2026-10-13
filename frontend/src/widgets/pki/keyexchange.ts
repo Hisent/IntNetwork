@@ -30,12 +30,12 @@ export function sharedSecret(otherPublic: number, ownSecret: number, p: number):
 }
 
 /** Was ein Angreifer bei diesen winzigen Spielzeugzahlen tun kann: alle
- * möglichen Exponenten 1..p-2 durchprobieren, bis g^a mod p den beobachteten
+ * möglichen Exponenten 1..p-1 durchprobieren, bis g^a mod p den beobachteten
  * öffentlichen Wert ergibt. Bei realen Gruppengrößen (2048 Bit oder
  * elliptische Kurven) ist das rechnerisch unmöglich — hier, mit p=23, dauert
  * es Millisekunden. */
 export function bruteForceExponent(g: number, publicValue: number, p: number): number | null {
-  for (let a = 1; a <= p - 2; a++) {
+  for (let a = 1; a <= p - 1; a++) {
     if (modPow(g, a, p) === publicValue) return a
   }
   return null

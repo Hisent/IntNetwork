@@ -35,8 +35,8 @@ IPV6_MODULE = {
                    "wichtig, weil eine globale Adresse nicht automatisch Schutz bedeutet.",
              "en": "## Why IPv6?\n\nIPv4 has **32 bits** — around 4 billion "
                    "addresses, nowhere near enough anymore. IPv6 has **128 bits**: practically inexhaustible. "
-                   "Devices can therefore receive a **globally routable** address; in practice they "
-                   "often also use temporary privacy addresses. **NAT is no longer needed for address "
+                   "Devices can therefore once again get a **globally routable** address; in practice they "
+                   "often also use temporary privacy addresses. **NAT is no longer needed to cope with address "
                    "scarcity**. A firewall still matters: a global address is not automatic protection.",
          }},
         {"type": "text", "id": "text-2",
@@ -72,7 +72,7 @@ IPV6_MODULE = {
                    "IPv6 und fallen unauffällig auf IPv4 zurück, wenn es schneller antwortet "
                    "(„Happy Eyeballs“) — der Nutzer merkt davon nichts.\n\nFür Nordwind heißt "
                    "das: IPv6 einführen ≠ IPv4 abschalten.",
-             "en": "## The Transition: Dual Stack\n\nIPv4 and IPv6 run **in parallel** for "
+             "en": "## The Transition: Dual Stack\n\nIPv4 and IPv6 will run **in parallel** for "
                    "decades. With dual stack, a device has both addresses at the same time; "
                    "DNS returns **A** (IPv4) and **AAAA** (IPv6) records. Modern systems "
                    "prefer IPv6 and quietly fall back to IPv4 if it responds faster (“Happy "
@@ -91,8 +91,8 @@ IPV6_MODULE = {
                    "- **Multicast** (`ff00::/8`): an eine Gruppe. **Broadcasts gibt es in IPv6 "
                    "nicht mehr** — ihre Aufgaben übernimmt Multicast.",
              "en": "## Important Address Types\n\n- **Global unicast** "
-                   "(`2000::/3`): globally routable, like a public IPv4.\n"
-                   "- **Link-local** (`fe80::/10`): only valid on the local segment, every interface "
+                   "(`2000::/3`): globally routable, like a public IPv4 address.\n"
+                   "- **Link-local** (`fe80::/10`): only valid on the local segment; every interface "
                    "gets one automatically.\n"
                    "- **Unique local** (`fc00::/7`, in practice `fd00::/8`): internal addresses, "
                    "not routed on the Internet — the counterpart to the private IPv4 ranges.\n"
@@ -129,7 +129,7 @@ IPV6_MODULE = {
                  {"label_de": "Typische Aufgabe", "label_en": "Typical job",
                   "values_de": ["Verbindungen ins Internet", "interne Dienste ohne Internetbezug",
                                 "Nachbarsuche, Next-Hop von Routen", "ersetzt Broadcasts, z. B. bei NDP"],
-                  "values_en": ["connections to the Internet", "internal services without Internet relevance",
+                  "values_en": ["connections to the Internet", "internal services that do not need the Internet",
                                 "neighbor discovery, next hop of routes", "replaces broadcasts, e.g. in NDP"]},
              ],
          }},
@@ -141,7 +141,7 @@ IPV6_MODULE = {
                    "(Netzanteil/Hostanteil, Routing, Ports) bleiben aber dieselben wie bei IPv4.",
              "en": "## What Else Is Different\n\nInstead of ARP, IPv6 uses the "
                    "**Neighbor Discovery Protocol (NDP)** via multicast. Devices can often "
-                   "assign themselves an address (SLAAC) — with no DHCP at all. The core ideas "
+                   "assign **themselves** an address (SLAAC) — with no DHCP at all. The core ideas "
                    "(network part/host part, routing, ports) stay the same as with IPv4.",
          }},
         {"type": "diagram", "id": "diagram-ndp-aufloesung",
@@ -265,7 +265,7 @@ IPV6_MODULE = {
              "en": "“::” replaces exactly one contiguous block of zero groups; how many groups that is follows from what is missing to reach the total of 8. It marks neither the end of the address nor a port — with IPv6, ports follow square brackets, as in [2001:db8::1]:443."}},
         {"id": "6c", "type": "single",
          "prompt": {"de": "Welche Technik ist mit IPv6 nicht mehr nötig, um IPv4-Adressknappheit auszugleichen?",
-                    "en": "Which technique is no longer needed with IPv6 to compensate for IPv4 address scarcity?"},
+                    "en": "Which technology is no longer needed with IPv6 to compensate for IPv4 address scarcity?"},
          "options": {"de": ["Routing", "NAT", "DNS", "Firewalls"], "en": ["Routing", "NAT", "DNS", "Firewalls"]},
          "answer": 1,
          "explanation": {
@@ -323,8 +323,8 @@ IPV6_MODULE = {
          "prompt": {"de": "Alle PCs in einem neuen Segment haben nur eine fe80::-Adresse, keine globale. "
                           "Untereinander erreichen sie sich, ins Internet kommt keiner. Was ist die "
                           "wahrscheinlichste Ursache?",
-                    "en": "All PCs in a new segment only have an fe80:: address, no global one. They reach "
-                          "each other, but none reaches the Internet. What is the most likely cause?"},
+                    "en": "All PCs in a new segment only have an fe80:: address, no global one. They can reach "
+                          "each other, but none can reach the Internet. What is the most likely cause?"},
          "options": {
              "de": ["Es kommt kein Router Advertisement mit einem Präfix an",
                     "Der DNS-Server ist ausgefallen",
@@ -343,7 +343,7 @@ IPV6_MODULE = {
                    "sich die PCs untereinander erreichen.",
              "en": "Every interface forms its link-local address itself; for a global address SLAAC needs "
                    "the prefix from the router advertisement. Without it, fe80:: is all there is. A DNS "
-                   "outage would not prevent an address — and faulty cables do not fit the fact that the "
-                   "PCs reach each other."}},
+                   "outage would not prevent address assignment — and faulty cables would not explain why the "
+                   "PCs can still reach each other."}},
     ]},
 }

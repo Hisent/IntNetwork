@@ -48,6 +48,8 @@ export function CertErrors({ lang }: { lang: Lang }) {
   const s = STR[lang]
 
   const done = revealed.every(Boolean)
+  // Die Auswertung erst auf Klick zeigen — sonst verschwände die Erklärung zum letzten Fall sofort.
+  const [showSummary, setShowSummary] = useState(false)
   const current = CASES[index]
   const answer = answers[index]
   const isRevealed = revealed[index]
@@ -65,6 +67,7 @@ export function CertErrors({ lang }: { lang: Lang }) {
     setIndex(0)
     setAnswers(Array(n).fill(null))
     setRevealed(Array(n).fill(false))
+    setShowSummary(false)
   }
 
   const score = scoreOf(answers, CASES)
@@ -88,7 +91,7 @@ export function CertErrors({ lang }: { lang: Lang }) {
         </div>
       </div>
 
-      {!done ? (
+      {!showSummary ? (
         <div>
           <p className="mb-1 text-xs font-semibold text-slate-500">{s.caseLabel}</p>
           <p className="mb-2 text-sm text-slate-700">{current.context[lang]}</p>
@@ -145,14 +148,12 @@ export function CertErrors({ lang }: { lang: Lang }) {
                   {current.nextStep[lang]}
                 </p>
               </div>
-              {index < n - 1 && (
-                <button
-                  onClick={next}
-                  className="rounded-lg bg-teal-600 hover:bg-teal-700 text-white px-3 py-1.5 text-sm font-medium"
-                >
-                  {s.next}
-                </button>
-              )}
+              <button
+                onClick={index < n - 1 ? next : () => setShowSummary(true)}
+                className="rounded-lg bg-teal-600 hover:bg-teal-700 text-white px-3 py-1.5 text-sm font-medium"
+              >
+                {index < n - 1 ? s.next : s.doneTitle}
+              </button>
             </div>
           )}
         </div>

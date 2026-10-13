@@ -7,6 +7,8 @@ export interface HandshakeStep {
   name: string
   detail: { de: string; en: string }
   encrypted: boolean
+  /** true = nur ein Teil des Flugs ist verschlüsselt (TLS 1.2: erst Finished, nach ChangeCipherSpec). */
+  partial?: boolean
   /** Nummer des Roundtrips (Client→Server→Client), in dem dieser Schritt liegt. */
   roundtrip: number
 }
@@ -48,6 +50,7 @@ export const TLS12_STEPS: HandshakeStep[] = [
         + 'new session key.',
     },
     encrypted: true,
+    partial: true,
     roundtrip: 2,
   },
   {
@@ -60,6 +63,7 @@ export const TLS12_STEPS: HandshakeStep[] = [
         + 'message — application data can flow afterwards.',
     },
     encrypted: true,
+    partial: true,
     roundtrip: 2,
   },
 ]
@@ -67,7 +71,7 @@ export const TLS12_STEPS: HandshakeStep[] = [
 export const TLS13_STEPS: HandshakeStep[] = [
   {
     from: 'client',
-    name: 'ClientHello (mit key_share)',
+    name: 'ClientHello + key_share',
     detail: {
       de: 'Client schlägt nicht nur Cipher Suites vor, sondern schickt gleich sein '
         + 'DH/ECDHE-Schlüsselmaterial (key_share) mit — das spart gegenüber TLS 1.2 einen '
@@ -80,7 +84,7 @@ export const TLS13_STEPS: HandshakeStep[] = [
   },
   {
     from: 'server',
-    name: 'ServerHello (mit key_share)',
+    name: 'ServerHello + key_share',
     detail: {
       de: 'Server wählt die Cipher Suite und schickt sein eigenes key_share. Beide Seiten '
         + 'können daraus jetzt schon den Handshake-Schlüssel ableiten.',

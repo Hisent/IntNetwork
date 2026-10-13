@@ -47,10 +47,17 @@ export interface TerminalState {
 export function createTerminalState(): TerminalState {
   return {
     files: {
-      'README.md': '# Claude-Code-Workspace\n\nDies ist ein isolierter Browser-Prototyp.',
+      'README.md': '# Claude Code workspace\n\nIsolated browser prototype / isolierter Browser-Prototyp.',
       'src/app.ts': 'export const answer = 42\n',
     },
   }
+}
+
+// Befehle der virtuellen Shell; alles andere ohne "/" ist eine Aufgabe an Claude
+// (runCommand zeigt dann, was der aktive Modus bewirkt).
+const TERMINAL_COMMANDS = new Set(['help', 'pwd', 'ls', 'cat', 'touch', 'echo', 'whoami', 'clear'])
+export function isTerminalCommand(input: string): boolean {
+  return TERMINAL_COMMANDS.has(input.trim().split(/\s+/)[0])
 }
 
 export function runTerminalCommand(
@@ -79,14 +86,17 @@ export function runTerminalCommand(
       const file = args[0]
       if (!file) return { output: de ? 'Nutzung: cat <datei>' : 'Usage: cat <file>', state }
       return {
-        output: state.files[file] ?? (de ? 'Datei nicht gefunden: ' + file : 'File not found: ' + file),
+        // hasOwn: "cat constructor" darf keine geerbte Objekt-Eigenschaft ausgeben.
+        output: Object.hasOwn(state.files, file)
+          ? state.files[file]
+          : (de ? 'Datei nicht gefunden: ' + file : 'File not found: ' + file),
         state,
       }
     }
     case 'touch': {
       const file = args[0]
       if (!file) return { output: de ? 'Nutzung: touch <datei>' : 'Usage: touch <file>', state }
-      return { output: '', state: { files: { ...state.files, [file]: state.files[file] ?? '' } } }
+      return { output: '', state: { files: { ...state.files, [file]: Object.hasOwn(state.files, file) ? state.files[file] : '' } } }
     }
     case 'echo': {
       const redirect = cmd.match(/^echo\s+(.+?)\s*>\s*(\S+)$/)

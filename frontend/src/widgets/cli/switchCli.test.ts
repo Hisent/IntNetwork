@@ -44,6 +44,20 @@ describe('runSwitchCommand', () => {
     expect(runSwitchCommand(std, 'show run')).not.toContain('native vlan')
   })
 
+  it('MAC-Tabelle: gültige MACs, unabhängig vom VLAN des Ports', () => {
+    const mac = (ports: Port[]) => runSwitchCommand(ports, 'show mac address-table').split('\n')[2].split(/\s+/)[1]
+    for (const vlan of [1, 10, 100, 4094]) {
+      expect(mac([{ vlan, mode: 'access' }])).toMatch(/^[0-9a-f]{4}\.[0-9a-f]{4}\.[0-9a-f]{4}$/)
+    }
+    expect(mac([{ vlan: 10, mode: 'access' }])).toBe(mac([{ vlan: 20, mode: 'access' }]))
+  })
+  it('IOS-Kurzformen sh/sho und Groß-/Kleinschreibung', () => {
+    expect(runSwitchCommand(PORTS, 'sh vlan')).toBe(runSwitchCommand(PORTS, 'show vlan'))
+    expect(runSwitchCommand(PORTS, 'SHO  RUN')).toBe(runSwitchCommand(PORTS, 'show running-config'))
+    expect(runSwitchCommand(PORTS, 'sh int status')).toContain('Gi0/4     connected     trunk')
+    expect(runSwitchCommand(PORTS, 'shvlan')).toContain('% Invalid input')
+    expect(runSwitchCommand(PORTS, '   ')).toBe('')
+  })
   it('unbekannter Befehl', () => {
     expect(runSwitchCommand(PORTS, 'foobar')).toContain('% Invalid input')
   })

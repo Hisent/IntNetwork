@@ -11,7 +11,7 @@ WIRESHARK_MODULE = {
     ],
     "goals_en": [
         "Read a packet capture: packet list, layer details, display filters",
-        "Find packets precisely with display filters (http, dns, ip.addr, tcp.port)",
+        "Find specific packets with display filters (http, dns, ip.addr, tcp.port)",
         "Understand why cleartext protocols are dangerous and know tcpdump as the CLI counterpart",
     ],
     "scenario": {
@@ -23,8 +23,8 @@ WIRESHARK_MODULE = {
         "en": "During troubleshooting you looked at the network from the outside with "
               "ping and nslookup. Sometimes that's not enough — then you want to see "
               "what really travels over the wire: every single packet. That's exactly "
-              "what Wireshark (graphical) and tcpdump (console) do. At Nordwind there "
-              "is a capture in which someone logged in unencrypted …",
+              "what Wireshark (graphical) and tcpdump (console) do. Nordwind has "
+              "a capture in which someone logged in without encryption …",
     },
     "blocks": [
         {"type": "text", "id": "text-1",
@@ -97,7 +97,7 @@ WIRESHARK_MODULE = {
                    "everything above it: `tcp` also matches HTTP, because HTTP runs over TCP)\n"
                    "- `ip.addr == 192.168.20.34` — all packets from **or** to this address\n"
                    "- `tcp.port == 443` — source or destination port\n\n"
-                   "The filter field turns **green** (valid) or **red** (invalid) — same "
+                   "The filter field turns **green** (valid) or **red** (invalid) — just like "
                    "in the widget below.",
          }},
         {"type": "widget", "id": "wireshark-demo",
@@ -130,7 +130,7 @@ WIRESHARK_MODULE = {
                    "- **DNS-Antwort „No such name“**: Der Server ist erreichbar, kennt den Namen aber nicht "
                    "(NXDOMAIN) — Tippfehler oder fehlender Eintrag.",
              "en": "## Patterns You Should Recognize\n\nA capture answers the question that `ping` leaves "
-                   "open: **what exactly** happened? Four pictures keep coming up in troubleshooting:\n\n"
+                   "open: **what exactly** happened? Four patterns keep coming up in troubleshooting:\n\n"
                    "- **SYN without a reply**: the client repeats its SYN, nothing comes back — something "
                    "drops it on the way, typical of a firewall or a switched-off target.\n"
                    "- **SYN followed by RST**: the target answers immediately with a reset — the machine is "
@@ -166,7 +166,7 @@ WIRESHARK_MODULE = {
              "explanation_de": "Schweigen und Ablehnung sind zwei verschiedene Befunde: Ein RST beweist, "
                                "dass das Paket das Ziel erreicht hat. Bleibt jede Antwort aus, liegt das "
                                "Problem davor — auf dem Weg oder in einem Filter.",
-             "explanation_en": "Silence and refusal are two different findings: a RST proves the packet "
+             "explanation_en": "Silence and refusal are two different findings: an RST proves the packet "
                                "reached the target. If no reply comes at all, the problem lies before "
                                "that — on the path or in a filter.",
          }},
@@ -192,7 +192,7 @@ WIRESHARK_MODULE = {
                    "tcpdump -i eth0 -w capture.pcap    # write to a file\n"
                    "```\n\n"
                    "The usual real-world workflow: **record on the server with tcpdump** "
-                   "(`-w`), download the pcap file and **analyze it comfortably in "
+                   "(`-w`), download the pcap file and **analyze it conveniently in "
                    "Wireshark**. Both require admin/root privileges.",
          }},
         {"type": "terminal", "id": "terminal-tcpdump",
@@ -232,10 +232,10 @@ WIRESHARK_MODULE = {
              "tasks": [
                  {"text_de": "Liste die Interfaces auf.", "text_en": "List the interfaces.", "command": "tcpdump -D"},
                  {"text_de": "Schneide 6 Pakete des PCs 192.168.20.34 mit.",
-                  "text_en": "Capture 6 packets of PC 192.168.20.34.",
+                  "text_en": "Capture 6 packets from/to PC 192.168.20.34.",
                   "command": "sudo tcpdump -i eth0 -nqt -c 6 host 192.168.20.34"},
                  {"text_de": "Die ersten drei Pakete tragen 0 Byte Nutzdaten. Welcher Vorgang ist das?",
-                  "text_en": "The first three packets carry 0 bytes of payload. Which procedure is that?",
+                  "text_en": "The first three packets carry 0 bytes of payload. Which process is that?",
                   "answers": ["tcp-handshake", "handshake", "drei-wege-handshake", "3-wege-handshake",
                               "three-way handshake", "3-way handshake", "tcp handshake", "verbindungsaufbau",
                               "3-way-handshake", "three-way-handshake"]},
@@ -256,9 +256,9 @@ WIRESHARK_MODULE = {
                    "Sicherheits-Checks. Genau deshalb siehst du im Widget auch, warum "
                    "Klartext-Protokolle ein Problem sind: Was du mitschneiden kannst, "
                    "kann ein Angreifer auch.",
-             "en": "## Legal & Ethics\n\nCapturing means **reading along**. In other "
+             "en": "## Legal Aspects & Ethics\n\nCapturing means **reading along**. On other "
                    "people's networks or without permission this is **forbidden** — and "
-                   "even in the company network: only with a mandate and only as much as "
+                   "even on the company network: only when authorized and only as much as "
                    "necessary. The legitimate use is analyzing **your own** systems: "
                    "troubleshooting, performance, security checks. That's exactly why the "
                    "widget shows you why cleartext protocols are a problem: whatever you "
@@ -340,13 +340,13 @@ WIRESHARK_MODULE = {
                     "Nur in eigenen Netzen bzw. mit ausdrücklicher Erlaubnis/Auftrag",
                     "Sobald man Wireshark installiert hat"],
              "en": ["Always, the network is public anyway", "Only at night",
-                    "Only in your own networks or with explicit permission/mandate",
+                    "Only on your own networks or with explicit permission/authorization",
                     "As soon as you have Wireshark installed"],
          },
          "answer": 2,
          "explanation": {
              "de": "Mitschneiden bedeutet, fremde Kommunikation mitzulesen — erlaubt ist das nur im eigenen Netz oder mit ausdrücklichem Auftrag. Dass ein Werkzeug installiert ist oder das Netz technisch erreichbar ist, gibt keine Erlaubnis.",
-             "en": "Capturing means reading other people's communication — it is only allowed on your own network or with an explicit mandate. Having a tool installed, or the network being technically reachable, grants no permission."}},
+             "en": "Capturing means reading other people's communication — it is only allowed on your own network or with explicit authorization. Having a tool installed, or the network being technically reachable, grants no permission."}},
         {"id": "ws6", "type": "single",
          "prompt": {"de": "Eine Anwendung erreicht ihren Server auf 192.168.10.80:8080 nicht. Im Mitschnitt "
                           "steht: Client → Server [SYN], sofort darauf Server → Client [RST, ACK]. Was "
@@ -399,7 +399,7 @@ WIRESHARK_MODULE = {
          "prompt": {"de": "Du willst nur die Pakete sehen, die der PC 192.168.20.34 selbst GESENDET hat — "
                           "nicht die Antworten an ihn. Welcher Anzeigefilter passt?",
                     "en": "You only want to see the packets that PC 192.168.20.34 itself SENT — not the "
-                          "replies to it. Which display filter fits?"},
+                          "replies to it. Which display filter is the right one?"},
          "options": {
              "de": ["ip.addr == 192.168.20.34", "ip.src == 192.168.20.34",
                     "ip.dst == 192.168.20.34", "tcp.port == 192.168.20.34"],
@@ -411,7 +411,7 @@ WIRESHARK_MODULE = {
              "de": "ip.src prüft nur die Absenderadresse. ip.addr trifft dagegen Quelle ODER Ziel und "
                    "zeigt deshalb auch alle Antworten an den PC — für „beide Richtungen“ richtig, für "
                    "diese Frage zu viel.",
-             "en": "ip.src checks the sender address only. ip.addr, by contrast, matches source OR "
+             "en": "ip.src checks the source address only. ip.addr, by contrast, matches source OR "
                    "destination and therefore also shows all replies to the PC — right for “both "
                    "directions”, too much for this question."}},
     ]},

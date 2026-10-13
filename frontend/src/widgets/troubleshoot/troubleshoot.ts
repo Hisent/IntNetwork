@@ -148,7 +148,7 @@ export const SCENARIOS: Scenario[] = [
         },
       },
       {
-        cmd: 'ping 192.168.10.60',
+        cmd: 'ping 192.168.20.60',
         output: {
           de: 'Zeitüberschreitung der Anforderung. (Drucker nicht erreichbar)',
           en: 'Request timed out. (printer unreachable)',

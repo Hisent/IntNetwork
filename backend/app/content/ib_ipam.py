@@ -15,9 +15,9 @@ IPAM_MODULE = {
     ],
     "goals_en": [
         "Understand IPAM as the integrated, authoritative view of DNS and DHCP data",
-        "Place network containers, networks and ranges from the IPAM perspective (utilization, search)",
+        "Understand network containers, networks and ranges from the IPAM perspective (utilization, search)",
         "Explain why spreadsheets typically fail as an IPAM tool",
-        "Place discovery data and its use for conflict checks and rogue host detection",
+        "Assess discovery data and its use for conflict checks and rogue host detection",
         "Describe how IPAM and extensible attributes work together",
     ],
     'scenario': {
@@ -29,12 +29,12 @@ IPAM_MODULE = {
         'en': ("Nordwind's IT team has so far kept track of the address space in a "
                'shared spreadsheet — with all the well-known problems: stale entries, '
                'duplicate addresses, no view of actual utilization. Now IPAM in '
-               'Infoblox is meant to take over that role as the binding source of '
+               'Infoblox is meant to take over that role as the authoritative source of '
                'truth.'),
     },
     'blocks': [
         {'type': 'text', 'id': 'text-1',
-         'note': 'Fast jede Gruppe hat noch eine Tabellenkalkulation im Einsatz. Kurz sammeln, woran die zuletzt gescheitert ist — das traegt das ganze Modul.',
+         'note': 'Fast jede Gruppe hat noch eine Tabellenkalkulation im Einsatz. Kurz sammeln, woran die zuletzt gescheitert ist — das trägt das ganze Modul.',
          'value': {
              'de': ('## IPAM als führende Quelle der Wahrheit\n'
                     '\n'
@@ -49,7 +49,7 @@ IPAM_MODULE = {
                     'Status? Genau diese Rolle als **verbindliche, aktuelle Quelle der '
                     'Wahrheit** unterscheidet IPAM von einer separaten Dokumentation, '
                     'die immer erst nachträglich gepflegt wird.'),
-             'en': ('## IPAM as the Source of Truth\n'
+             'en': ('## IPAM as the Authoritative Source of Truth\n'
                     '\n'
                     'IPAM in NIOS is not a separate system with its own data — it is a '
                     '**consolidated view** of the same DHCP and DNS objects covered in '
@@ -59,7 +59,7 @@ IPAM_MODULE = {
                     'Because DHCP assignments and DNS records are merged here, IPAM '
                     'answers the central operational question at a glance: who '
                     'currently holds which address, under which name, in what status? '
-                    'This role as the **binding, up-to-date source of truth** is '
+                    'This role as the **authoritative, up-to-date source of truth** is '
                     'exactly what sets IPAM apart from separate documentation that is '
                     'always maintained after the fact.'),
          }},
@@ -160,7 +160,7 @@ IPAM_MODULE = {
                         "pdu_de": "Auslastung",
                         "pdu_en": "utilization",
                         "detail_de": "Hier steht die Kennzahl, auf die der Betrieb täglich schaut: Wie viele Adressen sind belegt?",
-                        "detail_en": "This is where the figure operations checks daily lives: how many addresses are in use?",
+                        "detail_en": "This is where you find the figure that operations checks every day: how many addresses are in use?",
                     },
                     {
                         "name_de": "Bereich .100 – .200",
@@ -228,7 +228,7 @@ IPAM_MODULE = {
                     'genutzt, obwohl IPAM nur eine Zuordnung kennt.\n'
                     '- **Rogue Host** — ein Gerät taucht im Netz auf, das in IPAM '
                     'überhaupt nicht als verwaltetes Objekt bekannt ist (NIOS zeigt '
-                    'solche Adressen mit dem Status „Unmanaged”).\n'
+                    'solche Adressen mit dem Status „Unmanaged“).\n'
                     '\n'
                     'Beide Befunde sind ein Signal zum genaueren Hinsehen, aber '
                     'unterschiedlicher Art: Ein Konflikt betrifft eine bekannte Adresse '
@@ -240,14 +240,14 @@ IPAM_MODULE = {
                     'produces two different findings:\n'
                     '\n'
                     '- **Conflict** — an address is used by more than one device, '
-                    'even though IPAM only knows one assignment.\n'
+                    'even though IPAM knows of only one assignment.\n'
                     '- **Rogue host** — a device shows up on the network that IPAM '
                     'does not know as a managed object at all (NIOS shows such '
                     'addresses with the status “Unmanaged”).\n'
                     '\n'
                     'Both findings are a signal to look closer, but of a different '
                     'kind: a conflict involves a known address with contradictory '
-                    'use, a rogue host is a completely unknown device.'),
+                    'use; a rogue host is a completely unknown device.'),
          }},
         {
             "type": "terminal",
@@ -291,7 +291,7 @@ IPAM_MODULE = {
                      "text_en": "Query 10.20.30.117. Which three objects make up the entry? Name the DHCP part.",
                      "answers": ["LEASE", "lease", "Lease"]},
                     {"text_de": "Frage 10.20.30.201 ab. Welchen Typ trägt die Adresse?",
-                     "text_en": "Query 10.20.30.201. Which type does the address carry?",
+                     "text_en": "Query 10.20.30.201. What type does the address have?",
                      "answers": ["UNMANAGED", "unmanaged", "Unmanaged"],
                      "explanation_de": ".201 ist „USED“, obwohl niemand sie vergeben hat: Ein Gerät antwortet dort, IPAM kennt aber kein Objekt dazu.",
                      "explanation_en": ".201 is \"USED\" although nobody assigned it: a device answers there, but IPAM has no object for it."},
@@ -304,7 +304,7 @@ IPAM_MODULE = {
         {'type': 'reveal', 'id': 'reveal-1',
          'payload': {
              'teaser_de': ('Discovery meldet ein aktives Gerät auf einer Adresse, die '
-                          'laut IPAM als „frei” gilt. Was könnte dahinterstecken? '
+                          'laut IPAM als „frei“ gilt. Was könnte dahinterstecken? '
                           'Erst selbst überlegen.'),
              'teaser_en': ('Discovery reports an active device on an address that '
                           'IPAM considers “free”. What could be behind this? Think it '
@@ -335,7 +335,7 @@ IPAM_MODULE = {
             "id": "match-ipam-befunde",
             "payload": {
                 "prompt_de": "Ordne jedem Befund in der IPAM-Ansicht die passende Deutung zu.",
-                "prompt_en": "Match each finding in the IPAM view to the fitting interpretation.",
+                "prompt_en": "Match each finding in the IPAM view to the matching interpretation.",
                 "pairs": [
                     {
                         "left_de": "Used, Typ Lease",
@@ -347,7 +347,7 @@ IPAM_MODULE = {
                         "left_de": "Used, Typ Unmanaged",
                         "left_en": "Used, type unmanaged",
                         "right_de": "Gerät antwortet, IPAM kennt kein Objekt dazu",
-                        "right_en": "a device answers, IPAM knows no object for it",
+                        "right_en": "a device answers, IPAM has no object for it",
                     },
                     {
                         "left_de": "Konflikt",
@@ -381,13 +381,13 @@ IPAM_MODULE = {
                     'hängen.\n'
                     '\n'
                     'Mit gepflegten EAs lässt sich die IPAM-Suche gezielt eingrenzen '
-                    '(„alle Netzwerke von Standort X mit mehr als 80 % Auslastung”), '
+                    '(„alle Netzwerke von Standort X mit mehr als 80 % Auslastung“), '
                     'statt den gesamten Adressraum manuell durchzusehen. Ohne '
                     'konsistente EA-Pflege bleibt auch IPAM letztlich eine große, '
                     'unsortierte Liste.'),
              'en': ('## Interplay with Extensible Attributes\n'
                     '\n'
-                    'With a few dozen networks, a plain overview is enough. Across '
+                    'With a few dozen networks, simply looking through them is enough. Across '
                     'several hundred networks and many sites, IPAM needs structure — '
                     'that is what **extensible attributes (EAs)** are for: metadata '
                     'such as site, department or environment attached to networks, '
@@ -416,7 +416,7 @@ IPAM_MODULE = {
         {'id': 'ip1',
          "explanation": {
              "de": "IPAM ist eine Sicht auf dieselben Objekte, die DHCP und DNS verwenden — keine zweite Datenhaltung, die jemand synchron halten müsste. Genau darin liegt der Unterschied zur Tabelle neben dem System.",
-             "en": "IPAM is a view of the same objects DHCP and DNS use — not a second data store someone would have to keep in sync. That is precisely the difference from the spreadsheet next to the system.",
+             "en": "IPAM is a view of the same objects DHCP and DNS use — not a second data store someone would have to keep in sync. That is precisely the difference from a spreadsheet kept alongside the system.",
          },
          'type': 'single',
          'prompt': {'de': 'Wie ist IPAM in Bezug auf DHCP- und DNS-Daten am treffendsten beschrieben?',
@@ -433,7 +433,7 @@ IPAM_MODULE = {
         {'id': 'ip2',
          "explanation": {
              "de": "Eine Tabelle zeigt, was zuletzt jemand eingetragen hat, nicht, was im Netz gerade gilt. Kosten oder Formatierung sind Nebensache — das Kernproblem ist der fehlende Abgleich mit der tatsächlichen Vergabe.",
-             "en": "A spreadsheet shows what someone last entered, not what currently holds on the network. Cost or formatting are beside the point — the core problem is the missing reconciliation with actual assignments.",
+             "en": "A spreadsheet shows what someone last entered, not what is currently true on the network. Cost or formatting are beside the point — the core problem is the missing reconciliation with actual assignments.",
          },
          'type': 'single',
          'prompt': {'de': 'Was ist der Hauptgrund, warum Tabellenkalkulationen als IPAM-Werkzeug scheitern?',
@@ -445,16 +445,16 @@ IPAM_MODULE = {
                             'Sie unterstützen keine Farben'],
                      'en': ['They are too expensive to acquire',
                             'They do not support bold text for important entries',
-                            'They only show the last entered state, not the actual, ongoing assignment',
+                            'They only show the most recently entered state, not the actual, ongoing assignment',
                             'They do not support colors']}},
         {'id': 'ip3',
          "explanation": {
              "de": "Discovery fragt Adressen ab und gleicht das Ergebnis mit den IPAM-Einträgen ab; ein unbekanntes Gerät ist ein Rogue Host. Adressen vergibt Discovery nicht — es beobachtet nur, DHCP bleibt nötig.",
-             "en": "Discovery probes addresses and compares the result with the IPAM entries; an unknown device is a rogue host. Discovery does not assign addresses — it only observes, DHCP remains necessary.",
+             "en": "Discovery probes addresses and compares the result with the IPAM entries; an unknown device is a rogue host. Discovery does not assign addresses — it only observes; DHCP remains necessary.",
          },
          'type': 'multi',
          'prompt': {'de': 'Welche Aussagen zu Discovery treffen zu? (mehrere)',
-                    'en': 'Which statements about Discovery are true? (multiple)'},
+                    'en': 'Which statements about discovery are true? (multiple)'},
          'answer': [0, 1, 3],
          'options': {'de': ['Discovery kann Adressen aktiv abfragen, etwa per Ping-Sweep',
                             'Discovery gleicht gefundene Geräte mit den erwarteten IPAM-Einträgen ab',
@@ -471,7 +471,7 @@ IPAM_MODULE = {
          },
          'type': 'single',
          'prompt': {'de': 'Ein Gerät nutzt dieselbe Adresse wie ein zweites, obwohl IPAM nur eine Zuordnung kennt. Wie heißt dieser Befund?',
-                    'en': 'A device uses the same address as another one, even though IPAM only knows one assignment. What is this finding called?'},
+                    'en': 'A device uses the same address as another one, even though IPAM knows of only one assignment. What is this finding called?'},
          'answer': 1,
          'options': {'de': ['Rogue Host', 'Konflikt', 'Exclusion Range', 'Failover'],
                      'en': ['Rogue host', 'Conflict', 'Exclusion range', 'Failover']}},
@@ -517,14 +517,14 @@ IPAM_MODULE = {
                 ],
                 "en": [
                     "The address lies in an exclusion range and is therefore blocked",
-                    "The address is assigned via DHCP, but the client reported no host name",
+                    "The address is assigned via DHCP, but the client reported no hostname",
                     "A device was found on the address for which NIOS has no managed object",
                     "Two devices use the address at the same time",
                 ],
             },
             "explanation": {
-                "de": "Unmanaged heißt: gesehen, aber nicht verwaltet — keine Lease, keine Fixed Address, kein Record. Eine DHCP-Vergabe trüge den Typ LEASE, ein Doppelbelegung stünde als Konflikt da. Nächster Schritt ist, das Gerät zu identifizieren und dann zu verwalten oder zu entfernen.",
-                "en": "Unmanaged means: seen but not managed — no lease, no fixed address, no record. A DHCP assignment would carry the type LEASE, a double use would show up as a conflict. The next step is to identify the device and then manage or remove it.",
+                "de": "Unmanaged heißt: gesehen, aber nicht verwaltet — keine Lease, keine Fixed Address, kein Record. Eine DHCP-Vergabe trüge den Typ LEASE, eine Doppelbelegung stünde als Konflikt da. Nächster Schritt ist, das Gerät zu identifizieren und dann zu verwalten oder zu entfernen.",
+                "en": "Unmanaged means: seen but not managed — no lease, no fixed address, no record. A DHCP assignment would carry the type LEASE; a duplicate assignment would show up as a conflict. The next step is to identify the device and then manage or remove it.",
             },
         },
         {
@@ -551,7 +551,7 @@ IPAM_MODULE = {
             },
             "explanation": {
                 "de": "Dynamisch vergeben wird nur aus dem Bereich. Umfasst er 60 Adressen, ist er voll, lange bevor das Netz es ist — die Netz-Auslastung allein reicht als Frühwarnung nicht. Discovery sperrt nichts; es meldet nur, was es sieht.",
-                "en": "Dynamic assignment only draws from the range. If it covers 60 addresses, it is full long before the network is — network utilization alone is not enough as an early warning. Discovery blocks nothing; it only reports what it sees.",
+                "en": "Dynamic assignment only draws from the range. If the range covers 60 addresses, it is full long before the network is — network utilization alone is not enough as an early warning. Discovery blocks nothing; it only reports what it sees.",
             },
         },
     ]},

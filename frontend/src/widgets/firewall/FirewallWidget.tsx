@@ -1,16 +1,7 @@
 import { useState } from 'react'
-import { evaluate, isValidPort, RULES, type Action, type Packet, type Proto, type Rule } from '@/widgets/firewall/firewall'
+import { evaluate, isValidPort, labSolved, RULES, SAMPLES, type Action, type Packet, type Proto, type Rule } from '@/widgets/firewall/firewall'
 import { ChallengeBox } from '@/components/ChallengeBox'
 import type { Lang } from '@/lib/i18n'
-
-// Ziel-Traffic für den Regel-Baukasten: was soll durch, was nicht
-const SAMPLES: { label: string; pkt: Packet; expected: Action }[] = [
-  { label: 'HTTPS (TCP 443)', pkt: { proto: 'TCP', port: 443 }, expected: 'allow' },
-  { label: 'DNS (UDP 53)', pkt: { proto: 'UDP', port: 53 }, expected: 'allow' },
-  { label: 'Telnet (TCP 23)', pkt: { proto: 'TCP', port: 23 }, expected: 'deny' },
-  { label: 'RDP (TCP 3389)', pkt: { proto: 'TCP', port: 3389 }, expected: 'deny' },
-  { label: 'HTTP (TCP 80)', pkt: { proto: 'TCP', port: 80 }, expected: 'deny' },
-]
 
 const PRESETS: { de: string; en: string; pkt: Packet }[] = [
   { de: 'HTTPS (TCP 443)', en: 'HTTPS (TCP 443)', pkt: { proto: 'TCP', port: 443 } },
@@ -59,7 +50,7 @@ function RuleLab({ lang }: { lang: Lang }) {
   const [port, setPort] = useState('')
 
   const results = SAMPLES.map((smp) => ({ ...smp, got: evaluate(rules, smp.pkt).action }))
-  const done = results.every((r) => r.got === r.expected) && rules.length <= 2 && rules.length > 0
+  const done = labSolved(rules)
 
   const portOk = port.trim() === '' || isValidPort(Number(port))
 

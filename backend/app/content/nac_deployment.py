@@ -112,13 +112,11 @@ NAC_DEPLOYMENT_MODULE = {
                    'In **Low-Impact Mode**, the port stays configured as open, but a restrictive '
                    'access list statically configured on the port (ingress / pre-auth ACL) is '
                    'additionally applied as long as a device has not yet authenticated '
-                   'successfully. This ACL allows just enough for a device to get into the game '
-                   'at all — such as DHCP and DNS — but blocks access to internal resources. '
+                   'successfully. This ACL allows just enough for a device to get started at all — such as DHCP and DNS — but blocks access to internal resources. '
                    'After successful authentication, a dACL from the RADIUS server typically '
                    'lifts this restriction for that device.\n\n'
                    'This already noticeably increases security: a non-authenticated device at '
-                   'Nordwind still receives its IP configuration, but it does not land '
-                   'unchecked in the full company network — it gets a tightly '
+                   'Nordwind still receives its IP configuration, but it does not end up unchecked in the full company network — it gets a tightly '
                    'limited access until authentication succeeds.',
          }},
         {'type': 'text', 'id': 'text-4',
@@ -359,7 +357,7 @@ NAC_DEPLOYMENT_MODULE = {
                         'label_de': 'Denkmodell',
                         'label_en': 'Mental model',
                         'values_de': ['Feste Schalter je Port', 'Ereignis → Bedingung → Aktion'],
-                        'values_en': ['Fixed switches per port', 'Event → condition → action'],
+                        'values_en': ['Fixed per-port settings', 'Event → condition → action'],
                     },
                     {
                         'label_de': 'Wiederverwendung',
@@ -428,7 +426,7 @@ NAC_DEPLOYMENT_MODULE = {
                         'id': 'closed_sofort',
                         'outcome': 'bad',
                         'text_de': 'Montag früh stehen Drucker, Zeiterfassung und jedes Notebook ohne Zertifikat. Niemand weiß vorher, wie viele das sind — genau das hätte Monitor Mode gezeigt.',
-                        'text_en': 'On Monday morning printers, time clocks, and every notebook without a certificate are down. Nobody knows beforehand how many there are — exactly what Monitor Mode would have shown.',
+                        'text_en': 'On Monday morning printers, time clocks, and every laptop without a certificate are down. Nobody knows beforehand how many there are — exactly what Monitor Mode would have shown.',
                     },
                     {
                         'id': 'low_sofort',
@@ -439,7 +437,7 @@ NAC_DEPLOYMENT_MODULE = {
                     {
                         'id': 'monitor',
                         'text_de': 'Nach zwei Wochen zeigt das Log: 12 Drucker ohne Supplicant, 30 Notebooks ohne Zertifikat. Der Projektplan sieht jetzt den nächsten Schritt vor. Wie gehst du weiter?',
-                        'text_en': 'After two weeks the log shows: 12 printers without a supplicant, 30 notebooks without a certificate. The project plan now calls for the next step. How do you proceed?',
+                        'text_en': 'After two weeks the log shows: 12 printers without a supplicant, 30 laptops without a certificate. The project plan now calls for the next step. How do you proceed?',
                         'options': [
                             {
                                 'label_de': 'Termin halten und weiterschalten — die 42 Geräte melden sich schon',
@@ -448,7 +446,7 @@ NAC_DEPLOYMENT_MODULE = {
                             },
                             {
                                 'label_de': 'Erst die Liste abarbeiten (MAB für Drucker, Zertifikate verteilen), dann Low-Impact',
-                                'label_en': 'Work off the list first (MAB for printers, distribute certificates), then Low-Impact',
+                                'label_en': 'Work through the list first (MAB for printers, distribute certificates), then Low-Impact',
                                 'to': 'liste',
                             },
                             {
@@ -462,7 +460,7 @@ NAC_DEPLOYMENT_MODULE = {
                         'id': 'termin',
                         'outcome': 'bad',
                         'text_de': 'Du kennst die 42 Ausfälle jetzt beim Namen und löst sie trotzdem aus. Monitor Mode ist nur so viel wert wie die Bereitschaft, sein Ergebnis abzuarbeiten.',
-                        'text_en': 'You now know the 42 failures by name and trigger them anyway. Monitor Mode is only worth as much as the willingness to work off its result.',
+                        'text_en': 'You now know the 42 failures by name and cause them anyway. Monitor Mode is only worth as much as the willingness to act on its result.',
                     },
                     {
                         'id': 'bleiben',

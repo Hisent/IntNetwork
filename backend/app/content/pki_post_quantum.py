@@ -47,7 +47,7 @@ POST_QUANTUM_MODULE = {
     },
     'blocks': [
         {'type': 'text', 'id': 'text-1',
-         'note': 'Bewusst nuechtern einsteigen, keine Alarmrhetorik. Die Unsicherheit ueber den '
+         'note': 'Bewusst nüchtern einsteigen, keine Alarmrhetorik. Die Unsicherheit über den '
                  'Zeitpunkt eines relevanten Quantencomputers ehrlich benennen, statt sie zu '
                  'verstecken oder zu dramatisieren.',
          'value': {
@@ -76,7 +76,7 @@ POST_QUANTUM_MODULE = {
                    'limited speedup over classical attacks. Here, using larger keys is in principle '
                    'enough to restore the same security margin — a fundamentally different, far less '
                    'dramatic case than RSA/ECC.\n\n'
-                   'Important for context: as of current public knowledge, such a quantum computer '
+                   'Important for context: according to current public knowledge, such a quantum computer '
                    '**does not yet exist**. Exactly when one might become available is an open '
                    'question — more on that shortly.',
          }},
@@ -161,19 +161,18 @@ POST_QUANTUM_MODULE = {
                  'previously known as **Kyber**.\n- **FIPS 204 — ML-DSA** (Module-Lattice-Based Digital '
                  'Signature Standard): for digital signatures, based on **Dilithium**.\n- **FIPS 205 — '
                  'SLH-DSA** (Stateless Hash-Based Digital Signature Standard): a further signature variant, '
-                 'based on **SPHINCS+**.\n\nImportant for operational context: these are **finalized, final '
-                 'standards** — no longer drafts or candidates. For your own planning, what matters most is '
+                 'based on **SPHINCS+**.\n\nImportant for operational context: these are **approved, final standards** — no longer drafts or candidates. For your own planning, what matters most is '
                  'which scheme is meant for which purpose: ML-KEM for key exchange, ML-DSA and SLH-DSA for '
                  'signatures.\n\nStandardization continues: in March 2025, NIST selected **HQC**, a code-based '
                  'scheme, as a backup for ML-KEM — it relies on a different mathematical problem and is meant '
                  'to step in should a weakness turn up in the lattice schemes. The finished standard is '
-                 'expected in 2027; ML-KEM remains the first choice. Also still open is **FN-DSA** (planned as '
+                 'expected in 2027; ML-KEM remains the first choice. Also still pending is **FN-DSA** (planned as '
                  'FIPS 206, derived from Falcon): a lattice signature scheme intended to allow smaller '
                  'signatures than ML-DSA, whose standard had not yet been published as of October 2026.'),
             },
         },
         {'type': 'diagram', 'id': 'diagram-pqc-vergleich',
-         'note': ('Groessen aus FIPS 203/204/205 (oeffentlicher Schluessel bzw. Chiffrat/Signatur in Byte). '
+         'note': ('Größen aus FIPS 203/204/205 (öffentlicher Schlüssel bzw. Chiffrat/Signatur in Byte). '
              'Klassisch zum Vergleich: X25519-Anteil und ECDSA-P-256-Signatur roh. Kernaussage: PQC kostet vor '
              'allem Bytes, nicht Rechenzeit.'),
          'payload': {
@@ -189,7 +188,7 @@ POST_QUANTUM_MODULE = {
              'rows': [
                     {
                      'label_de': 'Aufgabe',
-                     'label_en': 'Job',
+                     'label_en': 'Purpose',
                      'values_de': ['Schlüsseleinigung / Signatur', 'Schlüsselkapselung', 'Signatur', 'Signatur'],
                      'values_en': ['key agreement / signature', 'key encapsulation', 'signature', 'signature'],
                     },
@@ -293,8 +292,7 @@ POST_QUANTUM_MODULE = {
                  'standardized ML-KEM-based mechanism, and OpenSSL has offered native support for all three PQC '
                  'standards since version 3.5.0. We deliberately leave open exactly how large a share of all '
                  'TLS traffic currently uses hybrid key exchange: the percentages circulating differ noticeably '
-                 'by source and measurement date, and should be looked up directly at the source for anything '
-                 'load-bearing. The trend alone is clear: the share is growing noticeably.'),
+                 'by source and measurement date, and should be checked directly at the source before you rely on them. The trend alone is clear: the share is growing noticeably.'),
             },
         },
         {'type': 'diagram', 'id': 'diagram-hybrider-schluesselaustausch',
@@ -373,8 +371,7 @@ POST_QUANTUM_MODULE = {
          'payload': {
              'teaser_de': 'Ist eine TLS-Verbindung über X25519MLKEM768 damit schon vollständig '
                           'quantensicher?',
-             'teaser_en': 'Does a TLS connection using X25519MLKEM768 make it fully quantum-safe '
-                          'already?',
+             'teaser_en': 'Is a TLS connection using X25519MLKEM768 already fully quantum-safe?',
          },
          'value': {
              'de': 'Nein — nur teilweise. X25519MLKEM768 macht den **Schlüsselaustausch** '
@@ -389,12 +386,11 @@ POST_QUANTUM_MODULE = {
                    'certificate**, which authenticates the entire handshake, is not yet covered by '
                    'this — it is still classically signed (typically ECDSA or RSA). So the '
                    'connection\'s confidentiality is already on the path to quantum safety, while the '
-                   'authenticity/signature side is not yet. Making both sides post-quantum secure are '
-                   'two separate pieces of work.',
+                   'authenticity/signature side is not yet. Making both sides post-quantum secure involves two separate efforts.',
          }},
         {'type': 'text', 'id': 'text-pq-zertifikate',
-         'note': ('Bewusst knapp: Hier ist vieles im Fluss. Belegt sind die RFC-Nummern, die Groessen und die '
-             'Existenz des Chrome-Programms; Zeitplaene koennen sich aendern.'),
+         'note': ('Bewusst knapp: Hier ist vieles im Fluss. Belegt sind die RFC-Nummern, die Größen und die '
+             'Existenz des Chrome-Programms; Zeitpläne können sich ändern.'),
          'value': {
              'de': ('## Und die Zertifikate? Große Signaturen und Merkle Tree Certificates\n\nFür die '
                  'Signaturseite gibt es inzwischen die nötigen Bausteine: Wie ML-DSA-Schlüssel und -Signaturen '
@@ -423,15 +419,13 @@ POST_QUANTUM_MODULE = {
                  'work is under way on a different certificate format: **Merkle Tree Certificates (MTC)**. The '
                  'CA no longer signs every certificate individually but the root of a hash tree over many '
                  'certificates; instead of large signatures the server delivers a compact proof that its '
-                 'certificate is contained in that tree. The IETF handles the topic in the PLANTS working '
-                 'group, and Chrome has announced a dedicated quantum-resistant root program based on MTCs. For '
-                 'operations this means today: watch, do not migrate — and build automation so that a new '
+                 'certificate is contained in that tree. The IETF is working on this in the PLANTS working group, and Chrome has announced a dedicated quantum-resistant root program based on MTCs. For operations today, this means: watch, do not migrate — and build automation so that a new '
                  'certificate type will not become a major project later.'),
             },
         },
         {'type': 'terminal', 'id': 'terminal-pq-handshake',
          'note': ('Echte s_client-Ausgaben (OpenSSL 3.6) gegen einen lokalen Testserver, auf die relevanten Zeilen '
-             'gekuerzt; Hostname statt 127.0.0.1 eingesetzt. Die Byte-Zahlen gelten fuer genau diesen '
+             'gekürzt; Hostname statt 127.0.0.1 eingesetzt. Die Byte-Zahlen gelten für genau diesen '
              'Testaufbau (ECDSA-Kette, ein Key Share je Lauf).'),
          'payload': {
              'title_de': 'Was der hybride Schlüsselaustausch kostet',
@@ -471,7 +465,7 @@ POST_QUANTUM_MODULE = {
                     },
                     {
                      'text_de': 'Verbinde dich rein klassisch und vergleiche die Zeile „SSL handshake has …“.',
-                     'text_en': 'Connect purely classically and compare the "SSL handshake has …" line.',
+                     'text_en': 'Connect using only the classical group and compare the "SSL handshake has …" line.',
                      'command': 'klassisch',
                     },
                     {
@@ -515,10 +509,8 @@ POST_QUANTUM_MODULE = {
                    'vorhersagbar** — die genannten Fristen sind Vorsorge-Zeitpläne der Behörden, '
                    'keine Prognosen über den Zeitpunkt eines konkreten technischen Durchbruchs.',
              'en': '## Migration Deadlines: BSI and NIST\n\n'
-                   'Two authorities have named deadlines — with differing degrees of bindingness:\n\n'
-                   '- **BSI (Germany):** classical asymmetric encryption schemes should no longer be '
-                   'used alone by the **end of 2031**, only hybrid with post-quantum cryptography — '
-                   'for **highly sensitive applications, already from the end of 2030**. Classical '
+                   'Two authorities have named deadlines — with differing degrees of binding force:\n\n'
+                   '- **BSI (Germany):** by the **end of 2031**, classical asymmetric encryption schemes should no longer be used on their own, but only in hybrid form with post-quantum cryptography — for **highly sensitive applications, as early as the end of 2030**. Classical '
                    'signature schemes are meant to be phased out by the **end of 2035**. The BSI '
                    'announcement itself does not name concrete algorithms, but refers to the detailed '
                    'recommendations in technical guideline TR-02102.\n'
@@ -555,7 +547,7 @@ POST_QUANTUM_MODULE = {
              'options_en': [
                  'An earlier deadline applies to them (end of 2030 instead of end of 2031)',
                  'The same deadlines apply to them as to all other applications',
-                 'No deadline applies to them at all, since they run isolated anyway',
+                 'No deadline applies to them at all, since they run in isolation anyway',
                  'Only the NIST deadline applies to them, not the BSI deadline',
              ],
          }},
@@ -584,12 +576,10 @@ POST_QUANTUM_MODULE = {
                    'quickly and at reasonable cost.\n\n'
                    'The prerequisite is always the same foundation that already came up in the first '
                    'module of this block: an **inventory** — this time not of the certificates '
-                   'themselves, but of the question **which cryptographic scheme is used where in '
-                   'the company**. Without that knowledge, you can neither judge how urgent a switch '
+                   'themselves, but of **which cryptographic scheme is used where in the company**. Without that knowledge, you can neither judge how urgent a switch '
                    'is, nor where it needs to happen first.\n\n'
                    'Crypto-agility is therefore not a response to quantum computers alone — it is '
-                   'the same capability that made the shorter certificate lifetimes from module 1 of '
-                   'this block manageable in the first place: systems that can swap algorithms and '
+                   'the same capability that makes the shorter certificate lifetimes from module 1 of this block manageable in the first place: systems that can swap algorithms and '
                    'certificates without anyone having to intervene by hand.',
          }},
         {'type': 'scenario', 'id': 'scenario-pqc-priorisieren',
@@ -602,7 +592,7 @@ POST_QUANTUM_MODULE = {
                      'id': 'start',
                      'text_de': ('Die Geschäftsführung gibt Budget für „Quantensicherheit“ frei und fragt, womit '
                          'Nordwind anfangen soll. Dein erster Schritt?'),
-                     'text_en': ('Management releases budget for "quantum safety" and asks where Nordwind should start. '
+                     'text_en': ('Management approves a budget for "quantum safety" and asks where Nordwind should start. '
                          'Your first step?'),
                      'options': [
                             {
@@ -675,8 +665,7 @@ POST_QUANTUM_MODULE = {
                      'text_de': ('Schnell erledigt — aktuelle Server und Browser handeln X25519MLKEM768 oft schon von '
                          'selbst aus, ein Update genügt meist. Aber Bestelldaten sind selten 15 Jahre '
                          'schutzbedürftig; das größere Risiko liegt im VPN.'),
-                     'text_en': ('Quickly done — current servers and browsers often negotiate X25519MLKEM768 on their '
-                         'own already, an update usually suffices. But order data rarely needs 15 years of '
+                     'text_en': ('Quickly done — current servers and browsers often negotiate X25519MLKEM768 on their own already; an update is usually enough. But order data rarely needs 15 years of '
                          'protection; the bigger risk is in the VPN.'),
                     },
                     {
@@ -704,7 +693,7 @@ POST_QUANTUM_MODULE = {
         },
         {'type': 'text', 'id': 'text-lab-pqc',
          'note': ('Das Lab braucht OpenSSL 3.5 oder neuer im Runner (Debian trixie liefert 3.5). Ist das Lab '
-             'abgeschaltet, die Groessen aus der Vergleichstabelle besprechen.'),
+             'abgeschaltet, die Größen aus der Vergleichstabelle besprechen.'),
          'value': {
              'de': ('## Selbst ausprobieren: Post-Quanten-Schlüssel anfassen\n\nDas Openssl-Lab unten öffnet mit der '
                  'Vorlage **Post-Quanten-Schlüssel (ML-KEM, ML-DSA)**. Sie erzeugt einen ML-KEM-768- und einen '
@@ -715,13 +704,12 @@ POST_QUANTUM_MODULE = {
              'en': ('## Try it yourself: get your hands on post-quantum keys\n\nThe openssl lab below opens with the '
                  'template **Post-quantum keys (ML-KEM, ML-DSA)**. It generates an ML-KEM-768 and an ML-DSA-65 '
                  'key and issues a self-signed ML-DSA certificate. Look for three things in the output: the '
-                 'length of the public ML-KEM key in PEM format, the line `Signature Algorithm: ML-DSA-65`, and '
-                 'the extent of `Signature Value` — and compare that with the template "ECDSA/Ed25519 keys + '
+                 'length of the public ML-KEM key in PEM format, the line `Signature Algorithm: ML-DSA-65`, and the size of `Signature Value` — and compare that with the template "ECDSA/Ed25519 keys + '
                  'CSR".'),
             },
         },
         {'type': 'widget', 'id': 'openssl-lab',
-         'note': ('Das Lab oeffnet in diesem Modul mit der Vorlage "Post-Quanten-Schluessel". Laeuft im Runner; ohne freigegebene Art '
+         'note': ('Das Lab öffnet in diesem Modul mit der Vorlage "Post-Quanten-Schlüssel". Läuft im Runner; ohne freigegebene Art '
              '"openssl" zeigt das Widget einen Hinweis.'),
         },
         {'type': 'reflect', 'id': 'reflect-1',
@@ -751,8 +739,7 @@ POST_QUANTUM_MODULE = {
                     'Nur Hashfunktionen sind durch Quantencomputer bedroht',
                     'Quantencomputer bedrohen ausschließlich TLS, nicht aber andere Anwendungen'],
              'en': ['RSA/ECC and AES are equally threatened by quantum computers',
-                    'RSA and ECC are broken by Shor\'s algorithm, symmetric schemes are only '
-                    'limitedly affected by Grover (offsettable with larger keys)',
+                    'RSA and ECC are broken by Shor\'s algorithm, symmetric schemes are affected only to a limited degree by Grover (which larger keys can offset)',
                     'Only hash functions are threatened by quantum computers',
                     'Quantum computers threaten only TLS, not other applications'],
          },
@@ -827,7 +814,7 @@ POST_QUANTUM_MODULE = {
               'ML-KEM brechen. Schneller ist das nicht — der Handshake wird sogar um gut ein Kilobyte je '
               'Richtung größer.'),
           'en': ('The session key is derived from both secrets; an attacker would have to break X25519 AND ML-KEM. '
-              'It is not faster — the handshake even grows by a good kilobyte in each direction.'),
+              'It is not faster — in fact, the handshake grows by a little over a kilobyte in each direction.'),
          }},
         {'id': 'pq5', 'type': 'single',
          'prompt': {'de': 'Was ist mit Krypto-Agilität gemeint?',
@@ -864,7 +851,7 @@ POST_QUANTUM_MODULE = {
          'explanation': {
              'de': ('1184 + 32 = 1216 Byte (RFC 10024). Zum Vergleich: Rein klassisch sind es 32 Byte. Der '
                  'ClientHello wird dadurch so groß, dass er meist nicht mehr in ein einzelnes Paket passt.'),
-             'en': ('1184 + 32 = 1216 bytes (RFC 10024). For comparison: purely classical it is 32 bytes. This '
+             'en': ('1184 + 32 = 1216 bytes (RFC 10024). For comparison: a purely classical key share is 32 bytes. This '
                  'makes the ClientHello so large that it usually no longer fits into a single packet.'),
             },
         },
@@ -904,7 +891,7 @@ POST_QUANTUM_MODULE = {
              'de': ('`openssl s_client` zeigt: „Negotiated TLS1.3 group: X25519MLKEM768“ und „Peer signature type: '
                  'ecdsa_secp256r1_sha256“. Was folgt daraus für die Quantensicherheit dieser Verbindung?'),
              'en': ('`openssl s_client` shows: "Negotiated TLS1.3 group: X25519MLKEM768" and "Peer signature type: '
-                 'ecdsa_secp256r1_sha256". What follows for the quantum safety of this connection?'),
+                 'ecdsa_secp256r1_sha256". What does this mean for the quantum safety of this connection?'),
             },
          'options': {
              'de': [

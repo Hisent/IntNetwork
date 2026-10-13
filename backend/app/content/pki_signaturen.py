@@ -36,7 +36,7 @@ SIGNATUREN_MODULE = {
     },
     'blocks': [
         {'type': 'text', 'id': 'text-1',
-         'note': 'Die Kernverwechslung des Moduls sofort benennen: "signiert mit dem privaten, geprueft mit dem oeffentlichen" ist die Umkehrung von Verschluesselung — genau hier verrutscht es bei Lernenden am haeufigsten.',
+         'note': 'Die Kernverwechslung des Moduls sofort benennen: "signiert mit dem privaten, geprüft mit dem öffentlichen" ist die Umkehrung von Verschlüsselung — genau hier verrutscht es bei Lernenden am häufigsten.',
          'value': {
              'de': '## Signieren = Umkehrung der Verschlüsselungsrichtung\n\n'
                    'Aus Modul 4 dieses Blocks kennst du die Richtung bei Verschlüsselung: mit dem '
@@ -59,8 +59,8 @@ SIGNATUREN_MODULE = {
                    'with the **public** key, decrypt with the **private** key. For digital '
                    'signatures, the direction is **exactly reversed**:\n\n'
                    '- **Signing** happens with the **private** key. Specifically, it is not the '
-                   'whole document that gets processed, but its hash value (see module 2 of this '
-                   'block) — processed with the private key, the result is the signature.\n'
+                   'whole document but its hash value (see module 2 of this block) that is '
+                   'processed with the private key — the result is the signature.\n'
                    '- **Verifying** happens with the **public** key. Anyone who knows the public '
                    'key can check whether the signature matches the document.\n\n'
                    'This is exactly the point where most learners get confused, because they carry '
@@ -70,7 +70,7 @@ SIGNATUREN_MODULE = {
                    'all, since then anyone could produce a "valid" signature.',
          }},
         {'type': 'diagram', 'id': 'diagram-signieren-pruefen',
-         'note': ('Schritt fuer Schritt durchklicken und jeweils fragen: Welcher Schluessel ist hier im Spiel, und '
+         'note': ('Schritt für Schritt durchklicken und jeweils fragen: Welcher Schlüssel ist hier im Spiel, und '
              'wer besitzt ihn?'),
          'payload': {
              'kind': 'sequence',
@@ -167,7 +167,7 @@ SIGNATUREN_MODULE = {
                    '- **Integrität** — das Dokument wurde seit der Signatur nicht verändert (weil '
                    'sich sonst der Hash-Wert ändern und die Signatur nicht mehr passen würde, siehe '
                    'Modul 2 dieses Blocks).\n'
-                   '- **Urheberschaft** — die Signatur konnte nur mit dem privaten Schlüssel einer '
+                   '- **Urheberschaft** — die Signatur kann nur mit dem privaten Schlüssel einer '
                    'bestimmten Partei erzeugt worden sein.\n\n'
                    'Eine digitale Signatur beweist ausdrücklich **nicht**:\n\n'
                    '- **Vertraulichkeit** — eine Signatur verschlüsselt nichts. Das signierte '
@@ -201,7 +201,7 @@ SIGNATUREN_MODULE = {
                    'signature itself.\n\n'
                    'This is exactly the answer to the accountant\'s question from the scenario: a '
                    'signature says nothing about secrecy — it says "this came from here and was '
-                   'not altered," not "nobody else has seen this".',
+                   'not altered", not "nobody else has seen this".',
          }},
         {'type': 'text', 'id': 'text-3',
          'value': {
@@ -279,8 +279,8 @@ SIGNATUREN_MODULE = {
                  'topic of this course: an **X.509 certificate** is, at its core, nothing other than a '
                  '**digital signature by a certificate authority (CA) over a public key plus identity '
                  'information** (e.g. domain name, organization). The CA uses its own private key to sign the '
-                 'statement "this public key belongs to this identity" — and anyone who knows and trusts the '
-                 "CA's public key can verify that signature.\n\nThis means the exact same thing applies to a "
+                 'statement "this public key belongs to this identity" — and anyone who knows the '
+                 "CA's public key and trusts the CA can verify that signature.\n\nThis means the exact same thing applies to a "
                  'certificate as to any other signature: it proves that the key-to-identity mapping was '
                  'confirmed by the CA and has not been altered since — it does not automatically prove that the '
                  'organization behind it is trustworthy, and without a timestamp it proves nothing about the '
@@ -381,7 +381,7 @@ SIGNATUREN_MODULE = {
                  '`lieferschein.txt` durch `lieferschein-manipuliert.txt` und führe ihn erneut aus. Die Dateien '
                  'unterscheiden sich in einer einzigen Ziffer — openssl meldet `Verification failure` und '
                  'beendet sich mit einem Rückgabewert ungleich 0. Genau so sieht eine erkannte Manipulation aus.'),
-             'en': ('## Try it yourself: sign and verify\n\nThe openssl lab below offers two templates for '
+             'en': ('## Try It Yourself: Sign and Verify\n\nThe openssl lab below offers two templates for '
                  'this:\n\n- **Hash and HMAC** — computes the SHA-256 of a delivery note and of a tampered '
                  'copy, plus an HMAC.\n- **Sign and verify** — generates an ECDSA key pair, signs '
                  '`lieferschein.txt`, and verifies the signature with the public key (`Verified OK`).\n\nThe '
@@ -392,7 +392,7 @@ SIGNATUREN_MODULE = {
             },
         },
         {'type': 'widget', 'id': 'openssl-lab',
-         'note': ('Vorlage "Signieren und pruefen" waehlen lassen. Laeuft im Runner; ohne freigegebene Art "openssl" '
+         'note': ('Vorlage "Signieren und prüfen" wählen lassen. Läuft im Runner; ohne freigegebene Art "openssl" '
              'zeigt das Widget einen Hinweis.'),
         },
         {'type': 'reflect', 'id': 'reflect-1',

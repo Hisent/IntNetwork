@@ -62,7 +62,7 @@ export function Ipv6({ lang }: { lang: Lang }) {
           {[
             [s.shortForm, short],
             [s.fullForm, full],
-            [s.type, classify(addr)],
+            [s.type, classify(addr, lang)],
           ].map(([k, v]) => (
             <div key={k} className="flex justify-between px-3 py-1.5">
               <span className="text-slate-500">{k}</span>

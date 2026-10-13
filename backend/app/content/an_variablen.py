@@ -12,7 +12,7 @@ VARIABLEN_MODULE = {
     'prerequisites': ['playbooks-grundlagen'],
     'goals': ['Variablenquellen benennen (Inventory, vars, vars_files, Rollen-Defaults, '
               'Extra-Vars, …)',
-              'Die grobe Vorrangregel „spezifischer/expliziter schlägt allgemeiner” anwenden',
+              'Die grobe Vorrangregel „spezifischer/expliziter schlägt allgemeiner“ anwenden',
               'Bei einem einfachen Konfliktbeispiel den wirksamen Wert bestimmen',
               'Jinja2-Variablenreferenzen korrekt lesen'],
     'goals_en': ['Name variable sources (inventory, vars, vars_files, role defaults, extra vars, '
@@ -24,7 +24,7 @@ VARIABLEN_MODULE = {
                        'Inventar, im Playbook, in einer Rolle, sogar direkt beim Aufruf auf der '
                        'Kommandozeile. Wenn mehrere dieser Quellen sich widersprechen, gewinnt '
                        'eine davon — und genau das sorgt regelmäßig für die Frage „warum wirkt '
-                       'meine Änderung nicht?”. Dieses Modul zeigt die Regeln, die man dafür '
+                       'meine Änderung nicht?“. Dieses Modul zeigt die Regeln, die man dafür '
                        'wirklich im Kopf haben sollte, und wo die vollständige Liste steht.',
                  'en': 'A variable can be set in Ansible in a great many places — in the '
                        'inventory, in the playbook, in a role, even directly on the command line '
@@ -50,7 +50,7 @@ VARIABLEN_MODULE = {
                          '- **Extra-Vars** — beim Aufruf mit `-e`/`--extra-vars` übergeben\n'
                          '\n'
                          'Alle diese Quellen können denselben Variablennamen setzen — welche '
-                         'davon am Ende „gewinnt”, regelt die Vorrangordnung.',
+                         'davon am Ende „gewinnt“, regelt die Vorrangordnung.',
                    'en': '## Variable sources at a glance\n'
                          '\n'
                          'Variables can come from, among others, these sources:\n'
@@ -63,7 +63,7 @@ VARIABLEN_MODULE = {
                          'overridable starting value\n'
                          '- **Role `vars`** — a role’s `vars/main.yml`, less easily overridden '
                          'from outside than defaults\n'
-                         '- **Extra-vars** — passed at invocation with `-e`/`--extra-vars`\n'
+                         '- **Extra vars** — passed at invocation with `-e`/`--extra-vars`\n'
                          '\n'
                          'All of these sources can set the same variable name — which one '
                          '"wins" in the end is governed by the precedence order.'}},
@@ -75,7 +75,7 @@ VARIABLEN_MODULE = {
                          '**Configuration settings**, **Command-line options**, **Playbook '
                          'keywords**, **Variables**, **Direct Assignment**.\n'
                          '\n'
-                         'Innerhalb der Kategorie „Variables” gelten zwei feste Eckpunkte:\n'
+                         'Innerhalb der Kategorie „Variables“ gelten zwei feste Eckpunkte:\n'
                          '\n'
                          '- **Extra-Vars** (`-e`/`--extra-vars`) haben die **höchste** Priorität '
                          'aller Variablenquellen — sie überschreiben praktisch alles andere.\n'
@@ -84,7 +84,7 @@ VARIABLEN_MODULE = {
                          'gedacht.\n'
                          '\n'
                          'Dazwischen führt die offizielle Dokumentation („Understanding variable '
-                         'precedence”) insgesamt 22 Stufen auf. Die wichtigsten, von schwach '
+                         'precedence“) insgesamt 22 Stufen auf. Die wichtigsten, von schwach '
                          'nach stark: Inventar-`group_vars` → Inventar-`host_vars` → Host-Facts '
                          '→ Play-`vars` → `vars_files` → Rollen-`vars` → Block-/Task-`vars` → '
                          '`include_vars` → `set_fact`/`register` → Rollen-Parameter. Auswendig '
@@ -101,7 +101,7 @@ VARIABLEN_MODULE = {
                          '\n'
                          'Within the "Variables" category, two fixed end points apply:\n'
                          '\n'
-                         '- **Extra-vars** (`-e`/`--extra-vars`) have the **highest** priority of '
+                         '- **Extra vars** (`-e`/`--extra-vars`) have the **highest** priority of '
                          'all variable sources — they override virtually everything else.\n'
                          '- **Role defaults** (`defaults/main.yml`) have the **lowest** '
                          'priority — they are deliberately meant as an easily overridable '
@@ -113,11 +113,11 @@ VARIABLEN_MODULE = {
                          'facts → play `vars` → `vars_files` → role `vars` → block/task `vars` → '
                          '`include_vars` → `set_fact`/`register` → role params. Nobody needs to '
                          'know that by heart. For practical purposes it is usually enough to '
-                         'remember: extra-vars always win, role defaults always lose, host '
+                         'remember: extra vars always win, role defaults always lose, host '
                          'beats group, playbook beats inventory — and the rest is worth looking '
                          'up in the docs.'},
          'note': 'Vollständige 22-Stufen-Liste: playbook_guide/playbooks_variables.html '
-                 '(„Understanding variable precedence”); die fünf Kategorien stehen in '
+                 '(„Understanding variable precedence“); die fünf Kategorien stehen in '
                  'reference_appendices/general_precedence.html. Bei Detailfragen live zeigen.'},
         {'type': 'diagram',
          'id': 'diagram-vorrang',
@@ -155,7 +155,7 @@ VARIABLEN_MODULE = {
                                  'detail_de': 'Bewusst stark: schlagen Play-vars und Inventar. '
                                               'Deshalb nur für rollen-interne Werte.',
                                  'detail_en': 'Deliberately strong: beat play vars and inventory. '
-                                              'So only for role-internal values.'},
+                                              'So use them only for role-internal values.'},
                                 {'name': 'vars_files',
                                  'content_de': 'im Play eingebundene Dateien',
                                  'content_en': 'files included in the play'},
@@ -193,20 +193,20 @@ VARIABLEN_MODULE = {
                      'options_de': ['nginx (Rollen-Default)', 'apache2 (group_vars)',
                                     'httpd (Extra-Vars)'],
                      'options_en': ['nginx (role default)', 'apache2 (group_vars)',
-                                    'httpd (extra-vars)']}},
+                                    'httpd (extra vars)']}},
         {'type': 'text', 'id': 'text-lab-variablen',
          'value': {'de': '## Praxis: Vorrang selbst auslösen\n'
                          '\n'
                          'Wähle im Lab die Vorlage **Variablen-Vorrang**. Sie setzt eine '
                          'Variable (`umgebung`) in den Play-`vars`. Lass das Playbook erst so '
-                         'laufen, trage dann im Feld „Extra-Vars” einen abweichenden Wert ein '
+                         'laufen, trage dann im Feld „Extra-Vars“ einen abweichenden Wert ein '
                          '(`umgebung=produktion`), starte erneut und prüfe, '
                          'welcher Wert sich tatsächlich durchsetzt — passt das Ergebnis zur Regel '
                          'oben? Ist das Lab bei euch nicht aktiv, beantworte die Frage anhand des '
                          '`paket_name`-Beispiels oben, statt sie praktisch nachzuvollziehen.',
                    'en': '## Hands-on: triggering precedence yourself\n'
                          '\n'
-                         'Choose the **Variable precedence** template in the lab. It sets the '
+                         'Choose the **Variable precedence** template in the lab. It sets a '
                          'variable (`umgebung`) in the play `vars`. Run the playbook as is first, '
                          'then enter a different value in the "Extra vars" field '
                          '(`umgebung=produktion`), run it again and check which value '
@@ -236,7 +236,7 @@ VARIABLEN_MODULE = {
                          'Not every variable is fixed before the run starts — some only come '
                          'into being during execution:\n'
                          '\n'
-                         '- **`register`** — stores the result of a task (e.g. output, return '
+                         '- **`register`** — stores the result of a task (e.g., output, return '
                          'value, success/failure) in a new variable for reuse in later tasks.\n'
                          '- **`set_fact`** — explicitly sets a variable during the play, for '
                          'example based on a calculation or a previous `register` result.\n'
@@ -357,7 +357,7 @@ VARIABLEN_MODULE = {
                          '\n'
                          'The `default(80)` filter supplies 80 if `http_port` was not set '
                          'anywhere. Where `http_port` ultimately comes from — inventory, '
-                         'group_vars, a role default, or extra-vars — is decided by exactly the '
+                         'group_vars, a role default, or extra vars — is decided by exactly the '
                          'same precedence rule as in a regular task; templates are no exception.'}},
         {'type': 'scenario',
          'id': 'scenario-wirkt-nicht',
@@ -406,7 +406,7 @@ VARIABLEN_MODULE = {
                                 'text_de': 'Treffer: roles/webserver/vars/main.yml enthält '
                                            'http_port: 443. Rollen-vars schlagen das Inventar. Wie '
                                            'löst du es sauber?',
-                                'text_en': 'Hit: roles/webserver/vars/main.yml contains http_port: '
+                                'text_en': 'Match: roles/webserver/vars/main.yml contains http_port: '
                                            '443. Role vars beat the inventory. How do you solve it '
                                            'cleanly?',
                                 'options': [{'label_de': 'Den Wert in der Rolle nach '
@@ -433,7 +433,7 @@ VARIABLEN_MODULE = {
                                            'mit noch mehr Gewicht überdecken, statt ihn '
                                            'aufzulösen.',
                                 'text_en': 'set_fact is a module and runs as a task, not in a '
-                                           'variables file. And it would only cover the conflict '
+                                           'variables file. And it would only cover up the conflict '
                                            'with even more weight instead of resolving it.'}]}},
         {'type': 'order', 'id': 'order-1',
          'payload': {'prompt_de': 'Die fünf großen, offiziell belegten Kategorien — von '
@@ -447,7 +447,7 @@ VARIABLEN_MODULE = {
         {'type': 'reflect', 'id': 'reflect-1',
          'payload': {'prompt_de': 'Erinnere dich an eine Situation (aus diesem oder einem anderen '
                                   'Automatisierungswerkzeug), in der eine Änderung „nicht '
-                                  'wirkte”, weil eine andere Quelle Vorrang hatte. Was hättest du '
+                                  'wirkte“, weil eine andere Quelle Vorrang hatte. Was hättest du '
                                   'mit dem Wissen aus diesem Modul schneller gefunden?',
                      'prompt_en': 'Recall a situation (in this or another automation tool) where '
                                   'a change "did not take effect" because another source took '
@@ -468,15 +468,15 @@ VARIABLEN_MODULE = {
          'answer': 1,
          'options': {'de': ['Rollen-Defaults', 'Extra-Vars (-e/--extra-vars)', 'group_vars',
                             'host_vars'],
-                     'en': ['Role defaults', 'Extra-vars (-e/--extra-vars)', 'group_vars',
+                     'en': ['Role defaults', 'Extra vars (-e/--extra-vars)', 'group_vars',
                             'host_vars']}},
         {'id': 'va2',
          'explanation': {'de': 'Rollen-Defaults sind als überschreibbarer Startwert gedacht und '
                                'verlieren deshalb gegen alles. Nicht verwechseln mit '
                                '`vars/main.yml` derselben Rolle — die ist im Gegenteil sehr stark.',
                          'en': 'Role defaults are meant as an overridable starting value and '
-                               'therefore lose against everything. Do not confuse them with the '
-                               "same role's `vars/main.yml` — that one is, on the contrary, very "
+                               'therefore lose to everything. Do not confuse them with the '
+                               "same role's `vars/main.yml` — that one is, by contrast, very "
                                'strong.'},
          'type': 'single',
          'prompt': {'de': 'Welche Variablenquelle hat die niedrigste Priorität?',
@@ -484,7 +484,7 @@ VARIABLEN_MODULE = {
          'answer': 2,
          'options': {'de': ['Extra-Vars', 'Playbook-vars', 'Rollen-Defaults (defaults/main.yml)',
                             'Direct Assignment'],
-                     'en': ['Extra-vars', 'Playbook vars', 'Role defaults (defaults/main.yml)',
+                     'en': ['Extra vars', 'Playbook vars', 'Role defaults (defaults/main.yml)',
                             'Direct Assignment']}},
         {'id': 'va3',
          'explanation': {'de': 'Die Reihenfolge der fünf Kategorien lautet Configuration settings '
@@ -497,7 +497,7 @@ VARIABLEN_MODULE = {
                                'keywords.'},
          'type': 'single',
          'prompt': {'de': 'In der offiziellen Reihenfolge der fünf großen Kategorien — welche '
-                          'steht VOR „Playbook keywords”?',
+                          'steht VOR „Playbook keywords“?',
                     'en': 'In the official order of the five broad categories — which one comes '
                           'BEFORE "Playbook keywords"?'},
          'answer': 0,
@@ -529,7 +529,7 @@ VARIABLEN_MODULE = {
          'prompt': {'de': 'Welche zwei Mechanismen erzeugen Variablen erst zur Laufzeit (während '
                           'des Plays), statt vor dem Lauf festzustehen?',
                     'en': 'Which two mechanisms create variables only at runtime (during the '
-                          'play), instead of being fixed before the run?'},
+                          'play), rather than having them fixed before the run?'},
          'answer': [0, 1],
          'options': {'de': ['register', 'set_fact', 'group_vars/all.yml', 'defaults/main.yml'],
                      'en': ['register', 'set_fact', 'group_vars/all.yml', 'defaults/main.yml']}},
@@ -549,7 +549,7 @@ VARIABLEN_MODULE = {
                                'warum rollen-interne Werte in `vars/` und anpassbare in '
                                '`defaults/` gehören.',
                          'en': 'Role vars rank above play vars in the precedence list, so 443 — '
-                               'reproduced for real with ansible-core 2.21. The intuition "the '
+                               'verified in a real run with ansible-core 2.21. The intuition "the '
                                'playbook is closer" leads to 8080 and is exactly why role-internal '
                                'values belong in `vars/` and adjustable ones in `defaults/`.'}},
         {'id': 'va7',
@@ -594,15 +594,15 @@ VARIABLEN_MODULE = {
                                'automatisch „stärker“. Mehrfachdefinitionen sind kein Fehler, es '
                                'gewinnt schlicht die stärkere Quelle.',
                          'en': '`set_fact` ranks above task vars in the precedence list, so `fact` '
-                               '— reproduced for real. `task` seems obvious because it is written '
-                               'right at the task; but "closer" does not automatically mean '
-                               '"stronger" in Ansible. Multiple definitions are not an error, the '
+                               '— verified in a real run. `task` seems obvious because it is set '
+                               'directly on the task; but "closer" does not automatically mean '
+                               '"stronger" in Ansible. Multiple definitions are not an error; the '
                                'stronger source simply wins.'}},
         {'id': 'va8',
          'type': 'single',
          'prompt': {'de': '`paket` ist nirgends definiert. Was ergibt `"{{ paket | '
                           'default(\'nginx\') | upper }}"`?',
-                    'en': '`paket` is defined nowhere. What does `"{{ paket | default(\'nginx\') | '
+                    'en': '`paket` is not defined anywhere. What does `"{{ paket | default(\'nginx\') | '
                           'upper }}"` yield?'},
          'answer': 2,
          'options': {'de': ['nginx', 'Einen Fehler: paket ist undefiniert', 'NGINX', 'PAKET'],

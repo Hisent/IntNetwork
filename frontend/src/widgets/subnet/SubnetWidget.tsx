@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { subnetInfo } from '@/widgets/subnet/subnet'
+import { clampOctet, subnetInfo } from '@/widgets/subnet/subnet'
 import { ChallengeBox } from '@/components/ChallengeBox'
 import type { Lang } from '@/lib/i18n'
 
@@ -20,7 +20,7 @@ export function Subnet({ lang }: { lang: Lang }) {
   const s = STR[lang]
 
   const setOctet = (i: number, v: string) => {
-    const n = Math.max(0, Math.min(255, Number(v) || 0))
+    const n = clampOctet(v)
     setOctets((o) => o.map((x, j) => (j === i ? n : x)))
   }
 

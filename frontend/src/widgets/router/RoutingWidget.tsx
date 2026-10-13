@@ -15,7 +15,7 @@ const ROUTES: Route[] = [
 
 const PRESETS = ['192.168.10.50', '192.168.20.5', '8.8.8.8']
 
-interface Hop { label: string; text: { de: string; en: string }; nat?: boolean }
+interface Hop { label: string; labelEn?: string; text: { de: string; en: string }; nat?: boolean }
 
 // Hop-für-Hop-Pfade für den Traceroute-Simulator; beim externen Ziel
 // übersetzt R1 die private Quell-IP (NAT) bevor es Richtung ISP geht
@@ -27,7 +27,7 @@ const TRACES: Record<string, Hop[]> = {
     { label: 'R1 (192.168.10.1)', text: {
       de: 'Routing-Tabelle: 192.168.20.0/24 ist direkt verbunden (Gi0/1). TTL 63.',
       en: 'Routing table: 192.168.20.0/24 is directly connected (Gi0/1). TTL 63.' } },
-    { label: 'Ziel 192.168.20.5', text: {
+    { label: 'Ziel 192.168.20.5', labelEn: 'Destination 192.168.20.5', text: {
       de: 'Angekommen — zwei Hops, kein NAT nötig (beide Netze privat & intern).',
       en: 'Arrived — two hops, no NAT needed (both networks private & internal).' } },
   ],
@@ -44,7 +44,7 @@ const TRACES: Record<string, Hop[]> = {
     { label: 'ISP (203.0.113.2)', text: {
       de: 'Der Provider routet weiter Richtung Internet. TTL 62.',
       en: 'The provider routes onward toward the internet. TTL 62.' } },
-    { label: 'Ziel 8.8.8.8', text: {
+    { label: 'Ziel 8.8.8.8', labelEn: 'Destination 8.8.8.8', text: {
       de: 'Angekommen — die Antwort läuft denselben Weg zurück, R1 übersetzt die NAT wieder zurück.',
       en: 'Arrived — the reply takes the same path back, R1 reverses the NAT translation.' } },
   ],
@@ -102,7 +102,7 @@ function Traceroute({ lang }: { lang: Lang }) {
           <li key={h.label} className="flex items-start gap-3 text-xs animate-fade-up">
             <span className="w-5 shrink-0 font-mono text-slate-400">{i + 1}.</span>
             <span className="w-40 shrink-0 font-mono text-slate-700">
-              {h.label}
+              {lang === 'en' ? h.labelEn ?? h.label : h.label}
               {h.nat && <span className="ml-1 rounded bg-amber-100 px-1 py-0.5 text-[10px] font-semibold text-amber-800">{s.natBadge}</span>}
             </span>
             <span className="text-slate-600">{h.text[lang]}</span>

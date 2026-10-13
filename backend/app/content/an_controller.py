@@ -13,9 +13,9 @@ CONTROLLER_MODULE = {'key': 'automation-controller-betrieb',
            'Eine Job-Ausgabe (ok/changed/failed) im Controller-Kontext interpretieren'],
  'goals_en': ['Name the parts of a job template',
               'Explain the purpose of surveys (prompting for extra vars with validation)',
-              'Place the basic RBAC principle (organization/team/user)',
-              'Tell workflow templates apart from single job templates',
-              'Interpret a job output (ok/changed/failed) in the controller context'],
+              'Understand the basic RBAC principle (organization/team/user)',
+              'Distinguish workflow templates from individual job templates',
+              'Interpret job output (ok/changed/failed) in the controller context'],
  'scenario': {'de': 'Der Automation Controller steht bereit — jetzt braucht es konkrete '
                     'Objekte darin: Wie wird aus einem Playbook im Git-Repo ein Button, den '
                     'ein Kollege aus dem Support-Team ohne CLI-Kenntnisse gefahrlos drücken '
@@ -26,7 +26,7 @@ CONTROLLER_MODULE = {'key': 'automation-controller-betrieb',
                     'objects inside it: how does a playbook in a Git repo become a button that '
                     "a support colleague without CLI knowledge can safely press? How do you "
                     'make sure they can only change the values that are truly meant to vary, '
-                    'and only on the inventories they have rights to? This module builds the '
+                    'and only on the inventories they have permissions for? This module builds the '
                     "controller's operating model."},
  'blocks': [{'type': 'text', 'id': 'text-1',
              'value': {'de': '## Das Job-Template als Grundbaustein\n'
@@ -74,8 +74,8 @@ CONTROLLER_MODULE = {'key': 'automation-controller-betrieb',
                          'title_en': 'What a job is made of',
                          'caption_de': 'Das Job-Template bündelt; jeder Start erzeugt daraus einen '
                                        'Job mit eigener Historie.',
-                         'caption_en': 'The job template bundles; every launch creates a job with '
-                                       'its own history from it.',
+                         'caption_en': 'The job template bundles them; every launch creates a job from it, '
+                                       'with its own history.',
                          'nodes': [{'id': 'git',
                                     'shape': 'cloud',
                                     'row': 0,
@@ -87,7 +87,7 @@ CONTROLLER_MODULE = {'key': 'automation-controller-betrieb',
                                     'label': 'Project',
                                     'detail_de': 'Synchronisierter Stand des Repos: Playbooks und '
                                                  'Rollen.',
-                                    'detail_en': 'Synchronised state of the repo: playbooks and '
+                                    'detail_en': 'Synchronized state of the repo: playbooks and '
                                                  'roles.'},
                                    {'id': 'survey',
                                     'row': 0,
@@ -104,7 +104,7 @@ CONTROLLER_MODULE = {'key': 'automation-controller-betrieb',
                                     'detail_de': 'Zielhosts und Gruppen — statisch gepflegt oder '
                                                  'aus einer Quelle synchronisiert.',
                                     'detail_en': 'Target hosts and groups — maintained statically '
-                                                 'or synchronised from a source.'},
+                                                 'or synchronized from a source.'},
                                    {'id': 'jt',
                                     'row': 1,
                                     'col': 1,
@@ -180,8 +180,8 @@ CONTROLLER_MODULE = {'key': 'automation-controller-betrieb',
                              'state, so job templates always run against the most recently '
                              'synced code.\n'
                              '\n'
-                             '**Credentials** are centrally managed, encrypted credentials — SSH '
-                             'keys, vault passwords, cloud API keys, and more. The decisive '
+                             '**Credentials** are centrally managed secrets, stored encrypted — SSH '
+                             'keys, vault passwords, cloud API keys, and more. The key '
                              'advantage over command-line operation: users allowed to launch a '
                              'job never see the underlying secret in plain text — they only get '
                              'the right to *use* it, not to *view* it.\n'
@@ -213,12 +213,12 @@ CONTROLLER_MODULE = {'key': 'automation-controller-betrieb',
                              'Ein **Survey** ist ein Fragen-Formular, das vor dem Start eines '
                              'Job-Templates erscheint. Die Antworten werden automatisch zu '
                              '`extra_vars` für den Playbook-Lauf — inklusive '
-                             'Eingabevalidierung (z. B. „nur Zahlen zwischen 1 und 10”, '
-                             '„Pflichtfeld”, „Auswahl aus einer festen Liste”).\n'
+                             'Eingabevalidierung (z. B. „nur Zahlen zwischen 1 und 10“, '
+                             '„Pflichtfeld“, „Auswahl aus einer festen Liste“).\n'
                              '\n'
                              'Der Effekt: Eine Person ohne Ansible-Kenntnisse kann einen Job '
                              'starten und dabei genau die Werte angeben, die für diesen Lauf '
-                             'variabel sein sollen (z. B. „welche Version wird ausgerollt?”), '
+                             'variabel sein sollen (z. B. „welche Version wird ausgerollt?“), '
                              'ohne YAML zu sehen oder eine `-e`-Kommandozeile zu tippen — und '
                              'ohne versehentlich einen ungültigen Wert übergeben zu können.',
                        'en': '## Surveys: self-service with guardrails\n'
@@ -274,7 +274,7 @@ CONTROLLER_MODULE = {'key': 'automation-controller-betrieb',
             {'type': 'match',
              'id': 'match-controller-objekte',
              'payload': {'prompt_de': 'Ordne jedem Controller-Objekt seine Aufgabe zu.',
-                         'prompt_en': 'Match each controller object to its job.',
+                         'prompt_en': 'Match each controller object to its purpose.',
                          'pairs': [{'left': 'Project',
                                     'right_de': 'holt Playbooks und Rollen aus einem Git-Repo',
                                     'right_en': 'fetches playbooks and roles from a Git repo'},
@@ -284,7 +284,7 @@ CONTROLLER_MODULE = {'key': 'automation-controller-betrieb',
                                    {'left': 'Credential',
                                     'right_de': 'hält Zugangsdaten verschlüsselt und nicht '
                                                 'einsehbar',
-                                    'right_en': 'keeps access data encrypted and not viewable'},
+                                    'right_en': 'keeps secrets encrypted and not viewable'},
                                    {'left': 'Survey',
                                     'right_de': 'fragt beim Start Werte ab und prüft die Eingaben',
                                     'right_en': 'asks for values at launch and validates the '
@@ -328,7 +328,7 @@ CONTROLLER_MODULE = {'key': 'automation-controller-betrieb',
                              '- **User** — an individual person with their own access\n'
                              '\n'
                              'Permissions are granted at the **object level** — for each job '
-                             'template, inventory, credential, or project, it can be set '
+                             'template, inventory, credential, or project, you can define '
                              'individually who may only view it, execute it, or also edit it. A '
                              'support team can, for instance, get the right to *execute* a '
                              'specific job template without being able to *edit* it or *view* '
@@ -363,8 +363,8 @@ CONTROLLER_MODULE = {'key': 'automation-controller-betrieb',
                                     'text_de': 'Bei Störungen ruft der Support dich an, damit du '
                                                'per Playbook einen Dienst neu startest. Das soll '
                                                'er künftig selbst können. Womit beginnst du?',
-                                    'text_en': 'During incidents support calls you so that you '
-                                               'restart a service by playbook. In future they '
+                                    'text_en': 'During incidents, support calls you so that you '
+                                               'restart a service with a playbook. In the future, they '
                                                'should be able to do it themselves. Where do you '
                                                'start?',
                                     'options': [{'label_de': 'Dem Support den SSH-Schlüssel und '
@@ -390,13 +390,13 @@ CONTROLLER_MODULE = {'key': 'automation-controller-betrieb',
                                     'text_de': 'Das Template steht, mit Inventar und '
                                                'Maschinen-Credential. Welche Rechte bekommt das '
                                                'Support-Team?',
-                                    'text_en': 'The template is in place, with inventory and '
+                                    'text_en': 'The template is in place, with an inventory and a '
                                                'machine credential. Which permissions does the '
                                                'support team get?',
                                     'options': [{'label_de': 'Admin der Organisation — dann klappt '
                                                              'es sicher',
                                                  'label_en': 'Admin of the organization — then it '
-                                                             'will surely work',
+                                                             'is sure to work',
                                                  'to': 'admin'},
                                                 {'label_de': 'Nur „Execute“ auf genau diesem '
                                                              'Job-Template',
@@ -425,16 +425,16 @@ CONTROLLER_MODULE = {'key': 'automation-controller-betrieb',
                                                'dann, ohne dass das Team es je anfasst.',
                                     'text_en': 'Works, but is broader than necessary: "Use" is the '
                                                'right to build a credential into job templates. To '
-                                               'launch a finished template "Execute" is enough — '
+                                               'launch a finished template, "Execute" is enough — '
                                                'the job then uses the credential without the team '
                                                'ever touching it.'},
                                    {'id': 'auswahl',
                                     'text_de': 'Passt. Nun soll der Support wählen können, welcher '
                                                'der drei Dienste (nginx, php-fpm, redis) neu '
                                                'startet. Wie?',
-                                    'text_en': 'Fits. Now support should be able to choose which '
+                                    'text_en': 'That fits. Now support should be able to choose which '
                                                'of the three services (nginx, php-fpm, redis) '
-                                               'restarts. How?',
+                                               'is restarted. How?',
                                     'options': [{'label_de': 'Survey mit einer Auswahlliste der '
                                                              'drei Dienste',
                                                  'label_en': 'A survey with a choice list of the '
@@ -475,7 +475,7 @@ CONTROLLER_MODULE = {'key': 'automation-controller-betrieb',
                                                'Survey klar besser.',
                                     'text_en': 'Safe and understandable, but triple maintenance: '
                                                'every change to inventory, credential or EE has to '
-                                               'be made three times. From the fourth service on '
+                                               'be made three times. From the fourth service on, '
                                                'the survey is clearly better.'}]}},
             {'type': 'text', 'id': 'text-5',
              'value': {'de': '## Workflow-Templates, Zeitpläne, Ausgabe lesen\n'
@@ -485,14 +485,14 @@ CONTROLLER_MODULE = {'key': 'automation-controller-betrieb',
                              'zu einem einzelnen Job-Template, das genau einen Ansible-Lauf '
                              'darstellt. So lassen sich mehrstufige Abläufe abbilden, z. B. '
                              '„Konfiguration prüfen → bei Erfolg ausrollen → danach immer '
-                             'Statusbericht versenden”, mit einem grafischen Editor für die '
+                             'Statusbericht versenden“, mit einem grafischen Editor für die '
                              'Verkettung.\n'
                              '\n'
                              '**Zeitpläne (Schedules)** starten Job- oder Workflow-Templates '
                              'wiederkehrend, z. B. nächtlich. Wichtige Einschränkung: Soll ein '
                              'Zeitplan eigene `extra_vars` mitgeben (z. B. Zeitplan A rollt '
                              'Version X aus, Zeitplan B Version Y), braucht das Template dafür '
-                             'einen Survey oder die Option „Prompt on Launch” für Variablen — '
+                             'einen Survey oder die Option „Prompt on Launch“ für Variablen — '
                              'sonst läuft jeder geplante Start mit den festen Werten des '
                              'Templates. Die Werte gelten je Zeitplan, nicht je Lauf.\n'
                              '\n'
@@ -514,7 +514,7 @@ CONTROLLER_MODULE = {'key': 'automation-controller-betrieb',
                              '**Schedules** launch job or workflow templates on a recurring '
                              'basis, e.g. nightly. Important limitation: if a schedule should '
                              'pass its own `extra_vars` (e.g. schedule A rolls out version X, '
-                             'schedule B version Y), the template needs a survey or the “prompt '
+                             'schedule B version Y), the template needs a survey or the “Prompt '
                              'on launch” option for variables — otherwise every scheduled '
                              'launch runs with the template’s fixed values. The values apply '
                              'per schedule, not per run.\n'
@@ -526,7 +526,7 @@ CONTROLLER_MODULE = {'key': 'automation-controller-betrieb',
                              'result, traceable for later audits too.'}},
             {'type': 'reflect', 'id': 'reflect-1',
              'payload': {'prompt_de': 'Denk an einen wiederkehrenden manuellen Vorgang in deinem '
-                                      'Umfeld (z. B. „Freitagabend eine Konfiguration ausrollen”). '
+                                      'Umfeld (z. B. „Freitagabend eine Konfiguration ausrollen“). '
                                       'Skizziere in Stichworten, wie Job-Template, Survey, '
                                       'Zeitplan und RBAC dafür zusammenspielen müssten.',
                          'prompt_en': 'Think of a recurring manual task in your environment (e.g. '
@@ -626,7 +626,7 @@ CONTROLLER_MODULE = {'key': 'automation-controller-betrieb',
                                                '„Prompt on Launch“. Ohne das läuft jeder geplante '
                                                'Start mit den festen Werten des Templates.',
                                          'en': 'A schedule may only pass values the template '
-                                               'prompts for at launch — via survey or "prompt on '
+                                               'prompts for at launch — via survey or "Prompt on '
                                                'launch". Without that, every scheduled launch runs '
                                                "with the template's fixed values."},
                          'type': 'single',
@@ -637,12 +637,12 @@ CONTROLLER_MODULE = {'key': 'automation-controller-betrieb',
                                           'own `extra_vars`, different from the template’s. What '
                                           'must the job template provide for that?'},
                          'answer': 0,
-                         'options': {'de': ['Ein Survey bzw. „Prompt on Launch” für die '
+                         'options': {'de': ['Ein Survey bzw. „Prompt on Launch“ für die '
                                             'variable Eingabe',
                                             'Ein zweites Job-Template pro Nacht',
                                             'Nichts — Zeitpläne dürfen `extra_vars` immer '
                                             'frei setzen'],
-                                     'en': ['A survey or “prompt on launch” for the variable '
+                                     'en': ['A survey or “Prompt on launch” for the variable '
                                             'input',
                                             'A second job template per night',
                                             "Nothing — schedules may always set `extra_vars` "
@@ -663,7 +663,7 @@ CONTROLLER_MODULE = {'key': 'automation-controller-betrieb',
                                                'C mit „immer“ — macht A, C und D. Ein Workflow '
                                                'bricht bei einem Fehler nicht ab, sondern folgt '
                                                'dem Fehlerpfad.',
-                                         'en': 'A runs and fails, so C starts; B hangs on the '
+                                         'en': 'A runs and fails, so C starts; B is attached to the '
                                                'success path and is skipped. D follows C with '
                                                '"always" — that makes A, C and D. A workflow does '
                                                'not abort on a failure, it follows the failure '
@@ -683,7 +683,7 @@ CONTROLLER_MODULE = {'key': 'automation-controller-betrieb',
                                             'Der Survey überschreibt das Playbook',
                                             'Das Inventory ist veraltet'],
                                      'en': ['The credential has expired',
-                                            'The project has not been synchronised since the push',
+                                            'The project has not been synchronized since the push',
                                             'The survey overrides the playbook',
                                             'The inventory is outdated']},
                          'explanation': {'de': 'Der Controller führt den Stand aus, den das '
@@ -694,7 +694,7 @@ CONTROLLER_MODULE = {'key': 'automation-controller-betrieb',
                                                'würde den Job scheitern lassen, nicht alten Code '
                                                'ausführen.',
                                          'en': 'The controller runs the state the project last '
-                                               'fetched from the repo. Fix: synchronise the '
+                                               'fetched from the repo. Fix: synchronize the '
                                                'project — or enable "Update Revision on Launch" on '
                                                'the project, then it happens before every job. An '
                                                'expired credential would make the job fail, not '

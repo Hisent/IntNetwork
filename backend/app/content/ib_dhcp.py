@@ -24,7 +24,7 @@ DHCP_INFOBLOX_MODULE = {
                'Grid-Architektur). Jetzt geht es an die eigentliche Adressvergabe: Wo im Grid '
                'werden Netzwerke, Bereiche und feste Zuordnungen angelegt — und wie verhindert '
                'man, dass dieselbe Lease-Zeit an zehn Stellen einzeln gepflegt werden muss?'),
-        'en': ('Nordwind now runs several sites over an Infoblox Grid (see Grid Architecture). '
+        'en': ('Nordwind now runs several sites through an Infoblox Grid (see Grid Architecture). '
                'Next comes the actual address assignment: where in the Grid are networks, '
                'ranges and fixed assignments created — and how do you avoid maintaining the '
                'same lease time in ten different places?'),
@@ -50,14 +50,14 @@ DHCP_INFOBLOX_MODULE = {
                     'Ebene erben — dazu mehr weiter unten.'),
              'en': ('## The DHCP Object Hierarchy in NIOS\n'
                     '\n'
-                    'DHCP objects in NIOS are structured hierarchically, from the broad frame '
+                    'DHCP objects in NIOS are structured hierarchically, from the broad framework '
                     'down to the individual address:\n'
                     '\n'
                     '- **Network container** — groups several networks into a parent address block (e.g. 10.20.0.0/16 for one site). No addresses are assigned from the container itself — that happens in the networks and ranges below it.\n'
                     '- **Network** — the actual address space (e.g. 10.20.30.0/24), assigned '
                     'to one or more Grid members, carrying the basic DHCP properties.\n'
-                    '- **Range** — a sub-section of the network that is assigned dynamically '
-                    'to clients.\n'
+                    '- **Range** — a sub-section of the network from which addresses are '
+                    'assigned dynamically to clients.\n'
                     '- **Fixed address** — a fixed mapping of an IP to a specific MAC address '
                     'or client identity, independent of dynamic assignment.\n'
                     '\n'
@@ -131,7 +131,7 @@ DHCP_INFOBLOX_MODULE = {
              'en': ('## Inheritance: Grid → Member → Network → Range\n'
                     '\n'
                     'DHCP properties — lease time, DNS update behavior, options such as '
-                    'gateway or DNS server — are not typed in separately at every level, '
+                    'gateway or DNS server — are not typed in separately at every level; '
                     'they are **inherited**:\n'
                     '\n'
                     '- At the **Grid level**, a default value is set that applies to the '
@@ -223,7 +223,7 @@ DHCP_INFOBLOX_MODULE = {
                     'Die Lease-Ansicht in NIOS zeigt zu jeder aktuell vergebenen Adresse '
                     'Client-Identität, Start- und Endzeitpunkt sowie den zugehörigen Bereich '
                     '— ein zentrales Werkzeug für Troubleshooting („Wer hatte diese Adresse '
-                    'gerade?”).\n'
+                    'gerade?“).\n'
                     '\n'
                     'Die Lease-Zeit selbst folgt derselben Vererbungslogik wie andere '
                     'DHCP-Eigenschaften. Bei der Wahl gilt ein Kompromiss:\n'
@@ -252,7 +252,7 @@ DHCP_INFOBLOX_MODULE = {
                     'a client for longer, even once that client is long gone from the '
                     'network.\n'
                     '\n'
-                    'Leases can be viewed in NIOS and, if needed, cleared on purpose (Clear Lease), which makes the address free again — for example when a device has been swapped and the old '
+                    'Leases can be viewed in NIOS and, if needed, cleared individually (Clear Lease), which makes the address free again — for example when a device has been swapped and the old '
                     'mapping is getting in the way.'),
          }},
         {
@@ -315,7 +315,7 @@ DHCP_INFOBLOX_MODULE = {
                     'reference each other — which member provides DNS services for which '
                     'zone is covered in the DNS part of the course. For DHCP operations, the '
                     'key takeaway is enough: lease assignment and name resolution are not '
-                    'separate, they are tied together through DDNS.'),
+                    'separate but tied together through DDNS.'),
          }},
         {
             "type": "terminal",
@@ -485,7 +485,7 @@ DHCP_INFOBLOX_MODULE = {
         {'id': 'dg5',
          "explanation": {
              "de": "Von .10 bis .90 sind es 81 Adressen (beide Grenzen zählen mit), abzüglich der 10 Adressen .40 bis .49 bleiben 71. Der klassische Fehler ist 90 − 10 = 80 als Größe des Bereichs.",
-             "en": "From .10 to .90 there are 81 addresses (both ends count), minus the 10 addresses .40 to .49 leaves 71. The classic mistake is taking 90 − 10 = 80 as the size of the range.",
+             "en": "From .10 to .90 there are 81 addresses (both ends count), minus the 10 addresses .40 to .49, that leaves 71. The classic mistake is taking 90 − 10 = 80 as the size of the range.",
          },
          'type': 'number',
          'prompt': {'de': ('Ein Bereich reicht von 10.5.5.10 bis 10.5.5.90. Eine Exclusion '
@@ -513,7 +513,7 @@ DHCP_INFOBLOX_MODULE = {
             "type": "single",
             "prompt": {
                 "de": "Lease-Zeit im Grid: 8 Stunden. Der Member in Hamburg überschreibt auf 12 Stunden. Das Netzwerk 10.20.30.0/24 auf diesem Member hat nichts gesetzt, der Gäste-Bereich darin überschreibt auf 2 Stunden. Welche Lease-Zeit erhält ein Client aus dem zweiten Bereich desselben Netzwerks, der nichts gesetzt hat?",
-                "en": "Lease time in the Grid: 8 hours. The member in Hamburg overrides it to 12 hours. The network 10.20.30.0/24 on this member has nothing set, the guest range in it overrides to 2 hours. Which lease time does a client get from the second range of the same network, which has nothing set?",
+                "en": "Lease time in the Grid: 8 hours. The member in Hamburg overrides it to 12 hours. The network 10.20.30.0/24 on this member has nothing set; the guest range in it overrides to 2 hours. Which lease time does a client get from the second range of the same network, a range that has nothing set?",
             },
             "answer": 1,
             "options": {
@@ -522,7 +522,7 @@ DHCP_INFOBLOX_MODULE = {
             },
             "explanation": {
                 "de": "Der zweite Bereich erbt vom Netzwerk, das Netzwerk erbt vom Member — dort stehen 12 Stunden. Der Gäste-Bereich überschreibt nur für sich selbst; Overrides wirken nach unten, nie zur Seite auf einen Nachbar-Bereich.",
-                "en": "The second range inherits from the network, the network inherits from the member — which says 12 hours. The guest range overrides only for itself; overrides work downwards, never sideways onto a neighbouring range.",
+                "en": "The second range inherits from the network, the network inherits from the member — where 12 hours is set. The guest range overrides only for itself; overrides work downwards, never sideways onto a neighboring range.",
             },
         },
         {
@@ -530,7 +530,7 @@ DHCP_INFOBLOX_MODULE = {
             "type": "single",
             "prompt": {
                 "de": "Ein defekter Drucker wurde getauscht. Das neue Gerät soll dieselbe Adresse bekommen wie das alte, die aber noch drei Tage als Lease des alten Geräts vergeben ist. Was ist der saubere Weg?",
-                "en": "A broken printer was replaced. The new device should get the same address as the old one, which is still leased to the old device for three days. What is the clean way?",
+                "en": "A broken printer was replaced. The new device should get the same address as the old one, which is still leased to the old device for three days. What is the clean way to do this?",
             },
             "answer": 2,
             "options": {
@@ -549,7 +549,7 @@ DHCP_INFOBLOX_MODULE = {
             },
             "explanation": {
                 "de": "Clear Lease gibt genau diese eine Adresse frei, die Fixed Address bindet sie dauerhaft an die neue MAC-Adresse. Die neue MAC ist für den Server schlicht ein anderer Client, der eine andere Adresse bekäme; und eine netzweit kurze Lease-Zeit träfe alle Geräte, um eines zu lösen.",
-                "en": "Clear Lease frees exactly this one address, the fixed address binds it permanently to the new MAC address. To the server the new MAC is simply a different client that would get a different address; and a network-wide short lease time would hit all devices to solve one.",
+                "en": "Clear Lease frees exactly this one address; the fixed address binds it permanently to the new MAC address. To the server the new MAC is simply a different client that would get a different address; and a network-wide short lease time would affect every device just to fix one.",
             },
         },
     ]},

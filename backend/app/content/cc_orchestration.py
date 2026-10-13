@@ -12,7 +12,7 @@ ORCHESTRATION_MODULE = {'key': 'orchestration',
            'Dynamische Workflows als deterministische Orchestrierung erkennen'],
  'goals_en': ['Distinguish subagents, background sessions, and agent teams',
                'Understand when orchestration makes sense instead of a single agent',
-               'Place the fan-out and pipeline patterns',
+               'Understand when to use the fan-out and pipeline patterns',
                'Recognize dynamic workflows as deterministic orchestration'],
  'scenario': {'de': 'Ein einzelner Agent stößt an Grenzen, wenn eine Aufgabe zu groß für *ein* '
                     'Kontextfenster ist oder wenn viele Teile unabhängig parallel bearbeitet '
@@ -67,7 +67,7 @@ ORCHESTRATION_MODULE = {'key': 'orchestration',
                          'prompt_de': 'Du willst drei große, voneinander unabhängige Aufgaben '
                                       'gleichzeitig laufen lassen und beobachten. Was passt?',
                          'prompt_en': 'You want to run three large, mutually independent tasks at '
-                                      'the same time and monitor them. What fits?',
+                                      'the same time and monitor them. Which option fits?',
                          'answer': 1,
                          'options_de': ['Ein einzelner Subagent',
                                         'Hintergrund-Sessions (mehrere volle Sessions parallel)',
@@ -125,7 +125,7 @@ ORCHESTRATION_MODULE = {'key': 'orchestration',
                              'Das Fan-out kannst du im Modul 9 (Subagents) am interaktiven '
                              'Orchestrator-Widget ausprobieren; hier geht es darum, *wann* welches '
                              'Muster trägt.',
-                       'en': '## Pattern: Fan-out and Pipeline\n'
+                       'en': '## Patterns: Fan-out and Pipeline\n'
                              '\n'
                              'Two fundamental orchestration patterns:\n'
                              '\n'
@@ -142,8 +142,7 @@ ORCHESTRATION_MODULE = {'key': 'orchestration',
                              'trustworthy.\n'
                              '\n'
                              'You can try out the fan-out in Module 9 (Subagents) with the '
-                             'interactive orchestrator widget; here the question is *when* which '
-                             'pattern carries.'}},
+                             'interactive orchestrator widget; here the question is *when* each pattern is the right fit.'}},
             {'type': 'diagram',
              'id': 'diagram-orchestrierungsmuster',
              'note': 'Drei Muster in einem Bild: Fan-out (links), Pipeline je Fund (Mitte), '
@@ -219,8 +218,7 @@ ORCHESTRATION_MODULE = {'key': 'orchestration',
                                     'text_de': 'Pipeline: Jedes Ergebnis geht einzeln weiter zur '
                                                'Prüfung, sobald es fertig ist – niemand wartet auf '
                                                'den langsamsten Worker.',
-                                    'text_en': 'Pipeline: each result moves on to the review '
-                                               'individually as soon as it is done – nobody waits '
+                                    'text_en': 'Pipeline: each result moves on to review individually as soon as it is done – nobody waits '
                                                'for the slowest worker.'},
                                    {'highlight': ['pruefer', 'nein', 'zurueck', 'retry', 'w3'],
                                     'text_de': 'Prüfer-Schleife: Was der unabhängige Prüfer '
@@ -244,7 +242,7 @@ ORCHESTRATION_MODULE = {'key': 'orchestration',
                              'zusammengeführt wird, während einzelne Subagents die eigentliche '
                              'Arbeit tun.\n'
                              '\n'
-                             'Der Unterschied zum reinen „lass den Agenten selbst entscheiden”: '
+                             'Der Unterschied zum reinen „lass den Agenten selbst entscheiden“: '
                              'Die **Kontrollstruktur** (welche Schritte, wie oft, in welcher '
                              'Reihenfolge) ist festgelegt, die **inhaltliche Arbeit** bleibt bei '
                              'den Agenten. Das macht große Läufe reproduzierbar — etwa ein Review '
@@ -393,7 +391,7 @@ ORCHESTRATION_MODULE = {'key': 'orchestration',
                                       'Background sessions are multiple full sessions running in '
                                       'parallel.',
                                       'Agent teams are sessions that communicate with each other.',
-                                      'More agents are always fundamentally better than one.'],
+                                      'More agents are always better than a single one.'],
                          'wrong': [3],
                          'explanation_de': 'Mehr Agenten kosten mehr Tokens und '
                                            'Koordinationsaufwand. Man skaliert die Anzahl an der '
@@ -415,8 +413,7 @@ ORCHESTRATION_MODULE = {'key': 'orchestration',
                                     'text_de': 'In einer API mit 60 Route-Handlern sollen fehlende '
                                                'Auth-Prüfungen gefunden werden. Die Dateien hängen '
                                                'nicht voneinander ab. Wie gehst du vor?',
-                                    'text_en': 'In an API with 60 route handlers, missing auth '
-                                               'checks are to be found. The files do not depend on '
+                                    'text_en': 'In an API with 60 route handlers, the goal is to find missing auth checks. The files do not depend on '
                                                'each other. How do you proceed?',
                                     'options': [{'label_de': 'Alles im Hauptgespräch, Datei für '
                                                              'Datei.',
@@ -476,8 +473,7 @@ ORCHESTRATION_MODULE = {'key': 'orchestration',
                                                'Genau dafür gibt es eigene Kontexte je '
                                                'Teilaufgabe.',
                                     'text_en': 'After twenty files the context is full of code you '
-                                               'will never need again; the late files are checked '
-                                               'more superficially than the early ones. That is '
+                                               'will never need again; the later files are checked more superficially than the earlier ones. That is '
                                                'exactly what separate contexts per subtask are '
                                                'for.'},
                                    {'id': 'ende-team',
@@ -499,8 +495,7 @@ ORCHESTRATION_MODULE = {'key': 'orchestration',
                                                'Auftrag steht – Zuschnitt und Ergebnisformat sind '
                                                'die eigentliche Arbeit des Orchestrators.',
                                     'text_en': 'Sixty workers with the same vague assignment check '
-                                               'overlapping things, leave gaps, and return answers '
-                                               'in sixty shapes. A worker only knows what the '
+                                               'overlapping things, leave gaps, and return answers in sixty different formats. A worker only knows what the '
                                                'assignment says – scoping and result format are '
                                                "the orchestrator's real job."},
                                    {'id': 'ende-ungeprueft',
@@ -510,7 +505,7 @@ ORCHESTRATION_MODULE = {'key': 'orchestration',
                                                'einzelne Worker nicht gesehen. Nach zwei falschen '
                                                'Meldungen liest das Team die Liste nicht mehr.',
                                     'text_en': 'Fast, but some of the findings are false alarms: '
-                                               'the single worker did not see the middleware that '
+                                               'the individual worker did not see the middleware that '
                                                'does the check. After two wrong reports the team '
                                                'stops reading the list.'},
                                    {'id': 'ende-konflikt',
@@ -522,8 +517,7 @@ ORCHESTRATION_MODULE = {'key': 'orchestration',
                                                'Worktree.',
                                     'text_en': 'Unverified findings turn into unverified changes, '
                                                'and parallel edits in the same checkout overwrite '
-                                               'each other. Verify first; whoever then changes in '
-                                               'parallel gives each agent its own worktree.'},
+                                               'each other. Verify first; if you then make changes in parallel, give each agent its own worktree.'},
                                    {'id': 'ende-gut',
                                     'outcome': 'good',
                                     'text_de': 'Fan-out mit scharfem Auftrag, dann adversarische '
@@ -531,7 +525,7 @@ ORCHESTRATION_MODULE = {'key': 'orchestration',
                                                'stehen, jeder mit Beleg. Das ist zugleich das '
                                                'Muster, das ein dynamischer Workflow als Skript '
                                                'festhält, wenn du es wiederholen willst.',
-                                    'text_en': 'Fan-out with a sharp assignment, then adversarial '
+                                    'text_en': 'Fan-out with a sharply scoped assignment, then adversarial '
                                                'verification, then fan-in: nine findings remain, '
                                                'each with evidence. This is also the pattern a '
                                                'dynamic workflow captures as a script when you '
@@ -677,7 +671,7 @@ ORCHESTRATION_MODULE = {'key': 'orchestration',
                                           'Umbau. Dazwischen willst du die Analyse freigeben. Wie '
                                           'setzt du das mit dynamischen Workflows um?',
                                     'en': 'A migration has two stages: analysis first, then the '
-                                          'rewrite. In between you want to sign off the analysis. '
+                                          'rewrite. In between you want to sign off on the analysis. '
                                           'How do you do this with dynamic workflows?'},
                          'answer': 2,
                          'options': {'de': ['Ein Workflow, der in der Mitte auf deine Eingabe '
@@ -708,8 +702,7 @@ ORCHESTRATION_MODULE = {'key': 'orchestration',
                          'type': 'multi',
                          'prompt': {'de': 'Für welche Aufgaben ist ein dynamischer Workflow eher '
                                           'die falsche Wahl? (mehrere)',
-                                    'en': 'For which tasks is a dynamic workflow rather the wrong '
-                                          'choice? (multiple)'},
+                                    'en': 'For which tasks is a dynamic workflow probably the wrong choice? (multiple)'},
                          'answer': [1, 3],
                          'options': {'de': ['Alle 200 Komponenten eines Verzeichnisses nach '
                                             'demselben Schema migrieren',
@@ -735,7 +728,7 @@ ORCHESTRATION_MODULE = {'key': 'orchestration',
                                                'many items or the work exceeds one context. A '
                                                'small bug fix is faster and cheaper in the main '
                                                'conversation, and work that needs continuous '
-                                               'steering does not go together with a run that '
+                                               'steering is incompatible with a run that '
                                                'takes no input along the way.'}},
                         {'id': 'or8',
                          'type': 'single',
@@ -757,8 +750,7 @@ ORCHESTRATION_MODULE = {'key': 'orchestration',
                                             'that each owns its own files',
                                             'None – parallel agents automatically lock files '
                                             'against each other',
-                                            'Start a fourth agent that guesses the conflicts '
-                                            'afterwards',
+                                            'Start a fourth agent that guesses the conflicts afterward',
                                             'Clear the context of all agents before every edit']},
                          'explanation': {'de': 'Parallele Schreibzugriffe im selben Checkout '
                                                'überschreiben sich gegenseitig. Ein eigener '

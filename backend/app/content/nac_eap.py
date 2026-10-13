@@ -254,9 +254,7 @@ NAC_EAP_MODULE = {
              'prompt_de': 'Nordwind hat PEAP-MSCHAPv2 im Einsatz. Ein Sicherheitsaudit '
                           'bemängelt die Konfiguration. Welche der folgenden Aussagen zur '
                           'Risikoeinschätzung ist falsch?',
-             'prompt_en': 'Nordwind uses PEAP-MSCHAPv2. A security audit criticizes the '
-                         'configuration. Which of the following risk-assessment statements is '
-                         'false?',
+             'prompt_en': 'Nordwind uses PEAP-MSCHAPv2. A security audit criticizes the configuration. Which of the following risk assessment statements is false?',
              'lines_de': [
                  'PEAP-MSCHAPv2 ist rein passwortbasiert und daher grundsätzlich anfälliger für '
                  'Phishing als EAP-TLS',
@@ -445,7 +443,7 @@ NAC_EAP_MODULE = {
                     {
                         'id': 'start',
                         'text_de': 'Nordwind hat 300 domänengebundene Windows-Notebooks, ein Active Directory, aber noch keine eigene PKI. 802.1X soll in drei Monaten starten. Womit beginnst du?',
-                        'text_en': 'Nordwind has 300 domain-joined Windows notebooks, an Active Directory, but no PKI of its own yet. 802.1X is to start in three months. Where do you begin?',
+                        'text_en': 'Nordwind has 300 domain-joined Windows laptops, an Active Directory, but no PKI of its own yet. 802.1X is to start in three months. Where do you begin?',
                         'options': [
                             {
                                 'label_de': 'Sofort EAP-TLS — die PKI bauen wir nebenbei auf',
@@ -454,7 +452,7 @@ NAC_EAP_MODULE = {
                             },
                             {
                                 'label_de': 'PEAP-MSCHAPv2 als Übergang, EAP-TLS als Ziel',
-                                'label_en': 'PEAP-MSCHAPv2 as an interim, EAP-TLS as the goal',
+                                'label_en': 'PEAP-MSCHAPv2 as an interim step, EAP-TLS as the goal',
                                 'to': 'peap',
                             },
                             {
@@ -474,7 +472,7 @@ NAC_EAP_MODULE = {
                         'id': 'tls_sofort',
                         'outcome': 'ok',
                         'text_de': 'Das richtige Ziel, aber riskant im Zeitplan: Eine PKI mit Sperrprüfung, Autoenrollment und Betriebsprozessen entsteht nicht nebenbei. Scheitert sie, steht der ganze Rollout.',
-                        'text_en': 'The right goal, but risky for the schedule: a PKI with revocation checking, autoenrollment, and operating processes does not appear on the side. If it fails, the whole rollout stalls.',
+                        'text_en': 'The right goal, but risky for the schedule: a PKI with revocation checking, autoenrollment, and operating processes cannot be built on the side. If it fails, the whole rollout stalls.',
                     },
                     {
                         'id': 'peap',
@@ -493,7 +491,7 @@ NAC_EAP_MODULE = {
                             },
                             {
                                 'label_de': 'Nutzer klicken die Zertifikatswarnung beim ersten Mal selbst weg',
-                                'label_en': 'Users click away the certificate warning themselves the first time',
+                                'label_en': 'Users dismiss the certificate warning themselves the first time',
                                 'to': 'klick',
                             },
                         ],
@@ -502,7 +500,7 @@ NAC_EAP_MODULE = {
                         'id': 'aus',
                         'outcome': 'bad',
                         'text_de': 'Jetzt verbindet sich jedes Notebook auch mit einem gefälschten Access Point und schickt ihm die MSCHAPv2-Antwort. Der Tunnel schützt nur, wenn der Client den Server prüft.',
-                        'text_en': 'Now every notebook also connects to a rogue access point and sends it the MSCHAPv2 response. The tunnel only protects if the client verifies the server.',
+                        'text_en': 'Now every laptop also connects to a rogue access point and sends it the MSCHAPv2 response. The tunnel only protects if the client verifies the server.',
                     },
                     {
                         'id': 'klick',
@@ -651,7 +649,7 @@ NAC_EAP_MODULE = {
             'type': 'single',
             'prompt': {
                 'de': 'Ein Notebook soll erst als Gerät (Maschinen-Zertifikat) und nach der Anmeldung zusätzlich als Benutzer geprüft werden — und der Server soll in EINER Sitzung wissen, dass beides erfüllt ist. Welche Methode ist dafür gemacht?',
-                'en': 'A notebook is to be verified first as a device (machine certificate) and, after login, additionally as a user — and the server should know within ONE session that both are satisfied. Which method is designed for this?',
+                'en': 'A laptop is to be verified first as a device (machine certificate) and, after login, additionally as a user — and the server should know within ONE session that both are satisfied. Which method is designed for this?',
             },
             'options': {
                 'de': ['EAP-TLS', 'PEAP-MSCHAPv2', 'TEAP', 'EAP-MSCHAPv2 ohne Tunnel'],
@@ -668,7 +666,7 @@ NAC_EAP_MODULE = {
             'type': 'multi',
             'prompt': {
                 'de': 'Ein Audit findet auf den Notebooks ein PEAP-Profil mit „Serverzertifikat überprüfen: aus“. Welche Folgen hat das? (Mehrere richtig)',
-                'en': 'An audit finds a PEAP profile on the notebooks with "Verify server certificate: off". What are the consequences? (Several correct)',
+                'en': 'An audit finds a PEAP profile on the laptops with "Verify server certificate: off". What are the consequences? (Several correct)',
             },
             'options': {
                 'de': [

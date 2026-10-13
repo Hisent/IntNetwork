@@ -11,8 +11,8 @@ SECURITY_ENTERPRISE_MODULE = {'key': 'security-enterprise',
            'Organisationsweite Vorgaben über Managed Settings kennen',
            'Sichere Praktiken im Umgang mit Secrets und KI-Ausgaben anwenden'],
  'goals_en': ['Understand and use the permission model (allow/ask/deny)',
-               'Place sandboxing as an isolation layer',
-               'Know organization-wide policies via managed settings',
+               'Understand sandboxing as an isolation layer',
+               'Know how to set organization-wide policies via managed settings',
                'Apply secure practices for handling secrets and AI output'],
  'scenario': {'de': 'Ein Agent, der Dateien ändert und Kommandos ausführt, braucht Leitplanken — '
                     'besonders im Team und im Unternehmen. Dieses Modul behandelt, wie du Claude '
@@ -287,7 +287,7 @@ SECURITY_ENTERPRISE_MODULE = {'key': 'security-enterprise',
                              'ergänzen.',
                        'en': '## Sandboxing\n'
                              '\n'
-                             '**Sandboxing** encapsulates what Claude Code can do — typically by '
+                             '**Sandboxing** confines what Claude Code can do — typically by '
                              'isolating the file system and network so that commands only take '
                              "effect within a limited scope. The sandbox covers shell commands; "
                              "file tools, MCP servers, and hooks run outside it. It is off by "
@@ -448,8 +448,7 @@ SECURITY_ENTERPRISE_MODULE = {'key': 'security-enterprise',
                                      'pdu_en': 'in the repo',
                                      'detail_de': 'Wird eingecheckt und gilt für alle, die das '
                                                   'Repo klonen.',
-                                     'detail_en': 'Is checked in and applies to everyone who '
-                                                  'clones the repo.'},
+                                     'detail_en': 'It is checked in and applies to everyone who clones the repo.'},
                                     {'name_de': 'Benutzer',
                                      'name_en': 'User',
                                      'content': '~/.claude/settings.json',
@@ -567,8 +566,7 @@ SECURITY_ENTERPRISE_MODULE = {'key': 'security-enterprise',
                                       'CLAUDE.md.'],
                          'wrong': [3],
                          'explanation_de': 'Secrets gehören niemals im Klartext in Dateien wie '
-                                           'CLAUDE.md, .mcp.json oder Workflows — sie würden '
-                                           'mitgeteilt und landeten in der Historie. Zugangsdaten '
+                                           'CLAUDE.md, .mcp.json oder Workflows — sie würden mit dem Repo geteilt und landeten in der Historie. Zugangsdaten '
                                            'führt man über Umgebungsvariablen bzw. Secret-Stores.',
                          'explanation_en': 'Secrets should never be stored in plain text in files '
                                            'like CLAUDE.md, .mcp.json, or workflows — they would '
@@ -598,7 +596,7 @@ SECURITY_ENTERPRISE_MODULE = {'key': 'security-enterprise',
                                                '`ask` fragt nur nach, und `plan` ist gar keine '
                                                'Regelklasse, sondern ein Permission-Modus.',
                                          'en': '`deny` blocks matching calls and is evaluated '
-                                               'first – no `allow` lifts it. `ask` only prompts, '
+                                               'first – no `allow` overrides it. `ask` only prompts, '
                                                'and `plan` is not a rule class at all but a '
                                                'permission mode.'}},
                         {'id': 'se2',
@@ -622,7 +620,7 @@ SECURITY_ENTERPRISE_MODULE = {'key': 'security-enterprise',
                                                'Claudes Entscheidung umgeht. Schneller wird '
                                                'dadurch nichts; sie ist eine Schutzschicht, kein '
                                                'Leistungsmerkmal.',
-                                         'en': 'The sandbox limits at OS level which files and '
+                                         'en': 'At the OS level, the sandbox limits which files and '
                                                'network destinations shell commands can reach – '
                                                "even when a prompt injection bypasses Claude's "
                                                'decision. Nothing gets faster; it is a protective '
@@ -631,8 +629,7 @@ SECURITY_ENTERPRISE_MODULE = {'key': 'security-enterprise',
                          'type': 'single',
                          'prompt': {'de': 'Wo legt eine Organisation nicht-überschreibbare '
                                           'Vorgaben ab?',
-                                    'en': 'Where does an organization store non-overridable '
-                                          'policies?'},
+                                    'en': 'Where does an organization store policies that cannot be overridden?'},
                          'answer': 1,
                          'options': {'de': ['In der lokalen settings.local.json',
                                             'In Managed Settings (managed-settings.json)',
@@ -650,12 +647,11 @@ SECURITY_ENTERPRISE_MODULE = {'key': 'security-enterprise',
                                          'en': 'Managed settings sit at the very top of the '
                                                'precedence order; user and project files cannot '
                                                'override their keys. `settings.local.json` is the '
-                                               'opposite: a personal file anyone can edit.'}},
+                                               'opposite: a personal file that you can change freely.'}},
                         {'id': 'se4',
                          'type': 'single',
                          'prompt': {'de': 'Wozu dienen Settings vs. CLAUDE.md im Unternehmen?',
-                                    'en': 'What are Settings vs. CLAUDE.md used for in the '
-                                          'enterprise?'},
+                                    'en': 'What are settings vs. CLAUDE.md used for in the enterprise?'},
                          'answer': 0,
                          'options': {'de': ['Settings erzwingen technisch, CLAUDE.md leitet '
                                             'Verhalten',
@@ -756,8 +752,7 @@ SECURITY_ENTERPRISE_MODULE = {'key': 'security-enterprise',
                                             'Nur, wenn zusätzlich der Plan-Modus aktiv ist'],
                                      'en': ['Yes – command-line arguments rank above all files',
                                             'Yes, but only for this one session',
-                                            'No – a deny at any level cannot be lifted by any '
-                                            'other level',
+                                            'No – a deny at any level cannot be overridden by any other level',
                                             'Only if plan mode is active as well']},
                          'explanation': {'de': 'Managed Settings stehen über der Kommandozeile, '
                                                'und für Permission-Regeln gilt zusätzlich: Ist ein '

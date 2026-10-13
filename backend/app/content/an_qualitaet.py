@@ -12,14 +12,14 @@ QUALITAET_MODULE = {'key': 'qualitaet-testen',
            'erklären',
            'Molecule als Testrahmen für Rollen grob einordnen',
            'Typische Anfängerfehler in Playbooks erkennen'],
- 'goals_en': ['Tell the check stages syntax-check, lint, check/diff and role test apart',
+ 'goals_en': ['Distinguish the check stages syntax-check, lint, check/diff and role test',
               'Map an `ansible-lint` finding to its best-practice reason',
               'Explain the difference between `--check`/`--diff` and a real idempotency test',
-              'Roughly place Molecule as a test framework for roles',
-              'Recognise typical beginner mistakes in playbooks'],
+              'Outline where Molecule fits in as a test framework for roles',
+              'Recognize typical beginner mistakes in playbooks'],
  'scenario': {'de': 'Ein Playbook lässt sich starten und tut scheinbar das Richtige — reicht '
                     'das? In einem Team, das Playbooks per Pull Request und CI ausliefert, '
-                    'braucht es mehr als „läuft bei mir”: eine Kette aus Prüfstufen, die '
+                    'braucht es mehr als „läuft bei mir“: eine Kette aus Prüfstufen, die '
                     'Syntaxfehler, Stilverstöße und riskante Änderungen abfängt, bevor sie '
                     'produktiv laufen. Dieses Modul baut diese Kette Schritt für Schritt auf.',
               'en': 'A playbook runs and seemingly does the right thing — is that enough? In a '
@@ -105,7 +105,7 @@ QUALITAET_MODULE = {'key': 'qualitaet-testen',
                                     'label': 'molecule test',
                                     'detail_de': 'Führt die Rolle in einer Wegwerf-Umgebung '
                                                  'wirklich aus: converge, idempotence, verify.',
-                                    'detail_en': 'Really runs the role in a throwaway environment: '
+                                    'detail_en': 'Actually runs the role in a throwaway environment: '
                                                  'converge, idempotence, verify.'},
                                    {'id': 'check',
                                     'row': 0,
@@ -114,7 +114,7 @@ QUALITAET_MODULE = {'key': 'qualitaet-testen',
                                     'label_en': '--check --diff (staging)',
                                     'detail_de': 'Trockenlauf gegen echte Systeme: Sind die '
                                                  'angekündigten Änderungen plausibel?',
-                                    'detail_en': 'Dry run against real systems: are the announced '
+                                    'detail_en': 'Dry run against real systems: are the predicted '
                                                  'changes plausible?'},
                                    {'id': 'roll',
                                     'shape': 'server',
@@ -124,7 +124,7 @@ QUALITAET_MODULE = {'key': 'qualitaet-testen',
                                     'label_en': 'Rollout (serial)',
                                     'detail_de': 'In Scheiben statt auf allen Hosts zugleich; ein '
                                                  'Fehler stoppt, bevor alle betroffen sind.',
-                                    'detail_en': 'In slices instead of on all hosts at once; a '
+                                    'detail_en': 'In batches instead of on all hosts at once; a '
                                                  'failure stops before all are affected.'}],
                          'edges': [{'id': 'e1', 'from': 'pr', 'to': 'syntax'},
                                    {'id': 'e2', 'from': 'syntax', 'to': 'lint'},
@@ -157,7 +157,7 @@ QUALITAET_MODULE = {'key': 'qualitaet-testen',
                                    {'highlight': ['mol', 'e5', 'roll'],
                                     'text_de': 'Erst nach dem Merge der echte Lauf — schrittweise, '
                                                'damit ein Fehler nicht alle Hosts trifft.',
-                                    'text_en': 'Only after the merge the real run — step by step, '
+                                    'text_en': 'Only after the merge comes the real run — step by step, '
                                                'so that a failure does not hit all hosts.'}]}},
             {'type': 'text', 'id': 'text-2',
              'value': {'de': '## Stufe 1+2: Syntax-Check und Lint\n'
@@ -205,10 +205,10 @@ QUALITAET_MODULE = {'key': 'qualitaet-testen',
                              'production). Typical findings:\n'
                              '\n'
                              '\n'
-                             '- A task without `name:` — poorly readable output, hard to debug\n'
+                             '- A task without `name:` — hard-to-read output, hard to debug\n'
                              '- A module without FQCN (`apt:` instead of `ansible.builtin.apt:`) '
                              '— ambiguous once several collections are installed\n'
-                             '- `shell:`/`command:` where a declarative module would exist — '
+                             '- `shell:`/`command:` where a declarative module exists — '
                              'usually not idempotent\n'
                              '- File tasks without an explicit `mode:` (`risky-file-permissions`) '
                              '— file permissions then depend on the environment\n'
@@ -327,7 +327,7 @@ QUALITAET_MODULE = {'key': 'qualitaet-testen',
                                                  '  └─ destroy'},
                                       {'cmd': 'molecule test',
                                        'desc_de': 'Stufe 4: die Rolle wirklich ausführen',
-                                       'desc_en': 'stage 4: really run the role',
+                                       'desc_en': 'stage 4: actually run the role',
                                        'output': 'INFO  [default > destroy] Executing\n'
                                                  'INFO  [default > destroy] Executed: Successful\n'
                                                  'INFO  [default > syntax] Executing\n'
@@ -361,7 +361,7 @@ QUALITAET_MODULE = {'key': 'qualitaet-testen',
                                     'answers': ['package-latest']},
                                    {'text_de': 'Mit welchem Rückgabewert endet ansible-lint bei '
                                                'Findings?',
-                                    'text_en': 'With which return code does ansible-lint end when '
+                                    'text_en': 'What return code does ansible-lint exit with when '
                                                'there are findings?',
                                     'answers': ['2']},
                                    {'text_de': 'Starte den Rollentest.',
@@ -379,7 +379,7 @@ QUALITAET_MODULE = {'key': 'qualitaet-testen',
                              '```\n'
                              '\n'
                              '`--check` simuliert den Lauf (Trockenlauf): Module melden, ob sie '
-                             '„changed” wären, ändern aber nichts auf dem Zielsystem. `--diff` '
+                             '„changed“ wären, ändern aber nichts auf dem Zielsystem. `--diff` '
                              'zeigt zusätzlich den konkreten Dateiunterschied bei Modulen, die '
                              'Dateien schreiben (z. B. `template`, `copy`).\n'
                              '\n'
@@ -424,7 +424,7 @@ QUALITAET_MODULE = {'key': 'qualitaet-testen',
                                       'welcher Reihenfolge laufen die Qualitätsprüfungen '
                                       'sinnvollerweise ab?',
                          'prompt_en': 'A playbook is submitted via pull request — in what order '
-                                      'do the quality checks sensibly run?',
+                                      'should the quality checks run?',
                          'items_de': ['`ansible-playbook --syntax-check` (YAML/Struktur gültig?)',
                                       '`ansible-lint` (Stil und Best Practices)',
                                       '`ansible-playbook --check --diff` gegen eine Testumgebung '
@@ -440,14 +440,14 @@ QUALITAET_MODULE = {'key': 'qualitaet-testen',
             {'type': 'text', 'id': 'text-4',
              'value': {'de': '## Stufe 4: Rollen testen mit Molecule\n'
                              '\n'
-                             'Für Rollen (Modul „Rollen: Struktur & Wiederverwendung”) reicht '
+                             'Für Rollen (Modul „Rollen: Struktur & Wiederverwendung“) reicht '
                              'Lint irgendwann nicht mehr — dann kommt ein Testrahmen wie '
                              '**Molecule** ins Spiel, der eine Rolle in einer isolierten Umgebung '
                              '(häufig Container) tatsächlich ausführt und prüft.\n'
                              '\n'
                              'Zur Einordnung, ohne Detailkonfiguration: Molecule durchläuft eine '
-                             'Abfolge von Schritten, die grob von „Testumgebung aufbauen” über '
-                             '„Rolle anwenden” bis „Ergebnis verifizieren und wieder abbauen” '
+                             'Abfolge von Schritten, die grob von „Testumgebung aufbauen“ über '
+                             '„Rolle anwenden“ bis „Ergebnis verifizieren und wieder abbauen“ '
                              'reicht. Ein eigener Schritt prüft dabei gezielt die **Idempotenz**: '
                              'Die Rolle läuft ein zweites Mal, und dieser Lauf darf keine '
                              'Änderungen mehr melden.\n'
@@ -475,7 +475,7 @@ QUALITAET_MODULE = {'key': 'qualitaet-testen',
                        'en': '## Stage 4: testing roles with Molecule\n'
                              '\n'
                              'For roles (module “Roles: Structure & Reuse”), lint alone '
-                             'eventually is not enough — that is where a testing framework like '
+                             'eventually stops being enough — that is where a testing framework like '
                              '**Molecule** comes in, actually running and checking a role inside '
                              'an isolated environment (often a container).\n'
                              '\n'
@@ -499,10 +499,10 @@ QUALITAET_MODULE = {'key': 'qualitaet-testen',
                              'step.\n'
                              '\n'
                              'After the four stages comes the rollout, and two play keywords '
-                             'serve it: `serial` splits the hosts of a play into slices (batches) '
+                             'support it: `serial` splits the hosts of a play into batches '
                              'that each run to completion in turn — as a number, a percentage, or '
                              'a list such as `[1, "25%"]` (first one host, then a quarter each). '
-                             '`max_fail_percentage` sets the share of failed hosts per slice at '
+                             '`max_fail_percentage` sets the share of failed hosts per batch at '
                              'which the play aborts; the value must be exceeded, so with `0` a '
                              'single failure already stops it.'},
              'note': 'Schrittfolge gegen die Molecule-Doku (Configuration, test_sequence) '
@@ -575,7 +575,7 @@ QUALITAET_MODULE = {'key': 'qualitaet-testen',
                                                'niemanden mehr.',
                                     'text_en': 'Molecule only knows the test environment. A value '
                                                'set differently in production then hits all 40 '
-                                               'servers at once — and the load balancer has nobody '
+                                               'servers at once — and the load balancer has no servers '
                                                'left.'},
                                    {'id': 'check',
                                     'text_de': 'Der Diff zeigt genau die erwartete Zeile auf allen '
@@ -603,8 +603,8 @@ QUALITAET_MODULE = {'key': 'qualitaet-testen',
                                                'von je einem Viertel. Schlägt in einer Scheibe ein '
                                                'Host fehl, bricht das Play ab, bevor die nächste '
                                                'beginnt — der Rest bedient weiter.',
-                                    'text_en': 'First a single host as a canary, then slices of a '
-                                               'quarter each. If a host fails in a slice, the play '
+                                    'text_en': 'First a single host as a canary, then batches of a '
+                                               'quarter each. If a host fails in a batch, the play '
                                                'aborts before the next one starts — the rest keeps '
                                                'serving.'},
                                    {'id': 'vertrauen',
@@ -614,8 +614,8 @@ QUALITAET_MODULE = {'key': 'qualitaet-testen',
                                                'erst der echte Lauf — und dann gleich auf allen '
                                                'Hosts.',
                                     'text_en': 'It often works out. But --check only predicts: '
-                                               'whether nginx really starts with the new file is '
-                                               'shown only by the real run — and then on all hosts '
+                                               'only the real run shows whether nginx actually starts '
+                                               'with the new file — and then on all hosts '
                                                'at once.'},
                                    {'id': 'einzeln',
                                     'outcome': 'ok',
@@ -639,7 +639,7 @@ QUALITAET_MODULE = {'key': 'qualitaet-testen',
                              '- YAML-Einrückungsfehler, Tabs statt Leerzeichen, fehlendes '
                              'Leerzeichen nach `:` — von `--syntax-check` erkannt, aber erst wenn '
                              'er überhaupt läuft.\n'
-                             '- Unklare Variablenvorrangkonflikte, die als „Bug” erscheinen, aber '
+                             '- Unklare Variablenvorrangkonflikte, die als „Bug“ erscheinen, aber '
                              'nur eine überschriebene Variable sind.\n'
                              '\n'
                              'Die gute Nachricht: Die meisten dieser Fallen deckt mindestens eine '
@@ -695,7 +695,7 @@ QUALITAET_MODULE = {'key': 'qualitaet-testen',
                                             'Stilfragen wie fehlende `name:`-Angaben oder FQCN',
                                             'Ob unbekannte Keywords verwendet werden'],
                                      'en': ["The playbook's valid YAML structure",
-                                            'Style questions like missing `name:` entries or '
+                                            'Style issues such as missing `name:` entries or '
                                             'FQCN',
                                             'Whether unknown keywords are used']}},
                         {'id': 'qt2',
@@ -804,7 +804,7 @@ QUALITAET_MODULE = {'key': 'qualitaet-testen',
                                           'should not change things if nothing needs doing.` for '
                                           'the task `ansible.builtin.command: '
                                           '/opt/app/bin/status`. The command only reads. What is '
-                                          'the fitting fix?'},
+                                          'the appropriate fix?'},
                          'answer': 1,
                          'options': {'de': ['`ignore_errors: true` ergänzen',
                                             '`changed_when: false` ergänzen',
@@ -824,8 +824,8 @@ QUALITAET_MODULE = {'key': 'qualitaet-testen',
                                          'en': 'The rule requires a command task to say when it '
                                                'changes something. A read-only command never does '
                                                '— hence `changed_when: false`. Disabling the rule '
-                                               'would also cover all commands that really report '
-                                               '`changed` wrongly on every run; `shell` '
+                                               'would also silence it for all commands that really do report '
+                                               '`changed` incorrectly on every run; `shell` '
                                                'additionally triggers `command-instead-of-shell`.'}},
                         {'id': 'qt7',
                          'type': 'multi',
@@ -841,7 +841,7 @@ QUALITAET_MODULE = {'key': 'qualitaet-testen',
                                             'Ein `command`-Task, der bei jedem Lauf `changed` '
                                             'meldet'],
                                      'en': ['A tab instead of spaces in the indentation',
-                                            'A `when` condition that holds on the wrong hosts',
+                                            'A `when` condition that matches the wrong hosts',
                                             'A mistyped keyword such as `taks:` instead of '
                                             '`tasks:`',
                                             'A `command` task that reports `changed` on every '
@@ -873,7 +873,7 @@ QUALITAET_MODULE = {'key': 'qualitaet-testen',
                                             'Die nächsten 10 laufen noch, dann wird abgebrochen',
                                             'Das Play beginnt für alle 40 von vorn'],
                                      'en': ['They are not touched — the play aborts after the '
-                                            'first slice',
+                                            'first batch',
                                             'They continue normally, only the first host drops out',
                                             'The next 10 still run, then it aborts',
                                             'The play starts over for all 40']},
@@ -884,9 +884,9 @@ QUALITAET_MODULE = {'key': 'qualitaet-testen',
                                                'aus genau diesem einen Host. Ohne `serial` wären '
                                                'die 40 Hosts Task für Task gemeinsam '
                                                'durchgelaufen.',
-                                         'en': '`serial` splits the play into slices that each run '
-                                               'to completion in turn: first 1 host, then 25 % '
-                                               'each. If all hosts of a slice fail, the play ends '
-                                               '— here the first slice consists of exactly this '
+                                         'en': '`serial` splits the play into batches that each run '
+                                               'to completion in turn: first 1 host, then 25% '
+                                               'each. If all hosts of a batch fail, the play ends '
+                                               '— here the first batch consists of exactly this '
                                                'one host. Without `serial` the 40 hosts would have '
                                                'gone through together, task by task.'}}]}}

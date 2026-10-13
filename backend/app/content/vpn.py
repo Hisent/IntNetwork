@@ -37,8 +37,8 @@ VPN_MODULE = {
              "en": "## The Idea: a Tunnel\n\nA **VPN** (Virtual Private "
                    "Network) builds an **encrypted tunnel** through an untrusted network "
                    "(the Internet). Two endpoints negotiate keys; everything in between is "
-                   "unreadable to outsiders. This makes a remote device feel as if it hangs "
-                   "directly on the company network. For authentication, VPNs often use "
+                   "unreadable to outsiders. This makes a remote device feel as if it were connected "
+                   "directly to the company network. For authentication, VPNs often use "
                    "certificate-based methods instead of pre-shared keys (for example with "
                    "IPsec/IKEv2) — see the PKI & Encryption course.",
          }},
@@ -67,7 +67,7 @@ VPN_MODULE = {
             "prompt_de": "Erkläre in eigenen Worten: Was sieht ein Angreifer im offenen WLAN "
                          "noch, wenn du ein VPN nutzt — und was nicht mehr?",
             "prompt_en": "Explain in your own words: what can an attacker on open Wi-Fi "
-                         "still see when you use a VPN — and what not anymore?",
+                         "still see when you use a VPN — and what can they no longer see?",
         }},
         {"type": "text", "id": "text-3",
          "value": {
@@ -77,7 +77,7 @@ VPN_MODULE = {
                    "- **Remote-Access**: ein einzelnes Gerät (Homeoffice-Laptop) baut per "
                    "VPN-Client einen Tunnel zur Firma auf.",
              "en": "## Two Flavors\n\n- **Site-to-site**: two locations "
-                   "(branch ↔ headquarters) get permanently coupled via their routers/gateways — "
+                   "(branch ↔ headquarters) are permanently linked via their routers/gateways — "
                    "the users notice nothing.\n"
                    "- **Remote access**: a single device (home-office laptop) builds a tunnel "
                    "to the company via a VPN client.",
@@ -212,7 +212,7 @@ VPN_MODULE = {
                    "wirklich beim Firmen-Gateway endet und nicht bei einem Angreifer, der sich "
                    "dafür ausgibt. Es ersetzt **keine Firewall** und keinen Viren-Schutz am "
                    "Endgerät — es sichert nur den **Weg**, nicht die Endpunkte.",
-             "en": "## What VPN Protects Against — and What Not\n\nVPN provides "
+             "en": "## What a VPN Protects Against — and What It Doesn't\n\nA VPN provides "
                    "**confidentiality** (encryption) and **integrity** (unaltered) on "
                    "the transport path — and **authenticity**: both endpoints prove their identity "
                    "during setup (certificate, key or pre-shared key), so the tunnel really ends at "
@@ -225,14 +225,14 @@ VPN_MODULE = {
                  "kennt und absichert. In der Runde fragen: Wie ist es bei euch geregelt?",
          "payload": {
              "title_de": "Remote-Access für den Außendienst planen",
-             "title_en": "Planning remote access for the field staff",
+             "title_en": "Planning remote access for field staff",
              "start": "start",
              "nodes": [
                  {"id": "start",
                   "text_de": "Nordwind führt ein Remote-Access-VPN für 40 Außendienst-Laptops ein. Sie "
                              "arbeiten oft in Hotel- und Kunden-WLANs, brauchen das ERP in der Zentrale "
                              "und nehmen an Videokonferenzen teil. Welcher Verkehr soll durch den Tunnel?",
-                  "text_en": "Nordwind introduces a remote-access VPN for 40 field laptops. They often work "
+                  "text_en": "Nordwind is introducing a remote-access VPN for 40 field-staff laptops. They often work "
                              "on hotel and customer Wi-Fi, need the ERP at headquarters and join video "
                              "conferences. Which traffic should go through the tunnel?",
                   "options": [
@@ -256,7 +256,7 @@ VPN_MODULE = {
                              "Wi-Fi protected?",
                   "options": [
                       {"label_de": "Automatisch mit — das VPN ist ja eingeschaltet",
-                       "label_en": "Automatically as well — the VPN is switched on after all", "to": "irrtum"},
+                       "label_en": "Automatically too — after all, the VPN is switched on", "to": "irrtum"},
                       {"label_de": "Gar nicht durchs VPN — der Schutz muss auf dem Laptop selbst liegen",
                        "label_en": "Not by the VPN at all — protection must sit on the laptop itself", "to": "split-gut"}]},
                  {"id": "irrtum", "outcome": "bad",
@@ -281,11 +281,11 @@ VPN_MODULE = {
                       {"label_de": "Den Nutzern raten, das VPN bei Meetings zu trennen",
                        "label_en": "Advise users to disconnect the VPN during meetings", "to": "trennen"},
                       {"label_de": "Gateway und Leitung auslegen; den Konferenzdienst gezielt ausnehmen",
-                       "label_en": "Size gateway and uplink; exempt the conferencing service specifically", "to": "full-gut"}]},
+                       "label_en": "Size the gateway and uplink properly; specifically exempt the conferencing service", "to": "full-gut"}]},
                  {"id": "trennen", "outcome": "bad",
                   "text_de": "Dann entscheidet jeder Nutzer selbst, wann der Schutz gilt — und vergisst das "
                              "Wiedereinschalten. Sicherheit darf nicht davon abhängen.",
-                  "text_en": "Then every user decides when protection applies — and forgets to switch it "
+                  "text_en": "Then every user decides for themselves when protection applies — and forgets to switch it "
                              "back on. Security must not depend on that."},
                  {"id": "full-gut", "outcome": "good",
                   "text_de": "Der Umweg über die Zentrale kostet Bandbreite und Laufzeit. Eine gezielte, "
@@ -325,7 +325,7 @@ VPN_MODULE = {
              "en": "The outer header carries the public addresses of the tunnel endpoints — only those are routable on the Internet. The private internal addresses sit encrypted inside. With remote access, one of the two endpoints is the VPN client itself."}},
         {"id": "vp3", "type": "single",
          "prompt": {"de": "Wie koppelt man zwei feste Standorte dauerhaft?",
-                    "en": "How do you permanently couple two fixed locations?"},
+                    "en": "How do you permanently connect two fixed locations?"},
          "options": {
              "de": ["Remote-Access-VPN", "Site-to-Site-VPN", "Per DHCP", "Per Broadcast"],
              "en": ["Remote-access VPN", "Site-to-site VPN", "Via DHCP", "Via broadcast"],
@@ -333,7 +333,7 @@ VPN_MODULE = {
          "answer": 1,
          "explanation": {
              "de": "Site-to-Site koppelt zwei ganze Netze über ihre Gateways; die Geräte dahinter brauchen keinen VPN-Client. Remote-Access verbindet dagegen ein einzelnes Gerät, das den Tunnel selbst aufbaut.",
-             "en": "Site-to-site couples two whole networks via their gateways; the devices behind them need no VPN client. Remote access, by contrast, connects a single device that builds the tunnel itself."}},
+             "en": "Site-to-site links two whole networks via their gateways; the devices behind them need no VPN client. Remote access, by contrast, connects a single device that builds the tunnel itself."}},
         {"id": "vp4", "type": "single",
          "prompt": {"de": "Was leistet ein VPN NICHT?", "en": "What does a VPN NOT do?"},
          "options": {
@@ -369,8 +369,8 @@ VPN_MODULE = {
                    "den Laptop am Tunnel vorbei und ist nur so gut geschützt wie das Protokoll selbst — bei "
                    "HTTP gar nicht. Firmen-Firewall und VPN-Gateway sehen diesen Verkehr nie.",
              "en": "With a split tunnel the destination address decides: whatever is not bound for the "
-                   "company network leaves the laptop past the tunnel and is only as protected as the "
-                   "protocol itself — with HTTP, not at all. Company firewall and VPN gateway never see "
+                   "company network leaves the laptop outside the tunnel and is only as well protected as the "
+                   "protocol itself — with HTTP, not at all. The company firewall and the VPN gateway never see "
                    "this traffic."}},
         {"id": "vp6", "type": "multi",
          "prompt": {"de": "Ein IPsec-Tunnel (IKEv2) kommt nicht zustande; eine Firewall zwischen den Gateways "
@@ -413,11 +413,11 @@ VPN_MODULE = {
                    "der Gegenstelle (Authentizität) stellt sicher, mit wem man verschlüsselt spricht.",
              "en": "Encryption alone does not help: a perfectly encrypted tunnel could be built with the "
                    "attacker as well — just to the wrong party. Only the peer's proof of identity "
-                   "(authenticity) ensures who you are talking to in encrypted form."}},
+                   "(authenticity) tells you for certain who you are talking to over the encrypted tunnel."}},
         {"id": "vp8", "type": "single",
          "prompt": {"de": "Ein Gäste-WLAN erlaubt ausgehend nur TCP 80 und TCP 443. Welche VPN-Variante hat "
                           "die besten Chancen, von dort eine Verbindung zur Firma aufzubauen?",
-                    "en": "A guest Wi-Fi only allows outbound TCP 80 and TCP 443. Which VPN variant has the "
+                    "en": "A guest Wi-Fi network only allows outbound TCP 80 and TCP 443. Which VPN variant has the "
                           "best chance of connecting to the company from there?"},
          "options": {
              "de": ["IPsec/IKEv2", "WireGuard", "Ein TLS-VPN über TCP 443", "Keine — ohne UDP gibt es kein VPN"],
