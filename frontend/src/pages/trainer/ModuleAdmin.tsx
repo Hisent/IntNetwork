@@ -74,7 +74,7 @@ export function ModuleAdmin({ workshops }: { workshops: { key: string; title: { 
                   <ul className="flex flex-col divide-y divide-[var(--wb-border)]">
                     {g.modules.map((m) => (
                       <li key={m.key} className="flex items-center justify-between gap-2 py-1.5">
-                        <Link to={`/trainer/modul/${m.key}`} className="min-w-0 truncate text-sm text-[var(--wb-ink)] hover:text-[var(--wb-accent-hover)] hover:underline">{m.title}</Link>
+                        <Link to={`/trainer/modul/${m.key}`} title={m.title} className="min-w-0 truncate text-sm text-[var(--wb-ink)] hover:text-[var(--wb-accent-hover)] hover:underline">{m.title}</Link>
                         <Link to={`/trainer/modul/${m.key}/bearbeiten`} title="Bearbeiten" aria-label={`${m.title} bearbeiten`}
                           className="shrink-0 rounded-lg p-1.5 text-[var(--wb-muted)] hover:bg-[var(--wb-subtle)] hover:text-[var(--wb-ink)]"><Icon name="pencil" className="h-4 w-4" /></Link>
                       </li>
