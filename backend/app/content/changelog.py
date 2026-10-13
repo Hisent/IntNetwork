@@ -1,5 +1,21 @@
 # Projekt-Changelog (nur für Trainer sichtbar). Neueste zuerst.
 CHANGELOG = [
+    {"date": "2026-10-13", "title": "v1.43.0 — Mehr Interaktion, Grafiken und Lernfunktionen",
+     "text": "Alle 99 Module wurden ausgebaut: Jede Quizfrage zeigt nach der Abgabe eine "
+             "Erklärung, je Modul gibt es zwei bis vier neue, anspruchsvollere Fragen, und rund "
+             "300 neue Bausteine sind dazugekommen — Schritt-für-Schritt-Diagramme, "
+             "Terminal-Simulationen mit Aufgaben, Zuordnungs- und Lückentext-Übungen sowie "
+             "Entscheidungsszenarien. Die Labs für Ansible und OpenSSL haben neue Übungen. "
+             "Teilnehmer bekommen eine Suche, einen Übungsmodus für falsch beantwortete Fragen, "
+             "englische Lernziele, Bearbeitungszeit und Status je Modul, einen gemerkten "
+             "Übungsstand und eine Druckansicht. Für den Präsenz-Workshop gibt es die "
+             "Live-Abstimmung: im Kursdetail „Präsentieren“ wählen, dann am Beamer zu einer Frage "
+             "abstimmen lassen und auflösen. Die neuen Inhalte kommen beim Start automatisch in "
+             "bestehende Kurse; Quiz-Ergebnisse, Fortschritt und Bestätigungen bleiben unverändert. "
+             "Von Trainern bearbeitete Module erhalten die Neuerungen erst über „Auslieferungszustand "
+             "laden“. Hinweise für den Betrieb: Teilnehmer ohne Wiederaufnahme-Code brauchen einmalig "
+             "„Code zurücksetzen“ im Kursdetail; beim Löschen eines Kurses lässt sich jetzt wählen, ob "
+             "die Teilnahmebestätigungen mitgelöscht werden."},
     {"date": "2026-10-12", "title": "v1.42.0 — Inhalts- und Technik-Audit aller Lehrgänge",
      "text": "Alle sechs Lehrgänge wurden fachlich gegen Primärquellen geprüft und korrigiert "
              "(u. a. Infoblox HA/MCLT/WAPI, Ansible-Fakten ab ansible-core 2.20, PKI-Laufzeiten "
