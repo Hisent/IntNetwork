@@ -1,16 +1,17 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { Link, Navigate } from 'react-router-dom'
 import { learnApi, type PracticeQuestion } from '@/lib/learnApi'
 import { errMsg } from '@/lib/api'
 import { useAuthStore } from '@/store/auth'
-import { t, useDocumentLang, type Lang } from '@/lib/i18n'
+import { t, useDocumentLang, useDocumentTitle, type Lang } from '@/lib/i18n'
 import { WorkshopTheme } from '@/components/WorkshopTheme'
 import { LoadError } from '@/components/LoadError'
 import { PageSkeleton } from '@/components/PageSkeleton'
 import { Icon } from '@/components/Icon'
 import { WorkbenchTopbar } from '@/components/workbench/WorkbenchShell'
 import { QuestionInput, isAnswered, shuffledIndices } from '@/components/Quiz'
+import { useResultFocus } from '@/components/blocks/useResultFocus'
 
 type Mode = 'wrong' | 'mixed'
 interface Feedback { correct: boolean; explanation: string | null }
@@ -24,17 +25,27 @@ export function PracticePage() {
   const lang: Lang = me.data?.language ?? 'de'
   useDocumentLang(lang)
   const de = lang === 'de'
+  useDocumentTitle(de ? 'Üben & Wiederholen' : 'Practice & review')
 
   const [questions, setQuestions] = useState<PracticeQuestion[] | null>(null)
   const [index, setIndex] = useState(0)
   const [answer, setAnswer] = useState<unknown>(undefined)
   const [feedback, setFeedback] = useState<Feedback | null>(null)
+  // Tastaturfokus: „Prüfen“ wird zu „Nächste Frage“ (autoFocus griff nicht, derselbe DOM-Knopf) -> Fokus auf die Rückmeldung, danach zurück zur Frage
+  const focusRoot = useResultFocus<HTMLElement>(feedback !== null)
   const [right, setRight] = useState(0)
+  // „Nochmal“ ist Üben, kein zweiter Wertungsversuch: nur der erste Versuch je Frage zählt.
+  const [retried, setRetried] = useState(false)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
   const failed = de ? 'Das hat nicht geklappt. Bitte versuche es erneut.' : 'That did not work. Please try again.'
 
   const q = questions?.[index]
+  // Nach „Auswertung“ (oder leerer Fragenliste) verschwindet der ausgelöste Knopf samt Frage:
+  // Fokus auf die Auswertung statt auf <body>.
+  const summary = useRef<HTMLParagraphElement>(null)
+  const ended = questions !== null && index >= questions.length
+  useEffect(() => { if (ended) summary.current?.focus() }, [ended, questions])
   // je Frage einmal mischen — die abgegebene Antwort bleibt der Original-Index
   const order = useMemo(() => (q && q.type !== 'number' ? shuffledIndices(q.options.length) : undefined), [q])
 
@@ -42,7 +53,7 @@ export function PracticePage() {
     setError(''); setBusy(true)
     try {
       const r = await learnApi.practice(mode)
-      setQuestions(r.data.questions); setIndex(0); setAnswer(undefined); setFeedback(null); setRight(0)
+      setQuestions(r.data.questions); setIndex(0); setAnswer(undefined); setFeedback(null); setRight(0); setRetried(false)
     } catch (e) { setError(errMsg(e, failed)) } finally { setBusy(false) }
   }
   async function check() {
@@ -51,10 +62,10 @@ export function PracticePage() {
     try {
       const r = await learnApi.practiceCheck(q.id, answer)
       setFeedback(r.data)
-      if (r.data.correct) setRight((n) => n + 1)
+      if (r.data.correct && !retried) setRight((n) => n + 1)
     } catch (e) { setError(errMsg(e, failed)) } finally { setBusy(false) }
   }
-  const next = () => { setIndex((i) => i + 1); setAnswer(undefined); setFeedback(null) }
+  const next = () => { setIndex((i) => i + 1); setAnswer(undefined); setFeedback(null); setRetried(false) }
 
   if (!isParticipant) return <Navigate to="/" replace />
   if (me.isError) return <LoadError lang={lang} onRetry={() => me.refetch()} />
@@ -81,12 +92,12 @@ export function PracticePage() {
             {(questions === null || finished || questions.length === 0) && (
               <section className="wb-surface mt-6 p-5" aria-live="polite">
                 {finished && questions.length > 0 && (
-                  <p className="mb-4 text-lg font-semibold text-[var(--wb-ink)]">
-                    {de ? `${right} von ${questions.length} richtig` : `${right} of ${questions.length} correct`}
+                  <p ref={summary} tabIndex={-1} className="mb-4 text-lg font-semibold text-[var(--wb-ink)] outline-none">
+                    {de ? `${right} von ${questions.length} im ersten Versuch richtig` : `${right} of ${questions.length} correct on the first attempt`}
                   </p>
                 )}
                 {questions?.length === 0 && (
-                  <p className="mb-4 text-sm text-[var(--wb-muted)]">
+                  <p ref={summary} tabIndex={-1} className="mb-4 text-sm text-[var(--wb-muted)] outline-none">
                     {de ? 'Dafür gibt es gerade keine Fragen. Gib zuerst den Wissenscheck eines Moduls ab — oder wähle „Gemischtes Üben“.'
                       : 'There are no questions for this right now. Submit a module’s knowledge check first — or choose “Mixed practice”.'}
                   </p>
@@ -103,7 +114,7 @@ export function PracticePage() {
             )}
 
             {q && (
-              <section className="mt-6">
+              <section ref={focusRoot} className="mt-6">
                 <p className="mb-2 flex items-baseline justify-between gap-3 text-xs text-[var(--wb-muted)]">
                   <Link to={`/lernen/${q.module_key}`} className="font-semibold text-[var(--wb-accent)] hover:underline">{q.module_title}</Link>
                   <span className="tabular-nums">{de ? 'Frage' : 'Question'} {index + 1} / {questions.length}</span>
@@ -112,7 +123,7 @@ export function PracticePage() {
                 <div key={q.id} className={`rounded-xl border p-4 ${feedback ? (feedback.correct ? 'border-green-300 bg-green-50/50' : 'border-amber-300 bg-amber-50/50') : 'border-slate-200 bg-white'}`}>
                   <p id={`quiz-${q.id}`} className="mb-2 font-medium text-slate-800">{q.prompt}</p>
                   <QuestionInput q={q} value={answer} locked={feedback !== null} order={order} onChange={setAnswer} />
-                  <div aria-live="polite">
+                  <div role="status" tabIndex={-1}>
                     {feedback && (
                       <>
                         <p className={`mt-3 inline-flex items-center gap-1 text-sm font-semibold ${feedback.correct ? 'text-green-700' : 'text-amber-700'}`}>
@@ -131,9 +142,9 @@ export function PracticePage() {
                 <div className="mt-4 flex flex-wrap items-center gap-3">
                   {feedback === null
                     ? <button type="button" className={primary} disabled={busy || !isAnswered(q, answer)} onClick={check}>{busy ? t(lang, 'evaluating') : t(lang, 'checkIt')}</button>
-                    : <button type="button" className={primary} autoFocus onClick={next}>{index + 1 < questions.length ? (de ? 'Nächste Frage' : 'Next question') : (de ? 'Auswertung' : 'Summary')}<Icon name="arrowRight" className="h-4 w-4" /></button>}
+                    : <button type="button" className={primary} onClick={next}>{index + 1 < questions.length ? (de ? 'Nächste Frage' : 'Next question') : (de ? 'Auswertung' : 'Summary')}<Icon name="arrowRight" className="h-4 w-4" /></button>}
                   {feedback && !feedback.correct && (
-                    <button type="button" className={secondary} onClick={() => { setFeedback(null); setAnswer(undefined) }}>{t(lang, 'tryAgainShort')}</button>
+                    <button type="button" className={secondary} onClick={() => { setFeedback(null); setAnswer(undefined); setRetried(true) }}>{t(lang, 'tryAgainShort')}</button>
                   )}
                 </div>
               </section>

@@ -28,7 +28,7 @@ export function TrainerBlocks({ blocks }: { blocks: Block[] }) {
   return (
     <div className="flex flex-col gap-6">
       {blocks.map((b, i) => (
-        <div key={i} className="flex flex-col gap-1">
+        <div key={b.uid || i} className="flex flex-col gap-1">
           {b.type === 'text' && <Markdown components={MD_COMPONENTS}>{b.value}</Markdown>}
           {b.type === 'widget' && <WidgetBlock id={b.id} lang="de" />}
           {b.type === 'check' && (
@@ -54,7 +54,7 @@ export function TrainerBlocks({ blocks }: { blocks: Block[] }) {
             <div className="rounded-xl border border-slate-200 bg-white p-4">
               <p className="text-xs font-semibold uppercase tracking-wide text-teal-700 mb-1">Reihenfolge</p>
               <p className="font-medium text-slate-800 mb-1">{b.prompt}</p>
-              <p className="text-xs text-slate-400 mb-2">(Teilnehmer sieht die Schritte gemischt)</p>
+              <p className="text-xs text-slate-500 mb-2">(Teilnehmer sieht die Schritte gemischt)</p>
               <ol className="list-decimal list-inside flex flex-col gap-1 text-sm text-slate-600">
                 {b.items.map((it, oi) => <li key={oi}>{it}</li>)}
               </ol>
@@ -78,13 +78,13 @@ export function TrainerBlocks({ blocks }: { blocks: Block[] }) {
             <div className="rounded-xl border border-slate-200 bg-white p-4">
               <p className="text-xs font-semibold uppercase tracking-wide text-teal-700 mb-1">Reflexion</p>
               <p className="font-medium text-slate-800 mb-1">{b.prompt}</p>
-              <p className="text-xs text-slate-400">(Freitext — bleibt nur lokal im Browser des Teilnehmers)</p>
+              <p className="text-xs text-slate-500">(Freitext — bleibt nur lokal im Browser des Teilnehmers)</p>
             </div>
           )}
           {b.type === 'reveal' && (
             <div className="rounded-xl border border-slate-200 bg-white p-4">
               <p className="font-medium text-slate-800 mb-1">{b.teaser}</p>
-              <p className="text-xs text-slate-400 mb-2">(für Teilnehmer erst nach Klick sichtbar)</p>
+              <p className="text-xs text-slate-500 mb-2">(für Teilnehmer erst nach Klick sichtbar)</p>
               <Markdown components={MD_COMPONENTS}>{b.value}</Markdown>
             </div>
           )}

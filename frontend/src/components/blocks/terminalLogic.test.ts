@@ -140,3 +140,32 @@ describe('Zustand (sets / clears / variants)', () => {
     expect(runCommand(pc, 'toggle', 'de', ['on'])).toMatchObject({ output: 'an', flags: ['on'] })
   })
 })
+
+describe('exakt vor Platzhalter, Groß/Klein einheitlich', () => {
+  const s: TerminalData = {
+    prompt: '$',
+    commands: [
+      { cmd: 'ping *', output: 'irgendein Ziel' },
+      { cmd: 'ping 10.0.0.1', output: 'Gateway', sets: ['pinged'] },
+    ],
+    tasks: [{ text: 'Gateway pingen', command: 'ping 10.0.0.1' }],
+  }
+  it('ein exakter Befehl gewinnt gegen ein früher stehendes Platzhalter-Muster', () => {
+    expect(findCommand(s, 'ping 10.0.0.1')).toEqual({ kind: 'match', index: 1 })
+    expect(findCommand(s, 'ping 8.8.8.8')).toEqual({ kind: 'match', index: 0 })
+    expect(runCommand(s, 'ping 10.0.0.1', 'de').flags).toEqual(['pinged'])
+  })
+  it('die Aufgabe hängt am exakten Befehl, nicht am Platzhalter davor', () => {
+    expect(taskDone(s, s.tasks![0], new Set([0]))).toBe(false)
+    expect(taskDone(s, s.tasks![0], new Set([1]))).toBe(true)
+  })
+  it('case_sensitive gilt für Eingabe, Aufgabe und Hilfe gleichermaßen', () => {
+    const cs: TerminalData = { ...s, case_sensitive: true, commands: [{ cmd: 'Get-NetAdapter', output: 'ok' }], tasks: [{ text: 't', command: 'Get-NetAdapter' }] }
+    expect(findCommand(cs, 'get-netadapter').kind).toBe('none')
+    expect(findCommand(cs, 'Get-NetAdapter')).toEqual({ kind: 'match', index: 0 })
+    expect(taskDone(cs, cs.tasks![0], new Set([0]))).toBe(true)
+    expect(runCommand(cs, 'HELP', 'de').output).toContain('Unbekannter Befehl')
+    expect(runCommand(cs, 'help', 'de').output).toContain('Verfügbare Befehle')
+    expect(runCommand(s, 'HELP', 'de').output).toContain('Verfügbare Befehle')
+  })
+})

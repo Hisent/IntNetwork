@@ -2,12 +2,13 @@ import { useQuery } from '@tanstack/react-query'
 import { Link, Navigate } from 'react-router-dom'
 import { learnApi } from '@/lib/learnApi'
 import { useAuthStore } from '@/store/auth'
-import { t, useDocumentLang, type Lang } from '@/lib/i18n'
+import { t, useDocumentLang, useDocumentTitle, type Lang } from '@/lib/i18n'
 import { WorkshopTheme } from '@/components/WorkshopTheme'
 import { LoadError } from '@/components/LoadError'
 import { BrandLogo } from '@/components/BrandLogo'
 import { Icon } from '@/components/Icon'
 import { WorkbenchProgress, WorkbenchTopbar } from '@/components/workbench/WorkbenchShell'
+import { openPrerequisites } from '@/lib/lockedModules'
 
 // Druckbares Abschluss-Zertifikat: erst verfügbar, wenn alle Module bestanden
 // sind. „Drucken" nutzt den Browser-Dialog — PDF gibt es dort gratis dazu.
@@ -16,6 +17,7 @@ export function CertificatePage() {
   const me = useQuery({ queryKey: ['me'], queryFn: () => learnApi.me().then((r) => r.data) })
   const lang: Lang = me.data?.language ?? 'de'
   useDocumentLang(lang)
+  useDocumentTitle(t(lang, 'certTitle'))
   const mods = useQuery({ queryKey: ['modules', lang], queryFn: () => learnApi.listModules().then((r) => r.data) })
   // allDone undefined-sicher, damit der cert-Hook vor den Early-Returns stehen kann
   // (Rules of Hooks). Ausstellen erst, wenn wirklich alle Module bestanden sind.
@@ -44,7 +46,7 @@ export function CertificatePage() {
     const sorted = [...mods.data].sort((a, b) => a.order - b.order)
     const doneCount = sorted.filter((m) => isDone(m.key)).length
     const donePct = total ? Math.round((doneCount / total) * 100) : 0
-    const isLocked = (m: (typeof sorted)[number]) => m.prerequisites.some((k) => !isDone(k))
+    const isLocked = (m: (typeof sorted)[number]) => openPrerequisites(m, me.data?.progress ?? [], sorted).length > 0
     const nextOpen = sorted.find((m) => !isDone(m.key) && !isLocked(m))
     return (
       <WorkshopTheme theme={me.data?.workshop?.theme}>

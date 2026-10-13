@@ -322,3 +322,11 @@ describe('layoutFlow: Bogen um besetzte Zellen', () => {
     expect(L.edges.every((e) => e.points === undefined)).toBe(true)
   })
 })
+
+describe('wrapText mit unbrauchbarer Breite', () => {
+  it('terminiert bei negativer oder zu kleiner maxWidth (ein Zeichen je Zeile statt Endlosschleife)', () => {
+    expect(wrapText('abc', -5, 12)).toEqual(['a', 'b', 'c'])
+    expect(wrapText('ab-cd', 0, 12).join('')).toBe('ab-cd')
+    expect(wrapText('W', 1, 12)).toEqual(['W'])
+  })
+})

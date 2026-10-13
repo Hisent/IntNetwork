@@ -4,16 +4,19 @@ import { Link } from 'react-router-dom'
 import { learnApi } from '@/lib/learnApi'
 import { GLOSSARY } from '@/lib/glossary'
 import { Icon } from '@/components/Icon'
-import type { Lang } from '@/lib/i18n'
-import type { ModuleMeta } from '@/types'
+import { localTitle, t, type Lang } from '@/lib/i18n'
+import { openPrerequisites } from '@/lib/lockedModules'
+import type { ModuleMeta, ProgressItem } from '@/types'
 
 const MIN = 2
 
-// Suche über die freigeschalteten Module: Titel, Lernziele und Text-Blöcke
-// kommen vom Server (/search, kursgefiltert), das Glossar liegt im Frontend und
-// wird hier auf die Module des Kurses eingegrenzt. Treffer in einem Text-Block
-// springen über dessen Kennung direkt zum Block (#b-<uid>, siehe ModulePage).
-export function SearchBox({ lang, modules }: { lang: Lang; modules: ModuleMeta[] }) {
+// Suche über die Module des Kurses: Titel, Lernziele und Text-Blöcke kommen vom
+// Server (/search, kursgefiltert), das Glossar liegt im Frontend und wird hier
+// auf die Module des Kurses eingegrenzt. Treffer in einem Text-Block springen
+// über dessen Kennung direkt zum Block (#b-<uid>, siehe ModulePage).
+// Die Suche findet auch Module, deren Voraussetzung noch offen ist (die
+// Reihenfolge ist Führung, keine Sperre) — solche Treffer sind gekennzeichnet.
+export function SearchBox({ lang, modules, progress = [] }: { lang: Lang; modules: ModuleMeta[]; progress?: ProgressItem[] }) {
   const de = lang === 'de'
   const id = useId()
   const [input, setInput] = useState('')
@@ -30,7 +33,19 @@ export function SearchBox({ lang, modules }: { lang: Lang; modules: ModuleMeta[]
     enabled: active,
     staleTime: 60_000,
   })
-  const titles = new Map(modules.map((m) => [m.key, de ? m.title : m.title_en]))
+  const titles = new Map(modules.map((m) => [m.key, localTitle(m, lang)]))
+  // Hinweis „Baut auf <Modul> auf“ für Treffer in Modulen mit offener Voraussetzung
+  const buildsOn = (key: string) => {
+    const module = modules.find((m) => m.key === key)
+    const open = module ? openPrerequisites(module, progress, modules) : []
+    if (open.length === 0) return null
+    return (
+      <span className="mt-0.5 flex items-center gap-1 text-xs text-[var(--wb-muted)]">
+        <Icon name="lock" className="h-3.5 w-3.5 shrink-0" />
+        {t(lang, 'buildsOn')} „{open.map((k) => titles.get(k) ?? k).join(', ')}“{t(lang, 'buildsOnEnd')}
+      </span>
+    )
+  }
   const needle = term.toLowerCase()
   const terms = active
     ? GLOSSARY.filter((g) => g.modules.some((key) => titles.has(key))
@@ -54,7 +69,7 @@ export function SearchBox({ lang, modules }: { lang: Lang; modules: ModuleMeta[]
             {search.isLoading && <p className="px-4 py-3 text-sm text-[var(--wb-muted)]">{de ? 'Sucht …' : 'Searching …'}</p>}
             {search.isError && <p className="px-4 py-3 text-sm text-[var(--wb-muted)]">{de ? 'Die Suche ist gerade nicht erreichbar. Bitte kurz warten.' : 'Search is unavailable right now. Please wait a moment.'}</p>}
             {search.data && hits.length === 0 && terms.length === 0 && (
-              <p className="px-4 py-3 text-sm text-[var(--wb-muted)]">{de ? 'Keine Treffer in den freigeschalteten Modulen.' : 'No matches in the unlocked modules.'}</p>
+              <p className="px-4 py-3 text-sm text-[var(--wb-muted)]">{de ? 'Keine Treffer in den Modulen deines Kurses.' : 'No matches in the modules of your course.'}</p>
             )}
             {terms.map((g) => {
               const key = g.modules.find((k) => titles.has(k))!
@@ -62,6 +77,7 @@ export function SearchBox({ lang, modules }: { lang: Lang; modules: ModuleMeta[]
                 <Link key={`g-${g.key}`} to={`/lernen/${key}`} className="wb-control block px-4 py-2 hover:bg-[var(--wb-accent-soft)]">
                   <span className="text-xs font-semibold text-[var(--wb-accent)]">{de ? 'Glossar' : 'Glossary'} · {titles.get(key)}</span>
                   <span className="block text-sm text-[var(--wb-ink)]"><strong>{g.label[lang]}</strong> — {g.description[lang]}</span>
+                  {buildsOn(key)}
                 </Link>
               )
             })}
@@ -69,6 +85,7 @@ export function SearchBox({ lang, modules }: { lang: Lang; modules: ModuleMeta[]
               <Link key={i} to={`/lernen/${hit.module_key}${hit.uid ? `#b-${hit.uid}` : ''}`} className="wb-control block px-4 py-2 hover:bg-[var(--wb-accent-soft)]">
                 <span className="text-xs font-semibold text-[var(--wb-accent)]">{kindLabel[hit.kind]} · {hit.module_title}</span>
                 <span className="block text-sm text-[var(--wb-ink)]">{hit.snippet}</span>
+                {buildsOn(hit.module_key)}
               </Link>
             ))}
             {search.data?.more && <p className="px-4 py-2 text-xs text-[var(--wb-muted)]">{de ? 'Weitere Treffer — bitte den Suchbegriff eingrenzen.' : 'More matches — please narrow your search.'}</p>}

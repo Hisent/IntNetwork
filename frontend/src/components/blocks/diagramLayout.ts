@@ -28,7 +28,8 @@ function splitLongWord(word: string, maxWidth: number, fontSize: number): { full
   for (let seg of word.match(/[^-/_]*[-/_]+|[^-/_]+/g) ?? [word]) {
     if (cur && textWidth(cur + seg, fontSize) <= maxWidth) { cur += seg; continue }
     if (cur) { full.push(cur); cur = '' }
-    while (textWidth(seg, fontSize) > maxWidth) {
+    // seg.length > 1: bei negativer/zu kleiner Breite bleibt sonst ein leerer Rest, der nie „passt“ (Endlosschleife)
+    while (seg.length > 1 && textWidth(seg, fontSize) > maxWidth) {
       let cut = 1
       while (cut < seg.length && textWidth(seg.slice(0, cut + 1), fontSize) <= maxWidth) cut++
       full.push(seg.slice(0, cut))
@@ -54,7 +55,7 @@ export function wrapText(text: string, maxWidth: number, fontSize: number): stri
       if (!word) continue
       const candidate = line ? `${line} ${word}` : word
       if (textWidth(candidate, fontSize) <= maxWidth) line = candidate
-      else { lines.push(line); line = word }
+      else { if (line) lines.push(line); line = word }
     }
     if (line) lines.push(line)
   }

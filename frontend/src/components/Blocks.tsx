@@ -8,8 +8,9 @@ import { t, type Lang } from '@/lib/i18n'
 import { WidgetScopeContext } from '@/lib/widgetScope'
 import { ErrorBoundary } from '@/components/ErrorBoundary'
 import { Icon } from '@/components/Icon'
-import { doneExercises, ExerciseSlotContext, exerciseStorageKey, fingerprint, useExercise } from '@/lib/exerciseState'
+import { doneExercises, ExerciseSlotContext, exerciseStorageKey, fingerprint, legacyFingerprint, useExercise } from '@/lib/exerciseState'
 import { usePrinting } from '@/lib/printMode'
+import { useResultFocus } from '@/components/blocks/useResultFocus'
 
 function InlineCode({ className, children }: {
   className?: string
@@ -56,13 +57,17 @@ function CodeBlock({ children }: { children?: ReactNode }) {
   )
 }
 
+// react-markdown reicht jedem Element zusätzlich `node` (den hast-Knoten) durch — ungefiltert
+// gespreadet landete er als Attribut node="[object Object]" im DOM.
+type MdProps = { node?: unknown; children?: ReactNode }
+
 export const MD_COMPONENTS = {
-  h2: (p: object) => <h2 className="text-xl font-bold text-slate-900 mt-2 mb-1" {...p} />,
-  h3: (p: object) => <h3 className="text-base font-semibold text-slate-800 mt-2 mb-1" {...p} />,
-  p: (p: object) => <p className="text-slate-700 leading-relaxed" {...p} />,
-  ul: (p: object) => <ul className="list-disc pl-5 text-slate-700 space-y-1 my-1" {...p} />,
-  ol: (p: object) => <ol className="list-decimal pl-5 text-slate-700 space-y-1 my-1" {...p} />,
-  strong: (p: object) => <strong className="font-semibold text-slate-900" {...p} />,
+  h2: ({ node: _node, ...p }: MdProps) => <h2 className="text-xl font-bold text-slate-900 mt-2 mb-1" {...p} />,
+  h3: ({ node: _node, ...p }: MdProps) => <h3 className="text-base font-semibold text-slate-800 mt-2 mb-1" {...p} />,
+  p: ({ node: _node, ...p }: MdProps) => <p className="text-slate-700 leading-relaxed" {...p} />,
+  ul: ({ node: _node, ...p }: MdProps) => <ul className="list-disc pl-5 text-slate-700 space-y-1 my-1" {...p} />,
+  ol: ({ node: _node, ...p }: MdProps) => <ol className="list-decimal pl-5 text-slate-700 space-y-1 my-1" {...p} />,
+  strong: ({ node: _node, ...p }: MdProps) => <strong className="font-semibold text-slate-900" {...p} />,
   pre: CodeBlock,
   code: InlineCode,
 }
@@ -74,8 +79,9 @@ export function WidgetBlock({ id, lang }: { id: string; lang: Lang }) {
     // Widgets bleiben innerhalb der aktuellen Inhalts-/Navigationsspalte.
     // Tabellen und lange Inhalte müssen sich darin selbst scrollbar machen.
     <div className="w-full min-w-0">
-      <ErrorBoundary fallback={<div className="rounded-xl border bg-white p-6 text-sm text-slate-400">{lang === 'de' ? 'Dieses interaktive Element konnte nicht geladen werden.' : 'This interactive element could not be loaded.'}</div>}>
-        <Suspense fallback={<div className="rounded-xl border bg-white p-6 text-sm text-slate-400 animate-pulse">{t(lang, 'loading')}</div>}>
+      {/* key: ein anderes Widget an derselben Stelle (Folienwechsel) setzt auch die Fehlergrenze zurück */}
+      <ErrorBoundary key={id} fallback={<div className="rounded-xl border bg-white p-6 text-sm text-slate-500">{lang === 'de' ? 'Dieses interaktive Element konnte nicht geladen werden.' : 'This interactive element could not be loaded.'}</div>}>
+        <Suspense fallback={<div className="rounded-xl border bg-white p-6 text-sm text-slate-500 animate-pulse">{t(lang, 'loading')}</div>}>
           <W lang={lang} />
         </Suspense>
       </ErrorBoundary>
@@ -92,12 +98,17 @@ const ClozeBlock = lazy(() => import('@/components/blocks/ClozeBlock'))
 const ScenarioBlock = lazy(() => import('@/components/blocks/ScenarioBlock'))
 
 export function DeclarativeBlock({ block: b, lang }: { block: DeclarativeBlockData; lang: Lang }) {
+  // Der Zustand eines Blocks (Schritt, Zuordnung, Pfad …) gehört zu genau dieser Struktur.
+  // Zeigt dieselbe Komponenteninstanz einen anderen Block (Folienwechsel im Beamer-Modus,
+  // Content-Update bei offenem Modul), beginnt er neu — samt Fehlergrenze. Reine
+  // Textänderungen (Sprachwechsel) ändern den Fingerabdruck nicht.
+  const version = useMemo(() => fingerprint(b), [b])
   return (
     // contain: die Mindestbreite von SVG/Tabelle/Terminal darf die Seite nicht aufziehen —
     // der Block scrollt in sich (am Handy sonst waagerechter Seiten-Overflow).
     <div className="w-full min-w-0 [contain:inline-size]">
-      <ErrorBoundary fallback={<div className="rounded-xl border bg-white p-6 text-sm text-slate-400">{lang === 'de' ? 'Dieses interaktive Element konnte nicht geladen werden.' : 'This interactive element could not be loaded.'}</div>}>
-        <Suspense fallback={<div className="rounded-xl border bg-white p-6 text-sm text-slate-400 animate-pulse">{t(lang, 'loading')}</div>}>
+      <ErrorBoundary key={version} fallback={<div className="rounded-xl border bg-white p-6 text-sm text-slate-500">{lang === 'de' ? 'Dieses interaktive Element konnte nicht geladen werden.' : 'This interactive element could not be loaded.'}</div>}>
+        <Suspense fallback={<div className="rounded-xl border bg-white p-6 text-sm text-slate-500 animate-pulse">{t(lang, 'loading')}</div>}>
           {b.type === 'diagram' && <DiagramBlock data={b} lang={lang} />}
           {b.type === 'terminal' && <TerminalBlock data={b} lang={lang} />}
           {b.type === 'match' && <MatchBlock data={b} lang={lang} />}
@@ -114,8 +125,9 @@ function NumberCheck({ answer, lang }: { answer: number; lang: Lang }) {
   const setVal = (next: string) => setState((s) => ({ ...s, val: next }))
   const setChecked = (next: boolean) => setState((s) => ({ ...s, checked: next }))
   const correct = Number(val) === answer
+  const root = useResultFocus(checked)
   return (
-    <div>
+    <div ref={root}>
       <div className="flex items-center gap-2">
         <input type="number" value={val} disabled={checked}
           onChange={(e) => setVal(e.target.value)}
@@ -128,7 +140,7 @@ function NumberCheck({ answer, lang }: { answer: number; lang: Lang }) {
       </div>
       {checked && (
         <div className="mt-2 flex items-center gap-3 text-sm">
-          <span className={`inline-flex items-center gap-1 ${correct ? 'text-green-600 font-medium' : 'text-amber-600 font-medium'}`}>
+          <span role="status" tabIndex={-1} className={`inline-flex items-center gap-1 ${correct ? 'text-green-600 font-medium' : 'text-amber-600 font-medium'}`}>
             <Icon name={correct ? 'check' : 'close'} className="h-4 w-4" />{correct ? t(lang, 'correct') : t(lang, 'incorrect')}
           </span>
           {!correct && (
@@ -158,8 +170,9 @@ export function CheckBlock({ prompt, options, answer, kind, lang }: {
 function ChoiceCheck({ options, answer, lang }: { options: string[]; answer: number; lang: Lang }) {
   const [picked, setPicked] = useExercise<number | null>(null, (p) => p === answer)
   const correct = picked === answer
+  const root = useResultFocus(picked !== null)
   return (
-    <>
+    <div ref={root}>
       <div className="flex flex-col gap-1.5">
         {options.map((opt, i) => (
           <button key={i} onClick={() => setPicked(i)} disabled={picked !== null}
@@ -174,7 +187,7 @@ function ChoiceCheck({ options, answer, lang }: { options: string[]; answer: num
       </div>
       {picked !== null && (
         <div className="mt-2 flex items-center gap-3 text-sm">
-          <span className={`inline-flex items-center gap-1 ${correct ? 'text-green-600 font-medium' : 'text-amber-600 font-medium'}`}>
+          <span role="status" tabIndex={-1} className={`inline-flex items-center gap-1 ${correct ? 'text-green-600 font-medium' : 'text-amber-600 font-medium'}`}>
             <Icon name={correct ? 'check' : 'close'} className="h-4 w-4" />{correct ? t(lang, 'correct') : t(lang, 'incorrect')}
           </span>
           {!correct && (
@@ -184,7 +197,7 @@ function ChoiceCheck({ options, answer, lang }: { options: string[]; answer: num
           )}
         </div>
       )}
-    </>
+    </div>
   )
 }
 
@@ -218,12 +231,13 @@ export function OrderBlock({ prompt, items, lang }: { prompt: string; items: str
     : { ...s, seq: s.seq.filter((x) => x !== idx), pool: [...s.pool, idx] }))
   const setChecked = (next: boolean) => setState((s) => ({ ...s, checked: next }))
   const reset = () => setState(fresh())
+  const root = useResultFocus(checked)
 
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-4">
+    <div ref={root} className="rounded-xl border border-slate-200 bg-white p-4">
       <p className="text-xs font-semibold uppercase tracking-wide text-teal-700 mb-1">{t(lang, 'sequence')}</p>
       <p className="font-medium text-slate-800 mb-1">{prompt}</p>
-      <p className="text-xs text-slate-400 mb-2">{t(lang, 'orderHint')}</p>
+      <p className="text-xs text-slate-500 mb-2">{t(lang, 'orderHint')}</p>
       {seq.length > 0 && (
         <ol className="flex flex-col gap-1.5 mb-2">
           {seq.map((idx, pos) => (
@@ -234,7 +248,7 @@ export function OrderBlock({ prompt, items, lang }: { prompt: string; items: str
                   !checked ? 'border-slate-200 text-slate-700 hover:bg-slate-50'
                   : idx === pos ? 'border-green-300 bg-green-50 text-green-800'
                   : 'border-amber-300 bg-amber-50 text-amber-800'}`}>
-                <span className="font-mono text-xs text-slate-400">{pos + 1}.</span> {items[idx]}
+                <span className="font-mono text-xs text-slate-500">{pos + 1}.</span> {items[idx]}
                 {checked && (
                   <span className="ml-auto inline-flex items-center gap-1">
                     <Icon name={idx === pos ? 'check' : 'close'} className="h-4 w-4" />
@@ -264,7 +278,7 @@ export function OrderBlock({ prompt, items, lang }: { prompt: string; items: str
       )}
       {checked && (
         <div className="flex items-center gap-3 text-sm">
-          <span className={`inline-flex items-center gap-1 ${allCorrect ? 'text-green-600 font-medium' : 'text-amber-600 font-medium'}`}>
+          <span role="status" tabIndex={-1} className={`inline-flex items-center gap-1 ${allCorrect ? 'text-green-600 font-medium' : 'text-amber-600 font-medium'}`}>
             <Icon name={allCorrect ? 'check' : 'close'} className="h-4 w-4" />{allCorrect ? t(lang, 'correct') : t(lang, 'incorrect')}
           </span>
           {!allCorrect && (
@@ -288,6 +302,7 @@ export function DebugBlock({ prompt, lines, wrong, explanation, lang }: {
   const checked = state.checked
   const solved = checked && hits(state.sel)
   const setChecked = (next: boolean) => setState((s) => ({ ...s, checked: next }))
+  const root = useResultFocus(checked)
 
   const toggle = (i: number) => {
     if (checked) return
@@ -302,10 +317,10 @@ export function DebugBlock({ prompt, lines, wrong, explanation, lang }: {
   }
 
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-4">
+    <div ref={root} className="rounded-xl border border-slate-200 bg-white p-4">
       <p className="text-xs font-semibold uppercase tracking-wide text-teal-700 mb-1">{t(lang, 'findError')}</p>
       <p className="font-medium text-slate-800 mb-1">{prompt}</p>
-      <p className="text-xs text-slate-400 mb-2">{t(lang, 'debugHint')}</p>
+      <p className="text-xs text-slate-500 mb-2">{t(lang, 'debugHint')}</p>
       <div className="rounded-lg border border-slate-200 bg-slate-900 py-2 mb-2 font-mono text-xs">
         {lines.map((line, i) => (
           <button key={i} onClick={() => toggle(i)} disabled={checked}
@@ -322,7 +337,7 @@ export function DebugBlock({ prompt, lines, wrong, explanation, lang }: {
       ) : (
         <div className="text-sm">
           <div className="flex items-center gap-3 mb-1">
-            <span className={`inline-flex items-center gap-1 ${solved ? 'text-green-600 font-medium' : 'text-amber-600 font-medium'}`}>
+            <span role="status" tabIndex={-1} className={`inline-flex items-center gap-1 ${solved ? 'text-green-600 font-medium' : 'text-amber-600 font-medium'}`}>
               <Icon name={solved ? 'check' : 'close'} className="h-4 w-4" />{solved ? t(lang, 'correct') : t(lang, 'incorrect')}
             </span>
             {!solved && (
@@ -361,7 +376,7 @@ export function ReflectBlock({ prompt, storageKey, lang }: { prompt: string; sto
         onChange={(e) => { setText(e.target.value); try { localStorage.setItem(storageKey, e.target.value) } catch { /* nur für diese Sitzung */ } }}
         aria-label={prompt}
         className="w-full border border-slate-200 rounded-lg px-3 py-1.5 text-sm text-slate-700" />
-      <p className="text-xs text-slate-400 mt-1">{t(lang, 'reflectHint')}</p>
+      <p className="text-xs text-slate-500 mt-1">{t(lang, 'reflectHint')}</p>
     </div>
   )
 }
@@ -412,11 +427,14 @@ export function Blocks({
   const versions = useMemo(
     () => Object.fromEntries(blocks.map((b, i) => [b.uid || `${b.type}-${i}`, fingerprint(b)])),
     [blocks])
+  const legacy = useMemo(
+    () => Object.fromEntries(blocks.map((b, i) => [b.uid || `${b.type}-${i}`, legacyFingerprint(b)])),
+    [blocks])
   const exerciseUids = useMemo(
     () => blocks.flatMap((b, i) => (isExercise(b) ? [b.uid || `${b.type}-${i}`] : [])),
     [blocks])
   const [done, setDone] = useState<ReadonlySet<string>>(new Set())
-  useEffect(() => setDone(doneExercises(storageKey, versions)), [storageKey, versions])
+  useEffect(() => setDone(doneExercises(storageKey, versions, legacy)), [storageKey, versions, legacy])
   const onDone = useCallback((uid: string, isDone: boolean) => setDone((prev) => {
     if (prev.has(uid) === isDone) return prev
     const next = new Set(prev)
@@ -433,18 +451,19 @@ export function Blocks({
     <CodeLangContext.Provider value={lang}>
     <div className="content-blocks flex flex-col gap-6">
       {storageKey && exerciseUids.length > 0 && (
-        <div className="flex items-center gap-3 text-xs text-slate-500 print:hidden" data-testid="exercise-summary">
+        <div className="flex items-center gap-3 text-xs text-slate-600 print:hidden" data-testid="exercise-summary">
           <span aria-live="polite">
             {lang === 'de' ? `${doneCount} von ${exerciseUids.length} Übungen erledigt` : `${doneCount} of ${exerciseUids.length} exercises done`}
           </span>
           <span className="h-1 w-24 overflow-hidden rounded-full bg-slate-200" aria-hidden="true">
             <span className="block h-full rounded-full bg-teal-500 transition-[width]" style={{ width: `${Math.round((doneCount / exerciseUids.length) * 100)}%` }} />
           </span>
-          <span className="text-slate-400">{lang === 'de' ? 'nur in diesem Browser gemerkt' : 'remembered in this browser only'}</span>
+          <span>{lang === 'de' ? 'nur in diesem Browser gemerkt' : 'remembered in this browser only'}</span>
         </div>
       )}
       {blocks.map((b, i) => (
-        <div key={i} id={`block-${i}`} data-uid={b.uid ?? undefined} className={`flex flex-col gap-1 scroll-mt-20 ${printable(b.type) ? '' : 'print:hidden'}`}>
+        // key: die stabile Kennung, nicht die Position — sonst erbt ein eingefügter/verschobener Block den Zustand seines Vorgängers
+        <div key={uidOf(b, i)} id={`block-${i}`} data-uid={b.uid ?? undefined} className={`flex flex-col gap-1 scroll-mt-20 ${printable(b.type) ? '' : 'print:hidden'}`}>
           {(i === 0 || phaseOf(blocks[i - 1].type) !== phaseOf(b.type)) && (
             <div className="mb-1 flex items-center gap-3 pt-2 print:hidden">
               {firstPhaseOccurrence.has(i) && (
@@ -453,8 +472,10 @@ export function Blocks({
               <div className="h-px flex-1 bg-teal-100" aria-hidden="true" />
             </div>
           )}
-          {/* key: der Teilnehmer-Scope steht erst nach /me fest — der Remount lädt dann den gemerkten Stand. */}
-          <ExerciseSlotContext.Provider key={storageKey} value={storageKey ? { storageKey, uid: uidOf(b, i), v: versions[uidOf(b, i)], onDone } : null}>
+          {/* key: der Teilnehmer-Scope steht erst nach /me fest — der Remount lädt dann den gemerkten Stand.
+              Mit dem Fingerabdruck im key beginnt ein strukturell geänderter Block (Content-Update bei
+              offenem Modul) neu, statt den alten Zustand unter dem neuen Fingerabdruck zu speichern. */}
+          <ExerciseSlotContext.Provider key={`${storageKey}|${versions[uidOf(b, i)]}`} value={storageKey ? { storageKey, uid: uidOf(b, i), v: versions[uidOf(b, i)], legacy: legacy[uidOf(b, i)], onDone } : null}>
           {b.type === 'text' && <Markdown components={MD_COMPONENTS}>{b.value}</Markdown>}
           {b.type === 'widget' && <WidgetBlock id={b.id} lang={lang} />}
           {b.type === 'check' && <CheckBlock prompt={b.prompt} options={b.options} answer={b.answer} kind={b.kind} lang={lang} />}

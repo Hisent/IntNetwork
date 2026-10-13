@@ -26,7 +26,7 @@ export function PayloadJsonField({ value, onChange }: { value: BlockPayload | nu
         className="w-full rounded-lg border px-3 py-1.5 font-mono text-xs text-slate-700" />
       {state.error
         ? <p role="alert" className="text-xs text-red-600">Ungültiges JSON ({state.error}) — gespeichert würde der letzte gültige Stand.</p>
-        : <p className="text-xs text-slate-400">Felder und Grenzen: docs/content-authoring.md. Texte als <code>x_de</code>/<code>x_en</code> oder sprachneutral als <code>x</code>. Beim Speichern prüft der Server die Struktur.</p>}
+        : <p className="text-xs text-slate-500">Felder und Grenzen: docs/content-authoring.md. Texte als <code>x_de</code>/<code>x_en</code> oder sprachneutral als <code>x</code>. Beim Speichern prüft der Server die Struktur.</p>}
     </div>
   )
 }

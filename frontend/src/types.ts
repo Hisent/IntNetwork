@@ -27,7 +27,8 @@ export type Question = { id: string; prompt: string; explanation?: string } & (
 export interface ModuleDetail {
   key: string
   workshop_key?: string | null
-  title: string
+  title: string  // deutsch; Anzeige über localTitle() (lib/i18n.ts)
+  title_en?: string
   order: number
   scenario?: string
   goals?: string[]  // in der Teilnehmersprache (Fallback Deutsch)

@@ -18,4 +18,10 @@ describe('Markdown code rendering', () => {
     const html = renderToStaticMarkup(<Markdown components={MD_COMPONENTS}>{'`_paging=1&_return_as_object=1&_max_results=1000`'}</Markdown>)
     expect(html).toMatch(/<code class="[^"]*\[overflow-wrap:anywhere\]/)
   })
+
+  it('reicht react-markdowns internes node-Prop nicht als DOM-Attribut durch', () => {
+    const html = renderToStaticMarkup(<Markdown components={MD_COMPONENTS}>{'## Titel\n\n### Unter\n\nText **fett** `code`\n\n- a\n\n1. b'}</Markdown>)
+    expect(html).not.toContain('node=')
+    expect(html).toContain('<h2 class=')
+  })
 })

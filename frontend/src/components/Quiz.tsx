@@ -5,6 +5,7 @@ import { errMsg } from '@/lib/api'
 import { t, type Lang } from '@/lib/i18n'
 import { termsForModule } from '@/lib/glossary'
 import { Icon } from '@/components/Icon'
+import { useResultFocus } from '@/components/blocks/useResultFocus'
 
 interface Result {
   score: number
@@ -114,15 +115,21 @@ export function Quiz({ moduleKey, questions, lang, onResult }: {
     setError('')
   }
 
-  // einmal pro Modul mischen (nicht bei jedem Render); Sprachwechsel laedt die
-  // Fragen neu und mischt dann ebenfalls neu — beides unkritisch.
+  // Einmal pro Modul mischen (nicht bei jedem Render). Die Mischung hängt an Frage-id und
+  // Optionszahl, nicht an den Texten: ein Sprachwechsel lädt die Fragen neu, lässt aber
+  // Reihenfolge und bereits angeklickte Antworten (Original-Indizes) stehen.
+  const shape = questions.map((q) => `${q.id}:${q.type === 'number' ? 0 : q.options.length}`).join('|')
   const optionOrder = useMemo(() => {
     const m: Record<string, number[]> = {}
-    for (const q of questions) if (q.type !== 'number') m[q.id] = shuffledIndices(q.options.length)
+    for (const part of shape.split('|')) {
+      const cut = part.lastIndexOf(':')
+      if (part.slice(cut + 1) !== '0') m[part.slice(0, cut)] = shuffledIndices(Number(part.slice(cut + 1)))
+    }
     return m
-  }, [questions])
+  }, [shape])
 
   const locked = result !== null
+  const root = useResultFocus<HTMLElement>(locked)
   const answeredCount = questions.filter((q) => isAnswered(q, answers[q.id])).length
   const allAnswered = answeredCount === questions.length
   const progressPct = questions.length ? Math.round((answeredCount / questions.length) * 100) : 0
@@ -130,7 +137,7 @@ export function Quiz({ moduleKey, questions, lang, onResult }: {
   const wrongQuestions = result ? questions.filter((question) => !result.details[question.id]) : []
 
   return (
-    <section className="mt-14">
+    <section ref={root} className="mt-14">
       {/* Übergang vom Lernstoff zum Abschluss — statt unvermittelt ein Kasten */}
       <div className="mb-6 flex items-center gap-3">
         <span className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-widest text-teal-700">
@@ -172,7 +179,7 @@ export function Quiz({ moduleKey, questions, lang, onResult }: {
             <div key={q.id} className={`rounded-xl border ${ring} p-4 transition-colors [overflow-wrap:anywhere]`}>
               <div className="flex items-start justify-between gap-3 mb-2">
                 <p id={`quiz-${q.id}`} className="font-medium text-slate-800">
-                  <span className="text-slate-400 mr-1.5">{qi + 1}.</span>{q.prompt}
+                  <span className="text-slate-500 mr-1.5">{qi + 1}.</span>{q.prompt}
                 </p>
                 {locked && (
                   <span className={`shrink-0 inline-flex items-center gap-1 text-xs font-semibold rounded-full px-2 py-0.5 ${correct ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}`}>
@@ -217,14 +224,15 @@ export function Quiz({ moduleKey, questions, lang, onResult }: {
               className="rounded-lg bg-teal-600 hover:bg-teal-700 text-white px-5 py-2 font-medium disabled:opacity-50 disabled:cursor-not-allowed">
               {busy ? t(lang, 'evaluating') : t(lang, 'submit')}
             </button>
-            {!allAnswered && <span className="text-xs text-slate-400">{t(lang, 'answerAllHint')}</span>}
+            {!allAnswered && <span className="text-xs text-slate-500">{t(lang, 'answerAllHint')}</span>}
           </div>
           {error && <p role="alert" className="mt-3 rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-700">{error}</p>}
         </div>
       ) : (
-        <div className="mt-6 animate-fade-up" aria-live="polite">
+        <div className="mt-6 animate-fade-up">
           <div className={`rounded-2xl px-5 py-4 flex items-center justify-between gap-4 ${result.passed ? 'bg-green-50 border border-green-200' : 'bg-amber-50 border border-amber-200'}`}>
-            <div>
+            {/* role="status" + Fokus: der Abgabe-Knopf ist nach der Bewertung weg (useResultFocus) */}
+            <div role="status" tabIndex={-1}>
               <p className="text-xs uppercase tracking-wide text-slate-500 font-semibold">{t(lang, 'yourResult')}</p>
               <p className={`text-2xl font-bold ${result.passed ? 'text-green-600' : 'text-amber-600'}`}>
                 {result.score} / {result.total}

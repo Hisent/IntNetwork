@@ -11,6 +11,7 @@ import { useAuthStore } from '@/store/auth'
 import { BrandLogo } from '@/components/BrandLogo'
 import { WorkshopTheme } from '@/components/WorkshopTheme'
 import { workshopTheme } from '@/lib/workshopTheme'
+import { useDocumentTitle } from '@/lib/i18n'
 
 // Ampelfarbe je Erfolgsquote: ab 70% grün, ab 40% gelb, darunter rot.
 function rateColor(rate: number) {
@@ -68,6 +69,7 @@ export function TrainerModulePage() {
     queryFn: () => trainerApi.trainerModule(key).then((r) => r.data),
     enabled: role === 'trainer' && !!token,
   })
+  useDocumentTitle(mod.data ? `${mod.data.title} · Trainer` : 'Trainer')
   const courses = useQuery({
     queryKey: ['courses'],
     queryFn: () => trainerApi.listCourses().then((r) => r.data),

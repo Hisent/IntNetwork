@@ -18,3 +18,21 @@ export function markLockedVisibility(modules: LockedInput[], keepLockedCount = 3
     return { key, locked, visible: false }
   })
 }
+
+/** Voraussetzungen eines Moduls, die im Kurs aktiv sind. `GET /modules` liefert die rohen
+ *  Voraussetzungen; ist eine davon im Kurs abgewählt, gibt es sie hier nicht zu bestehen
+ *  und sie gilt als erfüllt (sonst bliebe das Modul dauerhaft ausgegraut). */
+export function coursePrerequisites(module: { prerequisites: string[] }, courseModules: { key: string }[]): string[] {
+  return module.prerequisites.filter((key) => courseModules.some((m) => m.key === key))
+}
+
+/** Noch nicht bestandene Voraussetzungen eines Moduls (Schlüssel, in Modul-Reihenfolge).
+ *  Leer = freigeschaltet. Die „Sperre“ ist didaktische Führung, keine Zugriffskontrolle:
+ *  Lernseite, Suche und Modulseite kennzeichnen damit nur, worauf ein Modul aufbaut. */
+export function openPrerequisites(
+  module: { prerequisites: string[] },
+  progress: { module_key: string; done: boolean }[],
+  courseModules: { key: string }[],
+): string[] {
+  return coursePrerequisites(module, courseModules).filter((key) => !progress.some((item) => item.module_key === key && item.done))
+}

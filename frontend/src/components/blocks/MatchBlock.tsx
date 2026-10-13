@@ -5,6 +5,7 @@ import { t } from '@/lib/i18n'
 import { Icon } from '@/components/Icon'
 import { shuffledIndices } from '@/components/Quiz'
 import { assignPair, matchResult } from './exerciseLogic'
+import { useResultFocus } from './useResultFocus'
 import type { MatchData } from './types'
 
 const LETTERS = 'ABCDEFGH'
@@ -16,8 +17,12 @@ export default function MatchBlock({ data, lang }: { data: MatchData; lang: Lang
   const n = data.pairs.length
   // order[k] = Paar-Index der Beschreibung an Anzeigeposition k
   const fresh = () => ({ order: shuffledIndices(n), assignment: Array<number | null>(n).fill(null), active: 0 as number | null, checked: false })
-  const [{ order, assignment, active, checked }, setState] = useExercise(fresh,
+  const [saved, setState] = useExercise(fresh,
     (s) => s.checked && matchResult(s.assignment).every(Boolean))
+  // Gemerkter Stand mit anderer Paarzahl (Content-Update, kaputter Speicher) -> neu beginnen statt abzustürzen.
+  const usable = Array.isArray(saved?.order) && Array.isArray(saved.assignment) && saved.order.length === n && saved.assignment.length === n
+    && saved.order.every((p) => p >= 0 && p < n)
+  const { order, assignment, active, checked } = usable ? saved : { order: [], assignment: [], active: null, checked: false }
   const setActive = (next: number | null) => setState((s) => ({ ...s, active: next }))
   const setChecked = (next: boolean) => setState((s) => ({ ...s, checked: next }))
   const result = useMemo(() => matchResult(assignment), [assignment])
@@ -32,12 +37,14 @@ export default function MatchBlock({ data, lang }: { data: MatchData; lang: Lang
     setState((s) => ({ ...s, assignment: next, active: open >= 0 ? open : null }))
   }
   const reset = () => setState(fresh())
+  const root = useResultFocus(checked)
+  if (!usable) { reset(); return null }  // setState im Render: React rendert sofort mit dem frischen Stand neu
 
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-4">
+    <div ref={root} className="rounded-xl border border-slate-200 bg-white p-4">
       <p className="text-xs font-semibold uppercase tracking-wide text-teal-700 mb-1">{de ? 'Zuordnen' : 'Match'}</p>
       <p className="font-medium text-slate-800 mb-1">{data.prompt}</p>
-      <p className="text-xs text-slate-400 mb-3">{de ? 'Erst einen Begriff wählen, dann die passende Beschreibung.' : 'Pick a term first, then its matching description.'}</p>
+      <p className="text-xs text-slate-500 mb-3">{de ? 'Erst einen Begriff wählen, dann die passende Beschreibung.' : 'Pick a term first, then its matching description.'}</p>
       <div className="grid gap-4 sm:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
         <ul className="flex min-w-0 flex-col gap-1.5" aria-label={de ? 'Begriffe' : 'Terms'}>
           {data.pairs.map((p, i) => {
@@ -79,14 +86,14 @@ export default function MatchBlock({ data, lang }: { data: MatchData; lang: Lang
           })}
         </ul>
       </div>
-      <div className="mt-3 flex flex-wrap items-center gap-3 text-sm" aria-live="polite">
+      <div className="mt-3 flex flex-wrap items-center gap-3 text-sm">
         {!checked ? (
           <button type="button" onClick={() => setChecked(true)} disabled={!complete}
             className="rounded-lg border border-teal-200 text-teal-700 px-3 py-1.5 text-sm font-medium hover:bg-teal-50 disabled:opacity-50">
             {t(lang, 'checkIt')}
           </button>
         ) : (
-          <span className={`inline-flex items-center gap-1 font-medium ${allCorrect ? 'text-green-600' : 'text-amber-600'}`}>
+          <span role="status" tabIndex={-1} className={`inline-flex items-center gap-1 font-medium ${allCorrect ? 'text-green-600' : 'text-amber-600'}`}>
             <Icon name={allCorrect ? 'check' : 'close'} className="h-4 w-4" />
             {allCorrect ? t(lang, 'correct') : `${result.filter(Boolean).length} / ${n} ${de ? 'richtig' : 'correct'}`}
           </span>

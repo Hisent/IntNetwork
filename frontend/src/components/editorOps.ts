@@ -80,3 +80,23 @@ export function parsePayloadJson(text: string): { payload: BlockPayload } | { er
     return { error: err instanceof Error ? err.message : 'Ungültiges JSON' }
   }
 }
+
+/** Auswahl für „Voraussetzungen“ im Editor: nur Module desselben Lehrgangs (ohne
+ *  das Modul selbst). Bereits gesetzte Voraussetzungen bleiben sichtbar, auch
+ *  wenn sie aus einem anderen Lehrgang stammen — sonst ließen sie sich nicht abwählen. */
+export function prerequisiteChoices<T extends { key: string; workshop_key: string | null }>(
+  all: T[], moduleKey: string, workshopKey: string | null | undefined, selected: string[],
+): T[] {
+  return all.filter((m) => m.key !== moduleKey
+    && ((m.workshop_key ?? null) === (workshopKey ?? null) || selected.includes(m.key)))
+}
+
+/** Die 422-Meldung des Servers nennt bei Baukasten-Blöcken den Block:
+ *  "<typ>-Block '<uid | #n>': <feldpfad>: <grund>" -> Index im Formular, sonst -1. */
+export function blockIndexFromError(message: string, blocks: { uid?: string | null; widget_id?: string | null }[]): number {
+  const label = message.match(/-Block '([^']+)'/)?.[1]
+  if (!label) return -1
+  const position = label.match(/^#(\d+)$/)
+  if (position) return Number(position[1]) <= blocks.length ? Number(position[1]) - 1 : -1
+  return blocks.findIndex((b) => b.uid === label || b.widget_id === label)
+}

@@ -2,9 +2,9 @@ import { useEffect, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import Markdown from 'react-markdown'
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import { errMsg } from '@/lib/api'
+import { errMsg, type ApiError } from '@/lib/api'
 import { trainerApi, type EditorBlock, type EditorModule, type EditorQuestion } from '@/lib/trainerApi'
-import { addOption, declarativeTemplate, emptyBlock, emptyQuestion, isDeclarativeType, moveItem, removeAt, removeOption } from '@/components/editorOps'
+import { addOption, blockIndexFromError, declarativeTemplate, emptyBlock, emptyQuestion, isDeclarativeType, moveItem, prerequisiteChoices, removeAt, removeOption } from '@/components/editorOps'
 import { PayloadJsonField } from '@/components/PayloadJsonField'
 import { MD_COMPONENTS } from '@/components/Blocks'
 import { WIDGETS } from '@/widgets/registry'
@@ -13,6 +13,7 @@ import { WorkshopTheme } from '@/components/WorkshopTheme'
 import { LoadError } from '@/components/LoadError'
 import { useAuthStore } from '@/store/auth'
 import { workshopTheme } from '@/lib/workshopTheme'
+import { useDocumentTitle } from '@/lib/i18n'
 
 const TYPE_LABELS: Record<EditorBlock['type'], string> = {
   text: 'Text', widget: 'Widget', check: 'Kurz-Check', reveal: 'Aufdecken',
@@ -36,7 +37,12 @@ export function TrainerModuleEditPage() {
   const navigate = useNavigate()
   const qc = useQueryClient()
   const [form, setForm] = useState<EditorModule | null>(null)
-  const [error, setError] = useState('')
+  // Serverstand, auf dem das Formular beruht — jede Abweichung davon ist eine ungespeicherte Änderung.
+  const [base, setBase] = useState<EditorModule | null>(null)
+  const dirty = !!form && form !== base
+  // Rückmeldung zum Speichern; steht beim Speichern-Knopf (fixierte Leiste), nicht am Seitenanfang.
+  const [status, setStatus] = useState<{ kind: 'ok' | 'error' | 'conflict'; text: string } | null>(null)
+  const [badBlock, setBadBlock] = useState<number | null>(null)
   const [preview, setPreview] = useState<Record<number, boolean>>({})
 
   const isTrainer = useAuthStore((state) => state.role === 'trainer' && !!state.token)
@@ -44,53 +50,77 @@ export function TrainerModuleEditPage() {
     queryKey: ['content-module', key],
     queryFn: () => trainerApi.getContentModule(key).then((r) => r.data),
     enabled: isTrainer,
+    // Mit ungespeicherten Änderungen beim Zurückkehren in den Tab nicht neu laden.
+    refetchOnWindowFocus: !dirty,
   })
+  // Serverstand-Titel (nicht das Formular): der Tab-Titel springt nicht bei jedem Tastendruck.
+  useDocumentTitle(mod.data ? `${mod.data.title_de} · Editor` : 'Modul-Editor')
   const allMods = useQuery({
     queryKey: ['content-modules'],
     queryFn: () => trainerApi.listContentModules().then((r) => r.data),
     enabled: isTrainer,
   })
 
+  const adopt = (data: EditorModule) => { setForm(data); setBase(data) }
+  // Neue Serverdaten (erster Abruf, Refetch) nur übernehmen, solange nichts Ungespeichertes im
+  // Formular steht — sonst ersetzte ein Hintergrund-Refetch die Arbeit des Trainers kommentarlos.
+  // Ausnahme Modulwechsel: das Formular des vorherigen Moduls gehört nicht hierher.
   useEffect(() => {
-    if (mod.data) setForm(mod.data)
+    if (!mod.data || (dirty && form?.key === mod.data.key)) return
+    adopt(mod.data)
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- bewusst nur bei neuen Serverdaten, nicht bei jedem Tastendruck
   }, [mod.data])
+
+  // Serverstand ausdrücklich laden und das Formular damit ersetzen: nach einem Konflikt (Knopf),
+  // nach „Wiederherstellen“/„Auslieferungszustand“ — die nächste Speicherung beruht dann auf dessen Version.
+  async function loadServer() {
+    const { data } = await mod.refetch()
+    if (data) { adopt(data); setStatus(null); setBadBlock(null) }
+  }
+  const failed = (e: unknown) => setStatus({ kind: (e as ApiError).response?.status === 409 ? 'conflict' : 'error', text: errMsg(e) })
 
   const save = useMutation({
     mutationFn: (data: EditorModule) => trainerApi.saveContentModule(key, data),
-    onSuccess: (response) => {
-      setError('')
+    onMutate: () => { setStatus(null); setBadBlock(null) },
+    onSuccess: (response, sent) => {
       // Neue Version sofort übernehmen: ein zweites Speichern vor Abschluss des
       // Refetch liefe sonst mit der alten in den 409 der optimistischen Sperre.
-      setForm((current) => current && { ...current, version: response.data.version })
+      // Wurde während des Speicherns weitergetippt, bleibt das Formular dirty.
+      const saved = { ...sent, version: response.data.version }
+      setBase(saved)
+      setForm((current) => (current === sent ? saved : current && { ...current, version: saved.version }))
+      setStatus({ kind: 'ok', text: 'Gespeichert.' })
       qc.invalidateQueries({ queryKey: ['content-module', key] })
       qc.invalidateQueries({ queryKey: ['trainer-modules'] })
     },
-    onError: (e) => setError(errMsg(e)),
+    onError: (e, sent) => {
+      failed(e)
+      // Nennt die Meldung einen Block, diesen aufklappen und hinspringen.
+      const index = blockIndexFromError(errMsg(e), sent.blocks)
+      const el = index < 0 ? null : document.getElementById(`edit-block-${index}`) as HTMLDetailsElement | null
+      if (!el) return
+      setBadBlock(index)
+      el.open = true
+      el.scrollIntoView({ block: 'center' })
+      const target = el.querySelector<HTMLElement>('textarea') ?? el.querySelector<HTMLElement>('summary')
+      target?.focus({ preventScroll: true })
+    },
   })
 
   const restore = useMutation({
     mutationFn: () => trainerApi.restoreContentModule(key),
-    onSuccess: () => {
-      setError('')
-      qc.invalidateQueries({ queryKey: ['content-module', key] })
-      qc.invalidateQueries({ queryKey: ['trainer-modules'] })
-    },
-    onError: (e) => setError(errMsg(e)),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['trainer-modules'] }); return loadServer() },
+    onError: failed,
   })
 
   const reseed = useMutation({
     mutationFn: () => trainerApi.reseedContentModule(key),
-    onSuccess: () => {
-      setError('')
-      qc.invalidateQueries({ queryKey: ['content-module', key] })
-      qc.invalidateQueries({ queryKey: ['trainer-modules'] })
-    },
-    onError: (e) => setError(errMsg(e)),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['trainer-modules'] }); return loadServer() },
+    onError: failed,
   })
 
   // Ungespeicherte Änderungen: Tab schließen/neu laden nachfragen lassen.
   // ponytail: nur beforeunload — In-App-Links bräuchten useBlocker (Data Router).
-  const dirty = !!form && form !== mod.data
   useEffect(() => {
     if (!dirty) return
     const warn = (event: BeforeUnloadEvent) => event.preventDefault()
@@ -137,12 +167,10 @@ export function TrainerModuleEditPage() {
     <WorkshopTheme theme={workshopTheme(form.workshop_key)}><main id="main-content" tabIndex={-1} className="min-h-dvh bg-slate-50 p-6 sm:p-10">
       <div className="max-w-2xl mx-auto">
         <div className="flex items-center justify-between gap-4">
-          <Link to={`/trainer/modul/${key}`} className="text-sm text-slate-400 hover:text-slate-600">← Zur Trainer-Ansicht</Link>
+          <Link to={`/trainer/modul/${key}`} className="text-sm text-slate-500 hover:text-slate-600">← Zur Trainer-Ansicht</Link>
           <Link to="/"><BrandLogo className="h-8 text-base" showName /></Link>
         </div>
         <h1 className="text-2xl font-bold text-slate-900 mt-2 mb-4">Modul bearbeiten: {key}</h1>
-
-        {error && <p className="mb-4 rounded-lg bg-red-50 text-red-700 text-sm px-3 py-2">{error}</p>}
 
         <div className="rounded-xl border bg-white p-4 mb-6 flex flex-col gap-3">
           <label className="flex flex-col gap-1 text-sm">
@@ -163,7 +191,7 @@ export function TrainerModuleEditPage() {
           <div className="text-sm">
             Voraussetzungen
             <div className="flex flex-wrap gap-3 mt-1">
-              {(allMods.data ?? []).filter((m) => m.key !== key).map((m) => (
+              {prerequisiteChoices(allMods.data ?? [], key, form.workshop_key, form.prerequisites).map((m) => (
                 <label key={m.key} className="flex items-center gap-1.5">
                   <input type="checkbox" checked={form.prerequisites.includes(m.key)}
                     onChange={(e) => setForm({
@@ -200,17 +228,17 @@ export function TrainerModuleEditPage() {
         </div>
 
         <div className="rounded-xl border bg-white p-4 mb-6">
-          <h3 className="text-sm font-semibold text-slate-700 mb-3">Blöcke</h3>
+          <h2 className="text-sm font-semibold text-slate-700 mb-3">Blöcke</h2>
           <div className="flex flex-col gap-4">
             {form.blocks.map((b, i) => (
-              <details key={i} className="group rounded-lg border">
+              <details key={i} id={`edit-block-${i}`} className={`group rounded-lg border ${badBlock === i ? 'border-red-400' : ''}`}>
                 <summary className="cursor-pointer select-none rounded-lg px-3 py-2 text-sm hover:bg-slate-50">
                   <span className="font-medium text-slate-700">{i + 1}. {TYPE_LABELS[b.type]}</span>
-                  <span className="ml-2 text-xs text-slate-400">{blockSnippet(b)}</span>
+                  <span className="ml-2 text-xs text-slate-500">{blockSnippet(b)}</span>
                 </summary>
                 <div className="border-t border-slate-100 p-3 flex flex-col gap-2">
                 <div className="flex items-center justify-between">
-                  <select className="border rounded px-2 py-1 text-sm" value={b.type}
+                  <select aria-label={`Typ von Block ${i + 1}`} className="border rounded px-2 py-1 text-sm" value={b.type}
                     onChange={(e) => changeBlockType(i, e.target.value as EditorBlock['type'])}>
                     <option value="text">Text</option>
                     <option value="widget">Widget</option>
@@ -239,9 +267,9 @@ export function TrainerModuleEditPage() {
                     </button>
                     {preview[i] ? (
                       <div className="rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm">
-                        <p className="text-xs font-semibold text-slate-400 mb-1">DE</p>
+                        <p className="text-xs font-semibold text-slate-500 mb-1">DE</p>
                         <Markdown components={MD_COMPONENTS}>{b.value_de ?? ''}</Markdown>
-                        <p className="text-xs font-semibold text-slate-400 mt-4 mb-1">EN</p>
+                        <p className="text-xs font-semibold text-slate-500 mt-4 mb-1">EN</p>
                         <Markdown components={MD_COMPONENTS}>{b.value_en ?? ''}</Markdown>
                       </div>
                     ) : (
@@ -257,7 +285,7 @@ export function TrainerModuleEditPage() {
                   </>
                 )}
                 {b.type === 'widget' && (
-                  <select className="border rounded-lg px-3 py-1.5 text-sm" value={b.widget_id ?? ''}
+                  <select aria-label={`Widget in Block ${i + 1}`} className="border rounded-lg px-3 py-1.5 text-sm" value={b.widget_id ?? ''}
                     onChange={(e) => updateBlock(i, { widget_id: e.target.value })}>
                     <option value="">— auswählen —</option>
                     {WIDGET_IDS.map((w) => <option key={w} value={w}>{w}</option>)}
@@ -289,7 +317,7 @@ export function TrainerModuleEditPage() {
                     <div className="flex flex-col gap-1.5">
                       {(b.payload?.options_de ?? []).map((opt, oi) => (
                         <div key={oi} className="flex items-center gap-2">
-                          <input type="radio" name={`b${i}-answer`} checked={b.payload?.answer === oi}
+                          <input type="radio" name={`b${i}-answer`} aria-label={`Option ${oi + 1} ist richtig`} checked={b.payload?.answer === oi}
                             onChange={() => updatePayload(i, { answer: oi })} />
                           <input className="border rounded-lg px-2 py-1 text-sm flex-1" placeholder="Option DE" value={opt}
                             onChange={(e) => updatePayload(i, {
@@ -332,11 +360,11 @@ export function TrainerModuleEditPage() {
                       value={b.payload?.prompt_de ?? ''} onChange={(e) => updatePayload(i, { prompt_de: e.target.value })} />
                     <input placeholder="Aufgabe EN" className="border rounded-lg px-3 py-1.5 text-sm"
                       value={b.payload?.prompt_en ?? ''} onChange={(e) => updatePayload(i, { prompt_en: e.target.value })} />
-                    <p className="text-xs text-slate-400">Schritte in der richtigen Reihenfolge — Teilnehmer sieht sie gemischt.</p>
+                    <p className="text-xs text-slate-500">Schritte in der richtigen Reihenfolge — Teilnehmer sieht sie gemischt.</p>
                     <div className="flex flex-col gap-1.5">
                       {(b.payload?.items_de ?? []).map((it, oi) => (
                         <div key={oi} className="flex items-center gap-2">
-                          <span className="text-xs text-slate-400 font-mono w-5">{oi + 1}.</span>
+                          <span className="text-xs text-slate-500 font-mono w-5">{oi + 1}.</span>
                           <input className="border rounded-lg px-2 py-1 text-sm flex-1" placeholder="Schritt DE" value={it}
                             onChange={(e) => updatePayload(i, {
                               items_de: (b.payload?.items_de ?? []).map((o, idx) => (idx === oi ? e.target.value : o)),
@@ -365,11 +393,11 @@ export function TrainerModuleEditPage() {
                       value={b.payload?.prompt_de ?? ''} onChange={(e) => updatePayload(i, { prompt_de: e.target.value })} />
                     <input placeholder="Aufgabe EN" className="border rounded-lg px-3 py-1.5 text-sm"
                       value={b.payload?.prompt_en ?? ''} onChange={(e) => updatePayload(i, { prompt_en: e.target.value })} />
-                    <p className="text-xs text-slate-400">Haken = diese Zeile ist der Fehler.</p>
+                    <p className="text-xs text-slate-500">Haken = diese Zeile ist der Fehler.</p>
                     <div className="flex flex-col gap-1.5">
                       {(b.payload?.lines_de ?? []).map((line, oi) => (
                         <div key={oi} className="flex items-center gap-2">
-                          <input type="checkbox" checked={(b.payload?.wrong ?? []).includes(oi)}
+                          <input type="checkbox" aria-label={`Zeile ${oi + 1} ist der Fehler`} checked={(b.payload?.wrong ?? []).includes(oi)}
                             onChange={(e) => updatePayload(i, {
                               wrong: e.target.checked
                                 ? [...(b.payload?.wrong ?? []), oi]
@@ -409,7 +437,7 @@ export function TrainerModuleEditPage() {
                       value={b.payload?.prompt_de ?? ''} onChange={(e) => updatePayload(i, { prompt_de: e.target.value })} />
                     <input placeholder="Frage EN" className="border rounded-lg px-3 py-1.5 text-sm"
                       value={b.payload?.prompt_en ?? ''} onChange={(e) => updatePayload(i, { prompt_en: e.target.value })} />
-                    <p className="text-xs text-slate-400">Freitext-Antwort — wird nur lokal im Browser des Teilnehmers gespeichert.</p>
+                    <p className="text-xs text-slate-500">Freitext-Antwort — wird nur lokal im Browser des Teilnehmers gespeichert.</p>
                   </>
                 )}
                 {isDeclarativeType(b.type) && (
@@ -430,12 +458,12 @@ export function TrainerModuleEditPage() {
         </div>
 
         <div className="rounded-xl border bg-white p-4 mb-6">
-          <h3 className="text-sm font-semibold text-slate-700 mb-3">Quiz</h3>
+          <h2 className="text-sm font-semibold text-slate-700 mb-3">Quiz</h2>
           <div className="flex flex-col gap-4">
             {form.quiz.map((q, i) => (
               <div key={i} className="rounded-lg border p-3 flex flex-col gap-2">
                 <div className="flex items-center justify-between">
-                  <select className="border rounded px-2 py-1 text-sm" value={q.qtype}
+                  <select aria-label={`Typ von Frage ${i + 1}`} className="border rounded px-2 py-1 text-sm" value={q.qtype}
                     onChange={(e) => updateQuestion(i, {
                       qtype: e.target.value as EditorQuestion['qtype'],
                       answer: e.target.value === 'multi' ? [] : 0,
@@ -461,6 +489,7 @@ export function TrainerModuleEditPage() {
                         <input
                           type={q.qtype === 'single' ? 'radio' : 'checkbox'}
                           name={`q${i}-answer`}
+                          aria-label={`Option ${oi + 1} ist richtig`}
                           checked={q.qtype === 'single' ? q.answer === oi : Array.isArray(q.answer) && q.answer.includes(oi)}
                           onChange={() => {
                             if (q.qtype === 'single') updateQuestion(i, { answer: oi })
@@ -504,7 +533,25 @@ export function TrainerModuleEditPage() {
           </button>
         </div>
 
-        <button onClick={() => save.mutate(form)} disabled={save.isPending}
+        {/* Fixierte Leiste: Knopf UND Rückmeldung bleiben im Blick — die Meldung stand früher am
+            Seitenanfang, tausende Pixel über dem Knopf, und ein Erfolg wurde gar nicht gemeldet. */}
+        <div data-testid="save-bar" className="sticky bottom-0 z-10 -mx-2 border-t border-slate-200 bg-slate-50 px-2 py-3">
+        {status?.kind === 'ok' && !dirty && (
+          <p role="status" className="mb-2 rounded-lg bg-green-50 px-3 py-2 text-sm font-medium text-green-800">{status.text}</p>
+        )}
+        {status && status.kind !== 'ok' && (
+          <div role="alert" className="mb-2 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">
+            <p className="font-medium">Nicht gespeichert: {status.text}</p>
+            {status.kind === 'conflict' && (
+              <button type="button" onClick={() => void loadServer()}
+                className="mt-2 rounded-lg border border-red-300 bg-white px-3 py-1.5 font-medium text-red-700 hover:bg-red-50">
+                Serverstand laden (eigene Änderungen verwerfen)
+              </button>
+            )}
+          </div>
+        )}
+        <div className="flex flex-wrap gap-2">
+        <button onClick={() => save.mutate(form)} disabled={save.isPending || restore.isPending || reseed.isPending}
           className="rounded-lg bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 font-medium disabled:opacity-60">
           {save.isPending ? 'Speichert…' : 'Speichern'}
         </button>
@@ -512,7 +559,7 @@ export function TrainerModuleEditPage() {
           <button
             onClick={() => window.confirm('Aktuelle Version durch die vorherige ersetzen?') && restore.mutate()}
             disabled={restore.isPending}
-            className="ml-2 rounded-lg border px-4 py-2 font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-60">
+            className="rounded-lg border px-4 py-2 font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-60">
             {restore.isPending ? 'Stelle wieder her…' : 'Vorherige Version wiederherstellen'}
           </button>
         )}
@@ -522,13 +569,15 @@ export function TrainerModuleEditPage() {
               + 'Eigene Änderungen werden ersetzt (einmaliges Undo über „Vorherige Version“ möglich).')
               && reseed.mutate()}
             disabled={reseed.isPending}
-            className="ml-2 rounded-lg border border-amber-300 px-4 py-2 font-medium text-amber-700 hover:bg-amber-50 disabled:opacity-60">
+            className="rounded-lg border border-amber-300 px-4 py-2 font-medium text-amber-700 hover:bg-amber-50 disabled:opacity-60">
             {reseed.isPending ? 'Setze zurück…' : 'Auslieferungszustand laden'}
           </button>
         )}
-        <button onClick={() => navigate('/trainer')} className="ml-2 rounded-lg border px-4 py-2 font-medium text-slate-700 hover:bg-slate-50">
+        <button onClick={() => navigate('/trainer')} className="rounded-lg border px-4 py-2 font-medium text-slate-700 hover:bg-slate-50">
           Zurück
         </button>
+        </div>
+        </div>
       </div>
     </main></WorkshopTheme>
   )

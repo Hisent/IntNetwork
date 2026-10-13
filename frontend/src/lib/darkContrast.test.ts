@@ -168,10 +168,10 @@ const TOKEN_RE = new RegExp(
 
 const KNOWN_EXCEPTIONS: Record<string, string> = {
   'bg-teal-600|||text-white':
-    'Marken-Akzent-Button (z.B. "Weiter", "Anmelden"): weißer Text auf teal-600 erreicht ' +
-    'nur ~3.7:1 — das ist ein vorbestehendes Light-Mode-Verhältnis (teal-600 wird im Dark ' +
-    'Mode absichtlich NICHT verändert, s. index.css), keine durch den Dark-Mode-Fix ' +
-    'eingeführte Regression. Sichtprüfung/Redesign der Akzentfarbe wäre ein separates Ticket.',
+    'Marken-Akzent-Button (z.B. "Weiter", "Anmelden"): behoben über die zusammengesetzte Regel ' +
+    '".bg-teal-600.text-white" in index.css (Fläche teal-700, 5.5:1; andere Lehrgänge: dunkle ' +
+    'Schrift auf hellem Kursakzent). Dieser Scanner löst nur Einzelklassen auf und rechnete ' +
+    'weiter mit teal-600 (3.7:1) — die wirksamen Werte prüft hintContrast.test.ts.',
   'focus:bg-teal-600|||focus:text-white':
     'Gleiche Ausnahme wie bg-teal-600/text-white, nur der focus:-Variante (App.tsx-Fehlerknopf) — ' +
     'referenziert dieselbe unveränderte Akzentfarbe.',
@@ -181,13 +181,13 @@ const KNOWN_EXCEPTIONS: Record<string, string> = {
     'vorbestehend und themen-unabhängig.',
   'bg-[var(--wb-accent)]|||text-white':
     'Workbench-Pendant zu bg-teal-600/text-white (z.B. LearnPage-"Kurs abgeschlossen"-Button, ' +
-    'ModulePage-Fortschrittspunkt): --wb-accent bleibt im Dark Mode hell (#14b8a6), weil es ' +
-    'weit häufiger als TEXT-Farbe auf dunklem Grund verwendet wird (Links/Labels in LearnPage, ' +
-    'ModulePage) — dort verlangt es Helligkeit. Ein dunklerer Wert würde diese Text-Stellen ' +
-    'unlesbar machen; der seltenere weiß-auf-Akzent-Button-Fall bleibt eine vorbestehende ' +
-    'Schwäche, symmetrisch zu bg-teal-600/text-white.',
+    'aktive Modulnummer der ModulePage): --wb-accent bleibt im Dark Mode hell (#14b8a6), weil es ' +
+    'weit häufiger als TEXT-Farbe auf dunklem Grund verwendet wird. Behoben über die Schriftfarbe: ' +
+    '"[data-theme=dark] .workbench .bg-[var(--wb-accent)].text-white { color: var(--wb-canvas) }" ' +
+    '(workbench.css) — zusammengesetzter Selektor, den dieser Scanner nicht auflöst; die ' +
+    'wirksamen Werte prüft hintContrast.test.ts.',
   'hover:bg-[var(--wb-accent-hover)]|||text-white':
-    'Hover-Variante derselben --wb-accent-Abwägung wie oben.',
+    'Hover-Variante desselben Elements — dieselbe Regel (dunkle Schrift), s. hintContrast.test.ts.',
   'hover:bg-slate-800|||text-teal-300':
     'Blocks.tsx CodeBlock-Kopfzeile ("Kopieren"-Button): text-teal-300 sitzt als Nachfahre in ' +
     'einer bg-slate-950-Fläche und wird dort per Scoped-Override in index.css ' +

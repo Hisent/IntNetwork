@@ -221,6 +221,16 @@ body {
   outline-offset: 2px;
 }
 
+/* Weiße Schrift auf der Akzentfläche (Knöpfe „bg-teal-600 … text-white“, app-weit ~50 Stellen):
+   teal-600 (#009689) erreicht mit Weiß nur 3,66:1. Die Fläche geht deshalb eine Stufe dunkler
+   (teal-700: 5,5:1; Hover teal-800) — hell wie dunkel, als fester Wert, weil --color-teal-700
+   im Dunkelmodus gespiegelt ist. Nur in Kombination mit text-white: reine Akzentflächen
+   (Fortschrittsbalken) behalten teal-600. Für die anderen Lehrgänge setzen die
+   Kursfarben-Regeln weiter unten (höhere Spezifität bzw. spätere Position) weiter ihren Akzent.
+   Nachgerechnet in lib/hintContrast.test.ts. */
+.bg-teal-600.text-white { background-color: oklch(51.1% 0.096 186.391); }
+.bg-teal-600.text-white.hover\:bg-teal-700:hover { background-color: oklch(43.7% 0.078 188.216); }
+
 /* lebendige Interaktion */
 button, a, input, select, textarea, [role="button"] {
   transition: background-color .2s ease, color .2s ease, border-color .2s ease,
@@ -379,7 +389,8 @@ p { text-wrap: pretty; }
 @media screen {
   [data-theme="dark"] .workshop-theme--claude {
     --workshop-accent: #fb923c;
-    --workshop-accent-hover: #9a3412;
+    /* Hover hellt im Dunkelmodus auf wie bei den anderen Lehrgängen: darauf steht dunkle Schrift (s.u.) */
+    --workshop-accent-hover: #fdba74;
     --workshop-accent-strong: #fdba74;
     --workshop-accent-soft: #35210f;
     --workshop-accent-line: #5a3a1c;
@@ -422,6 +433,12 @@ p { text-wrap: pretty; }
     --workshop-accent-ink: #e0e7ff;
     --workshop-accent-pale: #33366b;
   }
+  /* Im Dunkelmodus sind die Kursakzente hell (sie färben dort vor allem Text und Links) —
+     weiße Schrift auf einer solchen Fläche ist unlesbar (Claude-Orange: 2,2:1). Auf
+     Akzentflächen steht dort deshalb dunkle Schrift. Der Netzwerkkurs braucht das nicht:
+     seine Fläche bleibt dunkel genug für Weiß (s. „.bg-teal-600.text-white“ oben). */
+  [data-theme="dark"] .workshop-theme:not(.workshop-theme--network) .bg-teal-600.text-white,
+  [data-theme="dark"] .workshop-theme:not(.workshop-theme--network) .bg-\[var\(--workshop-accent\)\].text-white { color: #0d1417; }
 }
 
 /* Ein Regelblock für ALLE Nicht-Netzwerk-Themes. Quiz.tsx und Blocks.tsx

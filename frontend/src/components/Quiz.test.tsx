@@ -33,4 +33,20 @@ describe('Quiz', () => {
     render(<Quiz moduleKey="m" questions={[{ id: '9', type: 'single', prompt: 'TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384?', options: ['a', 'b'] }]} lang="de" />)
     expect(screen.getByText('TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384?', { exact: false }).closest('[class*="overflow-wrap:anywhere"]')).toBeTruthy()
   })
+
+  it('Sprachwechsel mitten im Quiz: angeklickte Antworten und Optionsreihenfolge bleiben', () => {
+    const de: Question[] = [{ id: '7', type: 'single', prompt: 'Frage A', options: ['eins', 'zwei', 'drei', 'vier', 'fünf', 'sechs'] }, { id: '8', type: 'multi', prompt: 'Frage B', options: ['ja', 'nein'] }]
+    const en: Question[] = [{ id: '7', type: 'single', prompt: 'Question A', options: ['one', 'two', 'three', 'four', 'five', 'six'] }, { id: '8', type: 'multi', prompt: 'Question B', options: ['yes', 'no'] }]
+    const { rerender } = render(<Quiz moduleKey="m" questions={de} lang="de" />)
+    fireEvent.click(screen.getByLabelText('drei'))
+    fireEvent.click(screen.getByLabelText('nein'))
+    const order = (names: string[]) => screen.getAllByRole('radio').map((r) => names.indexOf(r.closest('label')!.textContent!))
+    const before = order(de[0].type === 'single' ? de[0].options : [])
+
+    rerender(<Quiz moduleKey="m" questions={en} lang="en" />)
+    expect((screen.getByLabelText('three') as HTMLInputElement).checked).toBe(true)
+    expect((screen.getByLabelText('no') as HTMLInputElement).checked).toBe(true)
+    expect(order(en[0].type === 'single' ? en[0].options : [])).toEqual(before)
+    expect(screen.getByText('2 / 2', { exact: false })).toBeTruthy()
+  })
 })

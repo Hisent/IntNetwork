@@ -6,11 +6,11 @@ import { PageSkeleton } from '@/components/PageSkeleton'
 import { LoadError } from '@/components/LoadError'
 import type { Company, ModuleMeta, ProgressItem } from '@/types'
 import { useAuthStore } from '@/store/auth'
-import { storeLang, t, useDocumentLang, type Lang } from '@/lib/i18n'
+import { localTitle, storeLang, t, useDocumentLang, useDocumentTitle, type Lang } from '@/lib/i18n'
 import { LangToggle, WorkbenchProgress, WorkbenchSectionTitle, WorkbenchTopbar } from '@/components/workbench/WorkbenchShell'
 import { groupModulesBySection } from '@/lib/moduleGroups'
 import { modulePositions } from '@/lib/modulePosition'
-import { markLockedVisibility } from '@/lib/lockedModules'
+import { coursePrerequisites, markLockedVisibility, openPrerequisites } from '@/lib/lockedModules'
 import { WorkshopTheme } from '@/components/WorkshopTheme'
 import { Icon } from '@/components/Icon'
 import { SearchBox } from '@/components/SearchBox'
@@ -25,6 +25,7 @@ export function LearnPage() {
   const me = useQuery({ queryKey: ['me'], queryFn: () => learnApi.me().then((r) => r.data), enabled: isParticipant })
   const lang: Lang = me.data?.language ?? 'de'
   useDocumentLang(lang)
+  useDocumentTitle(me.data?.workshop?.title[lang])
   const mods = useQuery({ queryKey: ['modules', lang], queryFn: () => learnApi.listModules().then((r) => r.data), enabled: isParticipant })
   const networkWorkshop = me.data?.workshop?.key === 'network'
   const company = useQuery({ queryKey: ['company', lang], queryFn: () => learnApi.company().then((r) => r.data), enabled: networkWorkshop })
@@ -56,18 +57,17 @@ export function LearnPage() {
 
   const titleOf = (key: string) => {
     const m = mods.data?.find((x) => x.key === key)
-    return m ? (lang === 'de' ? m.title : m.title_en) : key
+    return m ? localTitle(m, lang) : key
   }
   const progressOf = (key: string) => me.data?.progress.find((p) => p.module_key === key)
   const isDone = (key: string) => progressOf(key)?.done ?? false
-  const prereqsMet = (keys: string[]) => keys.every(isDone)
 
   const total = mods.data?.length ?? 0
   const doneCount = mods.data?.filter((m) => isDone(m.key)).length ?? 0
   const donePct = total ? Math.round((doneCount / total) * 100) : 0
 
   const sorted = [...(mods.data ?? [])].sort((a, b) => a.order - b.order)
-  const isLocked = (m: ModuleMeta) => m.prerequisites.length > 0 && !prereqsMet(m.prerequisites)
+  const isLocked = (m: ModuleMeta) => openPrerequisites(m, me.data?.progress ?? [], sorted).length > 0
   const isStarted = (key: string) => progressOf(key)?.best != null || startedLocally.includes(key)
   // „Hier weitermachen“: zuerst ein angefangenes, noch nicht bestandenes Modul,
   // sonst das erste offene, nicht gesperrte in Kurs-Reihenfolge.
@@ -133,7 +133,7 @@ export function WorkbenchLearnView({ lang, displayName, modules, groups, progres
   // Gruppe wird stattdessen über onToggle mitgeführt, nur um Label/Pfeil
   // passend zum tatsächlichen Zustand zu zeigen.
   const [openGroups, setOpenGroups] = useState<Set<string>>(() => new Set())
-  const isLocked = (module: ModuleMeta) => module.prerequisites.some((key) => !progressOf(key)?.done)
+  const isLocked = (module: ModuleMeta) => openPrerequisites(module, progress, modules).length > 0
   const hasLocked = modules.some(isLocked)
   // Nur die nächsten paar gesperrten Module bleiben sichtbar (Kursreihenfolge)
   // — der Rest verschwindet hinter "Weitere Module anzeigen", damit der
@@ -162,13 +162,13 @@ export function WorkbenchLearnView({ lang, displayName, modules, groups, progres
         <span aria-hidden="true" className={`row-span-2 grid h-8 w-8 place-items-center rounded-lg text-xs font-bold ${itemProgress?.done ? 'bg-emerald-100 text-[var(--wb-success)]' : locked ? 'bg-[var(--wb-subtle)] text-[var(--wb-muted)]' : 'bg-[var(--wb-accent-soft)] text-[var(--wb-accent)]'}`}>
           {itemProgress?.done ? <Icon name="check" className="h-4 w-4" /> : positions.get(module.key)}
         </span>
-        <span className="min-w-0 font-medium text-[var(--wb-ink)]">{lang === 'de' ? module.title : module.title_en}</span>
+        <span className="min-w-0 font-medium text-[var(--wb-ink)]">{localTitle(module, lang)}</span>
         <span className="text-xs tabular-nums text-[var(--wb-muted)]">
           {module.minutes != null && <span>{lang === 'de' ? `ca. ${module.minutes} Min.` : `approx. ${module.minutes} min`} · </span>}
           {statusOf(module, locked)}
           {itemProgress?.best != null && ` · ${t(lang, 'best')} ${itemProgress.best}%`}
         </span>
-        {module.prerequisites.length > 0 && <span className="min-w-0 text-xs text-[var(--wb-muted)] sm:col-start-2">{t(lang, 'prerequisitesHint')}: {module.prerequisites.map(titleOf).join(', ')}</span>}
+        {coursePrerequisites(module, modules).length > 0 && <span className="min-w-0 text-xs text-[var(--wb-muted)] sm:col-start-2">{t(lang, 'prerequisitesHint')}: {coursePrerequisites(module, modules).map(titleOf).join(', ')}</span>}
       </>
     return locked
       ? <div key={module.key} aria-disabled="true" className={`${rowClass} cursor-not-allowed opacity-65`}>{rowContent}</div>
@@ -208,7 +208,7 @@ export function WorkbenchLearnView({ lang, displayName, modules, groups, progres
               <Link to={`/lernen/${continueAt.key}`} className="wb-surface wb-surface--highlight group mb-8 block border-[var(--wb-accent)] p-5 hover:border-[var(--wb-accent)]">
                 <span className="text-xs font-semibold uppercase tracking-[0.14em] opacity-80">{t(lang, 'continueHere')}</span>
                 <span className="mt-2 flex items-center justify-between gap-4 text-xl font-semibold">
-                  {lang === 'de' ? continueAt.title : continueAt.title_en}<Icon name="arrowRight" className="h-4 w-4 text-teal-300 transition-transform group-hover:translate-x-1" />
+                  {localTitle(continueAt, lang)}<Icon name="arrowRight" className="h-4 w-4 text-teal-300 transition-transform group-hover:translate-x-1" />
                 </span>
                 {/* opacity statt teal-Stufe: die Karte ist in beiden Modi dunkel, die teal-Palette kippt im Dunkelmodus */}
                 <span className="mt-1 block text-sm opacity-80">
@@ -217,7 +217,7 @@ export function WorkbenchLearnView({ lang, displayName, modules, groups, progres
               </Link>
             )}
 
-            <SearchBox lang={lang} modules={modules} />
+            <SearchBox lang={lang} modules={modules} progress={progress} />
 
             {hasLocked && <p className="mb-5 max-w-[65ch] text-sm text-[var(--wb-muted)]">{t(lang, 'lockedOrderHint')}</p>}
 

@@ -13,19 +13,28 @@ export function usePrintState(): boolean {
   useEffect(() => {
     // flushSync: der Browser nimmt das DOM direkt nach `beforeprint` auf.
     // Gedruckt wird immer hell: die Dunkel-Palette (helle Schrift) wäre auf Papier unlesbar.
+    // `active`: ein zweites beforeprint (ohne afterprint) darf nicht „light“ als Ausgangsthema merken.
     let theme: string | undefined
+    let active = false
     const on = () => {
-      theme = document.documentElement.dataset.theme
-      document.documentElement.dataset.theme = 'light'
+      if (!active) {
+        active = true
+        theme = document.documentElement.dataset.theme
+        document.documentElement.dataset.theme = 'light'
+      }
       flushSync(() => setPrinting(true))
     }
-    const off = () => {
+    const restore = () => {
+      if (!active) return
+      active = false
       if (theme) document.documentElement.dataset.theme = theme
-      setPrinting(false)
+      else delete document.documentElement.dataset.theme
     }
+    const off = () => { restore(); setPrinting(false) }
     window.addEventListener('beforeprint', on)
     window.addEventListener('afterprint', off)
-    return () => { window.removeEventListener('beforeprint', on); window.removeEventListener('afterprint', off) }
+    // Unmount mitten im Druck (Navigation): das Thema trotzdem zurückstellen.
+    return () => { window.removeEventListener('beforeprint', on); window.removeEventListener('afterprint', off); restore() }
   }, [])
   return printing
 }

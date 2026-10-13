@@ -5,7 +5,7 @@ import { learnApi } from '@/lib/learnApi'
 import { BrandLogo } from '@/components/BrandLogo'
 import { Icon } from '@/components/Icon'
 import { LangToggle } from '@/components/workbench/WorkbenchShell'
-import { t, useDocumentLang, usePublicLang } from '@/lib/i18n'
+import { t, useDocumentLang, useDocumentTitle, usePublicLang } from '@/lib/i18n'
 
 // Öffentliche Prüfseite (kein Login): eine Bestätigungs-ID wird gegen den
 // unveränderlichen Zertifikatsdatensatz geprüft.
@@ -13,6 +13,7 @@ export function VerifyPage() {
   const { id } = useParams()
   const [lang, setLang] = usePublicLang()
   useDocumentLang(lang)
+  useDocumentTitle(t(lang, 'verifyTitle'))
   const nav = useNavigate()
   const [input, setInput] = useState(id ?? '')
   const query = useQuery({

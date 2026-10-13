@@ -51,7 +51,7 @@ window.scrollTo = vi.fn()
 afterEach(() => {
   cleanup()
   vi.clearAllMocks()
-  useAuthStore.setState({ token: null, role: null, displayName: null })
+  useAuthStore.setState({ token: null, role: null, displayName: null, sessionLost: false })
   localStorage.clear()
   sessionStorage.clear()
 })
@@ -144,9 +144,16 @@ describe('Seiten-Smoke-Tests', () => {
 
   it('ModulePage meldet Präsenz nur im sichtbaren Tab und sofort bei Rückkehr', async () => {
     useAuthStore.setState({ token: 'demo', role: 'participant', displayName: 'Ada' })
-    mockGet({})
+    mockGet({
+      '/me': { name: 'Ada', participant_id: 1, course_id: 9, language: 'de', course: { id: 9, name: 'Kurs' }, workshop: null, progress: [] },
+      '/modules/m1': { key: 'm1', title: 'Modul Eins', order: 1, prerequisites: [], blocks: [{ type: 'text', value: 'Hallo Blockinhalt' }], quiz: { questions: [] } },
+      '/modules': [],
+      '/features': { comments: false },
+    })
     const hidden = vi.spyOn(document, 'hidden', 'get').mockReturnValue(true)
     renderWithProviders(<ModulePage />, { route: '/lernen/m1', path: '/lernen/:key' })
+    // Präsenz wird erst für ein geladenes Modul gemeldet (siehe flows.test.tsx: 404)
+    await screen.findByText('Hallo Blockinhalt')
     expect(api.post).not.toHaveBeenCalledWith('/modules/m1/heartbeat')
 
     hidden.mockReturnValue(false)
