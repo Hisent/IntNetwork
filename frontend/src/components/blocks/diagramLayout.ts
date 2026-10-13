@@ -20,18 +20,36 @@ export function textWidth(text: string, fontSize: number): number {
   return em * fontSize
 }
 
-/** Bricht an Leerzeichen um; Wörter, die allein zu breit sind, werden hart geteilt. */
+/** Teilt ein zu breites Wort bevorzugt nach `-`, `/`, `_`; nur was dann noch zu breit ist, wird hart geschnitten.
+ *  Liefert die vollen Zeilen und den Rest, der weiter in die laufende Zeile gehört. */
+function splitLongWord(word: string, maxWidth: number, fontSize: number): { full: string[]; rest: string } {
+  const full: string[] = []
+  let cur = ''
+  for (let seg of word.match(/[^-/_]*[-/_]+|[^-/_]+/g) ?? [word]) {
+    if (cur && textWidth(cur + seg, fontSize) <= maxWidth) { cur += seg; continue }
+    if (cur) { full.push(cur); cur = '' }
+    while (textWidth(seg, fontSize) > maxWidth) {
+      let cut = 1
+      while (cut < seg.length && textWidth(seg.slice(0, cut + 1), fontSize) <= maxWidth) cut++
+      full.push(seg.slice(0, cut))
+      seg = seg.slice(cut)
+    }
+    cur = seg
+  }
+  return { full, rest: cur }
+}
+
+/** Bricht an Leerzeichen und `\n` um; Wörter, die allein zu breit sind, werden zuerst nach `-`, `/`, `_`, erst dann hart geteilt. */
 export function wrapText(text: string, maxWidth: number, fontSize: number): string[] {
   const lines: string[] = []
   for (const para of text.split('\n')) {
     let line = ''
     for (let word of para.split(/\s+/).filter(Boolean)) {
-      while (textWidth(word, fontSize) > maxWidth) {
+      if (textWidth(word, fontSize) > maxWidth) {
         if (line) { lines.push(line); line = '' }
-        let cut = 1
-        while (cut < word.length && textWidth(word.slice(0, cut + 1), fontSize) <= maxWidth) cut++
-        lines.push(word.slice(0, cut))
-        word = word.slice(cut)
+        const { full, rest } = splitLongWord(word, maxWidth, fontSize)
+        lines.push(...full)
+        word = rest
       }
       if (!word) continue
       const candidate = line ? `${line} ${word}` : word

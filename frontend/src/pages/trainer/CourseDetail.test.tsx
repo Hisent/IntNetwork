@@ -76,7 +76,7 @@ describe('CourseDetail — Teilnehmer einladen', () => {
     )
 
     await screen.findByText(`${window.location.origin}/workshops/network?code=ABC123`)
-    expect(screen.queryByText(/müssen weiterhin von dir freigegeben werden/)).toBeNull()
+    expect(screen.queryByText(/Teilnahmebestätigung gibt es weiterhin erst nach deiner Freigabe/)).toBeNull()
   })
 
   it('zeigt einen Freigabe-Hinweis, wenn require_approval an ist', async () => {
@@ -97,6 +97,6 @@ describe('CourseDetail — Teilnehmer einladen', () => {
       />,
     )
 
-    expect(await screen.findByText(/müssen weiterhin von dir freigegeben werden/)).toBeTruthy()
+    expect(await screen.findByText(/Teilnahmebestätigung gibt es weiterhin erst nach deiner Freigabe/)).toBeTruthy()
   })
 })

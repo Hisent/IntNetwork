@@ -42,6 +42,34 @@ describe('wrapText', () => {
     expect(lines.join('')).toBe('Donaudampfschifffahrtsgesellschaftskapitän')
     for (const l of lines) expect(textWidth(l, 14)).toBeLessThanOrEqual(80)
   })
+  it('trennt deutsche Komposita mit Bindestrich am Bindestrich, nicht im Wort', () => {
+    const lines = wrapText('Ethernet-Frame-Header-Prüfsumme', 100, 14)
+    expect(lines.length).toBeGreaterThan(1)
+    expect(lines.join('')).toBe('Ethernet-Frame-Header-Prüfsumme')
+    for (const l of lines.slice(0, -1)) expect(l.endsWith('-')).toBe(true)
+    for (const l of lines) expect(textWidth(l, 14)).toBeLessThanOrEqual(100)
+  })
+  it('trennt Pfade nach dem Schrägstrich', () => {
+    const lines = wrapText('/etc/ssl/private/server.key', 100, 14)
+    expect(lines).toEqual(['/etc/ssl/', 'private/', 'server.key'])
+  })
+  it('trennt snake_case nach dem Unterstrich', () => {
+    const lines = wrapText('max_connections_per_host', 110, 14)
+    expect(lines.join('')).toBe('max_connections_per_host')
+    for (const l of lines.slice(0, -1)) expect(l.endsWith('_')).toBe(true)
+  })
+  it('hält vorhandene Zeilenumbrüche ein', () => {
+    expect(wrapText('Access\nRequest', 300, 14)).toEqual(['Access', 'Request'])
+  })
+  it('schneidet nur dann hart, wenn auch ein Segment zu breit ist', () => {
+    const lines = wrapText('kurz-Donaudampfschifffahrtsgesellschaft-ok', 80, 14)
+    expect(lines.join('')).toBe('kurz-Donaudampfschifffahrtsgesellschaft-ok')
+    expect(lines[0]).toBe('kurz-')
+    for (const l of lines) expect(textWidth(l, 14)).toBeLessThanOrEqual(80)
+  })
+  it('lässt Wörter unverändert, die in eine Zeile passen', () => {
+    expect(wrapText('Ethernet-Frame', 300, 14)).toEqual(['Ethernet-Frame'])
+  })
   it('liefert für leeren Text genau eine leere Zeile', () => {
     expect(wrapText('', 100, 14)).toEqual([''])
   })

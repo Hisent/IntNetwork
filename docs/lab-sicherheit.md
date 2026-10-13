@@ -40,7 +40,7 @@ den git-eigenen `ext`-Transport beliebiger Shell-Code ausführen — TROTZ
 -c protocol.ext.allow=always clone ext::sh -c 'beliebiger_befehl' /tmp/x
 ```
 
-Die Sperre hat zwei Schichten:
+Die Sperre hat drei Schichten:
 
 1. **Allowlist statt Blockliste.** Das erste Nicht-Options-Token einer
    Kommandozeile muss eines von wenigen, bewusst lokalen Unterkommandos sein
@@ -61,6 +61,8 @@ Die Sperre hat zwei Schichten:
    `file://` enthält; für openssl `-engine`, `-provider`, `-provider-path`, `-config`, `-exec`
    (jeweils Wege, eine beliebige Bibliothek nachzuladen oder ein
    Skript/Programm zu übernehmen).
+3. **Pfadwerte im Arbeitsverzeichnis.** Werte pfadwertiger Argumente dürfen
+   das Arbeitsverzeichnis nicht verlassen (Details unten, „Dritte Schicht“).
 
 Zusätzlich setzt der Runner für `git` `GIT_ALLOW_PROTOCOL=file` in der
 Prozessumgebung — eine zweite, unabhängige Verteidigungsebene, die

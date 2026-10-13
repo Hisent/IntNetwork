@@ -132,12 +132,15 @@ Ein Backup ohne erfolgreichen Restore-Test gilt nicht als verifiziert.
 
 ## Bekannte Fallstricke / Vorfälle
 
-- **Kein Healthcheck für backend/frontend.** Nur der `db`-Service hat einen
-  Compose-Healthcheck. Traefik hat backend/frontend deshalb schon einmal als
-  "up" behandelt, während der Container intern nicht mehr antwortete
-  (Vorfall 2026-07-21). Bis das nachgerüstet ist: Monitoring auf
-  `GET /api/health` (siehe oben) ist die einzige externe Absicherung — nicht
-  auf Traefiks eigene Zustandsanzeige verlassen.
+- **Kein Healthcheck für backend/frontend (bewusst).** Nur der `db`-Service
+  hat einen Compose-Healthcheck. Coolify/Traefik routet nur auf Container im
+  Zustand „healthy“; ein Check, der in der Umgebung anders ausfällt als lokal
+  gedacht, nimmt den Dienst komplett vom Netz („no available server“, Vorfall
+  2026-07-21). `docker-compose.yml` sagt deshalb ausdrücklich: keinen
+  Healthcheck eintragen; falls doch gewünscht, erst in Coolify gegen einen
+  Test-Deploy verifizieren. Bis dahin ist das Monitoring auf `GET /api/health`
+  (siehe oben) die einzige externe Absicherung; nicht auf Traefiks eigene
+  Zustandsanzeige verlassen.
 - **`LAB_KINDS` (Backend) und `RUNNER_KINDS` (Runner) laufen auseinander.**
   Es gibt keinen Netzweg, der diese beiden Listen automatisch synchron hält —
   wird im Backend ein neuer Lab-Kind hinzugefügt, muss der Runner von Hand
@@ -212,7 +215,7 @@ Ein Backup ohne erfolgreichen Restore-Test gilt nicht als verifiziert.
   Der Lösch-Dialog nennt die Zahl und bietet „Zertifikate mitlöschen" an
   (`DELETE /api/courses/{id}?delete_certificates=true`); das Audit-Log hält
   fest, wie viele gelöscht bzw. behalten wurden.
-- **Teilnehmer ohne Wiederaufnahme-Code (Beitritt vor v1.19).** Sie kommen
+- **Teilnehmer ohne Wiederaufnahme-Code (Beitritt vor v1.20).** Sie kommen
   seit v1.43 nicht mehr allein über ihren Namen hinein (das ließ eine Übernahme
   durch jeden zu, der Kurs-Code und Namen kannte). Der Trainer vergibt im
   Kurs-Detail über „Code zurücksetzen" einen Code und gibt ihn persönlich
