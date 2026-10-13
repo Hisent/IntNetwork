@@ -21,7 +21,10 @@ CHANGELOG = [
              "lässt sich im Kursdetail mit „Abstimmung beenden“ schließen; die Modulreihenfolge ist "
              "eine empfohlene Reihenfolge, keine Sperre; die englische Fassung aller Module wurde "
              "lektoriert. Nach dem Update bitte offene Editor-Tabs neu laden, sonst wird das "
-             "Speichern mit einer Hinweismeldung abgelehnt."},
+             "Speichern mit einer Hinweismeldung abgelehnt. Die Labs sind stärker abgeschottet: "
+             "Jeder Lauf startet unter einer eigenen, rechtelosen Benutzerkennung und kann weder "
+             "fremde Aufträge noch fremde Arbeitsverzeichnisse lesen — für Teilnehmer ändert sich "
+             "an der Bedienung nichts."},
     {"date": "2026-10-12", "title": "v1.42.0 — Inhalts- und Technik-Audit aller Lehrgänge",
      "text": "Alle sechs Lehrgänge wurden fachlich gegen Primärquellen geprüft und korrigiert "
              "(u. a. Infoblox HA/MCLT/WAPI, Ansible-Fakten ab ansible-core 2.20, PKI-Laufzeiten "
