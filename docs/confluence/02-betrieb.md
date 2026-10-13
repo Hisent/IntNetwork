@@ -1,4 +1,4 @@
-Stand: v1.43.0 + Trennung der Lab-Läufe per uid (2026-10-13) · Quelle: docs/operations.md, README.md, .env.example, docker-compose.yml, docs/lab-sicherheit.md, backend/app/database.py, backend/app/utils.py, backend/app/content/changelog.py
+Stand: v1.43.0 + Trennung der Lab-Läufe per uid, nach Sicherheitsprüfung gehärtet (2026-10-13) · Quelle: docs/operations.md, README.md, .env.example, docker-compose.yml, docs/lab-sicherheit.md, backend/app/database.py, backend/app/utils.py, backend/app/content/changelog.py
 
 # IntLab: Betrieb
 
@@ -232,7 +232,7 @@ Seit dem 13.10.2026 läuft der Lab-Worker als uid 0 mit fünf Capabilities und s
 
 Was sich ändert:
 
-- `docker-compose.yml`, Dienst `runner`: neu `user: "0:0"` und `cap_add` (`SETUID`, `SETGID`, `CHOWN`, `DAC_OVERRIDE`, `KILL`). Alles andere bleibt (`network_mode: none`, `cap_drop: ALL`, `no-new-privileges`, `read_only`, `tmpfs`, Limits). Wer den Dienst in Coolify von Hand überschrieben hat, muss dort nachziehen.
+- `docker-compose.yml`, Dienst `runner`: neu `user: "0:0"` und `cap_add` (`SETUID`, `SETGID`, `CHOWN`, `DAC_OVERRIDE`, `KILL`); das `tmpfs` `/tmp` bekommt zusätzlich `nosuid,nodev`, `/dev/shm` ist jetzt ausdrücklich ein `tmpfs` mit 16 MB und `noexec,nosuid,nodev`. Alles andere bleibt (`network_mode: none`, `cap_drop: ALL`, `no-new-privileges`, `read_only`, Limits). Wer den Dienst in Coolify von Hand überschrieben hat, muss dort nachziehen.
 - Runner-Image: Benutzer `labjob10002` bis `labjob10009`, `/queue` gehört `root:10001`. Backend-Image und Backend-Konfiguration bleiben unverändert. Neue Umgebungsvariablen braucht es nicht.
 
 Schritte:
@@ -246,7 +246,7 @@ Schritte:
 docker exec -i <backend-container> python - < runner/tests/isolation_check.py
 ```
 
-Das vorhandene Volume `lab_queue`: Ein Volume aus einer älteren Fassung gehört uid 10001 mit Modus `0777`. Es muss nicht entfernt werden. Der Worker setzt beim ersten Start `/queue` auf `root:10001`, `0750` und `in/`, `out/` auf `0770`. Das darf nur er (einziger Prozess mit `CAP_CHOWN` auf diesem Volume); das Backend ändert dort keine Rechte. Liegengebliebene Dateien bleiben unangetastet: Aufträge in `in/` führt der neue Worker aus, Ergebnisse in `out/` holt das Backend ab oder der Worker löscht sie nach fünf Minuten. Gelingt die Korrektur nicht, meldet der Runner alle fünf Sekunden `Warteschlange … lässt sich nicht für Läufe schließen` und nimmt keine Aufträge an; dann das Volume einmal entfernen (`docker volume rm <projekt>_lab_queue`) und neu ausrollen.
+Das vorhandene Volume `lab_queue`: Ein Volume aus einer älteren Fassung gehört uid 10001 mit Modus `0777`. Es muss nicht entfernt werden. Der Worker setzt beim ersten Start `/queue` auf `root:10001`, `0750` und `in/`, `out/` auf `0770`. Das darf nur er (einziger Prozess mit `CAP_CHOWN` auf diesem Volume); das Backend ändert dort keine Rechte. Liegengebliebene Dateien werden normal behandelt: reguläre Aufträge in `in/` führt der neue Worker aus, Ergebnisse in `out/` holt das Backend ab oder der Worker löscht sie nach fünf Minuten. Was in `in/` keine reguläre Datei ist (Symlink, FIFO, Verzeichnis), weist er mit `Auftrag unlesbar: …` ab und entfernt es. Ist `in/` oder `out/` selbst ein Symlink, ersetzt er ihn durch ein echtes Verzeichnis und folgt ihm nicht. Gelingt die Korrektur nicht, meldet der Runner alle fünf Sekunden `Warteschlange … lässt sich nicht für Läufe schließen` und nimmt keine Aufträge an; dann das Volume einmal entfernen (`docker volume rm <projekt>_lab_queue`) und neu ausrollen.
 
 | Log-Zeile im Runner | Ursache | Behebung |
 |---|---|---|
@@ -254,6 +254,8 @@ Das vorhandene Volume `lab_queue`: Ein Volume aus einer älteren Fassung gehört
 | `ANSIBLE-LAB DEAKTIVIERT (fail-closed): … (CAP_…) fehlgeschlagen` | die genannte Capability fehlt in `cap_add` | `cap_add` wie im Repository |
 | `ANSIBLE-LAB DEAKTIVIERT … fehlt security_opt no-new-privileges?` | `no-new-privileges` wurde entfernt | wieder eintragen |
 | `Job-Slot uid … GESPERRT` | Prozesse eines Laufs ließen sich nicht beenden | Runner-Container neu starten |
+| `WARNUNG: fs.protected_hardlinks=0` (oder `protected_symlinks`) | Kernel-Schalter des Hosts ist aus | auf dem Host auf 1 setzen und dauerhaft eintragen; das Lab läuft auch ohne weiter |
+| `… Einträge entfernt (Spezialdatei oder mehrfach verlinkt)` | ein Lauf hat FIFOs, Sockets oder Hardlinks im Arbeitsverzeichnis hinterlassen | nichts zu tun |
 
 In allen `DEAKTIVIERT`-Fällen läuft der Runner weiter: Ansible-Aufträge enden mit einer klaren Meldung im Widget, `openssl` und `git` funktionieren. Es läuft nie still ein Playbook ohne Trennung.
 

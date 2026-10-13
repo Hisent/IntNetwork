@@ -93,7 +93,21 @@ def log(*teile: object) -> None:
     print(*teile, file=sys.stderr, flush=True)
 
 
+# Die Ausgabe eines Laufs ist fremdbestimmt. ANSI-Sequenzen (CSI, OSC, 2-Byte)
+# fallen weg, alle übrigen C0-/C1-Steuerzeichen außer \n und \t werden sichtbar
+# ersetzt: kein NUL, kein Rücklauf, der eine Zeile im Terminal oder Log
+# überschreibt, keine Escape-Folge, die ein Betrachter interpretieren könnte.
+_ANSI = re.compile(r"\x1b(?:\[[0-?]*[ -/]*[@-~]|\][^\x07\x1b]*(?:\x07|\x1b\\)?|[@-Z\\-_])")
+_STEUERZEICHEN = re.compile(r"[\x00-\x08\x0b-\x1f\x7f-\x9f]")
+
+
+def _bereinigen(text: str) -> str:
+    text = _ANSI.sub("", text).replace("\r\n", "\n").replace("\r", "\n")
+    return _STEUERZEICHEN.sub("�", text)
+
+
 def _clip(text: str) -> tuple[str, bool]:
+    text = _bereinigen(text)
     roh = text.encode("utf-8", "replace")
     if len(roh) <= MAX_OUTPUT_BYTES:
         return text, False
@@ -132,6 +146,7 @@ QUEUE_GID = int(os.getenv("RUNNER_QUEUE_GID", "10001"))
 # wird nach dem Lauf entfernt (sonst erbte es der nächste Lauf im selben Slot).
 GEMEINSAME_SCHREIBORTE = (Path("/tmp"), Path("/dev/shm"))
 KILL_RUNDEN = 40
+SYSCTL_FS = Path("/proc/sys/fs")
 
 _slots = threading.Condition()
 _freie_uids: list[int] = []
@@ -165,8 +180,9 @@ def _isolation_probe(uid: int) -> str | None:
         schritt = "Schreiben in ein fremdes 0700-Verzeichnis (CAP_DAC_OVERRIDE)"
         (verzeichnis / "probe").write_text("", encoding="utf-8")
         schritt = "Prozess unter der Job-uid starten (CAP_SETUID/CAP_SETGID)"
-        proc = subprocess.Popen([sys.executable, "-c", _PROBE], stdout=subprocess.PIPE,
-                                text=True, user=uid, group=uid, extra_groups=[])
+        proc = subprocess.Popen([sys.executable, "-c", _PROBE], stdin=subprocess.DEVNULL,
+                                stdout=subprocess.PIPE, text=True, user=uid, group=uid,
+                                extra_groups=[])
         zeile = proc.stdout.readline().strip()
         schritt = "Prozess der Job-uid beenden (CAP_KILL)"
         os.kill(proc.pid, signal.SIGKILL)
@@ -207,6 +223,17 @@ def _isolation_einrichten() -> None:
             _freie_uids[:] = JOB_UIDS
         _isolation_aktiv = True
         log(f"Trennung aktiv: Läufe unter uid {JOB_UIDS[0]}-{JOB_UIDS[-1]}, ohne Capabilities.")
+        # Nur Hinweis, kein Sperrgrund: der Worker folgt selbst keinem Symlink
+        # und fasst mehrfach verlinkte Dateien nicht an (_uebergeben). Die beiden
+        # Kernel-Schalter sind die zweite Schicht dahinter.
+        for schalter in ("protected_hardlinks", "protected_symlinks"):
+            try:
+                wert = (SYSCTL_FS / schalter).read_text(encoding="ascii").strip()
+            except OSError:
+                wert = "unlesbar"
+            if wert != "1":
+                log(f"WARNUNG: fs.{schalter}={wert} auf dem Host (erwartet 1) - "
+                    f"siehe docs/lab-sicherheit.md, Restrisiken.")
     else:
         _isolation_fehler = fehler
         log(f"ANSIBLE-LAB DEAKTIVIERT (fail-closed): {fehler} Playbooks werden abgelehnt, "
@@ -220,27 +247,75 @@ def _ansible_sperrgrund() -> str | None:
     return _isolation_fehler
 
 
-def _uebergeben(pfad: Path, uid: int | None) -> None:
-    """Gibt `pfad` samt Inhalt der uid (Verzeichnis: 0700). Ohne Trennung nichts.
+def _verzeichnis_sichern(pfad: Path, uid: int, gid: int, modus: int) -> None:
+    """chown + chmod über einen Deskriptor, der NUR ein echtes Verzeichnis
+    öffnet. `os.chown(pfad)`/`os.chmod(pfad)` folgten einem Symlink - der
+    root-Worker würde das Ziel umhängen. Erst chown, dann chmod: ohne
+    CAP_FOWNER darf auch root die Rechte nur an eigenen Dateien ändern."""
+    fd = os.open(pfad, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+    try:
+        os.fchown(fd, uid, gid)
+        os.fchmod(fd, modus)
+    finally:
+        os.close(fd)
 
-    os.fwalk + dir_fd + follow_symlinks=False: der Worker ist root und darf sich
-    von einem im Arbeitsverzeichnis hinterlegten Symlink nicht nach /queue
-    führen lassen. Aufrufer sorgen dafür, dass dabei kein Prozess eines Laufs
-    mehr in `pfad` arbeitet (_job, _job_prozesse_beenden)."""
+
+def _sonderbits_loeschen(name: str, dir_fd: int) -> None:
+    """Nimmt setuid/setgid/sticky weg. Über einen O_NOFOLLOW-Deskriptor, weil
+    chmod(2) Symlinks folgt; vorher an root, weil nur der Eigentümer chmod darf.
+    (Linux löscht setuid bei chown auf Dateien ohnehin, auch für root - darauf
+    verlässt sich hier nichts.)"""
+    fd = os.open(name, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK, dir_fd=dir_fd)
+    try:
+        os.fchown(fd, 0, 0)
+        os.fchmod(fd, os.fstat(fd).st_mode & 0o777)
+    finally:
+        os.close(fd)
+
+
+def _uebergeben(pfad: Path, uid: int | None, oben: int | None = None) -> None:
+    """Gibt `pfad` samt Inhalt der uid (Verzeichnis: 0700). Ohne Trennung nichts.
+    `oben` weicht nur bei der Rücknahme ab: der Inhalt bleibt bei der Job-uid,
+    das Verzeichnis selbst geht an root.
+
+    Der Worker ist root und fasst hier Dateien an, die ein Lauf angelegt hat.
+    Deshalb durchgehend über Deskriptoren (os.fwalk, dir_fd) und nie einem
+    Symlink nach. Unterwegs wird entschärft, was ein Lauf hinterlassen kann:
+      - FIFOs, Sockets, Geräte: entfernt (nichts im Lab braucht sie);
+      - Dateien mit mehr als einem Hardlink: entfernt statt übergeben - der
+        zweite Name kann auf eine fremde Datei desselben Dateisystems zeigen,
+        ein chown gäbe sie dem Lauf (Hardlinks überleben einen Lauf also nicht);
+      - setuid/setgid/sticky: gelöscht.
+    """
     if uid is None:
         return
-    # Erst an root, dann chmod, dann an die uid: ohne CAP_FOWNER darf auch root
-    # die Rechte nur an eigenen Dateien ändern.
-    os.chown(pfad, 0, 0, follow_symlinks=False)
-    istverzeichnis = stat.S_ISDIR(os.lstat(pfad).st_mode)
-    if istverzeichnis:
-        os.chmod(pfad, 0o700)
-    os.chown(pfad, uid, uid, follow_symlinks=False)
-    if not istverzeichnis:
+    oben = uid if oben is None else oben
+    try:
+        wurzel = os.open(pfad, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+    except OSError:
+        os.chown(pfad, oben, oben, follow_symlinks=False)  # Datei, Symlink, FIFO: nur der Eintrag
         return
-    for _wurzel, ordner, dateien, fd in os.fwalk(pfad):
-        for name in ordner + dateien:
-            os.chown(name, uid, uid, dir_fd=fd, follow_symlinks=False)
+    entfernt = 0
+    try:
+        os.fchown(wurzel, 0, 0)
+        os.fchmod(wurzel, 0o700)
+        os.fchown(wurzel, oben, oben)
+        for _wurzel, ordner, dateien, fd in os.fwalk(".", dir_fd=wurzel):
+            for name in ordner + dateien:
+                st = os.stat(name, dir_fd=fd, follow_symlinks=False)
+                art = stat.S_IFMT(st.st_mode)
+                if art not in (stat.S_IFREG, stat.S_IFDIR, stat.S_IFLNK) or (
+                        art == stat.S_IFREG and st.st_nlink > 1):
+                    os.unlink(name, dir_fd=fd)
+                    entfernt += 1
+                    continue
+                if art != stat.S_IFLNK and st.st_mode & 0o7000:
+                    _sonderbits_loeschen(name, fd)
+                os.chown(name, uid, uid, dir_fd=fd, follow_symlinks=False)
+    finally:
+        os.close(wurzel)
+    if entfernt:
+        log(f"{pfad.name}: {entfernt} Einträge entfernt (Spezialdatei oder mehrfach verlinkt).")
 
 
 def _loeschen(pfad: Path) -> None:
@@ -260,30 +335,54 @@ def _loeschen(pfad: Path) -> None:
             pass
 
 
-def _prozesse_der_uid(uid: int) -> list[int]:
-    """Alle Prozesse, deren reale, effektive oder gespeicherte uid `uid` ist.
+def _uids_von(pid: int | str) -> list[str]:
+    """Reale, effektive, gespeicherte und Dateisystem-uid eines Prozesses.
 
     Aus /proc/<pid>/status und nicht aus dem Eigentümer von /proc/<pid>: der
     gehört root, sobald ein Prozess sich mit prctl(PR_SET_DUMPABLE, 0)
-    versteckt. Zombies zählen mit - ein beendeter Thread-Gruppenführer steht
-    als Zombie da, während seine Threads weiterlaufen."""
-    pids = []
-    for eintrag in os.listdir("/proc"):
-        if not eintrag.isdigit():
-            continue
-        try:
-            status = Path("/proc", eintrag, "status").read_text(encoding="utf-8", errors="replace")
-        except OSError:
-            continue  # inzwischen beendet
-        for zeile in status.splitlines():
-            if zeile.startswith("Uid:"):
-                if str(uid) in zeile.split()[1:]:
-                    pids.append(int(eintrag))
-                break
-    return pids
+    versteckt."""
+    try:
+        status = Path("/proc", str(pid), "status").read_text(encoding="utf-8", errors="replace")
+    except OSError:
+        return []  # inzwischen beendet
+    for zeile in status.splitlines():
+        if zeile.startswith("Uid:"):
+            return zeile.split()[1:]
+    return []
 
 
-def _job_prozesse_beenden(uid: int | None, *, finden=_prozesse_der_uid, senden=os.kill,
+def _prozesse_der_uid(uid: int) -> list[int]:
+    """Alle Prozesse der uid. Zombies zählen mit - ein beendeter
+    Thread-Gruppenführer steht als Zombie da, während seine Threads weiterlaufen."""
+    return [int(eintrag) for eintrag in os.listdir("/proc")
+            if eintrag.isdigit() and str(uid) in _uids_von(eintrag)]
+
+
+def _signal_an_uid(pid: int, signalnummer: int, uid: int) -> None:
+    """Signal an `pid`, aber nur solange der Prozess wirklich der uid gehört.
+
+    Zwischen Zählen und Signal kann die pid neu vergeben sein - an den Worker
+    selbst oder einen fremden Lauf. Das pidfd hält den Prozess fest: erst
+    öffnen, DANN die uid noch einmal lesen, dann über das pidfd senden. Stirbt
+    der Prozess dazwischen, geht das Signal ins Leere statt an den Nachfolger.
+    """
+    try:
+        fd = os.pidfd_open(pid)
+    except (AttributeError, OSError) as fehler:
+        if isinstance(fehler, ProcessLookupError):
+            raise
+        # Kein pidfd (kein Linux, Kernel < 5.3, vom seccomp-Profil gesperrt):
+        # ponytail: dann bleibt das Mikrosekunden-Fenster der pid-Wiederverwendung.
+        os.kill(pid, signalnummer)
+        return
+    try:
+        if str(uid) in _uids_von(pid):
+            signal.pidfd_send_signal(fd, signalnummer)
+    finally:
+        os.close(fd)
+
+
+def _job_prozesse_beenden(uid: int | None, *, finden=_prozesse_der_uid, senden=None,
                           ernten=None, warten=time.sleep) -> bool:
     """Beendet ALLE Prozesse der Job-uid, auch solche, die ihre Prozessgruppe
     mit setsid() verlassen haben. True, wenn danach keiner mehr existiert.
@@ -297,13 +396,11 @@ def _job_prozesse_beenden(uid: int | None, *, finden=_prozesse_der_uid, senden=o
     if uid is None:
         return True
     ernten = ernten or os.waitpid
+    senden = senden or (lambda pid, signalnummer: _signal_an_uid(pid, signalnummer, uid))
     for _ in range(KILL_RUNDEN):
         pids = finden(uid)
         if not pids:
             return True
-        # ponytail: pid-Wiederverwendung zwischen Zählen und Signal ist nicht
-        # ausgeschlossen (Fenster: Mikrosekunden). Falls das je zählt: pidfd_open
-        # + pidfd_send_signal.
         for signalnummer in (signal.SIGSTOP, signal.SIGKILL):
             for pid in pids:
                 try:
@@ -319,15 +416,22 @@ def _job_prozesse_beenden(uid: int | None, *, finden=_prozesse_der_uid, senden=o
     return not finden(uid)
 
 
-def _slot_aufraeumen(arbeitsplatz: Path, uid: int) -> bool:
+def _slot_aufraeumen(arbeitsplatz: Path, laufverzeichnis: Path | None, uid: int) -> bool:
     """Nach dem Lauf: Prozesse der uid beenden, Arbeitsverzeichnis zurück an
     root (in Ruhe kommt keine Job-uid hinein - auch nicht der nächste Lauf im
-    selben Slot), Hinterlassenschaften an gemeinsamen Orten entfernen."""
+    selben Slot), Hinterlassenschaften an gemeinsamen Orten entfernen.
+
+    Zustand in Ruhe: das Verzeichnis selbst gehört root (0700), sein Inhalt
+    weiter der letzten Job-uid - ohne Sonderbits, ohne Spezialdateien. Root
+    gehört darin nichts; der nächste Lauf bekommt alles an seine uid."""
     try:
         if not _job_prozesse_beenden(uid):
             raise OSError("Prozesse der uid lassen sich nicht beenden")
-        os.chown(arbeitsplatz, 0, 0, follow_symlinks=False)
-        os.chmod(arbeitsplatz, 0o700)
+        _uebergeben(arbeitsplatz, uid, oben=0)
+        # Erst jetzt: solange ein Prozess der uid lebt, könnte er das ihm
+        # gehörende Laufverzeichnis im Sticky-/tmp gegen einen Symlink tauschen.
+        if laufverzeichnis is not None:
+            _loeschen(laufverzeichnis)
         for ort in GEMEINSAME_SCHREIBORTE:
             if not ort.is_dir():
                 continue
@@ -343,15 +447,21 @@ def _slot_aufraeumen(arbeitsplatz: Path, uid: int) -> bool:
 
 @contextmanager
 def _job(kennung: str):
-    """Belegt für einen Lauf das Arbeitsverzeichnis und - mit Trennung - eine
-    Job-uid. Liefert (arbeitsplatz, uid); uid ist None ohne Trennung.
+    """Belegt für einen Lauf das Arbeitsverzeichnis, ein frisches
+    Laufverzeichnis (HOME/TMPDIR des Laufs, danach gelöscht) und - mit Trennung
+    - eine Job-uid. Liefert (arbeitsplatz, laufverzeichnis, uid); uid ist None
+    ohne Trennung.
 
     Ein Arbeitsverzeichnis hat höchstens EINEN Lauf gleichzeitig: sonst würde
     der zweite es dem ersten per chown unter den Füßen wegnehmen.
     """
     arbeitsplatz = _workspace(kennung)
     if not _isolation_aktiv:
-        yield arbeitsplatz, None
+        laufverzeichnis = Path(tempfile.mkdtemp(prefix="lauf-"))
+        try:
+            yield arbeitsplatz, laufverzeichnis, None
+        finally:
+            shutil.rmtree(laufverzeichnis, ignore_errors=True)
         return
     with _slots:
         if not _slots.wait_for(
@@ -362,12 +472,16 @@ def _job(kennung: str):
         # hängt nie an einer bestimmten uid.
         uid = _freie_uids.pop(0)
         _belegte_arbeitsplaetze.add(arbeitsplatz)
+    laufverzeichnis = None
     try:
+        # Im try: scheitert schon das Anlegen (tmpfs voll), muss der Slot zurück.
+        laufverzeichnis = Path(tempfile.mkdtemp(prefix="lauf-"))
         _uebergeben(arbeitsplatz, uid)
-        yield arbeitsplatz, uid
+        _uebergeben(laufverzeichnis, uid)
+        yield arbeitsplatz, laufverzeichnis, uid
     finally:
         # Schlägt das Aufräumen fehl, bleiben uid UND Arbeitsverzeichnis gesperrt.
-        if _slot_aufraeumen(arbeitsplatz, uid):
+        if _slot_aufraeumen(arbeitsplatz, laufverzeichnis, uid):
             with _slots:
                 _freie_uids.append(uid)
                 _belegte_arbeitsplaetze.discard(arbeitsplatz)
@@ -391,7 +505,9 @@ def _workspace(kennung: str) -> Path:
         sicher = "x" + hashlib.sha256(kennung.encode("utf-8")).hexdigest()[:16]
     WORKSPACE_ROOT.mkdir(parents=True, exist_ok=True)
     if _isolation_aktiv:
-        os.chmod(WORKSPACE_ROOT, 0o711)  # Läufe dürfen hindurch, aber nichts auflisten
+        # Läufe dürfen hindurch, aber nichts auflisten. Scheitert an einem
+        # Symlink - dann gibt es keinen Lauf.
+        _verzeichnis_sichern(WORKSPACE_ROOT, 0, 0, 0o711)
     jetzt = time.time()
     for eintrag in WORKSPACE_ROOT.iterdir():
         try:
@@ -451,9 +567,10 @@ def _mit_zeitgrenze_ausfuehren(argv: list[str], cwd: Path, env: dict[str, str],
     trennung = {} if uid is None else {"user": uid, "group": uid, "extra_groups": [],
                                        "umask": 0o077}
     with tempfile.TemporaryFile(mode="w+b", dir=cwd) as ausgabe:
-        proc = subprocess.Popen(argv, cwd=cwd, env=env, stdout=ausgabe,
-                                stderr=subprocess.STDOUT, start_new_session=posix,
-                                **trennung)
+        # stdin ausdrücklich leer: sonst erbte der Lauf fd 0 des Workers (PID 1).
+        proc = subprocess.Popen(argv, cwd=cwd, env=env, stdin=subprocess.DEVNULL,
+                                stdout=ausgabe, stderr=subprocess.STDOUT,
+                                start_new_session=posix, **trennung)
         try:
             proc.wait(timeout=zeitgrenze)
             timed_out = False
@@ -486,81 +603,74 @@ def _run_ansible(auftrag: dict) -> dict:
     inventar = auftrag.get("inventory") or DEFAULT_INVENTORY
     extra_vars = auftrag.get("extra_vars")
     check = bool(auftrag.get("check"))
-    with _job(str(auftrag.get("workspace", "gast"))) as (arbeitsplatz, uid):
-        return _run_ansible_im_slot(playbook, inventar, extra_vars, check, arbeitsplatz, uid)
+    with _job(str(auftrag.get("workspace", "gast"))) as (arbeitsplatz, laufverzeichnis, uid):
+        return _run_ansible_im_slot(playbook, inventar, extra_vars, check, arbeitsplatz,
+                                    laufverzeichnis, uid)
 
 
 def _run_ansible_im_slot(playbook: str, inventar: object, extra_vars: object, check: bool,
-                         arbeitsplatz: Path, uid: int | None) -> dict:
-    laufverzeichnis = Path(tempfile.mkdtemp(prefix="lauf-"))
+                         arbeitsplatz: Path, laufverzeichnis: Path, uid: int | None) -> dict:
     begonnen = time.monotonic()
-    abgebrochen = False
-    try:
-        (laufverzeichnis / "playbook.yml").write_text(playbook, encoding="utf-8")
-        (laufverzeichnis / "inventory.ini").write_text(str(inventar)[:4_000], encoding="utf-8")
+    (laufverzeichnis / "playbook.yml").write_text(playbook, encoding="utf-8")
+    (laufverzeichnis / "inventory.ini").write_text(str(inventar)[:4_000], encoding="utf-8")
 
-        argumente = [ANSIBLE_BIN, "-i", "inventory.ini", "playbook.yml",
-                     "--extra-vars", f"lab_dir={arbeitsplatz}"]
-        if check:
-            argumente.append("--check")
-        if extra_vars:
-            # Nach lab_dir: eigene Angaben der Teilnehmenden gewinnen.
-            argumente += ["--extra-vars", str(extra_vars)[:1_000]]
+    argumente = [ANSIBLE_BIN, "-i", "inventory.ini", "playbook.yml",
+                 "--extra-vars", f"lab_dir={arbeitsplatz}"]
+    if check:
+        argumente.append("--check")
+    if extra_vars:
+        # Nach lab_dir: eigene Angaben der Teilnehmenden gewinnen.
+        argumente += ["--extra-vars", str(extra_vars)[:1_000]]
 
-        umgebung = {
-            "PATH": os.getenv("PATH", "/usr/local/bin:/usr/bin:/bin"),
-            "HOME": str(laufverzeichnis),
-            "TMPDIR": str(laufverzeichnis),
-            "LANG": "C.UTF-8",
-            "ANSIBLE_LOCAL_TEMP": str(laufverzeichnis / ".ansible-tmp"),
-            "ANSIBLE_REMOTE_TEMP": str(laufverzeichnis / ".ansible-tmp"),
-            "ANSIBLE_RETRY_FILES_ENABLED": "0",
-            "ANSIBLE_NOCOLOR": "1",
-            "ANSIBLE_DEPRECATION_WARNINGS": "0",
-            "ANSIBLE_SYSTEM_WARNINGS": "0",
-            # Ohne das steht ueber JEDEM Lauf eine Warnung, dass der
-            # Python-Interpreter automatisch gefunden wurde. Im Container ist
-            # genau ein Interpreter installiert, die Warnung hat also keinen
-            # Erkenntniswert und lenkt von der eigentlichen Ausgabe ab.
-            # "auto_silent" behaelt die automatische Erkennung und schweigt nur.
-            "ANSIBLE_PYTHON_INTERPRETER": "auto_silent",
-            # Nur Interpreter-Rauschen unterdrücken; Ansibles eigene Meldungen
-            # bleiben sichtbar, sie sind Lernstoff.
-            "PYTHONWARNINGS": "ignore::SyntaxWarning",
-        }
-        # Testbarkeit auf der Windows-Entwicklungsmaschine (runner/tests):
-        # Ohne SystemRoot kann ein Windows-Kindprozess seine kryptografische
-        # Zufallsquelle nicht initialisieren und stuerzt sofort ab (CPython
-        # _Py_HashRandomization_Init). Betroffen ist JEDER Unterprozess, nicht
-        # nur ansible-playbook - das hat die Zeitgrenzen-Tests zunaechst zum
-        # Absturz statt zum Timeout gebracht. In Produktion laeuft der Runner
-        # ausschliesslich im Linux-Container, wo SystemRoot nicht existiert;
-        # dieser Zweig hat dort keine Wirkung.
-        if sys.platform == "win32":
-            systemroot = os.getenv("SystemRoot")
-            if systemroot:
-                umgebung["SystemRoot"] = systemroot
+    umgebung = {
+        "PATH": os.getenv("PATH", "/usr/local/bin:/usr/bin:/bin"),
+        "HOME": str(laufverzeichnis),
+        "TMPDIR": str(laufverzeichnis),
+        "LANG": "C.UTF-8",
+        "ANSIBLE_LOCAL_TEMP": str(laufverzeichnis / ".ansible-tmp"),
+        "ANSIBLE_REMOTE_TEMP": str(laufverzeichnis / ".ansible-tmp"),
+        "ANSIBLE_RETRY_FILES_ENABLED": "0",
+        "ANSIBLE_NOCOLOR": "1",
+        "ANSIBLE_DEPRECATION_WARNINGS": "0",
+        "ANSIBLE_SYSTEM_WARNINGS": "0",
+        # Ohne das steht ueber JEDEM Lauf eine Warnung, dass der
+        # Python-Interpreter automatisch gefunden wurde. Im Container ist
+        # genau ein Interpreter installiert, die Warnung hat also keinen
+        # Erkenntniswert und lenkt von der eigentlichen Ausgabe ab.
+        # "auto_silent" behaelt die automatische Erkennung und schweigt nur.
+        "ANSIBLE_PYTHON_INTERPRETER": "auto_silent",
+        # Nur Interpreter-Rauschen unterdrücken; Ansibles eigene Meldungen
+        # bleiben sichtbar, sie sind Lernstoff.
+        "PYTHONWARNINGS": "ignore::SyntaxWarning",
+    }
+    # Testbarkeit auf der Windows-Entwicklungsmaschine (runner/tests):
+    # Ohne SystemRoot kann ein Windows-Kindprozess seine kryptografische
+    # Zufallsquelle nicht initialisieren und stuerzt sofort ab (CPython
+    # _Py_HashRandomization_Init). Betroffen ist JEDER Unterprozess, nicht
+    # nur ansible-playbook - das hat die Zeitgrenzen-Tests zunaechst zum
+    # Absturz statt zum Timeout gebracht. In Produktion laeuft der Runner
+    # ausschliesslich im Linux-Container, wo SystemRoot nicht existiert;
+    # dieser Zweig hat dort keine Wirkung.
+    if sys.platform == "win32":
+        systemroot = os.getenv("SystemRoot")
+        if systemroot:
+            umgebung["SystemRoot"] = systemroot
 
-        # Erst jetzt, mit Playbook und Inventar darin, an die Job-uid: HOME,
-        # TMPDIR und die Ansible-Temp-Verzeichnisse liegen alle hier.
-        _uebergeben(laufverzeichnis, uid)
-        rc, roh, abgebrochen = _mit_zeitgrenze_ausfuehren(
-            argumente, laufverzeichnis, umgebung, TIMEOUT_SECONDS, uid)
-        text = roh.decode("utf-8", "replace")
-        if abgebrochen:
-            text += (f"\n\nAbgebrochen: Der Lauf hat die Zeitgrenze von "
-                     f"{TIMEOUT_SECONDS:.0f} Sekunden überschritten.")
+    # Playbook und Inventar hat root geschrieben: mit übergeben. HOME, TMPDIR
+    # und die Ansible-Temp-Verzeichnisse liegen alle hier; gelöscht wird das
+    # Laufverzeichnis von _job, nachdem alle Prozesse des Laufs beendet sind.
+    _uebergeben(laufverzeichnis, uid)
+    rc, roh, abgebrochen = _mit_zeitgrenze_ausfuehren(
+        argumente, laufverzeichnis, umgebung, TIMEOUT_SECONDS, uid)
+    text = roh.decode("utf-8", "replace")
+    if abgebrochen:
+        text += (f"\n\nAbgebrochen: Der Lauf hat die Zeitgrenze von "
+                 f"{TIMEOUT_SECONDS:.0f} Sekunden überschritten.")
 
-        text, gekappt = _clip(text)
-        return {"rc": rc, "output": text, "truncated": gekappt,
-                "duration_ms": int((time.monotonic() - begonnen) * 1000),
-                "timed_out": abgebrochen}
-    finally:
-        # Das Laufverzeichnis gehoert dem Lauf und liegt im Sticky-/tmp: solange
-        # noch ein Prozess der uid lebt, koennte er es gegen einen Symlink
-        # tauschen. Also erst beenden, dann loeschen.
-        if _job_prozesse_beenden(uid):
-            _loeschen(laufverzeichnis)
+    text, gekappt = _clip(text)
+    return {"rc": rc, "output": text, "truncated": gekappt,
+            "duration_ms": int((time.monotonic() - begonnen) * 1000),
+            "timed_out": abgebrochen}
 
 
 # ---------------------------------------------------------------------------
@@ -892,21 +1002,35 @@ def _argv_bauen(befehl: str, art: str, binaer: str) -> list[str] | None:
     return [binaer] + tokens
 
 
-def _datei_schreiben(ziel: Path, inhalt: str, uid: int | None) -> None:
-    """Legt eine mitgeschickte Datei im Arbeitsverzeichnis an.
-
-    Mit Trennung schreibt hier root in ein Verzeichnis, das zuvor einem Lauf
-    gehörte: ein dort hinterlegter Symlink `ziel -> /queue/in/x.json` würde den
-    Worker sonst zum Schreiben eines fremden Auftrags bringen. Deshalb alten
-    Eintrag entfernen und mit O_EXCL|O_NOFOLLOW neu anlegen."""
-    if uid is None:
-        ziel.write_text(inhalt, encoding="utf-8")
-        return
+def _exklusiv_schreiben(ziel: Path, inhalt: str, modus: int, uid: int | None = None) -> None:
+    """Legt `ziel` NEU an, statt in Vorhandenes zu schreiben, und folgt dabei
+    keinem Symlink (O_EXCL|O_NOFOLLOW). Der Worker schreibt als root an Orte,
+    an denen ein Lauf - auch ein früherer - einen Symlink oder ein FIFO
+    gleichen Namens hinterlegt haben kann: `ziel -> /queue/in/x.json` brächte
+    ihn sonst dazu, einen fremden Auftrag zu schreiben."""
     ziel.unlink(missing_ok=True)
-    fd = os.open(ziel, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600)
+    fd = os.open(ziel, os.O_WRONLY | os.O_CREAT | os.O_EXCL | getattr(os, "O_NOFOLLOW", 0), modus)
     with os.fdopen(fd, "w", encoding="utf-8") as datei:
         datei.write(inhalt)
-        os.fchown(fd, uid, uid)
+        if hasattr(os, "fchmod"):  # unabhängig von der umask; Windows: nur Tests
+            os.fchmod(fd, modus)
+        if uid is not None:
+            os.fchown(fd, uid, uid)
+
+
+def _datei_schreiben(ziel: Path, inhalt: str, uid: int | None) -> None:
+    """Legt eine mitgeschickte Datei im Arbeitsverzeichnis an (gehört dem Lauf)."""
+    _exklusiv_schreiben(ziel, inhalt, 0o644 if uid is None else 0o600, uid)
+
+
+def _regulaer_lesen(pfad: Path, hoechstens: int = 1_000_000) -> str:
+    """Liest NUR eine reguläre Datei: kein Symlink (O_NOFOLLOW), und ein FIFO
+    hält den Worker nicht an (O_NONBLOCK, dann Typprüfung am Deskriptor)."""
+    fd = os.open(pfad, os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0) | getattr(os, "O_NONBLOCK", 0))
+    with os.fdopen(fd, "rb") as datei:
+        if not stat.S_ISREG(os.fstat(fd).st_mode):
+            raise OSError(f"{pfad.name} ist keine reguläre Datei")
+        return datei.read(hoechstens).decode("utf-8")
 
 
 def _werkzeug_ergebnis(begonnen: float, rc: int, text: str, timed_out: bool = False) -> dict:
@@ -938,20 +1062,24 @@ def _run_werkzeug(auftrag: dict, art: str, binaer: str, zeitgrenze: float,
 
     # Auch openssl/git laufen im Slot unter der Job-uid: git führt Hooks aus,
     # die ein früheres Playbook im selben Arbeitsverzeichnis hinterlegt haben kann.
-    with _job(str(auftrag.get("workspace", "gast"))) as (arbeitsplatz, uid):
-        return _run_werkzeug_im_slot(dateien, befehle, art, binaer, zeitgrenze,
-                                     zusatz_umgebung, arbeitsplatz, uid, begonnen)
+    with _job(str(auftrag.get("workspace", "gast"))) as (arbeitsplatz, laufverzeichnis, uid):
+        return _run_werkzeug_im_slot(dateien, befehle, art, binaer, zeitgrenze, zusatz_umgebung,
+                                     arbeitsplatz, laufverzeichnis, uid, begonnen)
 
 
 def _run_werkzeug_im_slot(dateien: dict, befehle: list, art: str, binaer: str,
                           zeitgrenze: float, zusatz_umgebung: dict[str, str] | None,
-                          arbeitsplatz: Path, uid: int | None, begonnen: float) -> dict:
+                          arbeitsplatz: Path, laufverzeichnis: Path, uid: int | None,
+                          begonnen: float) -> dict:
     for name, inhalt in dateien.items():
         _datei_schreiben(arbeitsplatz / name, str(inhalt), uid)
 
     umgebung = {
         "PATH": os.getenv("PATH", "/usr/local/bin:/usr/bin:/bin"),
         "HOME": str(arbeitsplatz),
+        # Eigenes Temp-Verzeichnis des Laufs statt des gemeinsamen /tmp - und
+        # nicht im Arbeitsverzeichnis, wo `git status` es anzeigen würde.
+        "TMPDIR": str(laufverzeichnis),
         "LANG": "C.UTF-8",
     }
     if zusatz_umgebung:
@@ -1070,13 +1198,9 @@ def _ausfuehren(auftrag: dict) -> dict:
 def _antwort_schreiben(auftrags_id: str, ergebnis: dict) -> None:
     ziel = QUEUE / "out" / f"{auftrags_id}.json"
     vorlaeufig = ziel.with_suffix(".json.tmp")
-    vorlaeufig.write_text(json.dumps(ergebnis), encoding="utf-8")
-    try:
-        # Lesbar für das Backend (andere uid). Den Schutz vor Läufen leisten die
-        # Verzeichnisrechte von /queue (_warteschlange_vorbereiten), nicht dieser Modus.
-        os.chmod(vorlaeufig, 0o644)
-    except OSError:
-        pass
+    # 0644: lesbar für das Backend (andere uid). Den Schutz vor Läufen leisten die
+    # Verzeichnisrechte von /queue (_warteschlange_vorbereiten), nicht dieser Modus.
+    _exklusiv_schreiben(vorlaeufig, json.dumps(ergebnis), 0o644)
     os.replace(vorlaeufig, ziel)  # atomar: das Backend sieht nie eine halbe Datei
 
 
@@ -1106,12 +1230,14 @@ def _auftrag_lesen(pfad: Path) -> tuple[str, dict] | None:
     """
     auftrags_id = pfad.name.removesuffix(".claimed").removesuffix(".json")
     try:
-        auftrag = json.loads(pfad.read_text(encoding="utf-8"))
+        # In einem Bestands-Volume kann ein früherer Lauf Symlinks, FIFOs oder
+        # Verzeichnisse mit passendem Namen hinterlassen haben.
+        auftrag = json.loads(_regulaer_lesen(pfad))
         if not isinstance(auftrag, dict):
             raise ValueError("kein JSON-Objekt")
     except (OSError, ValueError) as fehler:
         log("Auftrag unlesbar:", pfad.name, fehler)
-        pfad.unlink(missing_ok=True)
+        _loeschen(pfad)
         return None
     pfad.unlink(missing_ok=True)  # nur einmal ausführen, auch wenn danach etwas schiefgeht
     return auftrags_id, auftrag
@@ -1136,7 +1262,7 @@ def _aufraeumen() -> None:
     for ordner in ("in", "out"):
         for eintrag in list((QUEUE / ordner).glob("*.json")) + list((QUEUE / ordner).glob("*.claimed")):
             try:
-                if jetzt - eintrag.stat().st_mtime > JOB_MAX_AGE_SECONDS:
+                if jetzt - eintrag.lstat().st_mtime > JOB_MAX_AGE_SECONDS:
                     eintrag.unlink(missing_ok=True)
             except OSError:
                 pass
@@ -1151,22 +1277,30 @@ def _warteschlange_vorbereiten() -> bool:
     stimmen, arbeitet der Runner ohne Eingriff weiter.
     """
     for ordner in ("in", "out"):
+        pfad = QUEUE / ordner
         try:
-            (QUEUE / ordner).mkdir(parents=True, exist_ok=True)
+            if os.path.lexists(pfad) and (pfad.is_symlink() or not pfad.is_dir()):
+                # Bestands-Volume (früher 0777, Läufe als Eigentümer): ein Lauf kann
+                # in/ oder out/ durch einen Symlink ersetzt haben. Nicht folgen -
+                # den Eintrag entfernen und ein echtes Verzeichnis anlegen.
+                log(f"Warteschlange {pfad} ist kein Verzeichnis (Symlink oder Datei) - wird ersetzt.")
+                pfad.unlink()
+            pfad.mkdir(parents=True, exist_ok=True)
         except OSError as fehler:
-            log(f"Warteschlange {QUEUE / ordner} nicht nutzbar: {fehler}. "
+            log(f"Warteschlange {pfad} nicht nutzbar: {fehler}. "
                 f"Erwartet wird ein Volume, in das der Runner-Benutzer (uid "
                 f"{_eigene_uid()}) schreiben darf — siehe runner/Dockerfile und "
                 f"docs/lab-sicherheit.md.")
             return False
     # root:QUEUE_GID, kein Zugriff für andere: Worker (Eigentümer) und Backend
     # (Gruppe) ja, Läufe nein. Korrigiert auch ein Volume einer älteren Fassung
-    # (uid 10001, 0777) beim ersten Start - erst chown, dann darf root chmod.
+    # (uid 10001, 0777) beim ersten Start.
     for pfad, modus in ((QUEUE, 0o750), (QUEUE / "in", 0o770), (QUEUE / "out", 0o770)):
         try:
             if _isolation_aktiv:
-                os.chown(pfad, 0, QUEUE_GID)
-            os.chmod(pfad, modus)
+                _verzeichnis_sichern(pfad, 0, QUEUE_GID, modus)
+            else:
+                os.chmod(pfad, modus)
         except OSError as fehler:
             if _isolation_aktiv:
                 # Fail-closed: mit offener Warteschlange wäre die Trennung wertlos.

@@ -229,9 +229,11 @@ Restrisiken: `docs/lab-sicherheit.md`, „Trennung der Läufe per uid“.
 **Was sich an der Installation ändert**
 
 - `docker-compose.yml`, Dienst `runner`: neu `user: "0:0"` und `cap_add`
-  (`SETUID`, `SETGID`, `CHOWN`, `DAC_OVERRIDE`, `KILL`). Alles andere bleibt
+  (`SETUID`, `SETGID`, `CHOWN`, `DAC_OVERRIDE`, `KILL`); das `tmpfs` `/tmp`
+  bekommt zusätzlich `nosuid,nodev`, `/dev/shm` ist jetzt ausdrücklich ein
+  `tmpfs` mit 16 MB und `noexec,nosuid,nodev`. Alles andere bleibt
   (`network_mode: none`, `cap_drop: ALL`, `no-new-privileges`, `read_only`,
-  `tmpfs`, Limits). Coolify übernimmt beides aus der Compose-Datei; wer den
+  Limits). Coolify übernimmt beides aus der Compose-Datei; wer den
   Dienst in Coolify von Hand überschrieben hat, muss dort nachziehen.
 - Runner-Image: Benutzer `labjob10002` … `labjob10009`, `/queue` gehört
   `root:10001`. Backend-Image und Backend-Konfiguration: **unverändert**.
@@ -258,10 +260,15 @@ Ein Volume aus einer älteren Fassung gehört uid 10001 mit Modus `0777`. Es mus
 **nicht** entfernt werden: Der Worker setzt beim ersten Start `/queue` auf
 `root:10001`, `0750` und `in/`, `out/` auf `0770`. Das darf nur er — er ist der
 einzige Prozess mit `CAP_CHOWN` auf diesem Volume; das Backend ändert dort
-keine Rechte. Liegengebliebene Dateien bleiben unangetastet und werden normal
-behandelt: Aufträge in `in/` führt der neue Worker aus (er darf als root
-fremde Dateien lesen und löschen), Ergebnisse in `out/` holt das Backend ab
-oder der Worker löscht sie nach fünf Minuten (`RUNNER_JOB_MAX_AGE`). Gelingt
+keine Rechte. Liegengebliebene Dateien werden normal behandelt: reguläre Aufträge in `in/`
+führt der neue Worker aus (er darf als root fremde Dateien lesen und löschen),
+Ergebnisse in `out/` holt das Backend ab oder der Worker löscht sie nach fünf
+Minuten (`RUNNER_JOB_MAX_AGE`). Was in `in/` keine reguläre Datei ist (Symlink,
+FIFO, Verzeichnis — in einem alten Volume konnte ein Lauf so etwas ablegen),
+weist der Worker mit `Auftrag unlesbar: …` ab und entfernt es. Ist `in/` oder
+`out/` selbst ein Symlink, meldet er `… ist kein Verzeichnis (Symlink oder
+Datei) - wird ersetzt` und legt ein echtes Verzeichnis an; dem Symlink folgt er
+nicht. Gelingt
 die Korrektur nicht, meldet der Runner alle fünf Sekunden
 `Warteschlange … lässt sich nicht für Läufe schließen` und nimmt keine Aufträge
 an; dann das Volume einmal entfernen (`docker volume rm <projekt>_lab_queue`,
@@ -278,6 +285,8 @@ Containers ohnehin leer.
 | `ANSIBLE-LAB DEAKTIVIERT (fail-closed): … (CAP_…) fehlgeschlagen` | Die genannte Capability fehlt in `cap_add` | `cap_add` wie im Repository |
 | `ANSIBLE-LAB DEAKTIVIERT … fehlt security_opt no-new-privileges?` | `no-new-privileges` wurde entfernt | wieder eintragen |
 | `Job-Slot uid … GESPERRT` | Prozesse eines Laufs ließen sich nicht beenden | Runner-Container neu starten |
+| `WARNUNG: fs.protected_hardlinks=0` (oder `protected_symlinks`) | Kernel-Schalter des Hosts ist aus | auf dem Host `sysctl -w fs.protected_hardlinks=1 fs.protected_symlinks=1` und dauerhaft eintragen; das Lab läuft auch ohne weiter |
+| `… Einträge entfernt (Spezialdatei oder mehrfach verlinkt)` | Ein Lauf hat FIFOs, Sockets oder Hardlinks im Arbeitsverzeichnis hinterlassen | nichts zu tun; tritt es gehäuft auf, den Teilnehmerkreis ansehen |
 
 In allen `DEAKTIVIERT`-Fällen läuft der Runner weiter: Ansible-Aufträge enden
 mit einer klaren Meldung im Widget, `openssl` und `git` funktionieren. Es läuft
