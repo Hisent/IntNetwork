@@ -1288,6 +1288,14 @@ def test_werkzeug_argv_pruefen_laesst_legitime_openssl_vorlagen_durch(befehl):
     "req -new -key k -addext x=/../../etc/passwd",
     "req -new -key k -subj /CN=x -addext 'subjectAltName=DNS:a\n.include /etc/passwd'",
     "req -new -key k -subj",
+    # -addext: Datei- und Abschnittsreferenzen (defensiv)
+    "req -new -key k -addext authorityInfoAccess=URI:file:///etc/passwd",
+    "req -new -key k -addext authorityInfoAccess=caIssuers;URI:FILE:x",
+    "req -new -key k -addext subjectAltName=@alt_names",
+    "req -new -key k -addext 'subjectAltName = @alt_names'",
+    "req -new -key k -addext certificatePolicies=ia5org,@polsect",
+    "req -new -key k -addext subjectAltName=dirName:dir_sect",
+    "req -new -key k -addext=subjectAltName=@alt_names",
 ])
 def test_werkzeug_argv_pruefen_openssl_ist_fail_closed(befehl):
     assert worker._werkzeug_argv_pruefen(shlex.split(befehl), "openssl") is not None
@@ -1317,6 +1325,7 @@ def test_werkzeug_argv_pruefen_openssl_ist_fail_closed(befehl):
     "req -new -key k.pem -out a.csr -subj '/C=DE/O=Nordwind Logistik GmbH/CN=www.nordwind-logistik.de'",
     "req -new -key k.pem -out a.csr -subj /CN=x -addext 'crlDistributionPoints=URI:http://crl.example/ca.crl'",
     "req -new -newkey rsa:2048 -nodes -keyout k.pem -out a.csr -subj=/CN=x",
+    "req -new -key k.pem -out a.csr -subj /CN=x -addext subjectAltName=email:ca@nordwind-logistik.de,DNS:a.example",
     "genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:2048 -out k.pem",
     "enc -aes-256-cbc -pbkdf2 -pass pass:geheim -in a.txt -out a.enc",
     "dgst -sha256 a.txt",
@@ -1330,7 +1339,7 @@ def test_werkzeug_argv_pruefen_laesst_aktuelle_openssl_vorlagen_durch(befehl):
 @pytest.mark.parametrize("befehl", [
     ["init"],
     ["commit", "--allow-empty", "-m", "base"],
-    ["checkout", "-b", "feature"],
+    ["checkout", "-B", "feature"],
     ["checkout", "-"],
     ["merge", "feature"],
     ["mv", "-f", "feature-version.txt", "shared.txt"],
@@ -1378,6 +1387,19 @@ def test_werkzeug_argv_pruefen_laesst_legitime_git_vorlagen_durch(befehl):
     "status -C /etc",
     "status -C ..",
     "show --upload-pack=x",
+    # relative Pfade: am Pfadfilter vorbei, deshalb als Flag gesperrt (auch abgekürzt)
+    "init --template=sub",
+    "init --template sub",
+    "init --templ=sub",
+    "init --t=sub",
+    "init --separate-git-dir=sub",
+    "init --separate-git-dir sub",
+    "init --sep=sub",
+    "status --git-dir=sub",
+    "status --git-dir sub",
+    "status --work-tree=sub",
+    "status --work=sub",
+    "commit --template=vorlage.txt",
 ])
 def test_werkzeug_argv_pruefen_git_ist_fail_closed(befehl):
     assert worker._werkzeug_argv_pruefen(shlex.split(befehl), "git") is not None
@@ -1388,7 +1410,7 @@ def test_werkzeug_argv_pruefen_git_ist_fail_closed(befehl):
 # naheliegende relative Unterpfade mit "/", die weiter funktionieren muessen.
 @pytest.mark.parametrize("befehl", [
     "init", "add .", "commit -m start",
-    "commit --allow-empty -m base", "checkout -b feature",
+    "commit --allow-empty -m base", "checkout -B feature",
     "commit --allow-empty -m feature-work", "checkout -", "merge feature",
     "add shared.txt feature-version.txt main-version.txt", "commit -m base",
     "mv -f feature-version.txt shared.txt", "commit -am feature-edit",

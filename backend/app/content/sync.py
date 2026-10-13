@@ -3,7 +3,8 @@
 Ablauf (aufgerufen aus seed_missing_content, siehe dort):
 
 1. pristine_modules() — VOR den Release-Migrationen: welche Module tragen
-   noch einen Auslieferungsstand, also keine Trainer-Änderung?
+   noch einen Auslieferungsstand, also keine Trainer-Änderung? (Sperrt die
+   Modulzeilen und merkt sich je Modul den gesehenen Stand.)
 2. Die bisherigen Migrationen laufen wie gehabt.
 3. sync_content() — gleicht genau diese Module in-place an die Quelle an.
 
@@ -25,6 +26,9 @@ Editor (Speichern, Auslieferungszustand laden, Wiederherstellen) — ordnet
 darüber zu: bekannte Kennung = Zeile wird überschrieben und behält ihre DB-id
 (an der Frage-id hängen die Quiz-Abgaben, an der Blockzeile die Kommentare),
 neue Kennung = Zeile wird eingefügt, fehlende = gelöscht, Reihenfolge = Vorgabe.
+Ausnahme Fragen: ändert sich der Lösungsschlüssel (Typ, Lösung oder
+Reihenfolge der Optionen), entsteht trotz gleicher Kennung eine neue Zeile —
+alte Abgaben zählen für diese Frage dann nicht mehr (siehe _same_key).
 Der Inhalt eines Blocks ist dabei ein beliebiges Dict (blocktyp-agnostisch).
 """
 import hashlib
@@ -34,6 +38,7 @@ import secrets
 from collections import Counter, defaultdict
 from pathlib import Path
 
+from sqlalchemy import event
 from sqlalchemy.orm import Session
 
 from app.content.registry import MODULES
@@ -135,14 +140,26 @@ def content_hash(state: dict) -> str:
     return hashlib.sha256(json.dumps(slim, sort_keys=True, ensure_ascii=False).encode()).hexdigest()
 
 
-def load_all(db: Session) -> dict[str, tuple[ContentModule, list[ContentBlock], list[ContentQuizQuestion]]]:
+def load_all(db: Session, *, lock: bool = False
+             ) -> dict[str, tuple[ContentModule, list[ContentBlock], list[ContentQuizQuestion]]]:
+    """Alle Module mit ihren Zeilen, FRISCH aus der DB (populate_existing): ohne
+    das behielten schon geladene Objekte ihre alten Werte, und ein inzwischen
+    von einem anderen Prozess gespeicherter Stand bliebe unsichtbar.
+    lock: Zeilensperre auf jede Modulzeile bis zum Commit (Postgres, FOR NO KEY
+    UPDATE; SQLite ignoriert das) — dieselbe, die der Editor beim Speichern
+    nimmt (routers/trainer_content.py, _locked_module)."""
     db.flush()  # SessionLocal läuft mit autoflush=False
+    modules = db.query(ContentModule).populate_existing()
+    if lock:
+        modules = modules.with_for_update(key_share=True)
+    modules = modules.all()  # zuerst: die Sperre steht, bevor Blöcke/Fragen gelesen werden
     blocks, questions = defaultdict(list), defaultdict(list)
-    for b in db.query(ContentBlock).order_by(ContentBlock.position, ContentBlock.id):
+    for b in db.query(ContentBlock).populate_existing().order_by(ContentBlock.position, ContentBlock.id):
         blocks[b.module_key].append(b)
-    for q in db.query(ContentQuizQuestion).order_by(ContentQuizQuestion.position, ContentQuizQuestion.id):
+    for q in (db.query(ContentQuizQuestion).populate_existing()
+              .order_by(ContentQuizQuestion.position, ContentQuizQuestion.id)):
         questions[q.module_key].append(q)
-    return {m.key: (m, blocks[m.key], questions[m.key]) for m in db.query(ContentModule)}
+    return {m.key: (m, blocks[m.key], questions[m.key]) for m in modules}
 
 
 def _settings(db: Session, prefix: str) -> dict[str, str]:
@@ -158,16 +175,38 @@ def _set(db: Session, key: str, value: str) -> None:
         row.value = value
 
 
-def pristine_modules(db: Session) -> set[str]:
-    """Keys der ausgelieferten Module ohne Trainer-Änderung (siehe Modul-Docstring).
-    Fehlende Module zählen dazu — sie werden in diesem Lauf frisch geseedet."""
-    loaded = load_all(db)
+_OWN = "content_sync_own"  # Session.info: Modul-Keys, deren Zeilen diese Session selbst geschrieben hat
+
+
+def _note_own_writes(session: Session, _context, _instances) -> None:
+    for obj in (*session.new, *session.dirty, *session.deleted):
+        if isinstance(obj, (ContentBlock, ContentQuizQuestion)):
+            session.info[_OWN].add(obj.module_key)
+        elif isinstance(obj, ContentModule):
+            session.info[_OWN].add(obj.key)
+
+
+def pristine_modules(db: Session) -> dict[str, str | None]:
+    """Die ausgelieferten Module ohne Trainer-Änderung (siehe Modul-Docstring):
+    Key -> Hash des dabei gesehenen Stands. Fehlende Module zählen dazu (Hash
+    None) — sie werden in diesem Lauf frisch geseedet.
+
+    Zwischen dieser Prüfung und dem Einspielen kann ein Trainer speichern
+    (Rolling-Deploy: der alte Container bedient noch). Deshalb (a) sperrt die
+    Prüfung die Modulzeilen bis zum Commit — ein Speichern mit diesem Code-Stand
+    wartet und prüft danach seine base_version neu —, und (b) liest sync_content
+    frisch und lässt jedes Modul aus, dessen Stand vom hier gesehenen abweicht,
+    ohne dass diese Session selbst es geschrieben hat (ab jetzt mitgeschrieben)."""
+    db.info[_OWN] = set()
+    if not event.contains(db, "before_flush", _note_own_writes):
+        event.listen(db, "before_flush", _note_own_writes)
+    loaded = load_all(db, lock=True)
     stored = _settings(db, HASH_KEY)
     edited_once = {key for (key,) in db.query(ContentModuleSnapshot.module_key)}
-    pristine = set()
+    pristine: dict[str, str | None] = {}
     for key, seed in MODULES.items():
         if key not in loaded:
-            pristine.add(key)
+            pristine[key] = None
             continue
         state = db_state(*loaded[key])
         current = content_hash(state)
@@ -176,7 +215,7 @@ def pristine_modules(db: Session) -> set[str]:
         else:
             unedited = key not in edited_once or current in BASELINE.get(key, ())
         if unedited or current == content_hash(source_state(seed)):
-            pristine.add(key)
+            pristine[key] = current
     return pristine
 
 
@@ -238,6 +277,27 @@ def _match_rows(rows: list, items: list[dict], fields: tuple[str, ...]) -> list:
     return matched
 
 
+def _moved(old: list | None, new: list | None) -> bool:
+    """Steht ein Optionstext, den es weiter gibt, nicht mehr an seiner Stelle?"""
+    return any(o in (new or []) and (new or [])[i:i + 1] != [o] for i, o in enumerate(old or []))
+
+
+def _same_key(row: ContentQuizQuestion, item: dict) -> bool:
+    """Darf die Fragezeile (und damit ihre DB-id, an der alte Abgaben hängen)
+    bleiben? Nur wenn ein alter Options-Index gegen die neue Fassung noch
+    dasselbe bedeutet: Typ gleich, Lösung gleich und kein weiter vorhandener
+    Optionstext (de oder en) an eine andere Position gerückt. Sonst würden alte
+    Abgaben gegen den neuen Schlüssel bewertet — Statistik und
+    /practice?mode=wrong. Die Zeile BLEIBT bei Textkorrekturen an Prompt,
+    Erklärung und am Wortlaut von Optionen sowie bei am Ende angefügten oder
+    gestrichenen Optionen (die Indizes davor bedeuten dasselbe).
+    ponytail: erkennt Umsortieren nur an unveränderten Texten; wer Optionen
+    umsortiert UND alle umformuliert, vergibt eine neue Frage-id (Autorenregel)."""
+    return (row.qtype == item["qtype"] and row.answer == item["answer"]
+            and not _moved(row.options_de, item["options_de"])
+            and not _moved(row.options_en, item["options_en"]))
+
+
 def _write_rows(db: Session, model, key: str, existing: list, matched: list, items: list[dict],
                 fields: tuple[str, ...]) -> None:
     """Schreibt items in die zugeordneten Zeilen (matched[i] gehört zu items[i],
@@ -292,12 +352,15 @@ def apply_state(db: Session, key: str, m: ContentModule, blocks: list[ContentBlo
     for name in _MODULE_FIELDS:
         setattr(m, name, state[name])
     _write_rows(db, ContentBlock, key, blocks, matched_blocks, state["blocks"], BLOCK_FIELDS)
-    _write_rows(db, ContentQuizQuestion, key, questions,
-                _match_rows(questions, state["quiz"], QUESTION_FIELDS), state["quiz"], QUESTION_FIELDS)
+    # Geänderter Lösungsschlüssel = neue Zeile, die alte fällt weg (siehe _same_key).
+    matched_questions = [row if row is not None and _same_key(row, item) else None
+                         for row, item in zip(_match_rows(questions, state["quiz"], QUESTION_FIELDS),
+                                              state["quiz"], strict=True)]
+    _write_rows(db, ContentQuizQuestion, key, questions, matched_questions, state["quiz"], QUESTION_FIELDS)
     return moved
 
 
-def sync_content(db: Session, pristine: set[str], fresh: frozenset[str] = frozenset()) -> dict:
+def sync_content(db: Session, pristine: dict[str, str | None], fresh: frozenset[str] = frozenset()) -> dict:
     """Bringt die unveränderten Module auf den Quellstand und merkt sich dessen
     Hash. Je Modul ein Savepoint: ein Fehler rollt nur dieses Modul zurück.
     Committet nicht — das macht der Aufrufer zusammen mit dem Rest des Seeds.
@@ -306,6 +369,15 @@ def sync_content(db: Session, pristine: set[str], fresh: frozenset[str] = frozen
     auch dort einzelne Blöcke um; das wird angeglichen, ist aber kein Update,
     das man melden müsste."""
     loaded = load_all(db)
+    # Seit pristine_modules von jemand anderem gespeichert (dort (b)) -> Trainer-Stand.
+    # ponytail: Module, die die Seed-Migrationen dieses Laufs selbst angefasst
+    # haben, sind davon ausgenommen (ihr Hash hat sich ohnehin geändert). Soll
+    # auch dort ein alter Container nichts überschreiben können: Versionsspalte
+    # je Modul, die jeder Schreiber hochzählt.
+    own = db.info.get(_OWN, set())
+    changed_elsewhere = {key for key, seen in pristine.items()
+                         if seen and key in loaded and key not in own
+                         and content_hash(db_state(*loaded[key])) != seen}
     _assign_missing_uids(loaded)
     stored = _settings(db, HASH_KEY)
     reported = _settings(db, SKIPPED_KEY)
@@ -316,7 +388,7 @@ def sync_content(db: Session, pristine: set[str], fresh: frozenset[str] = frozen
         m, blocks, questions = loaded[key]
         src = source_state(seed)
         src_hash = content_hash(src)
-        if key not in pristine:
+        if key not in pristine or key in changed_elsewhere:
             if content_hash(db_state(m, blocks, questions)) != src_hash:
                 skipped[key] = "vom Trainer geändert"
             continue

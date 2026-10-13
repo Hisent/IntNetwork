@@ -11,6 +11,7 @@ from app.database import SessionLocal
 from app.main import app
 from app.models.content import ContentBlock, ContentModule, ContentModuleSnapshot, ContentQuizQuestion
 from app.services.block_validation import DECLARATIVE_TYPES, localize, validate_block
+from tests.conftest import put_module
 
 SEQUENCE = {
     "kind": "sequence", "title_de": "DORA", "title_en": "DORA",
@@ -281,7 +282,7 @@ def test_editor_round_trip_and_localized_delivery(scratch_module):
         h = _trainer(c)
         c.post("/api/trainer/content/modules", json={"key": "baukasten", "title_de": "Baukasten"}, headers=h)
         blocks = [{"type": t, "payload": p, "note": "Hinweis"} for t, p in VALID]
-        assert c.put("/api/trainer/content/modules/baukasten", json=_module(blocks), headers=h).status_code == 200
+        assert put_module(c, "/api/trainer/content/modules/baukasten", json=_module(blocks), headers=h).status_code == 200
 
         # Editor: Payload kommt verlustfrei zurück
         stored = c.get("/api/trainer/content/modules/baukasten", headers=h).json()["blocks"]
@@ -310,14 +311,59 @@ def test_editor_rejects_broken_block_with_type_id_and_field(scratch_module):
         h = _trainer(c)
         c.post("/api/trainer/content/modules", json={"key": "baukasten-kaputt", "title_de": "X"}, headers=h)
         bad = _broken(SEQUENCE, _set(["messages", 0, "to"], "srv"))
-        r = c.put("/api/trainer/content/modules/baukasten-kaputt", headers=h,
+        r = put_module(c, "/api/trainer/content/modules/baukasten-kaputt", headers=h,
                   json=_module([{"type": "text", "value_de": "a", "value_en": "b"},
                                 {"type": "diagram", "payload": bad}]))
         assert r.status_code == 422
         assert r.json()["detail"] == "diagram-Block '#2': messages[0].to: unbekannter Akteur 'srv'"
-        r = c.put("/api/trainer/content/modules/baukasten-kaputt", headers=h,
+        r = put_module(c, "/api/trainer/content/modules/baukasten-kaputt", headers=h,
                   json=_module([{"type": "scenario", "widget_id": "scenario-x", "payload": None}]))
         assert r.status_code == 422 and r.json()["detail"] == "scenario-Block 'scenario-x': payload fehlt"
+
+
+def _paths(node, path=()):
+    if path:
+        yield path
+    for k, v in (node.items() if isinstance(node, dict) else enumerate(node) if isinstance(node, list) else ()):
+        yield from _paths(v, (*path, k))
+
+
+def test_wrong_json_types_are_validation_errors_never_crashes():
+    """Jedes Feld jedes Blocktyps mit falschem JSON-Typ: ValueError (-> 422) mit
+    Feldpfad, nie TypeError/KeyError (-> 500) und nie nur das Auffangnetz."""
+    from app.services.block_validation import UNEXPECTED_TYPE
+    shipped = [(b["type"], b["payload"]) for m in MODULES.values() for b in m["blocks"] if b["type"] in DECLARATIVE_TYPES]
+    seen = set()
+    for block_type, payload in [*VALID, *shipped]:
+        for path in _paths(payload):
+            shape = (block_type, payload.get("kind"), tuple("[]" if isinstance(k, int) else k for k in path))
+            if shape in seen:  # dieselbe Feldposition einmal je Typ genügt
+                continue
+            seen.add(shape)
+            for wrong in (None, 5, 1.5, True, "x", "", [], {}, [[1]], {"a": 1}, ["x", "x"], [None]):
+                broken = copy.deepcopy(payload)
+                node = broken
+                for k in path[:-1]:
+                    node = node[k]
+                node[path[-1]] = wrong
+                try:
+                    validate_block(block_type, broken)
+                except ValueError as err:
+                    assert UNEXPECTED_TYPE not in str(err), (shape, wrong)
+    assert {s[0] for s in seen} == DECLARATIVE_TYPES and len(seen) > 100
+
+
+def test_editor_answers_422_for_wrong_json_type(scratch_module):
+    with TestClient(app, raise_server_exceptions=False) as c:
+        h = _trainer(c)
+        c.post("/api/trainer/content/modules", json={"key": "baukasten-kaputt", "title_de": "X"}, headers=h)
+        for payload, detail in ((_broken(FLOW, _set(["nodes", 0, "shape"], ["host"])), "nodes[0].shape"),
+                                (_broken(TERMINAL, _set(["tasks"], 5)), "tasks: muss eine Liste sein"),
+                                (_broken(FLOW, _set(["edges"], 5)), "edges: muss eine Liste sein")):
+            block_type = "terminal" if payload.get("prompt") else "diagram"
+            r = put_module(c, "/api/trainer/content/modules/baukasten-kaputt", headers=h,
+                           json=_module([{"type": block_type, "payload": payload}]))
+            assert r.status_code == 422 and detail in r.json()["detail"], r.text
 
 
 def test_every_block_type_has_a_demo_in_the_shipped_content():

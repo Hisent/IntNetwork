@@ -1,5 +1,6 @@
 from fastapi.testclient import TestClient
 from app.main import app
+from tests.conftest import put_module
 
 
 def _trainer(c):
@@ -30,7 +31,7 @@ def test_insert_block_before_shifts_comment_to_same_content_block():
         c.post("/api/trainer/content/modules", json={"key": key, "title_de": "X"}, headers=h)
 
         blocks = [_text_block("A"), _text_block("B"), _text_block("C"), _text_block("D")]
-        assert c.put(f"/api/trainer/content/modules/{key}", json=_minimal_module(blocks), headers=h).status_code == 200
+        assert put_module(c, f"/api/trainer/content/modules/{key}", json=_minimal_module(blocks), headers=h).status_code == 200
 
         course = c.post("/api/courses", json={"name": "RemapKurs"}, headers=h).json()
         cid = course["id"]
@@ -39,7 +40,7 @@ def test_insert_block_before_shifts_comment_to_same_content_block():
         assert r.status_code == 200
 
         new_blocks = [_text_block("NEU")] + blocks
-        assert c.put(f"/api/trainer/content/modules/{key}", json=_minimal_module(new_blocks), headers=h).status_code == 200
+        assert put_module(c, f"/api/trainer/content/modules/{key}", json=_minimal_module(new_blocks), headers=h).status_code == 200
 
         comments = c.get(f"/api/trainer/courses/{cid}/comments", headers=h).json()
         assert len(comments) == 1
@@ -56,7 +57,7 @@ def test_deleted_block_orphans_its_comment_instead_of_pointing_elsewhere():
         c.post("/api/trainer/content/modules", json={"key": key, "title_de": "X"}, headers=h)
 
         blocks = [_text_block("A"), _text_block("B"), _text_block("C")]
-        assert c.put(f"/api/trainer/content/modules/{key}", json=_minimal_module(blocks), headers=h).status_code == 200
+        assert put_module(c, f"/api/trainer/content/modules/{key}", json=_minimal_module(blocks), headers=h).status_code == 200
 
         course = c.post("/api/courses", json={"name": "RemapKurs2"}, headers=h).json()
         cid = course["id"]
@@ -64,7 +65,7 @@ def test_deleted_block_orphans_its_comment_instead_of_pointing_elsewhere():
         assert c.post(comment_url, json={"block_index": 1, "body": "An B"}, headers=h).status_code == 200
 
         new_blocks = [_text_block("A"), _text_block("C")]  # B entfernt
-        assert c.put(f"/api/trainer/content/modules/{key}", json=_minimal_module(new_blocks), headers=h).status_code == 200
+        assert put_module(c, f"/api/trainer/content/modules/{key}", json=_minimal_module(new_blocks), headers=h).status_code == 200
 
         comments = c.get(f"/api/trainer/courses/{cid}/comments", headers=h).json()
         assert comments == []
@@ -81,7 +82,7 @@ def test_text_edit_of_commented_block_keeps_comment_at_same_position():
         c.post("/api/trainer/content/modules", json={"key": key, "title_de": "X"}, headers=h)
 
         blocks = [_text_block("A"), _text_block("B"), _text_block("C")]
-        assert c.put(f"/api/trainer/content/modules/{key}", json=_minimal_module(blocks), headers=h).status_code == 200
+        assert put_module(c, f"/api/trainer/content/modules/{key}", json=_minimal_module(blocks), headers=h).status_code == 200
 
         course = c.post("/api/courses", json={"name": "RemapKurs4"}, headers=h).json()
         cid = course["id"]
@@ -91,7 +92,7 @@ def test_text_edit_of_commented_block_keeps_comment_at_same_position():
         edited = [_text_block("A"),
                   {"type": "text", "value_de": "Text B DE korrigiert", "value_en": "Text B EN fixed"},
                   _text_block("C")]
-        assert c.put(f"/api/trainer/content/modules/{key}", json=_minimal_module(edited), headers=h).status_code == 200
+        assert put_module(c, f"/api/trainer/content/modules/{key}", json=_minimal_module(edited), headers=h).status_code == 200
 
         comments = c.get(f"/api/trainer/courses/{cid}/comments", headers=h).json()
         assert len(comments) == 1
@@ -106,7 +107,7 @@ def test_pure_reorder_keeps_comment_on_same_content_block():
         c.post("/api/trainer/content/modules", json={"key": key, "title_de": "X"}, headers=h)
 
         blocks = [_text_block("A"), _text_block("B"), _text_block("C")]
-        assert c.put(f"/api/trainer/content/modules/{key}", json=_minimal_module(blocks), headers=h).status_code == 200
+        assert put_module(c, f"/api/trainer/content/modules/{key}", json=_minimal_module(blocks), headers=h).status_code == 200
 
         course = c.post("/api/courses", json={"name": "RemapKurs3"}, headers=h).json()
         cid = course["id"]
@@ -114,7 +115,7 @@ def test_pure_reorder_keeps_comment_on_same_content_block():
         assert c.post(comment_url, json={"block_index": 0, "body": "An A"}, headers=h).status_code == 200
 
         reordered = [_text_block("B"), _text_block("A"), _text_block("C")]
-        assert c.put(f"/api/trainer/content/modules/{key}", json=_minimal_module(reordered), headers=h).status_code == 200
+        assert put_module(c, f"/api/trainer/content/modules/{key}", json=_minimal_module(reordered), headers=h).status_code == 200
 
         comments = c.get(f"/api/trainer/courses/{cid}/comments", headers=h).json()
         assert len(comments) == 1

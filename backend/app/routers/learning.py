@@ -21,6 +21,7 @@ from app.services.ratelimit import rate_limit
 router = APIRouter(tags=["learning"])
 
 PRACTICE_SIZE = 10
+_QUESTION_ID = re.compile(r"[0-9]{1,9}")
 
 
 def _last_answers(db: Session, p: Participant) -> dict[str, dict]:
@@ -89,7 +90,9 @@ def practice_check(data: PracticeCheck, db: Session = Depends(get_db),
     """Bewertet EINE Frage serverseitig und liefert richtig/falsch + Erklärung —
     wie das Quiz nie die Lösung selbst. Schreibt nichts: gespeicherte Ergebnisse,
     Fortschritt und Zertifikat bleiben unberührt."""
-    q = db.get(ContentQuizQuestion, int(data.question_id)) if data.question_id.isdigit() else None
+    # Nur ASCII-Ziffern, höchstens 9: str.isdigit() lässt auch "²" durch (int() wirft),
+    # und 10+ Ziffern sprengen den Integer der Datenbank.
+    q = db.get(ContentQuizQuestion, int(data.question_id)) if _QUESTION_ID.fullmatch(data.question_id) else None
     if q is None or q.module_key not in _last_answers(db, p):
         raise HTTPException(status_code=404, detail="Frage nicht gefunden")
     explanation = (q.explanation_en if p.language == "en" else None) or q.explanation_de
@@ -97,12 +100,21 @@ def practice_check(data: PracticeCheck, db: Session = Depends(get_db),
 
 
 SEARCH_MAX_HITS = 30
-_MARKUP = re.compile(r"[*_`#>]+")
+# Markdown-Zeichen; der Unterstrich nur als Hervorhebung am Wortrand — in
+# gather_facts oder os_family gehört er zum Wort.
+_MARKUP = re.compile(r"[*`#>]+|(?<!\w)_+|_+(?!\w)")
+
+
+def _plain(text: str | None) -> str:
+    """Text ohne Markdown-Zeichen und mit einfachen Leerzeichen — für den
+    durchsuchten Text UND den Suchbegriff, sonst träfe `--check` oder
+    *wort* nie."""
+    return " ".join(_MARKUP.sub("", text or "").split())
 
 
 def _snippet(text: str | None, needle: str) -> str | None:
     """Ausschnitt um den ersten Treffer (ohne Markdown-Zeichen), sonst None."""
-    plain = " ".join(_MARKUP.sub("", text or "").split())
+    plain = _plain(text)
     at = plain.casefold().find(needle)
     if at < 0:
         return None
@@ -120,7 +132,7 @@ def search(q: str = Query(min_length=2, max_length=80), db: Session = Depends(ge
     """Sucht in Titel, Lernzielen und Text-Blöcken der FREIGESCHALTETEN Module, in
     der Teilnehmersprache. Bewusst nicht durchsucht: Quiz (Fragen, Lösungen,
     Erklärungen), Trainer-Notizen, Übungs-Payloads und nicht freigeschaltete Module."""
-    needle = " ".join(q.split()).casefold()
+    needle = _plain(q).casefold()
     if len(needle) < 2:
         raise HTTPException(status_code=422, detail="Suchbegriff zu kurz")
     active = active_module_keys(db, p.course_id)

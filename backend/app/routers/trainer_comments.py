@@ -8,6 +8,7 @@ from app.services.audit import log_action
 from app.services.comment_validation import require_comment_target, require_course
 from app.services.deps import get_trainer
 from app.services.features import require_comments_enabled as _guard
+from app.utils import iso_utc
 
 router = APIRouter(tags=["trainer-comments"])
 
@@ -15,7 +16,7 @@ router = APIRouter(tags=["trainer-comments"])
 def _serialize(c: Comment) -> dict:
     return {"id": c.id, "module_key": c.module_key, "block_index": c.block_index,
             "body": c.body, "author_kind": c.author_kind, "author_name": c.author_name,
-            "created_at": c.created_at.isoformat(), "own": c.author_kind == "trainer"}
+            "created_at": iso_utc(c.created_at), "own": c.author_kind == "trainer"}
 
 
 class TComReq(BaseModel):

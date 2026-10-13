@@ -1,7 +1,9 @@
 import pytest
 from fastapi.testclient import TestClient
+from sqlalchemy import create_engine
+from sqlalchemy.orm import Session
 from app.main import app
-from app.database import SessionLocal
+from app.database import Base, SessionLocal
 from app.content.registry import MODULES
 from app.models.content import ContentBlock, ContentModule, ContentQuizQuestion
 from app.models.setting import Setting
@@ -24,56 +26,52 @@ from app.content.seed import (LEARNING_LABS_MIGRATION, NETWORK_VISUALS_MIGRATION
 from app.routers.trainer_content import VALID_WIDGET_IDS
 
 
-def test_seed_adds_missing_module_to_existing_db():
+@pytest.fixture
+def own_db(tmp_path):
+    """Eigene, frisch geseedete SQLite-Datei (wie in test_content_sync.py): die
+    Zähltests unten dürfen nicht davon abhängen, welche Testdatei vorher in der
+    gemeinsamen Test-DB Module angelegt oder gelöscht hat."""
+    engine = create_engine(f"sqlite:///{tmp_path / 'seed.db'}")
+    Base.metadata.create_all(engine)
+    with Session(engine, autoflush=False) as session:
+        seed_missing_content(session)
+        yield session
+    engine.dispose()
+
+
+def test_seed_adds_missing_module_to_existing_db(own_db):
     """Neue Module müssen auch in bereits befüllte DBs nachgezogen werden
     (Deployment-Fall: Update bringt ein Modul mit, DB ist nicht leer)."""
-    with TestClient(app):
-        db = SessionLocal()
-        try:
-            key = "troubleshooting"
-            db.query(ContentBlock).filter(ContentBlock.module_key == key).delete()
-            db.query(ContentQuizQuestion).filter(ContentQuizQuestion.module_key == key).delete()
-            db.query(ContentModule).filter(ContentModule.key == key).delete()
-            db.commit()
-            assert db.query(ContentModule).count() == len(MODULES) - 1
+    db, key = own_db, "troubleshooting"
+    db.query(ContentBlock).filter(ContentBlock.module_key == key).delete()
+    db.query(ContentQuizQuestion).filter(ContentQuizQuestion.module_key == key).delete()
+    db.query(ContentModule).filter(ContentModule.key == key).delete()
+    db.commit()
+    assert db.query(ContentModule).count() == len(MODULES) - 1
 
-            seed_missing_content(db)
+    seed_missing_content(db)
 
-            assert db.query(ContentModule).count() == len(MODULES)
-            assert db.query(ContentBlock).filter(ContentBlock.module_key == key).count() > 0
-            assert db.query(ContentQuizQuestion).filter(ContentQuizQuestion.module_key == key).count() == len(
-                MODULES[key]["quiz"]["questions"])
-        finally:
-            db.close()
+    assert db.query(ContentModule).count() == len(MODULES)
+    assert db.query(ContentBlock).filter(ContentBlock.module_key == key).count() > 0
+    assert db.query(ContentQuizQuestion).filter(ContentQuizQuestion.module_key == key).count() == len(
+        MODULES[key]["quiz"]["questions"])
 
 
-def test_seed_populates_all_modules_once():
-    with TestClient(app):
-        db = SessionLocal()
-        try:
-            count = db.query(ContentModule).count()
-            assert count == len(MODULES)
-            vlan = db.query(ContentModule).filter(ContentModule.key == "vlan").first()
-            assert vlan is not None
-            assert vlan.title_de == "VLANs"
-            blocks = db.query(ContentBlock).filter(ContentBlock.module_key == "vlan").count()
-            assert blocks > 0
-            questions = db.query(ContentQuizQuestion).filter(ContentQuizQuestion.module_key == "vlan").count()
-            assert questions == len(MODULES["vlan"]["quiz"]["questions"])
-        finally:
-            db.close()
+def test_seed_populates_all_modules_once(own_db):
+    db = own_db
+    assert db.query(ContentModule).count() == len(MODULES)
+    vlan = db.query(ContentModule).filter(ContentModule.key == "vlan").first()
+    assert vlan is not None
+    assert vlan.title_de == "VLANs"
+    assert db.query(ContentBlock).filter(ContentBlock.module_key == "vlan").count() > 0
+    questions = db.query(ContentQuizQuestion).filter(ContentQuizQuestion.module_key == "vlan").count()
+    assert questions == len(MODULES["vlan"]["quiz"]["questions"])
 
 
-def test_seed_is_idempotent():
-    with TestClient(app):
-        db = SessionLocal()
-        try:
-            before = db.query(ContentModule).count()
-            seed_missing_content(db)
-            after = db.query(ContentModule).count()
-            assert before == after
-        finally:
-            db.close()
+def test_seed_is_idempotent(own_db):
+    before = own_db.query(ContentModule).count()
+    seed_missing_content(own_db)
+    assert own_db.query(ContentModule).count() == before == len(MODULES)
 
 
 def test_learning_lab_migration_runs_once_and_uses_anchor_position():

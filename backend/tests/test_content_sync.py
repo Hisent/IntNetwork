@@ -179,6 +179,27 @@ def test_trainer_edited_module_is_left_alone_and_reported_once(db, monkeypatch):
     assert _state(db) == sync.source_state(newer)
 
 
+def test_trainer_save_between_check_and_apply_is_not_overwritten(db, monkeypatch):
+    """Rolling-Deploy: Während der neue Container startet (Prüfung "unediert"
+    ist schon gelaufen), speichert ein Trainer über den alten Container. Der
+    Sync muss den Stand frisch lesen und das Modul auslassen."""
+    seed_missing_content(db)
+    _ship_new_source(monkeypatch)
+    pristine = sync.pristine_modules(db)
+    assert KEY in pristine
+
+    with Session(db.get_bind(), autoflush=False) as other:
+        _trainer_edit(other, text="Währenddessen gespeichert")
+
+    result = sync.sync_content(db, pristine)
+    db.commit()
+
+    assert result["skipped"] == {KEY: "vom Trainer geändert"} and KEY not in result["updated"]
+    assert next(b for b in _blocks(db) if b.type == "text").value_de == "Währenddessen gespeichert"
+    # ab dem nächsten Start ein gewöhnliches Trainer-Modul
+    assert seed_missing_content(db)["skipped"] == {KEY: "vom Trainer geändert"}
+
+
 def test_bootstrap_without_stored_hash(db, monkeypatch):
     """Bestands-DB ohne gespeicherte Hashes: nie gespeicherte Module (kein
     Snapshot) und Module mit Baseline-Stand werden nachgezogen, ein editiertes nicht."""
@@ -304,6 +325,43 @@ def test_structural_change_updates_in_place_and_keeps_participant_data(db, monke
     assert _questions(db)[0].explanation_en == "Yes, new." and _questions(db)[1].explanation_de == "Weil es so ist."
     assert all("explanation" not in q and "answer" not in q for q in public_module(db, KEY)["quiz"]["questions"])
 
+    assert seed_missing_content(db) == {"updated": [], "skipped": {}, "failed": []}
+
+
+def test_changed_answer_key_replaces_question_row_and_text_fixes_keep_it(db, monkeypatch):
+    """Alte Abgaben speichern Options-Indizes. Ändert sich unter gleicher Kennung
+    der Lösungsschlüssel (Lösung, Typ, Reihenfolge der Optionen), darf die Abgabe
+    nicht gegen den neuen Schlüssel gezählt werden: neue Zeile. Reine
+    Textkorrekturen (Prompt, Erklärung, Wortlaut einer Option) und eine am Ende
+    angefügte Option behalten die Zeile."""
+    seed_missing_content(db)
+    _participant_data(db, KEY, "ansible", "SYNC04", [])
+    old = {q.uid: q.id for q in _questions(db)}
+    new = copy.deepcopy(MODULES[KEY])
+    q = {x["id"]: x for x in new["quiz"]["questions"]}
+    q["pb1"]["prompt"] = {"de": q["pb1"]["prompt"]["de"] + " (präzisiert)", "en": q["pb1"]["prompt"]["en"] + " (x)"}
+    q["pb1"]["explanation"] = {"de": "Darum.", "en": "That is why."}
+    for lang in ("de", "en"):
+        q["pb1"]["options"][lang][3] += " (Tippfehler behoben)"   # Wortlaut einer Option
+        q["pb2"]["options"][lang].reverse()                        # umsortiert, answer-Index gleich
+        q["pb4"]["options"][lang].insert(0, "neue erste Option")   # eingefügt: alle Indizes verschoben
+        q["pb5"]["options"][lang].append("weitere Option")         # am Ende angefügt: Indizes davor gleich
+    q["pb3"]["answer"] = 0                                         # andere Lösung
+    q["pb6"].update(type="single", answer=0, options={"de": ["a", "b"], "en": ["a", "b"]})  # anderer Typ
+    monkeypatch.setitem(MODULES, KEY, new)
+
+    assert seed_missing_content(db)["updated"] == [KEY]
+
+    now = {x.uid: x.id for x in _questions(db)}
+    assert list(now) == list(old)  # Kennungen und Reihenfolge wie in der Quelle
+    replaced = {"pb2", "pb3", "pb4", "pb6"}
+    assert {uid for uid in old if now[uid] != old[uid]} == replaced
+    assert not set(old.values()) & {now[uid] for uid in replaced}
+    stats = {s["id"]: s for s in grading.question_stats(
+        {"questions": [{"id": str(x.id), "type": x.qtype, "answer": x.answer} for x in _questions(db)]},
+        [db.query(QuizResult).one().answers])}
+    for uid, qid in now.items():
+        assert stats[str(qid)]["attempts"] == stats[str(qid)]["correct"] == (0 if uid in replaced else 1), uid
     assert seed_missing_content(db) == {"updated": [], "skipped": {}, "failed": []}
 
 

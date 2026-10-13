@@ -15,7 +15,13 @@ CHANGELOG = [
              "Von Trainern bearbeitete Module erhalten die Neuerungen erst über „Auslieferungszustand "
              "laden“. Hinweise für den Betrieb: Teilnehmer ohne Wiederaufnahme-Code brauchen einmalig "
              "„Code zurücksetzen“ im Kursdetail; beim Löschen eines Kurses lässt sich jetzt wählen, ob "
-             "die Teilnahmebestätigungen mitgelöscht werden."},
+             "die Teilnahmebestätigungen mitgelöscht werden. Nachträglich ergänzt: Der Modul-Editor "
+             "zeigt das Ergebnis des Speicherns in einer festen Statusleiste (mit Sprung zum "
+             "fehlerhaften Block) und schützt ungespeicherte Änderungen; eine laufende Abstimmung "
+             "lässt sich im Kursdetail mit „Abstimmung beenden“ schließen; die Modulreihenfolge ist "
+             "eine empfohlene Reihenfolge, keine Sperre; die englische Fassung aller Module wurde "
+             "lektoriert. Nach dem Update bitte offene Editor-Tabs neu laden, sonst wird das "
+             "Speichern mit einer Hinweismeldung abgelehnt."},
     {"date": "2026-10-12", "title": "v1.42.0 — Inhalts- und Technik-Audit aller Lehrgänge",
      "text": "Alle sechs Lehrgänge wurden fachlich gegen Primärquellen geprüft und korrigiert "
              "(u. a. Infoblox HA/MCLT/WAPI, Ansible-Fakten ab ansible-core 2.20, PKI-Laufzeiten "

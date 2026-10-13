@@ -5,6 +5,7 @@ bewerteten Ergebnis."""
 from fastapi.testclient import TestClient
 
 from app.main import app
+from tests.conftest import put_module
 
 KEY = "icmp"
 
@@ -51,7 +52,7 @@ def test_save_and_reseed_keep_question_rows_submissions_and_stats():
             {**editor["quiz"][0], "prompt_de": "Umformuliert?", "explanation_de": "Darum.", "explanation_en": "Hence."},
             *editor["quiz"][1:]],
             "blocks": [editor["blocks"][1], editor["blocks"][0], *editor["blocks"][2:]]}
-        assert c.put(url, json=edited, headers=h).status_code == 200
+        assert put_module(c, url, json=edited, headers=h).status_code == 200
         after_save = _question_ids(c, h)
         assert {uid: after_save[uid] for uid in ids} == ids and len(after_save) == len(ids) + 1
         saved = c.get(url, headers=h).json()
@@ -84,12 +85,12 @@ def test_explanation_only_after_grading_and_in_participant_language():
         first = editor["quiz"][0]
 
         half = {**editor, "quiz": [{**first, "explanation_de": "Nur deutsch", "explanation_en": None}, *editor["quiz"][1:]]}
-        assert c.put(url, json=half, headers=h).status_code == 422
+        assert put_module(c, url, json=half, headers=h).status_code == 422
 
         full = {**editor, "quiz": [{**first, "explanation_de": "Weil A.", "explanation_en": "Because A."},
                                    {**editor["quiz"][1], "explanation_de": "  ", "explanation_en": ""},
                                    *editor["quiz"][2:]]}
-        assert c.put(url, json=full, headers=h).status_code == 200
+        assert put_module(c, url, json=full, headers=h).status_code == 200
         stored = c.get(url, headers=h).json()["quiz"]
         assert (stored[0]["explanation_de"], stored[1]["explanation_de"], stored[1]["explanation_en"]) == ("Weil A.", None, None)
         trainer_view = c.get(f"/api/trainer/modules/{KEY}", headers=h).json()["quiz"]["questions"]

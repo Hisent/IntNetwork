@@ -20,6 +20,9 @@ from app.models import content as _content  # noqa: F401
 from app.models import workshop as _workshop  # noqa: F401
 from app.models import trainer as _trainer  # noqa: F401
 from app.models import certificate as _certificate  # noqa: F401
+from app.models import audit_log as _audit_log  # noqa: F401
+from app.models import trainer_credential as _trainer_credential  # noqa: F401
+from app.models import live_poll as _live_poll  # noqa: F401
 
 config = context.config
 config.set_main_option("sqlalchemy.url", settings.database_url)

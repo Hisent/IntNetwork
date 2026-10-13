@@ -7,6 +7,7 @@ from app.database import SessionLocal
 from app.main import app
 from app.models.content import ContentQuizQuestion
 from app.models.quiz_result import QuizResult
+from tests.conftest import put_module
 
 
 def _trainer(c):
@@ -93,6 +94,9 @@ def test_practice_is_limited_to_own_course_and_attempted_modules():
                       headers=p).status_code == 404
         for bad in ({"question_id": "abc", "answer": 0}, {"question_id": "1", "answer": "x" * 3000}):
             assert c.post("/api/practice/check", json=bad, headers=p).status_code in (404, 422)
+        # keine ASCII-Zahl bzw. größer als jeder DB-Integer: 404, kein 500
+        for qid in ("²", "٣", "9" * 20, "9" * 10, "-1", " 1"):
+            assert c.post("/api/practice/check", json={"question_id": qid, "answer": 0}, headers=p).status_code == 404, qid
         assert c.get("/api/practice").status_code in (401, 403)
         assert c.get("/api/practice", headers=h).status_code == 403  # Trainer-Token ist kein Teilnehmer
 
@@ -113,7 +117,7 @@ def _search_module(c, h, key, workshop, word):
             "quiz": [{"qtype": "single", "prompt_de": "Quizgeheimnis?", "prompt_en": "Quiz secret?",
                       "options_de": ["Optionsgeheimnis", "B"], "options_en": ["A", "B"], "answer": 0,
                       "explanation_de": "Erklaergeheimnis", "explanation_en": "Explanation secret"}]}
-    assert c.put(f"/api/trainer/content/modules/{key}", json=body, headers=h).status_code == 200
+    assert put_module(c, f"/api/trainer/content/modules/{key}", json=body, headers=h).status_code == 200
 
 
 def test_search_finds_text_in_active_modules_only_and_never_leaks_quiz_or_notes():
@@ -150,6 +154,29 @@ def test_search_finds_text_in_active_modules_only_and_never_leaks_quiz_or_notes(
         assert c.get("/api/search", params={"q": "x" * 81}, headers=p).status_code == 422
         assert c.get("/api/search", params={"q": "vlan"}).status_code in (401, 403)
         assert c.get("/api/search", params={"q": "vlan"}, headers=h).status_code == 403
+
+
+def test_search_finds_terms_with_markdown_characters():
+    """Der Text wird ohne Markdown-Zeichen durchsucht — der Suchbegriff muss
+    genauso normalisiert werden, und der Unterstrich in Bezeichnern bleibt."""
+    with TestClient(app) as c:
+        h = _trainer(c)
+        _search_module(c, h, "zeichenmod", "network",
+                       "`gather_facts`, `ansible_facts.os_family`, `--check` und 10.0.0.0/24, _betont_ a > b")
+        p, _cid = _join(c, h, "Zeichen")
+
+        def snippets(q):
+            r = c.get("/api/search", params={"q": q}, headers=p)
+            assert r.status_code == 200, (q, r.text)
+            return [x["snippet"] for x in r.json()["hits"] if x["module_key"] == "zeichenmod"]
+
+        for q in ("gather_facts", "ansible_facts.os_family", "--check", "/24", "`gather_facts`", "**Zauberwort**",
+                  "_betont_", "a > b"):
+            assert len(snippets(q)) == 1, q
+        assert "gather_facts, ansible_facts.os_family, --check und 10.0.0.0/24, betont a b" in snippets("os_family")[0]
+        assert snippets("gatherfacts") == []
+        assert c.get("/api/search", params={"q": "_*"}, headers=p).status_code == 422  # nach dem Normalisieren leer
+        assert c.get("/api/search", params={"q": "`a`"}, headers=p).status_code == 422
 
 
 def test_module_list_carries_estimated_minutes():

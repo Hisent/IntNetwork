@@ -1,13 +1,14 @@
 import json
 
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel, field_validator
 from sqlalchemy import func
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.database import get_db
-from app.models.content import ContentBlock, ContentQuizQuestion
+from app.models.content import ContentBlock, ContentModule, ContentQuizQuestion
 from app.models.participant import Participant
 from app.models.progress import Progress
 from app.models.quiz_result import QuizResult
@@ -39,6 +40,20 @@ def estimated_minutes(db: Session, keys: set[str]) -> dict[str, int]:
     return {key: max(5, round(minutes / 5) * 5) for key, minutes in raw.items()}
 
 
+def _unavailable(db: Session, p: Participant, key: str) -> JSONResponse | None:
+    """404, wenn das Modul dem Teilnehmer nicht offensteht — mit maschinenlesbarem
+    Grund im Feld `code` NEBEN `detail` (das bleibt Text, wie überall):
+    module_not_enabled = gibt es, ist in seinem Kurs aber abgewählt;
+    module_unknown = gibt es nicht. Das Frontend zeigt je Code eine passende Meldung."""
+    if key in active_module_keys(db, p.course_id):
+        return None
+    if db.get(ContentModule, key):
+        content = {"detail": "Modul ist in diesem Kurs nicht freigeschaltet", "code": "module_not_enabled"}
+    else:
+        content = {"detail": "Modul nicht gefunden", "code": "module_unknown"}
+    return JSONResponse(status_code=404, content=content)
+
+
 @router.get("")
 def list_modules(db: Session = Depends(get_db), p: Participant = Depends(get_participant)):
     active = active_module_keys(db, p.course_id)
@@ -48,8 +63,8 @@ def list_modules(db: Session = Depends(get_db), p: Participant = Depends(get_par
 
 @router.get("/{key}")
 def get_module(key: str, db: Session = Depends(get_db), p: Participant = Depends(get_participant)):
-    if key not in active_module_keys(db, p.course_id):
-        raise HTTPException(status_code=404, detail="Modul nicht gefunden")
+    if denied := _unavailable(db, p, key):
+        return denied
     pub = public_module(db, key, p.language)
     if not pub:
         raise HTTPException(status_code=404, detail="Modul nicht gefunden")
@@ -75,8 +90,8 @@ class QuizSubmit(BaseModel):
 @router.post("/{key}/quiz", dependencies=[Depends(rate_limit(60, 60))])
 def submit_quiz(key: str, data: QuizSubmit, db: Session = Depends(get_db),
                 p: Participant = Depends(get_participant)):
-    if key not in active_module_keys(db, p.course_id):
-        raise HTTPException(status_code=404, detail="Modul nicht gefunden")
+    if denied := _unavailable(db, p, key):
+        return denied
     module = trainer_module(db, key, p.language)
     if not module:
         raise HTTPException(status_code=404, detail="Modul nicht gefunden")
@@ -129,8 +144,8 @@ def heartbeat(key: str, db: Session = Depends(get_db), p: Participant = Depends(
     # reines UPDATE auf einer bestehenden Zeile, kein Schreib-Missbrauchsrisiko wie
     # bei Kommentaren/Quiz. Hinter NAT wäre ein Limit hier zuerst die eigene
     # Klassenraum-Gruppe treffen, nicht Angreifer.
-    if key not in active_module_keys(db, p.course_id):
-        raise HTTPException(status_code=404, detail="Modul nicht gefunden")
+    if denied := _unavailable(db, p, key):
+        return denied
     p.current_module_key = key
     p.last_seen = utc_now()
     db.commit()

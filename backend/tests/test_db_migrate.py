@@ -2,11 +2,18 @@
 bzw. ein belegter Advisory-Lock darf den Start nicht still blockieren, sondern
 muss nach begrenzter Zeit mit verwertbarer Meldung scheitern."""
 
+import re
+import subprocess
+import sys
+from pathlib import Path
+
 import pytest
 from alembic import command
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine, inspect, text
+from sqlalchemy.engine import make_url
 from sqlalchemy.exc import OperationalError
+from sqlalchemy.orm import Session
 
 from app import db_migrate
 from app.config import settings
@@ -134,3 +141,72 @@ def test_migration_schaltet_bestehende_logger_nicht_stumm():
 
     assert logging.getLogger("app.db_migrate").disabled is False
     assert logging.getLogger("app.services.audit").disabled is False
+
+
+@pytest.fixture
+def leere_db(tmp_path):
+    """URL einer leeren Wegwerf-DB auf demselben System wie die Suite: unter
+    Postgres eine eigene Datenbank (Downgrade/DDL darf die geteilte nicht
+    anfassen), sonst eine SQLite-Datei."""
+    if engine.dialect.name != "postgresql":
+        yield f"sqlite:///{tmp_path / 'leer.db'}"
+        return
+    name = "intlab_test_downgrade"
+    admin = create_engine(settings.database_url, isolation_level="AUTOCOMMIT")
+    with admin.connect() as conn:
+        conn.execute(text(f"DROP DATABASE IF EXISTS {name}"))
+        conn.execute(text(f"CREATE DATABASE {name}"))
+    yield make_url(settings.database_url).set(database=name).render_as_string(hide_password=False)
+    with admin.connect() as conn:
+        conn.execute(text(f"DROP DATABASE {name} WITH (FORCE)"))
+    admin.dispose()
+
+
+def test_downgrade_und_erneutes_upgrade_laesst_module_unediert(leere_db, monkeypatch):
+    """Der Downgrade von a6b7c8d9e0f1/b7c8d9e0f1a2 entfernt Spalten samt Inhalt
+    (Erklärungen, goals_en). Blieben die gespeicherten Sync-Hashes stehen, gälte
+    danach jedes Modul dauerhaft als "vom Trainer geändert" und bekäme nie
+    wieder ein Inhalts-Update."""
+    from app.content import sync
+    from app.content.registry import MODULES
+    from app.content.seed import seed_missing_content
+    from app.models.setting import Setting
+
+    monkeypatch.setattr(settings, "database_url", leere_db)
+    cfg = db_migrate._config()
+    eigene = create_engine(leere_db)
+
+    def start():
+        command.upgrade(cfg, "head")
+        with Session(eigene, autoflush=False) as db:
+            return seed_missing_content(db)
+
+    assert start()["skipped"] == {}
+    with Session(eigene) as db:
+        assert db.query(Setting).filter(Setting.key.startswith(sync.HASH_KEY)).count() == len(MODULES)
+
+    command.downgrade(cfg, "75aeb8d5399c")
+    assert "uid" not in {c["name"] for c in inspect(eigene).get_columns("content_block")}
+    command.upgrade(cfg, "head")
+
+    with Session(eigene, autoflush=False) as db:
+        assert set(sync.pristine_modules(db)) == set(MODULES)
+    ergebnis = start()
+    eigene.dispose()
+    assert ergebnis["skipped"] == {} and ergebnis["failed"] == []
+    assert "arp" in ergebnis["updated"]  # Erklärungen/goals_en sind wieder da
+
+
+def test_env_py_importiert_alle_modelle():
+    """`alembic revision --autogenerate` vergleicht die DB mit Base.metadata, wie
+    migrations/env.py es lädt (bewusst ohne app.main). Fehlt dort ein Modell,
+    schlägt autogenerate DROP TABLE für dessen Tabelle vor."""
+    backend = Path(__file__).resolve().parents[1]
+    imports = re.findall(r"^from app\.models import \w+", (backend / "migrations" / "env.py").read_text(), re.M)
+    out = subprocess.run(
+        [sys.executable, "-c", "\n".join([*imports, "from app.database import Base",
+                                          "print(*sorted(Base.metadata.tables))"])],
+        cwd=backend, check=True, capture_output=True, text=True).stdout.split()
+    with TestClient(app):
+        pass
+    assert set(out) == set(inspect(engine).get_table_names()) - {"alembic_version"}

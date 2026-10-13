@@ -58,6 +58,13 @@ class BlockIn(BaseModel):
     note: str | None = None
     payload: dict | None = None
 
+    @field_validator("value_de", "value_en", "widget_id", "note")
+    @classmethod
+    def _leer_ist_keine(cls, v: str | None) -> str | None:
+        # Der Editor schickt für ein geleertes Feld "": ohne das wiche der Hash
+        # vom Auslieferungsstand (None) ab und das Modul gälte als editiert.
+        return v if v and v.strip() else None
+
 
 class QuestionIn(BaseModel):
     uid: str | None = Field(None, max_length=64)  # wie BlockIn.uid
@@ -228,6 +235,16 @@ def _apply(db: Session, key: str, m: ContentModule, data: ModuleIn,
     apply_state(db, key, m, blocks, questions, data.model_dump())
 
 
+def _locked_module(db: Session, key: str) -> ContentModule | None:
+    """Die Modulzeile, unter Postgres mit Zeilensperre bis zum Commit (FOR NO KEY
+    UPDATE; SQLite ignoriert das): Speichern, Auslieferungszustand laden,
+    Wiederherstellen und der Content-Sync laufen je Modul nacheinander. Ein
+    zweites gleichzeitiges PUT wartet hier, liest danach den Stand des ersten
+    und scheitert an base_version (409) statt Kennungen zu doppeln."""
+    return (db.query(ContentModule).filter(ContentModule.key == key)
+            .with_for_update(key_share=True).populate_existing().first())
+
+
 def _upsert_snapshot(db: Session, key: str, data: dict) -> None:
     snap = db.query(ContentModuleSnapshot).filter(ContentModuleSnapshot.module_key == key).first()
     if snap:
@@ -247,9 +264,7 @@ def _version(state: dict) -> str:
     des Editors (GET liefert ihn als `version`, PUT prüft `base_version`).
     Bewusst ein Hash über den Inhalt statt einer updated_at-Spalte: braucht
     keine Migration und erkennt auch Reseed, Restore und Content-Sync.
-    ponytail: Prüfen und Speichern sind nicht atomar — zwei PUTs im selben
-    Augenblick kommen beide durch. Für echte Gleichzeitigkeit: Versionsspalte
-    plus `UPDATE ... WHERE version = :alt`."""
+    Atomar wird Prüfen + Speichern durch die Zeilensperre in _locked_module."""
     return hashlib.sha256(json.dumps(state, sort_keys=True, default=str).encode()).hexdigest()[:16]
 
 
@@ -294,17 +309,24 @@ def create_module(data: ModuleCreateIn, db: Session = Depends(get_db), trainer: 
 @router.put("/{key}")
 def update_module(key: str, data: ModuleIn, base_version: str | None = None,
                   db: Session = Depends(get_db), trainer: dict = Depends(get_trainer)):
-    m = db.query(ContentModule).filter(ContentModule.key == key).first()
+    m = _locked_module(db, key)
     if not m:
         raise HTTPException(status_code=404, detail="Modul nicht gefunden")
+    # base_version ist Pflicht: ein Editor-Tab von vor dem Update kennt neuere
+    # Felder (Erklärungen, goals_en) nicht und würde sie mit seinem PUT still
+    # löschen. Bewusst 409 mit Klartext statt des 422 eines Pflicht-Parameters.
+    if base_version is None:
+        raise HTTPException(
+            status_code=409,
+            detail="Dieser Editor-Tab stammt von vor einem Update der Plattform. Nichts wurde "
+                   "gespeichert. Bitte eigene Änderungen sichern, die Seite neu laden und erneut einpflegen.")
     _validate(db, key, data)
     blocks, questions = _load_blocks_and_quiz(db, key)
     current = _serialize_module(m, blocks, questions)
     # Optimistische Sperre: Der Editor schickt die Version mit, auf der seine
     # Änderungen beruhen. Hat inzwischen jemand anderes gespeichert, würde
-    # dieses PUT dessen Stand komplett überschreiben. Ohne base_version (ältere
-    # Clients, Skripte) bleibt es beim bisherigen Verhalten.
-    if base_version is not None and base_version != _version(current):
+    # dieses PUT dessen Stand komplett überschreiben.
+    if base_version != _version(current):
         raise HTTPException(
             status_code=409,
             detail="Dieses Modul wurde inzwischen an anderer Stelle geändert (anderer Trainer, "
@@ -329,7 +351,7 @@ def reseed_module(key: str, db: Session = Depends(get_db), trainer: dict = Depen
     zurück — z.B. um Content-Updates auf eine Bestandsinstallation zu holen.
     Der bisherige Stand landet im Snapshot, Restore macht es rückgängig."""
     seed = MODULES.get(key)
-    m = db.query(ContentModule).filter(ContentModule.key == key).first()
+    m = _locked_module(db, key)
     if not seed or not m:
         raise HTTPException(status_code=404,
                             detail="Kein Auslieferungszustand vorhanden (nur für mitgelieferte Module)")
@@ -345,7 +367,7 @@ def reseed_module(key: str, db: Session = Depends(get_db), trainer: dict = Depen
 
 @router.post("/{key}/restore")
 def restore_module(key: str, db: Session = Depends(get_db), trainer: dict = Depends(get_trainer)):
-    m = db.query(ContentModule).filter(ContentModule.key == key).first()
+    m = _locked_module(db, key)
     if not m:
         raise HTTPException(status_code=404, detail="Modul nicht gefunden")
     snap = db.query(ContentModuleSnapshot).filter(ContentModuleSnapshot.module_key == key).first()

@@ -23,7 +23,7 @@ from app.services.audit import log_action
 from app.services.deps import get_trainer
 from app.services.ratelimit import rate_limit
 from app.services.security import create_token
-from app.utils import utc_now
+from app.utils import iso_utc, utc_now
 
 router = APIRouter(prefix="/trainer/passkey", tags=["trainer-passkey"])
 
@@ -51,8 +51,8 @@ def _serialize(c: TrainerCredential) -> dict:
     return {
         "id": c.id,
         "label": c.label,
-        "created_at": c.created_at.isoformat(),
-        "last_used_at": c.last_used_at.isoformat() if c.last_used_at else None,
+        "created_at": iso_utc(c.created_at),
+        "last_used_at": iso_utc(c.last_used_at) if c.last_used_at else None,
     }
 
 
@@ -124,7 +124,7 @@ def register_verify(
         raise HTTPException(status_code=422, detail="Dieser Passkey ist bereits registriert") from None
     db.refresh(cred)
     log_action(db, trainer, "passkey.register", target=f"trainer_credential:{cred.id}", detail=label)
-    return {"id": cred.id, "label": cred.label, "created_at": cred.created_at.isoformat()}
+    return {"id": cred.id, "label": cred.label, "created_at": iso_utc(cred.created_at)}
 
 
 @router.post(
