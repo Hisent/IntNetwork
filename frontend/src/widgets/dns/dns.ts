@@ -15,6 +15,10 @@ const ZONE: Record<string, string> = {
   'www.nordwind-logistik.de': '203.0.113.11',
   'mail.nordwind-logistik.de': '203.0.113.12',
 }
+// Aliase (CNAME): der autoritative Server liefert den Zielnamen samt dessen A-Record mit.
+const CNAME: Record<string, string> = {
+  'shop.nordwind-logistik.de': 'www.nordwind-logistik.de',
+}
 
 /** Iterative Auflösung aus Sicht des Resolvers: Root → TLD → autoritativ. */
 export function resolve(name: string): DnsResult {
@@ -44,11 +48,14 @@ export function resolve(name: string): DnsResult {
     server: tldServer,
     answer: { de: 'Verweis → autoritativer NS (ns1.nordwind)', en: 'Referral → authoritative NS (ns1.nordwind)' },
   })
-  const ip = ZONE[q] ?? null
+  const alias = CNAME[q]
+  const ip = ZONE[alias ?? q] ?? null
   steps.push({
     server: { de: 'Autoritativ (ns1.nordwind)', en: 'Authoritative (ns1.nordwind)' },
     answer: ip
-      ? { de: `A-Record: ${ip}`, en: `A record: ${ip}` }
+      ? alias
+        ? { de: `CNAME → ${alias}, A-Record: ${ip}`, en: `CNAME → ${alias}, A record: ${ip}` }
+        : { de: `A-Record: ${ip}`, en: `A record: ${ip}` }
       : { de: 'NXDOMAIN (Name existiert nicht)', en: 'NXDOMAIN (name does not exist)' },
   })
   return { steps, ip }

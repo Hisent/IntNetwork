@@ -21,6 +21,12 @@ ROLLEN_BERECHTIGUNGEN_MODULE = {
         'Das Prinzip der geringsten Rechte auf ein typisches DDI-Alltagsszenario '
         'anwenden können.',
     ],
+    "goals_en": [
+        "Explain the three permission levels Read/Write, Read-Only and Deny.",
+        "Describe the difference between permissions assigned directly to a group and role-based permission bundles.",
+        "Place the significance of object granularity and of the superuser role.",
+        "Apply the principle of least privilege to a typical day-to-day DDI scenario.",
+    ],
     'scenario': {
         'de': 'In einem Unternehmen sollen künftig drei Teams mit dem '
               'Infoblox-Grid arbeiten: der Netzwerk-Betrieb, das Security-Team und '
@@ -140,6 +146,119 @@ ROLLEN_BERECHTIGUNGEN_MODULE = {
             },
         },
         {
+            "type": "diagram",
+            "id": "diagram-rechtekette",
+            "payload": {
+                "kind": "flow",
+                "title_de": "Vom Konto zum Objekt: zwei Wege zur Berechtigung",
+                "title_en": "From account to object: two paths to a permission",
+                "nodes": [
+                    {
+                        "id": "konto",
+                        "shape": "user",
+                        "row": 0,
+                        "col": 0,
+                        "label_de": "Konto m.keller",
+                        "label_en": "Account m.keller",
+                        "detail_de": "Ein Konto trägt selbst keine Berechtigungen. Es erbt alles von seiner Admin-Gruppe.",
+                        "detail_en": "An account carries no permissions itself. It inherits everything from its admin group.",
+                    },
+                    {
+                        "id": "gruppe",
+                        "row": 0,
+                        "col": 1,
+                        "label_de": "Admin-Gruppe ServiceDesk",
+                        "label_en": "Admin group ServiceDesk",
+                        "detail_de": "Anlegen dürfen sie nur Superuser. Ohne Freigaben gilt für die Gruppe überall Deny.",
+                        "detail_en": "Only superusers may create it. Without grants, Deny applies to the group everywhere.",
+                    },
+                    {
+                        "id": "rolle",
+                        "row": 0,
+                        "col": 2,
+                        "label_de": "Rolle „Zonenpflege“",
+                        "label_en": "Role \"zone upkeep\"",
+                        "detail_de": "Ein wiederverwendbares Bündel. Dieselbe Rolle kann auch der Gruppe NetOps zugewiesen sein.",
+                        "detail_en": "A reusable bundle. The same role can also be assigned to the NetOps group.",
+                    },
+                    {
+                        "id": "zone",
+                        "shape": "database",
+                        "row": 1,
+                        "col": 2,
+                        "label_de": "Zone: Read/Write",
+                        "label_en": "Zone: Read/Write",
+                    },
+                    {
+                        "id": "direkt",
+                        "row": 1,
+                        "col": 1,
+                        "label_de": "Direkte Berechtigung",
+                        "label_en": "Direct permission",
+                        "detail_de": "Gilt nur für diese eine Gruppe und muss dort gepflegt werden.",
+                        "detail_en": "Applies to this one group only and has to be maintained there.",
+                    },
+                    {
+                        "id": "netz",
+                        "shape": "database",
+                        "row": 2,
+                        "col": 1,
+                        "label_de": "Netz: Read-Only",
+                        "label_en": "Network: Read-Only",
+                    },
+                    {
+                        "id": "rest",
+                        "shape": "database",
+                        "row": 2,
+                        "col": 2,
+                        "label_de": "Alles andere: Deny",
+                        "label_en": "Everything else: Deny",
+                    },
+                ],
+                "edges": [
+                    {
+                        "id": "k-g",
+                        "from": "konto",
+                        "to": "gruppe",
+                        "label_de": "gehört zu",
+                        "label_en": "belongs to",
+                    },
+                    {
+                        "id": "g-r",
+                        "from": "gruppe",
+                        "to": "rolle",
+                        "label_de": "hat Rolle",
+                        "label_en": "has role",
+                    },
+                    {"id": "r-z", "from": "rolle", "to": "zone"},
+                    {"id": "g-d", "from": "gruppe", "to": "direkt"},
+                    {"id": "d-n", "from": "direkt", "to": "netz"},
+                ],
+                "steps": [
+                    {
+                        "highlight": ["konto", "k-g", "gruppe"],
+                        "text_de": "Berechtigungen hängen an der Admin-Gruppe, nicht am einzelnen Konto.",
+                        "text_en": "Permissions are attached to the admin group, not to the individual account.",
+                    },
+                    {
+                        "highlight": ["gruppe", "g-r", "rolle", "r-z", "zone"],
+                        "text_de": "Weg 1: Die Gruppe bekommt eine Rolle. Die Rolle bringt Read/Write auf die Zone nordwind-intern.de mit.",
+                        "text_en": "Path 1: the group is given a role. The role brings Read/Write on the zone nordwind-intern.de.",
+                    },
+                    {
+                        "highlight": ["gruppe", "g-d", "direkt", "d-n", "netz"],
+                        "text_de": "Weg 2: Eine Berechtigung wird der Gruppe direkt zugewiesen — hier Read-Only auf ein einzelnes Netz.",
+                        "text_en": "Path 2: a permission is assigned to the group directly — here Read-Only on a single network.",
+                    },
+                    {
+                        "highlight": ["rest"],
+                        "text_de": "Für alles, was auf keinem der beiden Wege freigegeben wurde, gilt Deny: Die Gruppe sieht es nicht.",
+                        "text_en": "Everything not granted on either path is Deny: the group does not see it.",
+                    },
+                ],
+            },
+        },
+        {
             'type': 'check', 'id': 'check-1',
             'payload': {
                 'kind': 'choice',
@@ -237,6 +356,48 @@ ROLLEN_BERECHTIGUNGEN_MODULE = {
             },
         },
         {
+            "type": "match",
+            "id": "match-rechtebegriffe",
+            "payload": {
+                "prompt_de": "Ordne jedem Begriff seine Bedeutung im NIOS-Rechtemodell zu.",
+                "prompt_en": "Match each term to its meaning in the NIOS permission model.",
+                "pairs": [
+                    {
+                        "left": "Read/Write",
+                        "right_de": "Objekt darf angesehen und verändert werden",
+                        "right_en": "object may be viewed and modified",
+                    },
+                    {
+                        "left": "Read-Only",
+                        "right_de": "Objekt darf angesehen, aber nicht verändert werden",
+                        "right_en": "object may be viewed but not modified",
+                    },
+                    {
+                        "left": "Deny",
+                        "right_de": "Objekt ist für die Gruppe gar nicht sichtbar",
+                        "right_en": "object is not visible to the group at all",
+                    },
+                    {
+                        "left_de": "Admin-Gruppe",
+                        "left_en": "Admin group",
+                        "right_de": "Träger der Berechtigungen für ihre Konten",
+                        "right_en": "holder of the permissions for its accounts",
+                    },
+                    {
+                        "left_de": "Rolle",
+                        "left_en": "Role",
+                        "right_de": "Berechtigungsbündel für mehrere Gruppen",
+                        "right_en": "permission bundle for several groups",
+                    },
+                    {
+                        "left": "Superuser",
+                        "right_de": "Darf Gruppen anlegen und Berechtigungen festlegen",
+                        "right_en": "may create groups and define permissions",
+                    },
+                ],
+            },
+        },
+        {
             'type': 'debug', 'id': 'debug-1',
             'payload': {
                 'prompt_de': 'Vier Aussagen zu Berechtigungen in NIOS — welche ist '
@@ -274,6 +435,91 @@ ROLLEN_BERECHTIGUNGEN_MODULE = {
                                   'zone, a specific network, or a specific RPZ. '
                                   'The statement that permissions are only ever '
                                   'Grid-wide is false.',
+            },
+        },
+        {
+            "type": "scenario",
+            "id": "scenario-servicedesk-rechte",
+            "payload": {
+                "title_de": "Der Service Desk braucht „mal eben“ mehr Rechte",
+                "title_en": "The service desk needs more rights \"real quick\"",
+                "start": "start",
+                "nodes": [
+                    {
+                        "id": "start",
+                        "text_de": "Der Service Desk (Tier 1) soll ab Montag feste Adressen für Drucker im Netz 10.20.30.0/24 selbst eintragen. Bisher hat die Gruppe nur Read-Only auf dieses Netz. Der Teamleiter bittet: „Gebt uns einfach Superuser, dann müssen wir nie wieder fragen.“",
+                        "text_en": "From Monday the service desk (tier 1) is to enter fixed addresses for printers in the network 10.20.30.0/24 themselves. So far the group only has Read-Only on that network. The team lead asks: \"Just make us superusers, then we never have to ask again.\"",
+                        "options": [
+                            {
+                                "label_de": "Der Gruppe Superuser-Rechte geben — das spart allen Zeit.",
+                                "label_en": "Make the group superusers — that saves everyone time.",
+                                "to": "super",
+                            },
+                            {
+                                "label_de": "Den beiden zuständigen Personen einzeln Rechte am Konto eintragen.",
+                                "label_en": "Enter rights on the accounts of the two people in charge.",
+                                "to": "konto",
+                            },
+                            {
+                                "label_de": "Erst klären, was genau die Gruppe tun muss — und auf welchen Objekten.",
+                                "label_en": "First clarify what exactly the group has to do — and on which objects.",
+                                "to": "analyse",
+                            },
+                        ],
+                    },
+                    {
+                        "id": "super",
+                        "outcome": "bad",
+                        "text_de": "Jetzt kann jeder im Service Desk Zonen löschen, RPZs abschalten und sich selbst weitere Rechte geben. Für das Eintragen von Druckeradressen ist das ein Vielfaches des Nötigen.",
+                        "text_en": "Now everyone on the service desk can delete zones, switch off RPZs and grant themselves further rights. For entering printer addresses that is many times more than needed.",
+                    },
+                    {
+                        "id": "konto",
+                        "outcome": "bad",
+                        "text_de": "Berechtigungen hängen in NIOS an Admin-Gruppen, nicht an einzelnen Konten. Und selbst wenn es ginge: Bei jedem Personalwechsel müsste jemand daran denken.",
+                        "text_en": "In NIOS, permissions are attached to admin groups, not to individual accounts. And even if it worked: someone would have to remember it at every staff change.",
+                    },
+                    {
+                        "id": "analyse",
+                        "text_de": "Ergebnis: Tier 1 muss feste Adressen anlegen und ändern, aber nur in den Druckernetzen von fünf Standorten. Dieselbe Aufgabe übernimmt bald auch der Service Desk der Tochterfirma (eigene Admin-Gruppe). Wie setzt du es um?",
+                        "text_en": "Result: tier 1 has to create and change fixed addresses, but only in the printer networks of five sites. The subsidiary's service desk (its own admin group) will soon take on the same task. How do you implement it?",
+                        "options": [
+                            {
+                                "label_de": "Read/Write auf alle Netzwerke des Grids — dann passt es auch künftig.",
+                                "label_en": "Read/Write on all networks of the Grid — then it also fits in future.",
+                                "to": "alle",
+                            },
+                            {
+                                "label_de": "Eine Rolle „Druckeradressen“ mit Read/Write auf die fünf Netze, zugewiesen an die Gruppe.",
+                                "label_en": "A role \"printer addresses\" with Read/Write on the five networks, assigned to the group.",
+                                "to": "rolle",
+                            },
+                            {
+                                "label_de": "Die fünf Berechtigungen direkt an der Gruppe Tier 1 eintragen.",
+                                "label_en": "Enter the five permissions directly on the tier 1 group.",
+                                "to": "direkt",
+                            },
+                        ],
+                    },
+                    {
+                        "id": "alle",
+                        "outcome": "bad",
+                        "text_de": "Zu breit: Tier 1 könnte damit auch Server- und Managementnetze verändern. „Passt auch künftig“ ist kein Argument für Rechte, die heute niemand braucht.",
+                        "text_en": "Too broad: tier 1 could then also change server and management networks. \"Fits in future\" is no argument for rights nobody needs today.",
+                    },
+                    {
+                        "id": "direkt",
+                        "outcome": "ok",
+                        "text_de": "Fachlich korrekt und eng genug. Aber sobald die Tochterfirma dazukommt, pflegst du dieselben fünf Berechtigungen an zwei Stellen — genau dafür gibt es Rollen.",
+                        "text_en": "Technically correct and narrow enough. But once the subsidiary joins, you maintain the same five permissions in two places — that is exactly what roles are for.",
+                    },
+                    {
+                        "id": "rolle",
+                        "outcome": "good",
+                        "text_de": "Genau so: eng zugeschnitten und wiederverwendbar. Die zweite Gruppe bekommt später dieselbe Rolle, und ein sechstes Druckernetz trägst du nur einmal nach. Im Audit-Log prüfst du stichprobenartig, ob die Rechte wie gedacht genutzt werden.",
+                        "text_en": "Exactly: narrowly scoped and reusable. The second group later gets the same role, and a sixth printer network is added only once. In the audit log you spot-check whether the rights are used as intended.",
+                    },
+                ],
             },
         },
         {
@@ -318,6 +564,10 @@ ROLLEN_BERECHTIGUNGEN_MODULE = {
         'questions': [
             {
                 'id': 'rb1',
+                "explanation": {
+                    "de": "Ohne ausdrückliche Freigabe gilt Deny — die Gruppe sieht das Objekt nicht einmal. Read-Only als Standard wäre bequemer, würde aber jeder Gruppe Einblick in alles geben, was niemand ausdrücklich gesperrt hat.",
+                    "en": "Without an explicit grant, Deny applies — the group does not even see the object. Read-Only as a default would be more convenient but would give every group visibility into everything nobody explicitly locked down.",
+                },
                 'type': 'single',
                 'prompt': {
                     'de': 'Was ist die Standard-Berechtigungsstufe in NIOS, '
@@ -333,6 +583,10 @@ ROLLEN_BERECHTIGUNGEN_MODULE = {
             },
             {
                 'id': 'rb2',
+                "explanation": {
+                    "de": "Admin-Gruppen anlegen und Berechtigungen definieren dürfen nur Superuser. Read/Write auf eine Zone erlaubt, die Zone zu ändern — nicht, die Rechte anderer daran festzulegen. Sonst könnte sich jede Gruppe selbst erweitern.",
+                    "en": "Only superusers may create admin groups and define permissions. Read/Write on a zone allows changing the zone — not deciding who else gets rights on it. Otherwise any group could extend its own access.",
+                },
                 'type': 'single',
                 'prompt': {
                     'de': 'Wer darf neue Admin-Gruppen anlegen und Berechtigungen '
@@ -359,6 +613,10 @@ ROLLEN_BERECHTIGUNGEN_MODULE = {
             },
             {
                 'id': 'rb3',
+                "explanation": {
+                    "de": "Eine Rolle ist ein benanntes Berechtigungsbündel, das mehreren Gruppen zugewiesen wird: einmal ändern, überall wirksam. Sie ersetzt die Gruppen nicht — Konten hängen weiterhin an Gruppen, Rollen hängen an Gruppen.",
+                    "en": "A role is a named bundle of permissions assigned to several groups: change it once, effective everywhere. It does not replace groups — accounts still belong to groups, and roles are attached to groups.",
+                },
                 'type': 'single',
                 'prompt': {
                     'de': 'Warum sind Rollen gegenüber rein direkt vergebenen '
@@ -387,6 +645,10 @@ ROLLEN_BERECHTIGUNGEN_MODULE = {
             },
             {
                 'id': 'rb4',
+                "explanation": {
+                    "de": "Berechtigungen lassen sich bis auf einzelne Member, Zonen, Netzwerke oder RPZs herunterbrechen. Genau das widerlegt die vierte Aussage: Grid-weite Geltung ist möglich, aber kein Automatismus.",
+                    "en": "Permissions can be narrowed down to individual members, zones, networks or RPZs. That is exactly what refutes the fourth statement: Grid-wide scope is possible, but not automatic.",
+                },
                 'type': 'multi',
                 'prompt': {
                     'de': 'Welche Aussagen zur Objekt-Granularität von '
@@ -418,6 +680,10 @@ ROLLEN_BERECHTIGUNGEN_MODULE = {
             },
             {
                 'id': 'rb5',
+                "explanation": {
+                    "de": "Jedes Superuser-Konto kann alles ändern — auch versehentlich, und auch ein gekapertes. Eine technische Obergrenze für Superuser gibt es als Grund nicht; das Risiko ist die Reichweite eines Fehlers, nicht eine Zahl.",
+                    "en": "Every superuser account can change everything — by accident too, and so can a compromised one. A technical cap on superusers is not the reason; the risk is the blast radius of a mistake, not a number.",
+                },
                 'type': 'single',
                 'prompt': {
                     'de': 'Warum gilt „jede Person bekommt Superuser-Rechte” als '
@@ -445,6 +711,60 @@ ROLLEN_BERECHTIGUNGEN_MODULE = {
                         'It is not an operational risk, but recommended '
                         'practice.',
                     ],
+                },
+            },
+            {
+                "id": "rb6",
+                "type": "single",
+                "prompt": {
+                    "de": "Die Gruppe „DNS-Team-Nord“ hat Read/Write auf die Zone nord.nordwind.example. Für die Zone sued.nordwind.example wurde nichts konfiguriert. Was sieht ein Mitglied der Gruppe nach der Anmeldung?",
+                    "en": "The group \"DNS-Team-Nord\" has Read/Write on the zone nord.nordwind.example. Nothing was configured for the zone sued.nordwind.example. What does a member of the group see after logging in?",
+                },
+                "answer": 3,
+                "options": {
+                    "de": [
+                        "Beide Zonen: die eine änderbar, die andere nur lesbar",
+                        "Beide Zonen änderbar, da das Recht für den Objekttyp Zone erteilt wurde",
+                        "Beide Zonen, Änderungen an der zweiten müssen aber freigegeben werden",
+                        "Nur die Zone nord.nordwind.example",
+                    ],
+                    "en": [
+                        "Both zones: one editable, the other read-only",
+                        "Both zones editable, because the right was granted for the object type zone",
+                        "Both zones, but changes to the second one need approval",
+                        "Only the zone nord.nordwind.example",
+                    ],
+                },
+                "explanation": {
+                    "de": "Was nicht freigegeben ist, steht auf Deny — und Deny heißt unsichtbar, nicht „nur lesbar“. Das Recht wurde auf ein einzelnes Objekt erteilt, nicht auf den Objekttyp; die zweite Zone taucht für die Gruppe deshalb gar nicht auf.",
+                    "en": "Whatever is not granted is Deny — and Deny means invisible, not \"read-only\". The right was granted on a single object, not on the object type; the second zone therefore does not show up for the group at all.",
+                },
+            },
+            {
+                "id": "rb7",
+                "type": "multi",
+                "prompt": {
+                    "de": "Ein Skript soll per API regelmäßig neue Filialnetze anlegen. Welche Maßnahmen passen zum Prinzip der geringsten Rechte (mehrere richtig)?",
+                    "en": "A script is to create new branch networks via the API on a regular basis. Which measures fit the principle of least privilege (multiple)?",
+                },
+                "answer": [0, 2, 3],
+                "options": {
+                    "de": [
+                        "Ein eigenes Konto für das Skript in einer eigenen Admin-Gruppe",
+                        "Das Konto des dienstältesten Administrators mitbenutzen, weil dessen Rechte erprobt sind",
+                        "Read/Write nur auf den Netzwerk-Container, unter dem die Filialnetze entstehen",
+                        "Die Änderungen des Kontos regelmäßig im Audit-Log nachvollziehen",
+                    ],
+                    "en": [
+                        "A dedicated account for the script in its own admin group",
+                        "Share the account of the longest-serving administrator because its rights are proven",
+                        "Read/Write only on the network container under which the branch networks are created",
+                        "Regularly trace the account's changes in the audit log",
+                    ],
+                },
+                "explanation": {
+                    "de": "Eigenes Konto, enge Rechte, nachvollziehbare Änderungen. Ein geteiltes Admin-Konto bringt dem Skript alle Rechte dieser Person — und im Audit-Log lässt sich nicht mehr unterscheiden, wer eine Änderung gemacht hat: der Mensch oder das Skript.",
+                    "en": "Dedicated account, narrow rights, traceable changes. A shared admin account hands the script all of that person's rights — and the audit log can no longer tell who made a change: the human or the script.",
                 },
             },
         ],

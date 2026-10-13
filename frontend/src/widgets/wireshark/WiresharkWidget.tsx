@@ -12,7 +12,7 @@ const STR = {
     invalid: 'Ungültiger Filter',
     noMatch: 'Kein Paket passt auf diesen Filter.',
     detailHint: 'Klicke ein Paket in der Liste an, um seine Schichten zu sehen.',
-    secretFound: 'Genau das ist das Problem: Bei HTTP wandern Zugangsdaten im Klartext durchs Netz — jeder auf dem Weg kann sie mitlesen. Vergleiche mit Paket 14: Bei TLS/HTTPS ist nur noch verschlüsselter Datensalat zu sehen.',
+    secretFound: 'Genau das ist das Problem: Bei HTTP wandern Zugangsdaten im Klartext durchs Netz — jeder auf dem Weg kann sie mitlesen. Vergleiche mit Paket 18 (TLS, Application Data): Bei TLS/HTTPS ist nur noch verschlüsselter Datensalat zu sehen.',
     challenge: 'Jemand hat sich per HTTP eingeloggt. Finde die abgefangenen Zugangsdaten im Mitschnitt (Tipp: Filter „http“, dann der POST).',
   },
   en: {
@@ -23,7 +23,7 @@ const STR = {
     invalid: 'Invalid filter',
     noMatch: 'No packet matches this filter.',
     detailHint: 'Click a packet in the list to inspect its layers.',
-    secretFound: 'This is exactly the problem: with HTTP, credentials travel through the network in cleartext — anyone on the path can read them. Compare with packet 14: with TLS/HTTPS all you see is encrypted gibberish.',
+    secretFound: 'This is exactly the problem: with HTTP, credentials travel through the network in cleartext — anyone on the path can read them. Compare with packet 18 (TLS, Application Data): with TLS/HTTPS all you see is encrypted gibberish.',
     challenge: 'Someone logged in via HTTP. Find the intercepted credentials in the capture (hint: filter “http”, then the POST).',
   },
 } as const

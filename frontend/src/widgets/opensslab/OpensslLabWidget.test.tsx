@@ -7,7 +7,10 @@
 // Muster wie AnsibleLabWidget.test.tsx, kein echter Server.
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { cleanup, fireEvent, render, screen } from '@testing-library/react'
+import { MemoryRouter, Route, Routes } from 'react-router-dom'
+import { WidgetScopeContext } from '@/lib/widgetScope'
 import { OpensslLab } from './OpensslLabWidget'
+import { MODULE_TEMPLATES, OPENSSL_TEMPLATES } from './templates'
 
 vi.mock('@/lib/api', () => ({
   api: { get: vi.fn(), post: vi.fn() },
@@ -25,7 +28,18 @@ function runResult() {
 afterEach(() => {
   cleanup()
   vi.clearAllMocks()
+  localStorage.clear()
 })
+
+function renderInModule(moduleKey: string) {
+  return render(
+    <WidgetScopeContext.Provider value="7-3">
+      <MemoryRouter initialEntries={[`/lernen/${moduleKey}`]}>
+        <Routes><Route path="/lernen/:key" element={<OpensslLab lang="de" />} /></Routes>
+      </MemoryRouter>
+    </WidgetScopeContext.Provider>,
+  )
+}
 
 describe('OpensslLab', () => {
   it('zeigt den freundlichen Hinweis statt eines toten Knopfes, wenn das Lab (oder die Art) nicht aktiviert ist', async () => {
@@ -89,5 +103,49 @@ describe('OpensslLab', () => {
     const runButton = screen.getByRole('button', { name: 'Ausführen' }) as HTMLButtonElement
     expect(runButton.disabled).toBe(true)
     expect(api.post).not.toHaveBeenCalled()
+  })
+
+  it('wählt die zum Modul passende Vorlage vor', async () => {
+    vi.mocked(api.get).mockResolvedValue({ data: { enabled: true, kinds: ['openssl'] } })
+
+    renderInModule('post-quantum-kryptografie')
+    await screen.findByRole('button', { name: 'Ausführen' })
+
+    expect(screen.getByDisplayValue('genpkey -algorithm ML-KEM-768 -out mlkem.key')).toBeTruthy()
+    expect(screen.queryByDisplayValue('genrsa -out server.key 2048')).toBeNull()
+  })
+
+  it('behält den gespeicherten Stand nur, wenn seine Vorlage zum Modul gehört', async () => {
+    vi.mocked(api.get).mockResolvedValue({ data: { enabled: true, kinds: ['openssl'] } })
+    const stored = (templateId: string) => localStorage.setItem('intnetwork-opensslab-7-3',
+      JSON.stringify({ templateId, files: [], commands: ['version -a'] }))
+
+    // Stand aus einem anderen Modul (Widerruf) -> im Signatur-Modul startet dessen erste Vorlage
+    stored('widerruf-pruefen')
+    renderInModule('digitale-signaturen')
+    await screen.findByRole('button', { name: 'Ausführen' })
+    expect(screen.getByDisplayValue('dgst -sha256 -hmac nordwind-geheim lieferschein.txt')).toBeTruthy()
+    expect(screen.queryByDisplayValue('version -a')).toBeNull()
+    cleanup()
+
+    // eigene Änderungen an der zweiten Vorlage desselben Moduls bleiben erhalten
+    stored('signieren-pruefen')
+    renderInModule('digitale-signaturen')
+    await screen.findByRole('button', { name: 'Ausführen' })
+    expect(screen.getByDisplayValue('version -a')).toBeTruthy()
+    cleanup()
+
+    // Modul ohne eigene Zuordnung: der gespeicherte Stand gilt weiter
+    renderInModule('tls-pruefen')
+    await screen.findByRole('button', { name: 'Ausführen' })
+    expect(screen.getByDisplayValue('version -a')).toBeTruthy()
+  })
+
+  it('verweist je Modul nur auf vorhandene Vorlagen', () => {
+    const ids = new Set(OPENSSL_TEMPLATES.map((t) => t.id))
+    for (const [moduleKey, templates] of Object.entries(MODULE_TEMPLATES)) {
+      expect(templates.length, moduleKey).toBeGreaterThan(0)
+      for (const id of templates) expect(ids.has(id), `${moduleKey}: ${id}`).toBe(true)
+    }
   })
 })

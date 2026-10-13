@@ -9,6 +9,11 @@ DNS_MODULE = {
         "Die Hierarchie Root → TLD → autoritativ nachvollziehen",
         "Caching/TTL und Record-Typen (A/AAAA/CNAME/MX) kennen",
     ],
+    "goals_en": [
+        "See DNS as the resolution of names to IP addresses",
+        "Follow the hierarchy root → TLD → authoritative",
+        "Know caching/TTL and the record types (A/AAAA/CNAME/MX)",
+    ],
     "scenario": {
         "de": "Niemand bei Nordwind tippt `203.0.113.11` in den Browser — alle "
               "sagen `www.nordwind-logistik.de`. Aber Pakete brauchen eine IP. "
@@ -75,18 +80,51 @@ DNS_MODULE = {
          "value": {
              "de": "## Wichtige Record-Typen\n\n- **A** — Name → IPv4.\n"
                    "- **AAAA** — Name → IPv6.\n"
-                   "- **CNAME** — Alias auf einen anderen Namen.\n"
-                   "- **MX** — Mailserver der Domain.\n\n"
+                   "- **CNAME** — Alias auf einen anderen Namen; der Resolver folgt ihm und liefert "
+                   "die Adresse des Zielnamens gleich mit.\n"
+                   "- **MX** — Mailserver der Domain: ein Hostname plus Präferenz (kleinere Zahl = "
+                   "bevorzugt).\n\n"
                    "Existiert der angefragte Name gar nicht, antwortet der autoritative Server mit "
                    "**NXDOMAIN**. Gibt es den Namen zwar, aber keinen Eintrag des gefragten Typs, "
                    "kommt eine leere Antwort ohne Fehler zurück (NODATA).",
              "en": "## Important Record Types\n\n- **A** — name → IPv4.\n"
                    "- **AAAA** — name → IPv6.\n"
-                   "- **CNAME** — alias to another name.\n"
-                   "- **MX** — the domain's mail server.\n\n"
+                   "- **CNAME** — alias to another name; the resolver follows it and returns the "
+                   "target name's address along with it.\n"
+                   "- **MX** — the domain's mail server: a host name plus a preference (lower number = "
+                   "preferred).\n\n"
                    "If the queried name does not exist at all, the authoritative server answers "
                    "**NXDOMAIN**. If the name exists but has no record of the requested type, "
                    "an empty answer without an error comes back (NODATA).",
+         }},
+        {"type": "diagram", "id": "diagram-nxdomain-nodata",
+         "note": "NODATA ist kein eigener Statuscode, sondern die Kombination NOERROR + leere Antwort. "
+                 "Typischer Fall: AAAA-Abfrage für einen Namen, der nur einen A-Record hat.",
+         "payload": {
+             "kind": "compare",
+             "title_de": "Drei Antworten auf eine DNS-Abfrage", "title_en": "Three answers to a DNS query",
+             "columns": [
+                 {"title_de": "Antwort mit Daten", "title_en": "Answer with data"},
+                 {"title": "NODATA"},
+                 {"title": "NXDOMAIN"},
+             ],
+             "rows": [
+                 {"label_de": "Bedeutung", "label_en": "Meaning",
+                  "values_de": ["Name und Record-Typ existieren", "Name existiert, dieser Typ nicht",
+                                "Name existiert gar nicht"],
+                  "values_en": ["name and record type exist", "name exists, this type does not",
+                                "name does not exist at all"]},
+                 {"label_de": "Status im Header", "label_en": "Status in the header",
+                  "values": ["NOERROR", "NOERROR", "NXDOMAIN"]},
+                 {"label_de": "Antwort-Abschnitt", "label_en": "Answer section",
+                  "values_de": ["enthält Records", "leer", "leer"],
+                  "values_en": ["contains records", "empty", "empty"]},
+                 {"label_de": "Beispiel", "label_en": "Example",
+                  "values": ["www … A", "www … AAAA", "ftp … A"]},
+                 {"label_de": "Folgerung", "label_en": "Conclusion",
+                  "values_de": ["alles in Ordnung", "anderen Typ abfragen", "Tippfehler oder Eintrag fehlt"],
+                  "values_en": ["all fine", "query a different type", "typo or missing record"]},
+             ],
          }},
         {"type": "text", "id": "text-5",
          "value": {
@@ -120,6 +158,64 @@ DNS_MODULE = {
             "options_en": ["A", "PTR", "CNAME", "MX"],
             "answer": 1,
         }},
+        {"type": "terminal", "id": "terminal-dig",
+         "note": "dig-Ausgabe stark gekürzt: nur Statuszeile, Zähler und Antwort-Abschnitt; die "
+                 "Flags-Zeile endet im Original mit AUTHORITY/ADDITIONAL-Zählern. Zone wie im "
+                 "DNS-Widget (www, mail, Alias shop).",
+         "payload": {
+             "title_de": "Die Nordwind-Zone mit dig abfragen", "title_en": "Querying the Nordwind zone with dig",
+             "intro_de": "dig <Name> <Typ> fragt den Resolver; +short zeigt nur die Antwort. ? listet die Befehle.",
+             "intro_en": "dig <name> <type> asks the resolver; +short prints only the answer. ? lists the commands.",
+             "prompt": "user@pc:~$",
+             "unknown": "{cmd}: command not found",
+             "commands": [
+                 {"cmd": "dig www.nordwind-logistik.de A", "aliases": ["dig www.nordwind-logistik.de"],
+                  "desc_de": "IPv4-Adresse von www", "desc_en": "IPv4 address of www",
+                  "output": ";; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 4711\n"
+                            ";; flags: qr rd ra; QUERY: 1, ANSWER: 1\n\n"
+                            ";; ANSWER SECTION:\n"
+                            "www.nordwind-logistik.de. 3600 IN A 203.0.113.11"},
+                 {"cmd": "dig www.nordwind-logistik.de AAAA",
+                  "desc_de": "IPv6-Adresse von www", "desc_en": "IPv6 address of www",
+                  "output": ";; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 20441\n"
+                            ";; flags: qr rd ra; QUERY: 1, ANSWER: 0"},
+                 {"cmd": "dig ftp.nordwind-logistik.de A", "aliases": ["dig ftp.nordwind-logistik.de"],
+                  "desc_de": "IPv4-Adresse von ftp", "desc_en": "IPv4 address of ftp",
+                  "output": ";; ->>HEADER<<- opcode: QUERY, status: NXDOMAIN, id: 31337\n"
+                            ";; flags: qr rd ra; QUERY: 1, ANSWER: 0"},
+                 {"cmd": "dig +short shop.nordwind-logistik.de",
+                  "aliases": ["dig shop.nordwind-logistik.de +short", "dig +short shop.nordwind-logistik.de A",
+                              "dig shop.nordwind-logistik.de A +short"],
+                  "desc_de": "shop auflösen (Kurzform)", "desc_en": "resolve shop (short form)",
+                  "output": "www.nordwind-logistik.de.\n203.0.113.11"},
+                 {"cmd": "dig +short nordwind-logistik.de MX", "aliases": ["dig nordwind-logistik.de MX +short"],
+                  "desc_de": "Mailserver der Domain", "desc_en": "the domain's mail server",
+                  "output": "10 mail.nordwind-logistik.de."},
+                 {"cmd": "dig +short -x 203.0.113.11", "aliases": ["dig -x 203.0.113.11 +short"],
+                  "desc_de": "Rückwärtsauflösung (PTR)", "desc_en": "reverse lookup (PTR)",
+                  "output": "www.nordwind-logistik.de."},
+             ],
+             "tasks": [
+                 {"text_de": "Frage die IPv6-Adresse (AAAA) von www.nordwind-logistik.de ab.",
+                  "text_en": "Query the IPv6 address (AAAA) of www.nordwind-logistik.de.",
+                  "command": "dig www.nordwind-logistik.de AAAA"},
+                 {"text_de": "Die Antwort ist leer (ANSWER: 0). Welcher Status steht im Header?",
+                  "text_en": "The answer is empty (ANSWER: 0). Which status is in the header?",
+                  "answers": ["NOERROR"]},
+                 {"text_de": "Frage die Adresse von ftp.nordwind-logistik.de ab.",
+                  "text_en": "Query the address of ftp.nordwind-logistik.de.",
+                  "command": "dig ftp.nordwind-logistik.de A"},
+                 {"text_de": "Welcher Status steht diesmal im Header?",
+                  "text_en": "Which status is in the header this time?",
+                  "answers": ["NXDOMAIN"]},
+                 {"text_de": "Löse shop.nordwind-logistik.de auf. Auf welchen Namen zeigt der Alias?",
+                  "text_en": "Resolve shop.nordwind-logistik.de. Which name does the alias point to?",
+                  "answers": ["www.nordwind-logistik.de", "www.nordwind-logistik.de.", "www"]},
+                 {"text_de": "Welcher Host nimmt Mail für nordwind-logistik.de an?",
+                  "text_en": "Which host accepts mail for nordwind-logistik.de?",
+                  "answers": ["mail.nordwind-logistik.de", "mail.nordwind-logistik.de.", "mail"]},
+             ],
+         }},
     ],
     "quiz": {"questions": [
         {"id": "d1", "type": "single",
@@ -128,7 +224,12 @@ DNS_MODULE = {
              "de": ["IP → MAC", "Name → IP-Adresse", "Port → Dienst", "VLAN → Port"],
              "en": ["IP → MAC", "Name → IP address", "Port → service", "VLAN → port"],
          },
-         "answer": 1},
+         "answer": 1,
+         "explanation": {
+             "de": "DNS übersetzt Namen in IP-Adressen (und mit PTR auch zurück). IP → MAC ist ARP, eine "
+                   "Schicht tiefer — DNS liefert nie eine MAC-Adresse.",
+             "en": "DNS translates names into IP addresses (and, with PTR, back again). IP → MAC is ARP, one "
+                   "layer further down — DNS never returns a MAC address."}},
         {"id": "d2", "type": "single",
          "prompt": {"de": "Welche Server stehen an der Spitze der DNS-Hierarchie?",
                     "en": "Which servers sit at the top of the DNS hierarchy?"},
@@ -136,12 +237,24 @@ DNS_MODULE = {
              "de": ["Autoritative Server", "TLD-Server", "Root-Server", "Resolver"],
              "en": ["Authoritative servers", "TLD servers", "Root servers", "Resolvers"],
          },
-         "answer": 2},
+         "answer": 2,
+         "explanation": {
+             "de": "Die Root-Server stehen an der Spitze und verweisen auf die TLD-Server, diese auf die "
+                   "autoritativen Server der Domain. Der Resolver gehört gar nicht zur Hierarchie: Er ist "
+                   "derjenige, der sie im Auftrag des Clients abfragt.",
+             "en": "The root servers sit at the top and refer to the TLD servers, which refer to the "
+                   "domain's authoritative servers. The resolver is not part of the hierarchy at all: it is "
+                   "the one querying it on behalf of the client."}},
         {"id": "d3", "type": "single",
          "prompt": {"de": "Welcher Record-Typ liefert eine IPv4-Adresse?",
                     "en": "Which record type returns an IPv4 address?"},
          "options": {"de": ["MX", "A", "CNAME", "AAAA"], "en": ["MX", "A", "CNAME", "AAAA"]},
-         "answer": 1},
+         "answer": 1,
+         "explanation": {
+             "de": "A liefert eine IPv4-Adresse, AAAA eine IPv6-Adresse (viermal so lang, daher vier A). "
+                   "CNAME und MX liefern Namen, keine Adressen.",
+             "en": "A returns an IPv4 address, AAAA an IPv6 address (four times as long, hence four As). "
+                   "CNAME and MX return names, not addresses."}},
         {"id": "d4", "type": "single",
          "prompt": {"de": "Warum cachen Resolver Antworten (für die TTL)?",
                     "en": "Why do resolvers cache answers (for the TTL)?"},
@@ -151,7 +264,15 @@ DNS_MODULE = {
              "en": ["For security", "So they don't have to walk the tree every time",
                     "Because of NAT", "To separate VLANs"],
          },
-         "answer": 1},
+         "answer": 1,
+         "explanation": {
+             "de": "Caching erspart den Weg über Root, TLD und autoritativen Server und macht Antworten "
+                   "schnell. Die TTL begrenzt, wie lange ein Eintrag als gültig gilt. Ein "
+                   "Sicherheitsmechanismus ist das nicht — ein Cache kann im Gegenteil veraltete Daten "
+                   "ausliefern.",
+             "en": "Caching saves the trip via root, TLD and authoritative server and makes answers fast. "
+                   "The TTL limits how long an entry counts as valid. It is not a security mechanism — on "
+                   "the contrary, a cache can serve stale data."}},
         {"id": "d5", "type": "single",
          "prompt": {"de": "Was macht ein PTR-Record?",
                     "en": "What does a PTR record do?"},
@@ -161,6 +282,88 @@ DNS_MODULE = {
              "en": ["Name → IPv4 address", "IP address → name (reverse DNS)",
                     "Alias to another name", "Points to the mail server"],
          },
-         "answer": 1},
+         "answer": 1,
+         "explanation": {
+             "de": "PTR ist die Umkehrung von A: zur IP den Namen, abgelegt unter in-addr.arpa. Er wird "
+                   "getrennt vom A-Record gepflegt — dass ein Name auf eine IP zeigt, heißt nicht, dass die "
+                   "IP auch auf den Namen zurückzeigt.",
+             "en": "PTR is the reverse of A: the name for an IP, stored under in-addr.arpa. It is maintained "
+                   "separately from the A record — a name pointing to an IP does not mean the IP points back "
+                   "to the name."}},
+        {"id": "d6", "type": "single",
+         "prompt": {"de": "shop.nordwind-logistik.de ist ein CNAME auf www.nordwind-logistik.de. Ein Client "
+                          "fragt nach dem A-Record von shop. Was bekommt er?",
+                    "en": "shop.nordwind-logistik.de is a CNAME for www.nordwind-logistik.de. A client asks "
+                          "for the A record of shop. What does it get?"},
+         "options": {
+             "de": ["Den CNAME und dazu die IP-Adresse von www",
+                    "NXDOMAIN, weil shop keinen A-Record hat",
+                    "Eine leere Antwort (NODATA)",
+                    "Nur den Namen www — die IP muss er selbst von Hand nachfragen"],
+             "en": ["The CNAME plus the IP address of www",
+                    "NXDOMAIN, because shop has no A record",
+                    "An empty answer (NODATA)",
+                    "Only the name www — the user has to look up the IP by hand"],
+         },
+         "answer": 0,
+         "explanation": {
+             "de": "Ein CNAME sagt: „Für diesen Namen gilt alles, was beim Zielnamen steht.“ Der Resolver "
+                   "folgt dem Alias und liefert CNAME und A-Record von www zusammen. NXDOMAIN wäre "
+                   "falsch — den Namen shop gibt es ja. Ändert sich die IP von www, zieht shop "
+                   "automatisch mit.",
+             "en": "A CNAME says: “everything listed for the target name applies to this name.” The "
+                   "resolver follows the alias and returns the CNAME and the A record of www together. "
+                   "NXDOMAIN would be wrong — the name shop does exist. If the IP of www changes, shop "
+                   "follows automatically."}},
+        {"id": "d7", "type": "single",
+         "prompt": {"de": "`dig www.nordwind-logistik.de AAAA` liefert `status: NOERROR` und `ANSWER: 0`. "
+                          "Was bedeutet das?",
+                    "en": "`dig www.nordwind-logistik.de AAAA` returns `status: NOERROR` and `ANSWER: 0`. "
+                          "What does that mean?"},
+         "options": {
+             "de": ["Den Namen gibt es, aber er hat keinen AAAA-Record (NODATA)",
+                    "Den Namen gibt es nicht (NXDOMAIN)",
+                    "Der DNS-Server ist nicht erreichbar",
+                    "Die Antwort steckt noch im Cache fest"],
+             "en": ["The name exists but has no AAAA record (NODATA)",
+                    "The name does not exist (NXDOMAIN)",
+                    "The DNS server is unreachable",
+                    "The answer is still stuck in the cache"],
+         },
+         "answer": 0,
+         "explanation": {
+             "de": "NOERROR mit leerer Antwort heißt NODATA: Der Name existiert, nur nicht mit diesem "
+                   "Record-Typ — hier gibt es einen A-, aber keinen AAAA-Record. Bei einem unbekannten "
+                   "Namen stünde NXDOMAIN im Status; wäre der Server nicht erreichbar, käme gar keine "
+                   "Antwort mit Status zurück.",
+             "en": "NOERROR with an empty answer means NODATA: the name exists, just not with this "
+                   "record type — here there is an A record but no AAAA record. For an unknown name the "
+                   "status would be NXDOMAIN; if the server were unreachable, no answer with a status "
+                   "would come back at all."}},
+        {"id": "d8", "type": "multi",
+         "prompt": {"de": "Mails an @nordwind-logistik.de kommen nicht an, die Website läuft. Du prüfst die "
+                          "MX-Records. Welche Aussagen über MX stimmen? (mehrere)",
+                    "en": "Mail to @nordwind-logistik.de does not arrive, the website is up. You check the "
+                          "MX records. Which statements about MX are true? (multiple)"},
+         "options": {
+             "de": ["Ein MX-Record nennt einen Hostnamen, keine IP-Adresse",
+                    "Bei mehreren MX-Records wird der mit der kleinsten Zahl bevorzugt",
+                    "Der MX-Record muss auf denselben Server zeigen wie der A-Record von www",
+                    "Ohne MX-Record ist auch die Website nicht erreichbar"],
+             "en": ["An MX record names a host name, not an IP address",
+                    "With several MX records, the one with the lowest number is preferred",
+                    "The MX record has to point to the same server as the A record of www",
+                    "Without an MX record the website is unreachable as well"],
+         },
+         "answer": [0, 1],
+         "explanation": {
+             "de": "MX verweist auf einen Namen (hier mail.nordwind-logistik.de), dessen A-Record dann die "
+                   "IP liefert; die Zahl davor ist die Präferenz, kleiner gewinnt. Web und Mail sind im "
+                   "DNS unabhängig: www und der Mailserver dürfen auf ganz verschiedenen Maschinen "
+                   "liegen — deshalb kann die Website laufen, während Mail ausfällt.",
+             "en": "MX points to a name (here mail.nordwind-logistik.de), whose A record then provides "
+                   "the IP; the number in front is the preference, lower wins. Web and mail are "
+                   "independent in DNS: www and the mail server may live on entirely different machines "
+                   "— which is why the website can be up while mail is down."}},
     ]},
 }

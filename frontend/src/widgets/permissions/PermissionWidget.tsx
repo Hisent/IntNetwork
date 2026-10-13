@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { evaluate, type Rule, type ToolCall, type Effect } from '@/widgets/permissions/permissions'
+import { explain, type Rule, type ToolCall, type Effect } from '@/widgets/permissions/permissions'
 import { ChallengeBox } from '@/components/ChallengeBox'
 import type { Lang } from '@/lib/i18n'
 
@@ -16,6 +16,8 @@ const CALLS: ToolCall[] = [
   { tool: 'Bash', arg: 'git push origin main' },
   { tool: 'Read', arg: './.env' },
   { tool: 'Bash', arg: 'npm install' },
+  { tool: 'Bash', arg: 'ls -la' },
+  { tool: 'Read', arg: 'README.md' },
 ]
 
 const STR = {
@@ -23,11 +25,23 @@ const STR = {
     title: 'Permission-Simulator', rules: 'Regeln', calls: 'Beispiel-Aufruf klicken',
     result: 'Ergebnis', pick: 'Klick einen Aufruf.',
     challenge: 'Finde einen Aufruf, der von einer deny-Regel blockiert wird.',
+    reason: {
+      rule: 'Eine Regel trifft: deny vor ask vor allow.',
+      readonly: 'Keine Regel trifft. Lesen im Arbeitsverzeichnis und eingebaute Read-only-Befehle (ls, cat, grep …) laufen ohne Rückfrage.',
+      default: 'Keine Regel trifft. Im Manual-Modus fragt Claude Code vor Shell-Befehlen und Dateiänderungen nach; andere Modi ändern diesen Standard.',
+    },
+    simplified: 'Vereinfacht: Manual-Modus, ohne Sandbox, Hooks und Managed Settings.',
   },
   en: {
     title: 'Permission Simulator', rules: 'Rules', calls: 'Click an example call',
     result: 'Result', pick: 'Click a call.',
     challenge: 'Find a call that a deny rule blocks.',
+    reason: {
+      rule: 'A rule matches: deny before ask before allow.',
+      readonly: 'No rule matches. Reads in the working directory and built-in read-only commands (ls, cat, grep …) run without a prompt.',
+      default: 'No rule matches. In Manual mode Claude Code asks before shell commands and file edits; other modes change this default.',
+    },
+    simplified: 'Simplified: Manual mode, without sandbox, hooks and managed settings.',
   },
 } as const
 
@@ -38,7 +52,8 @@ const EFFECT_STYLE: Record<Effect, string> = {
 export function PermissionSim({ lang }: { lang: Lang }) {
   const s = STR[lang]
   const [picked, setPicked] = useState<ToolCall | null>(null)
-  const decision: Effect | null = picked ? evaluate(RULES, picked) : null
+  const result = picked ? explain(RULES, picked) : null
+  const decision: Effect | null = result?.effect ?? null
 
   return (
     <div className="rounded-2xl border bg-white p-5">
@@ -69,7 +84,9 @@ export function PermissionSim({ lang }: { lang: Lang }) {
         ) : (
           <span className="text-slate-400">{s.pick}</span>
         )}
+        {result && <p className="mt-1 text-xs text-slate-500">{s.reason[result.reason]}</p>}
       </div>
+      <p className="mt-1 text-[11px] text-slate-400">{s.simplified}</p>
 
       <ChallengeBox lang={lang} task={s.challenge} done={decision === 'deny'} />
     </div>

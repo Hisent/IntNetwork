@@ -19,20 +19,28 @@ PKI_ARCHITEKTUR_MODULE = {
         'Cross-Signing und seinen praktischen Zweck bei einem Root-Wechsel einordnen können',
         'Öffentliche CA und interne Unternehmens-CA voneinander abgrenzen können',
     ],
+    'goals_en': [
+        'Distinguish the roles of root CA, intermediate/issuing CA, and end-entity certificate in the chain of trust',
+        'Justify why the root CA is kept offline and only issues intermediates',
+        'Name the steps of chain validation in the correct order',
+        'Explain why operating system, browser, and Java/Python each bring their own trust stores',
+        'Put cross-signing and its practical purpose during a root transition into context',
+        'Tell a public CA apart from an internal enterprise CA',
+    ],
     'scenario': {
         'de': 'Die IT-Abteilung von Nordwind Logistik baut eine interne PKI für '
               'Maschinen- und Dienstzertifikate im Lager auf. Bevor die erste '
               'Zertifikatskette produktiv geht, klärst du mit dem Team, warum eine Kette '
               'überhaupt aus mehreren Stufen besteht - und warum ausgerechnet die oberste '
               'Stufe, die Root, so gut wie nie online ist. Gleichzeitig taucht ein bekanntes '
-              'Problem auf: Im Browser zeigt eine interne Testseite ein grünes Schloss, aber '
+              'Problem auf: Im Browser öffnet sich eine interne Testseite ohne Warnung, aber '
               'die Java-Anwendung des Lagerverwaltungssystems meldet einen Vertrauensfehler.',
         'en': 'Nordwind Logistik\'s IT department is building an internal PKI for machine '
               'and service certificates in the warehouse. Before the first certificate '
               'chain goes live, you clarify with the team why a chain even consists of '
               'multiple stages - and why the topmost stage, the root, is almost never '
               'online. At the same time, a familiar problem shows up: in the browser, an '
-              'internal test page shows a green padlock, but the warehouse management '
+              'internal test page opens without a warning, but the warehouse management '
               'system\'s Java application reports a trust error.',
     },
     'blocks': [
@@ -134,114 +142,250 @@ PKI_ARCHITEKTUR_MODULE = {
                  'Kettenpruefung im naechsten Block abstrakt wird.'},
         {'type': 'order', 'id': 'order-1',
          'payload': {
-             'prompt_de': 'Bringe die Schritte einer Zertifikatskettenprüfung (Chain '
-                          'Validation) durch einen Client in die richtige Reihenfolge.',
-             'prompt_en': 'Put the steps of a certificate chain validation performed by a '
-                          'client in the correct order.',
+             'prompt_de': ('Bringe die Schritte einer Zertifikatskettenprüfung (Chain Validation) durch einen Client in '
+                 'die richtige Reihenfolge.'),
+             'prompt_en': 'Put the steps of a certificate chain validation performed by a client in the correct order.',
              'items_de': [
-                 'Server liefert beim Handshake das Endzertifikat und die '
-                 'Intermediate-Zertifikate aus',
-                 'Client baut die Kette auf: Jedes Zertifikat wird mit dem öffentlichen '
-                 'Schlüssel des nächsthöheren geprüft (Signaturkette)',
-                 'Client sucht das oberste Zertifikat der Kette (die Root) im eigenen Trust '
-                 'Store',
-                 'Gültigkeitszeiträume aller Zertifikate in der Kette werden geprüft',
-                 'Sperrstatus wird geprüft, sofern konfiguriert (CRL/OCSP)',
-                 'Hostname der Anfrage wird gegen die SAN-Liste des Endzertifikats geprüft',
-             ],
+                    'Client nennt im ClientHello den gewünschten Hostnamen (SNI)',
+                    'Server antwortet mit dem passenden Endzertifikat und den Intermediate-Zertifikaten',
+                    'Client baut aus dem Gelieferten einen Pfad bis zu einer Root, die in seinem Trust Store liegt',
+                    ('Client prüft den gefundenen Pfad Glied für Glied: Signatur, Gültigkeitszeitraum, '
+                     'CA-Berechtigung und — sofern konfiguriert — Sperrstatus'),
+                    ('Ist der Pfad gültig, gleicht der Client den angefragten Hostnamen mit der SAN-Liste des '
+                     'Endzertifikats ab'),
+                    ('Erst jetzt vertraut der Client dem öffentlichen Schlüssel des Servers und schließt den '
+                     'Handshake ab'),
+                ],
              'items_en': [
-                 'Server delivers the end-entity certificate and the intermediate '
-                 'certificates during the handshake',
-                 'Client builds the chain: each certificate is verified against the public '
-                 'key of the one above it (signature chain)',
-                 'Client looks up the topmost certificate of the chain (the root) in its '
-                 'own trust store',
-                 'Validity periods of all certificates in the chain are checked',
-                 'Revocation status is checked, if configured (CRL/OCSP)',
-                 'The requested hostname is checked against the end-entity certificate\'s '
-                 'SAN list',
-             ],
-         }},
+                    'Client names the desired hostname in the ClientHello (SNI)',
+                    'Server replies with the matching end-entity certificate and the intermediate certificates',
+                    'Client builds a path from what was delivered up to a root that is in its trust store',
+                    ('Client checks the path it found link by link: signature, validity period, CA permission, '
+                     'and — if configured — revocation status'),
+                    ('If the path is valid, the client compares the requested hostname with the end-entity '
+                     "certificate's SAN list"),
+                    "Only now does the client trust the server's public key and complete the handshake",
+                ],
+            },
+        },
+        {'type': 'diagram', 'id': 'diagram-pfadvalidierung',
+         'note': ('Ergaenzt die Sortieraufgabe: Schritte einzeln durchklicken. Die Reihenfolge "erst Pfad bauen, '
+             'dann Glied fuer Glied pruefen, zuletzt Hostname" folgt RFC 5280 Abschnitt 6.1 (der '
+             'Hostnamen-Abgleich liegt ausserhalb der Pfadvalidierung, RFC 9525).'),
+         'payload': {
+             'kind': 'flow',
+             'title_de': 'Pfadvalidierung: wie der Client die Kette prüft',
+             'title_en': 'Path validation: how the client checks the chain',
+             'nodes': [
+                    {
+                     'id': 'leaf',
+                     'shape': 'server',
+                     'row': 0,
+                     'col': 0,
+                     'label_de': 'Endzertifikat',
+                     'label_en': 'End-entity certificate',
+                    },
+                    {'id': 'int', 'shape': 'process', 'row': 0, 'col': 1, 'label': 'Issuing CA'},
+                    {'id': 'root', 'shape': 'process', 'row': 0, 'col': 2, 'label': 'Root CA'},
+                    {'id': 'client', 'shape': 'host', 'row': 1, 'col': 0, 'label': 'Client'},
+                    {'id': 'store', 'shape': 'database', 'row': 1, 'col': 2, 'label': 'Trust Store'},
+                ],
+             'edges': [
+                    {'id': 'e1', 'from': 'leaf', 'to': 'int', 'label_de': 'signiert von', 'label_en': 'signed by'},
+                    {'id': 'e2', 'from': 'int', 'to': 'root', 'label_de': 'signiert von', 'label_en': 'signed by'},
+                    {
+                     'id': 'e3',
+                     'from': 'root',
+                     'to': 'store',
+                     'label_de': 'liegt in',
+                     'label_en': 'is in',
+                     'style': 'dashed',
+                    },
+                    {'id': 'e4', 'from': 'client', 'to': 'leaf', 'label_de': 'erhält', 'label_en': 'receives'},
+                ],
+             'steps': [
+                    {
+                     'highlight': ['client', 'e4', 'leaf', 'int'],
+                     'text_de': 'Der Server liefert Endzertifikat und Intermediate. Die Root schickt er nicht mit.',
+                     'text_en': ('The server delivers the end-entity certificate and the intermediate. It does not send '
+                         'the root.'),
+                    },
+                    {
+                     'highlight': ['leaf', 'e1', 'int', 'e2', 'root', 'e3', 'store'],
+                     'text_de': ('Pfadaufbau: Der Client sucht zu jedem Zertifikat den Aussteller (Issuer = Subject des '
+                         'nächsten), bis er bei einer Root aus seinem Trust Store ankommt.'),
+                     'text_en': ('Path building: for each certificate the client looks for the issuer (issuer = subject '
+                         'of the next one) until it reaches a root from its trust store.'),
+                    },
+                    {
+                     'highlight': ['root', 'e2', 'int'],
+                     'text_de': ('Mit dem Schlüssel der Root prüft er die Signatur auf dem Intermediate — und dass es '
+                         'eine CA ist (CA:TRUE, keyCertSign) und zeitlich gültig.'),
+                     'text_en': ("Using the root's key it verifies the signature on the intermediate — and that it is a "
+                         'CA (CA:TRUE, keyCertSign) and within its validity period.'),
+                    },
+                    {
+                     'highlight': ['int', 'e1', 'leaf'],
+                     'text_de': ('Mit dem Schlüssel des Intermediate prüft er die Signatur auf dem Endzertifikat, '
+                         'dessen Gültigkeit und — sofern konfiguriert — den Sperrstatus.'),
+                     'text_en': ("Using the intermediate's key it verifies the signature on the end-entity certificate, "
+                         'its validity, and — if configured — its revocation status.'),
+                    },
+                    {
+                     'highlight': ['leaf', 'client'],
+                     'text_de': ('Zuletzt: Steht der angefragte Hostname im SAN des Endzertifikats, und passt der '
+                         'Verwendungszweck (serverAuth)? Erst dann gilt der Server als authentifiziert.'),
+                     'text_en': ("Finally: is the requested hostname in the end-entity certificate's SAN, and does the "
+                         'purpose (serverAuth) fit? Only then is the server considered authenticated.'),
+                    },
+                ],
+            },
+        },
         {'type': 'check', 'id': 'check-1',
          'payload': {
              'kind': 'choice',
-             'prompt_de': 'Im Browser zeigt eine interne Testseite ein grünes Schloss, die '
-                          'Java-Anwendung des Lagerverwaltungssystems meldet aber einen '
-                          'Vertrauensfehler für dieselbe Verbindung. Was ist die '
-                          'wahrscheinlichste Ursache?',
-             'prompt_en': 'In the browser, an internal test page shows a green padlock, but '
-                          'the warehouse management system\'s Java application reports a '
-                          'trust error for the same connection. What is the most likely '
-                          'cause?',
+             'prompt_de': ('Im Browser öffnet sich eine interne Testseite ohne Warnung, die Java-Anwendung des '
+                 'Lagerverwaltungssystems meldet aber einen Vertrauensfehler für dieselbe Verbindung. Was ist '
+                 'die wahrscheinlichste Ursache?'),
+             'prompt_en': ('In the browser, an internal test page opens without a warning, but the warehouse management '
+                 "system's Java application reports a trust error for the same connection. What is the most "
+                 'likely cause?'),
              'answer': 1,
              'options_de': [
-                 'Java unterstützt grundsätzlich kein TLS',
-                 'Die interne Root-CA ist im Trust Store des Betriebssystems/Browsers '
-                 'hinterlegt, aber nicht im separaten Java-Trust-Store (cacerts)',
-                 'Das Zertifikat ist abgelaufen',
-                 'Die Intermediate-CA wurde widerrufen',
-             ],
+                    'Java unterstützt grundsätzlich kein TLS',
+                    ('Die interne Root-CA ist im Trust Store des Betriebssystems/Browsers hinterlegt, aber '
+                     'nicht im separaten Java-Trust-Store (cacerts)'),
+                    'Das Zertifikat ist abgelaufen',
+                    'Die Intermediate-CA wurde widerrufen',
+                ],
              'options_en': [
-                 'Java fundamentally does not support TLS',
-                 'The internal root CA is present in the OS/browser trust store, but not in '
-                 'the separate Java trust store (cacerts)',
-                 'The certificate has expired',
-                 'The intermediate CA was revoked',
-             ],
-         }},
+                    'Java fundamentally does not support TLS',
+                    ('The internal root CA is present in the OS/browser trust store, but not in the separate '
+                     'Java trust store (cacerts)'),
+                    'The certificate has expired',
+                    'The intermediate CA was revoked',
+                ],
+            },
+        },
+        {'type': 'terminal', 'id': 'terminal-verify-kette',
+         'note': ('Echte Ausgaben von openssl verify (OpenSSL 3.6) gegen die Kurs-Test-PKI; die langen '
+             'Subject-Zeilen sind umbrochen. Dieselbe Uebung laeuft real im Openssl-Lab mit der Vorlage '
+             '"Mini-CA mit Intermediate + Kettenpruefung".'),
+         'payload': {
+             'title_de': 'Die Kette mit openssl verify prüfen',
+             'title_en': 'Checking the chain with openssl verify',
+             'prompt': 'nordwind$',
+             'intro_de': 'Dateien: root.pem (Root-CA), issuing.pem (Issuing-CA), www.pem (Serverzertifikat).',
+             'intro_en': 'Files: root.pem (root CA), issuing.pem (issuing CA), www.pem (server certificate).',
+             'unknown_de': 'Befehl nicht in dieser Übung: {cmd} (Tipp: help)',
+             'unknown_en': 'Command not part of this exercise: {cmd} (hint: help)',
+             'commands': [
+                    {
+                     'cmd': 'openssl verify -CAfile root.pem www.pem',
+                     'desc_de': 'nur gegen die Root prüfen',
+                     'desc_en': 'verify against the root only',
+                     'output': ('C=DE, O=Nordwind Logistik GmbH,\n  CN=www.nordwind-logistik.de\nerror 20 at 0 depth '
+                         'lookup: unable to get local\n  issuer certificate\nerror www.pem: verification failed'),
+                    },
+                    {
+                     'cmd': 'openssl verify -CAfile root.pem -untrusted issuing.pem www.pem',
+                     'desc_de': 'Intermediate als Zwischenglied mitgeben',
+                     'desc_en': 'pass the intermediate as a link',
+                     'output': 'www.pem: OK',
+                    },
+                    {
+                     'label': 'openssl verify -show_chain …',
+                     'cmd': 'openssl verify -show_chain -CAfile root.pem -untrusted issuing.pem www.pem',
+                     'desc_de': 'gefundenen Pfad anzeigen',
+                     'desc_en': 'show the path that was found',
+                     'output': ('www.pem: OK\nChain:\ndepth=0: C=DE, O=Nordwind Logistik GmbH,\n  '
+                         'CN=www.nordwind-logistik.de (untrusted)\ndepth=1: C=DE, O=Nordwind Logistik GmbH,\n  '
+                         'CN=Nordwind Issuing CA G1 (untrusted)\ndepth=2: C=DE, O=Nordwind Logistik GmbH,\n  '
+                         'CN=Nordwind Root CA'),
+                    },
+                    {
+                     'cmd': 'openssl verify -CAfile issuing.pem www.pem',
+                     'desc_de': 'nur die Issuing-CA als Anker angeben',
+                     'desc_en': 'give only the issuing CA as anchor',
+                     'output': ('C=DE, O=Nordwind Logistik GmbH,\n  CN=Nordwind Issuing CA G1\nerror 2 at 1 depth '
+                         'lookup: unable to get issuer\n  certificate\nerror www.pem: verification failed'),
+                    },
+                ],
+             'tasks': [
+                    {
+                     'text_de': 'Prüfe www.pem nur gegen die Root.',
+                     'text_en': 'Verify www.pem against the root only.',
+                     'command': 'openssl verify -CAfile root.pem www.pem',
+                    },
+                    {
+                     'text_de': 'Auf welcher Tiefe (depth) scheitert die Prüfung?',
+                     'text_en': 'At which depth does verification fail?',
+                     'answers': ['0'],
+                    },
+                    {
+                     'text_de': 'Welche Datei fehlt openssl, um den Pfad zu schließen?',
+                     'text_en': 'Which file is openssl missing to complete the path?',
+                     'answers': ['issuing.pem', 'issuing'],
+                    },
+                    {
+                     'text_de': 'Prüfe erneut und gib das Intermediate mit.',
+                     'text_en': 'Verify again and pass the intermediate.',
+                     'command': 'openssl verify -CAfile root.pem -untrusted issuing.pem www.pem',
+                    },
+                    {
+                     'text_de': 'Lass dir den Pfad anzeigen. Bei welcher Tiefe steht der Vertrauensanker?',
+                     'text_en': 'Show the path. At which depth is the trust anchor?',
+                     'answers': ['2'],
+                    },
+                ],
+            },
+        },
         {'type': 'text', 'id': 'text-3',
          'value': {
-             'de': '## Trust Stores: Betriebssystem, Browser, Java/Python\n\n'
-                   'Betriebssystem, Browser und Laufzeitumgebungen bringen teils **eigene** '
-                   'Zertifikatsspeicher mit - das ist die Ursache für den Klassiker „im '
-                   'Browser grün, aber die Java-Anwendung meckert":\n\n'
-                   '- **Windows/macOS** - eigener, betriebssystemverwalteter Speicher '
-                   '(Windows Certificate Store bzw. macOS Schlüsselbund/Keychain).\n'
-                   '- **Firefox** - eigener, plattformübergreifender Root Store (NSS), '
-                   'unabhängig vom Betriebssystem, mit eigenen Aufnahmerichtlinien. Firefox '
-                   'vertraut dadurch teils anderen CAs als Chrome auf demselben Rechner.\n'
-                   '- **Chrome** - früher der OS-Trust-Store, inzwischen auf Windows, macOS, '
-                   'Linux und Android standardmäßig der eigene Chrome Root Store (nur unter '
-                   'iOS nicht). Lokal im Betriebssystem installierte Roots - etwa eine per '
-                   'Gruppenrichtlinie verteilte interne CA - berücksichtigt Chrome '
-                   'weiterhin.\n'
-                   '- **Java** - eigener Trust Store `cacerts`, komplett '
-                   'getrennt vom Betriebssystem-Store. Eine interne Root-CA, die im '
-                   'Windows-Store liegt, muss zusätzlich **manuell** in `cacerts` importiert '
-                   'werden, sonst vertraut keine Java-Anwendung auf demselben Rechner ihr.\n'
-                   '- **Python** - das Standardmodul `ssl` nutzt die Systemvorgaben von '
-                   'OpenSSL, die verbreitete Bibliothek `requests` bringt dagegen über das '
-                   'Paket `certifi` ein eigenes CA-Bundle mit. Auch hier muss eine interne '
-                   'Root-CA gesondert bekannt gemacht werden (z. B. über die '
-                   'Umgebungsvariable `REQUESTS_CA_BUNDLE`).\n\n'
-                   'Für den Betrieb heißt das: Eine neue interne Root-CA muss in **alle** '
-                   'relevanten Trust Stores verteilt werden - Betriebssystem-Rollout allein '
-                   'reicht nicht.',
-             'en': '## Trust Stores: OS, Browser, Java/Python\n\n'
-                   'Operating system, browser, and runtimes sometimes bring their **own** '
-                   'certificate stores - this is the cause of the classic "green in the '
-                   'browser, but the Java application complains":\n\n'
-                   '- **Windows/macOS** - own, OS-managed store (Windows Certificate Store '
-                   'or macOS Keychain).\n'
-                   '- **Firefox** - its own, cross-platform root store (NSS), independent '
-                   'of the operating system, with its own inclusion policies. As a result, '
-                   'Firefox sometimes trusts different CAs than Chrome on the same machine.\n'
-                   '- **Chrome** - formerly the OS trust store, now by default its own '
-                   'Chrome Root Store on Windows, macOS, Linux, and Android (only not on '
-                   'iOS). Chrome still honors roots installed locally in the operating '
-                   'system - such as an internal CA distributed via Group Policy.\n'
-                   '- **Java** - its own trust store `cacerts`, completely '
-                   'separate from the OS store. An internal root CA present in the Windows '
-                   'store must additionally be imported **manually** into `cacerts`, or no '
-                   'Java application on the same machine will trust it.\n'
-                   '- **Python** - the standard `ssl` module uses OpenSSL\'s system defaults, '
-                   'whereas the widely used `requests` library ships its own CA bundle via '
-                   'the `certifi` package. Here, too, an internal root CA must be made known '
-                   'separately (e.g. via the `REQUESTS_CA_BUNDLE` environment variable).\n\n'
-                   'For operations this means: a new internal root CA must be distributed '
-                   'to **all** relevant trust stores - an OS-level rollout alone is not '
-                   'enough.',
-         }},
+             'de': ('## Trust Stores: Betriebssystem, Browser, Java/Python\n\nBetriebssystem, Browser und '
+                 'Laufzeitumgebungen bringen teils **eigene** Zertifikatsspeicher mit - das ist die Ursache für '
+                 'den Klassiker „im Browser ohne Warnung, aber die Java-Anwendung meckert“. (Ein grünes Schloss '
+                 'zeigt übrigens kein aktueller Browser mehr: Chrome kündigte im Mai 2023 an, das '
+                 'Schloss-Symbol durch ein neutrales Symbol zu ersetzen, weil es fälschlich als Gütesiegel für '
+                 'die Website verstanden wurde.) Die Speicher im Überblick:\n\n- **Windows/macOS** - eigener, '
+                 'betriebssystemverwalteter Speicher (Windows Certificate Store bzw. macOS '
+                 'Schlüsselbund/Keychain).\n- **Firefox** - eigener, plattformübergreifender Root Store (NSS), '
+                 'unabhängig vom Betriebssystem, mit eigenen Aufnahmerichtlinien. Firefox vertraut dadurch '
+                 'teils anderen CAs als Chrome auf demselben Rechner.\n- **Chrome** - früher der '
+                 'OS-Trust-Store, inzwischen auf Windows, macOS, Linux und Android standardmäßig der eigene '
+                 'Chrome Root Store (nur unter iOS nicht). Lokal im Betriebssystem installierte Roots - etwa '
+                 'eine per Gruppenrichtlinie verteilte interne CA - berücksichtigt Chrome weiterhin.\n- '
+                 '**Java** - eigener Trust Store `cacerts`, komplett getrennt vom Betriebssystem-Store. Eine '
+                 'interne Root-CA, die im Windows-Store liegt, muss zusätzlich **manuell** in `cacerts` '
+                 'importiert werden, sonst vertraut keine Java-Anwendung auf demselben Rechner ihr.\n- '
+                 '**Python** - das Standardmodul `ssl` nutzt die Systemvorgaben von OpenSSL, die verbreitete '
+                 'Bibliothek `requests` bringt dagegen über das Paket `certifi` ein eigenes CA-Bundle mit. Auch '
+                 'hier muss eine interne Root-CA gesondert bekannt gemacht werden (z. B. über die '
+                 'Umgebungsvariable `REQUESTS_CA_BUNDLE`).\n\nFür den Betrieb heißt das: Eine neue interne '
+                 'Root-CA muss in **alle** relevanten Trust Stores verteilt werden - Betriebssystem-Rollout '
+                 'allein reicht nicht.'),
+             'en': ('## Trust Stores: OS, Browser, Java/Python\n\nOperating system, browser, and runtimes '
+                 'sometimes bring their **own** certificate stores - this is the cause of the classic "no '
+                 'warning in the browser, but the Java application complains". (Incidentally, no current '
+                 'browser shows a green padlock anymore: in May 2023 Chrome announced it would replace the lock '
+                 'icon with a neutral one, because it was mistaken for a seal of quality for the website.) The '
+                 'stores at a glance:\n\n- **Windows/macOS** - own, OS-managed store (Windows Certificate Store '
+                 'or macOS Keychain).\n- **Firefox** - its own, cross-platform root store (NSS), independent of '
+                 'the operating system, with its own inclusion policies. As a result, Firefox sometimes trusts '
+                 'different CAs than Chrome on the same machine.\n- **Chrome** - formerly the OS trust store, '
+                 'now by default its own Chrome Root Store on Windows, macOS, Linux, and Android (only not on '
+                 'iOS). Chrome still honors roots installed locally in the operating system - such as an '
+                 'internal CA distributed via Group Policy.\n- **Java** - its own trust store `cacerts`, '
+                 'completely separate from the OS store. An internal root CA present in the Windows store must '
+                 'additionally be imported **manually** into `cacerts`, or no Java application on the same '
+                 "machine will trust it.\n- **Python** - the standard `ssl` module uses OpenSSL's system "
+                 'defaults, whereas the widely used `requests` library ships its own CA bundle via the '
+                 '`certifi` package. Here, too, an internal root CA must be made known separately (e.g. via the '
+                 '`REQUESTS_CA_BUNDLE` environment variable).\n\nFor operations this means: a new internal root '
+                 'CA must be distributed to **all** relevant trust stores - an OS-level rollout alone is not '
+                 'enough.'),
+            },
+        },
         {'type': 'text', 'id': 'text-4',
          'value': {
              'de': '## Cross-Signing: Übergang auf eine neue Root\n\n'
@@ -324,17 +468,106 @@ PKI_ARCHITEKTUR_MODULE = {
                  'To save on OCSP requests',
              ],
          }},
+        {'type': 'scenario', 'id': 'scenario-issuing-ca-kompromittiert',
+         'payload': {
+             'title_de': 'Verdacht: Schlüssel der Issuing-CA abgeflossen',
+             'title_en': 'Suspicion: issuing CA key leaked',
+             'start': 'start',
+             'nodes': [
+                    {
+                     'id': 'start',
+                     'text_de': ('Auf dem Server der internen Issuing-CA wird ein fremder Zugriff entdeckt; der private '
+                         'CA-Schlüssel lag dort als Datei. 400 Geräte im Lager nutzen Zertifikate dieser CA. '
+                         'Was ist der erste Schritt?'),
+                     'text_en': ("Unauthorized access is discovered on the internal issuing CA's server; the private CA "
+                         'key was stored there as a file. 400 warehouse devices use certificates from this CA. '
+                         'What is the first step?'),
+                     'options': [
+                            {
+                             'label_de': 'Abwarten, ob gefälschte Zertifikate auftauchen',
+                             'label_en': 'Wait and see whether forged certificates turn up',
+                             'to': 'warten',
+                            },
+                            {
+                             'label_de': 'Die Root aus allen Trust Stores entfernen und eine neue Root verteilen',
+                             'label_en': 'Remove the root from all trust stores and distribute a new root',
+                             'to': 'root',
+                            },
+                            {
+                             'label_de': ('Mit der Offline-Root das Zertifikat der Issuing-CA widerrufen und eine neue '
+                                 'Issuing-CA ausstellen'),
+                             'label_en': ("Use the offline root to revoke the issuing CA's certificate and issue a new "
+                                 'issuing CA'),
+                             'to': 'widerruf',
+                            },
+                        ],
+                    },
+                    {
+                     'id': 'warten',
+                     'outcome': 'bad',
+                     'text_de': ('Mit dem CA-Schlüssel kann der Angreifer beliebige Zertifikate ausstellen, denen alle '
+                         'Geräte vertrauen. Gefälschte Zertifikate fallen ohne eigenes Monitoring kaum auf.'),
+                     'text_en': ('With the CA key the attacker can issue arbitrary certificates that all devices trust. '
+                         'Without dedicated monitoring, forged certificates hardly stand out.'),
+                    },
+                    {
+                     'id': 'root',
+                     'outcome': 'ok',
+                     'text_de': ('Wirksam, aber unnötig teuer: Die Root war offline und ist nicht betroffen. Genau '
+                         'dafür gibt es die Zwischenstufe — der Vertrauensanker kann bleiben.'),
+                     'text_en': ('Effective but needlessly expensive: the root was offline and is not affected. This is '
+                         'exactly what the intermediate tier is for — the trust anchor can stay.'),
+                    },
+                    {
+                     'id': 'widerruf',
+                     'text_de': ('Richtig: Die Root signiert eine neue Sperrliste, die alte Issuing-CA ist damit '
+                         'ungültig. Die 400 Geräte brauchen jetzt neue Zertifikate. Wie verhinderst du, dass '
+                         'sich das wiederholt?'),
+                     'text_en': ('Correct: the root signs a new revocation list, which invalidates the old issuing CA. '
+                         'The 400 devices now need new certificates. How do you prevent a repeat?'),
+                     'options': [
+                            {
+                             'label_de': 'Neuen CA-Schlüssel in einem HSM erzeugen und Ausstellung automatisieren',
+                             'label_en': 'Generate the new CA key in an HSM and automate issuance',
+                             'to': 'hsm',
+                            },
+                            {
+                             'label_de': 'Den neuen CA-Schlüssel wieder als Datei ablegen, diesmal mit Passwort',
+                             'label_en': 'Store the new CA key as a file again, this time with a password',
+                             'to': 'datei',
+                            },
+                        ],
+                    },
+                    {
+                     'id': 'datei',
+                     'outcome': 'ok',
+                     'text_de': ('Besser als vorher, aber wer den Server übernimmt, kann Datei und Passwort '
+                         'mitschneiden. Ein CA-Schlüssel gehört in ein HSM, das ihn nie herausgibt.'),
+                     'text_en': ('Better than before, but whoever takes over the server can capture file and password. '
+                         'A CA key belongs in an HSM that never releases it.'),
+                    },
+                    {
+                     'id': 'hsm',
+                     'outcome': 'good',
+                     'text_de': ('Im HSM lässt sich der Schlüssel benutzen, aber nicht kopieren. Und mit '
+                         'automatisierter Ausstellung ist der Austausch von 400 Zertifikaten beim nächsten '
+                         'Vorfall eine Routine statt ein Projekt.'),
+                     'text_en': ('In an HSM the key can be used but not copied. And with automated issuance, replacing '
+                         '400 certificates in the next incident is routine rather than a project.'),
+                    },
+                ],
+            },
+        },
         {'type': 'reflect', 'id': 'reflect-1',
          'payload': {
-             'prompt_de': 'Nordwind baut eine interne CA für Lager-IoT-Geräte auf. Welche '
-                          'Systeme/Trust Stores müsst ihr aktiv mit der neuen Root '
-                          'bestücken, damit am Ende nicht „im Browser grün, in der '
-                          'Anwendung rot" passiert? Liste mindestens drei konkrete Stellen.',
-             'prompt_en': 'Nordwind is building an internal CA for warehouse IoT devices. '
-                          'Which systems/trust stores do you need to actively populate with '
-                          'the new root so you do not end up with "green in the browser, '
-                          'red in the application"? List at least three concrete places.',
-         }},
+             'prompt_de': ('Nordwind baut eine interne CA für Lager-IoT-Geräte auf. Welche Systeme/Trust Stores müsst ihr '
+                 'aktiv mit der neuen Root bestücken, damit am Ende nicht „im Browser in Ordnung, in der '
+                 'Anwendung ein Vertrauensfehler“ passiert? Liste mindestens drei konkrete Stellen.'),
+             'prompt_en': ('Nordwind is building an internal CA for warehouse IoT devices. Which systems/trust stores do '
+                 'you need to actively populate with the new root so you do not end up with "fine in the '
+                 'browser, trust error in the application"? List at least three concrete places.'),
+            },
+        },
     ],
     'quiz': {'questions': [
         {'id': 'pa1', 'type': 'single',
@@ -347,15 +580,24 @@ PKI_ARCHITEKTUR_MODULE = {
                  'Weil Root-CAs generell langsamer arbeiten als Intermediates',
                  'Weil eine kompromittierte Root, anders als eine Intermediate, kaum noch '
                  'widerrufbar ist - sie steckt in Millionen Trust Stores',
-                 'Weil das CA/Browser Forum Online-Roots gesetzlich verbietet',
+                 'Weil Root-Zertifikate nur wenige Tage gültig sind und deshalb selten gebraucht werden',
              ],
              'en': [
                  'Because root certificates technically do not support online signing',
                  'Because root CAs generally operate more slowly than intermediates',
                  'Because a compromised root, unlike an intermediate, can barely be '
                  'revoked anymore - it sits in millions of trust stores',
-                 'Because the CA/Browser Forum legally forbids online roots',
+                 'Because root certificates are only valid for a few days and are therefore rarely needed',
              ],
+         },
+         'explanation': {
+          'de': ('Eine Intermediate lässt sich widerrufen und ersetzen; eine Root steckt als Vertrauensanker in '
+              'Millionen Trust Stores und kann nur durch Updates all dieser Systeme entfernt werden. Deshalb '
+              'bleibt ihr Schlüssel offline. Technisch könnte eine Root sehr wohl online signieren — genau das '
+              'soll sie nicht.'),
+          'en': ('An intermediate can be revoked and replaced; a root sits as a trust anchor in millions of trust '
+              'stores and can only be removed by updating all of those systems. That is why its key stays '
+              'offline. Technically a root could well sign online — which is exactly what it should not do.'),
          }},
         {'id': 'pa2', 'type': 'single',
          'prompt': {'de': 'Was liefert der Server beim TLS-Handshake, damit der Client die '
@@ -376,6 +618,14 @@ PKI_ARCHITEKTUR_MODULE = {
                  'Only the server\'s private key',
                  'A complete CRL',
              ],
+         },
+         'explanation': {
+          'de': ('Der Server schickt Endzertifikat und Intermediates; die Root hat der Client selbst im Trust '
+              'Store (eine mitgeschickte Root würde er ohnehin nicht als Anker akzeptieren). Der private '
+              'Schlüssel verlässt den Server nie.'),
+          'en': ('The server sends the end-entity certificate and the intermediates; the client has the root in '
+              'its own trust store (it would not accept a root sent along as an anchor anyway). The private key '
+              'never leaves the server.'),
          }},
         {'id': 'pa3', 'type': 'single',
          'prompt': {'de': 'Was war der praktische Zweck des Cross-Signings zwischen ISRG '
@@ -398,6 +648,14 @@ PKI_ARCHITEKTUR_MODULE = {
                  'Faster certificate issuance',
                  'Elimination of the need for an intermediate CA',
              ],
+         },
+         'explanation': {
+          'de': ('Cross-Signing schafft einen zweiten gültigen Pfad zu einer Root, die alte Geräte schon kennen. '
+              'Mit Verschlüsselungsstärke oder Ausstellungstempo hat das nichts zu tun — es geht allein um '
+              'Kompatibilität während der Verbreitung einer neuen Root.'),
+          'en': ('Cross-signing creates a second valid path to a root that old devices already know. It has '
+              'nothing to do with encryption strength or issuance speed — it is purely about compatibility '
+              'while a new root is being rolled out.'),
          }},
         {'id': 'pa4', 'type': 'single',
          'prompt': {'de': 'Warum kann eine Anwendung auf Java-Basis einer CA misstrauen, '
@@ -419,6 +677,14 @@ PKI_ARCHITEKTUR_MODULE = {
                  'Java applications fundamentally do not verify certificates',
                  'The browser ignores root CAs entirely',
              ],
+         },
+         'explanation': {
+          'de': ('Java prüft gegen seinen eigenen Speicher `cacerts`, nicht gegen den des Betriebssystems. Eine '
+              'per Gruppenrichtlinie verteilte interne Root kommt dort nicht an. TLS 1.3 unterstützt Java seit '
+              'Version 11 — daran liegt es nicht.'),
+          'en': ("Java validates against its own `cacerts` store, not the operating system's. An internal root "
+              'distributed via Group Policy does not arrive there. Java has supported TLS 1.3 since version 11 '
+              '— that is not the reason.'),
          }},
         {'id': 'pa5', 'type': 'single',
          'prompt': {'de': 'Was ist ein Nachteil einer internen Unternehmens-CA gegenüber '
@@ -441,6 +707,94 @@ PKI_ARCHITEKTUR_MODULE = {
                  'It fundamentally does not support encryption',
                  'The CA/Browser Forum forbids it from signing internal hostnames',
              ],
+         },
+         'explanation': {
+          'de': ('Eine interne Root kennt zunächst kein Client; sie muss in jeden relevanten Trust Store verteilt '
+              'werden. Interne Hostnamen darf gerade die interne CA signieren — öffentlichen CAs ist das seit '
+              '2015 untersagt.'),
+          'en': ('At first no client knows an internal root; it has to be distributed into every relevant trust '
+              'store. Internal hostnames are exactly what the internal CA may sign — public CAs have been '
+              'barred from doing so since 2015.'),
          }},
+        {'id': 'pa6', 'type': 'single',
+         'prompt': {
+             'de': ('`openssl verify -CAfile root.pem www.pem` meldet: „error 20 at 0 depth lookup: unable to get '
+                 'local issuer certificate“. root.pem ist die richtige Root. Was fehlt?'),
+             'en': ('`openssl verify -CAfile root.pem www.pem` reports: "error 20 at 0 depth lookup: unable to get '
+                 'local issuer certificate". root.pem is the correct root. What is missing?'),
+            },
+         'options': {
+             'de': [
+                    'Das Intermediate-Zertifikat, das www.pem ausgestellt hat (z. B. per -untrusted)',
+                    'Der private Schlüssel zu www.pem',
+                    'Ein SAN-Eintrag für den Hostnamen',
+                    'Die Root — depth 0 bezeichnet immer die Root',
+                ],
+             'en': [
+                    'The intermediate certificate that issued www.pem (e.g. via -untrusted)',
+                    'The private key for www.pem',
+                    'A SAN entry for the hostname',
+                    'The root — depth 0 always denotes the root',
+                ],
+            },
+         'answer': 0,
+         'explanation': {
+             'de': ('Depth 0 ist das Endzertifikat: Schon für dieses findet openssl keinen Aussteller, weil die '
+                 'Issuing-CA weder im Trust Store noch als Zwischenzertifikat übergeben wurde. Mit `-untrusted '
+                 'issuing.pem` schließt sich die Lücke. Die Root steht am anderen Ende, bei der höchsten Tiefe.'),
+             'en': ('Depth 0 is the end-entity certificate: openssl cannot even find an issuer for it, because the '
+                 'issuing CA was neither in the trust store nor passed as an intermediate. `-untrusted '
+                 'issuing.pem` closes the gap. The root sits at the other end, at the highest depth.'),
+            },
+        },
+        {'id': 'pa7', 'type': 'multi',
+         'prompt': {
+             'de': ('Nordwind verteilt die neue interne Root per Gruppenrichtlinie in den '
+                 'Windows-Zertifikatsspeicher. Welche Clients auf diesen Rechnern vertrauen ihr danach OHNE '
+                 'weiteren Schritt?'),
+             'en': ('Nordwind distributes the new internal root into the Windows certificate store via Group '
+                 'Policy. Which clients on these machines trust it afterwards WITHOUT any further step?'),
+            },
+         'options': {
+             'de': [
+                    'Chrome',
+                    'Edge',
+                    'Eine Java-Anwendung mit Standard-cacerts',
+                    'Ein Python-Skript mit requests/certifi',
+                ],
+             'en': [
+                    'Chrome',
+                    'Edge',
+                    'A Java application with the default cacerts',
+                    'A Python script using requests/certifi',
+                ],
+            },
+         'answer': [0, 1],
+         'explanation': {
+             'de': ('Chrome und Edge berücksichtigen lokal im Betriebssystem installierte Roots. Java (`cacerts`) '
+                 'und `requests` (CA-Bundle aus `certifi`) bringen eigene Speicher mit und müssen gesondert '
+                 'versorgt werden — der Klassiker hinter „im Browser geht es“.'),
+             'en': ('Chrome and Edge honor roots installed locally in the operating system. Java (`cacerts`) and '
+                 '`requests` (CA bundle from `certifi`) ship their own stores and have to be supplied '
+                 'separately — the classic behind "it works in the browser".'),
+            },
+        },
+        {'id': 'pa8', 'type': 'number',
+         'prompt': {
+             'de': ('Eine Kette besteht aus Root-CA, einer Issuing-CA und dem Serverzertifikat. Wie viele '
+                 'Zertifikate sollte der Server im Handshake ausliefern?'),
+             'en': ('A chain consists of a root CA, one issuing CA, and the server certificate. How many '
+                 'certificates should the server deliver in the handshake?'),
+            },
+         'answer': 2,
+         'explanation': {
+             'de': ('Zwei: das Serverzertifikat und das Intermediate. Die Root muss der Client bereits im Trust '
+                 'Store haben; sie mitzuschicken kostet nur Bytes. Nur eines zu senden ist der häufige Fehler '
+                 '„unvollständige Kette“.'),
+             'en': ('Two: the server certificate and the intermediate. The client must already have the root in '
+                 'its trust store; sending it along only costs bytes. Sending just one is the common '
+                 '"incomplete chain" mistake.'),
+            },
+        },
     ]},
 }

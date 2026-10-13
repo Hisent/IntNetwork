@@ -13,6 +13,13 @@ NAC_GRUNDLAGEN_MODULE = {
         'Den Zero-Trust-Bezug von NAC einordnen können',
         'Die drei Grundfragen von NAC (Authentifizierung, Autorisierung, Posture) benennen können',
     ],
+    'goals_en': [
+        'Explain which problem Network Access Control (NAC) solves',
+        'Distinguish pre-admission from post-admission control',
+        'Compare agent-based and agentless NAC',
+        'Place NAC in the context of Zero Trust',
+        'Name the three fundamental questions of NAC (authentication, authorization, posture)',
+    ],
     'scenario': {
         'de': 'Bei Nordwind Logistik GmbH steckt jeder freie Netzwerkport in der Zentrale einfach '
               'ins Netz — Praktikanten, Besucher, ein privat mitgebrachter Laptop, ein neu '
@@ -102,6 +109,115 @@ NAC_GRUNDLAGEN_MODULE = {
                  'Managing firewall rules between subnets',
              ],
          }},
+        {
+            'type': 'diagram',
+            'id': 'diagram-nac-bausteine',
+            'note': 'Die drei Grundfragen kommen erst in text-5 — hier nur zeigen, WO entschieden und WO durchgesetzt wird. Die Schritte nacheinander durchklicken.',
+            'payload': {
+                'kind': 'flow',
+                'title_de': 'NAC: wer entscheidet, wer setzt durch?',
+                'title_en': 'NAC: who decides, who enforces?',
+                'caption_de': 'Der Switch setzt durch, der Policy-Server entscheidet.',
+                'caption_en': 'The switch enforces, the policy server decides.',
+                'nodes': [
+                    {
+                        'id': 'dev',
+                        'shape': 'host',
+                        'row': 0,
+                        'col': 0,
+                        'label_de': 'Endgerät',
+                        'label_en': 'Endpoint',
+                    },
+                    {
+                        'id': 'sw',
+                        'shape': 'switch',
+                        'row': 0,
+                        'col': 1,
+                        'label_de': 'Switch / AP',
+                        'label_en': 'Switch / AP',
+                        'detail_de': 'Durchsetzungspunkt (Policy Enforcement Point): sperrt den Port, öffnet ihn, legt ihn in ein VLAN oder hängt eine ACL an.',
+                        'detail_en': 'Enforcement point (policy enforcement point): blocks the port, opens it, places it in a VLAN or attaches an ACL.',
+                    },
+                    {
+                        'id': 'pol',
+                        'shape': 'server',
+                        'row': 0,
+                        'col': 2,
+                        'label_de': 'Policy-Server (RADIUS)',
+                        'label_en': 'Policy server (RADIUS)',
+                        'detail_de': 'Entscheidungspunkt: prüft die Identität und liefert das Ergebnis (VLAN, ACL, Ablehnung) an den Switch.',
+                        'detail_en': 'Decision point: checks the identity and returns the result (VLAN, ACL, rejection) to the switch.',
+                    },
+                    {
+                        'id': 'dir',
+                        'shape': 'database',
+                        'row': 1,
+                        'col': 2,
+                        'label_de': 'Verzeichnis / PKI / MDM',
+                        'label_en': 'Directory / PKI / MDM',
+                        'detail_de': 'Datenquellen im Hintergrund: Benutzerkonten und Gruppen, Zertifikatsprüfung, Compliance-Status.',
+                        'detail_en': 'Background data sources: user accounts and groups, certificate validation, compliance status.',
+                    },
+                    {
+                        'id': 'net',
+                        'shape': 'cloud',
+                        'row': 1,
+                        'col': 1,
+                        'label_de': 'Firmennetz',
+                        'label_en': 'Corporate network',
+                    },
+                ],
+                'edges': [
+                    {
+                        'id': 'e1',
+                        'from': 'dev',
+                        'to': 'sw',
+                        'arrow': 'both',
+                    },
+                    {
+                        'id': 'e2',
+                        'from': 'sw',
+                        'to': 'pol',
+                        'label': 'RADIUS',
+                        'arrow': 'both',
+                    },
+                    {
+                        'id': 'e3',
+                        'from': 'pol',
+                        'to': 'dir',
+                        'arrow': 'both',
+                    },
+                    {
+                        'id': 'e4',
+                        'from': 'sw',
+                        'to': 'net',
+                        'style': 'dashed',
+                    },
+                ],
+                'steps': [
+                    {
+                        'highlight': ['dev', 'e1', 'sw'],
+                        'text_de': 'Das Gerät wird angeschlossen. Der Switch lässt zunächst nur die Anmeldung zu.',
+                        'text_en': 'The device is connected. The switch initially allows only the login exchange.',
+                    },
+                    {
+                        'highlight': ['sw', 'e2', 'pol'],
+                        'text_de': 'Der Switch fragt den Policy-Server — er entscheidet nicht selbst.',
+                        'text_en': 'The switch asks the policy server — it does not decide by itself.',
+                    },
+                    {
+                        'highlight': ['pol', 'e3', 'dir'],
+                        'text_de': 'Der Policy-Server prüft Identität und Zustand gegen Verzeichnis, PKI und MDM.',
+                        'text_en': 'The policy server checks identity and state against directory, PKI and MDM.',
+                    },
+                    {
+                        'highlight': ['pol', 'e2', 'sw', 'e4', 'net'],
+                        'text_de': 'Das Ergebnis geht zurück an den Switch, der es am Port durchsetzt.',
+                        'text_en': 'The result goes back to the switch, which enforces it on the port.',
+                    },
+                ],
+            },
+        },
         {'type': 'text', 'id': 'text-3',
          'value': {
              'de': '## Pre-Admission vs. Post-Admission Control\n\n'
@@ -156,9 +272,10 @@ NAC_GRUNDLAGEN_MODULE = {
                    '- **Agent-based NAC** erfordert die Installation eines Software-Agenten auf '
                    'jedem Gerät; der Agent führt Compliance-Prüfungen aus und meldet den Status '
                    'an das NAC-System.\n'
-                   '- **Agentless NAC** scannt das Netz kontinuierlich und inventarisiert Geräte '
-                   'anhand von Geräte- und Nutzerverhalten, ohne Software auf dem Endpunkt zu '
-                   'benötigen.\n\n'
+                   '- **Agentless NAC** kommt ohne NAC-eigene Software auf dem Endpunkt aus: Gerätetyp '
+                   'und -zustand werden von außen ermittelt — netzbasiert (Profiling, Scans, '
+                   'beobachtetes Verhalten) oder durch Abfrage vorhandener Systeme wie einer '
+                   'MDM-/UEM-Plattform. Das reicht weiter, geht aber weniger tief als ein Agent.\n\n'
                    'Für Nordwind ist das keine akademische Frage: Der Etikettendrucker im Lager '
                    'akzeptiert keinen Agenten — für IoT, OT, BYOD und Gästegeräte ist agentless '
                    'NAC deshalb oft die einzig praktikable Option.',
@@ -166,8 +283,10 @@ NAC_GRUNDLAGEN_MODULE = {
                    'A second distinction concerns **how** NAC captures device state:\n\n'
                    '- **Agent-based NAC** requires installing a software agent on every device; '
                    'the agent runs compliance checks and reports status to the NAC system.\n'
-                   '- **Agentless NAC** continuously scans the network and inventories devices '
-                   'based on device and user behavior, without needing software on the endpoint.\n\n'
+                   '- **Agentless NAC** works without NAC-specific software on the endpoint: device type '
+                   'and state are determined from the outside — network-based (profiling, scans, '
+                   'observed behavior) or by querying existing systems such as an MDM/UEM '
+                   'platform. It reaches further, but goes less deep than an agent.\n\n'
                    'For Nordwind this is not an academic question: the label printer in the '
                    'warehouse cannot accept an agent — for IoT, OT, BYOD, and guest devices, '
                    'agentless NAC is often the only practical option.',
@@ -222,6 +341,48 @@ NAC_GRUNDLAGEN_MODULE = {
                    'provide the technical foundation for questions 1 and 2, posture assessment '
                    'goes deeper into question 3 in a later block.',
          }},
+        {
+            'type': 'match',
+            'id': 'match-nac-begriffe',
+            'payload': {
+                'prompt_de': 'Ordne jedem Begriff seine Beschreibung zu.',
+                'prompt_en': 'Match each term to its description.',
+                'pairs': [
+                    {
+                        'left': 'Pre-Admission',
+                        'right_de': 'Prüfung, bevor das Gerät überhaupt Zugriff bekommt',
+                        'right_en': 'Check before the device gets any access at all',
+                    },
+                    {
+                        'left': 'Post-Admission',
+                        'right_de': 'Überwachung, nachdem das Gerät bereits zugelassen wurde',
+                        'right_en': 'Monitoring after the device has already been admitted',
+                    },
+                    {
+                        'left': 'Agent-based',
+                        'right_de': 'Software auf dem Endgerät prüft und meldet den Zustand',
+                        'right_en': 'Software on the endpoint checks and reports the state',
+                    },
+                    {
+                        'left': 'Agentless',
+                        'right_de': 'Zustand wird von außen ermittelt, ohne NAC-Software am Gerät',
+                        'right_en': 'State is determined from outside, without NAC software on it',
+                    },
+                    {
+                        'left': 'Posture',
+                        'right_de': 'Sicherheitszustand des Geräts, etwa Patches und Virenschutz',
+                        'right_en': 'Security state of the device, such as patches and antivirus',
+                    },
+                    {
+                        'left': 'BYOD',
+                        'right_de': 'Privates Gerät, das nicht von der IT verwaltet wird',
+                        'right_en': 'Personal device that is not managed by the IT department',
+                    },
+                ],
+                'explanation_de': 'Pre-/Post-Admission beschreibt das WANN der Prüfung, agent-based/agentless das WIE.',
+                'explanation_en': 'Pre-/post-admission describes WHEN the check happens, agent-based/agentless HOW.',
+            },
+        },
         {'type': 'reveal', 'id': 'reveal-1',
          'payload': {
              'teaser_de': 'Ein Gast steckt sein privates Notebook in einen freien Port im '
@@ -275,6 +436,10 @@ NAC_GRUNDLAGEN_MODULE = {
                  'Missing backups of network devices',
                  'Excessive power costs of switches',
              ],
+         },
+         'explanation': {
+             'de': 'NAC regelt, wer und was überhaupt ins Netz darf. Bandbreite, Backups oder Stromkosten sind Betriebsthemen, die mit Zugangskontrolle nichts zu tun haben.',
+             'en': 'NAC governs who and what gets onto the network at all. Bandwidth, backups, or power costs are operational topics that have nothing to do with access control.',
          }},
         {'id': 'ng2', 'type': 'single',
          'prompt': {'de': 'Was kennzeichnet Pre-Admission NAC?',
@@ -293,6 +458,10 @@ NAC_GRUNDLAGEN_MODULE = {
                  'Exclusively encrypting traffic',
                  'Only checking the physical cabling',
              ],
+         },
+         'explanation': {
+             'de': 'Pre-Admission prüft VOR dem Zugriff. Die fortlaufende Überwachung nach der Zulassung ist Post-Admission — der naheliegendste Dreher; Verschlüsselung leistet NAC selbst gar nicht.',
+             'en': 'Pre-admission checks BEFORE access. Continuous monitoring after admission is post-admission — the most obvious mix-up; encryption is not something NAC itself provides.',
          }},
         {'id': 'ng3', 'type': 'single',
          'prompt': {'de': 'Warum ist agentless NAC für IoT-Geräte wie einen Etikettendrucker '
@@ -313,6 +482,10 @@ NAC_GRUNDLAGEN_MODULE = {
                  'Because such devices cannot install a software agent',
                  'Because posture assessment is legally prohibited for IoT devices',
              ],
+         },
+         'explanation': {
+             'de': 'Ein Etikettendrucker hat kein Betriebssystem, auf dem sich ein Agent installieren ließe. Agentless ist deshalb nicht „sicherer“, sondern schlicht der einzige gangbare Weg — mit weniger Prüftiefe als ein Agent.',
+             'en': 'A label printer has no operating system an agent could be installed on. Agentless is therefore not "more secure", just the only feasible path — with less depth than an agent.',
          }},
         {'id': 'ng4', 'type': 'single',
          'prompt': {'de': 'Wie verschiebt Zero Trust den Fokus gegenüber klassischer '
@@ -335,6 +508,10 @@ NAC_GRUNDLAGEN_MODULE = {
                  'Away from authentication, toward exclusive encryption',
                  'Away from any access control, toward open networks',
              ],
+         },
+         'explanation': {
+             'de': 'Zero Trust entzieht dem Netzwerkstandort das Vertrauen und bewertet jede Anfrage nach Identität, Zustand und Kontext. Reine IP-Filterung wäre genau das alte, standortbasierte Modell.',
+             'en': 'Zero Trust removes trust from network location and evaluates each request by identity, state, and context. Pure IP filtering would be exactly the old, location-based model.',
          }},
         {'id': 'ng5', 'type': 'single',
          'prompt': {'de': 'Welche drei Fragen beantwortet ein NAC-Konzept im Kern zu einem '
@@ -355,6 +532,64 @@ NAC_GRUNDLAGEN_MODULE = {
                  'What is your IP? Which subnet? Which VLAN?',
                  'Which vendor? Which model? Which serial number?',
              ],
+         },
+         'explanation': {
+             'de': 'Authentifizierung (wer), Autorisierung (was darfst du), Posture (in welchem Zustand). IP, Subnetz und VLAN sind mögliche ERGEBNISSE dieser Entscheidung, nicht die Fragen selbst.',
+             'en': 'Authentication (who), authorization (what may you do), posture (in what state). IP, subnet, and VLAN are possible OUTCOMES of that decision, not the questions themselves.',
          }},
+        {
+            'id': 'ng6',
+            'type': 'single',
+            'prompt': {
+                'de': 'Ein Firmen-Notebook hat sich morgens korrekt angemeldet. Mittags deaktiviert der Nutzer den Virenschutz; das NAC-System schränkt das Gerät daraufhin ein. Welche Art von Kontrolle hat gegriffen?',
+                'en': 'A company notebook logged in correctly in the morning. At noon the user disables the antivirus; the NAC system then restricts the device. Which kind of control kicked in?',
+            },
+            'options': {
+                'de': [
+                    'Pre-Admission Control, weil der Virenschutz ein Aufnahmekriterium ist',
+                    'Post-Admission Control, weil ein bereits zugelassenes Gerät neu bewertet wurde',
+                    'Weder noch — das ist Aufgabe der Firewall zwischen den Subnetzen',
+                    'Agentless NAC, weil keine Neuanmeldung nötig war',
+                ],
+                'en': [
+                    'Pre-admission control, because antivirus is an admission criterion',
+                    'Post-admission control, because an already admitted device was re-evaluated',
+                    'Neither — that is the job of the firewall between the subnets',
+                    'Agentless NAC, because no new login was needed',
+                ],
+            },
+            'answer': 1,
+            'explanation': {
+                'de': 'Entscheidend ist der Zeitpunkt: Das Gerät war schon zugelassen, die Einschränkung kam nachträglich — Post-Admission. Agentless beschreibt, WIE der Zustand erhoben wird, nicht WANN geprüft wird.',
+                'en': 'What matters is the timing: the device was already admitted, the restriction came afterwards — post-admission. Agentless describes HOW state is collected, not WHEN the check happens.',
+            },
+        },
+        {
+            'id': 'ng7',
+            'type': 'multi',
+            'prompt': {
+                'de': 'Nordwind führt zunächst nur agentless NAC ein. Welche Aussagen treffen zu? (Mehrere richtig)',
+                'en': 'Nordwind initially introduces agentless NAC only. Which statements are true? (Several correct)',
+            },
+            'options': {
+                'de': [
+                    'Drucker, Kameras und Gastgeräte lassen sich damit erfassen und einordnen',
+                    'Der Patch-Stand eines Notebooks lässt sich so genauso tief prüfen wie mit einem Agenten',
+                    'Liegt ein MDM vor, kann dessen Compliance-Status ohne NAC-Agent abgefragt werden',
+                    'Agentless ersetzt die Authentifizierung per 802.1X',
+                ],
+                'en': [
+                    'Printers, cameras, and guest devices can be discovered and classified this way',
+                    "A notebook's patch level can be checked just as deeply as with an agent",
+                    'If an MDM exists, its compliance status can be queried without a NAC agent',
+                    'Agentless replaces authentication via 802.1X',
+                ],
+            },
+            'answer': [0, 2],
+            'explanation': {
+                'de': 'Agentless erreicht auch Geräte ohne installierbare Software und kann vorhandene Systeme wie ein MDM abfragen. Es sieht aber weniger tief ins Gerät als ein Agent und beantwortet nur die Zustandsfrage — die Identität klärt weiterhin die Authentifizierung.',
+                'en': 'Agentless also reaches devices that cannot run extra software and can query existing systems such as an MDM. But it sees less deeply into the device than an agent and only answers the state question — identity is still established by authentication.',
+            },
+        },
     ]},
 }

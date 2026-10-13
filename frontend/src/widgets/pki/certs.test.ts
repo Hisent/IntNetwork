@@ -14,6 +14,9 @@ import {
   ROOT_VALID,
   FOREIGN_INTERMEDIATE,
   ROOT_UNTRUSTED_EXPIRED,
+  INTERMEDIATE_NOT_CA,
+  INTERMEDIATE_NO_CERT_SIGN,
+  CHAIN_POOL,
   TRUST_STORE,
 } from './certs'
 
@@ -106,6 +109,35 @@ describe('validateChain', () => {
     const r = validateChain([leafForExpiredIntermediate, expiredIntermediate, ROOT_VALID], TRUST_STORE, DEMO_NOW)
     expect(r.ok).toBe(false)
     expect(r.problem).toBe('expired-link')
+  })
+
+  it('Aussteller ohne CA:TRUE liefert not-a-ca, obwohl die Namen passen', () => {
+    const r = validateChain([LEAF_VALID, INTERMEDIATE_NOT_CA, ROOT_VALID], TRUST_STORE, DEMO_NOW)
+    expect(r).toEqual({ ok: false, problem: 'not-a-ca' })
+  })
+
+  it('Aussteller ohne keyCertSign liefert no-cert-sign', () => {
+    const r = validateChain([LEAF_VALID, INTERMEDIATE_NO_CERT_SIGN, ROOT_VALID], TRUST_STORE, DEMO_NOW)
+    expect(r).toEqual({ ok: false, problem: 'no-cert-sign' })
+  })
+
+  it('ein Serverzertifikat als "Aussteller" eines anderen wird nicht akzeptiert', () => {
+    const fake = { ...LEAF_VALID, id: 'fake', issuer: LEAF_VALID.subject, subject: 'CN=boese.example' }
+    const r = validateChain([fake, LEAF_VALID, INTERMEDIATE_VALID, ROOT_VALID], TRUST_STORE, DEMO_NOW)
+    expect(r).toEqual({ ok: false, problem: 'not-a-ca' })
+  })
+
+  it('abgelaufenes Serverzertifikat aus dem Vorrat liefert expired-link', () => {
+    const r = validateChain([LEAF_EXPIRED, INTERMEDIATE_VALID, ROOT_VALID], TRUST_STORE, DEMO_NOW)
+    expect(r).toEqual({ ok: false, problem: 'expired-link' })
+  })
+
+  it('der Vorrat bietet für jeden Fehlerfall ein Beispiel und genau eine gültige Kette', () => {
+    const ids = CHAIN_POOL.map((c) => c.id)
+    expect(new Set(ids).size).toBe(ids.length)
+    for (const id of ['foreign-intermediate', 'root-untrusted-expired', 'leaf-expired', 'intermediate-not-ca', 'intermediate-no-cert-sign']) {
+      expect(ids).toContain(id)
+    }
   })
 
   it('leere Kette liefert incomplete', () => {

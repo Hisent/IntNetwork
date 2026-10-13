@@ -14,6 +14,13 @@ NAC_GUEST_MODULE = {
         'Captive Portal (Web-Auth) von 802.1X (Supplicant-basiert) klar abgrenzen können',
         'Sicherheitsrisiken eines unzureichend isolierten Gastzugangs benennen können',
     ],
+    'goals_en': [
+        'Distinguish self-registration and sponsor approval as guest access models',
+        'Place time-limited guest accounts and their purpose',
+        'Explain the separation of guest VLAN and internal network as the central security principle',
+        'Clearly delimit captive portal (web-auth) from 802.1X (supplicant-based)',
+        'Name the security risks of insufficiently isolated guest access',
+    ],
     'scenario': {
         'de': 'Bei Nordwind Logistik geben sich täglich Lieferanten, Speditionspartner und '
               'Besucher an der Pforte die Klinke in die Hand — alle wollen kurz WLAN. Niemand von '
@@ -129,6 +136,100 @@ NAC_GUEST_MODULE = {
                    'Captive portal therefore does not replace 802.1X, but complements it with a '
                    'path for exactly those devices where 802.1X is not practical.',
          }},
+        {
+            'type': 'diagram',
+            'id': 'diagram-gast-redirect',
+            'note': 'Zentrale Web-Authentifizierung, herstellerneutral vereinfacht: Die MAB-Anfrage dient hier nur dazu, eine Sitzung anzulegen, an die der Redirect gehängt wird. Betriebssysteme erkennen das Portal über eigene Test-Aufrufe und öffnen die Anmeldeseite automatisch.',
+            'payload': {
+                'kind': 'sequence',
+                'title_de': 'Captive Portal: vom ersten Frame bis zum Gast-VLAN',
+                'title_en': 'Captive portal: from the first frame to the guest VLAN',
+                'actors': [
+                    {
+                        'id': 'dev',
+                        'label_de': 'Gastgerät',
+                        'label_en': 'Guest device',
+                    },
+                    {
+                        'id': 'sw',
+                        'label': 'AP / Switch',
+                    },
+                    {
+                        'id': 'srv',
+                        'label_de': 'Policy-Server + Portal',
+                        'label_en': 'Policy server + portal',
+                    },
+                ],
+                'messages': [
+                    {
+                        'from': 'dev',
+                        'to': 'sw',
+                        'label_de': 'verbindet sich',
+                        'label_en': 'connects',
+                        'detail_de': 'Offene Gast-SSID oder freier Port — kein Supplicant, keine Zugangsdaten.',
+                        'detail_en': 'Open guest SSID or free port — no supplicant, no credentials.',
+                    },
+                    {
+                        'from': 'sw',
+                        'to': 'srv',
+                        'label': 'Access-Request (MAC)',
+                        'detail_de': 'Der Server kennt die MAC-Adresse nicht — lehnt aber nicht ab.',
+                        'detail_en': 'The server does not know the MAC address — but does not reject.',
+                    },
+                    {
+                        'from': 'srv',
+                        'to': 'sw',
+                        'label_de': 'Access-Accept + Redirect',
+                        'label_en': 'Access-Accept + redirect',
+                        'style': 'reply',
+                        'detail_de': 'Eingeschränkter Zugriff: nur DHCP, DNS und das Portal. Dazu die Portal-URL, auf die der Switch Web-Aufrufe umleiten soll.',
+                        'detail_en': 'Restricted access: only DHCP, DNS, and the portal. Plus the portal URL to which the switch should redirect web requests.',
+                    },
+                    {
+                        'from': 'dev',
+                        'to': 'sw',
+                        'label_de': 'HTTP-Aufruf',
+                        'label_en': 'HTTP request',
+                        'detail_de': 'Das Gerät hat inzwischen per DHCP eine Adresse und ruft irgendeine Webseite auf.',
+                        'detail_en': 'The device has meanwhile obtained an address via DHCP and requests any web page.',
+                    },
+                    {
+                        'from': 'sw',
+                        'to': 'dev',
+                        'label_de': 'Umleitung zum Portal',
+                        'label_en': 'Redirect to portal',
+                        'style': 'reply',
+                        'detail_de': 'Der Switch beantwortet den Aufruf selbst mit einer HTTP-Umleitung auf die Portal-URL.',
+                        'detail_en': 'The switch answers the request itself with an HTTP redirect to the portal URL.',
+                    },
+                    {
+                        'from': 'dev',
+                        'to': 'srv',
+                        'label_de': 'Registrierung / Login',
+                        'label_en': 'Registration / login',
+                        'style': 'encrypted',
+                        'detail_de': 'Per HTTPS direkt am Portal: Selbstregistrierung, Sponsor-Zugangsdaten oder Zustimmung zur Nutzungsrichtlinie.',
+                        'detail_en': 'Via HTTPS directly at the portal: self-registration, sponsor-issued credentials, or acceptance of the usage policy.',
+                    },
+                    {
+                        'from': 'srv',
+                        'to': 'sw',
+                        'label': 'CoA-Request',
+                        'detail_de': 'Der Server kennt die Sitzung jetzt als angemeldeten Gast und stößt die Neu-Autorisierung an.',
+                        'detail_en': 'The server now knows the session as a logged-in guest and triggers re-authorization.',
+                    },
+                    {
+                        'from': 'srv',
+                        'to': 'sw',
+                        'label_de': 'Access-Accept (Gast-VLAN 50)',
+                        'label_en': 'Access-Accept (guest VLAN 50)',
+                        'style': 'reply',
+                        'detail_de': 'Antwort auf die erneute Anfrage des Switches: Internet ja, internes Netz nein.',
+                        'detail_en': "Reply to the switch's renewed request: internet yes, internal network no.",
+                    },
+                ],
+            },
+        },
         {'type': 'check', 'id': 'check-1',
          'payload': {
              'kind': 'choice',
@@ -154,6 +255,47 @@ NAC_GUEST_MODULE = {
                  'PEAP using an internal employee\'s credentials',
              ],
          }},
+        {
+            'type': 'match',
+            'id': 'match-gastmodelle',
+            'payload': {
+                'prompt_de': 'Ordne jedem Zugangsmodell sein Kennzeichen zu.',
+                'prompt_en': 'Match each access model to its characteristic.',
+                'pairs': [
+                    {
+                        'left_de': 'Hotspot-Portal',
+                        'left_en': 'Hotspot portal',
+                        'right_de': 'Kein Konto, nur Zustimmung zur Nutzungsrichtlinie',
+                        'right_en': 'No account, only acceptance of the usage policy',
+                    },
+                    {
+                        'left_de': 'Self-Registration',
+                        'left_en': 'Self-registration',
+                        'right_de': 'Gast legt sein Konto selbst im Portal an',
+                        'right_en': 'Guest creates their own account in the portal',
+                    },
+                    {
+                        'left_de': 'Sponsor-Genehmigung',
+                        'left_en': 'Sponsor approval',
+                        'right_de': 'Ein Mitarbeiter gibt das Gastkonto frei',
+                        'right_en': 'An employee approves the guest account',
+                    },
+                    {
+                        'left_de': 'BYOD-Onboarding',
+                        'left_en': 'BYOD onboarding',
+                        'right_de': 'Mitarbeiter-Privatgerät erhält ein Zertifikat',
+                        'right_en': "Employee's personal device receives a certificate",
+                    },
+                    {
+                        'left': '802.1X',
+                        'right_de': 'Supplicant weist sich vor jedem Datenverkehr aus',
+                        'right_en': 'Supplicant proves identity before any data traffic',
+                    },
+                ],
+                'explanation_de': 'Die ersten drei sind Gastmodelle mit steigender Nachvollziehbarkeit. BYOD-Onboarding ist kein Gastzugang: Dahinter steht ein bekannter Mitarbeiter, und das Ziel ist EAP-TLS.',
+                'explanation_en': 'The first three are guest models with increasing accountability. BYOD onboarding is not guest access: there is a known employee behind it, and the goal is EAP-TLS.',
+            },
+        },
         {'type': 'text', 'id': 'text-5',
          'value': {
              'de': '## Sicherheitsaspekte: Isolierung ist nicht optional\n\n'
@@ -179,6 +321,14 @@ NAC_GUEST_MODULE = {
                    'internal systems has failed its purpose, regardless of how cleanly '
                    'self-registration or the sponsor workflow is implemented.',
          }},
+        {
+            'type': 'text',
+            'id': 'text-gast-mac-randomisierung',
+            'value': {
+                'de': '## Private WLAN-Adressen: warum Gäste „vergessen“ werden\n\nEin Captive Portal merkt sich einen angemeldeten Gast über die **MAC-Adresse** seines Geräts. Smartphones und Notebooks verwenden im WLAN aber zunehmend zufällige Adressen: je Netz eine eigene, und in offenen oder schwach gesicherten Netzen — also genau in typischen Gast-WLANs — wechseln aktuelle iOS-Versionen sie standardmäßig alle zwei Wochen.\n\nDas erklärt typische Gast-Beschwerden und hat Folgen für das Design:\n\n- **Erneute Anmeldung trotz gültigem Konto** — nach einem Adresswechsel erkennt das Portal das Gerät nicht wieder. Das ist kein Fehler, sondern das Verhalten des Endgeräts.\n- **Gerätelimits zählen falsch** — „höchstens drei Geräte je Gast“ läuft voll, weil dasselbe Gerät mehrfach gezählt wird.\n- **Dauerhafte Freischaltungen per MAC taugen nicht** — wer Lieferanten langfristig anbinden will, braucht ein Konto oder Zertifikat statt einer MAC-Liste.\n\nDie Gegenmaßnahme ist nicht, Gäste zum Abschalten der Funktion aufzufordern, sondern die Gültigkeit realistisch zu planen: Die Anmeldung gilt für ein Gerät mit der Adresse, die es gerade hat.',
+                'en': '## Private Wi-Fi Addresses: Why Guests Get "Forgotten"\n\nA captive portal remembers a logged-in guest by the **MAC address** of their device. But smartphones and notebooks increasingly use random addresses on Wi-Fi: a separate one per network, and on open or weakly secured networks — precisely typical guest Wi-Fi — current iOS versions rotate them every two weeks by default.\n\nThis explains typical guest complaints and has consequences for the design:\n\n- **Login required again despite a valid account** — after an address change the portal no longer recognizes the device. This is not a fault but the behavior of the endpoint.\n- **Device limits count wrongly** — "at most three devices per guest" fills up because the same device is counted several times.\n- **Permanent approvals by MAC are unsuitable** — anyone who wants to connect suppliers long term needs an account or certificate instead of a MAC list.\n\nThe countermeasure is not to ask guests to turn the feature off, but to plan validity realistically: the login applies to one device with the address it currently has.',
+            },
+        },
         {'type': 'order', 'id': 'order-1',
          'payload': {
              'prompt_de': 'Bringe die Schritte eines typischen Sponsor-genehmigten '
@@ -235,6 +385,10 @@ NAC_GUEST_MODULE = {
                  'Self-registration always requires an 802.1X supplicant',
                  'Both terms describe exactly the same process',
              ],
+         },
+         'explanation': {
+             'de': 'Beim Sponsor-Modell steht ein Mitarbeiter für den Gast ein, bevor Zugangsdaten ausgegeben werden. Mit Zertifikaten oder Supplicants hat keines der beiden Modelle zu tun.',
+             'en': 'In the sponsor model an employee vouches for the guest before credentials are issued. Neither model has anything to do with certificates or supplicants.',
          }},
         {'id': 'gu2', 'type': 'single',
          'prompt': {'de': 'Warum werden Gastkonten typischerweise zeitlich begrenzt?',
@@ -255,6 +409,10 @@ NAC_GUEST_MODULE = {
                  'Because guest accounts would otherwise automatically become admin accounts',
                  'Because a captive portal technically cannot work without a time limit',
              ],
+         },
+         'explanation': {
+             'de': 'Ein Ablaufdatum räumt vergessene Konten automatisch weg. Technisch könnten RADIUS und Portal auch dauerhafte Konten führen — die Begrenzung ist eine Sicherheitsentscheidung, keine Einschränkung.',
+             'en': 'An expiration date automatically clears forgotten accounts. Technically RADIUS and the portal could hold permanent accounts too — the limit is a security decision, not a constraint.',
          }},
         {'id': 'gu3', 'type': 'single',
          'prompt': {'de': 'Was ist der zentrale technische Unterschied zwischen Captive Portal '
@@ -278,6 +436,10 @@ NAC_GUEST_MODULE = {
                  'supplicant that exchanges EAPOL messages',
                  '802.1X only works in guest VLANs, captive portal only in the internal network',
              ],
+         },
+         'explanation': {
+             'de': 'Das Portal braucht nur einen Browser und gewährt dafür zunächst eingeschränkten Zugriff; 802.1X verlangt einen Supplicant und lässt vorher gar nichts durch. Beide gibt es im LAN wie im WLAN.',
+             'en': 'The portal only needs a browser and initially grants restricted access for that; 802.1X requires a supplicant and lets nothing through beforehand. Both exist on wired and wireless networks.',
          }},
         {'id': 'gu4', 'type': 'single',
          'prompt': {'de': 'Was ist der wichtigste Sicherheitsgrundsatz für ein Gast-VLAN?',
@@ -300,6 +462,10 @@ NAC_GUEST_MODULE = {
                  'It must be strictly separated from the internal network, with no routes or '
                  'visibility into internal systems',
              ],
+         },
+         'explanation': {
+             'de': 'Das Portal regelt nur, WER ins Gastnetz darf — die Trennung vom internen Netz leisten VLAN, Routing und Firewall. Ein Portal ohne Isolierung ist eine hübsche Anmeldeseite vor einem offenen Netz.',
+             'en': 'The portal only governs WHO may enter the guest network — separation from the internal network is provided by VLAN, routing, and firewall. A portal without isolation is a pretty login page in front of an open network.',
          }},
         {'id': 'gu5', 'type': 'single',
          'prompt': {'de': 'Ein Hotspot-Portal gewährt Zugang ohne Zugangsdaten. Was verlangt es '
@@ -320,6 +486,64 @@ NAC_GUEST_MODULE = {
                  'Sponsor approval by an employee',
                  'A permanently installed posture agent',
              ],
+         },
+         'explanation': {
+             'de': 'Das Hotspot-Modell verzichtet auf Konten und verlangt nur die Zustimmung zur Nutzungsrichtlinie. Eine Sponsor-Genehmigung wäre bereits das nächststrengere Modell.',
+             'en': 'The hotspot model does without accounts and only requires acceptance of the usage policy. Sponsor approval would already be the next stricter model.',
          }},
+        {
+            'id': 'gu6',
+            'type': 'single',
+            'prompt': {
+                'de': 'Ein Dauergast mit 90 Tage gültigem Konto beschwert sich: Sein iPhone verlangt im offenen Gast-WLAN etwa alle zwei Wochen erneut die Portal-Anmeldung. Was ist die wahrscheinlichste Ursache?',
+                'en': 'A long-term guest with an account valid for 90 days complains: on the open guest Wi-Fi his iPhone asks for the portal login again roughly every two weeks. What is the most likely cause?',
+            },
+            'options': {
+                'de': [
+                    'Das Gastkonto läuft tatsächlich alle zwei Wochen ab',
+                    'Das iPhone wechselt seine private WLAN-Adresse, das Portal erkennt das Gerät nicht wieder',
+                    'Der RADIUS-Server verliert regelmäßig seine Datenbank',
+                    'Das Gast-VLAN wird alle zwei Wochen neu angelegt',
+                ],
+                'en': [
+                    'The guest account actually expires every two weeks',
+                    'The iPhone rotates its private Wi-Fi address, the portal does not recognize the device again',
+                    'The RADIUS server regularly loses its database',
+                    'The guest VLAN is recreated every two weeks',
+                ],
+            },
+            'answer': 1,
+            'explanation': {
+                'de': 'Das Portal bindet die Anmeldung an die MAC-Adresse. In offenen Netzen wechseln aktuelle iOS-Versionen die private Adresse standardmäßig alle zwei Wochen — für das Portal ist das dann ein neues, unbekanntes Gerät. Das Konto selbst ist weiterhin gültig.',
+                'en': 'The portal ties the login to the MAC address. On open networks current iOS versions rotate the private address every two weeks by default — for the portal this is then a new, unknown device. The account itself is still valid.',
+            },
+        },
+        {
+            'id': 'gu7',
+            'type': 'multi',
+            'prompt': {
+                'de': 'Ein Gastgerät verbindet sich, aber die Portalseite erscheint nie. Welche Dienste MUSS der eingeschränkte Zustand vor der Anmeldung erlauben, damit die Umleitung funktioniert? (Mehrere richtig)',
+                'en': 'A guest device connects, but the portal page never appears. Which services MUST the restricted pre-login state allow for the redirect to work? (Several correct)',
+            },
+            'options': {
+                'de': [
+                    'DHCP',
+                    'DNS',
+                    'HTTPS-Zugriff auf den Portal-Server',
+                    'SMB-Zugriff auf den internen Dateiserver',
+                ],
+                'en': [
+                    'DHCP',
+                    'DNS',
+                    'HTTPS access to the portal server',
+                    'SMB access to the internal file server',
+                ],
+            },
+            'answer': [0, 1, 2],
+            'explanation': {
+                'de': 'Ohne Adresse (DHCP) und Namensauflösung (DNS) kommt gar kein Web-Aufruf zustande, den der Switch umleiten könnte — und die Portalseite selbst muss erreichbar sein. Am häufigsten fehlt DNS in der Vor-Anmelde-ACL. Interne Dienste gehören nie hinein.',
+                'en': 'Without an address (DHCP) and name resolution (DNS) there is no web request the switch could redirect — and the portal page itself has to be reachable. DNS is what is most often missing from the pre-login ACL. Internal services never belong in it.',
+            },
+        },
     ]},
 }

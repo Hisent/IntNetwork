@@ -34,6 +34,10 @@ export interface UseFileCommandLabArgs {
   storageKey: string | null
   defaultTemplate: FileCommandTemplate
   templateById: (id: string) => FileCommandTemplate
+  // Vorlagen des aktuellen Moduls: Der Speicher gilt je Teilnehmer/Kurs, nicht
+  // je Modul — ein gespeicherter Stand bleibt nur, wenn seine Vorlage hierzu
+  // gehört, sonst startet das Widget mit defaultTemplate (wie im Ansible-Lab).
+  moduleTemplateIds?: string[]
 }
 
 export interface FileCommandLabState {
@@ -65,13 +69,17 @@ export interface FileCommandLabState {
 // Idempotenz-Sonderlogik (zweiter-Lauf-Vergleich) dazu, die hier keine
 // Entsprechung hat.
 export function useFileCommandLab({
-  kind, lang, storageKey, defaultTemplate, templateById,
+  kind, lang, storageKey, defaultTemplate, templateById, moduleTemplateIds,
 }: UseFileCommandLabArgs): FileCommandLabState {
-  const [snap] = useState<Snapshot>(() => readSnapshot(storageKey, isSnapshot, () => ({
-    templateId: defaultTemplate.id,
-    files: filesFromRecord(defaultTemplate.files),
-    commands: [...defaultTemplate.commands],
-  })))
+  const [snap] = useState<Snapshot>(() => {
+    const fresh = () => ({
+      templateId: defaultTemplate.id,
+      files: filesFromRecord(defaultTemplate.files),
+      commands: [...defaultTemplate.commands],
+    })
+    const stored = readSnapshot(storageKey, isSnapshot, fresh)
+    return moduleTemplateIds && !moduleTemplateIds.includes(stored.templateId) ? fresh() : stored
+  })
   const [templateId, setTemplateId] = useState(snap.templateId)
   const [files, setFiles] = useState<LabFile[]>(snap.files)
   const [commands, setCommands] = useState<string[]>(snap.commands)

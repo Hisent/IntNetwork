@@ -14,6 +14,13 @@ NAC_RADIUS_MODULE = {
         'RadSec als Transportschutz für RADIUS kurz erklären können',
         'RADIUS und TACACS+ anhand ihres jeweiligen Einsatzzwecks abgrenzen können',
     ],
+    'goals_en': [
+        'Distinguish the four RADIUS packet types (Access-Request/Accept/Reject/Challenge)',
+        'Explain how RADIUS attributes enable dynamic VLAN assignment',
+        'Place RADIUS accounting in context',
+        'Briefly explain RadSec as transport protection for RADIUS',
+        'Tell RADIUS and TACACS+ apart by their respective purpose',
+    ],
     'scenario': {
         'de': 'Bei Nordwind Logistik steht der Authenticator (Switch/AP), aber die eigentliche '
               'Entscheidung — wer reinkommt und in welchem VLAN — trifft der RADIUS-Server. '
@@ -59,6 +66,82 @@ NAC_RADIUS_MODULE = {
                    'password, a PIN, or a token; used for multi-step EAP exchanges (see module '
                    'nac-8021x, step 5 of the flow).',
          }},
+        {
+            'type': 'diagram',
+            'id': 'diagram-radius-ablauf',
+            'note': 'Attributnamen nach RFC 2865/3579/3580. Die Zahl der Challenge-Runden hängt von der EAP-Methode ab — hier ist nur eine gezeigt.',
+            'payload': {
+                'kind': 'sequence',
+                'title_de': 'RADIUS: Request, Challenge, Accept',
+                'title_en': 'RADIUS: request, challenge, accept',
+                'caption_de': 'Der Switch (NAS) fragt, der Server antwortet — UDP 1812.',
+                'caption_en': 'The switch (NAS) asks, the server answers — UDP 1812.',
+                'actors': [
+                    {
+                        'id': 'nas',
+                        'label': 'Switch (NAS)',
+                    },
+                    {
+                        'id': 'srv',
+                        'label_de': 'RADIUS-Server',
+                        'label_en': 'RADIUS server',
+                    },
+                ],
+                'messages': [
+                    {
+                        'from': 'nas',
+                        'to': 'srv',
+                        'label': 'Access-Request',
+                        'detail_de': 'Enthält u. a. User-Name, NAS-IP-Address, NAS-Port, Calling-Station-Id (MAC des Clients) und die EAP-Nachricht im Attribut EAP-Message.',
+                        'detail_en': 'Contains among others User-Name, NAS-IP-Address, NAS-Port, Calling-Station-Id (the client MAC) and the EAP message in the EAP-Message attribute.',
+                    },
+                    {
+                        'from': 'srv',
+                        'to': 'nas',
+                        'label': 'Access-Challenge',
+                        'style': 'reply',
+                        'detail_de': 'Der Server braucht mehr: Die nächste EAP-Nachricht reist in EAP-Message, das Attribut State hält die Runden zusammen.',
+                        'detail_en': 'The server needs more: the next EAP message travels in EAP-Message, the State attribute ties the rounds together.',
+                    },
+                    {
+                        'from': 'nas',
+                        'to': 'srv',
+                        'label': 'Access-Request',
+                        'detail_de': 'Antwort des Clients, vom Switch unverändert weitergereicht (mit State). Challenge und Request wiederholen sich, bis die EAP-Methode fertig ist.',
+                        'detail_en': "The client's answer, passed on unchanged by the switch (with State). Challenge and request repeat until the EAP method is finished.",
+                    },
+                    {
+                        'from': 'srv',
+                        'to': 'srv',
+                        'label_de': 'prüft Identität + Policy',
+                        'label_en': 'checks identity + policy',
+                        'detail_de': 'Erst Authentifizierung, dann Auswahl der Autorisierungsregel.',
+                        'detail_en': 'First authentication, then selection of the authorization rule.',
+                    },
+                    {
+                        'from': 'srv',
+                        'to': 'nas',
+                        'label': 'Access-Accept',
+                        'style': 'reply',
+                        'detail_de': 'Mit den Autorisierungs-Attributen: Tunnel-Type=VLAN, Tunnel-Medium-Type=802, Tunnel-Private-Group-ID=20 — dazu evtl. Session-Timeout oder Filter-Id.',
+                        'detail_en': 'With the authorization attributes: Tunnel-Type=VLAN, Tunnel-Medium-Type=802, Tunnel-Private-Group-ID=20 — possibly also Session-Timeout or Filter-Id.',
+                    },
+                    {
+                        'from': 'nas',
+                        'to': 'srv',
+                        'label': 'Accounting-Request (Start)',
+                        'detail_de': 'Eigener Austausch auf UDP 1813: Die Sitzung beginnt. Später folgen Interim-Updates und ein Stop.',
+                        'detail_en': 'A separate exchange on UDP 1813: the session starts. Interim updates and a stop follow later.',
+                    },
+                    {
+                        'from': 'srv',
+                        'to': 'nas',
+                        'label': 'Accounting-Response',
+                        'style': 'reply',
+                    },
+                ],
+            },
+        },
         {'type': 'check', 'id': 'check-1',
          'payload': {
              'kind': 'choice',
@@ -94,7 +177,7 @@ NAC_RADIUS_MODULE = {
                    '- **Tunnel-Private-Group-ID** = die eigentliche VLAN-ID\n\n'
                    'So kann derselbe physische Port bei Nordwind je nach Identität in ganz '
                    'unterschiedliche VLANs führen: ein Firmen-Laptop ins Mitarbeiter-VLAN, ein '
-                   'Gast ins Gäste-VLAN — ohne dass am Port selbst etwas manuell umkonfiguriert '
+                   'Gast ins Gast-VLAN — ohne dass am Port selbst etwas manuell umkonfiguriert '
                    'werden muss. Das baut auf dem VLAN-Modul der Plattform auf.',
              'en': '## Dynamic VLAN Assignment via Attributes\n\n'
                    'In the **Access-Accept**, the RADIUS server can include attributes that tell '
@@ -111,7 +194,7 @@ NAC_RADIUS_MODULE = {
         {'type': 'debug', 'id': 'debug-1',
          'payload': {
              'prompt_de': 'Ein Mitarbeiter-Laptop bei Nordwind wird erfolgreich authentifiziert '
-                          '(Access-Accept), landet aber im Gäste-VLAN statt im Mitarbeiter-VLAN. '
+                          '(Access-Accept), landet aber im Gast-VLAN statt im Mitarbeiter-VLAN. '
                           'Welche der folgenden Aussagen zu diesem Fehlerbild ist falsch?',
              'prompt_en': 'An employee laptop at Nordwind is successfully authenticated '
                          '(Access-Accept) but ends up in the guest VLAN instead of the employee '
@@ -149,6 +232,48 @@ NAC_RADIUS_MODULE = {
                                'Private-Group-ID values, or a misconfigured authorization rule '
                                'that matches the user to the wrong group.',
          }},
+        {
+            'type': 'match',
+            'id': 'match-radius-attribute',
+            'payload': {
+                'prompt_de': 'Ordne jedem RADIUS-Attribut seinen Zweck zu.',
+                'prompt_en': 'Match each RADIUS attribute to its purpose.',
+                'pairs': [
+                    {
+                        'left': 'Calling-Station-Id',
+                        'right_de': 'MAC-Adresse des Endgeräts, das sich anmeldet',
+                        'right_en': 'MAC address of the endpoint that is logging in',
+                    },
+                    {
+                        'left': 'NAS-IP-Address',
+                        'right_de': 'IP-Adresse des Switches, der die Anfrage stellt',
+                        'right_en': 'IP address of the switch that sends the request',
+                    },
+                    {
+                        'left': 'EAP-Message',
+                        'right_de': 'Transportiert die EAP-Nachricht des Supplicants',
+                        'right_en': 'Carries the EAP message of the supplicant',
+                    },
+                    {
+                        'left': 'Tunnel-Private-Group-ID',
+                        'right_de': 'VLAN, in das der Port gelegt werden soll',
+                        'right_en': 'VLAN the port is to be placed into',
+                    },
+                    {
+                        'left': 'Filter-Id',
+                        'right_de': 'Name einer ACL, die auf dem Switch schon existiert',
+                        'right_en': 'Name of an ACL that already exists on the switch',
+                    },
+                    {
+                        'left': 'Session-Timeout',
+                        'right_de': 'Sekunden bis zur erneuten Authentifizierung',
+                        'right_en': 'Seconds until the next re-authentication',
+                    },
+                ],
+                'explanation_de': 'Die ersten drei stehen im Access-Request (wer fragt für wen), die letzten drei im Access-Accept (was folgt daraus). Session-Timeout bedeutet nur zusammen mit Termination-Action=RADIUS-Request „neu authentifizieren“.',
+                'explanation_en': 'The first three are in the Access-Request (who asks on whose behalf), the last three in the Access-Accept (what follows). Session-Timeout only means "re-authenticate" together with Termination-Action=RADIUS-Request.',
+            },
+        },
         {'type': 'text', 'id': 'text-3',
          'value': {
              'de': '## Accounting\n\n'
@@ -172,6 +297,39 @@ NAC_RADIUS_MODULE = {
                    'device was active in which network segment and when — relevant for audits '
                    'and incident analysis.',
          }},
+        {
+            'type': 'cloze',
+            'id': 'cloze-aaa-radius',
+            'note': 'Syntax nach Cisco IOS-XE 17.x (benannter „radius server“-Block). Das Shared Secret ist ein Platzhalter. „aaa authorization network“ wird oft vergessen — dann ignoriert der Switch das VLAN.',
+            'payload': {
+                'prompt_de': 'Mache den RADIUS-Server 10.10.0.11 auf dem Switch bekannt und nutze ihn für 802.1X, VLAN-Zuweisung und Accounting.',
+                'prompt_en': 'Define the RADIUS server 10.10.0.11 on the switch and use it for 802.1X, VLAN assignment, and accounting.',
+                'mono': True,
+                'text': 'aaa new-model\n!\nradius server ISE-1\n address ipv4 10.10.0.11 auth-port [[auth]] acct-port [[acct]]\n key <shared-secret>\n!\naaa group server radius NAC\n server name ISE-1\n!\naaa authentication dot1x default group NAC\naaa [[authz]] network default group NAC\naaa accounting [[acct_type]] default start-stop group NAC',
+                'gaps': [
+                    {
+                        'id': 'auth',
+                        'accept': ['1812'],
+                    },
+                    {
+                        'id': 'acct',
+                        'accept': ['1813'],
+                    },
+                    {
+                        'id': 'authz',
+                        'options': ['authorization', 'authentication', 'accounting'],
+                        'answer': 0,
+                    },
+                    {
+                        'id': 'acct_type',
+                        'options': ['dot1x', 'exec', 'commands'],
+                        'answer': 0,
+                    },
+                ],
+                'explanation_de': '1812 ist der Port für Authentifizierung, 1813 für Accounting. Erst „aaa authorization network“ erlaubt dem Switch, Autorisierungs-Attribute aus dem Access-Accept (VLAN, ACL) anzuwenden — fehlt die Zeile, klappt die Anmeldung, aber das Gerät bleibt im statischen Port-VLAN.',
+                'explanation_en': '1812 is the port for authentication, 1813 for accounting. Only "aaa authorization network" allows the switch to apply authorization attributes from the Access-Accept (VLAN, ACL) — without that line the login works, but the device stays in the static port VLAN.',
+            },
+        },
         {'type': 'text', 'id': 'text-4',
          'note': 'RadSec kompakt halten: Kernpunkt ist TLS-Kapselung ganzer RADIUS-Pakete statt '
                  'nur des Passworts. Keine Konfigurationsdetails, nur das Prinzip.',
@@ -249,6 +407,57 @@ NAC_RADIUS_MODULE = {
                    'would decide who can log into a switch and which commands they may run '
                    'there.',
          }},
+        {
+            'type': 'diagram',
+            'id': 'diagram-radius-tacacs',
+            'payload': {
+                'kind': 'compare',
+                'title': 'RADIUS vs. TACACS+',
+                'columns': [
+                    {
+                        'title': 'RADIUS',
+                    },
+                    {
+                        'title': 'TACACS+',
+                    },
+                ],
+                'rows': [
+                    {
+                        'label_de': 'Typischer Zweck',
+                        'label_en': 'Typical purpose',
+                        'values_de': ['Netzzugang (802.1X, WLAN, VPN)', 'Administrativer Gerätezugriff (SSH, CLI)'],
+                        'values_en': ['Network access (802.1X, Wi-Fi, VPN)', 'Administrative device access (SSH, CLI)'],
+                    },
+                    {
+                        'label': 'Transport',
+                        'values': ['UDP 1812 / 1813', 'TCP 49'],
+                    },
+                    {
+                        'label_de': 'Schutz der Nutzlast',
+                        'label_en': 'Payload protection',
+                        'values_de': ['Nur das Passwort-Attribut verborgen', 'Gesamter Paketkörper verschleiert'],
+                        'values_en': ['Only the password attribute hidden', 'Entire packet body obfuscated'],
+                    },
+                    {
+                        'label_de': 'AAA-Phasen',
+                        'label_en': 'AAA phases',
+                        'values_de': ['Authentifizierung + Autorisierung in einer Antwort', 'Drei getrennte Austausche'],
+                        'values_en': ['Authentication + authorization in one reply', 'Three separate exchanges'],
+                    },
+                    {
+                        'label_de': 'Befehls-Autorisierung',
+                        'label_en': 'Command authorization',
+                        'values_de': ['Nicht vorgesehen', 'Je Befehl möglich'],
+                        'values_en': ['Not provided', 'Possible per command'],
+                    },
+                    {
+                        'label_de': 'Spezifikation',
+                        'label_en': 'Specification',
+                        'values': ['RFC 2865 / 2866', 'RFC 8907'],
+                    },
+                ],
+            },
+        },
         {'type': 'reflect', 'id': 'reflect-1',
          'payload': {
              'prompt_de': 'Nordwind nutzt RADIUS bereits für den Netzzugang der Mitarbeiter-'
@@ -279,6 +488,10 @@ NAC_RADIUS_MODULE = {
                  'Access-Reject',
                  'Access-Request',
              ],
+         },
+         'explanation': {
+             'de': 'Access-Reject ist die endgültige Ablehnung. Access-Challenge ist dagegen keine Ablehnung, sondern eine Rückfrage — die Anmeldung läuft danach weiter.',
+             'en': 'Access-Reject is the final denial. Access-Challenge, by contrast, is not a denial but a follow-up question — the login continues afterwards.',
          }},
         {'id': 'rd2', 'type': 'single',
          'prompt': {'de': 'Welche drei Attribute ermöglichen zusammen die dynamische VLAN-'
@@ -299,6 +512,10 @@ NAC_RADIUS_MODULE = {
                  'Calling-Station-ID, Called-Station-ID, NAS-IP-Address',
                  'Service-Type, Framed-Protocol, Session-Timeout',
              ],
+         },
+         'explanation': {
+             'de': 'RFC 3580 legt für die VLAN-Zuweisung genau diese drei Tunnel-Attribute fest: Tunnel-Type=VLAN, Tunnel-Medium-Type=802 und die VLAN-ID in Tunnel-Private-Group-ID. Calling-Station-Id und Co. beschreiben nur, wer anfragt.',
+             'en': 'RFC 3580 defines exactly these three tunnel attributes for VLAN assignment: Tunnel-Type=VLAN, Tunnel-Medium-Type=802, and the VLAN ID in Tunnel-Private-Group-ID. Calling-Station-Id and the like only describe who is asking.',
          }},
         {'id': 'rd3', 'type': 'single',
          'prompt': {'de': 'Was ist der zentrale Vorteil von RadSec gegenüber klassischem '
@@ -321,6 +538,10 @@ NAC_RADIUS_MODULE = {
                  'RadSec runs exclusively inside TACACS+',
                  'RadSec replaces VLAN assignment with static IP allocation',
              ],
+         },
+         'explanation': {
+             'de': 'RadSec legt das ganze RADIUS-Paket in einen TLS-Tunnel; klassisches RADIUS verbirgt nur das Passwort-Attribut, Benutzername und VLAN bleiben lesbar. Schneller wird dadurch nichts.',
+             'en': 'RadSec puts the whole RADIUS packet into a TLS tunnel; classic RADIUS only hides the password attribute, while username and VLAN remain readable. It does not make anything faster.',
          }},
         {'id': 'rd4', 'type': 'single',
          'prompt': {'de': 'Wofür wird TACACS+ typischerweise eingesetzt, im Unterschied zu '
@@ -340,10 +561,14 @@ NAC_RADIUS_MODULE = {
                  'For RADIUS accounting on port 1813',
                  'For administrative device access, e.g. CLI login on switches',
              ],
+         },
+         'explanation': {
+             'de': 'TACACS+ regelt, wer sich auf Netzwerkgeräten anmelden und welche Befehle er ausführen darf. VLAN-Zuweisung bei 802.1X ist dagegen die Domäne von RADIUS.',
+             'en': 'TACACS+ governs who may log in to network devices and which commands they may run. VLAN assignment in 802.1X, by contrast, is the domain of RADIUS.',
          }},
         {'id': 'rd5', 'type': 'single',
          'prompt': {'de': 'Ein Mitarbeiter-Laptop landet trotz erfolgreicher Authentifizierung '
-                          'im Gäste-VLAN. Was ist eine plausible Ursache?',
+                          'im Gast-VLAN. Was ist eine plausible Ursache?',
                     'en': 'An employee laptop ends up in the guest VLAN despite successful '
                          'authentication. What is a plausible cause?'},
          'answer': 1,
@@ -362,6 +587,50 @@ NAC_RADIUS_MODULE = {
                  'An employee password that is too short',
                  'Missing NTP synchronization on the switch',
              ],
+         },
+         'explanation': {
+             'de': 'Die Authentifizierung war erfolgreich, also stimmt das Ergebnis der Autorisierung nicht: falsche Regel oder falscher Attributwert. Kabel und Passwortlänge hätten schon die Anmeldung verhindert.',
+             'en': 'Authentication succeeded, so it is the authorization result that is wrong: wrong rule or wrong attribute value. Cabling or password length would already have prevented the login.',
          }},
+        {
+            'id': 'rd6',
+            'type': 'number',
+            'prompt': {
+                'de': 'Ein Access-Accept enthält: Tunnel-Type = VLAN (13), Tunnel-Medium-Type = 802 (6), Tunnel-Private-Group-ID = "40", Session-Timeout = 28800. In welches VLAN legt der Switch den Port?',
+                'en': 'An Access-Accept contains: Tunnel-Type = VLAN (13), Tunnel-Medium-Type = 802 (6), Tunnel-Private-Group-ID = "40", Session-Timeout = 28800. Which VLAN does the switch place the port in?',
+            },
+            'answer': 40,
+            'explanation': {
+                'de': 'Die VLAN-ID steht in Tunnel-Private-Group-ID. Die 13 und die 6 sind nur die Codes für „VLAN“ und „802“, und Session-Timeout ist eine Zeit in Sekunden (hier 8 Stunden), kein VLAN.',
+                'en': 'The VLAN ID is in Tunnel-Private-Group-ID. The 13 and the 6 are merely the codes for "VLAN" and "802", and Session-Timeout is a time in seconds (here 8 hours), not a VLAN.',
+            },
+        },
+        {
+            'id': 'rd7',
+            'type': 'single',
+            'prompt': {
+                'de': 'Geräte melden sich erfolgreich an, bleiben aber im statisch konfigurierten Port-VLAN, obwohl der RADIUS-Server im Access-Accept nachweislich VLAN 20 mitschickt. Welche Zeile fehlt auf dem Switch am wahrscheinlichsten?',
+                'en': 'Devices log in successfully but stay in the statically configured port VLAN, although the RADIUS server demonstrably sends VLAN 20 in the Access-Accept. Which line is most likely missing on the switch?',
+            },
+            'options': {
+                'de': [
+                    'aaa authentication dot1x default group radius',
+                    'aaa authorization network default group radius',
+                    'dot1x system-auth-control',
+                    'aaa accounting dot1x default start-stop group radius',
+                ],
+                'en': [
+                    'aaa authentication dot1x default group radius',
+                    'aaa authorization network default group radius',
+                    'dot1x system-auth-control',
+                    'aaa accounting dot1x default start-stop group radius',
+                ],
+            },
+            'answer': 1,
+            'explanation': {
+                'de': 'Ohne „aaa authorization network“ wertet der Switch die Autorisierungs-Attribute des Servers nicht aus. Fehlten die Authentifizierungs-Zeile oder „dot1x system-auth-control“, käme gar keine erfolgreiche 802.1X-Anmeldung zustande.',
+                'en': 'Without "aaa authorization network" the switch does not evaluate the server\'s authorization attributes. If the authentication line or "dot1x system-auth-control" were missing, there would be no successful 802.1X login at all.',
+            },
+        },
     ]},
 }

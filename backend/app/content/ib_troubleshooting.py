@@ -19,6 +19,12 @@ IB_TROUBLESHOOTING_MODULE = {
         "Den Gesamtzusammenhang der Module aus Architektur, DNS, DHCP/IPAM und Betrieb in "
         "eigenen Worten wiedergeben können",
     ],
+    "goals_en": [
+        "Apply a systematic troubleshooting method (symptom → hypothesis → check) to DDI incidents",
+        "Derive the component most likely affected from an incident report (DNS view/forwarder, DHCP failover, zone transfer, backup/restore)",
+        "Name the most important tools and log sources in the Grid for the incident at hand",
+        "Describe in your own words how the modules on architecture, DNS, DHCP/IPAM and operations fit together",
+    ],
     "scenario": {
         "de": "Du bist jetzt für den laufenden Betrieb des Infoblox-Grids verantwortlich — "
               "die Architektur steht, DNS und DHCP/IPAM sind konfiguriert, Backups laufen, "
@@ -69,7 +75,7 @@ IB_TROUBLESHOOTING_MODULE = {
         {"type": "text", "id": "text-2",
          "value": {
              "de": "## Vier häufige Störungsbilder\n\n"
-                   "- **Client bekommt keine Adresse** — Adressraum im Scope erschöpft, oder "
+                   "- **Client bekommt keine Adresse** — Adressraum im Bereich (Range) erschöpft, oder "
                    "der DHCP-Failover-Partner hat den Bereich nicht sauber übernommen (siehe "
                    "`dhcp-failover`).\n"
                    "- **Name löst nicht auf** — die falsche DNS-View antwortet zuerst, ein "
@@ -80,12 +86,12 @@ IB_TROUBLESHOOTING_MODULE = {
                    "zusammen.\n"
                    "- **Failover-Partner meldet einen Fehler** — Kommunikationsport blockiert, "
                    "Uhren nicht synchron, oder ein Partner wurde beim Wechsel falsch behandelt "
-                   "(Dienst statt Switch-Port hätte gestoppt werden müssen).\n\n"
+                   "(vor „Partner Down“ muss der Dienst gestoppt werden, nicht nur der Switch-Port).\n\n"
                    "Alle vier Bilder lassen sich, bevor überhaupt ein Werkzeug angefasst wird, "
                    "grob einer der bekannten Komponenten zuordnen — das allein grenzt den "
                    "Suchraum meist schon stark ein.",
              "en": "## Four Common Fault Patterns\n\n"
-                   "- **Client gets no address** — the scope's address pool is exhausted, or "
+                   "- **Client gets no address** — the range's address pool is exhausted, or "
                    "the DHCP failover partner did not cleanly take over the range (see "
                    "`dhcp-failover`).\n"
                    "- **Name does not resolve** — the wrong DNS view answers first, a "
@@ -95,12 +101,144 @@ IB_TROUBLESHOOTING_MODULE = {
                    "configuration between primary and secondary server does not line up.\n"
                    "- **Failover partner reports an error** — the communication port is "
                    "blocked, clocks are out of sync, or a partner was handled incorrectly "
-                   "during a handover (the service should have been stopped, not the switch "
-                   "port).\n\n"
+                   "during a handover (before “Partner Down” the service must be stopped, not just the "
+                   "switch port).\n\n"
                    "All four patterns can, before any tool is even touched, be roughly mapped "
                    "to one of the known components — that alone usually narrows the search "
                    "space significantly.",
          }},
+        {
+            "type": "diagram",
+            "id": "diagram-symptom-werkzeug",
+            "note": "Als Spickzettel für die folgenden Übungen stehen lassen. Die Zuordnung ist ein Startpunkt, kein Automatismus — der Fall im zweiten Terminal führt von Spalte 4 zu einer Ursache, die man dort nicht sofort vermutet.",
+            "payload": {
+                "kind": "flow",
+                "title_de": "Vom Symptom über die Komponente zum Werkzeug",
+                "title_en": "From symptom via component to tool",
+                "caption_de": "Spaltenweise von oben nach unten lesen. Die Knoten sind anklickbar.",
+                "caption_en": "Read each column top to bottom. The nodes are clickable.",
+                "nodes": [
+                    {
+                        "id": "s1",
+                        "shape": "decision",
+                        "row": 0,
+                        "col": 0,
+                        "label_de": "Client ohne Adresse",
+                        "label_en": "Client without address",
+                        "detail_de": "Erste Frage: ein Client oder viele? Ein Netz oder mehrere?",
+                        "detail_en": "First question: one client or many? One network or several?",
+                    },
+                    {
+                        "id": "s2",
+                        "shape": "decision",
+                        "row": 0,
+                        "col": 1,
+                        "label_de": "Name löst falsch auf",
+                        "label_en": "Name resolves wrongly",
+                        "detail_de": "Erste Frage: Falsche Antwort, keine Antwort oder SERVFAIL? Für alle oder nur für manche?",
+                        "detail_en": "First question: wrong answer, no answer or SERVFAIL? For everyone or only for some?",
+                    },
+                    {
+                        "id": "s3",
+                        "shape": "decision",
+                        "row": 0,
+                        "col": 2,
+                        "label_de": "Sekundär veraltet",
+                        "label_en": "Secondary is stale",
+                        "detail_de": "Erste Frage: Ist es ein Grid-Member (Replikation) oder ein externer Server (Zonentransfer)?",
+                        "detail_en": "First question: is it a Grid member (replication) or an external server (zone transfer)?",
+                    },
+                    {
+                        "id": "s4",
+                        "shape": "decision",
+                        "row": 0,
+                        "col": 3,
+                        "label_de": "Failover-\nAlarm",
+                        "label_en": "Failover alarm",
+                        "detail_de": "Erste Frage: Ist der Partner wirklich aus — oder nur nicht erreichbar?",
+                        "detail_en": "First question: is the partner really down — or merely unreachable?",
+                    },
+                    {
+                        "id": "k1",
+                        "row": 1,
+                        "col": 0,
+                        "label_de": "DHCP: Bereich, Leases",
+                        "label_en": "DHCP: range, leases",
+                    },
+                    {
+                        "id": "k2",
+                        "row": 1,
+                        "col": 1,
+                        "label_de": "DNS: View, Forwarder, DNSSEC",
+                        "label_en": "DNS: view, forwarder, DNSSEC",
+                    },
+                    {
+                        "id": "k3",
+                        "row": 1,
+                        "col": 2,
+                        "label_de": "Transfer: Freigabe, TSIG",
+                        "label_en": "Transfer: permission, TSIG",
+                    },
+                    {
+                        "id": "k4",
+                        "row": 1,
+                        "col": 3,
+                        "label_de": "Peers: Port, Zeit, Zustand",
+                        "label_en": "Peers: port, time, state",
+                    },
+                    {
+                        "id": "w1",
+                        "shape": "server",
+                        "row": 2,
+                        "col": 0,
+                        "label_de": "Lease-Ansicht, Syslog",
+                        "label_en": "Lease view, syslog",
+                        "detail_de": "Ist der Bereich voll? Kommt die Anfrage des Clients überhaupt beim Member an?",
+                        "detail_en": "Is the range full? Does the client's request reach the member at all?",
+                    },
+                    {
+                        "id": "w2",
+                        "shape": "server",
+                        "row": 2,
+                        "col": 1,
+                        "label_de": "dig gegen den Member",
+                        "label_en": "dig against the member",
+                        "detail_de": "Direkt den Member fragen, dann über den Resolver des Clients — der Unterschied zeigt, wo die falsche Antwort entsteht. Bei SERVFAIL zusätzlich mit +cd.",
+                        "detail_en": "Ask the member directly, then through the client's resolver — the difference shows where the wrong answer arises. For SERVFAIL additionally with +cd.",
+                    },
+                    {
+                        "id": "w3",
+                        "shape": "server",
+                        "row": 2,
+                        "col": 2,
+                        "label_de": "dig SOA auf beiden Seiten",
+                        "label_en": "dig SOA on both sides",
+                        "detail_de": "Serials vergleichen; danach im Syslog des Primärs nach abgelehnten Transfers suchen.",
+                        "detail_en": "Compare serials; then search the primary's syslog for refused transfers.",
+                    },
+                    {
+                        "id": "w4",
+                        "shape": "server",
+                        "row": 2,
+                        "col": 3,
+                        "label_de": "Failover-Status, show ntp",
+                        "label_en": "Failover status, show ntp",
+                        "detail_de": "Zustand beider Peers ansehen, dann die Voraussetzungen: Erreichbarkeit des Failover-Ports und synchrone Uhren.",
+                        "detail_en": "Look at the state of both peers, then at the prerequisites: reachability of the failover port and synchronized clocks.",
+                    },
+                ],
+                "edges": [
+                    {"from": "s1", "to": "k1"},
+                    {"from": "s2", "to": "k2"},
+                    {"from": "s3", "to": "k3"},
+                    {"from": "s4", "to": "k4"},
+                    {"from": "k1", "to": "w1"},
+                    {"from": "k2", "to": "w2"},
+                    {"from": "k3", "to": "w3"},
+                    {"from": "k4", "to": "w4"},
+                ],
+            },
+        },
         {"type": "check", "id": "check-1", "payload": {
             "kind": "choice",
             "prompt_de": "Meldung: „Externe Nutzer bekommen dieselben internen DNS-Antworten "
@@ -145,32 +283,32 @@ IB_TROUBLESHOOTING_MODULE = {
             "lines_de": ["Wartungsfenster für Server B ist angekündigt und bestätigt.",
                          "Der Techniker deaktiviert den Switch-Port von Server B, um ihn vom "
                          "Netz zu nehmen.",
-                         "Laut Planung soll Server A in den Status Partner Down wechseln und "
-                         "den vollen Adressraum übernehmen.",
-                         "Zehn Minuten später zeigt Server A weiterhin nur Communication "
-                         "Interrupted statt Partner Down."],
+                         "Laut Planung soll Server A in den Status Partner Down gesetzt werden "
+                         "und den vollen Adressraum übernehmen.",
+                         "Zehn Minuten später steht Server A weiterhin in Communication "
+                         "Interrupted, nicht in Partner Down."],
             "lines_en": ["The maintenance window for server B is announced and confirmed.",
                          "The technician disables server B's switch port to take it off the "
                          "network.",
-                         "Per the plan, server A should switch to Partner Down status and take "
+                         "Per the plan, server A should be set to Partner Down status and take "
                          "over the full address range.",
-                         "Ten minutes later, server A still shows only Communication "
-                         "Interrupted instead of Partner Down."],
+                         "Ten minutes later, server A is still in Communication "
+                         "Interrupted, not in Partner Down."],
             "wrong": [1],
             "explanation_de": "Der Fehler liegt darin, den Switch-Port zu deaktivieren statt "
                               "den DHCP-Dienst aktiv zu stoppen. Für Server A ist ein reines "
-                              "Abschalten des Ports nicht von einer kurzen Netzwerkstörung zu "
-                              "unterscheiden — er wechselt deshalb nicht in den erwarteten "
-                              "Status Partner Down. Bei einem geplanten Ausfall muss der Dienst "
-                              "selbst sauber gestoppt werden, damit der Partner den "
-                              "Unterschied zwischen „kurz weg“ und „geplant offline“ erkennt.",
+                              "Abschalten des Ports nicht von einer Netzwerkstörung zu "
+                              "unterscheiden — er bleibt in Communication Interrupted. Partner "
+                              "Down ist ein manuell gesetzter Zustand und darf erst gesetzt "
+                              "werden, wenn der Dienst auf B sicher gestoppt ist; bei einem "
+                              "geplanten Ausfall muss der Dienst selbst sauber gestoppt werden.",
             "explanation_en": "The mistake is disabling the switch port instead of actively "
                               "stopping the DHCP service. For server A, simply turning off the "
-                              "port is indistinguishable from a brief network glitch — so it "
-                              "does not switch to the expected Partner Down status. For a "
-                              "planned outage, the service itself must be stopped cleanly so "
-                              "the partner can tell the difference between “briefly "
-                              "unreachable” and “deliberately offline”.",
+                              "port is indistinguishable from a network fault — so it stays in "
+                              "Communication Interrupted. Partner Down is a manually set state "
+                              "and may only be set once the service on B is reliably stopped; "
+                              "for a planned outage, the service itself must be stopped "
+                              "cleanly.",
         }},
         {"type": "text", "id": "text-3",
          "value": {
@@ -209,8 +347,7 @@ IB_TROUBLESHOOTING_MODULE = {
                    "matching source — not randomly search every log at once.",
          }},
         {"type": "terminal", "id": "terminal-nios-status",
-         "note": "Ausgaben sind vereinfachte Beispiele im Stil der NIOS-CLI (Zugang per SSH/Konsole). "
-                 "Am echten System weichen Formatierung und Werte je Version ab.",
+         "note": "Ausgabeformate nach dem NIOS CLI Guide (show status, show network, show version, show ntp, show upgrade_history), gekürzt: show network ohne VLAN-, DSCP- und IPv6-Zeilen, show ntp ohne die Spalte jitter. Werte sind Beispiele; Zugang per SSH oder Konsole.",
          "payload": {
              "title_de": "Erste Lage am Grid Master: NIOS-CLI",
              "title_en": "First look at the Grid Master: NIOS CLI",
@@ -220,23 +357,16 @@ IB_TROUBLESHOOTING_MODULE = {
              "commands": [
                  {"cmd": "show status",
                   "desc_de": "Grid- und HA-Status dieses Knotens", "desc_en": "grid and HA status of this node",
-                  "output": "Grid Status: ID Grid Master\nHA Status:   Not Configured"},
+                  "output": "Grid Status: ID Grid Master\nHA Status: Not Configured"},
                  {"cmd": "show network",
                   "desc_de": "IP-Einstellungen der LAN1-Schnittstelle", "desc_en": "IP settings of the LAN1 interface",
-                  "output": "Current LAN1 Network Settings:\n"
-                            "    IPv4 Address:     10.10.0.11\n"
-                            "    Network Mask:     255.255.255.0\n"
-                            "    Gateway Address:  10.10.0.1\n"
-                            "    HA enabled:       false\n"
-                            "    Grid Status:      Master of Infoblox Grid"},
+                  "output": "Current LAN1 network settings:\n  IP Address: 192.0.2.10\n  Network Mask: 255.255.255.0\n  Gateway Address: 192.0.2.1\n\n  HA enabled: false"},
                  {"cmd": "show version",
                   "desc_de": "NIOS-Version und Seriennummer", "desc_en": "NIOS version and serial number",
                   "output": "Version : 9.0.5-52001\nSN      : 564D2A9B41C07F3E\nHotfix  : N/A"},
                  {"cmd": "show ntp",
                   "desc_de": "Zeitquellen und Abweichung", "desc_en": "time sources and offset",
-                  "output": "     remote          refid       st  when  poll  reach  offset\n"
-                            "==============================================================\n"
-                            "*10.10.0.1       192.53.103.108   2    41    64    377   0.118"},
+                  "output": " remote      refid          st t when poll reach delay  offset\n============================================================\n*192.0.2.1   198.51.100.123  2 u   41   64   377 0.412  0.118"},
                  {"cmd": "show upgrade_history",
                   "desc_de": "Bisherige Upgrades", "desc_en": "previous upgrades",
                   "output": "REVERT version is: 9.0.3-50212\n"
@@ -254,6 +384,68 @@ IB_TROUBLESHOOTING_MODULE = {
                   "answers": ["9.0.3", "9.0.3-50212"]},
              ],
          }},
+        {
+            "type": "terminal",
+            "id": "terminal-failover-fehlersuche",
+            "note": "Auflösung: Kein Stern vor der Zeitquelle und reach 0 — Member B erreicht seinen NTP-Server nicht, seine Uhr läuft frei. Die Failover-Peers verlangen synchrone Uhren; behoben wird also NTP (Firewall, Route, Zeitquelle), nicht das Failover. Befehle und Spalten nach dem NIOS CLI Guide (show log mit tail, show ntp, show status, show network); die Syslog-Zeilen sind vereinfacht und folgen den Meldungen des ISC-DHCP-Dienstes.",
+            "payload": {
+                "title_de": "Fehlersuche: Das Failover-Paar findet nicht zusammen",
+                "title_en": "Troubleshooting: the failover pair will not come together",
+                "intro_de": "Störung: Seit dem Neustart von Member B steht das Failover-Paar nicht mehr auf Normal. Du bist an der Konsole von Member B. Vereinfachte Darstellung der Log-Zeilen.",
+                "intro_en": "Incident: since member B was restarted, the failover pair is no longer in Normal. You are on the console of member B. Log lines are a simplified rendering.",
+                "prompt": "Infoblox >",
+                "unknown_de": "Unbekannter Befehl: {cmd} (help zeigt die Befehlsliste)",
+                "unknown_en": "Unknown command: {cmd} (help lists the commands)",
+                "commands": [
+                    {
+                        "cmd": "show status",
+                        "desc_de": "Rolle dieses Knotens",
+                        "desc_en": "role of this node",
+                        "output": "Grid Status: ID Grid Member\nHA Status: Not Configured\nHostname: dhcp-b.nordwind.example\nGrid Master IP: 192.0.2.10",
+                    },
+                    {
+                        "cmd": "show log syslog tail 4",
+                        "aliases": ["show log tail 4"],
+                        "desc_de": "die letzten vier Syslog-Zeilen",
+                        "desc_en": "the last four syslog lines",
+                        "output": "Oct 13 09:41:02 dhcpd[2217]: failover peer nordwind-fo:\n  I move from recover to startup\nOct 13 09:41:17 dhcpd[2217]: Failover CONNECT to\n  nordwind-fo rejected: Connection rejected, time\n  mismatch too great.\nOct 13 09:41:47 dhcpd[2217]: Failover CONNECT to\n  nordwind-fo rejected: Connection rejected, time\n  mismatch too great.\nOct 13 09:42:03 ntpd[1408]: no servers reachable",
+                    },
+                    {
+                        "cmd": "show ntp",
+                        "desc_de": "Zeitquellen dieses Knotens",
+                        "desc_en": "time sources of this node",
+                        "output": " remote      refid   st t when poll reach delay  offset\n============================================================\n 192.0.2.1   .INIT.  16 u    -   64     0 0.000   0.000",
+                    },
+                    {
+                        "cmd": "show network",
+                        "desc_de": "Netzwerkeinstellungen",
+                        "desc_en": "network settings",
+                        "output": "Current LAN1 network settings:\n  IP Address: 198.51.100.21\n  Network Mask: 255.255.255.0\n  Gateway Address: 198.51.100.1\n\n  HA enabled: false\n  Grid Status: Member of Infoblox Grid",
+                    },
+                ],
+                "tasks": [
+                    {"text_de": "Sieh dir die letzten Syslog-Zeilen an.",
+                     "text_en": "Look at the last syslog lines.",
+                     "command": "show log syslog tail 4"},
+                    {"text_de": "Warum lehnt der Partner die Failover-Verbindung ab? (ein Stichwort)",
+                     "text_en": "Why does the partner reject the failover connection? (one keyword)",
+                     "answers": ["zeit", "uhrzeit", "uhr", "time", "time mismatch", "zeitabweichung", "ntp"]},
+                    {"text_de": "Prüfe die Hypothese mit dem passenden Befehl.",
+                     "text_en": "Check the hypothesis with the matching command.",
+                     "command": "show ntp"},
+                    {"text_de": "Welchen Wert zeigt die Spalte reach für die Zeitquelle?",
+                     "text_en": "Which value does the reach column show for the time source?",
+                     "answers": ["0"],
+                     "explanation_de": "Kein Stern vor der Zeitquelle und reach 0: Member B erreicht seinen NTP-Server nicht, seine Uhr läuft frei.",
+                     "explanation_en": "No asterisk in front of the time source and reach 0: member B cannot reach its NTP server, its clock is free-running."},
+                    {"text_de": "Ist das Failover selbst falsch konfiguriert? (ja/nein)",
+                     "text_en": "Is the failover itself misconfigured? (yes/no)",
+                     "answers": ["nein", "no"],
+                     "explanation_de": "Die Failover-Peers verlangen synchrone Uhren – behoben wird also NTP (Firewall, Route, Zeitquelle), nicht das Failover.",
+                     "explanation_en": "The failover peers require synchronised clocks – so the fix is NTP (firewall, route, time source), not the failover."},
+                ],
+            },
+        },
         {"type": "reveal", "id": "reveal-1",
          "payload": {"teaser_de": "Meldung: „Nach einem Restore fehlen plötzlich alle "
                                   "geplanten Wartungsfenster.“ Welches Modul liefert die "
@@ -276,6 +468,81 @@ IB_TROUBLESHOOTING_MODULE = {
                    "“DHCP”, even though at first it looks like a general configuration "
                    "fault.",
          }},
+        {
+            "type": "scenario",
+            "id": "scenario-zone-geloescht",
+            "note": "Leitgedanke: der kleinste Eingriff, der das Problem löst. Ob und wie lange ein gelöschtes Objekt im Papierkorb liegt, in der eigenen Umgebung nachsehen lassen.",
+            "payload": {
+                "title_de": "„Ich habe gerade die falsche Zone gelöscht“",
+                "title_en": "\"I just deleted the wrong zone\"",
+                "start": "start",
+                "nodes": [
+                    {
+                        "id": "start",
+                        "text_de": "10:20 Uhr: Eine Kollegin meldet, sie habe statt einer Testzone die Zone lager.nordwind-intern.de mit 140 Records gelöscht. Die Lagerscanner fallen nach und nach aus. Das letzte Grid-Backup ist von 02:00 Uhr. Was ist dein erster Schritt?",
+                        "text_en": "10:20 a.m.: a colleague reports she deleted the zone lager.nordwind-intern.de with 140 records instead of a test zone. The warehouse scanners are failing one by one. The latest Grid backup is from 2:00 a.m. What is your first step?",
+                        "options": [
+                            {
+                                "label_de": "Sofort das Grid-Backup von 02:00 Uhr einspielen.",
+                                "label_en": "Restore the 2:00 a.m. Grid backup immediately.",
+                                "to": "restore",
+                            },
+                            {
+                                "label_de": "Prüfen, ob sich das gelöschte Objekt gezielt wiederherstellen lässt (Papierkorb).",
+                                "label_en": "Check whether the deleted object can be restored selectively (recycle bin).",
+                                "to": "papierkorb",
+                            },
+                            {
+                                "label_de": "Die Zone neu anlegen und die Records aus dem Gedächtnis eintragen.",
+                                "label_en": "Recreate the zone and enter the records from memory.",
+                                "to": "hand",
+                            },
+                        ],
+                    },
+                    {
+                        "id": "hand",
+                        "outcome": "bad",
+                        "text_de": "140 Records aus dem Gedächtnis: Einige werden fehlen, einige falsch sein — und die Fehler zeigen sich einzeln über Tage. Du hast aus einer Störung viele kleine gemacht.",
+                        "text_en": "140 records from memory: some will be missing, some wrong — and the mistakes surface one by one over days. You turned one incident into many small ones.",
+                    },
+                    {
+                        "id": "restore",
+                        "outcome": "bad",
+                        "text_de": "Der Restore setzt das gesamte Grid auf 02:00 Uhr zurück: Alle Änderungen des Vormittags an anderen Zonen und Netzen sind weg, geplante Aufgaben kommen nicht wieder, und der Grid Master ist während des Restores nicht verfügbar. Für eine einzelne Zone ist das der größte denkbare Hebel.",
+                        "text_en": "The restore sets the entire Grid back to 2:00 a.m.: all of the morning's changes to other zones and networks are gone, scheduled tasks do not return, and the Grid Master is unavailable during the restore. For a single zone this is the biggest lever imaginable.",
+                    },
+                    {
+                        "id": "papierkorb",
+                        "text_de": "Die Zone liegt im Papierkorb des Grid Managers und lässt sich wiederherstellen. Bevor du klickst: Was prüfst du danach als Erstes?",
+                        "text_en": "The zone is in Grid Manager's recycle bin and can be restored. Before you click: what do you check first afterwards?",
+                        "options": [
+                            {
+                                "label_de": "Nichts — wenn die Zone wieder in der Liste steht, ist die Störung behoben.",
+                                "label_en": "Nothing — once the zone is back in the list, the incident is resolved.",
+                                "to": "nichts",
+                            },
+                            {
+                                "label_de": "Mit dig prüfen, ob ein Scanner-Name wieder auflöst, und beim externen Sekundär den Serial vergleichen.",
+                                "label_en": "Use dig to check that a scanner name resolves again, and compare the serial on the external secondary.",
+                                "to": "pruefen",
+                            },
+                        ],
+                    },
+                    {
+                        "id": "nichts",
+                        "outcome": "ok",
+                        "text_de": "Wahrscheinlich geht es gut. Aber „steht in der Liste“ ist nicht „wird ausgeliefert“: Ob die Member die Zone wieder bedienen und der externe Sekundär nachgezogen hat, weißt du erst nach einer Abfrage.",
+                        "text_en": "It will probably be fine. But \"is in the list\" is not \"is being served\": whether the members serve the zone again and the external secondary has caught up, you only know after a query.",
+                    },
+                    {
+                        "id": "pruefen",
+                        "outcome": "good",
+                        "text_de": "So bleibt der Eingriff so klein wie der Fehler: ein Objekt wiederhergestellt, Wirkung an der Stelle geprüft, an der die Clients sie spüren. Danach hältst du im Ticket fest, was passiert ist — und klärst, ob Löschrechte auf Produktivzonen wirklich bei allen liegen müssen.",
+                        "text_en": "This keeps the intervention as small as the mistake: one object restored, effect checked at the point where clients feel it. Afterwards you record in the ticket what happened — and clarify whether delete rights on production zones really need to sit with everyone.",
+                    },
+                ],
+            },
+        },
         {"type": "check", "id": "check-2", "payload": {
             "kind": "choice",
             "prompt_de": "Ein WAPI-Skript zur Massenanlage von Netzwerken erzeugt nach einem "
@@ -341,7 +608,12 @@ IB_TROUBLESHOOTING_MODULE = {
         }},
     ],
     "quiz": {"questions": [
-        {"id": "ibt1", "type": "single",
+        {"id": "ibt1",
+         "explanation": {
+             "de": "Betroffen ist ein einzelner Client, alle anderen im selben Netz funktionieren: Server, Bereich und Failover scheiden damit weitgehend aus. Gesucht wird in der kleinsten betroffenen Einheit — Client, Kabel, Port, VLAN.",
+             "en": "A single client is affected, all others on the same network work: server, range and failover are thereby largely ruled out. You search in the smallest affected unit — client, cable, port, VLAN.",
+         },
+         "type": "single",
          "prompt": {"de": "Ein einzelner Client bekommt keine IP-Adresse, alle anderen Clients "
                           "im selben Netz aber schon. Wo suchst du zuerst?",
                     "en": "A single client gets no IP address, while all other clients on the "
@@ -351,15 +623,20 @@ IB_TROUBLESHOOTING_MODULE = {
              "de": ["Bei der DNS-View-Reihenfolge",
                     "Beim Reporting-Dashboard des Grid Masters",
                     "Lokal beim betroffenen Client bzw. seinem Anschluss, nicht zuerst am "
-                    "gesamten DHCP-Scope",
+                    "gesamten DHCP-Bereich",
                     "Bei den Extensible Attributes des Netzwerks"],
              "en": ["The DNS view order",
                     "The grid master's reporting dashboard",
                     "Locally at the affected client or its connection, not first at the "
-                    "entire DHCP scope",
+                    "entire DHCP range",
                     "The network's extensible attributes"],
          }},
-        {"id": "ibt2", "type": "single",
+        {"id": "ibt2",
+         "explanation": {
+             "de": "Normale Auflösung funktioniert, also läuft der DNS-Dienst. Der Transfer hat eigene Voraussetzungen: Zuordnung in der Name Server Group, Freigabe für den Sekundär, passender TSIG-Schlüssel. MCLT und Idempotenz gehören zu DHCP bzw. Automatisierung.",
+             "en": "Normal resolution works, so the DNS service is running. The transfer has prerequisites of its own: assignment in the name server group, permission for the secondary, matching TSIG key. MCLT and idempotency belong to DHCP and automation respectively.",
+         },
+         "type": "single",
          "prompt": {"de": "Ein Zonentransfer zu einem sekundären Server schlägt fehl, obwohl "
                           "normale DNS-Auflösung funktioniert. Welcher Bereich ist am "
                           "wahrscheinlichsten betroffen?",
@@ -376,13 +653,18 @@ IB_TROUBLESHOOTING_MODULE = {
                     "The idempotency of a WAPI script",
                     "The MCLT setting of a DHCP failover pair"],
          }},
-        {"id": "ibt3", "type": "single",
+        {"id": "ibt3",
+         "explanation": {
+             "de": "Ein abgeschalteter Port sieht für den verbleibenden Peer aus wie jede Leitungsstörung: Communication Interrupted. Partner Down setzt ein Admin von Hand — und darf das erst, wenn der DHCP-Dienst des Partners sicher gestoppt ist.",
+             "en": "A disabled port looks to the remaining peer like any link failure: Communication Interrupted. Partner Down is set by an admin by hand — and only permissible once the partner's DHCP service is reliably stopped.",
+         },
+         "type": "single",
          "prompt": {"de": "Nach einem geplanten Wartungsfenster bleibt ein DHCP-Failover-"
-                          "Partner in Communication Interrupted statt in Partner Down zu "
-                          "wechseln. Was wurde wahrscheinlich falsch gemacht?",
+                          "Partner in Communication Interrupted, obwohl der andere Peer "
+                          "geplant offline sein sollte. Was wurde wahrscheinlich falsch gemacht?",
                     "en": "After a planned maintenance window, a DHCP failover partner stays "
-                          "in Communication Interrupted instead of switching to Partner Down. "
-                          "What was most likely done wrong?"},
+                          "in Communication Interrupted although the other peer was meant to be "
+                          "offline. What was most likely done wrong?"},
          "answer": 0,
          "options": {
              "de": ["Der Switch-Port wurde deaktiviert, statt den DHCP-Dienst aktiv zu stoppen",
@@ -395,7 +677,12 @@ IB_TROUBLESHOOTING_MODULE = {
                     "The DNS view order was swapped",
                     "A WAPI script created duplicate objects"],
          }},
-        {"id": "ibt4", "type": "single",
+        {"id": "ibt4",
+         "explanation": {
+             "de": "Das ist die bekannte Ausnahme beim Restore: Scheduled- und Approval-Tasks kommen nicht zurück, obwohl sie im Backup stehen. Weil der Restore trotzdem Erfolg meldet, sieht es wie eine neue Störung aus — ist aber dokumentiertes Verhalten.",
+             "en": "This is the known exception in a restore: scheduled and approval tasks do not come back although they are in the backup. Because the restore still reports success, it looks like a new incident — but it is documented behaviour.",
+         },
+         "type": "single",
          "prompt": {"de": "Nach einem Grid-Restore fehlen alle geplanten Wartungsaufgaben. Was "
                           "ist die wahrscheinlichste Ursache?",
                     "en": "After a grid restore, all scheduled maintenance tasks are missing. "
@@ -411,7 +698,12 @@ IB_TROUBLESHOOTING_MODULE = {
                     "Scheduled and approval tasks are backed up but not restored during a "
                     "restore"],
          }},
-        {"id": "ibt5", "type": "multi",
+        {"id": "ibt5",
+         "explanation": {
+             "de": "Erfassen, Hypothese, gezielte Prüfung — in dieser Reihenfolge. Werte auf Verdacht zu ändern gehört nicht dazu: Es erzeugt neue Unbekannte, und hinterher weiß niemand, welche Änderung geholfen oder geschadet hat.",
+             "en": "Capture, hypothesis, targeted check — in that order. Changing values on a hunch is not part of it: it creates new unknowns, and afterwards nobody knows which change helped or hurt.",
+         },
+         "type": "multi",
          "prompt": {"de": "Welche Schritte gehören zu einer systematischen Fehlersuche (statt "
                           "wildem Ausprobieren)?",
                     "en": "Which steps belong to systematic troubleshooting (rather than wild "
@@ -427,5 +719,86 @@ IB_TROUBLESHOOTING_MODULE = {
                     "Immediately change configuration values on a hunch",
                     "Check specifically with the matching tool or log"],
          }},
+        {
+            "id": "ibt6",
+            "type": "single",
+            "prompt": {
+                "de": "show ntp zeigt eine einzige Zeile ohne führenden Stern: remote 192.0.2.1, refid .INIT., st 16, reach 0. Was bedeutet das?",
+                "en": "show ntp shows a single line without a leading asterisk: remote 192.0.2.1, refid .INIT., st 16, reach 0. What does that mean?",
+            },
+            "answer": 1,
+            "options": {
+                "de": [
+                    "Der Knoten ist mit 192.0.2.1 synchron, die Abweichung beträgt 0",
+                    "Der Knoten hat von der Zeitquelle noch keine Antwort erhalten und ist nicht synchronisiert",
+                    "Der Knoten ist selbst NTP-Server der Stufe 16 für das Grid",
+                    "Die Zeitquelle wurde als fehlerhaft erkannt und durch den Grid Master ersetzt",
+                ],
+                "en": [
+                    "The node is in sync with 192.0.2.1, the offset is 0",
+                    "The node has not yet received any answer from the time source and is not synchronized",
+                    "The node itself is a stratum 16 NTP server for the Grid",
+                    "The time source was detected as faulty and replaced by the Grid Master",
+                ],
+            },
+            "explanation": {
+                "de": "Der Stern markiert die Quelle, mit der synchronisiert wird — er fehlt. reach 0 heißt: keiner der letzten Versuche wurde beantwortet; Stratum 16 steht für „nicht synchronisiert“. Offset 0 ist dann kein gutes Zeichen, sondern schlicht fehlende Messung.",
+                "en": "The asterisk marks the source being synchronized to — it is missing. reach 0 means: none of the recent attempts was answered; stratum 16 stands for \"unsynchronized\". An offset of 0 is then not a good sign but simply a missing measurement.",
+            },
+        },
+        {
+            "id": "ibt7",
+            "type": "single",
+            "prompt": {
+                "de": "Ein Nutzer meldet, intranet.nordwind-intern.de zeige auf einen alten Server. dig direkt gegen beide zuständigen Member liefert die neue Adresse. Wo suchst du weiter?",
+                "en": "A user reports that intranet.nordwind-intern.de points to an old server. dig directly against both responsible members returns the new address. Where do you look next?",
+            },
+            "answer": 2,
+            "options": {
+                "de": [
+                    "In der Zone — der Record muss noch einmal gespeichert werden",
+                    "Bei der Grid-Replikation zwischen Grid Master und Membern",
+                    "Auf dem Weg zwischen Member und Nutzer: Cache des Clients oder eines zwischengeschalteten Resolvers, oder eine andere View für dessen Quelladresse",
+                    "Beim DHCP-Failover, weil der Client seine Lease vom anderen Peer hat",
+                ],
+                "en": [
+                    "In the zone — the record has to be saved once more",
+                    "In Grid replication between Grid Master and members",
+                    "On the path between member and user: the cache of the client or of a resolver in between, or a different view for its source address",
+                    "In DHCP failover, because the client got its lease from the other peer",
+                ],
+            },
+            "explanation": {
+                "de": "Beide Member antworten richtig — Zone und Replikation sind damit entlastet. Übrig bleibt, was zwischen Server und Nutzer liegt: zwischengespeicherte alte Antworten bis zum Ablauf der TTL oder eine View, die für die Adresse des Nutzers etwas anderes ausliefert als für deine.",
+                "en": "Both members answer correctly — zone and replication are thereby cleared. What remains is whatever lies between server and user: cached old answers until the TTL expires, or a view that serves something different for the user's address than for yours.",
+            },
+        },
+        {
+            "id": "ibt8",
+            "type": "multi",
+            "prompt": {
+                "de": "Jemand schlägt vor, eine Störung durch Einspielen des letzten Grid-Backups zu beheben. Welche Folgen eines vollständigen Restores gehören in die Abwägung (mehrere richtig)?",
+                "en": "Someone proposes resolving an incident by restoring the latest Grid backup. Which consequences of a full restore belong in the assessment (multiple)?",
+            },
+            "answer": [0, 1, 3],
+            "options": {
+                "de": [
+                    "Alle Konfigurationsänderungen seit dem Backup gehen verloren, nicht nur die fehlerhafte.",
+                    "Geplante Aufgaben und offene Freigaben sind danach nicht mehr vorhanden.",
+                    "Ein Restore lässt sich nur auf einer älteren NIOS-Version als der des Backups durchführen.",
+                    "Der Eingriff betrifft das ganze Grid, auch wenn die Störung nur ein Objekt betrifft.",
+                ],
+                "en": [
+                    "All configuration changes since the backup are lost, not just the faulty one.",
+                    "Scheduled tasks and open approvals are gone afterwards.",
+                    "A restore can only be performed on an older NIOS version than that of the backup.",
+                    "The intervention affects the whole Grid even if the incident concerns only one object.",
+                ],
+            },
+            "explanation": {
+                "de": "Ein Restore ist ein Werkzeug für den Totalschaden, nicht für den Einzelfehler: Er nimmt alles seit dem Backup zurück und betrifft das gesamte Grid. Die Versionsregel ist umgekehrt — ein Backup lässt sich auf derselben oder einer unterstützten neueren Version einspielen, nicht auf einer älteren.",
+                "en": "A restore is a tool for total loss, not for a single mistake: it takes back everything since the backup and affects the whole Grid. The version rule is the other way round — a backup can be restored onto the same or a supported newer version, not an older one.",
+            },
+        },
     ]},
 }

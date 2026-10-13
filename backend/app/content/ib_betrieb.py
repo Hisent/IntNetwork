@@ -15,6 +15,12 @@ BETRIEB_MODULE = {
         "Die grundlegenden Versions-Kompatibilitätsregeln zwischen Backup und Ziel-NIOS-Version wiedergeben können",
         "Eine sinnvolle Vorbereitung und Reihenfolge für ein Grid-Upgrade mit mehreren Reporting-Membern planen können",
     ],
+    "goals_en": [
+        "Describe the recommended backup strategy for an Infoblox Grid (regular, automated, outside peak hours)",
+        "Explain which data a restore brings back — and which is deliberately left out, in particular scheduled and approval tasks",
+        "State the basic version compatibility rules between a backup and the target NIOS version",
+        "Plan sensible preparation and ordering for a Grid upgrade with several reporting members",
+    ],
     "scenario": {
         "de": "Du übernimmst den Betrieb eines gewachsenen Infoblox-Grids. Der bisherige "
               "Administrator hat nie ein Restore geübt, und die letzten Upgrades liefen "
@@ -169,6 +175,111 @@ BETRIEB_MODULE = {
                    "and supported upgrade paths depend on the current NIOS version and belong "
                    "in the current vendor documentation, not in a fixed course text.",
          }},
+        {
+            "type": "text",
+            "id": "text-upgrade-phasen",
+            "note": "Phasen laut NIOS-Doku „Upgrading NIOS Software“ (Upload, Distribute, optional Test, Upgrade).",
+            "value": {
+                "de": "## Die vier Phasen eines Grid-Upgrades\n\nEin Grid-Upgrade ist kein einzelner Knopfdruck, sondern läuft in vier getrennten Phasen ab:\n\n1. **Upload** — die neue NIOS-Software wird auf den Grid Master geladen. Bei einem HA-Grid-Master erhält sie zunächst nur der aktive Knoten.\n2. **Distribute** — der Grid Master verteilt die Software an alle Member; sie landet dort auf einer zweiten Partition. Die Member laufen in dieser Phase mit der bisherigen Version weiter, Dienste sind nicht betroffen.\n3. **Test** (optional, aber empfohlen) — das Grid prüft, ob sich der vorhandene Datenbestand mit der neuen Version verarbeiten lässt, ohne etwas umzustellen.\n4. **Upgrade** — erst jetzt wechseln die Knoten auf die neue Version: zuerst der Grid Master, dann die Upgrade-Gruppen in der festgelegten Reihenfolge. Jeder Knoten startet dabei neu; seine Dienste sind kurz unterbrochen.\n\nDer Nutzen der Trennung: Upload, Verteilung und Test lassen sich Tage vor dem Wartungsfenster erledigen. Im Fenster selbst bleibt nur der Schritt, der tatsächlich eine Unterbrechung verursacht. Sobald die Verteilung begonnen hat, lassen sich Upgrade-Gruppen nicht mehr umbauen — die Gruppenplanung gehört also davor. Die Version vor dem letzten Upgrade bleibt auf der Appliance vermerkt; an der Konsole zeigt `show upgrade_history` sie als `REVERT version`.",
+                "en": "## The Four Phases of a Grid Upgrade\n\nA Grid upgrade is not a single button press but runs in four separate phases:\n\n1. **Upload** — the new NIOS software is loaded onto the Grid Master. With an HA Grid Master, only the active node receives it at first.\n2. **Distribute** — the Grid Master distributes the software to all members, where it lands on a second partition. During this phase the members keep running the previous version; services are not affected.\n3. **Test** (optional but recommended) — the Grid checks whether the existing data can be processed by the new version, without switching anything.\n4. **Upgrade** — only now do the nodes switch to the new version: first the Grid Master, then the upgrade groups in the defined order. Each node restarts in the process; its services are briefly interrupted.\n\nThe benefit of the separation: upload, distribution and test can be done days before the maintenance window. Only the step that actually causes an interruption remains for the window itself. Once distribution has started, upgrade groups can no longer be rearranged — so group planning belongs before it. The version before the last upgrade stays recorded on the appliance; on the console `show upgrade_history` shows it as `REVERT version`.",
+            },
+        },
+        {
+            "type": "diagram",
+            "id": "diagram-upgrade-ablauf",
+            "payload": {
+                "kind": "flow",
+                "title_de": "Upgrade: vier Phasen, dann die Reihenfolge der Knoten",
+                "title_en": "Upgrade: four phases, then the order of the nodes",
+                "caption_de": "Oben die Phasen, unten die Reihenfolge innerhalb der Phase „Upgrade“.",
+                "caption_en": "Phases on top, below the order within the \"Upgrade\" phase.",
+                "nodes": [
+                    {"id": "up", "row": 0, "col": 0, "label": "1. Upload"},
+                    {"id": "dist", "row": 0, "col": 1, "label": "2. Distribute"},
+                    {"id": "test", "row": 0, "col": 2, "label": "3. Test"},
+                    {"id": "upg", "row": 0, "col": 3, "label": "4. Upgrade"},
+                    {
+                        "id": "gm",
+                        "shape": "server",
+                        "row": 1,
+                        "col": 0,
+                        "label": "Grid Master",
+                        "detail_de": "Immer zuerst. Währenddessen ist der Grid Manager kurz nicht erreichbar; die Member arbeiten weiter.",
+                        "detail_en": "Always first. Meanwhile Grid Manager is briefly unreachable; the members keep working.",
+                    },
+                    {
+                        "id": "rep",
+                        "shape": "database",
+                        "row": 1,
+                        "col": 1,
+                        "label_de": "Reporting-Gruppe",
+                        "label_en": "Reporting group",
+                        "detail_de": "Von NIOS automatisch angelegt, nach dem Grid Master und vor den übrigen Gruppen an der Reihe.",
+                        "detail_en": "Created automatically by NIOS, upgraded after the Grid Master and before the other groups.",
+                    },
+                    {
+                        "id": "g1",
+                        "shape": "server",
+                        "row": 1,
+                        "col": 2,
+                        "label_de": "Gruppe 1: Pilotstandort",
+                        "label_en": "Group 1: pilot site",
+                        "detail_de": "Ein unkritischer Standort zuerst: Zeigt sich ein Problem, betrifft es wenige.",
+                        "detail_en": "An uncritical site first: if a problem shows up, it affects few.",
+                    },
+                    {
+                        "id": "g2",
+                        "shape": "server",
+                        "row": 1,
+                        "col": 3,
+                        "label_de": "Gruppe 2: übrige Standorte",
+                        "label_en": "Group 2: remaining sites",
+                        "detail_de": "Partner eines DHCP-Failover-Paars oder mehrere DNS-Server derselben Zone gehören in verschiedene Gruppen — sonst starten beide gleichzeitig neu.",
+                        "detail_en": "Partners of a DHCP failover pair or several DNS servers of the same zone belong in different groups — otherwise both restart at the same time.",
+                    },
+                ],
+                "edges": [
+                    {"id": "p1", "from": "up", "to": "dist"},
+                    {"id": "p2", "from": "dist", "to": "test"},
+                    {"id": "p3", "from": "test", "to": "upg"},
+                    {"id": "o1", "from": "gm", "to": "rep"},
+                    {"id": "o2", "from": "rep", "to": "g1"},
+                    {"id": "o3", "from": "g1", "to": "g2"},
+                ],
+                "steps": [
+                    {
+                        "highlight": ["up"],
+                        "text_de": "Upload: Die Software liegt auf dem Grid Master. Im Grid hat sich noch nichts geändert.",
+                        "text_en": "Upload: the software sits on the Grid Master. Nothing has changed in the Grid yet.",
+                    },
+                    {
+                        "highlight": ["p1", "dist"],
+                        "text_de": "Distribute: Jeder Member hat die neue Version auf seiner zweiten Partition, läuft aber weiter mit der alten.",
+                        "text_en": "Distribute: every member has the new version on its second partition but keeps running the old one.",
+                    },
+                    {
+                        "highlight": ["p2", "test"],
+                        "text_de": "Test: Der Datenbestand wird gegen die neue Version geprüft. Bis hierher ist alles ohne Wartungsfenster möglich.",
+                        "text_en": "Test: the data is checked against the new version. Everything up to here is possible without a maintenance window.",
+                    },
+                    {
+                        "highlight": ["p3", "upg", "gm"],
+                        "text_de": "Upgrade: Das Wartungsfenster beginnt. Der Grid Master wechselt als Erster die Version.",
+                        "text_en": "Upgrade: the maintenance window begins. The Grid Master switches version first.",
+                    },
+                    {
+                        "highlight": ["o1", "rep"],
+                        "text_de": "Danach die Reporting-Gruppe — bei einem Reporting-Cluster möglichst nicht alle Member gleichzeitig.",
+                        "text_en": "Then the reporting group — in a reporting cluster preferably not all members at once.",
+                    },
+                    {
+                        "highlight": ["o2", "g1", "o3", "g2"],
+                        "text_de": "Zuletzt die übrigen Gruppen, eine nach der anderen. Zwischen den Gruppen bleibt Zeit, das Ergebnis zu prüfen.",
+                        "text_en": "Finally the remaining groups, one after the other. Between groups there is time to check the result.",
+                    },
+                ],
+            },
+        },
         {"type": "order", "id": "order-1", "payload": {
             "prompt_de": "Bringe die Vorbereitung und Durchführung eines Grid-Upgrades in die "
                          "richtige Reihenfolge:",
@@ -187,6 +298,57 @@ BETRIEB_MODULE = {
                          "Immediately before the upgrade: take a current backup and verify it succeeded",
                          "Perform the upgrade, then check grid status"],
         }},
+        {
+            "type": "terminal",
+            "id": "terminal-upgrade-vorcheck",
+            "note": "Ausgabeformate nach dem NIOS CLI Guide (show version, show upgrade_history, show status); Versionsstände und Seriennummer sind Beispielwerte.",
+            "payload": {
+                "title_de": "Vor dem Upgrade: Ausgangslage an der Konsole festhalten",
+                "title_en": "Before the upgrade: record the starting point on the console",
+                "intro_de": "Konsole des Grid Masters. Notiere die Werte, bevor du etwas veränderst.",
+                "intro_en": "Console of the Grid Master. Note the values before you change anything.",
+                "prompt": "Infoblox >",
+                "unknown_de": "Unbekannter Befehl: {cmd}",
+                "unknown_en": "Unknown command: {cmd}",
+                "commands": [
+                    {
+                        "cmd": "show version",
+                        "desc_de": "laufende NIOS-Version",
+                        "desc_en": "running NIOS version",
+                        "output": "Version : 9.0.3-50212\nSN      : 564D2A9B41C07F3E\nHotfix  : N/A",
+                    },
+                    {
+                        "cmd": "show upgrade_history",
+                        "desc_de": "bisherige Upgrades",
+                        "desc_en": "previous upgrades",
+                        "output": "REVERT version is: 8.6.4-51028\n[2025/11/08 21:14:37] Upgraded to: 9.0.3-50212",
+                    },
+                    {
+                        "cmd": "show status",
+                        "desc_de": "Rolle und HA-Status",
+                        "desc_en": "role and HA status",
+                        "output": "Grid Status: ID Grid Master\nHA Status: Active",
+                    },
+                ],
+                "tasks": [
+                    {
+                        "text_de": "Welche Version läuft aktuell?",
+                        "text_en": "Which version is currently running?",
+                        "answers": ["9.0.3-50212", "9.0.3"],
+                    },
+                    {
+                        "text_de": "Sieh in der Upgrade-Historie nach, welche Version vor dem letzten Upgrade lief.",
+                        "text_en": "Look up in the upgrade history which version ran before the last upgrade.",
+                        "command": "show upgrade_history",
+                    },
+                    {
+                        "text_de": "Der Grid Master ist ein HA-Paar. Welcher Knoten des Paars erhält beim Upload zunächst die Software — der aktive oder der passive?",
+                        "text_en": "The Grid Master is an HA pair. Which node of the pair initially receives the software during upload — the active or the passive one?",
+                        "answers": ["aktive", "der aktive", "aktiv", "active", "the active"],
+                    },
+                ],
+            },
+        },
         {"type": "text", "id": "text-4",
          "value": {
              "de": "## Upgrade-Gruppen und Reporting-Member\n\n"
@@ -222,6 +384,103 @@ BETRIEB_MODULE = {
                    "example moving from a single indexer to a cluster), an **explicit reporting "
                    "backup** is recommended, independent of the regular grid backup.",
          }},
+        {
+            "type": "scenario",
+            "id": "scenario-upgrade-planung",
+            "payload": {
+                "title_de": "Upgrade am Donnerstagabend: drei Planungsentscheidungen",
+                "title_en": "Upgrade on Thursday evening: three planning decisions",
+                "start": "start",
+                "nodes": [
+                    {
+                        "id": "start",
+                        "text_de": "Du planst das Upgrade eines Grids mit zwölf Membern. Das Wartungsfenster ist Donnerstag 21 bis 23 Uhr. Heute ist Montag, die Software liegt bereit. Wie nutzt du die Tage bis dahin?",
+                        "text_en": "You are planning the upgrade of a Grid with twelve members. The maintenance window is Thursday 9 to 11 p.m. Today is Monday, the software is at hand. How do you use the days until then?",
+                        "options": [
+                            {
+                                "label_de": "Gar nicht — Upload, Verteilung und Upgrade passen zusammen in die zwei Stunden.",
+                                "label_en": "Not at all — upload, distribution and upgrade together fit into the two hours.",
+                                "to": "allesdo",
+                            },
+                            {
+                                "label_de": "Gruppen festlegen, dann Upload, Verteilung und Test vorab erledigen.",
+                                "label_en": "Define the groups, then do upload, distribution and test in advance.",
+                                "to": "vorab",
+                            },
+                            {
+                                "label_de": "Schon heute Abend upgraden, dann ist es erledigt.",
+                                "label_en": "Upgrade tonight already and get it over with.",
+                                "to": "heute",
+                            },
+                        ],
+                    },
+                    {
+                        "id": "heute",
+                        "outcome": "bad",
+                        "text_de": "Ohne angekündigtes Fenster starten zwölf Standorte ihre Dienste neu, während dort gearbeitet wird — und niemand weiß, warum DHCP gerade nicht antwortet.",
+                        "text_en": "Without an announced window, twelve sites restart their services while people are working there — and nobody knows why DHCP is not answering right now.",
+                    },
+                    {
+                        "id": "allesdo",
+                        "outcome": "ok",
+                        "text_de": "Kann gut gehen. Hängt aber die Verteilung an einem Standort mit schmaler Leitung, ist das Fenster halb vorbei, bevor das eigentliche Upgrade beginnt — und ein Problem, das der Test gezeigt hätte, erfährst du erst jetzt.",
+                        "text_en": "It can work out. But if distribution stalls at a site with a thin link, half the window is gone before the actual upgrade begins — and a problem the test would have revealed only surfaces now.",
+                    },
+                    {
+                        "id": "vorab",
+                        "text_de": "Verteilung und Test liefen am Dienstag sauber durch. Zwei der Member, in Hamburg und München, bilden zusammen ein DHCP-Failover-Paar. Wie ordnest du sie den Upgrade-Gruppen zu?",
+                        "text_en": "Distribution and test ran cleanly on Tuesday. Two of the members, in Hamburg and Munich, together form a DHCP failover pair. How do you assign them to the upgrade groups?",
+                        "options": [
+                            {
+                                "label_de": "Beide in dieselbe Gruppe, damit das Paar gemeinsam auf der neuen Version ist.",
+                                "label_en": "Both in the same group so that the pair is on the new version together.",
+                                "to": "gleich",
+                            },
+                            {
+                                "label_de": "In verschiedene Gruppen, die nacheinander aktualisiert werden.",
+                                "label_en": "In different groups that are upgraded one after the other.",
+                                "to": "getrennt",
+                            },
+                        ],
+                    },
+                    {
+                        "id": "gleich",
+                        "outcome": "bad",
+                        "text_de": "Beide Peers starten gleichzeitig neu — für diese Minuten gibt es in beiden Netzen keinen DHCP-Server. Genau die Redundanz, für die das Paar existiert, hast du im Upgrade ausgehebelt.",
+                        "text_en": "Both peers restart at the same time — for those minutes there is no DHCP server in either network. You disabled exactly the redundancy the pair exists for during the upgrade.",
+                    },
+                    {
+                        "id": "getrennt",
+                        "text_de": "Donnerstag, 21:05 Uhr. Der Grid Master ist aktualisiert, alles sieht gut aus. Vor dem Start hast du ein Backup angelegt? Ein Kollege meint: „Das von Sonntag reicht doch.“",
+                        "text_en": "Thursday, 9:05 p.m. The Grid Master is upgraded, everything looks good. Did you take a backup before starting? A colleague says: \"The one from Sunday is good enough.\"",
+                        "options": [
+                            {
+                                "label_de": "Stimmt, seit Sonntag wurde kaum etwas geändert.",
+                                "label_en": "True, hardly anything has changed since Sunday.",
+                                "to": "sonntag",
+                            },
+                            {
+                                "label_de": "Nein: Backup unmittelbar vor dem Upgrade, heruntergeladen und geprüft — das war um 20:45 Uhr erledigt.",
+                                "label_en": "No: backup immediately before the upgrade, downloaded and verified — that was done at 8:45 p.m.",
+                                "to": "frisch",
+                            },
+                        ],
+                    },
+                    {
+                        "id": "sonntag",
+                        "outcome": "ok",
+                        "text_de": "Solange nichts schiefgeht, merkt es niemand. Im Fehlerfall fehlen aber vier Tage an Änderungen — Zonen, Netze, feste Adressen —, und niemand weiß genau, welche. „Kaum etwas“ ist keine Liste.",
+                        "text_en": "As long as nothing goes wrong, nobody notices. But in case of failure four days of changes are missing — zones, networks, fixed addresses — and nobody knows exactly which. \"Hardly anything\" is not a list.",
+                    },
+                    {
+                        "id": "frisch",
+                        "outcome": "good",
+                        "text_de": "So sieht ein geplantes Upgrade aus: alles Vorbereitbare vorab, Redundanzpaare getrennt, ein frisches Backup außerhalb des Grids. Im Fenster bleibt nur der Schritt, der wirklich eine Unterbrechung braucht — und Zeit, nach jeder Gruppe den Grid-Status zu prüfen.",
+                        "text_en": "This is what a planned upgrade looks like: everything preparable done in advance, redundancy pairs separated, a fresh backup stored outside the Grid. Only the step that really needs an interruption remains for the window — and time to check the Grid status after every group.",
+                    },
+                ],
+            },
+        },
         {"type": "reflect", "id": "reflect-1", "payload": {
             "prompt_de": "Welchen der genannten Vorbereitungsschritte würde man in deinem "
                          "eigenen Betrieb am ehesten überspringen, wenn es schnell gehen soll "
@@ -232,7 +491,12 @@ BETRIEB_MODULE = {
         }},
     ],
     "quiz": {"questions": [
-        {"id": "bt1", "type": "single",
+        {"id": "bt1",
+         "explanation": {
+             "de": "Scheduled- und Approval-Tasks stehen im Backup, werden beim Restore aber nicht wieder aktiviert. Tückisch daran: Der Restore meldet Erfolg, und es gibt kein Häkchen, das man vergessen haben könnte — man muss schlicht wissen, dass man nachsehen muss.",
+             "en": "Scheduled and approval tasks are in the backup but are not reactivated by a restore. The tricky part: the restore reports success, and there is no checkbox one could have forgotten — you simply have to know that you need to look.",
+         },
+         "type": "single",
          "prompt": {"de": "Was passiert mit Scheduled- und Approval-Tasks bei einem Restore?",
                     "en": "What happens to scheduled and approval tasks during a restore?"},
          "answer": 1,
@@ -246,7 +510,12 @@ BETRIEB_MODULE = {
                     "They are never backed up and are lost with every backup",
                     "They are only restored if a superuser manually ticks a checkbox"],
          }},
-        {"id": "bt2", "type": "single",
+        {"id": "bt2",
+         "explanation": {
+             "de": "Ein älteres Backup lässt sich auf einer neueren Version einspielen, wenn der Sprung ein unterstützter Upgrade-Pfad ist. „Immer“ stimmt nicht, weil nicht jeder Sprung unterstützt wird; „nie“ stimmt nicht, weil Vorwärtskompatibilität vorgesehen ist.",
+             "en": "An older backup can be restored onto a newer version if the jump is a supported upgrade path. \"Always\" is wrong because not every jump is supported; \"never\" is wrong because forward compatibility is intended.",
+         },
+         "type": "single",
          "prompt": {"de": "Ein Backup stammt von einer älteren NIOS-Version als das Zielsystem. "
                           "Wann ist ein Restore darauf zulässig?",
                     "en": "A backup comes from an older NIOS version than the target system. "
@@ -262,7 +531,12 @@ BETRIEB_MODULE = {
                     "If the version jump is a supported Infoblox upgrade path",
                     "Only if a reporting backup was taken first"],
          }},
-        {"id": "bt3", "type": "single",
+        {"id": "bt3",
+         "explanation": {
+             "de": "Solange kein Reporting-Member erreichbar ist, kann niemand die Ereignisse der anderen Member entgegennehmen — die Daten dieses Zeitraums fehlen später in jeder Auswertung. Mit Lizenzen oder einer Master-Wahl hat die Empfehlung nichts zu tun.",
+             "en": "As long as no reporting member is reachable, nobody can receive the other members' events — the data of that period is later missing from every evaluation. The recommendation has nothing to do with licenses or a master election.",
+         },
+         "type": "single",
          "prompt": {"de": "Warum empfiehlt die Infoblox-Doku für Reporting-Cluster, Reporting-Member "
                           "nicht alle im selben Zeitfenster zu aktualisieren?",
                     "en": "Why does the Infoblox documentation for reporting clusters recommend not "
@@ -280,7 +554,12 @@ BETRIEB_MODULE = {
                     "Because the license model has different costs per group",
                     "So the grid master is automatically re-elected"],
          }},
-        {"id": "bt4", "type": "single",
+        {"id": "bt4",
+         "explanation": {
+             "de": "Ein Backup, das nur „bei Gelegenheit“ oder erst im Störfall entsteht, ist im Ernstfall zu alt oder gar nicht da. Automatisiert und außerhalb der Hauptlastzeit ist es regelmäßig vorhanden, ohne den Betrieb zu bremsen.",
+             "en": "A backup that is only taken \"when there is time\" or during an incident is too old or missing when it counts. Automated and outside peak hours, it is reliably there without slowing operations down.",
+         },
+         "type": "single",
          "prompt": {"de": "Wann sollte ein geplantes Grid-Backup laufen?",
                     "en": "When should a scheduled grid backup run?"},
          "answer": 1,
@@ -294,7 +573,12 @@ BETRIEB_MODULE = {
                     "Only once a year, together with the license renewal",
                     "Exclusively manually by the superuser"],
          }},
-        {"id": "bt5", "type": "multi",
+        {"id": "bt5",
+         "explanation": {
+             "de": "Release Notes, frisches und geprüftes Backup, angekündigtes Wartungsfenster: Das ist die Vorbereitung. Alle Member gleichzeitig und unangekündigt zu aktualisieren ist das Gegenteil — genau das verhindern Upgrade-Gruppen.",
+             "en": "Release notes, a fresh and verified backup, an announced maintenance window: that is the preparation. Upgrading all members at once and unannounced is the opposite — precisely what upgrade groups prevent.",
+         },
+         "type": "multi",
          "prompt": {"de": "Welche der folgenden Punkte gehören zur Vorbereitung eines "
                           "Grid-Upgrades?",
                     "en": "Which of the following belong to preparing a grid upgrade?"},
@@ -309,5 +593,86 @@ BETRIEB_MODULE = {
                     "Plan and communicate a maintenance window",
                     "Upgrade all grid members simultaneously without announcement"],
          }},
+        {
+            "id": "bt6",
+            "type": "single",
+            "prompt": {
+                "de": "Die Phase „Distribute“ ist auf allen Membern abgeschlossen. Welche Aussage beschreibt den Zustand des Grids?",
+                "en": "The \"Distribute\" phase has completed on all members. Which statement describes the state of the Grid?",
+            },
+            "answer": 1,
+            "options": {
+                "de": [
+                    "Alle Member laufen bereits mit der neuen Version, nur der Grid Master noch nicht",
+                    "Die neue Software liegt auf allen Membern bereit, sie laufen aber weiter mit der bisherigen Version",
+                    "Die Member haben ihre Dienste angehalten und warten auf den Start des Upgrades",
+                    "Die Datenbank wurde bereits in das Format der neuen Version überführt",
+                ],
+                "en": [
+                    "All members already run the new version, only the Grid Master does not yet",
+                    "The new software is staged on all members, but they keep running the previous version",
+                    "The members have paused their services and wait for the upgrade to start",
+                    "The database has already been converted to the format of the new version",
+                ],
+            },
+            "explanation": {
+                "de": "Verteilen heißt bereitlegen, nicht umschalten: Die Software liegt auf der zweiten Partition, die Dienste laufen unverändert. Umgeschaltet wird erst in der Phase Upgrade — und dort beginnt der Grid Master, nicht die Member.",
+                "en": "Distributing means staging, not switching: the software sits on the second partition, services run unchanged. Switching only happens in the upgrade phase — and there the Grid Master goes first, not the members.",
+            },
+        },
+        {
+            "id": "bt7",
+            "type": "multi",
+            "prompt": {
+                "de": "Nach einem Hardwaredefekt wird das Grid-Backup von vor 14 Tagen eingespielt. Der Restore meldet Erfolg. Was musst du danach ausdrücklich prüfen oder nacharbeiten (mehrere richtig)?",
+                "en": "After a hardware failure the Grid backup from 14 days ago is restored. The restore reports success. What must you explicitly check or redo afterwards (multiple)?",
+            },
+            "answer": [0, 2, 3],
+            "options": {
+                "de": [
+                    "Geplante Aufgaben (Scheduled Tasks) — sie werden nicht wieder aktiviert",
+                    "Extensible Attributes — sie sind in einem Grid-Backup nicht enthalten",
+                    "Alle Konfigurationsänderungen der letzten 14 Tage",
+                    "Offene Freigaben (Approval-Tasks)",
+                ],
+                "en": [
+                    "Scheduled tasks — they are not reactivated",
+                    "Extensible attributes — they are not part of a Grid backup",
+                    "All configuration changes of the last 14 days",
+                    "Open approvals (approval tasks)",
+                ],
+            },
+            "explanation": {
+                "de": "Der Restore bringt den Stand von vor 14 Tagen — alles danach fehlt, und geplante Aufgaben sowie Freigaben kommen grundsätzlich nicht zurück. Extensible Attributes gehören dagegen zur Konfiguration und sind wiederhergestellt.",
+                "en": "The restore brings back the state of 14 days ago — everything after that is missing, and scheduled tasks and approvals never come back. Extensible attributes, by contrast, are part of the configuration and are restored.",
+            },
+        },
+        {
+            "id": "bt8",
+            "type": "single",
+            "prompt": {
+                "de": "Beim Upload stand der Grid Master als HA-Paar bereit. Vor Beginn der Verteilung kommt es zu einem HA-Failover: Der bisher passive Knoten ist nun aktiv. Was ist zu erwarten?",
+                "en": "During upload the Grid Master was an HA pair. Before distribution starts an HA failover occurs: the formerly passive node is now active. What is to be expected?",
+            },
+            "answer": 2,
+            "options": {
+                "de": [
+                    "Nichts — die Software wurde beim Upload auf beide Knoten gespiegelt",
+                    "Die Verteilung startet automatisch vom nun passiven Knoten aus",
+                    "Die Software muss erneut hochgeladen werden, weil nur der zuvor aktive Knoten sie erhalten hatte",
+                    "Das Grid muss zuerst auf die alte Version zurückgesetzt werden",
+                ],
+                "en": [
+                    "Nothing — the software was mirrored to both nodes during upload",
+                    "Distribution starts automatically from the node that is now passive",
+                    "The software has to be uploaded again because only the previously active node had received it",
+                    "The Grid first has to be reverted to the old version",
+                ],
+            },
+            "explanation": {
+                "de": "Beim Upload erhält zunächst nur der aktive Knoten die Software. Wechselt die aktive Rolle vor der Verteilung, hat der neue aktive Knoten nichts zu verteilen — der Upload ist zu wiederholen. Ein Detail, das erklärt, warum man vor dem Upgrade den HA-Status notiert.",
+                "en": "During upload only the active node initially receives the software. If the active role changes before distribution, the new active node has nothing to distribute — the upload has to be repeated. A detail that explains why you note the HA status before the upgrade.",
+            },
+        },
     ]},
 }

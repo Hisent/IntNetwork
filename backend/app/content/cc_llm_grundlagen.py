@@ -10,6 +10,10 @@ LLM_GRUNDLAGEN_MODULE = {'key': 'llm-grundlagen',
            'Die Rolle von Transformer und Attention grob einordnen',
            'Tokenisierung und Kontextfenster verstehen und ihre Grenzen kennen',
            'Verstehen, warum Kontext-Qualität die Antwortqualität bestimmt'],
+ 'goals_en': ['Explain how an LLM generates text (predicting the next token)',
+              'Roughly place the role of the Transformer and attention',
+              'Understand tokenization and the context window and know their limits',
+              'Understand why context quality determines answer quality'],
  'scenario': {'de': 'Bevor wir Claude Code sinnvoll steuern, brauchen wir ein mentales Modell '
                     'davon, was darunter arbeitet. Ein Large Language Model ist kein '
                     'Nachschlagewerk und kein deterministischer Compiler — es sagt **Wort für '
@@ -58,7 +62,9 @@ LLM_GRUNDLAGEN_MODULE = {'key': 'llm-grundlagen',
                              '- It can produce **plausible-sounding nonsense** (*hallucination*) — '
                              'which is why we verify results.'},
              'note': 'Live am Tokenizer zeigen, dass Umlaute/Bezeichner in mehrere Tokens '
-                     'zerfallen; das Kontextfenster als endliche Ressource betonen.'},
+                     'zerfallen; das Kontextfenster als endliche Ressource betonen. Die Demo ist '
+                     'eine Heuristik und überzeichnet: echte Tokenizer fassen häufige Wörter '
+                     'zusammen, die Tendenz (Nicht-ASCII und seltene Bezeichner kosten mehr) stimmt.'},
             {'type': 'text', 'id': 'text-2',
              'value': {'de': '## Der Transformer & Attention (in aller Kürze)\n'
                              '\n'
@@ -117,10 +123,84 @@ LLM_GRUNDLAGEN_MODULE = {'key': 'llm-grundlagen',
                              'Why this matters: **everything costs tokens** — your prompt, the '
                              'files Claude reads, the tool results, and the response. Tokens are '
                              'the currency of both the context window *and* cost.'}},
+            {'type': 'diagram',
+             'id': 'diagram-token-pipeline',
+             'note': 'Schrittweise durchklicken; beim letzten Schritt auf die Schleife zeigen: jedes erzeugte '
+                     'Token wird Teil der nächsten Eingabe.',
+             'payload': {'kind': 'flow',
+                         'title_de': 'Vom Text zum nächsten Token',
+                         'title_en': 'From text to the next token',
+                         'caption_de': 'Eine Runde der Schleife – sie läuft für jedes einzelne Token der '
+                                       'Antwort.',
+                         'caption_en': 'One turn of the loop – it runs for every single token of the answer.',
+                         'nodes': [{'id': 'text',
+                                    'row': 0,
+                                    'col': 0,
+                                    'label_de': 'Eingabetext',
+                                    'label_en': 'Input text'},
+                                   {'id': 'tok', 'row': 1, 'col': 0, 'label': 'Tokenizer'},
+                                   {'id': 'ids',
+                                    'row': 1,
+                                    'col': 1,
+                                    'label_de': 'Token-Folge (Zahlen)',
+                                    'label_en': 'Token sequence (numbers)'},
+                                   {'id': 'model',
+                                    'row': 1,
+                                    'col': 2,
+                                    'label_de': 'Transformer (Attention)',
+                                    'label_en': 'Transformer (attention)'},
+                                   {'id': 'probs',
+                                    'row': 2,
+                                    'col': 2,
+                                    'label_de': 'Wahrschein-\nlichkeiten',
+                                    'label_en': 'Probabilities'},
+                                   {'id': 'pick',
+                                    'row': 2,
+                                    'col': 1,
+                                    'label_de': 'Sampling: ein Token',
+                                    'label_en': 'Sampling: one token'}],
+                         'edges': [{'id': 'e1', 'from': 'text', 'to': 'tok'},
+                                   {'id': 'e2', 'from': 'tok', 'to': 'ids'},
+                                   {'id': 'e3', 'from': 'ids', 'to': 'model'},
+                                   {'id': 'e4', 'from': 'model', 'to': 'probs'},
+                                   {'id': 'e5', 'from': 'probs', 'to': 'pick'},
+                                   {'id': 'e6',
+                                    'from': 'pick',
+                                    'to': 'ids',
+                                    'label_de': 'anhängen',
+                                    'label_en': 'append',
+                                    'style': 'dashed'}],
+                         'steps': [{'highlight': ['text', 'e1', 'tok', 'e2', 'ids'],
+                                    'text_de': 'Der Tokenizer zerlegt den Text in Tokens und bildet sie auf '
+                                               'Zahlen ab. Das Modell sieht nur diese Zahlenfolge.',
+                                    'text_en': 'The tokenizer splits the text into tokens and maps them to '
+                                               'numbers. The model only ever sees this sequence of numbers.'},
+                                   {'highlight': ['ids', 'e3', 'model'],
+                                    'text_de': 'Der Transformer verarbeitet die ganze Folge; über Attention '
+                                               'gewichtet er, welche Tokens füreinander relevant sind.',
+                                    'text_en': 'The Transformer processes the whole sequence; through '
+                                               'attention it weighs which tokens are relevant to each other.'},
+                                   {'highlight': ['model', 'e4', 'probs'],
+                                    'text_de': 'Ergebnis ist kein Text, sondern eine Wahrscheinlichkeit für '
+                                               'jedes mögliche nächste Token.',
+                                    'text_en': 'The result is not text but a probability for every possible '
+                                               'next token.'},
+                                   {'highlight': ['probs', 'e5', 'pick'],
+                                    'text_de': 'Per Sampling wird genau ein Token gewählt. Deshalb kann '
+                                               'dieselbe Eingabe verschiedene Ausgaben liefern.',
+                                    'text_en': 'Sampling picks exactly one token. That is why the same input '
+                                               'can produce different outputs.'},
+                                   {'highlight': ['pick', 'e6', 'ids'],
+                                    'text_de': 'Das Token wird angehängt und die verlängerte Folge läuft '
+                                               'erneut durch das Modell – bis ein Stopp-Signal kommt.',
+                                    'text_en': 'The token is appended and the longer sequence runs through the '
+                                               'model again – until a stop signal appears.'}]}},
             {'type': 'widget',
              'id': 'tokenizer-demo',
              'note': 'Teilnehmende einen deutschen Satz und ein Code-Snippet eingeben lassen — '
-                     'sichtbar machen, dass Umlaute und Bezeichner in mehrere Tokens zerfallen.'},
+                     'sichtbar machen, dass Umlaute und Bezeichner in mehrere Tokens zerfallen. '
+                     'Vergleich „Größe“ gegen „Groesse“ zeigen; dazusagen, dass die Demo eine '
+                     'Heuristik ist und keine exakten Token-Zahlen eines echten Modells liefert.'},
             {'type': 'check', 'id': 'check-1',
              'payload': {'kind': 'choice',
                          'prompt_de': 'Grob geschätzt: Wie viele Tokens sind ~750 Wörter Text?',
@@ -160,6 +240,36 @@ LLM_GRUNDLAGEN_MODULE = {'key': 'llm-grundlagen',
                              '2. **Relevance beats volume.** Ten precise lines of `CLAUDE.md` have '
                              "more impact than 500 lines of noise. That's why later modules "
                              'actively focus on clean context (memory, subagents, `/context`).'}},
+            {'type': 'match',
+             'id': 'match-llm-begriffe',
+             'payload': {'prompt_de': 'Ordne jedem Begriff zu, was er beschreibt.',
+                         'prompt_en': 'Match each term to what it describes.',
+                         'pairs': [{'left': 'Token',
+                                    'right_de': 'Textbaustein, oft ein Wortteil, in dem das Modell rechnet',
+                                    'right_en': 'Piece of text, often part of a word, that the model computes '
+                                                'in'},
+                                   {'left_de': 'Kontextfenster',
+                                    'left_en': 'Context window',
+                                    'right_de': 'Obergrenze an Tokens, die das Modell auf einmal '
+                                                'berücksichtigt',
+                                    'right_en': 'Upper limit of tokens the model takes into account at once'},
+                                   {'left': 'Attention',
+                                    'right_de': 'Mechanismus, der Tokens nach Relevanz miteinander verknüpft',
+                                    'right_en': 'Mechanism that links tokens to each other by relevance'},
+                                   {'left': 'Sampling',
+                                    'right_de': 'Auswahl eines Tokens aus der berechneten Verteilung',
+                                    'right_en': 'Choosing one token from the computed distribution'},
+                                   {'left_de': 'Halluzination',
+                                    'left_en': 'Hallucination',
+                                    'right_de': 'Plausibel klingende Ausgabe, die sachlich nicht stimmt',
+                                    'right_en': 'Plausible-sounding output that is factually wrong'}],
+                         'explanation_de': 'Alle fünf Begriffe hängen an derselben Schleife: Tokens füllen das '
+                                           'Kontextfenster, Attention verknüpft sie, Sampling wählt das '
+                                           'nächste Token – und weil nur Wahrscheinlichkeiten gerechnet '
+                                           'werden, kann das Ergebnis falsch sein.',
+                         'explanation_en': 'All five terms belong to the same loop: tokens fill the context '
+                                           'window, attention links them, sampling picks the next token – and '
+                                           'because only probabilities are computed, the result can be wrong.'}},
             {'type': 'order', 'id': 'order-1',
              'payload': {'prompt_de': 'Bring die autoregressive Text-Erzeugung in die richtige '
                                       'Reihenfolge:',
@@ -200,6 +310,7 @@ LLM_GRUNDLAGEN_MODULE = {'key': 'llm-grundlagen',
                              'usually chosen and the output is nearly deterministic; higher '
                              'temperature brings more variation.'}}],
  'quiz': {'questions': [{'id': 'llm1',
+                         'explanation': {'de': 'Ein LLM lernt im Training genau eine Aufgabe: aus dem bisherigen Text das nächste Token vorherzusagen. Der naheliegende Irrtum ist das Bild vom Nachschlagewerk – das Modell schlägt nichts in einer Datenbank nach, sondern rechnet Wahrscheinlichkeiten, und kann deshalb auch Falsches flüssig formulieren.', 'en': 'During training an LLM learns exactly one task: predicting the next token from the text so far. The obvious misconception is the reference-work picture – the model does not look anything up in a database, it computes probabilities, and can therefore phrase wrong things fluently too.'},
                          'type': 'single',
                          'prompt': {'de': 'Worauf ist ein LLM grundlegend trainiert?',
                                     'en': 'What is an LLM fundamentally trained to do?'},
@@ -213,6 +324,7 @@ LLM_GRUNDLAGEN_MODULE = {'key': 'llm-grundlagen',
                                             'Compile programs without errors',
                                             'Fetch web pages live']}},
                         {'id': 'llm2',
+                         'explanation': {'de': 'Attention gewichtet für jedes Token, welche anderen Tokens im Kontext gerade relevant sind – so entstehen Bezüge über weite Distanzen. Mit Speichern hat das nichts zu tun: Was nicht im Kontextfenster steht, kann Attention auch nicht verknüpfen.', 'en': 'For each token, attention weighs which other tokens in the context are relevant right now – that is how long-distance relationships are captured. It has nothing to do with storage: what is not in the context window cannot be linked by attention.'},
                          'type': 'single',
                          'prompt': {'de': 'Was leistet der Attention-Mechanismus im Transformer?',
                                     'en': 'What does the attention mechanism in the Transformer '
@@ -229,6 +341,7 @@ LLM_GRUNDLAGEN_MODULE = {'key': 'llm-grundlagen',
                                             'It translates tokens into machine code',
                                             'It permanently saves the conversation to disk']}},
                         {'id': 'llm3',
+                         'explanation': {'de': 'Im Kontextfenster liegt nur, was in dieser Session hineingegeben wurde: System-Prompt, geladene CLAUDE.md, Verlauf, gelesene Dateien und Tool-Ergebnisse. Die Trainingsdaten stecken dagegen in den Gewichten des Modells – sie liegen nicht als Text im Fenster und lassen sich dort auch nicht nachlesen.', 'en': "The context window holds only what was put in during this session: system prompt, loaded CLAUDE.md, history, files read and tool results. The training data, by contrast, is baked into the model's weights – it is not present as text in the window and cannot be read back from there."},
                          'type': 'multi',
                          'prompt': {'de': 'Was liegt alles im Kontextfenster einer '
                                           'Claude-Code-Session? (mehrere)',
@@ -244,6 +357,7 @@ LLM_GRUNDLAGEN_MODULE = {'key': 'llm-grundlagen',
                                             'Files read and tool results',
                                             "The model's complete training dataset"]}},
                         {'id': 'llm4',
+                         'explanation': {'de': 'Halluzination heißt: Das Modell erzeugt eine plausibel klingende, aber falsche Ausgabe – hier eine Funktion, die es nicht gibt. Das ist kein Tokenisierungs- oder Attention-Fehler, sondern Folge der Wahrscheinlichkeitsrechnung; deshalb werden Ergebnisse durch Ausführen und Tests geprüft.', 'en': 'Hallucination means the model produces plausible-sounding but wrong output – here a function that does not exist. It is not a tokenization or attention bug but a consequence of computing probabilities; that is why results are checked by running and testing them.'},
                          'type': 'single',
                          'prompt': {'de': 'Ein Modell erfindet eine Funktion, die es nicht gibt. '
                                           'Wie heißt dieses Phänomen?',
@@ -259,9 +373,85 @@ LLM_GRUNDLAGEN_MODULE = {'key': 'llm-grundlagen',
                                             'Tokenization',
                                             'Attention']}},
                         {'id': 'llm5',
+                         'explanation': {'de': 'Als Faustregel gelten bei englischem Text und Code etwa vier Zeichen je Token. Es ist eine Schätzung, kein fester Wert: Deutsch, Umlaute, seltene Bezeichner und Sonderzeichen brauchen meist mehr Tokens je Zeichen.', 'en': 'As a rule of thumb, English text and code come to about four characters per token. It is an estimate, not a fixed value: German, umlauts, rare identifiers and special characters usually need more tokens per character.'},
                          'type': 'number',
                          'prompt': {'de': 'Faustregel: Etwa wie viele Zeichen entsprechen grob '
                                           'einem Token bei englischem Text/Code?',
                                     'en': 'Rule of thumb: roughly how many characters correspond '
                                           'to one token for English text/code?'},
-                         'answer': 4}]}}
+                         'answer': 4},
+                        {'id': 'llm6',
+                         'type': 'single',
+                         'prompt': {'de': 'In einer sehr langen Session hält sich Claude nicht mehr an eine Regel, die du '
+                                          'ganz am Anfang im Chat genannt hast. Was ist die plausibelste Erklärung und die '
+                                          'passende Reaktion?',
+                                    'en': 'In a very long session Claude no longer follows a rule you stated in chat at '
+                                          'the very beginning. What is the most plausible explanation and the fitting '
+                                          'response?'},
+                         'options': {'de': ['Das Modell wurde zwischenzeitlich neu trainiert; man kann nichts tun',
+                                            'Das Kontextfenster ist endlich: Frühe Inhalte wurden verdichtet oder gehen im '
+                                            'Rauschen unter – dauerhafte Regeln gehören in die CLAUDE.md',
+                                            'Attention funktioniert nur für die letzten zehn Nachrichten',
+                                            'Die Regel war zu kurz; längere Regeln wirken grundsätzlich stärker'],
+                                     'en': ['The model was retrained in the meantime; nothing can be done',
+                                            'The context window is finite: early content was condensed or drowns in noise '
+                                            '– durable rules belong in CLAUDE.md',
+                                            'Attention only works for the last ten messages',
+                                            'The rule was too short; longer rules always have more impact']},
+                         'answer': 1,
+                         'explanation': {'de': 'Alles, was Claude berücksichtigt, muss im Kontextfenster stehen; in langen '
+                                               'Sessions wird der Verlauf verdichtet, und Details vom Anfang können dabei '
+                                               'verloren gehen. Länge hilft nicht – Relevanz schlägt Menge. Regeln, die '
+                                               'immer gelten sollen, stehen deshalb in der CLAUDE.md statt nur im Chat.',
+                                         'en': 'Everything Claude takes into account has to be in the context window; in '
+                                               'long sessions the history is condensed and details from the start can get '
+                                               'lost. Length does not help – relevance beats volume. Rules that should '
+                                               'always apply therefore live in CLAUDE.md rather than only in chat.'}},
+                        {'id': 'llm7',
+                         'type': 'multi',
+                         'prompt': {'de': 'Welche Aussagen über Tokens treffen zu? (mehrere)',
+                                    'en': 'Which statements about tokens are true? (multiple)'},
+                         'options': {'de': ['Auch gelesene Dateien und Tool-Ergebnisse verbrauchen Tokens im '
+                                            'Kontextfenster',
+                                            'Ein Token entspricht immer genau einem Wort',
+                                            'Seltene Bezeichner werden meist in mehrere Tokens zerlegt',
+                                            'Die Antwort des Modells zählt ebenfalls gegen das Kontextfenster'],
+                                     'en': ['Files read and tool results also consume tokens in the context window',
+                                            'One token always corresponds to exactly one word',
+                                            'Rare identifiers are usually split into several tokens',
+                                            "The model's answer also counts against the context window"]},
+                         'answer': [0, 2, 3],
+                         'explanation': {'de': 'Tokens sind Textbausteine, häufig Wortteile – ein langes oder seltenes '
+                                               'Wort besteht aus mehreren. Der verbreitete Irrtum ist „ein Wort = ein '
+                                               'Token“. Gezählt wird alles, was durch das Modell läuft: Prompt, Dateien, '
+                                               'Tool-Ergebnisse und die Ausgabe.',
+                                         'en': 'Tokens are pieces of text, often parts of words – a long or rare word '
+                                               'consists of several. The common misconception is "one word = one token". '
+                                               'Everything that passes through the model counts: prompt, files, tool '
+                                               'results and the output.'}},
+                        {'id': 'llm8',
+                         'type': 'single',
+                         'prompt': {'de': 'Du stellst denselben Prompt zweimal und bekommst zwei unterschiedliche '
+                                          'Implementierungen. Wie ordnest du das ein?',
+                                    'en': 'You send the same prompt twice and get two different implementations. How do '
+                                          'you interpret that?'},
+                         'options': {'de': ['Eine der beiden Antworten muss halluziniert sein',
+                                            'Das ist ein Fehler im Tokenizer',
+                                            'Erwartbar, weil das nächste Token per Sampling gewählt wird – entscheidend '
+                                            'ist, welche Variante Tests und Review besteht',
+                                            'Das Kontextfenster war beim zweiten Mal voll'],
+                                     'en': ['One of the two answers must be hallucinated',
+                                            'It is a bug in the tokenizer',
+                                            'Expected, because the next token is chosen by sampling – what matters is '
+                                            'which variant passes tests and review',
+                                            'The context window was full the second time']},
+                         'answer': 2,
+                         'explanation': {'de': 'Die Generierung ist probabilistisch: Aus der Verteilung wird ein Token '
+                                               'gezogen, kleine Unterschiede setzen sich über die ganze Antwort fort. '
+                                               'Unterschiedlich heißt nicht falsch – beide Varianten können korrekt sein. '
+                                               'Deshalb entscheidet der Nachweis (Tests, Review), nicht die Formulierung.',
+                                         'en': 'Generation is probabilistic: a token is drawn from the distribution, and '
+                                               'small differences propagate through the whole answer. Different does not '
+                                               'mean wrong – both variants can be correct. That is why evidence (tests, '
+                                               'review) decides, not the wording.'}},
+                        ]}}

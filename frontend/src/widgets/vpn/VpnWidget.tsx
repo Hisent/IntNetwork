@@ -1,42 +1,46 @@
 import { useState } from 'react'
-import { attackerView, encapsulate, type Packet } from '@/widgets/vpn/vpn'
+import { attackerView, encapsulate, SCENARIO } from '@/widgets/vpn/vpn'
 import { ChallengeBox } from '@/components/ChallengeBox'
 import type { Lang } from '@/lib/i18n'
 
-const INNER: Packet = { src: '192.168.10.5', dst: '10.20.0.9', payload: 'Gehaltsliste.xlsx' }
-const GW_SRC = '203.0.113.1'
-const GW_DST = '198.51.100.1'
+const INNER = SCENARIO.inner
 
 const STR = {
   de: {
-    title: 'VPN — Site-to-Site-Tunnel',
-    subtitle: 'Filiale (Netz 192.168.10.0/24) ↔ Zentrale (Netz 10.20.0.0/16) über das Internet.',
-    step1: '1. Internes Paket (in der Filiale)',
-    step2: '2. Im Tunnel über das Internet (verschlüsselt gekapselt)',
+    title: 'VPN — Remote-Access-Tunnel',
+    subtitle: 'Laptop im offenen Hotel-WLAN (außen 198.51.100.23) ↔ VPN-Gateway der Zentrale (203.0.113.10). '
+      + 'Im Tunnel: VPN-Adresse 10.20.99.5 → Dateiserver 10.20.0.9 im Netz 10.20.0.0/16. '
+      + 'Vereinfacht: Das Hotel-WLAN vergibt hier direkt eine öffentliche Adresse (real meist privat + NAT).',
+    step1: '1. Internes Paket (auf dem Laptop, vor dem Tunnel)',
+    step2: '2. Im Tunnel durch WLAN und Internet (verschlüsselt gekapselt)',
     outerHeader: 'äußerer Header',
-    warning: 'Ein Angreifer im Internet sieht nur die Gateway-IPs und den verschlüsselten Block — '
+    warning: 'Wer im WLAN oder im Internet mitliest, sieht nur „Laptop → VPN-Gateway“ und den verschlüsselten Block — '
       + 'weder die internen Adressen noch die Daten.',
-    reencrypt: 'Wieder verschlüsseln', decrypt: 'Am Ziel-Gateway entschlüsseln',
-    challenge: 'Entschlüssle den Tunnel am Ziel-Gateway — welche internen Adressen kommen zum Vorschein?',
+    reencrypt: 'Wieder verschlüsseln', decrypt: 'Am VPN-Gateway entschlüsseln',
+    challenge: 'Entschlüssle den Tunnel am VPN-Gateway — welche internen Adressen kommen zum Vorschein?',
     attackerToggle: 'VPN einschalten',
     attackerTitle: 'Was der Angreifer im WLAN sieht',
-    withVpn: 'mit VPN', withoutVpn: 'ohne VPN',
+    withVpn: 'mit VPN (nur Laptop → VPN-Gateway)',
+    withoutVpn: 'ohne VPN (unverschlüsselter Abruf von einem öffentlich erreichbaren Server)',
     addresses: 'Adressen', content: 'Inhalt', metadata: 'Sichtbare Metadaten (bleiben auch mit VPN erkennbar)',
     readable: 'lesbar', notReadable: 'verschlüsselt, nicht lesbar',
   },
   en: {
-    title: 'VPN — Site-to-Site Tunnel',
-    subtitle: 'Branch (network 192.168.10.0/24) ↔ headquarters (network 10.20.0.0/16) over the Internet.',
-    step1: '1. Internal packet (at the branch)',
-    step2: '2. In the tunnel over the Internet (encrypted and encapsulated)',
+    title: 'VPN — Remote-Access Tunnel',
+    subtitle: 'Laptop on open hotel Wi-Fi (outer address 198.51.100.23) ↔ headquarters VPN gateway (203.0.113.10). '
+      + 'Inside the tunnel: VPN address 10.20.99.5 → file server 10.20.0.9 in network 10.20.0.0/16. '
+      + 'Simplified: the hotel Wi-Fi hands out a public address directly here (in reality usually private + NAT).',
+    step1: '1. Internal packet (on the laptop, before the tunnel)',
+    step2: '2. In the tunnel across Wi-Fi and the Internet (encrypted and encapsulated)',
     outerHeader: 'outer header',
-    warning: 'An attacker on the Internet only sees the gateway IPs and the encrypted block — '
+    warning: 'Anyone listening on the Wi-Fi or on the Internet only sees “laptop → VPN gateway” and the encrypted block — '
       + 'neither the internal addresses nor the data.',
-    reencrypt: 'Re-encrypt', decrypt: 'Decrypt at the destination gateway',
-    challenge: 'Decrypt the tunnel at the destination gateway — which internal addresses appear?',
+    reencrypt: 'Re-encrypt', decrypt: 'Decrypt at the VPN gateway',
+    challenge: 'Decrypt the tunnel at the VPN gateway — which internal addresses appear?',
     attackerToggle: 'Turn VPN on',
     attackerTitle: 'What the attacker sees on the Wi-Fi',
-    withVpn: 'with VPN', withoutVpn: 'without VPN',
+    withVpn: 'with VPN (only laptop → VPN gateway)',
+    withoutVpn: 'without VPN (unencrypted download from a publicly reachable server)',
     addresses: 'Addresses', content: 'Content', metadata: 'Visible metadata (stays visible even with VPN)',
     readable: 'readable', notReadable: 'encrypted, not readable',
   },
@@ -45,9 +49,9 @@ const STR = {
 export function Vpn({ lang }: { lang: Lang }) {
   const [decrypted, setDecrypted] = useState(false)
   const [attackerVpnOn, setAttackerVpnOn] = useState(false)
-  const t = encapsulate(INNER, GW_SRC, GW_DST)
+  const t = encapsulate(INNER, SCENARIO.clientOuter, SCENARIO.gateway)
   const s = STR[lang]
-  const view = attackerView(INNER, t, attackerVpnOn)
+  const view = attackerView(SCENARIO.direct, t, attackerVpnOn)
 
   return (
     <div className="rounded-2xl border bg-white p-5">

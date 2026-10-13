@@ -71,7 +71,13 @@ export function checkCert(cert: Cert, hostname: string, now: Date): CertCheckRes
   return { valid: problems.length === 0, problems }
 }
 
-export type ChainProblem = 'incomplete' | 'issuer-mismatch' | 'untrusted-root' | 'expired-link'
+export type ChainProblem =
+  | 'incomplete'
+  | 'issuer-mismatch'
+  | 'not-a-ca'
+  | 'no-cert-sign'
+  | 'untrusted-root'
+  | 'expired-link'
 
 export interface ChainResult {
   ok: boolean
@@ -82,10 +88,15 @@ export interface ChainResult {
  * Prüft eine vom Teilnehmer zusammengeklickte Kette (Reihenfolge Leaf → ... → Root).
  * Reihenfolge der Prüfungen (erste zutreffende gewinnt):
  *  1. Passt Issuer von Glied i zum Subject von Glied i+1? Sonst issuer-mismatch.
- *  2. Endet die Kette in einem selbstsignierten Zertifikat? Sonst incomplete
+ *  2. Darf jedes ausstellende Glied (alles oberhalb des Leaf) überhaupt Zertifikate
+ *     ausstellen? Basic Constraints CA:TRUE (sonst not-a-ca) und Key Usage
+ *     keyCertSign (sonst no-cert-sign) — RFC 5280, 4.2.1.9 und 4.2.1.3. Die reine
+ *     Namensverkettung aus Schritt 1 reicht nicht: Sonst könnte jedes Serverzertifikat
+ *     als "CA" für weitere Zertifikate herhalten.
+ *  3. Endet die Kette in einem selbstsignierten Zertifikat? Sonst incomplete
  *     (die Kette bricht ab, ohne einen Vertrauensanker zu erreichen).
- *  3. Ist dieses Root-Zertifikat (per Fingerabdruck) im Trust Store? Sonst untrusted-root.
- *  4. Sind alle Glieder zeitlich gültig? Sonst expired-link.
+ *  4. Ist dieses Root-Zertifikat (per Fingerabdruck) im Trust Store? Sonst untrusted-root.
+ *  5. Sind alle Glieder zeitlich gültig (notBefore/notAfter)? Sonst expired-link.
  */
 export function validateChain(chain: Cert[], trustStore: Cert[], now: Date): ChainResult {
   if (chain.length === 0) return { ok: false, problem: 'incomplete' }
@@ -94,6 +105,11 @@ export function validateChain(chain: Cert[], trustStore: Cert[], now: Date): Cha
     if (chain[i].issuer !== chain[i + 1].subject) {
       return { ok: false, problem: 'issuer-mismatch' }
     }
+  }
+
+  for (const issuer of chain.slice(1)) {
+    if (!issuer.isCa) return { ok: false, problem: 'not-a-ca' }
+    if (!issuer.keyUsage.includes('keyCertSign')) return { ok: false, problem: 'no-cert-sign' }
   }
 
   const terminal = chain[chain.length - 1]
@@ -276,6 +292,29 @@ export const FOREIGN_INTERMEDIATE: Cert = {
   selfSigned: false,
 }
 
+// Störer für das Ketten-Widget: trägt den Namen der Issuing-CA und ist von der
+// Root signiert, hat aber CA:FALSE — ein Endzertifikat, das sich als CA ausgibt.
+export const INTERMEDIATE_NOT_CA: Cert = {
+  ...INTERMEDIATE_VALID,
+  id: 'intermediate-not-ca',
+  label: { de: 'Intermediate ohne CA:TRUE (Basic Constraints)', en: 'Intermediate without CA:TRUE (Basic Constraints)' },
+  serial: '10:00:00:00:00:00:00:2B',
+  keyUsage: ['digitalSignature', 'keyEncipherment'],
+  isCa: false,
+  fingerprint: 'BC:22:33:44:55:66:77:88:99:AA:BB:CC:DD:EE:FF:00:11:22:33:44:BC:22:33:44:55:66:77:88:99:AA:BB:CC',
+}
+
+// Störer für das Ketten-Widget: CA:TRUE, aber die Key Usage erlaubt das Signieren
+// von Zertifikaten nicht (keyCertSign fehlt).
+export const INTERMEDIATE_NO_CERT_SIGN: Cert = {
+  ...INTERMEDIATE_VALID,
+  id: 'intermediate-no-cert-sign',
+  label: { de: 'Intermediate ohne keyCertSign (Key Usage)', en: 'Intermediate without keyCertSign (Key Usage)' },
+  serial: '10:00:00:00:00:00:00:2C',
+  keyUsage: ['digitalSignature', 'cRLSign'],
+  fingerprint: 'BD:22:33:44:55:66:77:88:99:AA:BB:CC:DD:EE:FF:00:11:22:33:44:BD:22:33:44:55:66:77:88:99:AA:BB:CC',
+}
+
 // Störer für das Ketten-Widget: ein weiteres Root mit demselben Namen (passt
 // noch zum Intermediate), aber weder im Trust Store noch mehr gültig — zeigt,
 // dass ein Root ohne Eintrag im lokalen Trust Store nicht zählt, egal wie
@@ -330,13 +369,20 @@ export const INSPECTOR_CERTS: Cert[] = [
   INTERMEDIATE_VALID,
 ]
 
-/** Vorrat für das Ketten-Widget: passende Kette + zwei Störer. */
+/**
+ * Vorrat für das Ketten-Widget: die passende Kette plus je ein Störer pro Fehlerfall
+ * (issuer-mismatch, untrusted-root, expired-link, not-a-ca, no-cert-sign; "incomplete"
+ * entsteht durch Weglassen).
+ */
 export const CHAIN_POOL: Cert[] = [
   LEAF_VALID,
   INTERMEDIATE_VALID,
   ROOT_VALID,
   FOREIGN_INTERMEDIATE,
   ROOT_UNTRUSTED_EXPIRED,
+  LEAF_EXPIRED,
+  INTERMEDIATE_NOT_CA,
+  INTERMEDIATE_NO_CERT_SIGN,
 ]
 
 export const HOSTNAME = 'www.nordwind-logistik.de'

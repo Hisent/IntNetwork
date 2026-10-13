@@ -13,6 +13,12 @@ DHCP_INFOBLOX_MODULE = {
         'Die Vererbung von DHCP-Eigenschaften über Grid, Member, Netzwerk und Bereich nachvollziehen',
         'Das Zusammenspiel von DHCP und DNS über dynamische Updates erklären',
     ],
+    "goals_en": [
+        "Describe the DHCP object hierarchy (network container, network, range, fixed address)",
+        "Distinguish ranges, exclusion ranges and reservations and name the purpose of each",
+        "Follow the inheritance of DHCP properties across Grid, member, network and range",
+        "Explain how DHCP and DNS work together through dynamic updates",
+    ],
     'scenario': {
         'de': ('Nordwind betreibt inzwischen mehrere Standorte über ein Infoblox-Grid (siehe '
                'Grid-Architektur). Jetzt geht es an die eigentliche Adressvergabe: Wo im Grid '
@@ -31,9 +37,7 @@ DHCP_INFOBLOX_MODULE = {
                     'DHCP-Objekte in NIOS sind hierarchisch aufgebaut, vom groben Rahmen bis '
                     'zur einzelnen Adresse:\n'
                     '\n'
-                    '- **Netzwerk-Container** — rein organisatorisch, bündelt mehrere Netzwerke '
-                    '(z. B. alle Netze eines Standorts), selbst kein Adressraum mit eigener '
-                    'DHCP-Konfiguration.\n'
+                    '- **Netzwerk-Container** — fasst mehrere Netzwerke zu einem übergeordneten Adressblock zusammen (z. B. 10.20.0.0/16 für einen Standort). Aus dem Container selbst werden keine Adressen vergeben — das geschieht in den Netzwerken und Bereichen darunter.\n'
                     '- **Netzwerk** — der eigentliche Adressraum (z. B. 10.20.30.0/24) mit '
                     'Zuordnung zu einem oder mehreren Grid-Membern und den grundlegenden '
                     'DHCP-Eigenschaften.\n'
@@ -49,9 +53,7 @@ DHCP_INFOBLOX_MODULE = {
                     'DHCP objects in NIOS are structured hierarchically, from the broad frame '
                     'down to the individual address:\n'
                     '\n'
-                    '- **Network container** — purely organizational, groups several networks '
-                    '(e.g. all networks at one site); it is not itself an address space with '
-                    'its own DHCP configuration.\n'
+                    '- **Network container** — groups several networks into a parent address block (e.g. 10.20.0.0/16 for one site). No addresses are assigned from the container itself — that happens in the networks and ranges below it.\n'
                     '- **Network** — the actual address space (e.g. 10.20.30.0/24), assigned '
                     'to one or more Grid members, carrying the basic DHCP properties.\n'
                     '- **Range** — a sub-section of the network that is assigned dynamically '
@@ -143,6 +145,59 @@ DHCP_INFOBLOX_MODULE = {
                     'an explicit setting at the range level always wins over an inherited '
                     'Grid setting.'),
          }},
+        {
+            "type": "diagram",
+            "id": "diagram-dhcp-vererbung",
+            "payload": {
+                "kind": "layers",
+                "title_de": "Vererbung am Beispiel der Lease-Zeit",
+                "title_en": "Inheritance, using the lease time as an example",
+                "caption_de": "Rechts steht der Wert, der auf der jeweiligen Ebene wirksam ist.",
+                "caption_en": "The value effective at each level is shown on the right.",
+                "layers": [
+                    {
+                        "name": "Grid",
+                        "content_de": "Standardwert für das gesamte Grid: 8 Stunden",
+                        "content_en": "default for the whole Grid: 8 hours",
+                        "pdu": "8 h",
+                        "detail_de": "Der Ausgangspunkt. Gilt überall dort, wo keine tiefere Ebene etwas Eigenes festlegt.",
+                        "detail_en": "The starting point. Applies wherever no lower level defines something of its own.",
+                    },
+                    {
+                        "name_de": "Member (Standort Hamburg)",
+                        "name_en": "Member (Hamburg site)",
+                        "content_de": "nichts gesetzt — erbt vom Grid",
+                        "content_en": "nothing set — inherits from the Grid",
+                        "pdu": "8 h",
+                    },
+                    {
+                        "name_de": "Netzwerk 10.20.30.0/24",
+                        "name_en": "Network 10.20.30.0/24",
+                        "content_de": "überschreibt: 24 Stunden (Büronetz, wenig Wechsel)",
+                        "content_en": "overrides: 24 hours (office network, little turnover)",
+                        "pdu": "24 h",
+                        "detail_de": "Ab hier gilt für alles darunter der Netzwerk-Wert, nicht mehr der Grid-Wert.",
+                        "detail_en": "From here on the network value applies to everything below, no longer the Grid value.",
+                    },
+                    {
+                        "name_de": "Bereich .100 – .200",
+                        "name_en": "Range .100 – .200",
+                        "content_de": "nichts gesetzt — erbt vom Netzwerk",
+                        "content_en": "nothing set — inherits from the network",
+                        "pdu": "24 h",
+                    },
+                    {
+                        "name_de": "Bereich .210 – .240 (Gäste)",
+                        "name_en": "Range .210 – .240 (guests)",
+                        "content_de": "überschreibt: 2 Stunden",
+                        "content_en": "overrides: 2 hours",
+                        "pdu": "2 h",
+                        "detail_de": "Zwei Bereiche im selben Netzwerk können unterschiedliche Werte tragen: Der eine erbt, der andere überschreibt.",
+                        "detail_en": "Two ranges in the same network can carry different values: one inherits, the other overrides.",
+                    },
+                ],
+            },
+        },
         {'type': 'check', 'id': 'check-1',
          'payload': {
              'kind': 'choice',
@@ -180,8 +235,7 @@ DHCP_INFOBLOX_MODULE = {
                     'länger einem Client zugeordnet, auch wenn dieser längst nicht mehr im '
                     'Netz ist.\n'
                     '\n'
-                    'Leases lassen sich in NIOS einsehen und bei Bedarf gezielt verlängern '
-                    'oder löschen, etwa wenn ein Gerät getauscht wurde und die alte '
+                    'Leases lassen sich in NIOS einsehen und bei Bedarf gezielt freigeben (Clear Lease) — die Adresse gilt danach wieder als frei —, etwa wenn ein Gerät getauscht wurde und die alte '
                     'Zuordnung stört.'),
              'en': ('## Lease Management and Lease Times\n'
                     '\n'
@@ -198,10 +252,27 @@ DHCP_INFOBLOX_MODULE = {
                     'a client for longer, even once that client is long gone from the '
                     'network.\n'
                     '\n'
-                    'Leases can be viewed in NIOS and, if needed, extended or deleted on '
-                    'purpose — for example when a device has been swapped and the old '
+                    'Leases can be viewed in NIOS and, if needed, cleared on purpose (Clear Lease), which makes the address free again — for example when a device has been swapped and the old '
                     'mapping is getting in the way.'),
          }},
+        {
+            "type": "cloze",
+            "id": "cloze-dhcp-optionen",
+            "note": "Optionsnummern nach RFC 2132; Aufbau der options-Liste (name, num, value) nach der WAPI-Doku zum Objekt network.",
+            "payload": {
+                "prompt_de": "Ein Netzwerk wird per WAPI mit DHCP-Optionen angelegt: Gateway 10.20.30.1, DNS-Server 10.20.30.53, Lease-Zeit 24 Stunden. Vervollständige den JSON-Body.",
+                "prompt_en": "A network is created via WAPI with DHCP options: gateway 10.20.30.1, DNS server 10.20.30.53, lease time 24 hours. Complete the JSON body.",
+                "mono": True,
+                "text": "POST https://gm.nordwind.example/wapi/v2.x/network\n\n{\n  \"network\": \"10.20.30.0/24\",\n  \"options\": [\n    { \"name\": \"[[gw]]\", \"num\": 3, \"value\": \"10.20.30.1\" },\n    { \"name\": \"domain-name-servers\", \"num\": [[dnsnum]], \"value\": \"10.20.30.53\" },\n    { \"name\": \"dhcp-lease-time\", \"num\": 51, \"value\": \"[[lease]]\" }\n  ]\n}",
+                "gaps": [
+                    {"id": "gw", "options": ["routers", "gateway", "default-route", "next-server"], "answer": 0},
+                    {"id": "dnsnum", "accept": ["6"]},
+                    {"id": "lease", "accept": ["86400"]},
+                ],
+                "explanation_de": "Die Optionen tragen die Namen und Nummern des DHCP-Standards: 3 = routers (Gateway), 6 = domain-name-servers, 51 = dhcp-lease-time. Die Lease-Zeit steht in Sekunden: 24 × 3600 = 86400.",
+                "explanation_en": "The options carry the names and numbers of the DHCP standard: 3 = routers (gateway), 6 = domain-name-servers, 51 = dhcp-lease-time. The lease time is given in seconds: 24 × 3600 = 86400.",
+            },
+        },
         {'type': 'check', 'id': 'check-2',
          'payload': {
              'kind': 'number',
@@ -246,6 +317,83 @@ DHCP_INFOBLOX_MODULE = {
                     'key takeaway is enough: lease assignment and name resolution are not '
                     'separate, they are tied together through DDNS.'),
          }},
+        {
+            "type": "terminal",
+            "id": "terminal-lease-verfolgen",
+            "note": ("dhclient- und dig-Ausgaben im Standardformat (ISC), gekürzt. Die WAPI-Antwort ist eine vereinfachte "
+                     "Darstellung: Feldnamen nach der WAPI-Doku zum Objekt lease, _ref und Werte sind Beispiele. "
+                     "MAC-Adresse aus dem Dokumentationsbereich (RFC 7042). Zustand: Vor „dhclient“ liefern WAPI-Abfrage "
+                     "und beide dig-Befehle leere Antworten, danach Lease, PTR und A-Eintrag."),
+            "payload": {
+                "title_de": "Einer Lease folgen: Client, WAPI, DNS",
+                "title_en": "Following a lease: client, WAPI, DNS",
+                "intro_de": "Linux-Notebook nb-keller im Netz 10.20.30.0/24. Ausgaben gekürzt.",
+                "intro_en": "Linux laptop nb-keller on the network 10.20.30.0/24. Output shortened.",
+                "prompt": "keller@nb-keller:~$",
+                "unknown": "bash: {cmd}: command not found",
+                "commands": [
+                    {
+                        "sets": ["lease"],
+                        "cmd": "sudo dhclient -v eth0",
+                        "desc_de": "Adresse per DHCP anfordern",
+                        "desc_en": "request an address via DHCP",
+                        "output": "DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 3\nDHCPOFFER of 10.20.30.117 from 10.20.30.2\nDHCPREQUEST for 10.20.30.117 on eth0 to 255.255.255.255\n  port 67\nDHCPACK of 10.20.30.117 from 10.20.30.2\nbound to 10.20.30.117 -- renewal in 39274 seconds.",
+                    },
+                    {
+                        "label": "curl lease?address=10.20.30.117",
+                        "variants": [
+                                        {"when": "lease",
+                                         "output": ("[\n"
+                                                    "  {\n"
+                                                    "    \"_ref\": \"lease/ZG5zLmxlYXNlJDEwLjIwLjMwLjExNw:\n"
+                                                    "             10.20.30.117/default\",\n"
+                                                    "    \"address\": \"10.20.30.117\",\n"
+                                                    "    \"binding_state\": \"ACTIVE\",\n"
+                                                    "    \"client_hostname\": \"nb-keller\",\n"
+                                                    "    \"hardware\": \"00:00:5e:00:53:2a\"\n"
+                                                    "  }\n"
+                                                    "]")},
+                                    ],
+                        "cmd": "curl -k -u api-ro 'https://gm.nordwind.example/wapi/v2.x/lease?address=10.20.30.117&_return_fields=address,hardware,binding_state,client_hostname'",
+                        "aliases": ["curl lease"],
+                        "desc_de": "Lease im Grid nachschlagen (Kurzform: curl lease)",
+                        "desc_en": "look up the lease in the Grid (short form: curl lease)",
+                        "output": "[]",
+                    },
+                    {
+                        "variants": [
+                                        {"when": "lease", "output": "nb-keller.nordwind-intern.de."},
+                                    ],
+                        "cmd": "dig @10.20.30.53 -x 10.20.30.117 +short",
+                        "desc_de": "PTR-Eintrag prüfen",
+                        "desc_en": "check the PTR record",
+                        "output": "",
+                    },
+                    {
+                        "variants": [
+                                        {"when": "lease", "output": "10.20.30.117"},
+                                    ],
+                        "cmd": "dig @10.20.30.53 nb-keller.nordwind-intern.de A +short",
+                        "desc_de": "A-Eintrag prüfen",
+                        "desc_en": "check the A record",
+                        "output": "",
+                    },
+                ],
+                "tasks": [
+                    {"text_de": "Fordere per DHCP eine Adresse an. Welcher Server hat sie vergeben?",
+                     "text_en": "Request an address via DHCP. Which server assigned it?",
+                     "answers": ["10.20.30.2"]},
+                    {"text_de": "Schlage die Lease per WAPI nach (curl lease). In welchem Zustand ist sie?",
+                     "text_en": "Look up the lease via WAPI (curl lease). Which state is it in?",
+                     "answers": ["ACTIVE", "active"]},
+                    {"text_de": "Prüfe, ob DDNS den passenden PTR-Eintrag angelegt hat.",
+                     "text_en": "Check whether DDNS created the matching PTR record.",
+                     "command": "dig @10.20.30.53 -x 10.20.30.117 +short",
+                     "explanation_de": "Vor dem Lease kam hier nichts zurück – erst mit der Vergabe hat DDNS den PTR- und den A-Eintrag angelegt.",
+                     "explanation_en": "Before the lease nothing came back here – only with the assignment did DDNS create the PTR and the A record."},
+                ],
+            },
+        },
         {'type': 'debug', 'id': 'debug-1',
          'payload': {
              'prompt_de': ('Ein Kollege beschreibt die Options-Konfiguration eines '
@@ -275,13 +423,23 @@ DHCP_INFOBLOX_MODULE = {
          }},
     ],
     'quiz': {'questions': [
-        {'id': 'dg1', 'type': 'single',
+        {'id': 'dg1',
+         "explanation": {
+             "de": "Die Reihenfolge lautet Container → Netzwerk → Bereich → einzelne Adresse. Der Container liegt über dem Netzwerk, nicht darunter; Grid Master und DNS-Zone gehören gar nicht in diese Hierarchie.",
+             "en": "The order is container → network → range → individual address. The container sits above the network, not below it; Grid Master and DNS zone do not belong in this hierarchy at all.",
+         },
+         'type': 'single',
          'prompt': {'de': 'Was liegt in der DHCP-Objekthierarchie zwischen Netzwerk und Fixed Address?',
                     'en': 'What sits in the DHCP object hierarchy between network and fixed address?'},
          'answer': 1,
          'options': {'de': ['Netzwerk-Container', 'Bereich (Range)', 'Grid Master', 'DNS-Zone'],
                      'en': ['Network container', 'Range', 'Grid Master', 'DNS zone']}},
-        {'id': 'dg2', 'type': 'single',
+        {'id': 'dg2',
+         "explanation": {
+             "de": "Eine Exclusion Range nimmt Adressen innerhalb eines Bereichs von der dynamischen Vergabe aus. Sie macht den Bereich also kleiner, nicht größer — und mit der Lease-Zeit hat sie nichts zu tun.",
+             "en": "An exclusion range removes addresses inside a range from dynamic assignment. It therefore makes the range smaller, not larger — and it has nothing to do with the lease time.",
+         },
+         'type': 'single',
          'prompt': {'de': 'Wozu dient eine Exclusion Range?',
                     'en': 'What is an exclusion range for?'},
          'answer': 1,
@@ -293,7 +451,12 @@ DHCP_INFOBLOX_MODULE = {
                             'It excludes a sub-section from dynamic assignment, for example for manually addressed devices',
                             'It sets the lease time for the whole range',
                             'It replaces the fixed address']}},
-        {'id': 'dg3', 'type': 'single',
+        {'id': 'dg3',
+         "explanation": {
+             "de": "Die speziellste Ebene mit eigener Einstellung gewinnt: hier der Bereich. Geerbt wird nur, wo nichts Eigenes gesetzt ist — „immer der Grid-Wert“ verkennt, dass der Grid-Wert nur der Ausgangspunkt ist.",
+             "en": "The most specific level with its own setting wins: here the range. Inheritance only applies where nothing is set locally — \"always the Grid value\" overlooks that the Grid value is merely the starting point.",
+         },
+         'type': 'single',
          'prompt': {'de': ('Ein Bereich hat eine eigene, explizite Lease-Zeit-Einstellung, '
                            'die vom geerbten Netzwerk-Wert abweicht. Welche gilt?'),
                     'en': ('A range has its own, explicit lease-time setting that differs '
@@ -303,7 +466,12 @@ DHCP_INFOBLOX_MODULE = {
                             'Die explizite Einstellung des Bereichs', 'Beide gleichzeitig, je nach Client'],
                      'en': ['Always the inherited network value', 'Always the Grid default',
                             "The range's own explicit setting", 'Both at once, depending on the client']}},
-        {'id': 'dg4', 'type': 'multi',
+        {'id': 'dg4',
+         "explanation": {
+             "de": "DDNS pflegt A/AAAA- und PTR-Einträge passend zur Lease, sodass niemand die Zone von Hand nachführen muss. Es ergänzt DHCP, statt es zu ersetzen, und ist gerade für dynamisch vergebene Adressen gedacht.",
+             "en": "DDNS maintains A/AAAA and PTR records to match the lease so that nobody has to update the zone by hand. It complements DHCP rather than replacing it, and is meant precisely for dynamically assigned addresses.",
+         },
+         'type': 'multi',
          'prompt': {'de': 'Welche Aussagen zu DDNS treffen zu? (mehrere)',
                     'en': 'Which statements about DDNS are true? (multiple)'},
          'answer': [0, 2],
@@ -315,7 +483,12 @@ DHCP_INFOBLOX_MODULE = {
                             'DDNS fully replaces the need for DHCP',
                             'Without DDNS, the DNS zone would have to be maintained manually for every new lease',
                             'DDNS only works with fixed addresses']}},
-        {'id': 'dg5', 'type': 'number',
+        {'id': 'dg5',
+         "explanation": {
+             "de": "Von .10 bis .90 sind es 81 Adressen (beide Grenzen zählen mit), abzüglich der 10 Adressen .40 bis .49 bleiben 71. Der klassische Fehler ist 90 − 10 = 80 als Größe des Bereichs.",
+             "en": "From .10 to .90 there are 81 addresses (both ends count), minus the 10 addresses .40 to .49 leaves 71. The classic mistake is taking 90 − 10 = 80 as the size of the range.",
+         },
+         'type': 'number',
          'prompt': {'de': ('Ein Bereich reicht von 10.5.5.10 bis 10.5.5.90. Eine Exclusion '
                            'Range von 10.5.5.40 bis 10.5.5.49 ist eingerichtet. Wie viele '
                            'Adressen bleiben für die dynamische Vergabe?'),
@@ -323,5 +496,62 @@ DHCP_INFOBLOX_MODULE = {
                           '10.5.5.40 to 10.5.5.49 is configured. How many addresses remain '
                           'for dynamic assignment?')},
          'answer': 71},
+        {
+            "id": "dg6",
+            "type": "number",
+            "prompt": {
+                "de": "Ein Bereich reicht von 10.20.30.50 bis 10.20.30.249 und enthält eine Exclusion Range von 10.20.30.100 bis 10.20.30.119. Aktuell sind 135 Adressen des Bereichs per Lease vergeben. Zu wie viel Prozent ist der dynamisch vergebbare Teil ausgelastet?",
+                "en": "A range spans 10.20.30.50 to 10.20.30.249 and contains an exclusion range from 10.20.30.100 to 10.20.30.119. 135 addresses of the range are currently leased. What percentage of the dynamically assignable part is in use?",
+            },
+            "answer": 75,
+            "explanation": {
+                "de": "Der Bereich hat 200 Adressen (249 − 50 + 1), die Exclusion Range nimmt 20 heraus: 180 sind dynamisch vergebbar. 135 / 180 = 75 %. Wer mit 200 rechnet, kommt auf 67,5 % und unterschätzt die Auslastung.",
+                "en": "The range has 200 addresses (249 − 50 + 1), the exclusion range removes 20: 180 are dynamically assignable. 135 / 180 = 75%. Calculating with 200 gives 67.5% and underestimates utilization.",
+            },
+        },
+        {
+            "id": "dg7",
+            "type": "single",
+            "prompt": {
+                "de": "Lease-Zeit im Grid: 8 Stunden. Der Member in Hamburg überschreibt auf 12 Stunden. Das Netzwerk 10.20.30.0/24 auf diesem Member hat nichts gesetzt, der Gäste-Bereich darin überschreibt auf 2 Stunden. Welche Lease-Zeit erhält ein Client aus dem zweiten Bereich desselben Netzwerks, der nichts gesetzt hat?",
+                "en": "Lease time in the Grid: 8 hours. The member in Hamburg overrides it to 12 hours. The network 10.20.30.0/24 on this member has nothing set, the guest range in it overrides to 2 hours. Which lease time does a client get from the second range of the same network, which has nothing set?",
+            },
+            "answer": 1,
+            "options": {
+                "de": ["8 Stunden", "12 Stunden", "2 Stunden", "Den Mittelwert der beiden Bereiche"],
+                "en": ["8 hours", "12 hours", "2 hours", "The average of the two ranges"],
+            },
+            "explanation": {
+                "de": "Der zweite Bereich erbt vom Netzwerk, das Netzwerk erbt vom Member — dort stehen 12 Stunden. Der Gäste-Bereich überschreibt nur für sich selbst; Overrides wirken nach unten, nie zur Seite auf einen Nachbar-Bereich.",
+                "en": "The second range inherits from the network, the network inherits from the member — which says 12 hours. The guest range overrides only for itself; overrides work downwards, never sideways onto a neighbouring range.",
+            },
+        },
+        {
+            "id": "dg8",
+            "type": "single",
+            "prompt": {
+                "de": "Ein defekter Drucker wurde getauscht. Das neue Gerät soll dieselbe Adresse bekommen wie das alte, die aber noch drei Tage als Lease des alten Geräts vergeben ist. Was ist der saubere Weg?",
+                "en": "A broken printer was replaced. The new device should get the same address as the old one, which is still leased to the old device for three days. What is the clean way?",
+            },
+            "answer": 2,
+            "options": {
+                "de": [
+                    "Die Lease-Zeit des gesamten Netzwerks auf wenige Minuten senken",
+                    "Die Adresse in eine Exclusion Range legen und am Drucker von Hand eintragen",
+                    "Die alte Lease freigeben (Clear Lease) und für den neuen Drucker eine Fixed Address anlegen",
+                    "Abwarten — der DHCP-Server erkennt den Gerätetausch an der neuen MAC-Adresse",
+                ],
+                "en": [
+                    "Lower the lease time of the whole network to a few minutes",
+                    "Put the address into an exclusion range and enter it manually on the printer",
+                    "Clear the old lease and create a fixed address for the new printer",
+                    "Wait — the DHCP server recognizes the swap by the new MAC address",
+                ],
+            },
+            "explanation": {
+                "de": "Clear Lease gibt genau diese eine Adresse frei, die Fixed Address bindet sie dauerhaft an die neue MAC-Adresse. Die neue MAC ist für den Server schlicht ein anderer Client, der eine andere Adresse bekäme; und eine netzweit kurze Lease-Zeit träfe alle Geräte, um eines zu lösen.",
+                "en": "Clear Lease frees exactly this one address, the fixed address binds it permanently to the new MAC address. To the server the new MAC is simply a different client that would get a different address; and a network-wide short lease time would hit all devices to solve one.",
+            },
+        },
     ]},
 }

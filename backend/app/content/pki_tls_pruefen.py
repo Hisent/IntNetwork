@@ -14,6 +14,13 @@ TLS_PRUEFEN_MODULE = {
         'Ein durchgängiges Vorgehen bei TLS-Störungen anwenden können (erreichbar → Kette → Name → Laufzeit → Protokoll/Suite)',
         'Ergänzende Werkzeuge (testssl.sh, SSL Labs, Certificate Transparency) einordnen können',
     ],
+    'goals_en': [
+        'Diagnose a TLS connection with openssl s_client and read its output',
+        'Read individual certificate fields selectively with openssl x509',
+        'Check whether private key and certificate belong together',
+        'Apply a consistent procedure for TLS incidents (reachable → chain → name → validity → protocol/suite)',
+        'Put complementary tools (testssl.sh, SSL Labs, Certificate Transparency) into context',
+    ],
     'scenario': {
         'de': 'Ein Kunde von Nordwind Logistik meldet: "Eure Website zeigt bei uns eine '
               'Zertifikatswarnung." Statt zu raten, greifst du zur Kommandozeile — openssl liefert '
@@ -105,6 +112,135 @@ TLS_PRUEFEN_MODULE = {
                  'It replaces specifying the port in -connect',
              ],
          }},
+        {'type': 'terminal', 'id': 'terminal-s-client-diagnose',
+         'note': ('Echte s_client-Ausgaben (OpenSSL 3.6) gegen lokale Testserver mit der Kurs-Test-PKI. Hostnamen '
+             'und IP-Adressen (Dokumentationsnetz 203.0.113.0/24) wurden statt 127.0.0.1 eingesetzt, PEM-Block '
+             'und Sitzungsdetails gekuerzt ([...]); wrap ist aus, die Zeilen stehen in Originalbreite. Der Server "staging" liefert '
+             'dasselbe Zertifikat ohne Intermediate aus. Im Openssl-Lab ist s_client gesperrt.'),
+         'payload': {
+             'title_de': 'Mit s_client nachsehen statt vermuten',
+             'title_en': 'Look it up with s_client',
+             'wrap': False,
+             'prompt': 'nordwind$',
+             'intro_de': ('Zwei Server: www (Produktion) und staging (frisch aufgesetzt,\n'
+                          'Kunde meldet Warnungen).'),
+             'intro_en': ('Two servers: www (production) and staging (freshly set up,\n'
+                          'customer reports warnings).'),
+             'unknown_de': 'Befehl nicht in dieser Übung: {cmd} (Tipp: help)',
+             'unknown_en': 'Command not part of this exercise: {cmd} (hint: help)',
+             'commands': [
+                    {
+                     'label': 's_client -connect www…',
+                     'cmd': 'openssl s_client -connect www.nordwind-logistik.de:443 -servername www.nordwind-logistik.de',
+                     'aliases': ['www'],
+                     'desc_de': 'Produktionsserver prüfen (Kurzform: www)',
+                     'desc_en': 'check production (short: www)',
+                     'output': ('Connecting to 203.0.113.10\n'
+                                'depth=2 C=DE, O=Nordwind Logistik GmbH, CN=Nordwind Root CA\n'
+                                'verify return:1\n'
+                                'depth=1 C=DE, O=Nordwind Logistik GmbH, CN=Nordwind Issuing CA G1\n'
+                                'verify return:1\n'
+                                'depth=0 C=DE, O=Nordwind Logistik GmbH, CN=www.nordwind-logistik.de\n'
+                                'verify return:1\n'
+                                'CONNECTED(00000003)\n'
+                                '---\n'
+                                'Certificate chain\n'
+                                ' 0 s:C=DE, O=Nordwind Logistik GmbH, CN=www.nordwind-logistik.de\n'
+                                '   i:C=DE, O=Nordwind Logistik GmbH, CN=Nordwind Issuing CA G1\n'
+                                '   a:PKEY: EC, (prime256v1); sigalg: ecdsa-with-SHA256\n'
+                                '   v:NotBefore: Oct 12 17:40:01 2026 GMT; NotAfter: Jan 10 17:40:01 2027 GMT\n'
+                                ' 1 s:C=DE, O=Nordwind Logistik GmbH, CN=Nordwind Issuing CA G1\n'
+                                '   i:C=DE, O=Nordwind Logistik GmbH, CN=Nordwind Root CA\n'
+                                '   a:PKEY: EC, (prime256v1); sigalg: ecdsa-with-SHA384\n'
+                                '   v:NotBefore: Oct 12 17:40:00 2026 GMT; NotAfter: Oct 11 17:40:00 2031 GMT\n'
+                                '---\n'
+                                '[...]\n'
+                                'Verification: OK\n'
+                                '---\n'
+                                'New, TLSv1.3, Cipher is TLS_AES_256_GCM_SHA384\n'
+                                'Protocol: TLSv1.3\n'
+                                '[...]\n'
+                                'Verify return code: 0 (ok)'),
+                    },
+                    {
+                     'label': 's_client -connect staging…',
+                     'cmd': ('openssl s_client -connect staging.nordwind-logistik.de:443 -servername '
+                         'www.nordwind-logistik.de'),
+                     'aliases': ['staging'],
+                     'desc_de': 'Staging-Server prüfen (Kurzform: staging)',
+                     'desc_en': 'check staging (short: staging)',
+                     'output': ('Connecting to 203.0.113.20\n'
+                                'depth=0 C=DE, O=Nordwind Logistik GmbH, CN=www.nordwind-logistik.de\n'
+                                'verify error:num=20:unable to get local issuer certificate\n'
+                                'verify return:1\n'
+                                'depth=0 C=DE, O=Nordwind Logistik GmbH, CN=www.nordwind-logistik.de\n'
+                                'verify error:num=21:unable to verify the first certificate\n'
+                                'verify return:1\n'
+                                'CONNECTED(00000003)\n'
+                                '---\n'
+                                'Certificate chain\n'
+                                ' 0 s:C=DE, O=Nordwind Logistik GmbH, CN=www.nordwind-logistik.de\n'
+                                '   i:C=DE, O=Nordwind Logistik GmbH, CN=Nordwind Issuing CA G1\n'
+                                '   a:PKEY: EC, (prime256v1); sigalg: ecdsa-with-SHA256\n'
+                                '   v:NotBefore: Oct 12 17:40:01 2026 GMT; NotAfter: Jan 10 17:40:01 2027 GMT\n'
+                                '---\n'
+                                '[...]\n'
+                                'Verification error: unable to verify the first certificate\n'
+                                '---\n'
+                                'New, TLSv1.3, Cipher is TLS_AES_256_GCM_SHA384\n'
+                                'Protocol: TLSv1.3\n'
+                                '[...]\n'
+                                'Verify return code: 21 (unable to verify the first certificate)'),
+                    },
+                    {
+                     'label': 's_client -verify_hostname shop…',
+                     'cmd': ('openssl s_client -connect www.nordwind-logistik.de:443 -servername '
+                         'www.nordwind-logistik.de -verify_hostname shop.nordwind-logistik.de'),
+                     'aliases': ['shop'],
+                     'desc_de': 'Hostnamen shop.… gegen das Zertifikat prüfen (Kurzform: shop)',
+                     'desc_en': 'check hostname shop.… against the certificate (short: shop)',
+                     'output': ('Connecting to 203.0.113.10\n'
+                                'depth=0 C=DE, O=Nordwind Logistik GmbH, CN=www.nordwind-logistik.de\n'
+                                'verify error:num=62:hostname mismatch\n'
+                                'verify return:1\n'
+                                '[...]\n'
+                                'Verification error: hostname mismatch\n'
+                                '---\n'
+                                'New, TLSv1.3, Cipher is TLS_AES_256_GCM_SHA384\n'
+                                'Protocol: TLSv1.3\n'
+                                '[...]\n'
+                                'Verify return code: 62 (hostname mismatch)'),
+                    },
+                ],
+             'tasks': [
+                    {
+                     'text_de': 'Prüfe den Produktionsserver. Wie viele Zertifikate liefert er aus?',
+                     'text_en': 'Check the production server. How many certificates does it deliver?',
+                     'answers': ['2', 'zwei', 'two'],
+                    },
+                    {
+                     'text_de': 'Prüfe den Staging-Server.',
+                     'text_en': 'Check the staging server.',
+                     'command': 'staging',
+                    },
+                    {
+                     'text_de': 'Mit welchem Verify return code endet die Staging-Ausgabe?',
+                     'text_en': 'Which verify return code does the staging output end with?',
+                     'answers': ['21'],
+                    },
+                    {
+                     'text_de': 'Welches Zertifikat fehlt in der Kette des Staging-Servers? (CN)',
+                     'text_en': "Which certificate is missing from the staging server's chain? (CN)",
+                     'answers': ['Nordwind Issuing CA G1', 'Issuing CA G1', 'Issuing CA', 'Intermediate'],
+                    },
+                    {
+                     'text_de': 'Prüfe, ob das Produktionszertifikat auch für shop.nordwind-logistik.de gilt. Welcher Code?',
+                     'text_en': 'Check whether the production certificate also covers shop.nordwind-logistik.de. Which code?',
+                     'answers': ['62'],
+                    },
+                ],
+            },
+        },
         {'type': 'text', 'id': 'text-3',
          'value': {
              'de': '## Einzelne Zertifikatsfelder ansehen: openssl x509\n\n'
@@ -221,6 +357,50 @@ TLS_PRUEFEN_MODULE = {
                  'openssl x509 -in cert.pem -noout -dates',
              ],
          }},
+        {'type': 'match', 'id': 'match-verify-codes',
+         'payload': {
+             'prompt_de': 'Ordne jedem Verify-Code von openssl seine Ursache zu.',
+             'prompt_en': 'Match each openssl verify code to its cause.',
+             'pairs': [
+                    {
+                     'left': '10 (certificate has expired)',
+                     'right_de': 'Das aktuelle Datum liegt hinter notAfter eines Zertifikats der Kette',
+                     'right_en': 'the current date is past notAfter of a certificate in the chain',
+                    },
+                    {
+                     'left': '18 (self-signed certificate)',
+                     'right_de': 'Das Endzertifikat hat sich selbst ausgestellt und liegt nicht im Trust Store',
+                     'right_en': 'the end-entity certificate issued itself and is not in the trust store',
+                    },
+                    {
+                     'left': '21 (unable to verify the first certificate)',
+                     'right_de': 'Der Server schickt nur das Endzertifikat, der Aussteller ist lokal unbekannt',
+                     'right_en': 'the server sends only the end-entity certificate, the issuer is unknown locally',
+                    },
+                    {
+                     'left': '23 (certificate revoked)',
+                     'right_de': 'Die Seriennummer steht auf der geprüften Sperrliste der CA',
+                     'right_en': "the serial number is on the CA's revocation list that was checked",
+                    },
+                    {
+                     'left': '26 (unsuitable certificate purpose)',
+                     'right_de': 'Die Extended Key Usage erlaubt den Einsatz als TLS-Server nicht',
+                     'right_en': 'the Extended Key Usage does not permit use as a TLS server',
+                    },
+                    {
+                     'left': '62 (hostname mismatch)',
+                     'right_de': 'Der geprüfte Name steht in keinem SAN-Eintrag des Zertifikats',
+                     'right_en': 'the name being checked is in no SAN entry of the certificate',
+                    },
+                ],
+             'explanation_de': ('Alle sechs Meldungen stammen aus echten Läufen gegen die Kurs-Test-PKI. Code 20 (unable to '
+                 'get local issuer certificate) ist der allgemeinere Verwandte von 21: Irgendwo in der Kette '
+                 'fehlt lokal ein Aussteller — das Intermediate oder die Root.'),
+             'explanation_en': ('All six messages come from real runs against the course test PKI. Code 20 (unable to get '
+                 'local issuer certificate) is the more general relative of 21: somewhere in the chain an '
+                 'issuer is missing locally — the intermediate or the root.'),
+            },
+        },
         {'type': 'text', 'id': 'text-6',
          'value': {
              'de': '## Fremde Werkzeuge kurz vorgestellt\n\n'
@@ -247,6 +427,95 @@ TLS_PRUEFEN_MODULE = {
                    'certificates issued for a domain; useful for tracking down certificates issued '
                    'unnoticed or old forgotten ones.',
          }},
+        {'type': 'diagram', 'id': 'diagram-diagnose-ablauf',
+         'note': ('Zum Nachschlagen: jeden Knoten anklicken, dahinter stehen Befehl und typischer Fehlercode. Die '
+             'Reihenfolge ist die des Moduls (erreichbar, Kette, Name, Laufzeit, Protokoll/Suite).'),
+         'payload': {
+             'kind': 'flow',
+             'title_de': 'Vorgehen bei einer TLS-Störung',
+             'title_en': 'Procedure for a TLS incident',
+             'nodes': [
+                    {
+                     'id': 'n1',
+                     'shape': 'decision',
+                     'row': 0,
+                     'col': 0,
+                     'label_de': 'Erreich-\nbar?',
+                     'label_en': 'Reachable?',
+                     'detail_de': ('Kommt überhaupt „CONNECTED“? Wenn nicht: DNS, Firewall, Port, Dienst prüfen — das ist '
+                         'noch kein Zertifikatsproblem.'),
+                     'detail_en': ('Does "CONNECTED" appear at all? If not: check DNS, firewall, port, service — this is '
+                         'not a certificate problem yet.'),
+                    },
+                    {
+                     'id': 'n2',
+                     'shape': 'decision',
+                     'row': 0,
+                     'col': 1,
+                     'label_de': 'Kette vollständig?',
+                     'label_en': 'Chain complete?',
+                     'detail_de': ('Abschnitt „Certificate chain“ in s_client: Liefert der Server Endzertifikat UND '
+                         'Intermediate? Typische Codes: 20, 21.'),
+                     'detail_en': ('The "Certificate chain" section in s_client: does the server deliver end-entity '
+                         'certificate AND intermediate? Typical codes: 20, 21.'),
+                    },
+                    {
+                     'id': 'n3',
+                     'shape': 'decision',
+                     'row': 0,
+                     'col': 2,
+                     'label_de': 'Name im SAN?',
+                     'label_en': 'Name in the SAN?',
+                     'detail_de': ('`-verify_hostname <name>` oder `openssl x509 -noout -ext subjectAltName`. Typischer '
+                         'Code: 62.'),
+                     'detail_en': '`-verify_hostname <name>` or `openssl x509 -noout -ext subjectAltName`. Typical code: 62.',
+                    },
+                    {
+                     'id': 'n4',
+                     'shape': 'decision',
+                     'row': 0,
+                     'col': 3,
+                     'label_de': 'Laufzeit gültig?',
+                     'label_en': 'Validity OK?',
+                     'detail_de': ('`openssl x509 -noout -dates`; bei nur einem betroffenen Client dessen Uhr prüfen. '
+                         'Typische Codes: 10 (abgelaufen), 9 (noch nicht gültig).'),
+                     'detail_en': ('`openssl x509 -noout -dates`; if only one client is affected, check its clock. '
+                         'Typical codes: 10 (expired), 9 (not yet valid).'),
+                    },
+                    {
+                     'id': 'n5',
+                     'shape': 'decision',
+                     'row': 1,
+                     'col': 3,
+                     'label_de': 'Protokoll/\nSuite wie erwartet?',
+                     'label_en': 'Protocol/\nsuite as expected?',
+                     'detail_de': ('Zeilen „Protocol“ und „Cipher is“; gezielt mit `-tls1_2` oder `-tls1_3` testen. Hier '
+                         'zeigen sich alte Clients und zu strenge oder zu lockere Profile.'),
+                     'detail_en': ('The "Protocol" and "Cipher is" lines; test specifically with `-tls1_2` or `-tls1_3`. '
+                         'This is where old clients and too strict or too lax profiles show up.'),
+                    },
+                    {
+                     'id': 'n6',
+                     'shape': 'process',
+                     'row': 1,
+                     'col': 2,
+                     'label_de': 'Client-Seite prüfen',
+                     'label_en': 'Check the client side',
+                     'detail_de': ('Ist am Server alles in Ordnung, liegt es am Client: Trust Store (Java, Python), '
+                         'Systemzeit oder eine TLS-aufbrechende Firewall — Thema des Moduls Fehlersuche.'),
+                     'detail_en': ('If everything is fine on the server, it is the client: trust store (Java, Python), '
+                         'system time, or a TLS-inspecting firewall — the topic of the troubleshooting module.'),
+                    },
+                ],
+             'edges': [
+                    {'from': 'n1', 'to': 'n2', 'label_de': 'ja', 'label_en': 'yes'},
+                    {'from': 'n2', 'to': 'n3', 'label_de': 'ja', 'label_en': 'yes'},
+                    {'from': 'n3', 'to': 'n4', 'label_de': 'ja', 'label_en': 'yes'},
+                    {'from': 'n4', 'to': 'n5', 'label_de': 'ja', 'label_en': 'yes'},
+                    {'from': 'n5', 'to': 'n6', 'label_de': 'ja', 'label_en': 'yes'},
+                ],
+            },
+        },
         {'type': 'reveal', 'id': 'reveal-1',
          'note': 'Diesen Block als Nachschlagewerk ankuendigen: nicht auswendig lernen, sondern wissen, dass die Sammlung existiert und wo man sie wiederfindet.',
          'payload': {
@@ -319,46 +588,89 @@ TLS_PRUEFEN_MODULE = {
                    '4. Is the certificate within its validity period?\n'
                    '5. Are protocol version and cipher suite as expected?',
          }},
+        {'type': 'cloze', 'id': 'cloze-diagnose-befehle',
+         'payload': {
+             'prompt_de': 'Vier Diagnosebefehle — ergänze die fehlenden Optionen.',
+             'prompt_en': 'Four diagnostic commands — fill in the missing options.',
+             'mono': True,
+             'text_de': ('# alle gesendeten Zertifikate anzeigen, mit SNI\nopenssl s_client -connect host:443 -[[sni]] '
+                 'host -[[show]]\n# nur die Laufzeit eines Zertifikats\nopenssl x509 -in cert.pem -noout '
+                 '-[[dates]]\n# Kette gegen einen Vertrauensanker prüfen\nopenssl verify -[[ca]] ca-bundle.pem '
+                 'cert.pem\n# öffentlichen Schlüssel aus dem privaten ableiten (Vergleich mit dem '
+                 'Zertifikat)\nopenssl pkey -in server.key -[[pub]]'),
+             'text_en': ('# show all certificates sent, with SNI\nopenssl s_client -connect host:443 -[[sni]] host '
+                 '-[[show]]\n# just the validity of a certificate\nopenssl x509 -in cert.pem -noout '
+                 '-[[dates]]\n# verify the chain against a trust anchor\nopenssl verify -[[ca]] ca-bundle.pem '
+                 'cert.pem\n# derive the public key from the private one (to compare with the '
+                 'certificate)\nopenssl pkey -in server.key -[[pub]]'),
+             'gaps': [
+                    {
+                     'id': 'sni',
+                     'accept': ['servername'],
+                    },
+                    {
+                     'id': 'show',
+                     'accept': ['showcerts'],
+                    },
+                    {
+                     'id': 'dates',
+                     'options': ['dates', 'text', 'fingerprint', 'pubkey'],
+                     'answer': 0,
+                    },
+                    {
+                     'id': 'ca',
+                     'accept': ['CAfile'],
+                    },
+                    {
+                     'id': 'pub',
+                     'accept': ['pubout'],
+                    },
+                ],
+             'explanation_de': ('Diese fünf Optionen decken den Großteil der Alltagsdiagnose ab. Die letzten drei Befehle '
+                 'arbeiten auf lokalen Dateien und laufen deshalb auch im Openssl-Lab.'),
+             'explanation_en': ('These five options cover most everyday diagnosis. The last three commands work on local files '
+                 'and therefore also run in the openssl lab.'),
+            },
+        },
         {'type': 'text', 'id': 'text-openssl-lab',
-         'note': 'Erste Begegnung mit dem openssl-Lab. Kurz ansagen, dass es je nach '
-                 'Server-Konfiguration abgeschaltet sein kann — dann bleiben die Befehle '
-                 'Lesestoff und die Aufgaben Denkaufgaben.',
+         'note': ('Erste Begegnung mit dem openssl-Lab. Kurz ansagen, dass es je nach Server-Konfiguration '
+             'abgeschaltet sein kann — dann bleiben die Befehle Lesestoff und die Aufgaben Denkaufgaben.'),
          'value': {
-             'de': '## Selbst ausprobieren\n\n'
-                   'Bis hierhin hast du die Befehle gelesen. Im Labor unten tippst du sie '
-                   'wirklich und bekommst die Originalausgabe zurück — kein nachgebauter Text.\n\n'
-                   'Zwei Dinge, die den Unterschied machen:\n\n'
-                   '- **Dein Arbeitsverzeichnis bleibt zwischen den Läufen bestehen.** Eine CA, '
-                   'die du im ersten Schritt anlegst, kannst du im dritten benutzen. Damit lässt '
-                   'sich eine ganze kleine PKI nachbauen.\n'
-                   '- **Fehler sind hier der Lehrstoff.** Prüfe ein Zertifikat absichtlich gegen '
-                   'einen falschen Namen (`verify -CAfile ca.pem -verify_hostname '
-                   'shop.nordwind-logistik.de server.pem`) oder zu einem Zeitpunkt nach seinem Ablauf '
-                   '(`verify -CAfile ca.pem -attime 2000000000 server.pem`, Unix-Zeit im Jahr 2033) '
-                   'und sieh dir an, was `verify` dazu sagt. Genau diese Meldungen begegnen dir '
-                   'später im Betrieb.\n\n'
-                   'Es gibt kein Netz im Labor — alles, was du prüfst, erzeugst du vorher selbst. '
-                   '`s_client` und `s_server` stehen deshalb hier nicht zur Verfügung — dieselbe '
-                   'Sicherheitsgrenze wie im Git-Lab (kein Netzwerk). Geübt wird die Diagnose '
-                   'hier an lokalen Zertifikatsdateien (`x509`, `verify`), nicht gegen einen '
-                   'Live-Host.',
-             'en': '## Try It Yourself\n\n'
-                   'So far you have read the commands. In the lab below you actually type them '
-                   'and get the original output back — not a reconstruction.\n\n'
-                   'Two things make the difference:\n\n'
-                   '- **Your working directory persists between runs.** A CA you create in the '
-                   'first step is still there in the third. That is enough to build a small PKI.\n'
-                   '- **Errors are the lesson here.** Deliberately verify a certificate against a '
-                   'wrong name (`verify -CAfile ca.pem -verify_hostname shop.nordwind-logistik.de '
-                   'server.pem`) or at a point in time after its expiry (`verify -CAfile ca.pem '
-                   '-attime 2000000000 server.pem`, Unix time in the year 2033) and see what `verify` '
-                   'says about it. These are exactly the messages you will meet in operations '
-                   'later.\n\n'
-                   'There is no network in the lab — whatever you check, you create yourself '
-                   'first. `s_client` and `s_server` are therefore not available here — the same '
-                   'security boundary as in the Git lab (no network). Diagnosis here is practiced '
-                   'on local certificate files (`x509`, `verify`), not against a live host.',
-         }},
+             'de': ('## Selbst ausprobieren\n\nBis hierhin hast du die Befehle gelesen. Im Labor unten tippst du '
+                 'sie wirklich und bekommst die Originalausgabe zurück — kein nachgebauter Text.\n\nZwei Dinge, '
+                 'die den Unterschied machen:\n\n- **Dein Arbeitsverzeichnis bleibt zwischen den Läufen '
+                 'bestehen.** Eine CA, die du im ersten Schritt anlegst, kannst du im dritten benutzen. Damit '
+                 'lässt sich eine ganze kleine PKI nachbauen.\n- **Fehler sind hier der Lehrstoff.** Prüfe ein '
+                 'Zertifikat absichtlich gegen einen falschen Namen (`verify -CAfile ca.pem -verify_hostname '
+                 'shop.nordwind-logistik.de server.pem`) oder zu einem Zeitpunkt nach seinem Ablauf (`verify '
+                 '-CAfile ca.pem -attime 2000000000 server.pem`, Unix-Zeit im Jahr 2033) und sieh dir an, was '
+                 '`verify` dazu sagt. Genau diese Meldungen begegnen dir später im Betrieb.\n\nNeben den vier '
+                 'Grundvorlagen gibt es weitere: **Hash und HMAC**, **Signieren und prüfen**, '
+                 '**ECDSA-/Ed25519-Schlüssel + CSR**, **Mini-CA mit Intermediate + Kettenprüfung**, **Widerruf '
+                 'per CRL prüfen** und **Post-Quanten-Schlüssel**. Mit der Mini-CA lässt sich der Fehler 20 '
+                 '(`unable to get local issuer certificate`) gezielt herbeiführen: einfach `-untrusted '
+                 'issuing.pem` weglassen.\n\nEs gibt kein Netz im Labor — alles, was du prüfst, erzeugst du '
+                 'vorher selbst. `s_client` und `s_server` stehen deshalb hier nicht zur Verfügung — dieselbe '
+                 'Sicherheitsgrenze wie im Git-Lab (kein Netzwerk). Geübt wird die Diagnose hier an lokalen '
+                 'Zertifikatsdateien (`x509`, `verify`), nicht gegen einen Live-Host.'),
+             'en': ('## Try It Yourself\n\nSo far you have read the commands. In the lab below you actually type '
+                 'them and get the original output back — not a reconstruction.\n\nTwo things make the '
+                 'difference:\n\n- **Your working directory persists between runs.** A CA you create in the '
+                 'first step is still there in the third. That is enough to build a small PKI.\n- **Errors are '
+                 'the lesson here.** Deliberately verify a certificate against a wrong name (`verify -CAfile '
+                 'ca.pem -verify_hostname shop.nordwind-logistik.de server.pem`) or at a point in time after '
+                 'its expiry (`verify -CAfile ca.pem -attime 2000000000 server.pem`, Unix time in the year '
+                 '2033) and see what `verify` says about it. These are exactly the messages you will meet in '
+                 'operations later.\n\nBesides the four basic templates there are more: **Hash and HMAC**, '
+                 '**Sign and verify**, **ECDSA/Ed25519 keys + CSR**, **Mini CA with intermediate + chain '
+                 'check**, **Check revocation via CRL**, and **Post-quantum keys**. With the mini CA you can '
+                 'provoke error 20 (`unable to get local issuer certificate`) on purpose: simply drop '
+                 '`-untrusted issuing.pem`.\n\nThere is no network in the lab — whatever you check, you create '
+                 'yourself first. `s_client` and `s_server` are therefore not available here — the same '
+                 'security boundary as in the Git lab (no network). Diagnosis here is practiced on local '
+                 'certificate files (`x509`, `verify`), not against a live host.'),
+            },
+        },
         {'type': 'widget', 'id': 'openssl-lab',
          'note': 'Laeuft im Runner, nicht im Browser. Ohne freigegebene Art "openssl" zeigt das '
                  'Widget einen Hinweis statt eines Fehlers.'},
@@ -392,6 +704,14 @@ TLS_PRUEFEN_MODULE = {
                  'Because without this option no connection can be established at all',
                  'Because it sets the client\'s cipher suite',
              ],
+         },
+         'explanation': {
+          'de': ('Teilen sich mehrere Domains eine IP-Adresse, wählt der Server das Zertifikat anhand des '
+              'SNI-Namens. Ohne passenden Namen prüfst du womöglich das falsche Zertifikat. Eine Verbindung '
+              'kommt auch ohne SNI zustande — nur eben vielleicht mit dem Standardzertifikat.'),
+          'en': ('If several domains share an IP address, the server picks the certificate by the SNI name. '
+              'Without a matching name you may be checking the wrong certificate. A connection is established '
+              'without SNI too — just possibly with the default certificate.'),
          }},
         {'id': 'tp2', 'type': 'single',
          'prompt': {'de': 'Was bedeutet ein "Verify return code" von 0 in der s_client-Ausgabe?',
@@ -410,6 +730,13 @@ TLS_PRUEFEN_MODULE = {
                  'The certificate has expired',
                  'The private key does not match the certificate',
              ],
+         },
+         'explanation': {
+          'de': ('Code 0 bedeutet: Die Kette ließ sich bis zu einem Vertrauensanker prüfen. Achtung: Den Hostnamen '
+              'prüft s_client nur, wenn du `-verify_hostname` angibst — „0 (ok)“ sagt also nichts über den '
+              'Namen.'),
+          'en': ('Code 0 means: the chain could be verified up to a trust anchor. Note: s_client only checks the '
+              'hostname if you pass `-verify_hostname` — so "0 (ok)" says nothing about the name.'),
          }},
         {'id': 'tp3', 'type': 'single',
          'prompt': {'de': 'Mit welcher Option zeigt openssl s_client alle vom Server gesendeten Zertifikate vollständig an?',
@@ -428,6 +755,14 @@ TLS_PRUEFEN_MODULE = {
                  '-showcerts',
                  '-state',
              ],
+         },
+         'explanation': {
+          'de': ('`-showcerts` gibt alle vom Server gesendeten Zertifikate als PEM aus, nicht nur das erste. Die '
+              'Kurzübersicht „Certificate chain“ zeigt die Kette auch ohne diese Option — aber eben nicht die '
+              'Zertifikate selbst.'),
+          'en': ('`-showcerts` prints all certificates sent by the server as PEM, not just the first. The short '
+              '"Certificate chain" overview shows the chain without this option too — but not the certificates '
+              'themselves.'),
          }},
         {'id': 'tp4', 'type': 'single',
          'prompt': {'de': 'Woran prüft man, ob ein privater Schlüssel zu einem Zertifikat gehört?',
@@ -446,6 +781,12 @@ TLS_PRUEFEN_MODULE = {
                  'By the file extension of the two files',
                  'By the fingerprint of the parent root CA',
              ],
+         },
+         'explanation': {
+          'de': ('Zertifikat und privater Schlüssel gehören zusammen, wenn beide denselben öffentlichen Schlüssel '
+              'ergeben. Datum, Dateiendung oder der Fingerprint der Root sagen darüber nichts.'),
+          'en': ('Certificate and private key belong together if both yield the same public key. Date, file '
+              "extension, or the root's fingerprint say nothing about that."),
          }},
         {'id': 'tp5', 'type': 'single',
          'prompt': {'de': 'In welcher Reihenfolge geht das durchgehende Vorgehen bei einer TLS-Störung vor?',
@@ -464,6 +805,97 @@ TLS_PRUEFEN_MODULE = {
                  'Chain → reachability → protocol/suite → name → validity',
                  'Reachability → chain → name → validity → protocol/suite',
              ],
+         },
+         'explanation': {
+          'de': ('Vom Groben zum Feinen: Erst klären, ob überhaupt eine Verbindung zustande kommt, dann Kette, '
+              'Name und Laufzeit, zuletzt Protokoll und Suite. Wer mit der Cipher-Liste beginnt, sucht oft '
+              'lange an der falschen Stelle.'),
+          'en': ('From coarse to fine: first establish whether a connection happens at all, then chain, name, and '
+              'validity, finally protocol and suite. Starting with the cipher list often means a long search in '
+              'the wrong place.'),
          }},
+        {'id': 'tp6', 'type': 'single',
+         'prompt': {
+             'de': ('Die s_client-Ausgabe eines Servers zeigt unter „Certificate chain“ nur den Eintrag „0 '
+                 's:CN=api.nordwind-logistik.de i:CN=Nordwind Issuing CA G1“ und endet mit „Verify return code: '
+                 '21 (unable to verify the first certificate)“. Was ist zu tun?'),
+             'en': ('A server\'s s_client output shows under "Certificate chain" only the entry "0 '
+                 's:CN=api.nordwind-logistik.de i:CN=Nordwind Issuing CA G1" and ends with "Verify return code: '
+                 '21 (unable to verify the first certificate)". What needs to be done?'),
+            },
+         'options': {
+             'de': [
+                    'Auf dem Server die Kette vervollständigen: Zertifikat der Issuing-CA mit ausliefern',
+                    'Das Serverzertifikat erneuern, es ist abgelaufen',
+                    'Den SAN-Eintrag für api.nordwind-logistik.de ergänzen',
+                    'Auf jedem Client die Zertifikatsprüfung abschalten',
+                ],
+             'en': [
+                    "Complete the chain on the server: also deliver the issuing CA's certificate",
+                    'Renew the server certificate, it has expired',
+                    'Add the SAN entry for api.nordwind-logistik.de',
+                    'Disable certificate verification on every client',
+                ],
+            },
+         'answer': 0,
+         'explanation': {
+             'de': ('Der Server sendet nur ein Zertifikat (Eintrag 0); der Aussteller „Issuing CA G1“ fehlt, also '
+                 'kann der Client den Pfad zur Root nicht schließen. Abgelaufen wäre Code 10, ein falscher Name '
+                 'Code 62. Die Prüfung abzuschalten beseitigt die Meldung, nicht das Problem.'),
+             'en': ('The server sends only one certificate (entry 0); the issuer "Issuing CA G1" is missing, so '
+                 'the client cannot complete the path to the root. Expired would be code 10, a wrong name code '
+                 '62. Disabling verification removes the message, not the problem.'),
+            },
+        },
+        {'id': 'tp7', 'type': 'number',
+         'prompt': {
+             'de': ('Ein Monitoring-Skript ruft `openssl x509 -in cert.pem -noout -checkend 2592000` auf und '
+                 'alarmiert bei Rückgabewert 1. Wie viele Tage vor Ablauf schlägt es an?'),
+             'en': ('A monitoring script calls `openssl x509 -in cert.pem -noout -checkend 2592000` and alerts on '
+                 'return code 1. How many days before expiry does it fire?'),
+            },
+         'answer': 30,
+         'explanation': {
+             'de': ('`-checkend` erwartet Sekunden: 2592000 ÷ 86400 = 30 Tage. Läuft das Zertifikat innerhalb '
+                 'dieser Spanne ab, meldet openssl „Certificate will expire“ und liefert 1. Bei 47 Tagen '
+                 'Laufzeit wäre eine 30-Tage-Schwelle allerdings fast ein Daueralarm.'),
+             'en': ('`-checkend` expects seconds: 2592000 ÷ 86400 = 30 days. If the certificate expires within '
+                 'that span, openssl reports "Certificate will expire" and returns 1. With a 47-day lifetime, '
+                 'though, a 30-day threshold would be an almost permanent alarm.'),
+            },
+        },
+        {'id': 'tp8', 'type': 'multi',
+         'prompt': {
+             'de': ('Welche Fragen beantwortet „Verify return code: 0 (ok)“ in der s_client-Ausgabe NICHT, wenn '
+                 'nur `-connect` und `-servername` angegeben wurden?'),
+             'en': ('Which questions does "Verify return code: 0 (ok)" in the s_client output NOT answer if only '
+                 '`-connect` and `-servername` were given?'),
+            },
+         'options': {
+             'de': [
+                    'Ob der Hostname zum SAN des Zertifikats passt',
+                    'Ob das Zertifikat widerrufen wurde',
+                    'Ob die Kette zu einer Root im Trust Store führt',
+                    'Ob das Zertifikat zeitlich gültig ist',
+                ],
+             'en': [
+                    "Whether the hostname matches the certificate's SAN",
+                    'Whether the certificate has been revoked',
+                    'Whether the chain leads to a root in the trust store',
+                    'Whether the certificate is within its validity period',
+                ],
+            },
+         'answer': [0, 1],
+         'explanation': {
+             'de': ('Kette und Laufzeit prüft openssl immer. Den Hostnamen vergleicht es erst mit '
+                 '`-verify_hostname`, den Sperrstatus erst mit `-crl_check` bzw. einer OCSP-Abfrage. Ein '
+                 'Browser prüft den Namen dagegen immer — deshalb kann s_client „ok“ melden, wo der Browser '
+                 'warnt.'),
+             'en': ('openssl always checks chain and validity. It only compares the hostname with '
+                 '`-verify_hostname`, and the revocation status only with `-crl_check` or an OCSP query. A '
+                 'browser, in contrast, always checks the name — which is why s_client can say "ok" where the '
+                 'browser warns.'),
+            },
+        },
     ]},
 }

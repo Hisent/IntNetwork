@@ -32,6 +32,11 @@ function matches(rule: Rule, pkt: Packet): boolean {
   )
 }
 
+/** Gültiger TCP/UDP-Port: ganze Zahl 1–65535 (Port 0 ist reserviert). */
+export function isValidPort(n: number): boolean {
+  return Number.isInteger(n) && n >= 1 && n <= 65535
+}
+
 /** First-Match-Wins, sonst Default-Deny. */
 export function evaluate(rules: Rule[], pkt: Packet): Decision {
   for (let i = 0; i < rules.length; i++) {

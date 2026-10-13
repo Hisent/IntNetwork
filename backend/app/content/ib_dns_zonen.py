@@ -14,6 +14,13 @@ DNS_ZONEN_MODULE = {
         'Die drei Varianten von Name Server Groups unterscheiden und einem Szenario zuordnen können',
         'Ablauf und Zweck eines Zonentransfers (Delegation, AXFR/IXFR) erklären können',
     ],
+    "goals_en": [
+        "Distinguish forward and reverse zones and explain their purpose",
+        "Name the common resource record types (A, AAAA, PTR, CNAME, MX, TXT, SRV) and explain what they do",
+        "Tell host objects, as a NIOS-specific concept, apart from individually maintained records",
+        "Distinguish the three variants of name server groups and match them to a scenario",
+        "Explain the process and purpose of a zone transfer (delegation, AXFR/IXFR)",
+    ],
     'scenario': {
         'de': 'Bei Nordwind Logistik soll die neue interne Anwendung `app.nordwind-intern.de` '
               'erreichbar werden. Bisher wurden Zonen von Hand in BIND-Zonefiles gepflegt — jetzt '
@@ -195,6 +202,14 @@ DNS_ZONEN_MODULE = {
                    'members, by contrast, zone data is synchronized by default through Grid '
                    'replication rather than zone transfers.',
          }},
+        {
+            "type": "text",
+            "id": "text-delegation",
+            "value": {
+                "de": "## Delegation: eine Teilzone abgeben\n\nNicht jede Subdomain muss in derselben Zone liegen. Soll das Labor-Team `lab.nordwind-intern.de` selbst verwalten, wird dieser Teil des Namensraums **delegiert**: Die Elternzone `nordwind-intern.de` enthält dann für `lab` keine einzelnen Records mehr, sondern nur noch den Verweis auf die zuständigen Server.\n\nDazu braucht die Elternzone zwei Dinge:\n\n- **NS-Records** für die Teilzone — sie nennen die Nameserver, die für `lab.nordwind-intern.de` autoritativ sind.\n- **Glue-Records** (A/AAAA), wenn diese Nameserver selbst *innerhalb* der delegierten Zone heißen (z. B. `ns1.lab.nordwind-intern.de`). Ohne Glue müsste ein Resolver den Namen des Servers auflösen, um den Server zu fragen, der diesen Namen kennt.\n\n```text\nlab.nordwind-intern.de.      IN NS  ns1.lab.nordwind-intern.de.\nns1.lab.nordwind-intern.de.  IN A   10.20.40.53\n```\n\nDie Elternzone ist für die delegierten Namen **nicht autoritativ**: Sie beantwortet eine Frage nach `host7.lab.nordwind-intern.de` mit einem Verweis (Referral), nicht mit der Adresse. In NIOS ist eine Delegation ein eigenes Objekt unterhalb der Elternzone, kein von Hand gepflegter NS-Record. Wichtig für die Abgrenzung: Delegation verteilt **Zuständigkeit** auf andere Server, ein Zonentransfer kopiert **dieselbe Zone** auf weitere Server.",
+                "en": "## Delegation: Handing Off a Subzone\n\nNot every subdomain has to live in the same zone. If the lab team is to manage `lab.nordwind-intern.de` itself, that part of the namespace is **delegated**: the parent zone `nordwind-intern.de` then no longer holds individual records for `lab`, only the pointer to the responsible servers.\n\nThe parent zone needs two things for that:\n\n- **NS records** for the subzone — they name the name servers that are authoritative for `lab.nordwind-intern.de`.\n- **Glue records** (A/AAAA) if those name servers are themselves named *inside* the delegated zone (e.g. `ns1.lab.nordwind-intern.de`). Without glue, a resolver would have to resolve the server's name in order to ask the server that knows that name.\n\n```text\nlab.nordwind-intern.de.      IN NS  ns1.lab.nordwind-intern.de.\nns1.lab.nordwind-intern.de.  IN A   10.20.40.53\n```\n\nThe parent zone is **not authoritative** for the delegated names: it answers a question for `host7.lab.nordwind-intern.de` with a referral, not with the address. In NIOS a delegation is an object of its own below the parent zone, not a hand-maintained NS record. Important for the distinction: delegation spreads **responsibility** across other servers, a zone transfer copies **the same zone** to further servers.",
+            },
+        },
         {'type': 'debug', 'id': 'debug-1',
          'payload': {
              'prompt_de': 'Ein Kollege hat folgenden Auszug aus der Zonenkonfiguration von '
@@ -227,6 +242,82 @@ DNS_ZONEN_MODULE = {
                                'have structurally prevented this inconsistency through automatic '
                                'maintenance.',
          }},
+        {
+            "type": "diagram",
+            "id": "diagram-replikation-zonentransfer",
+            "payload": {
+                "kind": "sequence",
+                "title_de": "Eine Änderung, zwei Wege: Grid-Replikation und Zonentransfer",
+                "title_en": "One change, two paths: Grid replication and zone transfer",
+                "caption_de": "Innerhalb des Grids repliziert die Datenbank; nach außen spricht das Grid klassisches DNS.",
+                "caption_en": "Inside the Grid the database replicates; towards the outside the Grid speaks classic DNS.",
+                "actors": [
+                    {"id": "gm", "label": "Grid Master"},
+                    {"id": "mem", "label_de": "Grid-Member (primär)", "label_en": "Grid member (primary)"},
+                    {"id": "ext", "label_de": "ISP-Sekundär (extern)", "label_en": "ISP secondary (external)"},
+                ],
+                "messages": [
+                    {
+                        "from": "gm",
+                        "to": "gm",
+                        "label_de": "Admin ändert einen Record",
+                        "label_en": "admin changes a record",
+                        "detail_de": "Die Änderung landet in der Grid-Datenbank; der SOA-Serial der Zone steigt.",
+                        "detail_en": "The change lands in the Grid database; the SOA serial of the zone increases.",
+                    },
+                    {
+                        "from": "gm",
+                        "to": "mem",
+                        "style": "encrypted",
+                        "label_de": "Grid-Replikation",
+                        "label_en": "Grid replication",
+                        "detail_de": "Der Member erhält die Änderung über den verschlüsselten Grid-Tunnel — ohne AXFR/IXFR und ohne Transfer-ACL.",
+                        "detail_en": "The member receives the change through the encrypted Grid tunnel — without AXFR/IXFR and without a transfer ACL.",
+                    },
+                    {
+                        "from": "mem",
+                        "to": "ext",
+                        "label": "NOTIFY",
+                        "detail_de": "Der Primär weist den externen Sekundär darauf hin, dass sich die Zone geändert hat. Ohne NOTIFY würde der Sekundär es erst beim nächsten Refresh merken.",
+                        "detail_en": "The primary tells the external secondary that the zone has changed. Without NOTIFY the secondary would only notice at its next refresh.",
+                    },
+                    {
+                        "from": "ext",
+                        "to": "mem",
+                        "label_de": "SOA-Abfrage",
+                        "label_en": "SOA query",
+                        "detail_de": "Der Sekundär fragt den aktuellen Serial ab.",
+                        "detail_en": "The secondary asks for the current serial.",
+                    },
+                    {
+                        "from": "mem",
+                        "to": "ext",
+                        "style": "reply",
+                        "label_de": "SOA: Serial 413",
+                        "label_en": "SOA: serial 413",
+                        "detail_de": "Der Sekundär hat selbst 412 — der Primär ist neuer.",
+                        "detail_en": "The secondary itself has 412 — the primary is newer.",
+                    },
+                    {
+                        "from": "ext",
+                        "to": "mem",
+                        "label_de": "IXFR ab Serial 412",
+                        "label_en": "IXFR from serial 412",
+                        "detail_de": "Er fordert nur die Änderungen an. Kann der Primär kein IXFR liefern, wird daraus ein vollständiger AXFR. Hier greift die Freigabe: Nur erlaubte Adressen (ggf. mit TSIG-Schlüssel) dürfen laden.",
+                        "detail_en": "It requests only the changes. If the primary cannot serve IXFR, this becomes a full AXFR. This is where the permission applies: only allowed addresses (optionally with a TSIG key) may load.",
+                    },
+                    {
+                        "from": "mem",
+                        "to": "ext",
+                        "style": "reply",
+                        "label_de": "Zonendaten",
+                        "label_en": "zone data",
+                        "detail_de": "Der Sekundär übernimmt die Daten und steht nun ebenfalls bei Serial 413.",
+                        "detail_en": "The secondary applies the data and is now at serial 413 as well.",
+                    },
+                ],
+            },
+        },
         {'type': 'order', 'id': 'order-1',
          'payload': {
              'prompt_de': 'Bringe die Schritte eines Zonentransfers zwischen Primary und Secondary '
@@ -250,6 +341,88 @@ DNS_ZONEN_MODULE = {
                  'Secondary applies the data and updates its own serial',
              ],
          }},
+        {
+            "type": "terminal",
+            "id": "terminal-zone-pruefen",
+            "note": "Auflösung im Plenum: „Transfer failed.“ ist hier das gewünschte Ergebnis — der Admin-PC steht nicht in der Transfer-Freigabe, nur der ISP-Sekundär. Der falsche PTR ist derselbe Fehler wie im Debug-Block darüber. dig-Ausgaben im Standardformat von BIND 9, gekürzt.",
+            "payload": {
+                "title_de": "Die Zone von außen prüfen: dig am Admin-PC",
+                "title_en": "Checking the zone from outside: dig on the admin PC",
+                "intro_de": "Admin-PC im internen Netz. Der Grid-Member 10.20.30.53 ist primär für nordwind-intern.de.",
+                "intro_en": "Admin PC on the internal network. Grid member 10.20.30.53 is primary for nordwind-intern.de.",
+                "prompt": "admin@pc17:~$",
+                "unknown": "bash: {cmd}: command not found",
+                "commands": [
+                    {
+                        "cmd": "dig @10.20.30.53 nordwind-intern.de SOA +short",
+                        "desc_de": "SOA-Record mit Serial",
+                        "desc_en": "SOA record with serial",
+                        "output": "ns1.nordwind-intern.de. hostmaster.nordwind-intern.de. 413\n 10800 3600 2419200 900",
+                    },
+                    {
+                        "cmd": "dig @10.20.30.53 nordwind-intern.de NS +short",
+                        "desc_de": "Nameserver der Zone",
+                        "desc_en": "name servers of the zone",
+                        "output": "ns1.nordwind-intern.de.\nns2.isp.example.",
+                    },
+                    {
+                        "cmd": "dig @10.20.30.53 mail.nordwind-intern.de A +short",
+                        "desc_de": "Vorwärtsauflösung",
+                        "desc_en": "forward lookup",
+                        "output": "10.20.30.9",
+                    },
+                    {
+                        "cmd": "dig @10.20.30.53 -x 10.20.30.9 +short",
+                        "desc_de": "Rückwärtsauflösung (PTR)",
+                        "desc_en": "reverse lookup (PTR)",
+                        "output": "web.nordwind-intern.de.",
+                    },
+                    {
+                        "cmd": "dig @10.20.30.53 nordwind-intern.de AXFR",
+                        "desc_de": "vollständigen Zonentransfer anfordern",
+                        "desc_en": "request a full zone transfer",
+                        "output": "; <<>> DiG 9.18.24 <<>> @10.20.30.53 nordwind-intern.de AXFR\n; (1 server found)\n;; global options: +cmd\n; Transfer failed.",
+                    },
+                ],
+                "tasks": [
+                    {"text_de": "Welchen Serial hat die Zone auf dem Primär?",
+                     "text_en": "Which serial does the zone have on the primary?",
+                     "answers": ["413"]},
+                    {"text_de": "Prüfe die Rückwärtsauflösung für die Adresse des Mailservers.",
+                     "text_en": "Check the reverse lookup for the mail server's address.",
+                     "command": "dig @10.20.30.53 -x 10.20.30.9 +short"},
+                    {"text_de": "Welcher Name kommt zurück — passt er zum A-Record? Gib den Namen ein.",
+                     "text_en": "Which name comes back — does it match the A record? Enter the name.",
+                     "answers": ["web.nordwind-intern.de.", "web.nordwind-intern.de", "web"],
+                     "explanation_de": "Der PTR passt nicht zum A-Record – derselbe Fehler wie in der Debug-Aufgabe darüber.",
+                     "explanation_en": "The PTR does not match the A record – the same fault as in the debug exercise above."},
+                    {"text_de": "Versuche, die ganze Zone per AXFR zu laden.",
+                     "text_en": "Try to load the whole zone via AXFR.",
+                     "command": "dig @10.20.30.53 nordwind-intern.de AXFR",
+                     "explanation_de": "„Transfer failed.“ ist hier das gewünschte Ergebnis: Der Admin-PC steht nicht in der Transfer-Freigabe, nur der ISP-Sekundär.",
+                     "explanation_en": "\"Transfer failed.\" is the desired result here: the admin PC is not on the transfer allow list, only the ISP secondary is."},
+                ],
+            },
+        },
+        {
+            "type": "cloze",
+            "id": "cloze-zonenausschnitt",
+            "payload": {
+                "prompt_de": "Vervollständige den Zonenausschnitt: Welcher Record-Typ gehört in welche Zeile?",
+                "prompt_en": "Complete the zone excerpt: which record type belongs on which line?",
+                "mono": True,
+                "text": "app.nordwind-intern.de.       IN [[a]]  10.20.30.5\n5.30.20.10.in-addr.arpa.      IN [[ptr]]  app.nordwind-intern.de.\nintranet.nordwind-intern.de.  IN [[cname]]  app.nordwind-intern.de.\nnordwind-intern.de.           IN [[mx]] 10  mail.nordwind-intern.de.\nlab.nordwind-intern.de.       IN [[ns]]  ns1.lab.nordwind-intern.de.\nns1.lab.nordwind-intern.de.   IN A  10.20.40.53",
+                "gaps": [
+                    {"id": "a", "options": ["A", "AAAA", "PTR", "CNAME"], "answer": 0},
+                    {"id": "ptr", "options": ["A", "PTR", "CNAME", "NS"], "answer": 1},
+                    {"id": "cname", "options": ["A", "PTR", "CNAME", "MX"], "answer": 2},
+                    {"id": "mx", "options": ["SRV", "TXT", "NS", "MX"], "answer": 3},
+                    {"id": "ns", "options": ["CNAME", "NS", "PTR", "SOA"], "answer": 1},
+                ],
+                "explanation_de": "Die letzten beiden Zeilen bilden zusammen die Delegation: Der NS-Record gibt lab.nordwind-intern.de ab, der A-Record darunter ist der Glue-Record für den Nameserver, der selbst in der delegierten Zone liegt.",
+                "explanation_en": "The last two lines together form the delegation: the NS record hands off lab.nordwind-intern.de, the A record below is the glue record for the name server that itself lives inside the delegated zone.",
+            },
+        },
         {'type': 'reveal', 'id': 'reveal-1',
          'payload': {
              'teaser_de': 'Lab: Nordwind betreibt die Zone `nordwind-intern.de` bisher nur im '
@@ -286,7 +459,12 @@ DNS_ZONEN_MODULE = {
          }},
     ],
     'quiz': {'questions': [
-        {'id': 'dz1', 'type': 'single',
+        {'id': 'dz1',
+         "explanation": {
+             "de": "Forward: Name → Adresse, Reverse: Adresse → Name über PTR-Einträge unter in-addr.arpa bzw. ip6.arpa. Mit IPv4 gegen IPv6 hat die Unterscheidung nichts zu tun — beide Richtungen gibt es für beide Protokolle, und beide Zonentypen brauchen SOA und NS.",
+             "en": "Forward: name → address, reverse: address → name through PTR records under in-addr.arpa or ip6.arpa. The distinction has nothing to do with IPv4 versus IPv6 — both directions exist for both protocols, and both zone types need SOA and NS.",
+         },
+         'type': 'single',
          'prompt': {'de': 'Was unterscheidet eine Forward- von einer Reverse-Zone?',
                     'en': 'What distinguishes a forward zone from a reverse zone?'},
          'answer': 0,
@@ -306,7 +484,12 @@ DNS_ZONEN_MODULE = {
                  'Forward zones are never distributed to Grid members',
              ],
          }},
-        {'id': 'dz2', 'type': 'single',
+        {'id': 'dz2',
+         "explanation": {
+             "de": "AAAA trägt eine IPv6-Adresse (viermal so lang wie die 32 Bit eines A-Records, daher der Name). PTR ist die Gegenrichtung, CNAME nur ein Verweis auf einen anderen Namen.",
+             "en": "AAAA carries an IPv6 address (four times the 32 bits of an A record, hence the name). PTR is the opposite direction, CNAME merely a pointer to another name.",
+         },
+         'type': 'single',
          'prompt': {'de': 'Welcher Record-Typ wird für die Auflösung eines Namens zu einer '
                          'IPv6-Adresse verwendet?',
                     'en': 'Which record type is used to resolve a name to an IPv6 address?'},
@@ -315,7 +498,12 @@ DNS_ZONEN_MODULE = {
              'de': ['A', 'AAAA', 'PTR', 'CNAME'],
              'en': ['A', 'AAAA', 'PTR', 'CNAME'],
          }},
-        {'id': 'dz3', 'type': 'single',
+        {'id': 'dz3',
+         "explanation": {
+             "de": "Das Host-Objekt verwaltet Adresse und PTR als eine Einheit; ändert sich die IP, ziehen beide Einträge mit. Schneller aufgelöst wird dadurch nichts — der Vorteil liegt in der Pflege, nicht im Protokoll.",
+             "en": "The host object manages address and PTR as one unit; if the IP changes, both entries move together. Nothing resolves faster because of it — the benefit lies in maintenance, not in the protocol.",
+         },
+         'type': 'single',
          'prompt': {'de': 'Was ist der praktische Vorteil eines Host-Objekts gegenüber einzeln '
                          'gepflegten A- und PTR-Records?',
                     'en': 'What is the practical advantage of a host object over individually '
@@ -335,7 +523,12 @@ DNS_ZONEN_MODULE = {
                  'Host objects only work together with DNSSEC',
              ],
          }},
-        {'id': 'dz4', 'type': 'single',
+        {'id': 'dz4',
+         "explanation": {
+             "de": "Liegt die primäre Zone außerhalb und das Grid lädt sie nur, ist das die Variante „mit externen Primären“. Die Verwechslung mit „externen Sekundären“ ist naheliegend: Dort wäre es umgekehrt — das Grid ist primär, der fremde Server lädt.",
+             "en": "If the primary zone lives outside and the Grid only loads it, that is the \"with external primaries\" variant. Confusing it with \"external secondaries\" is tempting: there it is the other way round — the Grid is primary and the foreign server loads.",
+         },
+         'type': 'single',
          'prompt': {'de': 'Welche Name-Server-Group-Variante passt, wenn eine Zone extern (z. B. '
                          'bei einem Provider) primär gehalten wird und der Grid nur als Sekundär '
                          'dient?',
@@ -348,7 +541,12 @@ DNS_ZONEN_MODULE = {
              'en': ['Internal only', 'With external secondaries', 'With external primaries',
                     'None of the listed variants exists in NIOS'],
          }},
-        {'id': 'dz5', 'type': 'single',
+        {'id': 'dz5',
+         "explanation": {
+             "de": "AXFR überträgt die ganze Zone, IXFR nur die Änderungen seit dem Serial, den der Sekundär schon hat. Beide funktionieren für jede Zone, unabhängig von Richtung und IP-Version.",
+             "en": "AXFR transfers the whole zone, IXFR only the changes since the serial the secondary already has. Both work for any zone, regardless of direction and IP version.",
+         },
+         'type': 'single',
          'prompt': {'de': 'Wodurch unterscheiden sich AXFR und IXFR?',
                     'en': 'How do AXFR and IXFR differ?'},
          'answer': 0,
@@ -368,5 +566,86 @@ DNS_ZONEN_MODULE = {
                  'IXFR completely replaces SOA and NS records',
              ],
          }},
+        {
+            "id": "dz6",
+            "type": "single",
+            "prompt": {
+                "de": "Die Teilzone lab.nordwind-intern.de wird an den Server ns1.lab.nordwind-intern.de delegiert. Was muss die Elternzone dafür enthalten?",
+                "en": "The subzone lab.nordwind-intern.de is delegated to the server ns1.lab.nordwind-intern.de. What must the parent zone contain for that?",
+            },
+            "answer": 2,
+            "options": {
+                "de": [
+                    "Einen CNAME von lab.nordwind-intern.de auf ns1.lab.nordwind-intern.de",
+                    "Eine Kopie aller Records der Teilzone, die per IXFR aktuell gehalten wird",
+                    "NS-Records für die Teilzone und einen Glue-Record (A/AAAA) für ns1.lab.nordwind-intern.de",
+                    "Einen eigenen SOA-Record für lab.nordwind-intern.de",
+                ],
+                "en": [
+                    "A CNAME from lab.nordwind-intern.de to ns1.lab.nordwind-intern.de",
+                    "A copy of all records of the subzone, kept current via IXFR",
+                    "NS records for the subzone and a glue record (A/AAAA) for ns1.lab.nordwind-intern.de",
+                    "A separate SOA record for lab.nordwind-intern.de",
+                ],
+            },
+            "explanation": {
+                "de": "Delegation heißt: NS-Records in der Elternzone, plus Glue, weil der Nameserver selbst in der delegierten Zone liegt. Der SOA der Teilzone gehört in die Teilzone, nicht in die Elternzone — und eine Kopie der Records wäre ein Zonentransfer, keine Delegation.",
+                "en": "Delegation means: NS records in the parent zone, plus glue because the name server itself lives inside the delegated zone. The subzone's SOA belongs in the subzone, not in the parent — and a copy of the records would be a zone transfer, not a delegation.",
+            },
+        },
+        {
+            "id": "dz7",
+            "type": "single",
+            "prompt": {
+                "de": "dig zeigt für nordwind-intern.de auf dem Grid-Member den Serial 413, auf dem externen ISP-Sekundär seit Stunden 398. Die Grid-Member untereinander sind aktuell. Wo liegt die Ursache am ehesten?",
+                "en": "dig shows serial 413 for nordwind-intern.de on the Grid member, but 398 on the external ISP secondary for hours. The Grid members among themselves are current. Where is the cause most likely?",
+            },
+            "answer": 1,
+            "options": {
+                "de": [
+                    "Die Grid-Replikation zwischen Grid Master und Member ist unterbrochen",
+                    "Der Zonentransfer zum externen Server scheitert, etwa an der Transfer-Freigabe, am TSIG-Schlüssel oder an einer Firewall",
+                    "Der Sekundär hat einen niedrigeren Serial, weil er die Zone erst später eingerichtet hat",
+                    "Host-Objekte werden grundsätzlich nicht an externe Sekundäre übertragen",
+                ],
+                "en": [
+                    "Grid replication between Grid Master and member is interrupted",
+                    "The zone transfer to the external server fails, for example because of the transfer permission, the TSIG key or a firewall",
+                    "The secondary has a lower serial because it set up the zone later",
+                    "Host objects are generally not transferred to external secondaries",
+                ],
+            },
+            "explanation": {
+                "de": "Die Member sind aktuell, also funktioniert die Grid-Replikation; hängen bleibt nur der Weg nach außen — und der läuft über AXFR/IXFR mit eigener Freigabe. Ein Sekundär übernimmt den Serial des Primärs; ein dauerhaft niedrigerer Wert bedeutet veraltete Daten, keinen „eigenen Zählerstand“.",
+                "en": "The members are current, so Grid replication works; only the path to the outside is stuck — and that runs over AXFR/IXFR with its own permission. A secondary adopts the primary's serial; a persistently lower value means stale data, not \"its own counter\".",
+            },
+        },
+        {
+            "id": "dz8",
+            "type": "multi",
+            "prompt": {
+                "de": "Welche Aussagen zum Abgleich von Zonendaten treffen zu (mehrere richtig)?",
+                "en": "Which statements about synchronizing zone data are correct (multiple)?",
+            },
+            "answer": [0, 2, 3],
+            "options": {
+                "de": [
+                    "Zwischen Grid-Membern werden Zonendaten standardmäßig über die Grid-Replikation abgeglichen.",
+                    "Ein externer Sekundär erhält seine Daten ebenfalls über die Grid-Replikation, sobald er in der Name Server Group steht.",
+                    "Ein externer Sekundär vergleicht den SOA-Serial und fordert bei Bedarf IXFR oder AXFR an.",
+                    "Wer eine Zone per Zonentransfer laden darf, muss ausdrücklich freigegeben werden.",
+                ],
+                "en": [
+                    "Between Grid members, zone data is synchronized through Grid replication by default.",
+                    "An external secondary also receives its data through Grid replication once it is listed in the name server group.",
+                    "An external secondary compares the SOA serial and requests IXFR or AXFR when needed.",
+                    "Who may load a zone by zone transfer has to be permitted explicitly.",
+                ],
+            },
+            "explanation": {
+                "de": "Die Grid-Replikation endet an der Grid-Grenze: Ein fremder Server ist kein Member und spricht nur DNS. Der Eintrag in der Name Server Group macht ihn zum Nameserver der Zone, ersetzt aber weder den Zonentransfer noch dessen Freigabe.",
+                "en": "Grid replication ends at the Grid boundary: a foreign server is not a member and only speaks DNS. Listing it in the name server group makes it a name server of the zone but replaces neither the zone transfer nor its permission.",
+            },
+        },
     ]},
 }

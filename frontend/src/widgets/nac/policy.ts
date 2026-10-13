@@ -4,6 +4,8 @@
 // sicherste Regel zuerst greift (z. B. "managed ohne 802.1X" ist verdächtig
 // genug für Deny, bevor irgendetwas anderes geprüft wird).
 
+import { VLAN, type Bilingual } from './vlans'
+
 export type DeviceType = 'managed' | 'iot' | 'byod'
 
 export interface PolicyInput {
@@ -16,19 +18,25 @@ export interface PolicyInput {
   compliant: boolean
 }
 
-export type PolicyOutcome = 'full' | 'quarantine' | 'guest' | 'iot-mab' | 'deny'
+export type PolicyOutcome = 'full' | 'restricted' | 'quarantine' | 'guest' | 'iot-mab' | 'deny'
 
 export interface PolicyResult {
   outcome: PolicyOutcome
-  vlan: string | null
-  reason: { de: string; en: string }
+  vlan: Bilingual | null
+  reason: Bilingual
 }
 
-export const VLAN_EMPLOYEE = 'VLAN 20 (Mitarbeiter)'
-export const VLAN_BYOD = 'VLAN 30 (BYOD, authentifiziert)'
-export const VLAN_IOT = 'VLAN 40 (IoT)'
-export const VLAN_QUARANTINE = 'VLAN 99 (Quarantäne/Remediation)'
-export const VLAN_GUEST = 'VLAN 50 (Gast/Captive Portal)'
+export const VLAN_EMPLOYEE = VLAN.employee
+export const VLAN_BYOD = VLAN.byod
+export const VLAN_IOT = VLAN.iot
+export const VLAN_QUARANTINE = VLAN.quarantine
+export const VLAN_GUEST = VLAN.guest
+
+/** Der Schalter "Zertifikat" wirkt nur, wenn das Gerät überhaupt einen Supplicant
+ * hat — ohne 802.1X gibt es kein EAP-TLS, in dem ein Zertifikat vorgelegt würde. */
+export function certRelevant(input: Pick<PolicyInput, 'dot1xCapable'>): boolean {
+  return input.dot1xCapable
+}
 
 export function evaluatePolicy(input: PolicyInput): PolicyResult {
   const { deviceType, dot1xCapable, hasCert, compliant } = input
@@ -95,14 +103,30 @@ export function evaluatePolicy(input: PolicyInput): PolicyResult {
         },
       }
     }
+    // Ohne Zertifikat bleibt nur ein Passwortverfahren (PEAP): schwächerer
+    // Nachweis -> eingeschränkter Zugriff, bis das Zertifikat ausgerollt ist.
+    if (!hasCert) {
+      return {
+        outcome: 'restricted',
+        vlan: VLAN_EMPLOYEE,
+        reason: {
+          de: 'Verwaltetes Gerät, compliant, aber ohne Zertifikat: Es kann sich nur per Passwort (PEAP) '
+            + 'statt per EAP-TLS anmelden → Mitarbeiter-VLAN mit einschränkender dACL (nur Basisdienste '
+            + 'und Zertifikats-Enrollment), bis das Zertifikat verteilt ist.',
+          en: 'Managed device, compliant, but without a certificate: it can only log in by password '
+            + '(PEAP) instead of EAP-TLS → employee VLAN with a restricting dACL (basic services and '
+            + 'certificate enrollment only) until the certificate has been distributed.',
+        },
+      }
+    }
     return {
       outcome: 'full',
       vlan: VLAN_EMPLOYEE,
       reason: {
-        de: 'Verwaltetes Gerät, 802.1X-authentifiziert' + (hasCert ? ' mit gültigem EAP-TLS-Zertifikat' : '')
-          + ' und compliant → Vollzugriff im Mitarbeiter-VLAN.',
-        en: 'Managed device, 802.1X-authenticated' + (hasCert ? ' with a valid EAP-TLS certificate' : '')
-          + ' and compliant → full access in the employee VLAN.',
+        de: 'Verwaltetes Gerät, per EAP-TLS mit gültigem Zertifikat authentifiziert und compliant → '
+          + 'Vollzugriff im Mitarbeiter-VLAN.',
+        en: 'Managed device, authenticated via EAP-TLS with a valid certificate and compliant → full '
+          + 'access in the employee VLAN.',
       },
     }
   }
@@ -121,14 +145,26 @@ export function evaluatePolicy(input: PolicyInput): PolicyResult {
         },
       }
     }
+    if (!hasCert) {
+      return {
+        outcome: 'restricted',
+        vlan: VLAN_IOT,
+        reason: {
+          de: 'IoT-Gerät mit 802.1X-Supplicant, aber ohne Zertifikat: Es bleibt nur ein im Gerät '
+            + 'hinterlegtes Passwort → IoT-VLAN mit einschränkender dACL (nur die nötigen Zielsysteme).',
+          en: 'IoT device with an 802.1X supplicant but without a certificate: only a password stored on '
+            + 'the device remains → IoT VLAN with a restricting dACL (only the required target systems).',
+        },
+      }
+    }
     return {
       outcome: 'full',
       vlan: VLAN_IOT,
       reason: {
-        de: 'IoT-Gerät mit echtem 802.1X-Supplicant und compliant → reguläres IoT-VLAN, stärker '
-          + 'abgesichert als MAB.',
-        en: 'IoT device with a real 802.1X supplicant and compliant → regular IoT VLAN, stronger '
-          + 'than MAB.',
+        de: 'IoT-Gerät mit 802.1X-Supplicant und Zertifikat (EAP-TLS), compliant → reguläres IoT-VLAN, '
+          + 'stärker abgesichert als MAB.',
+        en: 'IoT device with an 802.1X supplicant and certificate (EAP-TLS), compliant → regular IoT '
+          + 'VLAN, stronger than MAB.',
       },
     }
   }

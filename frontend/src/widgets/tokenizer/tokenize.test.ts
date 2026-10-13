@@ -19,6 +19,12 @@ describe('tokenize', () => {
     expect(t.map((x) => x.text)).toEqual(['x', '=', '{', '}'])
   })
 
+  it('splits a word at umlauts: each non-ASCII letter is its own token', () => {
+    expect(tokenize('Größe').map((x) => x.text)).toEqual(['Gr', 'ö', 'ß', 'e'])
+    expect(tokenCount('Größe')).toBeGreaterThan(tokenCount('Groesse'))
+    expect(tokenize('Größe').map((x) => x.text).join('')).toBe('Größe')
+  })
+
   it('tokenCount counts pieces', () => {
     expect(tokenCount('Hallo')).toBe(2)
   })

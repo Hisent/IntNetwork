@@ -14,6 +14,12 @@ DHCP_FAILOVER_MODULE = {
         'Die Zustände eines Failover-Paars und MCLT als Kompromiss zwischen Lease-Dauer und Recovery-Zeit einordnen',
         'Das korrekte Vorgehen bei einem geplanten „Partner Down” nennen können',
     ],
+    "goals_en": [
+        "Explain that a DHCP failover pair connects two independent Grid members — it is not a Grid HA pair",
+        "Describe load balancing by a hash of the client MAC address and the configurable split",
+        "Place the states of a failover pair and the MCLT as a trade-off between lease duration and recovery time",
+        "Name the correct procedure for a planned \"Partner Down\"",
+    ],
     'scenario': {
         'de': ('Ein Kollege plant Wartungsarbeiten an einem Grid Member und sagt: „Kein '
                'Problem, wir haben ja ein HA-Paar für DHCP.” Tatsächlich ist der '
@@ -142,8 +148,7 @@ DHCP_FAILOVER_MODULE = {
                     '- **Communication Interrupted** — die Verbindung zwischen den '
                     'Peers ist gestört, aber keiner der beiden Server weiß sicher, ob '
                     'der Partner wirklich ausgefallen ist oder nur die Verbindung selbst '
-                    'gestört ist. Beide Server bedienen vorsichtshalber vorerst nur '
-                    'ihren eigenen Anteil weiter.\n'
+                    'gestört ist. Beide Server arbeiten weiter, vergeben neue Leases aber nur aus ihrem eigenen Anteil der freien Adressen und verlängern bestehende Leases nur noch um die MCLT.\n'
                     '- **Partner Down** — ein Peer wurde bewusst als ausgefallen '
                     'markiert; der verbleibende Server darf den gesamten Adresspool '
                     'übernehmen.\n'
@@ -167,8 +172,7 @@ DHCP_FAILOVER_MODULE = {
                     '- **Communication Interrupted** — the connection between the '
                     'peers is disrupted, but neither server can be sure whether the '
                     'partner has actually failed or only the connection itself is '
-                    'broken. As a precaution, both servers keep serving only their own '
-                    'share for now.\n'
+                    'broken. Both servers keep working, but hand out new leases only from their own share of the free addresses and extend existing leases only by the MCLT.\n'
                     '- **Partner Down** — a peer has been deliberately marked as '
                     'failed; the remaining server is allowed to take over the entire '
                     'address pool.\n'
@@ -182,19 +186,138 @@ DHCP_FAILOVER_MODULE = {
                     'causes more renewal load while the peers cannot communicate; a '
                     'longer MCLT means a slower full takeover.'),
          }},
+        {
+            "type": "diagram",
+            "id": "diagram-failover-zustaende",
+            "note": "Zentrale Frage bei Schritt 6: Woran erkennt der Admin, dass B wirklich aus ist? (Nicht am Zustand von A — der sieht bei Leitungsstörung genauso aus.)",
+            "payload": {
+                "kind": "sequence",
+                "title_de": "Peer B fällt aus: Zustände und MCLT im Ablauf",
+                "title_en": "Peer B fails: states and MCLT in sequence",
+                "caption_de": "Beispiel mit MCLT = 1 Stunde (Standardwert).",
+                "caption_en": "Example with MCLT = 1 hour (the default).",
+                "actors": [
+                    {"id": "c", "label": "Client"},
+                    {"id": "a", "label_de": "Peer A (bleibt)", "label_en": "Peer A (stays)"},
+                    {"id": "b", "label_de": "Peer B (fällt aus)", "label_en": "Peer B (fails)"},
+                    {"id": "adm", "label": "Admin"},
+                ],
+                "messages": [
+                    {
+                        "from": "a",
+                        "to": "b",
+                        "label_de": "Normal: Lease-Abgleich",
+                        "label_en": "Normal: lease sync",
+                        "detail_de": "Beide Peers vergeben Leases und melden sie einander über die Failover-Verbindung (TCP, Standard-Port 647).",
+                        "detail_en": "Both peers hand out leases and report them to each other over the failover connection (TCP, default port 647).",
+                    },
+                    {
+                        "from": "b",
+                        "to": "b",
+                        "label_de": "nicht mehr erreichbar",
+                        "label_en": "no longer reachable",
+                        "detail_de": "Aus Sicht von A ist nicht zu unterscheiden: Ist B aus, oder ist nur die Strecke zwischen beiden gestört?",
+                        "detail_en": "From A's point of view there is no telling: is B down, or is only the link between the two broken?",
+                    },
+                    {
+                        "from": "a",
+                        "to": "a",
+                        "label": "Communications Interrupted",
+                        "detail_de": "A arbeitet weiter, aber vorsichtig: neue Leases nur aus dem eigenen Anteil freier Adressen.",
+                        "detail_en": "A keeps working, but cautiously: new leases only from its own share of free addresses.",
+                    },
+                    {
+                        "from": "c",
+                        "to": "a",
+                        "label_de": "DHCPREQUEST (Verlängerung)",
+                        "label_en": "DHCPREQUEST (renewal)",
+                        "detail_de": "Ein Client verlängert seine Lease bei A.",
+                        "detail_en": "A client renews its lease with A.",
+                    },
+                    {
+                        "from": "a",
+                        "to": "c",
+                        "style": "reply",
+                        "label_de": "DHCPACK, Lease-Zeit = MCLT",
+                        "label_en": "DHCPACK, lease time = MCLT",
+                        "detail_de": "Statt der regulären Lease-Zeit gibt es nur die MCLT — mehr darf A ohne Wissen von B nicht zusagen. Die Clients verlängern dadurch häufiger.",
+                        "detail_en": "Instead of the regular lease time there is only the MCLT — A may not promise more without B knowing. Clients therefore renew more often.",
+                    },
+                    {
+                        "from": "adm",
+                        "to": "a",
+                        "label": "Set Partner Down",
+                        "detail_de": "Der Admin hat sichergestellt, dass der DHCP-Dienst auf B wirklich steht, und setzt A von Hand in Partner Down.",
+                        "detail_en": "The admin has made sure the DHCP service on B is really stopped and sets A to Partner Down by hand.",
+                    },
+                    {
+                        "from": "a",
+                        "to": "a",
+                        "label_de": "Partner Down: wartet die MCLT ab",
+                        "label_en": "Partner Down: waits out the MCLT",
+                        "detail_de": "B könnte kurz vor dem Ausfall noch Leases vergeben haben, von denen A nichts weiß — höchstens für die Dauer der MCLT. Danach verfügt A über den gesamten Bereich.",
+                        "detail_en": "Shortly before failing, B may have handed out leases A does not know about — for the MCLT at most. After that A has the whole range at its disposal.",
+                    },
+                    {
+                        "from": "b",
+                        "to": "a",
+                        "style": "reply",
+                        "label_de": "kehrt zurück, gleicht ab",
+                        "label_en": "returns, resynchronizes",
+                        "detail_de": "B holt den Lease-Stand von A nach und wartet seinerseits, bevor beide wieder in Normal laufen.",
+                        "detail_en": "B catches up on the lease state from A and waits in turn before both run in Normal again.",
+                    },
+                ],
+            },
+        },
         {'type': 'check', 'id': 'check-2',
          'payload': {
              'kind': 'number',
-             'prompt_de': ('Ein Netzwerk stellt 200 Adressen für die dynamische Vergabe '
-                           'bereit und läuft im Standard-Split 50/50 auf einem '
-                           'Failover-Paar. Wie viele Adressen bedient jeder Server im '
-                           'Normalbetrieb näherungsweise?'),
-             'prompt_en': ('A network provides 200 addresses for dynamic assignment '
-                           'and runs on a failover pair with the default 50/50 split. '
-                           'Roughly how many addresses does each server serve during '
-                           'normal operation?'),
+             'prompt_de': ('In einem Netzwerk fragen 200 Clients per DHCP an; es läuft im Standard-Split 50/50 auf einem Failover-Paar. Der Split verteilt Clients (per Hash), nicht Adressen: Wie viele Clients beantwortet jeder Server im Normalbetrieb näherungsweise?'),
+             'prompt_en': ('On a network, 200 clients request addresses via DHCP; it runs on a failover pair with the default 50/50 split. The split distributes clients (by hash), not addresses: roughly how many clients does each server answer during normal operation?'),
              'answer': 100,
          }},
+        {
+            "type": "match",
+            "id": "match-failover-begriffe",
+            "payload": {
+                "prompt_de": "Ordne jedem Begriff des DHCP-Failovers seine Bedeutung zu.",
+                "prompt_en": "Match each DHCP failover term to its meaning.",
+                "pairs": [
+                    {
+                        "left": "Normal",
+                        "right_de": "Beide Peers erreichbar, Lastverteilung nach Split",
+                        "right_en": "both peers reachable, load shared by split",
+                    },
+                    {
+                        "left": "Communications Interrupted",
+                        "right_de": "Partner nicht erreichbar, Ursache unklar",
+                        "right_en": "partner unreachable, cause unclear",
+                    },
+                    {
+                        "left": "Partner Down",
+                        "right_de": "Partner gilt als aus, voller Bereich nach der MCLT",
+                        "right_en": "partner considered down, full range after the MCLT",
+                    },
+                    {
+                        "left": "MCLT",
+                        "right_de": "Spanne, die eine Lease dem Partner vorauseilen darf",
+                        "right_en": "span a lease may run ahead of the partner",
+                    },
+                    {
+                        "left": "Split",
+                        "right_de": "Anteil der Clients, den der erste Peer beantwortet",
+                        "right_en": "share of clients the first peer answers",
+                    },
+                    {
+                        "left_de": "Grid-HA-Paar",
+                        "left_en": "Grid HA pair",
+                        "right_de": "Kein Failover: zwei Knoten als ein Grid-Member",
+                        "right_en": "not failover: two nodes acting as one Grid member",
+                    },
+                ],
+            },
+        },
         {'type': 'order', 'id': 'order-1',
          'payload': {
              'prompt_de': ('Ein Wartungsfenster an einem der beiden Failover-Peers ist '
@@ -240,9 +363,7 @@ DHCP_FAILOVER_MODULE = {
                     '\n'
                     'Der korrekte Weg bei einem geplanten Ausfall: den DHCP-Dienst auf '
                     'dem betroffenen Server **aktiv stoppen**, nicht nur den '
-                    'Switch-Port trennen. Erst ein aktiv gestoppter Dienst erlaubt dem '
-                    'verbleibenden Server, eindeutig in „Partner Down” zu wechseln und '
-                    'den vollen Adressraum zu übernehmen.'),
+                    'Switch-Port trennen. Erst wenn der Dienst dort sicher gestoppt ist, darf der verbleibende Server von Hand in „Partner Down” gesetzt werden und den vollen Adressraum übernehmen — von selbst wechselt er nicht.'),
              'en': ('A disconnected switch port only interrupts the *connection* '
                     'between the peers — the DHCP service on the server that has '
                     'actually gone down keeps running from its own point of view; it '
@@ -253,10 +374,94 @@ DHCP_FAILOVER_MODULE = {
                     '\n'
                     'The correct approach for a planned outage: **actively stop** the '
                     'DHCP service on the affected server, not just disconnect the '
-                    'switch port. Only an actively stopped service lets the remaining '
-                    'server unambiguously switch to “Partner Down” and take over the '
-                    'full address space.'),
+                    'switch port. Only once the service there is reliably stopped may the remaining server be set to “Partner Down” by hand and take over the full address space — it does not switch on its own.'),
          }},
+        {
+            "type": "scenario",
+            "id": "scenario-partner-down",
+            "note": "Der Bereitschaftsfall schlechthin. Vor der Auflösung fragen: Woher weiß Hamburg, ob München noch Leases vergibt? (Gar nicht — das muss ein Mensch klären.)",
+            "payload": {
+                "title_de": "Communications Interrupted — Partner Down setzen oder nicht?",
+                "title_en": "Communications Interrupted — set Partner Down or not?",
+                "start": "start",
+                "nodes": [
+                    {
+                        "id": "start",
+                        "text_de": "Samstag, 22 Uhr: Das Monitoring meldet für das Failover-Paar Hamburg/München „Communications Interrupted“. Du erreichst den Hamburger Peer per Grid Manager, den Münchner nicht. Der Bereitschaftskollege schlägt vor: „Setz Hamburg auf Partner Down, dann ist Ruhe.“ Was tust du?",
+                        "text_en": "Saturday, 10 p.m.: monitoring reports \"Communications Interrupted\" for the failover pair Hamburg/Munich. You can reach the Hamburg peer through Grid Manager, but not the Munich one. The on-call colleague suggests: \"Set Hamburg to Partner Down and we are done.\" What do you do?",
+                        "options": [
+                            {
+                                "label_de": "Partner Down auf dem Hamburger Peer setzen.",
+                                "label_en": "Set Partner Down on the Hamburg peer.",
+                                "to": "blind",
+                            },
+                            {
+                                "label_de": "Herausfinden, ob der Münchner Peer wirklich aus ist oder nur die Strecke gestört ist.",
+                                "label_en": "Find out whether the Munich peer is really down or only the link is broken.",
+                                "to": "pruefen",
+                            },
+                            {
+                                "label_de": "Den DHCP-Dienst in Hamburg neu starten, damit die Peers sich neu finden.",
+                                "label_en": "Restart the DHCP service in Hamburg so that the peers find each other again.",
+                                "to": "restart",
+                            },
+                        ],
+                    },
+                    {
+                        "id": "restart",
+                        "outcome": "bad",
+                        "text_de": "Hamburg war der Peer, der funktioniert. Jetzt bekommen die Hamburger Clients kurzzeitig gar keine Antwort — und an der Ursache hat sich nichts geändert.",
+                        "text_en": "Hamburg was the peer that works. Now the Hamburg clients briefly get no answer at all — and nothing has changed about the cause.",
+                    },
+                    {
+                        "id": "blind",
+                        "outcome": "bad",
+                        "text_de": "Der Münchner Peer lief die ganze Zeit — nur das WAN war gestört. Nach Ablauf der MCLT vergibt Hamburg auch Adressen, die München längst vergeben hat: doppelte Adressen an zwei Standorten. Partner Down ist eine Zusicherung des Admins, dass der Partner sicher keine Leases mehr vergibt.",
+                        "text_en": "The Munich peer was running all along — only the WAN was down. Once the MCLT has passed, Hamburg also hands out addresses Munich assigned long ago: duplicate addresses at two sites. Partner Down is the admin's assurance that the partner is definitely no longer handing out leases.",
+                    },
+                    {
+                        "id": "pruefen",
+                        "text_de": "Der Münchner Standort bestätigt per Telefon: Die Appliance läuft, Clients vor Ort bekommen Adressen. Ausgefallen ist die WAN-Strecke, der Provider nennt zwei bis drei Stunden. In beiden Bereichen ist noch reichlich Platz. Und nun?",
+                        "text_en": "The Munich site confirms by phone: the appliance is up, local clients get addresses. What failed is the WAN link, the provider says two to three hours. Both ranges still have plenty of room. And now?",
+                        "options": [
+                            {
+                                "label_de": "Auf beiden Peers Partner Down setzen, damit jeder Standort den vollen Bereich nutzen kann.",
+                                "label_en": "Set Partner Down on both peers so each site can use the full range.",
+                                "to": "beide",
+                            },
+                            {
+                                "label_de": "Nichts umstellen: beide in Communications Interrupted lassen, Strecke und Füllstand beobachten.",
+                                "label_en": "Change nothing: leave both in Communications Interrupted, watch the link and the fill level.",
+                                "to": "lassen",
+                            },
+                            {
+                                "label_de": "Den DHCP-Dienst in München stoppen und Hamburg auf Partner Down setzen.",
+                                "label_en": "Stop the DHCP service in Munich and set Hamburg to Partner Down.",
+                                "to": "stopp",
+                            },
+                        ],
+                    },
+                    {
+                        "id": "beide",
+                        "outcome": "bad",
+                        "text_de": "Das ist der schlimmste Fall: Zwei Server, die sich beide für allein zuständig halten, vergeben dieselben Adressen. Die Konflikte musst du nach der Reparatur einzeln aufräumen.",
+                        "text_en": "This is the worst case: two servers that both consider themselves solely in charge hand out the same addresses. You will have to clean up the conflicts one by one after the repair.",
+                    },
+                    {
+                        "id": "stopp",
+                        "outcome": "ok",
+                        "text_de": "Formal sauber — der gestoppte Dienst macht Partner Down zulässig. Aber ohne WAN erreichen die Münchner Clients Hamburg gar nicht: Du hast dem Standort, der noch funktionierte, den DHCP-Dienst genommen. Für einen Leitungsausfall ist das der falsche Hebel.",
+                        "text_en": "Formally clean — the stopped service makes Partner Down permissible. But without the WAN the Munich clients cannot reach Hamburg at all: you took the DHCP service away from the site that was still working. For a link failure this is the wrong lever.",
+                    },
+                    {
+                        "id": "lassen",
+                        "outcome": "good",
+                        "text_de": "Richtig. Genau für diesen Fall gibt es den Zustand: Beide Peers versorgen ihre Clients weiter, jeder aus seinem Anteil, mit kurzen Leases. Ist die Strecke zurück, gleichen sie sich ab und laufen wieder in Normal. Partner Down wäre erst ein Thema, wenn ein Peer wirklich und für länger ausfällt.",
+                        "text_en": "Correct. The state exists for exactly this case: both peers keep serving their clients, each from its share, with short leases. Once the link is back they resynchronize and run in Normal again. Partner Down would only become a topic if a peer really fails for a longer time.",
+                    },
+                ],
+            },
+        },
         {'type': 'reflect', 'id': 'reflect-1',
          'payload': {
              'prompt_de': ('Nenne ein Szenario aus deinem eigenen Betrieb, in dem die '
@@ -268,7 +473,12 @@ DHCP_FAILOVER_MODULE = {
          }},
     ],
     'quiz': {'questions': [
-        {'id': 'df1', 'type': 'single',
+        {'id': 'df1',
+         "explanation": {
+             "de": "Failover: zwei eigenständige Member, beide vergeben Leases. HA: zwei Knoten, einer aktiv, als ein Grid-Knoten. Die Verwechslung ist gefährlich, weil sich daraus falsche Erwartungen ergeben — etwa, dass beim Failover „der passive Partner automatisch übernimmt“.",
+             "en": "Failover: two independent members, both hand out leases. HA: two nodes, one active, acting as one Grid node. The confusion is dangerous because it leads to wrong expectations — such as \"the passive partner takes over automatically\" in failover.",
+         },
+         'type': 'single',
          'prompt': {'de': 'Was unterscheidet ein DHCP-Failover-Paar grundlegend von einem Grid-HA-Paar?',
                     'en': 'What fundamentally distinguishes a DHCP failover pair from a Grid-HA pair?'},
          'answer': 1,
@@ -280,7 +490,12 @@ DHCP_FAILOVER_MODULE = {
                             'A failover pair is active/active and jointly serves an address pool; a Grid-HA pair is active/passive and protects a single Grid node (e.g. the Grid Master)',
                             'A failover pair only protects DNS, not DHCP',
                             'A Grid-HA pair only exists for virtual appliances']}},
-        {'id': 'df2', 'type': 'single',
+        {'id': 'df2',
+         "explanation": {
+             "de": "Die MCLT begrenzt, wie weit ein Peer dem anderen „vorauseilen“ darf: um höchstens diese Spanne darf eine Lease länger laufen, als der Partner weiß. Sie ist keine Mindest-Lease-Zeit und hat mit dem Grid Master nichts zu tun.",
+             "en": "The MCLT limits how far one peer may \"run ahead\" of the other: a lease may run at most this much longer than the partner knows. It is not a minimum lease time and has nothing to do with the Grid Master.",
+         },
+         'type': 'single',
          'prompt': {'de': 'Wofür steht MCLT und welchen Zweck erfüllt es?',
                     'en': 'What does MCLT stand for and what purpose does it serve?'},
          'answer': 0,
@@ -292,7 +507,12 @@ DHCP_FAILOVER_MODULE = {
                             'Minimum Connection Lease Time — the minimum duration of every lease',
                             'Multi-Client Load Table — a table of the load distribution',
                             'Master Configuration Lock Timer — locks changes to the Grid Master']}},
-        {'id': 'df3', 'type': 'single',
+        {'id': 'df3',
+         "explanation": {
+             "de": "Der Dienst wird gestoppt, damit sicher ist, dass dieser Peer keine Leases mehr vergibt — erst dann darf der andere in Partner Down gesetzt werden. Ein getrennter Port lässt den Dienst weiterlaufen: Beide Peers hielten sich für zuständig.",
+             "en": "The service is stopped so that it is certain this peer no longer hands out leases — only then may the other one be set to Partner Down. A disconnected port leaves the service running: both peers would consider themselves in charge.",
+         },
+         'type': 'single',
          'prompt': {'de': 'Ein Peer soll für ein geplantes Wartungsfenster ausfallen. Was ist der korrekte erste technische Schritt am betroffenen Server?',
                     'en': 'A peer is scheduled to go down for a planned maintenance window. What is the correct first technical step on the affected server?'},
          'answer': 1,
@@ -302,7 +522,12 @@ DHCP_FAILOVER_MODULE = {
                      'en': ['Disconnect the switch port', 'Actively stop the DHCP service',
                             'Simply reboot the server',
                             'Nothing, the failover pair reliably detects the outage on its own']}},
-        {'id': 'df4', 'type': 'multi',
+        {'id': 'df4',
+         "explanation": {
+             "de": "Der Hash über die Client-Kennung entscheidet, welcher Peer antwortet; der Split legt die Anteile fest (Standard 50 %). Beide Peers sind aktiv — „nur einer antwortet“ beschreibt ein HA-Paar, kein Failover-Paar.",
+             "en": "The hash of the client identifier decides which peer answers; the split sets the shares (default 50%). Both peers are active — \"only one answers\" describes an HA pair, not a failover pair.",
+         },
+         'type': 'multi',
          'prompt': {'de': 'Welche Aussagen zur Lastverteilung in einem Failover-Paar treffen zu? (mehrere)',
                     'en': 'Which statements about load balancing in a failover pair are true? (multiple)'},
          'answer': [0, 1, 3],
@@ -314,14 +539,81 @@ DHCP_FAILOVER_MODULE = {
                             'The split defaults to 50/50 but is configurable',
                             'Only one of the two servers answers requests during normal operation',
                             "If a peer fails, the remaining server takes over its share as well"]}},
-        {'id': 'df5', 'type': 'number',
-         'prompt': {'de': ('Ein Adressraum mit 300 dynamisch vergebbaren Adressen läuft '
-                           'im Split 70/30 auf einem Failover-Paar. Wie viele Adressen '
-                           'entfallen näherungsweise auf den Server mit dem größeren '
-                           'Anteil?'),
-                    'en': ('An address space with 300 dynamically assignable addresses '
-                          'runs on a failover pair with a 70/30 split. Roughly how many '
-                          'addresses fall to the server with the larger share?')},
+        {'id': 'df5',
+         "explanation": {
+             "de": "70 % von 300 Clients sind 210. Der Split teilt die anfragenden Clients auf, nicht die Adressen des Bereichs: Die freien Adressen gleichen die Peers unabhängig davon untereinander aus.",
+             "en": "70% of 300 clients is 210. The split divides the requesting clients, not the addresses of the range: the peers balance the free addresses between themselves independently of that.",
+         },
+         'type': 'number',
+         'prompt': {'de': ('In einem Netzwerk mit 300 DHCP-Clients läuft ein Failover-Paar im Split 70/30. Wie viele Clients beantwortet näherungsweise der Server mit dem größeren Anteil?'),
+                    'en': ('On a network with 300 DHCP clients, a failover pair runs with a 70/30 split. Roughly how many clients does the server with the larger share answer?')},
          'answer': 210},
+        {
+            "id": "df6",
+            "type": "single",
+            "prompt": {
+                "de": "Die WAN-Strecke zwischen zwei Failover-Peers fällt aus; beide Appliances laufen und vergeben weiter Leases. Ein Admin setzt einen der beiden Peers auf Partner Down. Welches Risiko entsteht?",
+                "en": "The WAN link between two failover peers fails; both appliances are up and keep handing out leases. An admin sets one of the two peers to Partner Down. Which risk arises?",
+            },
+            "answer": 1,
+            "options": {
+                "de": [
+                    "Keines — Partner Down wird automatisch zurückgenommen, sobald der Partner wieder antwortet",
+                    "Nach Ablauf der MCLT vergibt dieser Peer auch Adressen aus dem Anteil des Partners, der sie selbst weiter vergibt: doppelte Adressen",
+                    "Der andere Peer stellt seinen Dienst ein, weil er sich für ausgefallen erklärt sieht",
+                    "Die Clients beider Standorte verlieren sofort ihre bestehenden Leases",
+                ],
+                "en": [
+                    "None — Partner Down is reverted automatically as soon as the partner answers again",
+                    "After the MCLT this peer also hands out addresses from the partner's share, which the partner keeps assigning itself: duplicate addresses",
+                    "The other peer stops its service because it sees itself declared failed",
+                    "The clients of both sites immediately lose their existing leases",
+                ],
+            },
+            "explanation": {
+                "de": "Partner Down sagt dem Peer: Der Partner vergibt sicher nichts mehr. Stimmt das nicht, bedienen sich nach der MCLT zwei Server aus denselben Adressen. Der andere Peer erfährt von der Entscheidung nichts — die Verbindung ist ja gerade unterbrochen.",
+                "en": "Partner Down tells the peer: the partner is definitely no longer assigning anything. If that is not true, two servers draw on the same addresses after the MCLT. The other peer learns nothing of the decision — the connection is interrupted, after all.",
+            },
+        },
+        {
+            "id": "df7",
+            "type": "number",
+            "prompt": {
+                "de": "Reguläre Lease-Zeit: 8 Stunden, MCLT: 60 Minuten. Ein Peer ist in Communications Interrupted, ein Client verlängert bei ihm seine Lease. Für wie viele Minuten erhält der Client die Lease?",
+                "en": "Regular lease time: 8 hours, MCLT: 60 minutes. A peer is in Communications Interrupted, and a client renews its lease with it. For how many minutes does the client receive the lease?",
+            },
+            "answer": 60,
+            "explanation": {
+                "de": "Ohne Kontakt zum Partner darf ein Peer eine Lease nur um die MCLT verlängern — hier 60 Minuten statt 480. Deshalb steigt in diesem Zustand die Zahl der Verlängerungen, und deshalb ist eine sehr kurze MCLT kein Gratis-Gewinn.",
+                "en": "Without contact to the partner, a peer may extend a lease only by the MCLT — here 60 minutes instead of 480. That is why the number of renewals rises in this state, and why a very short MCLT is not a free win.",
+            },
+        },
+        {
+            "id": "df8",
+            "type": "multi",
+            "prompt": {
+                "de": "Welche Aussagen zum Split eines Failover-Paars treffen zu (mehrere richtig)?",
+                "en": "Which statements about the split of a failover pair are correct (multiple)?",
+            },
+            "answer": [0, 2],
+            "options": {
+                "de": [
+                    "Der Split legt fest, welchen Anteil der anfragenden Clients welcher Peer beantwortet.",
+                    "Bei 50/50 gehört die untere Hälfte der Adressen des Bereichs fest dem ersten Peer, die obere dem zweiten.",
+                    "Weil der Hash aus der Client-Kennung gebildet wird, landet derselbe Client im Normalbetrieb beim selben Peer.",
+                    "Ein Split von 70/30 bedeutet, dass der zweite Peer bei Ausfall des ersten nur 30 % der Clients versorgen kann.",
+                ],
+                "en": [
+                    "The split determines which share of the requesting clients is answered by which peer.",
+                    "With 50/50 the lower half of the range's addresses belongs permanently to the first peer, the upper half to the second.",
+                    "Because the hash is computed from the client identifier, the same client ends up with the same peer in normal operation.",
+                    "A 70/30 split means the second peer can serve only 30% of the clients if the first one fails.",
+                ],
+            },
+            "explanation": {
+                "de": "Der Split teilt Clients per Hash auf, nicht den Adressbereich in feste Hälften — die freien Adressen gleichen die Peers laufend untereinander aus. Und der Split gilt für den Normalbetrieb: Im Zustand Partner Down übernimmt der verbleibende Peer alle Clients.",
+                "en": "The split divides clients by hash, not the address range into fixed halves — the peers continuously balance the free addresses between them. And the split applies to normal operation: in Partner Down the remaining peer takes over all clients.",
+            },
+        },
     ]},
 }

@@ -15,6 +15,14 @@ KRYPTO_GRUNDLAGEN_MODULE = {
         'Kerckhoffs\' Prinzip erklären und gegen "selbstgebaute Verschlüsselung" argumentieren können',
         'Veraltete Algorithmen benennen können, die in neuen Systemen nichts mehr zu suchen haben',
     ],
+    'goals_en': [
+        'Cleanly distinguish the four protection goals confidentiality, integrity, authenticity, and non-repudiation',
+        'Explain why encryption alone only delivers confidentiality',
+        'Compare symmetric and asymmetric encryption in terms of speed and key distribution',
+        'Justify why practice combines both in hybrid schemes',
+        'Explain Kerckhoffs\'s principle and argue against "homegrown encryption"',
+        'Name outdated algorithms that have no place in new systems',
+    ],
     'scenario': {
         'de': 'Nordwind Logistik GmbH plant den Aufbau einer eigenen PKI, um interne Dienste, '
               'Mitarbeiter-Logins und die Kommunikation mit Speditionspartnern abzusichern. Bevor '
@@ -66,6 +74,75 @@ KRYPTO_GRUNDLAGEN_MODULE = {
                    'MACs, digital signatures — which the following modules of this block cover in '
                    'detail.',
          }},
+        {'type': 'diagram', 'id': 'diagram-schutzziele',
+         'note': ('Zeile fuer Zeile aufdecken lassen: Welcher Mechanismus liefert welches Schutzziel? Die Spalte '
+             '"Hash" ist die Falle - ohne Schluessel schuetzt er nur vor Zufallsfehlern.'),
+         'payload': {
+             'kind': 'compare',
+             'title_de': 'Schutzziele und die Mechanismen, die sie liefern',
+             'title_en': 'Protection goals and the mechanisms that deliver them',
+             'caption_de': 'Kein Mechanismus deckt alles ab — deshalb kombiniert die Praxis sie.',
+             'caption_en': 'No single mechanism covers everything — which is why practice combines them.',
+             'columns': [
+                    {'title_de': 'Verschlüsselung (AES-CBC)', 'title_en': 'Encryption (AES-CBC)'},
+                    {'title_de': 'Hash (SHA-256)', 'title_en': 'Hash (SHA-256)'},
+                    {'title': 'MAC (HMAC)'},
+                    {'title_de': 'Digitale Signatur', 'title_en': 'Digital signature'},
+                ],
+             'rows': [
+                    {
+                     'label_de': 'Vertraulichkeit',
+                     'label_en': 'Confidentiality',
+                     'values_de': ['ja', 'nein', 'nein', 'nein'],
+                     'values_en': ['yes', 'no', 'no', 'no'],
+                    },
+                    {
+                     'label_de': 'Integrität',
+                     'label_en': 'Integrity',
+                     'values_de': ['nein', 'nur wenn der Hashwert getrennt gesichert ankommt', 'ja', 'ja'],
+                     'values_en': ['no', 'only if the hash value arrives via a protected channel', 'yes', 'yes'],
+                    },
+                    {
+                     'label_de': 'Authentizität',
+                     'label_en': 'Authenticity',
+                     'values_de': [
+                            'nein',
+                            'nein',
+                            'ja, gegenüber Inhabern des gemeinsamen Schlüssels',
+                            'ja, für jeden mit dem öffentlichen Schlüssel prüfbar',
+                        ],
+                     'values_en': [
+                            'no',
+                            'no',
+                            'yes, towards holders of the shared key',
+                            'yes, verifiable by anyone with the public key',
+                        ],
+                    },
+                    {
+                     'label_de': 'Nichtabstreitbarkeit',
+                     'label_en': 'Non-repudiation',
+                     'values_de': [
+                            'nein',
+                            'nein',
+                            'nein — beide Seiten kennen den Schlüssel',
+                            'ja, solange nur einer den privaten Schlüssel hat',
+                        ],
+                     'values_en': [
+                            'no',
+                            'no',
+                            'no — both sides know the key',
+                            'yes, as long as only one party holds the private key',
+                        ],
+                    },
+                    {
+                     'label_de': 'Schlüssel',
+                     'label_en': 'Key',
+                     'values_de': ['gemeinsam, geheim', 'keiner', 'gemeinsam, geheim', 'Schlüsselpaar'],
+                     'values_en': ['shared, secret', 'none', 'shared, secret', 'key pair'],
+                    },
+                ],
+            },
+        },
         {'type': 'check', 'id': 'check-1',
          'payload': {
              'kind': 'choice',
@@ -122,23 +199,100 @@ KRYPTO_GRUNDLAGEN_MODULE = {
                    'symmetrically, because that is orders of magnitude faster. This exact pattern '
                    'is behind TLS and will accompany you throughout this course.',
          }},
+        {'type': 'diagram', 'id': 'diagram-hybridverfahren',
+         'note': ('Vor der Sortieraufgabe durchklicken. Betonen: Asymmetrisch wird nur das Geheimnis vereinbart, die '
+             'Nutzdaten laufen symmetrisch. Vereinfacht - der echte TLS-Handshake folgt in Block 3.'),
+         'payload': {
+             'kind': 'sequence',
+             'title_de': 'Hybridverfahren: asymmetrisch einigen, symmetrisch verschlüsseln',
+             'title_en': 'Hybrid scheme: agree asymmetrically, encrypt symmetrically',
+             'actors': [
+                    {'id': 'c', 'label': 'Client'},
+                    {'id': 's', 'label': 'Server'},
+                ],
+             'messages': [
+                    {
+                     'from': 'c',
+                     'to': 's',
+                     'label_de': 'öffentlicher Anteil des Clients',
+                     'label_en': "client's public share",
+                     'detail_de': ('Der Client erzeugt ein frisches Schlüsselpaar und schickt nur den öffentlichen Teil. '
+                         'Mitlesen ist erlaubt — daraus lässt sich das Geheimnis nicht berechnen.'),
+                     'detail_en': ('The client generates a fresh key pair and sends only the public part. Eavesdropping '
+                         'is fine — the secret cannot be computed from it.'),
+                    },
+                    {
+                     'from': 's',
+                     'to': 'c',
+                     'style': 'reply',
+                     'label_de': 'öffentlicher Anteil des Servers + Zertifikat',
+                     'label_en': "server's public share + certificate",
+                     'detail_de': ('Der Server antwortet mit seinem Anteil und weist sich per Zertifikat und Signatur aus '
+                         '(Authentizität).'),
+                     'detail_en': ('The server replies with its share and proves its identity with a certificate and a '
+                         'signature (authenticity).'),
+                    },
+                    {
+                     'from': 'c',
+                     'to': 'c',
+                     'label_de': 'Geheimnis berechnen, Schlüssel ableiten',
+                     'label_en': 'compute secret, derive key',
+                     'detail_de': ('Aus dem eigenen privaten und dem fremden öffentlichen Anteil entsteht das gemeinsame '
+                         'Geheimnis; daraus wird der symmetrische Sitzungsschlüssel abgeleitet.'),
+                     'detail_en': ("The own private share and the peer's public share yield the shared secret; the "
+                         'symmetric session key is derived from it.'),
+                    },
+                    {
+                     'from': 's',
+                     'to': 's',
+                     'label_de': 'dasselbe Geheimnis, derselbe Schlüssel',
+                     'label_en': 'same secret, same key',
+                     'detail_de': ('Der Server rechnet spiegelbildlich und kommt auf denselben Wert — übertragen wurde '
+                         'der Schlüssel nie.'),
+                     'detail_en': ('The server does the mirror-image computation and arrives at the same value — the key '
+                         'itself was never transmitted.'),
+                    },
+                    {
+                     'from': 'c',
+                     'to': 's',
+                     'style': 'encrypted',
+                     'label_de': 'Nutzdaten, symmetrisch verschlüsselt (AEAD)',
+                     'label_en': 'payload, symmetrically encrypted (AEAD)',
+                     'detail_de': ('Ab hier arbeitet ein schnelles symmetrisches Verfahren wie AES-GCM, das zugleich die '
+                         'Integrität sichert.'),
+                     'detail_en': ('From here on a fast symmetric scheme such as AES-GCM does the work and protects '
+                         'integrity at the same time.'),
+                    },
+                    {
+                     'from': 's',
+                     'to': 'c',
+                     'style': 'encrypted',
+                     'label_de': 'Antwort, symmetrisch verschlüsselt',
+                     'label_en': 'response, symmetrically encrypted',
+                     'detail_de': 'Nach Verbindungsende werden die Sitzungsschlüssel verworfen.',
+                     'detail_en': 'When the connection ends, the session keys are discarded.',
+                    },
+                ],
+            },
+        },
         {'type': 'order', 'id': 'order-1',
          'payload': {
              'prompt_de': 'Bringe die Schritte eines Hybridverfahrens (wie in TLS eingesetzt) in '
                           'die richtige Reihenfolge.',
              'prompt_en': 'Put the steps of a hybrid scheme (as used in TLS) in the correct order.',
              'items_de': [
-                 'Client und Server einigen sich über ein asymmetrisches Verfahren auf einen '
-                 'gemeinsamen Sitzungsschlüssel',
-                 'Der Sitzungsschlüssel wird nur für diese eine Verbindung verwendet',
-                 'Die eigentlichen Nutzdaten werden mit dem Sitzungsschlüssel symmetrisch '
-                 'verschlüsselt',
+                 'Client und Server tauschen ihre öffentlichen Anteile eines asymmetrischen '
+                 'Verfahrens aus',
+                 'Beide Seiten berechnen daraus dasselbe Geheimnis und leiten den symmetrischen '
+                 'Sitzungsschlüssel ab',
+                 'Mit dem abgeleiteten Sitzungsschlüssel werden die Nutzdaten symmetrisch '
+                 'verschlüsselt übertragen',
                  'Nach Ende der Verbindung wird der Sitzungsschlüssel verworfen',
              ],
              'items_en': [
-                 'Client and server agree on a shared session key using an asymmetric scheme',
-                 'The session key is used only for this one connection',
-                 'The actual payload is encrypted symmetrically using the session key',
+                 'Client and server exchange the public parts of an asymmetric scheme',
+                 'Both sides compute the same secret from them and derive the symmetric session key',
+                 'The payload is transmitted symmetrically encrypted with the derived session key',
                  'After the connection ends, the session key is discarded',
              ],
          }},
@@ -212,9 +366,9 @@ KRYPTO_GRUNDLAGEN_MODULE = {
                    '- **RC4** — gilt seit RFC 7465 (2015) als in TLS verboten.\n'
                    '- **Zu kurze RSA-Schlüssel** — RSA-1024 gilt als veraltet, da es nur noch eine '
                    'Sicherheitsstärke von etwa 80 Bit erreicht und damit unter der gängigen '
-                   'Mindestschwelle von 112 Bit liegt. Nach verbreiteter Empfehlung sollten neue '
-                   'RSA-Schlüssel deutlich länger sein (RSA-3072 und mehr für langfristigen Schutz) '
-                   '— die genauen Mindestwerte behandelt Modul 4 dieses Blocks im Detail.\n\n'
+                   'Mindestschwelle von 112 Bit liegt. Das BSI verlangt in der TR-02102-1 für RSA '
+                   'inzwischen mindestens 3000 Bit; RSA-2048 (rund 112 Bit) ist bei öffentlichen CAs '
+                   'weiterhin das zulässige Minimum — die Einordnung übernimmt Modul 4 dieses Blocks.\n\n'
                    'Merksatz für den Betrieb: Wenn eine Komponente noch MD5, SHA-1, DES/3DES, RC4 '
                    'oder kurze RSA-Schlüssel verwendet, ist das ein klares Migrationssignal — nicht '
                    'erst, wenn ein Angriff bekannt wird.',
@@ -232,13 +386,57 @@ KRYPTO_GRUNDLAGEN_MODULE = {
                    '- **RC4** — considered banned in TLS since RFC 7465 (2015).\n'
                    '- **RSA keys that are too short** — RSA-1024 is considered outdated, since it '
                    'only reaches a security strength of about 80 bits, below the common 112-bit '
-                   'minimum threshold. Per common recommendation, new RSA keys should be '
-                   'considerably longer (RSA-3072 and above for long-term protection) — the exact '
-                   'minimum values are covered in detail in module 4 of this block.\n\n'
+                   'minimum threshold. Germany\'s BSI now requires at least 3000 bits for RSA in '
+                   'TR-02102-1; RSA-2048 (about 112 bits) remains the permitted minimum at public CAs '
+                   '— module 4 of this block puts the numbers into context.\n\n'
                    'Rule of thumb for operations: if a component still uses MD5, SHA-1, DES/3DES, '
                    'RC4, or short RSA keys, that is a clear migration signal — not only once an '
                    'attack becomes public.',
          }},
+        {'type': 'match', 'id': 'match-verfahren-kategorie',
+         'payload': {
+             'prompt_de': 'Ordne jedem Verfahren seine Kategorie zu.',
+             'prompt_en': 'Match each algorithm to its category.',
+             'pairs': [
+                    {
+                     'left': 'AES-256-GCM',
+                     'right_de': 'symmetrische Verschlüsselung mit eingebauter Integritätsprüfung',
+                     'right_en': 'symmetric encryption with built-in integrity check',
+                    },
+                    {
+                     'left': 'SHA-256',
+                     'right_de': 'Hashfunktion: Fingerabdruck fester Länge, ganz ohne Schlüssel',
+                     'right_en': 'hash function: fixed-length fingerprint, no key at all',
+                    },
+                    {
+                     'left': 'HMAC-SHA-256',
+                     'right_de': 'Prüfcode über Nachricht plus gemeinsamen geheimen Schlüssel',
+                     'right_en': 'check code over the message plus a shared secret key',
+                    },
+                    {
+                     'left': 'ECDSA',
+                     'right_de': 'Signatur: mit privatem Schlüssel erzeugt, mit öffentlichem geprüft',
+                     'right_en': 'signature: created with the private key, verified with the public one',
+                    },
+                    {
+                     'left': 'ECDHE',
+                     'right_de': 'Schlüsseleinigung: gemeinsames Geheimnis über offenen Kanal',
+                     'right_en': 'key agreement: shared secret over an open channel',
+                    },
+                    {
+                     'left': '3DES',
+                     'right_de': 'veraltete Blockchiffre mit nur 64 Bit Blockgröße',
+                     'right_en': 'outdated block cipher with a block size of only 64 bits',
+                    },
+                ],
+             'explanation_de': ('Merkhilfe: Verschlüsselung → Vertraulichkeit, Hash → Fingerabdruck, MAC → Integrität mit '
+                 'gemeinsamem Schlüssel, Signatur → Urheberschaft, Schlüsseleinigung → liefert erst den '
+                 'Schlüssel für alles Weitere.'),
+             'explanation_en': ('Memory aid: encryption → confidentiality, hash → fingerprint, MAC → integrity with a shared '
+                 'key, signature → authorship, key agreement → provides the key for everything else in the '
+                 'first place.'),
+            },
+        },
         {'type': 'debug', 'id': 'debug-1',
          'payload': {
              'prompt_de': 'Ein Kollege bei Nordwind Logistik fasst die Schutzziele der '
@@ -273,6 +471,127 @@ KRYPTO_GRUNDLAGEN_MODULE = {
                                'be tampered with unnoticed unless an additional integrity check '
                                'takes place.',
          }},
+        {'type': 'scenario', 'id': 'scenario-lieferavis',
+         'note': ('Im Plenum abstimmen lassen, bevor geklickt wird. Der HMAC-Zweig ist nicht falsch, scheitert aber '
+             'an der Anforderung "vor Dritten belegbar".'),
+         'payload': {
+             'title_de': 'Welcher Mechanismus für das Lieferavis?',
+             'title_en': 'Which mechanism for the dispatch advice?',
+             'start': 'start',
+             'nodes': [
+                    {
+                     'id': 'start',
+                     'text_de': ('Nordwind schickt Lieferavise an Speditionspartner. Anforderung: Der Partner muss '
+                         'prüfen können, dass ein Avis unverändert von Nordwind stammt — und das im Streitfall '
+                         'auch einem Dritten belegen können. Der Inhalt selbst ist nicht geheim. Was setzt du '
+                         'ein?'),
+                     'text_en': ('Nordwind sends dispatch advices to shipping partners. Requirement: the partner must '
+                         'be able to verify that an advice comes from Nordwind unaltered — and prove that to a '
+                         'third party in a dispute. The content itself is not secret. What do you use?'),
+                     'options': [
+                            {
+                             'label_de': 'Das Avis mit AES verschlüsseln',
+                             'label_en': 'Encrypt the advice with AES',
+                             'to': 'aes',
+                            },
+                            {
+                             'label_de': 'Einen HMAC mit einem gemeinsamen Schlüssel anhängen',
+                             'label_en': 'Attach an HMAC using a shared key',
+                             'to': 'hmac',
+                            },
+                            {
+                             'label_de': 'Das Avis mit Nordwinds privatem Schlüssel digital signieren',
+                             'label_en': "Digitally sign the advice with Nordwind's private key",
+                             'to': 'sig',
+                            },
+                        ],
+                    },
+                    {
+                     'id': 'aes',
+                     'outcome': 'bad',
+                     'text_de': ('Verschlüsselung liefert Vertraulichkeit — genau das Schutzziel, das hier nicht '
+                         'gefragt war. Ob das Avis verändert wurde oder von wem es stammt, bleibt offen.'),
+                     'text_en': ('Encryption delivers confidentiality — exactly the goal that was not asked for here. '
+                         'Whether the advice was altered or who sent it remains open.'),
+                    },
+                    {
+                     'id': 'hmac',
+                     'text_de': ('Der Partner kann jetzt Veränderungen erkennen. Im Streitfall behauptet Nordwind aber, '
+                         'das Avis nie geschickt zu haben. Kann der Partner mit dem HMAC das Gegenteil beweisen?'),
+                     'text_en': ('The partner can now detect alterations. In a dispute, however, Nordwind claims it '
+                         'never sent the advice. Can the partner prove otherwise with the HMAC?'),
+                     'options': [
+                            {
+                             'label_de': 'Ja, der HMAC ist ja nur mit dem geheimen Schlüssel erzeugbar',
+                             'label_en': 'Yes, the HMAC can only be produced with the secret key',
+                             'to': 'hmac-ja',
+                            },
+                            {
+                             'label_de': ('Nein — der Partner kennt den Schlüssel auch und hätte den HMAC selbst '
+                                 'erzeugen können'),
+                             'label_en': 'No — the partner knows the key too and could have produced the HMAC itself',
+                             'to': 'hmac-nein',
+                            },
+                        ],
+                    },
+                    {
+                     'id': 'hmac-ja',
+                     'outcome': 'bad',
+                     'text_de': ('Den geheimen Schlüssel kennen beide Seiten. Ein Dritter kann nicht unterscheiden, wer '
+                         'von beiden den HMAC berechnet hat — Nichtabstreitbarkeit liefert ein MAC nie.'),
+                     'text_en': ('Both sides know the secret key. A third party cannot tell which of the two computed '
+                         'the HMAC — a MAC never provides non-repudiation.'),
+                    },
+                    {
+                     'id': 'hmac-nein',
+                     'outcome': 'ok',
+                     'text_de': ('Richtig erkannt: HMAC liefert Integrität und Authentizität zwischen den beiden '
+                         'Partnern, aber keine Nichtabstreitbarkeit. Für die Anforderung braucht es eine '
+                         'digitale Signatur.'),
+                     'text_en': ('Correctly spotted: HMAC delivers integrity and authenticity between the two partners, '
+                         'but no non-repudiation. The requirement calls for a digital signature.'),
+                    },
+                    {
+                     'id': 'sig',
+                     'text_de': ('Gut: Die Signatur lässt sich mit Nordwinds öffentlichem Schlüssel von jedem prüfen. '
+                         'Ein Jahr später sollen die Avise zusätzlich Preise enthalten, die Wettbewerber nicht '
+                         'sehen dürfen. Was jetzt?'),
+                     'text_en': ("Good: anyone can verify the signature with Nordwind's public key. A year later the "
+                         'advices are to include prices competitors must not see. What now?'),
+                     'options': [
+                            {
+                             'label_de': 'Nichts — signierte Daten sind bereits geschützt',
+                             'label_en': 'Nothing — signed data is already protected',
+                             'to': 'sig-nichts',
+                            },
+                            {
+                             'label_de': 'Zusätzlich verschlüsselt übertragen (z. B. über TLS), Signatur beibehalten',
+                             'label_en': 'Additionally transmit encrypted (e.g. via TLS), keep the signature',
+                             'to': 'sig-tls',
+                            },
+                        ],
+                    },
+                    {
+                     'id': 'sig-nichts',
+                     'outcome': 'bad',
+                     'text_de': ('Eine Signatur verschlüsselt nichts: Das Avis bleibt für jeden lesbar, der es abfängt. '
+                         'Vertraulichkeit ist ein eigenes Schutzziel mit eigenem Mechanismus.'),
+                     'text_en': ('A signature encrypts nothing: the advice stays readable for anyone who intercepts it. '
+                         'Confidentiality is a separate goal with its own mechanism.'),
+                    },
+                    {
+                     'id': 'sig-tls',
+                     'outcome': 'good',
+                     'text_de': ('Genau so kombiniert die Praxis: Signatur für Integrität, Authentizität und '
+                         'Nichtabstreitbarkeit, Verschlüsselung für Vertraulichkeit — jedes Schutzziel mit dem '
+                         'passenden Mechanismus.'),
+                     'text_en': ('This is how practice combines them: a signature for integrity, authenticity, and '
+                         'non-repudiation, encryption for confidentiality — each goal with the matching '
+                         'mechanism.'),
+                    },
+                ],
+            },
+        },
         {'type': 'reflect', 'id': 'reflect-1',
          'payload': {
              'prompt_de': 'Ein Kollege sagt: "Wir nutzen TLS, also ist bei uns alles '
@@ -301,6 +620,13 @@ KRYPTO_GRUNDLAGEN_MODULE = {
                  'Confidentiality',
                  'Authenticity',
              ],
+         },
+         'explanation': {
+          'de': ('Verschlüsselung macht Daten für Unbefugte unlesbar — mehr nicht. Der naheliegende Irrtum ist, '
+              'Integrität gleich mitzudenken: Ohne MAC, Signatur oder AEAD lässt sich ein Chiffretext unbemerkt '
+              'verändern.'),
+          'en': ('Encryption makes data unreadable to outsiders — nothing more. The tempting mistake is to assume '
+              'integrity comes along: without a MAC, signature, or AEAD, a ciphertext can be altered unnoticed.'),
          }},
         {'id': 'kg2', 'type': 'single',
          'prompt': {'de': 'Warum kombiniert die Praxis symmetrische und asymmetrische '
@@ -325,6 +651,14 @@ KRYPTO_GRUNDLAGEN_MODULE = {
                  'Because symmetric encryption is fundamentally insecure',
                  'Because only asymmetric schemes can provide integrity',
              ],
+         },
+         'explanation': {
+          'de': ('Asymmetrische Verfahren lösen das Verteilproblem (kein Vorabgeheimnis nötig), sind aber für '
+              'Massendaten zu langsam; symmetrische sind schnell, brauchen aber einen gemeinsamen Schlüssel. '
+              'Symmetrische Verfahren sind dabei nicht „unsicher“ — AES trägt in TLS die gesamte Nutzlast.'),
+          'en': ('Asymmetric schemes solve the distribution problem (no prior secret needed) but are too slow for '
+              'bulk data; symmetric ones are fast but need a shared key. Symmetric schemes are not "insecure" — '
+              'in TLS, AES carries the entire payload.'),
          }},
         {'id': 'kg3', 'type': 'single',
          'prompt': {'de': 'Was besagt Kerckhoffs\' Prinzip?',
@@ -345,6 +679,14 @@ KRYPTO_GRUNDLAGEN_MODULE = {
                  'Symmetric schemes are fundamentally more secure than asymmetric ones',
                  'The longer a homegrown scheme stays secret, the more secure it is',
              ],
+         },
+         'explanation': {
+          'de': ('Nur der Schlüssel muss geheim sein; der Algorithmus darf öffentlich und von allen prüfbar sein. '
+              'Geheimhaltung des Verfahrens wirkt wie zusätzlicher Schutz, verhindert aber vor allem, dass '
+              'Schwächen rechtzeitig gefunden werden.'),
+          'en': ("Only the key has to be secret; the algorithm may be public and open to everyone's scrutiny. "
+              'Keeping the scheme secret feels like extra protection, but mostly it prevents weaknesses from '
+              'being found in time.'),
          }},
         {'id': 'kg4', 'type': 'single',
          'prompt': {'de': 'Welche der folgenden Aussagen zu veralteten Algorithmen ist korrekt?',
@@ -366,6 +708,14 @@ KRYPTO_GRUNDLAGEN_MODULE = {
                  'January 1, 2016',
                  'RSA-1024 is considered fully secure for new systems',
              ],
+         },
+         'explanation': {
+          'de': ('Seit dem 1. Januar 2016 dürfen öffentliche CAs keine SHA-1-signierten TLS-Zertifikate mehr '
+              'ausstellen. „Nur intern“ macht MD5 nicht sicher: Ein Kollisionsangriff funktioniert im Intranet '
+              'genauso wie im Internet.'),
+          'en': ('Since January 1, 2016, public CAs may no longer issue SHA-1-signed TLS certificates. "Internal '
+              'only" does not make MD5 safe: a collision attack works on an intranet just as it does on the '
+              'internet.'),
          }},
         {'id': 'kg5', 'type': 'single',
          'prompt': {'de': 'Ein Entwickler will ein eigenes, geheim gehaltenes '
@@ -389,6 +739,94 @@ KRYPTO_GRUNDLAGEN_MODULE = {
                  'Necessary, because AES and RSA are considered broken',
                  'Only a problem for symmetric schemes, harmless for asymmetric ones',
              ],
+         },
+         'explanation': {
+          'de': ('Ein geheimes Eigenverfahren hat keine öffentliche Kryptoanalyse durchlaufen — seine Schwächen '
+              'kennt im Zweifel nur der Angreifer. Der Irrtum „geheim = zusätzlich sicher“ übersieht, dass '
+              'Algorithmen durch Reverse Engineering ohnehin bekannt werden.'),
+          'en': ('A secret homegrown scheme has not undergone public cryptanalysis — in the worst case only the '
+              'attacker knows its weaknesses. The belief "secret = extra secure" overlooks that algorithms '
+              'become known through reverse engineering anyway.'),
          }},
+        {'id': 'kg6', 'type': 'multi',
+         'prompt': {
+             'de': ('Ein Empfänger soll erkennen können, ob eine Nachricht unterwegs verändert wurde UND ob sie '
+                 'vom erwarteten Absender stammt. Welche Mechanismen leisten beides?'),
+             'en': ('A receiver must be able to tell whether a message was altered in transit AND whether it comes '
+                 'from the expected sender. Which mechanisms deliver both?'),
+            },
+         'options': {
+             'de': [
+                    'HMAC mit einem nur Sender und Empfänger bekannten Schlüssel',
+                    'Digitale Signatur des Absenders',
+                    'AEAD-Verschlüsselung (z. B. AES-GCM) mit gemeinsamem Schlüssel',
+                    'Ein blanker SHA-256-Hash, der zusammen mit der Nachricht verschickt wird',
+                    'AES im CBC-Modus ohne zusätzlichen MAC',
+                ],
+             'en': [
+                    'HMAC with a key known only to sender and receiver',
+                    'A digital signature by the sender',
+                    'AEAD encryption (e.g. AES-GCM) with a shared key',
+                    'A plain SHA-256 hash sent along with the message',
+                    'AES in CBC mode without an additional MAC',
+                ],
+            },
+         'answer': [0, 1, 2],
+         'explanation': {
+             'de': ('HMAC, Signatur und AEAD binden die Prüfung an ein Geheimnis, das der Angreifer nicht hat. '
+                 'Einen blanken Hash kann jeder nach der Manipulation neu berechnen, und CBC ohne MAC '
+                 'verschlüsselt nur — beides erkennt gezielte Änderungen nicht.'),
+             'en': ('HMAC, signatures, and AEAD tie the check to a secret the attacker does not have. A plain hash '
+                 'can be recomputed by anyone after tampering, and CBC without a MAC only encrypts — neither '
+                 'detects deliberate changes.'),
+            },
+        },
+        {'id': 'kg7', 'type': 'number',
+         'prompt': {
+             'de': ('Zehn Standorte sollen paarweise rein symmetrisch verschlüsselt kommunizieren, jedes Paar mit '
+                 'einem eigenen Schlüssel. Wie viele Schlüssel müssen insgesamt verteilt werden?'),
+             'en': ('Ten sites are to communicate pairwise with purely symmetric encryption, each pair with its '
+                 'own key. How many keys have to be distributed in total?'),
+            },
+         'answer': 45,
+         'explanation': {
+             'de': ('Für n Partner sind es n·(n−1)/2 Schlüssel, hier 10·9/2 = 45. Wer mit 10 oder 100 rechnet, '
+                 'übersieht das quadratische Wachstum — genau dieses Verteilproblem löst der asymmetrische '
+                 'Schlüsselaustausch.'),
+             'en': ('For n parties it takes n·(n−1)/2 keys, here 10·9/2 = 45. Answering 10 or 100 misses the '
+                 'quadratic growth — this is exactly the distribution problem asymmetric key exchange solves.'),
+            },
+        },
+        {'id': 'kg8', 'type': 'single',
+         'prompt': {
+             'de': ('Ein Audit findet auf einem Altsystem: „Verschlüsselung 3DES, Prüfsumme SHA-1, Schlüsseltausch '
+                 'RSA-1024“. Welche Bewertung trifft zu?'),
+             'en': ('An audit finds on a legacy system: "encryption 3DES, checksum SHA-1, key exchange RSA-1024". '
+                 'Which assessment is correct?'),
+            },
+         'options': {
+             'de': [
+                    'Alle drei Verfahren gelten als veraltet und sind ein Migrationssignal',
+                    'Nur SHA-1 ist ein Problem, 3DES und RSA-1024 sind weiterhin empfohlen',
+                    'Unkritisch, solange der Algorithmus des Systems geheim gehalten wird',
+                    'Nur RSA-1024 ist ein Problem, weil symmetrische Verfahren nie veralten',
+                ],
+             'en': [
+                    'All three are considered outdated and are a migration signal',
+                    'Only SHA-1 is a problem, 3DES and RSA-1024 are still recommended',
+                    "Uncritical as long as the system's algorithm is kept secret",
+                    'Only RSA-1024 is a problem, because symmetric schemes never become outdated',
+                ],
+            },
+         'answer': 0,
+         'explanation': {
+             'de': ('3DES (64-Bit-Blöcke, Sweet32), SHA-1 (praktische Kollisionen) und RSA-1024 (rund 80 Bit '
+                 'Sicherheitsstärke) liegen alle unter dem heutigen Mindestniveau. Geheimhaltung des Verfahrens '
+                 "ändert daran nichts — das ist Kerckhoffs' Prinzip."),
+             'en': ('3DES (64-bit blocks, Sweet32), SHA-1 (practical collisions), and RSA-1024 (about 80 bits of '
+                 "security strength) are all below today's minimum level. Keeping the scheme secret changes "
+                 "nothing about that — this is Kerckhoffs's principle."),
+            },
+        },
     ]},
 }

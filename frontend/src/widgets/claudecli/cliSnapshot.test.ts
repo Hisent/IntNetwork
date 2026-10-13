@@ -34,6 +34,14 @@ describe('loadSnapshot (pro-User-CLI-Persistenz)', () => {
     expect(snap.sessionId).toBe('abc123')
   })
 
+  it('stellt auch den Auto-Modus wieder her', () => {
+    const key = 'intnetwork-cli-7-4'
+    localStorage.setItem(key, JSON.stringify({
+      mode: 'auto', lines: ['a'], terminal: { files: {} }, solved: false, sessionId: 'x',
+    }))
+    expect(loadSnapshot(key, 'intro').mode).toBe('auto')
+  })
+
   it('fällt bei beschädigtem Eintrag auf frische Session zurück', () => {
     const key = 'intnetwork-cli-7-3'
     localStorage.setItem(key, '{nicht json')

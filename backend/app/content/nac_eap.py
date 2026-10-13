@@ -14,6 +14,13 @@ NAC_EAP_MODULE = {
         'Einschätzen können, welche Methoden als eher stark oder eher schwach gelten',
         'Den Zusammenhang zwischen EAP-Methode und PKI-Bedarf herstellen können',
     ],
+    'goals_en': [
+        'Distinguish the basics of EAP-TLS, PEAP, EAP-TTLS, EAP-FAST, and EAP-MSCHAPv2',
+        'Justify why EAP-TLS is considered the gold standard',
+        'Explain which role certificates play in each method',
+        'Assess which methods are considered rather strong or rather weak',
+        'Connect the choice of EAP method to the need for a PKI',
+    ],
     'scenario': {
         'de': 'Bei Nordwind Logistik läuft 802.1X über RADIUS bereits — offen ist noch, welche '
               'konkrete EAP-Methode als innerer Authentifizierungsmechanismus zum Einsatz '
@@ -135,6 +142,94 @@ NAC_EAP_MODULE = {
                    'Both methods build a protected tunnel like PEAP, but differ in what runs '
                    'inside the tunnel, or how the tunnel itself is secured.',
          }},
+        {
+            'type': 'diagram',
+            'id': 'diagram-peap-tunnel',
+            'note': 'Gilt sinngemäß für PEAP, EAP-TTLS und TEAP: erst Tunnel (Phase 1), dann innere Methode (Phase 2). Der Switch reicht alles nur durch — er sieht nie ins Innere.',
+            'payload': {
+                'kind': 'sequence',
+                'title_de': 'Getunnelte EAP-Methode: zwei Phasen (Beispiel PEAP)',
+                'title_en': 'Tunneled EAP method: two phases (example PEAP)',
+                'caption_de': 'Der Switch dazwischen packt nur um (EAPOL ↔ RADIUS).',
+                'caption_en': 'The switch in between merely re-wraps (EAPOL ↔ RADIUS).',
+                'actors': [
+                    {
+                        'id': 'c',
+                        'label': 'Supplicant',
+                    },
+                    {
+                        'id': 's',
+                        'label_de': 'RADIUS-Server',
+                        'label_en': 'RADIUS server',
+                    },
+                ],
+                'messages': [
+                    {
+                        'from': 'c',
+                        'to': 's',
+                        'label_de': 'Äußere Identität',
+                        'label_en': 'Outer identity',
+                        'detail_de': 'Im Klartext sichtbar. Viele Supplicants erlauben hier eine anonyme Identität (z. B. anonymous@nordwind.example), damit der echte Name erst im Tunnel fällt.',
+                        'detail_en': 'Visible in clear text. Many supplicants allow an anonymous identity here (e.g. anonymous@nordwind.example) so the real name is only sent inside the tunnel.',
+                    },
+                    {
+                        'from': 's',
+                        'to': 'c',
+                        'label_de': 'Server-Zertifikat',
+                        'label_en': 'Server certificate',
+                        'style': 'reply',
+                        'detail_de': 'Phase 1: TLS-Handshake. Der Server weist sich mit seinem Zertifikat aus.',
+                        'detail_en': 'Phase 1: TLS handshake. The server proves its identity with its certificate.',
+                    },
+                    {
+                        'from': 'c',
+                        'to': 'c',
+                        'label_de': 'prüft Zertifikat',
+                        'label_en': 'verifies certificate',
+                        'detail_de': 'Die entscheidende Stelle: vertraute CA UND erwarteter Servername. Ist die Prüfung abgeschaltet, baut der Client den Tunnel auch zu einem gefälschten Server auf.',
+                        'detail_en': 'The decisive point: trusted CA AND expected server name. If the check is disabled, the client builds the tunnel to a rogue server just as well.',
+                    },
+                    {
+                        'from': 'c',
+                        'to': 's',
+                        'label_de': 'TLS-Tunnel steht',
+                        'label_en': 'TLS tunnel established',
+                        'style': 'encrypted',
+                    },
+                    {
+                        'from': 'c',
+                        'to': 's',
+                        'label_de': 'Innere Identität',
+                        'label_en': 'Inner identity',
+                        'style': 'encrypted',
+                        'detail_de': 'Phase 2: erst jetzt der echte Benutzername, geschützt im Tunnel.',
+                        'detail_en': 'Phase 2: only now the real username, protected inside the tunnel.',
+                    },
+                    {
+                        'from': 's',
+                        'to': 'c',
+                        'label': 'MSCHAPv2 Challenge',
+                        'style': 'encrypted',
+                    },
+                    {
+                        'from': 'c',
+                        'to': 's',
+                        'label': 'MSCHAPv2 Response',
+                        'style': 'encrypted',
+                        'detail_de': 'Aus dem Passwort berechnet. An einen gefälschten Server gesendet, lässt sich daraus das Passwort offline angreifen — deshalb ist Schritt 3 so wichtig.',
+                        'detail_en': 'Computed from the password. Sent to a rogue server, it allows offline attacks on the password — which is why step 3 matters so much.',
+                    },
+                    {
+                        'from': 's',
+                        'to': 'c',
+                        'label': 'EAP-Success',
+                        'style': 'reply',
+                        'detail_de': 'Der Server schickt dem Switch parallel ein Access-Accept samt Schlüsselmaterial.',
+                        'detail_en': 'In parallel the server sends the switch an Access-Accept including key material.',
+                    },
+                ],
+            },
+        },
         {'type': 'check', 'id': 'check-2',
          'payload': {
              'kind': 'choice',
@@ -227,6 +322,69 @@ NAC_EAP_MODULE = {
                    'for legacy systems, as long as only server-side certificates are present — '
                    'with a correspondingly lower security gain.',
          }},
+        {
+            'type': 'diagram',
+            'id': 'diagram-eap-vergleich',
+            'payload': {
+                'kind': 'compare',
+                'title_de': 'EAP-TLS, PEAP-MSCHAPv2 und TEAP im Vergleich',
+                'title_en': 'EAP-TLS, PEAP-MSCHAPv2, and TEAP compared',
+                'columns': [
+                    {
+                        'title': 'EAP-TLS',
+                    },
+                    {
+                        'title': 'PEAP-MSCHAPv2',
+                    },
+                    {
+                        'title': 'TEAP',
+                    },
+                ],
+                'rows': [
+                    {
+                        'label_de': 'Nachweis des Clients',
+                        'label_en': 'Client credential',
+                        'values_de': ['Zertifikat', 'Benutzername + Passwort', 'Zertifikat und/oder Passwort'],
+                        'values_en': ['Certificate', 'Username + password', 'Certificate and/or password'],
+                    },
+                    {
+                        'label_de': 'Server-Zertifikat',
+                        'label_en': 'Server certificate',
+                        'values_de': ['Ja', 'Ja', 'Ja'],
+                        'values_en': ['Yes', 'Yes', 'Yes'],
+                    },
+                    {
+                        'label_de': 'Client-Zertifikat',
+                        'label_en': 'Client certificate',
+                        'values_de': ['Pflicht', 'Nein', 'Je nach innerer Methode'],
+                        'values_en': ['Required', 'No', 'Depends on inner method'],
+                    },
+                    {
+                        'label_de': 'Phishing-Risiko',
+                        'label_en': 'Phishing risk',
+                        'values_de': ['Sehr gering', 'Hoch ohne strikte Serverprüfung', 'Gering mit Zertifikaten'],
+                        'values_en': ['Very low', 'High without strict server check', 'Low with certificates'],
+                    },
+                    {
+                        'label_de': 'Maschine + Benutzer',
+                        'label_en': 'Machine + user',
+                        'values_de': ['Getrennte Anmeldungen', 'Getrennte Anmeldungen', 'Verkettet in einem Tunnel'],
+                        'values_en': ['Separate logins', 'Separate logins', 'Chained in one tunnel'],
+                    },
+                    {
+                        'label_de': 'PKI-Aufwand',
+                        'label_en': 'PKI effort',
+                        'values_de': ['Hoch (Client-PKI)', 'Niedrig (nur Server)', 'Mittel bis hoch'],
+                        'values_en': ['High (client PKI)', 'Low (server only)', 'Medium to high'],
+                    },
+                    {
+                        'label_de': 'Spezifikation',
+                        'label_en': 'Specification',
+                        'values': ['RFC 5216 / RFC 9190', 'Microsoft (MS-PEAP)', 'RFC 9930'],
+                    },
+                ],
+            },
+        },
         {'type': 'match', 'id': 'match-eap-methoden',
          'note': 'Vor dem Aufdecken kurz diskutieren lassen: Woran erkennt man die Methode — am Tunnel, '
                  'am Zertifikatsbedarf oder an der inneren Authentifizierung?',
@@ -276,6 +434,91 @@ NAC_EAP_MODULE = {
                  'PEAP with strict server certificate verification',
              ],
          }},
+        {
+            'type': 'scenario',
+            'id': 'scenario-eap-wahl',
+            'payload': {
+                'title_de': 'Welche EAP-Methode für Nordwind?',
+                'title_en': 'Which EAP method for Nordwind?',
+                'start': 'start',
+                'nodes': [
+                    {
+                        'id': 'start',
+                        'text_de': 'Nordwind hat 300 domänengebundene Windows-Notebooks, ein Active Directory, aber noch keine eigene PKI. 802.1X soll in drei Monaten starten. Womit beginnst du?',
+                        'text_en': 'Nordwind has 300 domain-joined Windows notebooks, an Active Directory, but no PKI of its own yet. 802.1X is to start in three months. Where do you begin?',
+                        'options': [
+                            {
+                                'label_de': 'Sofort EAP-TLS — die PKI bauen wir nebenbei auf',
+                                'label_en': 'EAP-TLS right away — we build the PKI on the side',
+                                'to': 'tls_sofort',
+                            },
+                            {
+                                'label_de': 'PEAP-MSCHAPv2 als Übergang, EAP-TLS als Ziel',
+                                'label_en': 'PEAP-MSCHAPv2 as an interim, EAP-TLS as the goal',
+                                'to': 'peap',
+                            },
+                            {
+                                'label_de': 'EAP-MSCHAPv2 ohne Tunnel — am einfachsten',
+                                'label_en': 'EAP-MSCHAPv2 without a tunnel — the simplest',
+                                'to': 'mschap',
+                            },
+                        ],
+                    },
+                    {
+                        'id': 'mschap',
+                        'outcome': 'bad',
+                        'text_de': 'Ohne TLS-Tunnel ist der MSCHAPv2-Austausch für jeden mitlesbar und offline angreifbar. Das ist kein Übergang, sondern ein Rückschritt.',
+                        'text_en': 'Without a TLS tunnel the MSCHAPv2 exchange can be read by anyone and attacked offline. That is not an interim step but a step backwards.',
+                    },
+                    {
+                        'id': 'tls_sofort',
+                        'outcome': 'ok',
+                        'text_de': 'Das richtige Ziel, aber riskant im Zeitplan: Eine PKI mit Sperrprüfung, Autoenrollment und Betriebsprozessen entsteht nicht nebenbei. Scheitert sie, steht der ganze Rollout.',
+                        'text_en': 'The right goal, but risky for the schedule: a PKI with revocation checking, autoenrollment, and operating processes does not appear on the side. If it fails, the whole rollout stalls.',
+                    },
+                    {
+                        'id': 'peap',
+                        'text_de': 'PEAP braucht nur ein Server-Zertifikat. Wie konfigurierst du die Supplicants?',
+                        'text_en': 'PEAP only needs a server certificate. How do you configure the supplicants?',
+                        'options': [
+                            {
+                                'label_de': 'Per Gruppenrichtlinie: vertraute CA und Servername fest vorgeben',
+                                'label_en': 'Via group policy: pin the trusted CA and the server name',
+                                'to': 'strikt',
+                            },
+                            {
+                                'label_de': 'Zertifikatsprüfung aus — vermeidet Helpdesk-Tickets',
+                                'label_en': 'Certificate check off — avoids helpdesk tickets',
+                                'to': 'aus',
+                            },
+                            {
+                                'label_de': 'Nutzer klicken die Zertifikatswarnung beim ersten Mal selbst weg',
+                                'label_en': 'Users click away the certificate warning themselves the first time',
+                                'to': 'klick',
+                            },
+                        ],
+                    },
+                    {
+                        'id': 'aus',
+                        'outcome': 'bad',
+                        'text_de': 'Jetzt verbindet sich jedes Notebook auch mit einem gefälschten Access Point und schickt ihm die MSCHAPv2-Antwort. Der Tunnel schützt nur, wenn der Client den Server prüft.',
+                        'text_en': 'Now every notebook also connects to a rogue access point and sends it the MSCHAPv2 response. The tunnel only protects if the client verifies the server.',
+                    },
+                    {
+                        'id': 'klick',
+                        'outcome': 'bad',
+                        'text_de': 'Wer einmal „Verbinden“ klickt, klickt auch beim gefälschten Server. Die Entscheidung gehört in die zentral verteilte Konfiguration, nicht zum Nutzer.',
+                        'text_en': 'Whoever clicks "Connect" once will also click it for the rogue server. The decision belongs in the centrally distributed configuration, not with the user.',
+                    },
+                    {
+                        'id': 'strikt',
+                        'outcome': 'good',
+                        'text_de': 'So ist PEAP als Übergang vertretbar: Der Client akzeptiert nur den echten Server. Das Restrisiko bleibt das Passwort selbst — deshalb parallel die PKI für EAP-TLS aufbauen.',
+                        'text_en': 'This makes PEAP acceptable as an interim: the client only accepts the genuine server. The residual risk remains the password itself — so build the PKI for EAP-TLS in parallel.',
+                    },
+                ],
+            },
+        },
         {'type': 'reflect', 'id': 'reflect-1',
          'payload': {
              'prompt_de': 'Nordwind hat aktuell keine PKI im Einsatz, will aber mittelfristig '
@@ -297,7 +540,7 @@ NAC_EAP_MODULE = {
                  'Weil es keine PKI benötigt und daher einfach einzuführen ist',
                  'Weil es auf gegenseitiger, zertifikatsbasierter Authentifizierung ohne '
                  'Passwörter beruht',
-                 'Weil es ausschließlich für Gäste-WLANs gedacht ist',
+                 'Weil es ausschließlich für Gast-WLANs gedacht ist',
                  'Weil es keine RADIUS-Anbindung braucht',
              ],
              'en': [
@@ -307,6 +550,10 @@ NAC_EAP_MODULE = {
                  'Because it is intended exclusively for guest Wi-Fi',
                  'Because it needs no RADIUS integration',
              ],
+         },
+         'explanation': {
+             'de': 'EAP-TLS kommt ohne Passwort aus: Beide Seiten weisen sich per Zertifikat aus. Gerade deshalb braucht es eine PKI — „einfach einzuführen“ ist also genau der falsche Grund.',
+             'en': 'EAP-TLS works without a password: both sides prove their identity with a certificate. That is precisely why it needs a PKI — "easy to roll out" is exactly the wrong reason.',
          }},
         {'id': 'ep2', 'type': 'single',
          'prompt': {'de': 'Was läuft typischerweise innerhalb des TLS-Tunnels bei PEAP?',
@@ -325,6 +572,10 @@ NAC_EAP_MODULE = {
                  'Exclusively Protected Access Credentials',
                  'RADIUS accounting packets',
              ],
+         },
+         'explanation': {
+             'de': 'PEAP baut erst den TLS-Tunnel und führt darin meist MSCHAPv2 aus. PACs gehören zu EAP-FAST, und Accounting ist ein eigener RADIUS-Austausch außerhalb von EAP.',
+             'en': 'PEAP first builds the TLS tunnel and usually runs MSCHAPv2 inside it. PACs belong to EAP-FAST, and accounting is a separate RADIUS exchange outside of EAP.',
          }},
         {'id': 'ep3', 'type': 'single',
          'prompt': {'de': 'Was nutzt EAP-FAST anstelle von serverseitigen Zertifikaten?',
@@ -343,6 +594,10 @@ NAC_EAP_MODULE = {
                  'Tunnel-Private-Group-ID attributes',
                  'Protected Access Credentials (PACs)',
              ],
+         },
+         'explanation': {
+             'de': 'EAP-FAST sichert den Tunnel über zuvor verteilte PACs. Tunnel-Private-Group-ID ist ein RADIUS-Attribut für die VLAN-Zuweisung und hat mit dem Tunnelaufbau nichts zu tun.',
+             'en': 'EAP-FAST secures the tunnel with previously provisioned PACs. Tunnel-Private-Group-ID is a RADIUS attribute for VLAN assignment and has nothing to do with building the tunnel.',
          }},
         {'id': 'ep4', 'type': 'single',
          'prompt': {'de': 'Warum gilt PEAP-MSCHAPv2 als anfällig für Phishing- und Downgrade-'
@@ -364,6 +619,10 @@ NAC_EAP_MODULE = {
                  'Because the actual authentication inside the tunnel remains password-based',
                  'Because it only works over RadSec',
              ],
+         },
+         'explanation': {
+             'de': 'Der Tunnel ist da, aber innen bleibt es ein Passwortverfahren. Prüft der Client das Server-Zertifikat nicht strikt, landet die Passwort-Antwort bei einem gefälschten Server.',
+             'en': 'The tunnel exists, but inside it remains a password method. If the client does not strictly verify the server certificate, the password response ends up at a rogue server.',
          }},
         {'id': 'ep5', 'type': 'single',
          'prompt': {'de': 'Welche EAP-Methoden benötigen zwingend eine Anbindung an eine PKI?',
@@ -382,6 +641,54 @@ NAC_EAP_MODULE = {
                  'Only EAP-FAST, because it uses Protected Access Credentials',
                  'Only MSCHAPv2, because it is password-based',
              ],
+         },
+         'explanation': {
+             'de': 'EAP-TLS braucht Zertifikate auf beiden Seiten, PEAP und EAP-TTLS mindestens eines für den Server. EAP-FAST ist gerade die Methode, die ohne Server-Zertifikat auskommen kann.',
+             'en': 'EAP-TLS needs certificates on both sides, PEAP and EAP-TTLS at least one for the server. EAP-FAST is precisely the method that can do without a server certificate.',
          }},
+        {
+            'id': 'ep6',
+            'type': 'single',
+            'prompt': {
+                'de': 'Ein Notebook soll erst als Gerät (Maschinen-Zertifikat) und nach der Anmeldung zusätzlich als Benutzer geprüft werden — und der Server soll in EINER Sitzung wissen, dass beides erfüllt ist. Welche Methode ist dafür gemacht?',
+                'en': 'A notebook is to be verified first as a device (machine certificate) and, after login, additionally as a user — and the server should know within ONE session that both are satisfied. Which method is designed for this?',
+            },
+            'options': {
+                'de': ['EAP-TLS', 'PEAP-MSCHAPv2', 'TEAP', 'EAP-MSCHAPv2 ohne Tunnel'],
+                'en': ['EAP-TLS', 'PEAP-MSCHAPv2', 'TEAP', 'EAP-MSCHAPv2 without a tunnel'],
+            },
+            'answer': 2,
+            'explanation': {
+                'de': 'TEAP (RFC 9930) kann mehrere innere Authentifizierungen in einem Tunnel verketten, etwa Maschine und Benutzer. EAP-TLS und PEAP führen je Sitzung genau eine Anmeldung durch — der Server sieht dann entweder die Maschine oder den Benutzer.',
+                'en': 'TEAP (RFC 9930) can chain several inner authentications in one tunnel, such as machine and user. EAP-TLS and PEAP perform exactly one authentication per session — the server then sees either the machine or the user.',
+            },
+        },
+        {
+            'id': 'ep7',
+            'type': 'multi',
+            'prompt': {
+                'de': 'Ein Audit findet auf den Notebooks ein PEAP-Profil mit „Serverzertifikat überprüfen: aus“. Welche Folgen hat das? (Mehrere richtig)',
+                'en': 'An audit finds a PEAP profile on the notebooks with "Verify server certificate: off". What are the consequences? (Several correct)',
+            },
+            'options': {
+                'de': [
+                    'Ein Angreifer kann mit eigenem Access Point und eigenem RADIUS-Server den Tunnel terminieren',
+                    'Die abgefangene MSCHAPv2-Antwort lässt sich offline gegen das Passwort angreifen',
+                    'Die Anmeldung am echten Firmennetz funktioniert nicht mehr',
+                    'Der TLS-Tunnel wird gar nicht mehr aufgebaut',
+                ],
+                'en': [
+                    'An attacker can terminate the tunnel with their own access point and RADIUS server',
+                    'The captured MSCHAPv2 response can be attacked offline to recover the password',
+                    'Logging in to the genuine corporate network no longer works',
+                    'The TLS tunnel is no longer built at all',
+                ],
+            },
+            'answer': [0, 1],
+            'explanation': {
+                'de': 'Ohne Prüfung akzeptiert der Client jeden Server — auch den des Angreifers, der dann die innere MSCHAPv2-Antwort erhält. Tückisch: Am echten Netz funktioniert weiterhin alles, der Tunnel wird normal aufgebaut, und der Fehler fällt im Betrieb nicht auf.',
+                'en': "Without the check the client accepts any server — including the attacker's, who then receives the inner MSCHAPv2 response. The insidious part: everything still works on the genuine network, the tunnel is built normally, and the flaw goes unnoticed in operation.",
+            },
+        },
     ]},
 }

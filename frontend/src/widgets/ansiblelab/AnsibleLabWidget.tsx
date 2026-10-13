@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useParams } from 'react-router-dom'
 import { ChallengeBox } from '@/components/ChallengeBox'
 import { useWidgetScope } from '@/lib/widgetScope'
 import { labErrorMessage, runLab, type LabRunResult } from '@/lib/labApi'
@@ -7,7 +8,7 @@ import { LabOutputPanel } from '@/widgets/lab/LabOutputPanel'
 import { readSnapshot } from '@/widgets/lab/snapshot'
 import { useLabAvailability } from '@/widgets/lab/useLabAvailability'
 import { compareIdempotency, parseRecap, type IdempotencyNote, type RecapTotals } from '@/widgets/ansiblelab/labOutput'
-import { DEFAULT_EXERCISE, EXERCISES, exerciseById } from '@/widgets/ansiblelab/templates'
+import { DEFAULT_EXERCISE, EXERCISES, exerciseById, exerciseForModule } from '@/widgets/ansiblelab/templates'
 import type { Lang } from '@/lib/i18n'
 
 const MAX_CHARS = 16_000
@@ -39,10 +40,15 @@ function isRawSnapshot(parsed: unknown): parsed is RawSnapshot {
 // Live-CLI (ClaudeCliWidget.loadSnapshot): storageKey kommt aus dem
 // Teilnehmer-/Kurs-Scope, ein beschädigter Eintrag fällt auf die Vorlage
 // zurück statt die Seite zu zerlegen.
-function loadSnapshot(storageKey: string | null): Snapshot {
-  const raw = readSnapshot(storageKey, isRawSnapshot, () => ({
-    exerciseId: DEFAULT_EXERCISE.id, playbook: DEFAULT_EXERCISE.playbook, extraVars: '',
-  }))
+// Der Speicher gilt je Teilnehmer/Kurs, nicht je Modul: Ohne `moduleKey` stünde
+// in jedem Modul die zuletzt gewählte Übung. Gehört zum Modul eine eigene Übung,
+// gewinnt sie — der gespeicherte Stand bleibt nur, wenn er genau diese Übung ist
+// (dann sind es die eigenen Änderungen daran).
+function loadSnapshot(storageKey: string | null, moduleKey: string | undefined): Snapshot {
+  const start = exerciseForModule(moduleKey) ?? DEFAULT_EXERCISE
+  const fresh = () => ({ exerciseId: start.id, playbook: start.playbook, extraVars: '' })
+  const raw = readSnapshot(storageKey, isRawSnapshot, fresh)
+  if (exerciseForModule(moduleKey) && raw.exerciseId !== start.id) return fresh()
   return {
     exerciseId: raw.exerciseId,
     playbook: raw.playbook,
@@ -64,7 +70,6 @@ const STR = {
     output: 'Ausgabe', noRunYet: 'Noch kein Lauf.', noRecap: 'Kein PLAY RECAP gefunden — vermutlich ein Syntax- oder Modulfehler (siehe Ausgabe unten).',
     ok: 'ok', changed: 'changed', failed: 'failed', skipped: 'skipped',
     rc: 'Rückgabewert', duration: 'Dauer', truncated: 'Ausgabe gekürzt', timedOut: 'Zeitüberschreitung',
-    challenge: 'Lass dasselbe Playbook zweimal laufen und erkläre den Unterschied.',
   },
   en: {
     title: 'Ansible Lab', hint: 'A real playbook, really executed — server-side, in an isolated container.',
@@ -79,7 +84,6 @@ const STR = {
     output: 'Output', noRunYet: 'No run yet.', noRecap: 'No PLAY RECAP found — likely a syntax or module error (see output below).',
     ok: 'ok', changed: 'changed', failed: 'failed', skipped: 'skipped',
     rc: 'Return code', duration: 'Duration', truncated: 'Output truncated', timedOut: 'Timed out',
-    challenge: 'Run the same playbook twice and explain the difference.',
   },
 } as const
 
@@ -88,7 +92,10 @@ export function AnsibleLab({ lang }: { lang: Lang }) {
   const scope = useWidgetScope()
   const storageKey = scope ? `intnetwork-ansiblelab-${scope}` : null
 
-  const [snap] = useState(() => loadSnapshot(storageKey))
+  // Modul-Key aus der Route (/lernen/:key, /trainer/modul/:key/…); ohne Router
+  // oder auf Seiten ohne Modul-Key bleibt es beim gespeicherten Stand.
+  const { key: moduleKey } = useParams()
+  const [snap] = useState(() => loadSnapshot(storageKey, moduleKey))
   const [exerciseId, setExerciseId] = useState(snap.exerciseId)
   const [playbook, setPlaybook] = useState(snap.playbook)
   const [extraVars, setExtraVars] = useState(snap.extraVars)
@@ -110,6 +117,7 @@ export function AnsibleLab({ lang }: { lang: Lang }) {
   const [runError, setRunError] = useState<string | null>(null)
   const [prevRecap, setPrevRecap] = useState<RecapTotals | null>(null)
   const [note, setNote] = useState<IdempotencyNote | null>(null)
+  const [rerun, setRerun] = useState(false)
 
   function pickExercise(id: string) {
     const ex = exerciseById(id)
@@ -120,6 +128,7 @@ export function AnsibleLab({ lang }: { lang: Lang }) {
     setRunError(null)
     setPrevRecap(null)
     setNote(null)
+    setRerun(false)
   }
 
   function resetToTemplate() {
@@ -129,6 +138,7 @@ export function AnsibleLab({ lang }: { lang: Lang }) {
     setRunError(null)
     setPrevRecap(null)
     setNote(null)
+    setRerun(false)
   }
 
   async function handleRun(check: boolean) {
@@ -142,8 +152,12 @@ export function AnsibleLab({ lang }: { lang: Lang }) {
         // --check verändert nichts am Zielzustand — als Idempotenz-Basislinie
         // ungeeignet, deshalb hier keine Einordnung und kein neues prevRecap.
         setNote(null)
+        setRerun(false)
       } else {
-        setNote(compareIdempotency(prevRecap, recap, lang))
+        // Die Einordnung "idempotent / typisch für command" passt nur zur
+        // Idempotenz-Übung; bei den anderen wäre sie eine falsche Fährte.
+        setNote(exercise.id === 'idempotenz' ? compareIdempotency(prevRecap, recap, lang) : null)
+        setRerun(prevRecap !== null)
         setPrevRecap(recap)
       }
     } catch (e) {
@@ -252,7 +266,8 @@ export function AnsibleLab({ lang }: { lang: Lang }) {
         )}
       </LabOutputPanel>
 
-      <ChallengeBox lang={lang} task={s.challenge} done={note !== null} />
+      <ChallengeBox lang={lang} task={lang === 'de' ? exercise.challenge.de : exercise.challenge.en}
+        done={exercise.done({ recap, output: result?.output ?? '', rerun })} />
     </div>
   )
 }

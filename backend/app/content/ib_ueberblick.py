@@ -18,6 +18,12 @@ INFOBLOX_UEBERBLICK_MODULE = {
         'Begründen können, warum zentrale DDI-Verwaltung gegenüber drei getrennten '
         'Werkzeugen vorteilhaft ist.',
     ],
+    "goals_en": [
+        "Explain what the umbrella term DDI (DNS, DHCP, IPAM) stands for.",
+        "Distinguish NIOS from the Universal DDI product suite.",
+        "Place where Infoblox Threat Defense fits in and what it used to be called.",
+        "Justify why central DDI management is preferable to three separate tools.",
+    ],
     'scenario': {
         'de': 'Ein mittelständisches Unternehmen betreibt DNS auf einem separaten '
               'BIND-Server, DHCP auf einem ISC-DHCP-Server und pflegt die '
@@ -115,6 +121,101 @@ INFOBLOX_UEBERBLICK_MODULE = {
             },
         },
         {
+            "type": "diagram",
+            "id": "diagram-ddi-zusammenspiel",
+            "note": "Hier den Bogen zum Szenario schlagen: Welche dieser vier Kanten fehlt beim Unternehmen mit BIND, ISC DHCP und Excel? (Alle außer der ersten.)",
+            "payload": {
+                "kind": "flow",
+                "title_de": "Ein Lease, drei Dienste: so greift DDI ineinander",
+                "title_en": "One lease, three services: how DDI interlocks",
+                "nodes": [
+                    {
+                        "id": "client",
+                        "shape": "host",
+                        "row": 0,
+                        "col": 0,
+                        "label_de": "Neuer Client",
+                        "label_en": "New client",
+                    },
+                    {
+                        "id": "dhcp",
+                        "shape": "server",
+                        "row": 0,
+                        "col": 1,
+                        "label": "DHCP",
+                        "detail_de": "Vergibt die Adresse und kennt damit als Erster die Zuordnung Gerät ↔ IP.",
+                        "detail_en": "Hands out the address and is therefore the first to know the device ↔ IP mapping.",
+                    },
+                    {
+                        "id": "ipam",
+                        "shape": "database",
+                        "row": 0,
+                        "col": 2,
+                        "label": "IPAM",
+                        "detail_de": "Die gemeinsame Sicht auf den Adressraum: Was ist frei, was belegt, von wem?",
+                        "detail_en": "The shared view of the address space: what is free, what is taken, by whom?",
+                    },
+                    {
+                        "id": "dns",
+                        "shape": "server",
+                        "row": 1,
+                        "col": 1,
+                        "label": "DNS",
+                        "detail_de": "Bekommt den passenden Namenseintrag, ohne dass jemand die Zone von Hand pflegt.",
+                        "detail_en": "Receives the matching name record without anyone editing the zone by hand.",
+                    },
+                    {"id": "admin", "shape": "user", "row": 1, "col": 2, "label": "Admin"},
+                ],
+                "edges": [
+                    {"id": "lease", "from": "client", "to": "dhcp", "label": "Lease", "arrow": "both"},
+                    {
+                        "id": "belegt",
+                        "from": "dhcp",
+                        "to": "ipam",
+                        "label_de": "Adresse belegt",
+                        "label_en": "address in use",
+                    },
+                    {
+                        "id": "ddns",
+                        "from": "dhcp",
+                        "to": "dns",
+                        "label_de": "DNS-Update",
+                        "label_en": "DNS update",
+                    },
+                    {"id": "name", "from": "dns", "to": "ipam", "label": "Name"},
+                    {
+                        "id": "sicht",
+                        "from": "admin",
+                        "to": "ipam",
+                        "label_de": "eine Sicht",
+                        "label_en": "one view",
+                    },
+                ],
+                "steps": [
+                    {
+                        "highlight": ["client", "lease", "dhcp"],
+                        "text_de": "Ein Client kommt ins Netz und erhält per DHCP eine Adresse.",
+                        "text_en": "A client joins the network and receives an address via DHCP.",
+                    },
+                    {
+                        "highlight": ["dhcp", "belegt", "ipam"],
+                        "text_de": "Die Adresse gilt im selben Datenmodell sofort als belegt — niemand trägt sie in eine Tabelle nach.",
+                        "text_en": "In the same data model the address immediately counts as in use — nobody copies it into a spreadsheet.",
+                    },
+                    {
+                        "highlight": ["dhcp", "ddns", "dns"],
+                        "text_de": "Zur vergebenen Adresse kann automatisch ein DNS-Eintrag entstehen oder aktualisiert werden.",
+                        "text_en": "A DNS record can be created or updated automatically for the assigned address.",
+                    },
+                    {
+                        "highlight": ["dns", "name", "ipam", "sicht", "admin"],
+                        "text_de": "Der Admin sieht an einer Stelle: welche Adresse, welcher Name, welcher Status. Bei drei getrennten Werkzeugen müsste er das selbst zusammensuchen.",
+                        "text_en": "The admin sees in one place: which address, which name, which status. With three separate tools they would have to piece that together themselves.",
+                    },
+                ],
+            },
+        },
+        {
             'type': 'text', 'id': 'text-3',
             'value': {
                 'de': '## Produktlandschaft: NIOS und Universal DDI\n'
@@ -128,10 +229,8 @@ INFOBLOX_UEBERBLICK_MODULE = {
                       'Modul).\n'
                       '- Universal DDI ist eine SaaS-verwaltete Produktsuite, die '
                       'nicht nur NIOS-Grids, sondern auch DNS-/DHCP-Umgebungen anderer '
-                      'Hersteller (etwa Microsoft DNS oder BIND) sowie Cloud-DNS '
-                      'zentral einbinden kann. NIOS-X bezeichnet dabei ein '
-                      'Bereitstellungsmodell ohne dedizierte Hardware-Appliance — die '
-                      'Funktion läuft als Software.\n'
+                      'Hersteller (etwa Microsoft DNS) sowie Cloud-DNS '
+                      'zentral einbinden kann. NIOS-X bezeichnet dabei die über das Infoblox-Portal verwaltete Diensteplattform der Suite: als Cloud-Dienst (NIOS-X as a Service) oder als virtueller bzw. physischer NIOS-X-Server am Standort.\n'
                       '\n'
                       'In älterer Dokumentation taucht gelegentlich noch der Name '
                       'BloxOne DDI auf. Das war die Vorgängerbezeichnung für den '
@@ -151,10 +250,7 @@ INFOBLOX_UEBERBLICK_MODULE = {
                       'together form a Grid (see the next module).\n'
                       '- Universal DDI is a SaaS-managed product suite that can '
                       'centrally integrate not only NIOS Grids but also DNS/DHCP '
-                      'environments from other vendors (such as Microsoft DNS or '
-                      'BIND) as well as cloud DNS. NIOS-X refers to a deployment '
-                      'model without a dedicated hardware appliance — the '
-                      'functionality runs as software instead.\n'
+                      'environments from other vendors (such as Microsoft DNS) as well as cloud DNS. NIOS-X refers to the service platform of the suite, managed through the Infoblox Portal: as a cloud service (NIOS-X as a Service) or as a virtual or physical NIOS-X server on site.\n'
                       '\n'
                       'Older documentation occasionally still uses the name BloxOne '
                       'DDI. That was the predecessor term for what is now the '
@@ -164,6 +260,51 @@ INFOBLOX_UEBERBLICK_MODULE = {
                       'when in doubt, check current customer documentation and treat '
                       'the term as a possible legacy name rather than a separate, '
                       'still actively marketed product.',
+            },
+        },
+        {
+            "type": "diagram",
+            "id": "diagram-nios-universal-ddi",
+            "payload": {
+                "kind": "compare",
+                "title_de": "NIOS-Grid und Universal DDI im Vergleich",
+                "title_en": "NIOS Grid and Universal DDI compared",
+                "columns": [{"title_de": "NIOS (Grid)", "title_en": "NIOS (Grid)"}, {"title": "Universal DDI"}],
+                "rows": [
+                    {
+                        "label_de": "Verwaltet über",
+                        "label_en": "Managed through",
+                        "values_de": ["Grid Master (Oberfläche: Grid Manager)", "Infoblox-Portal als SaaS"],
+                        "values_en": ["Grid Master (UI: Grid Manager)", "Infoblox Portal as SaaS"],
+                    },
+                    {
+                        "label_de": "Dienste laufen auf",
+                        "label_en": "Services run on",
+                        "values_de": [
+                            "Grid Membern: physische oder virtuelle Appliances",
+                            "NIOS-X: Cloud-Dienst oder Server am Standort",
+                        ],
+                        "values_en": [
+                            "Grid members: physical or virtual appliances",
+                            "NIOS-X: cloud service or on-site servers",
+                        ],
+                    },
+                    {
+                        "label_de": "Bindet ein",
+                        "label_en": "Integrates",
+                        "values_de": [
+                            "die Member des eigenen Grids",
+                            "auch NIOS-Grids, DNS/DHCP anderer Hersteller und Cloud-DNS",
+                        ],
+                        "values_en": ["the members of its own Grid", "also NIOS Grids, third-party DNS/DHCP and cloud DNS"],
+                    },
+                    {
+                        "label_de": "Älterer Name",
+                        "label_en": "Older name",
+                        "values_de": ["—", "BloxOne DDI"],
+                        "values_en": ["—", "BloxOne DDI"],
+                    },
+                ],
             },
         },
         {
@@ -277,24 +418,20 @@ INFOBLOX_UEBERBLICK_MODULE = {
                     'NIOS ist die Software-Basis der Infoblox-Appliances und bildet '
                     'zusammen mit weiteren Mitgliedern ein Grid.',
                     'Universal DDI kann auch DNS-/DHCP-Umgebungen einbinden, die '
-                    'nicht von Infoblox selbst stammen, etwa Microsoft DNS oder '
-                    'BIND.',
+                    'nicht von Infoblox selbst stammen, etwa Microsoft DNS.',
                     'Infoblox Threat Defense und das frühere BloxOne Threat Defense '
                     'sind zwei völlig unabhängige Produkte ohne Zusammenhang.',
-                    'NIOS-X steht für ein Bereitstellungsmodell ohne dedizierte '
-                    'Hardware-Appliance.',
+                    'NIOS-X gibt es als Cloud-Dienst sowie als virtuellen oder physischen Server am Standort.',
                 ],
                 'lines_en': [
                     'NIOS is the software base of Infoblox appliances and, together '
                     'with other members, forms a Grid.',
                     'Universal DDI can also integrate DNS/DHCP environments that do '
-                    'not originate from Infoblox itself, such as Microsoft DNS or '
-                    'BIND.',
+                    'not originate from Infoblox itself, such as Microsoft DNS.',
                     'Infoblox Threat Defense and the former BloxOne Threat Defense '
                     'are two completely independent products with no relation to '
                     'each other.',
-                    'NIOS-X refers to a deployment model without a dedicated '
-                    'hardware appliance.',
+                    'NIOS-X is available as a cloud service and as a virtual or physical server on site.',
                 ],
                 'wrong': [2],
                 'explanation_de': 'Infoblox Threat Defense ist die aktuelle '
@@ -306,6 +443,48 @@ INFOBLOX_UEBERBLICK_MODULE = {
                                   'the former BloxOne Threat Defense — a rebranding '
                                   'with a largely unchanged functional scope, not a '
                                   'separate competing product.',
+            },
+        },
+        {
+            "type": "match",
+            "id": "match-produktbegriffe",
+            "payload": {
+                "prompt_de": "Ordne jedem Begriff die passende Beschreibung zu.",
+                "prompt_en": "Match each term to its description.",
+                "pairs": [
+                    {
+                        "left": "DDI",
+                        "right_de": "Sammelbegriff für DNS, DHCP und IPAM",
+                        "right_en": "umbrella term for DNS, DHCP and IPAM",
+                    },
+                    {
+                        "left": "NIOS",
+                        "right_de": "Betriebssystem der Infoblox-Appliances",
+                        "right_en": "operating system of the Infoblox appliances",
+                    },
+                    {
+                        "left": "Grid",
+                        "right_de": "Verbund gemeinsam verwalteter NIOS-Instanzen",
+                        "right_en": "group of jointly managed NIOS instances",
+                    },
+                    {
+                        "left": "Universal DDI",
+                        "right_de": "SaaS-verwaltete Suite, auch für fremde Umgebungen",
+                        "right_en": "SaaS-managed suite, also for third-party environments",
+                    },
+                    {
+                        "left": "Infoblox Threat Defense",
+                        "right_de": "DNS-basierte Sicherheitsschicht der Produktfamilie",
+                        "right_en": "DNS-based security layer of the product family",
+                    },
+                    {
+                        "left": "BloxOne DDI",
+                        "right_de": "Altname aus älterer Dokumentation",
+                        "right_en": "legacy name found in older documentation",
+                    },
+                ],
+                "explanation_de": "Die Trennlinie: NIOS und Grid beschreiben die klassische, selbst betriebene Welt; Universal DDI die SaaS-verwaltete. BloxOne ist der Name, unter dem du den SaaS-Teil in älteren Unterlagen findest.",
+                "explanation_en": "The dividing line: NIOS and Grid describe the classic, self-operated world; Universal DDI the SaaS-managed one. BloxOne is the name under which you find the SaaS part in older material.",
             },
         },
         {
@@ -349,6 +528,10 @@ INFOBLOX_UEBERBLICK_MODULE = {
         'questions': [
             {
                 'id': 'iu1',
+                "explanation": {
+                    "de": "DDI fasst DNS, DHCP und IPAM zusammen, weil die drei Dienste dieselben Daten berühren: Adresse, Name, Adressraum. Mit Verschlüsselung oder einer Zertifizierung hat der Begriff nichts zu tun — er beschreibt einen Funktionsumfang, kein Protokoll.",
+                    "en": "DDI bundles DNS, DHCP and IPAM because the three services touch the same data: address, name, address space. The term has nothing to do with encryption or a certification — it describes a functional scope, not a protocol.",
+                },
                 'type': 'single',
                 'prompt': {
                     'de': 'Wofür steht der Sammelbegriff DDI?',
@@ -372,6 +555,10 @@ INFOBLOX_UEBERBLICK_MODULE = {
             },
             {
                 'id': 'iu2',
+                "explanation": {
+                    "de": "NIOS ist das Betriebssystem der Appliances, physisch wie virtuell, und die Basis jedes Grids. Der häufige Irrtum ist die Gleichsetzung mit einem Cloud-Dienst: SaaS-verwaltet ist Universal DDI, nicht NIOS.",
+                    "en": "NIOS is the operating system of the appliances, physical and virtual alike, and the basis of every Grid. The common mistake is to equate it with a cloud service: Universal DDI is the SaaS-managed part, not NIOS.",
+                },
                 'type': 'single',
                 'prompt': {
                     'de': 'Was trifft auf NIOS zu?',
@@ -400,6 +587,10 @@ INFOBLOX_UEBERBLICK_MODULE = {
             },
             {
                 'id': 'iu3',
+                "explanation": {
+                    "de": "Die Reihenfolge ist entscheidend: BloxOne Threat Defense ist der alte, Infoblox Threat Defense der aktuelle Name. Wer es umgekehrt abspeichert, hält aktuelle Dokumentation für veraltet — und umgekehrt.",
+                    "en": "The order matters: BloxOne Threat Defense is the old name, Infoblox Threat Defense the current one. If you remember it the other way round, you will take current documentation for outdated — and vice versa.",
+                },
                 'type': 'single',
                 'prompt': {
                     'de': 'Wie heißt die DNS-basierte Sicherheitsschicht von '
@@ -429,6 +620,10 @@ INFOBLOX_UEBERBLICK_MODULE = {
             },
             {
                 'id': 'iu4',
+                "explanation": {
+                    "de": "Universal DDI wird als SaaS verwaltet, bindet auch fremde DNS-/DHCP-Umgebungen ein und umfasst NIOS-X. Falsch ist nur die Einschränkung auf DHCP: Der Name sagt es schon — es geht um alle drei DDI-Dienste.",
+                    "en": "Universal DDI is managed as SaaS, also integrates third-party DNS/DHCP environments and includes NIOS-X. Only the restriction to DHCP is false: the name already says it — all three DDI services are covered.",
+                },
                 'type': 'multi',
                 'prompt': {
                     'de': 'Welche Aussagen zu Universal DDI treffen zu (mehrere '
@@ -440,25 +635,26 @@ INFOBLOX_UEBERBLICK_MODULE = {
                 'options': {
                     'de': [
                         'Es ist eine SaaS-verwaltete Produktsuite.',
-                        'Es kann auch Nicht-Infoblox-Umgebungen wie Microsoft DNS '
-                        'oder BIND zentral einbinden.',
+                        'Es kann auch Nicht-Infoblox-Umgebungen wie Microsoft DNS zentral einbinden.',
                         'Es ist ausschließlich für die Verwaltung von '
                         'DHCP-Servern gedacht.',
-                        'NIOS-X ist ein Bereitstellungsmodell ohne dedizierte '
-                        'Appliance, das zur Suite gehört.',
+                        'NIOS-X gehört zur Suite und lässt sich als Cloud-Dienst oder als Server am Standort betreiben.',
                     ],
                     'en': [
                         'It is a SaaS-managed product suite.',
                         'It can also centrally integrate non-Infoblox '
-                        'environments such as Microsoft DNS or BIND.',
+                        'environments such as Microsoft DNS.',
                         'It is meant exclusively for managing DHCP servers.',
-                        'NIOS-X is a deployment model without a dedicated '
-                        'appliance that belongs to the suite.',
+                        'NIOS-X belongs to the suite and can run as a cloud service or as a server on site.',
                     ],
                 },
             },
             {
                 'id': 'iu5',
+                "explanation": {
+                    "de": "Der Gewinn liegt im gemeinsamen Datenmodell: weniger Abgleich von Hand, weniger Drift. Schneller wird DNS dadurch nicht, und BIND oder ISC DHCP setzen die Protokolle durchaus korrekt um — das Problem getrennter Werkzeuge ist die Verwaltung, nicht die Technik.",
+                    "en": "The gain lies in the shared data model: less manual reconciliation, less drift. DNS does not become faster, and BIND or ISC DHCP implement the protocols perfectly well — the problem with separate tools is management, not technology.",
+                },
                 'type': 'single',
                 'prompt': {
                     'de': 'Worin liegt der Hauptvorteil einer zusammengeführten '
@@ -488,6 +684,60 @@ INFOBLOX_UEBERBLICK_MODULE = {
                         'Separate tools are technically unable to implement DNS '
                         'or DHCP correctly.',
                     ],
+                },
+            },
+            {
+                "id": "iu6",
+                "type": "single",
+                "prompt": {
+                    "de": "Ein Notebook bekommt nach einem Standortwechsel per DHCP eine neue Adresse. In einer getrennten Umgebung zeigt sein DNS-Name noch tagelang auf die alte. Was verhindert das in einer integrierten DDI-Plattform?",
+                    "en": "After moving sites, a laptop gets a new address via DHCP. In a separated environment its DNS name keeps pointing to the old one for days. What prevents this in an integrated DDI platform?",
+                },
+                "answer": 1,
+                "options": {
+                    "de": [
+                        "Ein Zonentransfer, der nach jeder Lease-Vergabe ausgelöst wird",
+                        "Die Lease-Vergabe stößt die Aktualisierung des DNS-Eintrags im selben Datenmodell an",
+                        "Eine kürzere TTL auf allen Einträgen der Zone",
+                        "Eine Discovery, die das Notebook regelmäßig neu erfasst",
+                    ],
+                    "en": [
+                        "A zone transfer triggered after every lease assignment",
+                        "The lease assignment triggers the update of the DNS record in the same data model",
+                        "A shorter TTL on all records of the zone",
+                        "A discovery run that regularly re-detects the laptop",
+                    ],
+                },
+                "explanation": {
+                    "de": "DHCP und DNS teilen sich die Daten: Die neue Lease kann den Eintrag direkt aktualisieren. Eine kürzere TTL lässt Caches nur schneller verfallen — sie ändert den falschen Eintrag auf dem Server nicht, und ein Zonentransfer kopiert lediglich, was dort schon steht.",
+                    "en": "DHCP and DNS share the data: the new lease can update the record directly. A shorter TTL only makes caches expire sooner — it does not change the wrong record on the server, and a zone transfer merely copies what is already there.",
+                },
+            },
+            {
+                "id": "iu7",
+                "type": "single",
+                "prompt": {
+                    "de": "Ein Kunde schreibt: „Wir betreiben ein NIOS-Grid mit acht Membern und zusätzlich BloxOne Threat Defense.“ Welche Einordnung trifft zu?",
+                    "en": "A customer writes: \"We run a NIOS Grid with eight members plus BloxOne Threat Defense.\" Which reading is correct?",
+                },
+                "answer": 2,
+                "options": {
+                    "de": [
+                        "Das Grid müsste heute Universal DDI heißen, Threat Defense ist unverändert benannt.",
+                        "Beide Namen sind veraltet: Aus dem Grid wurde NIOS-X, aus Threat Defense die DNS Firewall.",
+                        "Das NIOS-Grid heißt weiterhin so; mit BloxOne Threat Defense ist das heutige Infoblox Threat Defense gemeint.",
+                        "BloxOne Threat Defense ist ein Modul, das auf jedem der acht Member installiert sein muss.",
+                    ],
+                    "en": [
+                        "The Grid should be called Universal DDI today, Threat Defense kept its name.",
+                        "Both names are outdated: the Grid became NIOS-X, Threat Defense became the DNS Firewall.",
+                        "The NIOS Grid is still called that; BloxOne Threat Defense refers to today's Infoblox Threat Defense.",
+                        "BloxOne Threat Defense is a module that must be installed on each of the eight members.",
+                    ],
+                },
+                "explanation": {
+                    "de": "Umbenannt wurde der SaaS-Teil: BloxOne Threat Defense heißt heute Infoblox Threat Defense. NIOS und das Grid tragen ihren Namen weiter — Universal DDI und NIOS-X sind ein anderes Betriebsmodell, kein neuer Name für ein bestehendes Grid.",
+                    "en": "The SaaS part was renamed: BloxOne Threat Defense is now Infoblox Threat Defense. NIOS and the Grid keep their names — Universal DDI and NIOS-X are a different operating model, not a new name for an existing Grid.",
                 },
             },
         ],

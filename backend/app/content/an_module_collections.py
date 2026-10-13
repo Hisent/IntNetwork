@@ -1,5 +1,5 @@
-# Ansible-Lehrgang, Modul 4/5: Module & Collections.
-# Quelle der Fakten: research-ansible.md (Abschnitt 1, Modul 4).
+# Ansible-Lehrgang, Modul 304 (4 von 15): Module & Collections.
+# Fakten gegen docs.ansible.com geprüft; ansible-galaxy-/ansible-doc-Ausgaben real erzeugt (core 2.21).
 
 MODULE_COLLECTIONS_MODULE = {
     'key': 'module-collections',
@@ -11,6 +11,10 @@ MODULE_COLLECTIONS_MODULE = {
               'Fully Qualified Collection Names (FQCN) lesen und einordnen',
               'ansible-doc und Galaxy/Automation Hub als Nachschlagequellen benennen',
               'Passendes Modul für eine gegebene Aufgabe aus einer kurzen Liste auswählen'],
+    'goals_en': ['Explain what a module is and how it differs from a collection',
+                 'Read and place fully qualified collection names (FQCN)',
+                 'Name ansible-doc and Galaxy/Automation Hub as reference sources',
+                 'Pick the fitting module for a given job from a short list'],
     'scenario': {'de': 'Die bisherigen Playbook-Beispiele haben Module wie '
                        '`ansible.builtin.package` schon benutzt, ohne genauer zu erklären, was '
                        'dieser lange Name eigentlich bedeutet. Dieses Modul klärt den '
@@ -154,6 +158,200 @@ MODULE_COLLECTIONS_MODULE = {
                          'public community repository) and **Automation Hub** (curated, '
                          'certified collections, part of the Ansible Automation Platform — also '
                          'available as a "Private Automation Hub" for offline/on-prem use).'}},
+        {'type': 'diagram',
+         'id': 'diagram-collection-weg',
+         'payload': {'kind': 'flow',
+                     'title_de': 'Vom Repository ins Playbook',
+                     'title_en': 'From the repository into the playbook',
+                     'nodes': [{'id': 'galaxy',
+                                'shape': 'cloud',
+                                'row': 0,
+                                'col': 0,
+                                'label': 'Ansible Galaxy',
+                                'detail_de': 'Öffentliches Community-Repository '
+                                             '(galaxy.ansible.com).',
+                                'detail_en': 'Public community repository (galaxy.ansible.com).'},
+                               {'id': 'hub',
+                                'shape': 'database',
+                                'row': 1,
+                                'col': 0,
+                                'label': 'Automation Hub',
+                                'detail_de': 'Kuratierte, zertifizierte Collections; als Private '
+                                             'Automation Hub auch intern betreibbar.',
+                                'detail_en': 'Curated, certified collections; can also be run '
+                                             'internally as a private automation hub.'},
+                               {'id': 'cli',
+                                'row': 0,
+                                'col': 1,
+                                'label': 'ansible-galaxy',
+                                'detail_de': 'Lädt Collections herunter — einzeln oder gesammelt '
+                                             'aus requirements.yml.',
+                                'detail_en': 'Downloads collections — one by one or all from '
+                                             'requirements.yml.'},
+                               {'id': 'path',
+                                'shape': 'server',
+                                'row': 0,
+                                'col': 2,
+                                'label_de': 'Control Node: collections/',
+                                'label_en': 'Control node: collections/',
+                                'detail_de': 'Standardpfad '
+                                             '~/.ansible/collections/ansible_collections/<namespace>/<collection>.',
+                                'detail_en': 'Default path '
+                                             '~/.ansible/collections/ansible_collections/<namespace>/<collection>.'},
+                               {'id': 'play',
+                                'row': 1,
+                                'col': 2,
+                                'label_de': 'Playbook: FQCN',
+                                'label_en': 'Playbook: FQCN',
+                                'detail_de': 'ansible.posix.mount = Namespace ansible, Collection '
+                                             'posix, Modul mount.',
+                                'detail_en': 'ansible.posix.mount = namespace ansible, collection '
+                                             'posix, module mount.'}],
+                     'edges': [{'id': 'e1', 'from': 'galaxy', 'to': 'cli'},
+                               {'id': 'e2', 'from': 'hub', 'to': 'cli', 'style': 'dashed'},
+                               {'id': 'e3', 'from': 'cli', 'to': 'path', 'label': 'install'},
+                               {'id': 'e4',
+                                'from': 'path',
+                                'to': 'play',
+                                'label_de': 'wird gefunden',
+                                'label_en': 'is found'}],
+                     'steps': [{'highlight': ['galaxy', 'hub', 'e1', 'e2', 'cli'],
+                                'text_de': 'ansible-galaxy holt die Collection aus der '
+                                           'konfigurierten Quelle: Galaxy oder ein Automation Hub.',
+                                'text_en': 'ansible-galaxy fetches the collection from the '
+                                           'configured source: Galaxy or an automation hub.'},
+                               {'highlight': ['cli', 'e3', 'path'],
+                                'text_de': 'Sie landet auf dem Control Node im Collections-Pfad — '
+                                           'nicht auf den Managed Nodes.',
+                                'text_en': 'It ends up on the control node in the collections path '
+                                           '— not on the managed nodes.'},
+                               {'highlight': ['path', 'e4', 'play'],
+                                'text_de': 'Erst jetzt löst Ansible den FQCN im Playbook auf. '
+                                           'Fehlt die Collection, scheitert der Lauf schon beim '
+                                           'Einlesen.',
+                                'text_en': 'Only now can Ansible resolve the FQCN in the playbook. '
+                                           'If the collection is missing, the run fails while '
+                                           'parsing.'}]}},
+        {'type': 'text',
+         'id': 'text-lab-nur-core',
+         'value': {'de': '## Was das Kurs-Lab enthält\n'
+                         '\n'
+                         'Das Ansible-Lab dieses Lehrgangs enthält bewusst nur `ansible-core` — '
+                         'also genau die Module und Plugins aus `ansible.builtin`. Beispiele mit '
+                         'zusätzlichen Collections (`ansible.posix`, `community.*`, `cisco.ios`) '
+                         'und die Werkzeuge drumherum (`ansible-galaxy`, `ansible-doc`, '
+                         '`ansible-lint`, `molecule`, `ansible-navigator`) zeigt der Kurs deshalb '
+                         'als Terminal-Simulation mit echten bzw. der Dokumentation entnommenen '
+                         'Ausgaben. Ein Playbook mit `ansible.posix.mount` würde im Lab mit '
+                         "„couldn't resolve module/action“ abbrechen — nicht weil es falsch ist, "
+                         'sondern weil die Collection dort nicht installiert ist.',
+                   'en': '## What the course lab contains\n'
+                         '\n'
+                         'The Ansible lab of this course deliberately contains only `ansible-core` '
+                         '— exactly the modules and plugins from `ansible.builtin`. Examples with '
+                         'additional collections (`ansible.posix`, `community.*`, `cisco.ios`) and '
+                         'the tools around them (`ansible-galaxy`, `ansible-doc`, `ansible-lint`, '
+                         '`molecule`, `ansible-navigator`) are therefore shown as terminal '
+                         'simulations with real output or output taken from the documentation. A '
+                         'playbook using `ansible.posix.mount` would abort in the lab with '
+                         '"couldn\'t resolve module/action" — not because it is wrong, but because '
+                         'the collection is not installed there.'}},
+        {'type': 'terminal',
+         'id': 'terminal-galaxy-doc',
+         'note': 'Echte Ausgaben (ansible-core 2.21, ansible.posix 2.2.2 von galaxy.ansible.com); '
+                 'Pfade gekürzt, ansible-doc -s auf fünf Parameter gekürzt, Beschreibungen '
+                 'umbrochen und abgeschnitten.',
+         'payload': {'title_de': 'Collection installieren und nachschlagen',
+                     'title_en': 'Install a collection and look it up',
+                     'intro_de': 'Frischer Control Node, nur ansible-core. Reihenfolge: doc → '
+                                 'install → list → doc.',
+                     'intro_en': 'Fresh control node, ansible-core only. Order: doc → install → '
+                                 'list → doc.',
+                     'prompt': 'admin@control:~$',
+                     'unknown': 'bash: {cmd}: command not found',
+                     'commands': [{'cmd': 'ansible-doc ansible.posix.mount',
+                                   'desc_de': 'Doku eines Moduls (hier noch nicht installiert)',
+                                   'desc_en': 'docs of a module (not installed yet here)',
+                                   'output': '[WARNING]: ansible.posix.mount was not found'},
+                                  {'cmd': 'ansible-galaxy collection install ansible.posix',
+                                   'desc_de': 'Collection von Galaxy holen',
+                                   'desc_en': 'fetch the collection from Galaxy',
+                                   'output': 'Starting galaxy collection install process\n'
+                                             'Process install dependency map\n'
+                                             'Starting collection install process\n'
+                                             'Downloading '
+                                             'https://galaxy.ansible.com/api/v3/plugin/\n'
+                                             '  ansible/content/published/collections/artifacts/\n'
+                                             '  ansible-posix-2.2.2.tar.gz to '
+                                             '/home/admin/.ansible/tmp/…\n'
+                                             "Installing 'ansible.posix:2.2.2' to "
+                                             "'/home/admin/.ansible/\n"
+                                             "  collections/ansible_collections/ansible/posix'\n"
+                                             'ansible.posix:2.2.2 was installed successfully'},
+                                  {'cmd': 'ansible-galaxy collection list',
+                                   'desc_de': 'installierte Collections',
+                                   'desc_en': 'installed collections',
+                                   'output': '\n'
+                                             '# '
+                                             '/home/admin/.ansible/collections/ansible_collections\n'
+                                             'Collection    Version\n'
+                                             '------------- -------\n'
+                                             'ansible.posix 2.2.2'},
+                                  {'cmd': 'ansible-doc -s ansible.posix.mount',
+                                   'desc_de': 'Kurzfassung: Parameter als Task-Vorlage',
+                                   'desc_en': 'snippet: parameters as a task template',
+                                   'output': '- name: Control active and configured mount points\n'
+                                             '  mount:\n'
+                                             '      fstype:  # Filesystem type. Required when '
+                                             "`state' is\n"
+                                             "               # `present', `mounted', or "
+                                             "`ephemeral'.\n"
+                                             '      opts:    # Mount options (see fstab(5), or '
+                                             'vfstab(4)\n'
+                                             '               # on Solaris).\n'
+                                             '      path:    # (required) Path to the mount point '
+                                             '(e.g.\n'
+                                             "               # `/mnt/files').\n"
+                                             '      src:     # Device (or NFS volume, or something '
+                                             'else)\n'
+                                             '               # to be mounted on `path`.\n'
+                                             "      state:   # (required) If `mounted', the device "
+                                             'will\n'
+                                             '               # be actively mounted and '
+                                             'appropriately\n'
+                                             '               # configured in `fstab`. …\n'
+                                             '      …'},
+                                  {'cmd': 'ansible-doc -t lookup -l',
+                                   'desc_de': 'Plugins statt Module auflisten',
+                                   'desc_en': 'list plugins instead of modules',
+                                   'output': "ansible.builtin.config     Display the 'resolved' "
+                                             'Ansible o...\n'
+                                             'ansible.builtin.csvfile    read data from a TSV or '
+                                             'CSV file\n'
+                                             'ansible.builtin.dict       returns key/value pair '
+                                             'items fro...\n'
+                                             'ansible.builtin.env        Read the value of '
+                                             'environment va...\n'
+                                             'ansible.builtin.file       read file contents\n'
+                                             'ansible.builtin.fileglob   list files matching a '
+                                             'pattern\n'
+                                             '…'}],
+                     'tasks': [{'text_de': 'Installiere die Collection ansible.posix.',
+                                'text_en': 'Install the ansible.posix collection.',
+                                'command': 'ansible-galaxy collection install ansible.posix'},
+                               {'text_de': 'Welche Version wurde installiert?',
+                                'text_en': 'Which version was installed?',
+                                'answers': ['2.2.2']},
+                               {'text_de': 'Zeige die Parameter von ansible.posix.mount als '
+                                           'Kurzfassung.',
+                                'text_en': 'Show the parameters of ansible.posix.mount as a '
+                                           'snippet.',
+                                'command': 'ansible-doc -s ansible.posix.mount'},
+                               {'text_de': 'Welcher der gezeigten Parameter neben state ist '
+                                           'Pflicht?',
+                                'text_en': 'Which of the shown parameters besides state is '
+                                           'required?',
+                                'answers': ['path']}]}},
         {'type': 'text', 'id': 'text-4',
          'value': {'de': '## Modul-Doku lesen, Modul vs. Plugin\n'
                          '\n'
@@ -202,6 +400,40 @@ MODULE_COLLECTIONS_MODULE = {
                                     'ansible.builtin.service', 'ansible.builtin.template'],
                      'options_en': ['ansible.builtin.copy', 'ansible.builtin.package',
                                     'ansible.builtin.service', 'ansible.builtin.template']}},
+        {'type': 'match',
+         'id': 'match-modul-aufgabe',
+         'payload': {'prompt_de': 'Welches Modul aus ansible.builtin passt zu welcher Aufgabe?',
+                     'prompt_en': 'Which module from ansible.builtin fits which job?',
+                     'pairs': [{'left': 'ansible.builtin.package',
+                                'right_de': 'ein Softwarepaket über den Paketmanager installieren',
+                                'right_en': 'install a software package through the package '
+                                            'manager'},
+                               {'left': 'ansible.builtin.service',
+                                'right_de': 'einen Dienst starten und beim Booten aktivieren',
+                                'right_en': 'start a service and enable it at boot'},
+                               {'left': 'ansible.builtin.copy',
+                                'right_de': 'eine fertige Datei unverändert auf den Host '
+                                            'übertragen',
+                                'right_en': 'transfer a finished file to the host unchanged'},
+                               {'left': 'ansible.builtin.template',
+                                'right_de': 'eine Datei aus Vorlage und Variablen erzeugen und '
+                                            'übertragen',
+                                'right_en': 'generate a file from a template and variables and '
+                                            'transfer it'},
+                               {'left': 'ansible.builtin.lineinfile',
+                                'right_de': 'genau eine Zeile in einer vorhandenen Datei '
+                                            'sicherstellen',
+                                'right_en': 'ensure exactly one line in an existing file'},
+                               {'left': 'ansible.builtin.file',
+                                'right_de': 'ein Verzeichnis anlegen oder Rechte und Besitzer '
+                                            'setzen',
+                                'right_en': 'create a directory or set permissions and owner'}],
+                     'explanation_de': 'Alle sechs beschreiben einen Zielzustand und sind deshalb '
+                                       'idempotent. Erst wenn kein passendes Modul existiert, '
+                                       'kommen command oder shell in Frage.',
+                     'explanation_en': 'All six describe a target state and are therefore '
+                                       'idempotent. Only when no fitting module exists do command '
+                                       'or shell come into play.'}},
         {'type': 'debug', 'id': 'debug-1',
          'payload': {'prompt_de': 'Aussagen zu Modulen und Collections — welche ist falsch?',
                      'prompt_en': 'Statements about modules and collections — which one is '
@@ -247,6 +479,14 @@ MODULE_COLLECTIONS_MODULE = {
     ],
     'quiz': {'questions': [
         {'id': 'mc1',
+         'explanation': {'de': 'Eine Collection ist das Paket, ein Modul ein einzelnes Werkzeug '
+                               'darin — neben Plugins, Rollen und Doku. Umgekehrt („ein Modul '
+                               'enthält Collections“) stimmt die Richtung nicht, und installiert '
+                               'werden Collections auf dem Control Node.',
+                         'en': 'A collection is the package, a module a single tool inside it — '
+                               'next to plugins, roles and docs. The reverse ("a module contains '
+                               'collections") gets the direction wrong, and collections are '
+                               'installed on the control node.'},
          'type': 'single',
          'prompt': {'de': 'Was ist der Unterschied zwischen einem Modul und einer Collection?',
                     'en': 'What is the difference between a module and a collection?'},
@@ -262,6 +502,13 @@ MODULE_COLLECTIONS_MODULE = {
                             'A module contains several collections',
                             'Collections only run on the managed node']}},
         {'id': 'mc2',
+         'explanation': {'de': 'Die Reihenfolge ist immer vom Allgemeinen zum Speziellen: '
+                               'Namespace, dann Collection, dann Modulname — etwa '
+                               '`ansible.posix.mount`. Hosts und Gruppen haben mit dem Namen eines '
+                               'Moduls nichts zu tun.',
+                         'en': 'The order always goes from general to specific: namespace, then '
+                               'collection, then module name — for example `ansible.posix.mount`. '
+                               "Hosts and groups have nothing to do with a module's name."},
          'type': 'single',
          'prompt': {'de': 'Aus welchen drei Teilen besteht ein FQCN?',
                     'en': 'What three parts make up an FQCN?'},
@@ -271,6 +518,14 @@ MODULE_COLLECTIONS_MODULE = {
                      'en': ['namespace.collection.module_name', 'module_name.namespace.collection',
                             'collection.module_name.namespace', 'host.group.module_name']}},
         {'id': 'mc3',
+         'explanation': {'de': 'Für Collections ist `ansible-galaxy collection install` zuständig; '
+                               '`-r` liest die Liste aus der Datei. `ansible-doc` zeigt nur '
+                               'Dokumentation, `ansible-playbook` führt aus — keines von beiden '
+                               'installiert etwas.',
+                         'en': '`ansible-galaxy collection install` is responsible for '
+                               'collections; `-r` reads the list from the file. `ansible-doc` only '
+                               'shows documentation, `ansible-playbook` executes — neither '
+                               'installs anything.'},
          'type': 'single',
          'prompt': {'de': 'Womit installierst du die Collections aus einer `requirements.yml` in '
                           'einem Schritt?',
@@ -286,6 +541,14 @@ MODULE_COLLECTIONS_MODULE = {
                             'ansible-galaxy collection install -r requirements.yml',
                             'ansible-vault install requirements.yml']}},
         {'id': 'mc4',
+         'explanation': {'de': 'Automation Hub liefert von Red Hat bzw. Partnern zertifizierte, '
+                               'unterstützte Collections und gehört zur Automation Platform; '
+                               'Galaxy ist das offene Community-Repository. Kostenlos ist also '
+                               'gerade Galaxy, und FQCN gelten bei beiden.',
+                         'en': 'Automation hub delivers collections certified and supported by Red '
+                               'Hat or partners and is part of the automation platform; Galaxy is '
+                               'the open community repository. So Galaxy is the free one, and '
+                               'FQCNs apply to both.'},
          'type': 'single',
          'prompt': {'de': 'Was unterscheidet Automation Hub von Ansible Galaxy?',
                     'en': 'What sets Automation Hub apart from Ansible Galaxy?'},
@@ -301,6 +564,13 @@ MODULE_COLLECTIONS_MODULE = {
                             'Galaxy only works with FQCN, Automation Hub does not',
                             'There is no difference']}},
         {'id': 'mc5',
+         'explanation': {'de': 'Plugins erweitern Ansible selbst — Lookups, Filter, Inventar- oder '
+                               'Verbindungs-Plugins laufen auf dem Control Node. Ein Modul wird '
+                               'dagegen als Task aufgerufen und arbeitet in der Regel auf dem '
+                               'Managed Node.',
+                         'en': 'Plugins extend Ansible itself — lookups, filters, inventory or '
+                               'connection plugins run on the control node. A module, by contrast, '
+                               'is called as a task and usually works on the managed node.'},
          'type': 'single',
          'prompt': {'de': 'Was beschreibt am ehesten ein Plugin im Unterschied zu einem Modul?',
                     'en': 'What best describes a plugin as distinct from a module?'},
@@ -313,5 +583,82 @@ MODULE_COLLECTIONS_MODULE = {
                             'parameters', 'A plugin runs exclusively on the managed node',
                             'A plugin extends how Ansible itself works, rather than running as a '
                             'task action']}},
+        {'id': 'mc6',
+         'type': 'single',
+         'prompt': {'de': "Ein Lauf bricht sofort ab mit: `couldn't resolve module/action "
+                          "'ansible.posix.mount'. This often indicates a misspelling, missing "
+                          'collection, or incorrect module path.` Der Name ist korrekt '
+                          'geschrieben. Was hilft?',
+                    'en': "A run aborts immediately with: `couldn't resolve module/action "
+                          "'ansible.posix.mount'. This often indicates a misspelling, missing "
+                          'collection, or incorrect module path.` The name is spelled correctly. '
+                          'What helps?'},
+         'answer': 1,
+         'options': {'de': ['Python auf dem Managed Node aktualisieren',
+                            '`ansible-galaxy collection install ansible.posix` auf dem Control '
+                            'Node',
+                            'Den Task auf die Kurzform `mount:` umstellen',
+                            '`become: true` ergänzen'],
+                     'en': ['Update Python on the managed node',
+                            '`ansible-galaxy collection install ansible.posix` on the control node',
+                            'Switch the task to the short form `mount:`',
+                            'Add `become: true`']},
+         'explanation': {'de': 'Der FQCN lässt sich nur auflösen, wenn die Collection auf dem '
+                               'Control Node installiert ist — der Fehler entsteht beim Einlesen, '
+                               'noch vor jeder Verbindung. Die Kurzform würde dieselbe fehlende '
+                               'Collection suchen, und Python oder Rechte auf dem Zielsystem '
+                               'spielen an dieser Stelle noch keine Rolle.',
+                         'en': 'The FQCN can only be resolved if the collection is installed on '
+                               'the control node — the error arises while parsing, before any '
+                               'connection. The short form would look for the same missing '
+                               'collection, and Python or privileges on the target do not matter '
+                               'yet at this point.'}},
+        {'id': 'mc7',
+         'type': 'multi',
+         'prompt': {'de': 'Welche dieser Dinge sind Plugins und keine Module? (drei Antworten)',
+                    'en': 'Which of these are plugins and not modules? (three answers)'},
+         'answer': [1, 2, 4],
+         'options': {'de': ['ansible.builtin.copy in einem Task',
+                            'Der Filter in `{{ name | upper }}`',
+                            "`lookup('ansible.builtin.env', 'HOME')`",
+                            'ansible.builtin.service in einem Handler',
+                            'amazon.aws.aws_ec2 als Inventarquelle'],
+                     'en': ['ansible.builtin.copy in a task',
+                            'The filter in `{{ name | upper }}`',
+                            "`lookup('ansible.builtin.env', 'HOME')`",
+                            'ansible.builtin.service in a handler',
+                            'amazon.aws.aws_ec2 as an inventory source']},
+         'explanation': {'de': 'Filter, Lookups und Inventory-Plugins erweitern, wie Ansible Daten '
+                               'beschafft und umformt — sie laufen auf dem Control Node. `copy` '
+                               'und `service` sind Module: Sie stehen als Aktion in einem Task; '
+                               'auch ein Handler ist nur ein Task.',
+                         'en': 'Filters, lookups and inventory plugins extend how Ansible obtains '
+                               'and transforms data — they run on the control node. `copy` and '
+                               '`service` are modules: they are the action of a task; a handler is '
+                               'just a task too.'}},
+        {'id': 'mc8',
+         'type': 'single',
+         'prompt': {'de': 'In `requirements.yml` steht `- name: community.general` mit `version: '
+                          '">=7.0.0,<8.0.0"`. Was wird installiert?',
+                    'en': '`requirements.yml` contains `- name: community.general` with `version: '
+                          '">=7.0.0,<8.0.0"`. What gets installed?'},
+         'answer': 2,
+         'options': {'de': ['Genau Version 7.0.0',
+                            'Immer die neueste verfügbare Version',
+                            'Die neueste verfügbare Version der 7er-Reihe',
+                            'Nichts — Bereiche sind nicht erlaubt'],
+                     'en': ['Exactly version 7.0.0',
+                            'Always the newest available version',
+                            'The newest available version of the 7.x series',
+                            'Nothing — ranges are not allowed']},
+         'explanation': {'de': 'Mehrere Bedingungen werden mit Komma verknüpft: mindestens 7.0.0 '
+                               'und kleiner als 8.0.0 — ansible-galaxy nimmt die höchste Version, '
+                               'die beides erfüllt. So bleibt ein Projekt innerhalb einer '
+                               'Hauptversion, statt beim nächsten Install unbemerkt auf 8.x zu '
+                               'springen.',
+                         'en': 'Several conditions are joined with a comma: at least 7.0.0 and '
+                               'lower than 8.0.0 — ansible-galaxy takes the highest version '
+                               'satisfying both. This keeps a project within one major version '
+                               'instead of silently jumping to 8.x on the next install.'}},
     ]},
 }

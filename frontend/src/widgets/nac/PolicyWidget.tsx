@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { evaluatePolicy, type DeviceType, type PolicyInput, type PolicyOutcome } from '@/widgets/nac/policy'
+import { certRelevant, evaluatePolicy, type DeviceType, type PolicyInput, type PolicyOutcome } from '@/widgets/nac/policy'
 import { ChallengeBox } from '@/components/ChallengeBox'
 import type { Lang } from '@/lib/i18n'
 
@@ -12,12 +12,13 @@ const STR = {
     managed: 'Verwalteter Laptop', iot: 'Drucker / IoT', byod: 'Unbekannt / BYOD',
     dot1x: '802.1X-fähig (hat einen Supplicant)',
     cert: 'Gültiges Zertifikat vorhanden (EAP-TLS)',
+    certOff: 'ohne Supplicant wirkungslos: kein 802.1X, also kein EAP-TLS',
     compliant: 'Compliance-Status: konform',
     outcomeTitle: 'Ergebnis',
     reasonTitle: 'Begründung',
     vlanLabel: 'VLAN',
     outcomes: {
-      full: 'Vollzugriff', quarantine: 'Quarantäne', guest: 'Gast', 'iot-mab': 'MAB / IoT', deny: 'Deny',
+      full: 'Vollzugriff', restricted: 'Eingeschränkt', quarantine: 'Quarantäne', guest: 'Gast', 'iot-mab': 'MAB / IoT', deny: 'Deny',
     } as Record<PolicyOutcome, string>,
     challenge: 'Erzeuge mindestens zwei verschiedene Ergebnisse, indem du die Eigenschaften änderst.',
   },
@@ -29,12 +30,13 @@ const STR = {
     managed: 'Managed laptop', iot: 'Printer / IoT', byod: 'Unknown / BYOD',
     dot1x: '802.1X-capable (has a supplicant)',
     cert: 'Valid certificate present (EAP-TLS)',
+    certOff: 'no effect without a supplicant: no 802.1X, hence no EAP-TLS',
     compliant: 'Compliance status: compliant',
     outcomeTitle: 'Outcome',
     reasonTitle: 'Reasoning',
     vlanLabel: 'VLAN',
     outcomes: {
-      full: 'Full access', quarantine: 'Quarantine', guest: 'Guest', 'iot-mab': 'MAB / IoT', deny: 'Deny',
+      full: 'Full access', restricted: 'Restricted', quarantine: 'Quarantine', guest: 'Guest', 'iot-mab': 'MAB / IoT', deny: 'Deny',
     } as Record<PolicyOutcome, string>,
     challenge: 'Produce at least two different outcomes by changing the device properties.',
   },
@@ -44,6 +46,7 @@ const STR = {
 // außerhalb der Allowlist.
 const OUTCOME_STYLE: Record<PolicyOutcome, string> = {
   full: 'border-green-200 bg-green-50 text-green-800',
+  restricted: 'border-amber-300 bg-amber-50 text-amber-800',
   quarantine: 'border-amber-300 bg-amber-50 text-amber-800',
   guest: 'border-amber-300 bg-amber-50 text-amber-800',
   'iot-mab': 'border-amber-300 bg-amber-50 text-amber-800',
@@ -60,6 +63,7 @@ export function NacPolicy({ lang }: { lang: Lang }) {
 
   const input: PolicyInput = { deviceType, dot1xCapable, hasCert, compliant }
   const result = evaluatePolicy(input)
+  const certActive = certRelevant(input)
 
   if (!seenOutcomes.has(result.outcome)) {
     // Direkt beim Rendern nachtragen statt in einem Effect — es gibt keinen
@@ -102,9 +106,15 @@ export function NacPolicy({ lang }: { lang: Lang }) {
           <input type="checkbox" checked={dot1xCapable} onChange={(e) => setDot1xCapable(e.target.checked)} />
           {s.dot1x}
         </label>
-        <label className="flex items-center gap-2 text-sm text-slate-700">
-          <input type="checkbox" checked={hasCert} onChange={(e) => setHasCert(e.target.checked)} />
+        <label className={`flex items-center gap-2 text-sm ${certActive ? 'text-slate-700' : 'text-slate-400'}`}>
+          <input
+            type="checkbox"
+            checked={certActive && hasCert}
+            disabled={!certActive}
+            onChange={(e) => setHasCert(e.target.checked)}
+          />
           {s.cert}
+          {!certActive && <span className="text-xs">({s.certOff})</span>}
         </label>
         <label className="flex items-center gap-2 text-sm text-slate-700">
           <input type="checkbox" checked={compliant} onChange={(e) => setCompliant(e.target.checked)} />
@@ -115,7 +125,7 @@ export function NacPolicy({ lang }: { lang: Lang }) {
       <div className={`rounded-lg border-2 p-3 mb-3 ${OUTCOME_STYLE[result.outcome]}`} aria-live="polite">
         <p className="text-xs font-semibold uppercase tracking-wide opacity-80">{s.outcomeTitle}</p>
         <p className="text-lg font-bold mb-1">{s.outcomes[result.outcome]}</p>
-        {result.vlan && <p className="text-sm mb-2"><span className="font-semibold">{s.vlanLabel}:</span> {result.vlan}</p>}
+        {result.vlan && <p className="text-sm mb-2"><span className="font-semibold">{s.vlanLabel}:</span> {result.vlan[lang]}</p>}
         <p className="text-xs font-semibold opacity-80">{s.reasonTitle}</p>
         <p className="text-sm">{result.reason[lang]}</p>
       </div>

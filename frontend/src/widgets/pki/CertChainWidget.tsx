@@ -14,7 +14,7 @@ const STR = {
     removeHint: 'anklicken zum Entfernen',
     resultOk: {
       title: '✓ Kette vollständig und gültig',
-      text: 'Jedes Glied passt zum nächsten (Issuer = Subject), das letzte Glied ist selbstsigniert und liegt im Trust Store, und kein Zertifikat ist zeitlich abgelaufen. Genau so validiert auch ein Browser oder curl eine TLS-Verbindung.',
+      text: 'Jedes Glied passt zum nächsten (Issuer = Subject), jeder Aussteller ist eine CA (CA:TRUE, keyCertSign), das letzte Glied ist selbstsigniert und liegt im Trust Store, und kein Zertifikat ist zeitlich abgelaufen. Genau so validiert auch ein Browser oder curl eine TLS-Verbindung.',
     },
     results: {
       incomplete: {
@@ -24,6 +24,14 @@ const STR = {
       'issuer-mismatch': {
         title: '✗ Issuer passt nicht zum Subject des nächsten Zertifikats',
         text: 'Zwei aufeinanderfolgende Kettenglieder passen nicht zueinander: Der Issuer-Eintrag des einen stimmt nicht mit dem Subject des nächsten überein. Damit lässt sich keine durchgängige Signaturprüfung aufbauen — meist, weil ein Zertifikat einer falschen/fremden CA in die Kette geraten ist.',
+      },
+      'not-a-ca': {
+        title: '✗ Ein Aussteller ist keine CA (Basic Constraints)',
+        text: 'Die Namen passen zueinander, aber ein Zertifikat oberhalb des Serverzertifikats trägt in den Basic Constraints CA:FALSE. Es darf selbst keine Zertifikate ausstellen — sonst könnte jeder Inhaber eines gewöhnlichen Serverzertifikats damit beliebige weitere Zertifikate signieren. Genau diese Prüfung verhindert das.',
+      },
+      'no-cert-sign': {
+        title: '✗ Einem Aussteller fehlt keyCertSign (Key Usage)',
+        text: 'Das Zertifikat ist zwar als CA markiert (CA:TRUE), aber seine Key Usage erlaubt das Signieren von Zertifikaten nicht: keyCertSign fehlt. Basic Constraints und Key Usage müssen beide passen, damit ein Client die Signatur dieses Ausstellers akzeptiert.',
       },
       'untrusted-root': {
         title: '✗ Wurzel nicht im Trust Store',
@@ -50,7 +58,7 @@ const STR = {
     removeHint: 'click to remove',
     resultOk: {
       title: '✓ Chain complete and valid',
-      text: 'Every link matches the next one (issuer = subject), the last link is self-signed and present in the trust store, and no certificate has expired. This is exactly how a browser or curl validates a TLS connection.',
+      text: 'Every link matches the next one (issuer = subject), every issuer is a CA (CA:TRUE, keyCertSign), the last link is self-signed and present in the trust store, and no certificate has expired. This is exactly how a browser or curl validates a TLS connection.',
     },
     results: {
       incomplete: {
@@ -60,6 +68,14 @@ const STR = {
       'issuer-mismatch': {
         title: '✗ Issuer does not match the next certificate’s subject',
         text: 'Two consecutive links in the chain don’t fit together: one certificate’s issuer entry does not match the next one’s subject. That breaks the signature-verification chain — usually because a certificate from the wrong/a different CA ended up in the chain.',
+      },
+      'not-a-ca': {
+        title: '✗ An issuer is not a CA (Basic Constraints)',
+        text: 'The names fit together, but a certificate above the server certificate carries CA:FALSE in its Basic Constraints. It must not issue certificates itself — otherwise any holder of an ordinary server certificate could sign arbitrary further certificates with it. This check is what prevents that.',
+      },
+      'no-cert-sign': {
+        title: '✗ An issuer lacks keyCertSign (Key Usage)',
+        text: 'The certificate is marked as a CA (CA:TRUE), but its Key Usage does not permit signing certificates: keyCertSign is missing. Basic Constraints and Key Usage both have to fit for a client to accept this issuer’s signature.',
       },
       'untrusted-root': {
         title: '✗ Root not in the trust store',

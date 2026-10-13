@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { runSwitchCommand, type Port } from './switchCli'
+import { clampVlan, runSwitchCommand, trunkTag, type Port } from './switchCli'
 
 const PORTS: Port[] = [
   { vlan: 10, mode: 'access' },
@@ -21,6 +21,27 @@ describe('runSwitchCommand', () => {
     expect(out).toContain('interface Gi0/1')
     expect(out).toContain('switchport access vlan 10')
     expect(out).toContain('switchport mode trunk')
+  })
+
+  it('clampVlan begrenzt auf 1–4094', () => {
+    expect(clampVlan(0)).toBe(1)
+    expect(clampVlan(-5)).toBe(1)
+    expect(clampVlan(20)).toBe(20)
+    expect(clampVlan(4095)).toBe(4094)
+    expect(clampVlan(99999)).toBe(4094)
+    expect(clampVlan(NaN)).toBe(1)
+  })
+
+  it('Trunk: Native VLAN ungetaggt, alle anderen VLANs getaggt', () => {
+    const trunk: Port = { vlan: 10, mode: 'trunk' }
+    expect(trunkTag(trunk, 10)).toBeNull()
+    expect(trunkTag(trunk, 20)).toBe(20)
+  })
+
+  it('running-config nennt ein Native VLAN ungleich 1', () => {
+    expect(runSwitchCommand(PORTS, 'show run')).toContain('switchport trunk native vlan 10')
+    const std: Port[] = [{ vlan: 1, mode: 'trunk' }]
+    expect(runSwitchCommand(std, 'show run')).not.toContain('native vlan')
   })
 
   it('unbekannter Befehl', () => {

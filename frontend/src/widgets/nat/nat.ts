@@ -11,6 +11,11 @@ export interface NatResult {
 
 const BASE_PORT = 40000
 
+/** Gültiger TCP/UDP-Port: ganze Zahl 1–65535 (Port 0 ist reserviert). */
+export function isValidPort(n: number): boolean {
+  return Number.isInteger(n) && n >= 1 && n <= 65535
+}
+
 /** PAT/Overload: alle inneren Hosts teilen sich eine öffentliche IP,
  *  unterschieden per Quell-Port. */
 export function translate(

@@ -36,8 +36,11 @@ const TRACES: Record<string, Hop[]> = {
       de: 'Ziel liegt in fremdem Netz → Paket geht ans Gateway. TTL 64.',
       en: 'Destination is in another network → packet goes to the gateway. TTL 64.' } },
     { label: 'R1 (192.168.10.1)', nat: true, text: {
-      de: 'Kein direktes Netz → Default-Route. NAT: Quell-IP 192.168.10.50 → 203.0.113.1. TTL 63.',
-      en: 'No direct network → default route. NAT: source IP 192.168.10.50 → 203.0.113.1. TTL 63.' } },
+      // 203.0.113.10 wie im NAT-Modul/-Widget; 203.0.113.1 ist nur die Schnittstelle im /30-Transfernetz
+      de: 'Kein direktes Netz → Default-Route. NAT: Quell-IP 192.168.10.50 → 203.0.113.10 '
+        + '(Nordwinds öffentliche Adresse, die der Provider über das Transfernetz zu R1 routet — nicht die Schnittstellenadresse 203.0.113.1). TTL 63.',
+      en: 'No direct network → default route. NAT: source IP 192.168.10.50 → 203.0.113.10 '
+        + '(Nordwind’s public address, routed to R1 by the provider across the transfer network — not the interface address 203.0.113.1). TTL 63.' } },
     { label: 'ISP (203.0.113.2)', text: {
       de: 'Der Provider routet weiter Richtung Internet. TTL 62.',
       en: 'The provider routes onward toward the internet. TTL 62.' } },

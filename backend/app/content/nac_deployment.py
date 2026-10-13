@@ -1,6 +1,7 @@
 # NAC-Lehrgang, Block 4/4 (Betrieb & Fehlersuche), Modul 1/3: Deployment-Modi.
 # Recherchequelle: docs/research-nac.md, Abschnitt 10 (Deployment-Modi). Cisco-Terminologie
-# dient nur als herstellerneutrale Referenz, keine Cisco-spezifische Konfiguration.
+# dient als Referenz; Konfigurationsbeispiele (Legacy-Syntax, IBNS-2.0-Gegenüberstellung) nur in den
+# Übungsblöcken.
 
 NAC_DEPLOYMENT_MODULE = {
     'key': 'nac-deployment',
@@ -15,6 +16,13 @@ NAC_DEPLOYMENT_MODULE = {
         'sich auf einen Hersteller festzulegen',
         'Typische Folgen des Überspringens von Monitor Mode benennen können',
         'Eine passende Rollout-Stufe einem konkreten Nordwind-Szenario zuordnen können',
+    ],
+    'goals_en': [
+        'Distinguish the three rollout stages (Monitor Mode, Low-Impact Mode, Closed Mode)',
+        'Explain why a phased rollout avoids operational disruption',
+        'Place the Cisco terminology as a vendor-neutral reference without committing to one vendor',
+        'Name typical consequences of skipping Monitor Mode',
+        'Assign a suitable rollout stage to a concrete Nordwind scenario',
     ],
     'scenario': {
         'de': 'Bei Nordwind Logistik stehen Authentifizierung (802.1X/MAB) und Autorisierung '
@@ -133,6 +141,65 @@ NAC_DEPLOYMENT_MODULE = {
                    'Monitor Mode and Low-Impact Mode have shown that no legitimate devices are '
                    'still being unexpectedly locked out.',
          }},
+        {
+            'type': 'diagram',
+            'id': 'diagram-deployment-modi',
+            'note': 'Die Zeile „Cisco-Kennzeichen“ zeigt, wie wenig die Modi sich in der Konfiguration unterscheiden: eine Zeile „authentication open“ und eine Port-ACL.',
+            'payload': {
+                'kind': 'compare',
+                'title_de': 'Monitor, Low-Impact, Closed im Vergleich',
+                'title_en': 'Monitor, Low-Impact, Closed compared',
+                'columns': [
+                    {
+                        'title': 'Monitor Mode',
+                    },
+                    {
+                        'title': 'Low-Impact Mode',
+                    },
+                    {
+                        'title': 'Closed Mode',
+                    },
+                ],
+                'rows': [
+                    {
+                        'label_de': 'Zugriff vor der Anmeldung',
+                        'label_en': 'Access before login',
+                        'values_de': ['Voll', 'Nur Basisdienste (Port-ACL)', 'Keiner (nur EAPOL)'],
+                        'values_en': ['Full', 'Basic services only (port ACL)', 'None (EAPOL only)'],
+                    },
+                    {
+                        'label_de': 'Folge eines Fehlschlags',
+                        'label_en': 'Effect of a failure',
+                        'values_de': ['Nur Log-Eintrag', 'Bleibt eingeschränkt', 'Kein Netzzugang'],
+                        'values_en': ['Log entry only', 'Stays restricted', 'No network access'],
+                    },
+                    {
+                        'label_de': 'Nach erfolgreicher Anmeldung',
+                        'label_en': 'After successful login',
+                        'values_de': ['Unverändert voll', 'dACL öffnet den Zugriff', 'VLAN/dACL laut Server'],
+                        'values_en': ['Unchanged, full', 'dACL opens up access', 'VLAN/dACL per server'],
+                    },
+                    {
+                        'label_de': 'Cisco-Kennzeichen (Legacy)',
+                        'label_en': 'Cisco marker (legacy)',
+                        'values_de': ['authentication open', 'authentication open + Port-ACL', 'kein „open“'],
+                        'values_en': ['authentication open', 'authentication open + port ACL', 'no "open"'],
+                    },
+                    {
+                        'label_de': 'Zweck',
+                        'label_en': 'Purpose',
+                        'values_de': ['Beobachten, Lücken finden', 'Begrenzen mit Sicherheitsnetz', 'Durchsetzen'],
+                        'values_en': ['Observe, find gaps', 'Limit with a safety net', 'Enforce'],
+                    },
+                    {
+                        'label_de': 'Risiko für den Betrieb',
+                        'label_en': 'Operational risk',
+                        'values_de': ['Keines', 'Gering', 'Hoch ohne Vorarbeit'],
+                        'values_en': ['None', 'Low', 'High without groundwork'],
+                    },
+                ],
+            },
+        },
         {'type': 'widget', 'id': 'nac-deployment',
          'note': 'Alle drei Modi am selben Geraet und Auth-Ergebnis durchklicken lassen, bevor '
                  'es zur Reihenfolge-Aufgabe geht — der Unterschied soll sich anfuehlen, nicht '
@@ -158,6 +225,40 @@ NAC_DEPLOYMENT_MODULE = {
                  'None of the three modes',
              ],
          }},
+        {
+            'type': 'cloze',
+            'id': 'cloze-low-impact-port',
+            'note': 'Klassische Cisco-Syntax. ACL-DEFAULT ist ein frei gewählter Name. Zum Mitnehmen: Ohne die Zeile „ip access-group“ wäre das Monitor Mode, ohne „authentication open“ Closed Mode.',
+            'payload': {
+                'prompt_de': 'Konfiguriere Gi1/0/5 für den Low-Impact Mode: Port offen, aber vor der Anmeldung nur DHCP und DNS.',
+                'prompt_en': 'Configure Gi1/0/5 for Low-Impact Mode: port open, but only DHCP and DNS before login.',
+                'mono': True,
+                'text': 'ip access-list extended ACL-DEFAULT\n permit udp any eq bootpc any eq bootps\n permit udp any any eq [[dns]]\n [[rest]] ip any any\n!\ninterface GigabitEthernet1/0/5\n switchport mode access\n authentication [[open]]\n ip access-group ACL-DEFAULT [[dir]]\n authentication port-control auto\n dot1x pae authenticator',
+                'gaps': [
+                    {
+                        'id': 'dns',
+                        'options': ['domain', 'www', 'bootps'],
+                        'answer': 0,
+                    },
+                    {
+                        'id': 'rest',
+                        'options': ['deny', 'permit'],
+                        'answer': 0,
+                    },
+                    {
+                        'id': 'open',
+                        'accept': ['open'],
+                    },
+                    {
+                        'id': 'dir',
+                        'options': ['in', 'out'],
+                        'answer': 0,
+                    },
+                ],
+                'explanation_de': '„authentication open“ lässt Verkehr schon vor der Anmeldung zu; die eingehende Port-ACL begrenzt ihn auf DHCP und DNS. Nach erfolgreicher Anmeldung öffnet eine dACL vom RADIUS-Server den Zugriff für genau dieses Gerät.',
+                'explanation_en': '"authentication open" admits traffic even before login; the inbound port ACL limits it to DHCP and DNS. After a successful login a dACL from the RADIUS server opens up access for exactly this device.',
+            },
+        },
         {'type': 'text', 'id': 'text-5',
          'value': {
              'de': '## Warum stufenweise — nicht optional\n\n'
@@ -206,6 +307,69 @@ NAC_DEPLOYMENT_MODULE = {
                  'An extra VLAN is created that has to be manually removed again',
              ],
          }},
+        {
+            'type': 'diagram',
+            'id': 'diagram-legacy-ibns2',
+            'note': 'Nur zur Einordnung, nicht vertiefen: Wer auf aktuellen Catalyst-Switches „show run“ liest, trifft beide Schreibweisen an. Die Übungen dieses Lehrgangs nutzen durchgehend Legacy.',
+            'payload': {
+                'kind': 'compare',
+                'title_de': 'Cisco: klassische Syntax vs. IBNS 2.0',
+                'title_en': 'Cisco: classic syntax vs. IBNS 2.0',
+                'caption_de': 'Gleiche Funktion, zwei Schreibweisen.',
+                'caption_en': 'Same function, two notations.',
+                'columns': [
+                    {
+                        'title_de': 'Klassisch (Legacy)',
+                        'title_en': 'Classic (legacy)',
+                    },
+                    {
+                        'title': 'IBNS 2.0 (new-style)',
+                    },
+                ],
+                'rows': [
+                    {
+                        'label_de': 'Port-Kontrolle',
+                        'label_en': 'Port control',
+                        'values': ['authentication port-control auto', 'access-session port-control auto'],
+                    },
+                    {
+                        'label_de': 'Host-Modus',
+                        'label_en': 'Host mode',
+                        'values': ['authentication host-mode …', 'access-session host-mode …'],
+                    },
+                    {
+                        'label_de': 'Offen / geschlossen',
+                        'label_en': 'Open / closed',
+                        'values_de': ['authentication open = offen', 'access-session closed = geschlossen'],
+                        'values_en': ['authentication open = open', 'access-session closed = closed'],
+                    },
+                    {
+                        'label_de': 'Reihenfolge und Fallback',
+                        'label_en': 'Order and fallback',
+                        'values_de': ['authentication order / priority / event …', 'policy-map type control subscriber'],
+                        'values_en': ['authentication order / priority / event …', 'policy-map type control subscriber'],
+                    },
+                    {
+                        'label_de': 'Bindung an den Port',
+                        'label_en': 'Binding to the port',
+                        'values_de': ['Viele Einzelzeilen je Port', 'service-policy type control subscriber NAME'],
+                        'values_en': ['Many single lines per port', 'service-policy type control subscriber NAME'],
+                    },
+                    {
+                        'label_de': 'Denkmodell',
+                        'label_en': 'Mental model',
+                        'values_de': ['Feste Schalter je Port', 'Ereignis → Bedingung → Aktion'],
+                        'values_en': ['Fixed switches per port', 'Event → condition → action'],
+                    },
+                    {
+                        'label_de': 'Wiederverwendung',
+                        'label_en': 'Reuse',
+                        'values_de': ['Kopieren von Port zu Port', 'Eine Policy / ein Template für viele Ports'],
+                        'values_en': ['Copying from port to port', 'One policy / one template for many ports'],
+                    },
+                ],
+            },
+        },
         {'type': 'order', 'id': 'order-1',
          'payload': {
              'prompt_de': 'Bringe die Rollout-Stufen eines 802.1X-Deployments bei Nordwind in die '
@@ -230,6 +394,114 @@ NAC_DEPLOYMENT_MODULE = {
                  'authentication',
              ],
          }},
+        {
+            'type': 'scenario',
+            'id': 'scenario-rollout',
+            'payload': {
+                'title_de': 'Rollout bei Nordwind planen',
+                'title_en': 'Planning the rollout at Nordwind',
+                'start': 'start',
+                'nodes': [
+                    {
+                        'id': 'start',
+                        'text_de': 'Die Zentrale hat 400 Switchports. Die IT-Leitung will 802.1X „am Wochenende scharf schalten“. Was schlägst du vor?',
+                        'text_en': 'Headquarters has 400 switch ports. IT management wants to "switch 802.1X on over the weekend". What do you propose?',
+                        'options': [
+                            {
+                                'label_de': 'Closed Mode auf allen Ports, Samstagabend',
+                                'label_en': 'Closed Mode on all ports, Saturday evening',
+                                'to': 'closed_sofort',
+                            },
+                            {
+                                'label_de': 'Monitor Mode auf allen Ports, zwei Wochen lang Fehlschläge auswerten',
+                                'label_en': 'Monitor Mode on all ports, evaluate failures for two weeks',
+                                'to': 'monitor',
+                            },
+                            {
+                                'label_de': 'Low-Impact Mode auf allen Ports, sofort',
+                                'label_en': 'Low-Impact Mode on all ports, immediately',
+                                'to': 'low_sofort',
+                            },
+                        ],
+                    },
+                    {
+                        'id': 'closed_sofort',
+                        'outcome': 'bad',
+                        'text_de': 'Montag früh stehen Drucker, Zeiterfassung und jedes Notebook ohne Zertifikat. Niemand weiß vorher, wie viele das sind — genau das hätte Monitor Mode gezeigt.',
+                        'text_en': 'On Monday morning printers, time clocks, and every notebook without a certificate are down. Nobody knows beforehand how many there are — exactly what Monitor Mode would have shown.',
+                    },
+                    {
+                        'id': 'low_sofort',
+                        'outcome': 'ok',
+                        'text_de': 'Besser als Closed, aber schon mit Folgen: Geräte, die scheitern, erreichen nur noch DHCP und DNS. Ohne vorherige Beobachtung triffst du auch hier Unbekannte.',
+                        'text_en': 'Better than Closed, but already with consequences: devices that fail only reach DHCP and DNS. Without prior observation you hit unknowns here as well.',
+                    },
+                    {
+                        'id': 'monitor',
+                        'text_de': 'Nach zwei Wochen zeigt das Log: 12 Drucker ohne Supplicant, 30 Notebooks ohne Zertifikat. Der Projektplan sieht jetzt den nächsten Schritt vor. Wie gehst du weiter?',
+                        'text_en': 'After two weeks the log shows: 12 printers without a supplicant, 30 notebooks without a certificate. The project plan now calls for the next step. How do you proceed?',
+                        'options': [
+                            {
+                                'label_de': 'Termin halten und weiterschalten — die 42 Geräte melden sich schon',
+                                'label_en': 'Keep the date and move on — the 42 devices will speak up',
+                                'to': 'termin',
+                            },
+                            {
+                                'label_de': 'Erst die Liste abarbeiten (MAB für Drucker, Zertifikate verteilen), dann Low-Impact',
+                                'label_en': 'Work off the list first (MAB for printers, distribute certificates), then Low-Impact',
+                                'to': 'liste',
+                            },
+                            {
+                                'label_de': 'Im Monitor Mode bleiben — es funktioniert ja alles',
+                                'label_en': 'Stay in Monitor Mode — everything works after all',
+                                'to': 'bleiben',
+                            },
+                        ],
+                    },
+                    {
+                        'id': 'termin',
+                        'outcome': 'bad',
+                        'text_de': 'Du kennst die 42 Ausfälle jetzt beim Namen und löst sie trotzdem aus. Monitor Mode ist nur so viel wert wie die Bereitschaft, sein Ergebnis abzuarbeiten.',
+                        'text_en': 'You now know the 42 failures by name and trigger them anyway. Monitor Mode is only worth as much as the willingness to work off its result.',
+                    },
+                    {
+                        'id': 'bleiben',
+                        'outcome': 'bad',
+                        'text_de': 'Monitor Mode schützt nichts: Jeder kommt weiterhin ungeprüft ins Netz. Er ist eine Phase, kein Zielzustand.',
+                        'text_en': 'Monitor Mode protects nothing: everyone still gets onto the network unchecked. It is a phase, not a target state.',
+                    },
+                    {
+                        'id': 'liste',
+                        'text_de': 'Die Liste ist leer, Low-Impact läuft seit zwei Wochen ohne Störung. Jetzt Closed Mode — wie?',
+                        'text_en': 'The list is empty, Low-Impact has been running for two weeks without incident. Now Closed Mode — how?',
+                        'options': [
+                            {
+                                'label_de': 'Etagenweise, mit Rückfallplan und geklärtem Verhalten bei RADIUS-Ausfall',
+                                'label_en': 'Floor by floor, with a fallback plan and defined behavior on RADIUS outage',
+                                'to': 'etage',
+                            },
+                            {
+                                'label_de': 'Alle Standorte gleichzeitig, Freitag 17 Uhr',
+                                'label_en': 'All sites at once, Friday 5 p.m.',
+                                'to': 'alle',
+                            },
+                        ],
+                    },
+                    {
+                        'id': 'alle',
+                        'outcome': 'ok',
+                        'text_de': 'Fachlich vorbereitet, aber unnötig riskant: Ein übersehener Sonderfall trifft alle Standorte zugleich, und am Wochenende ist niemand da, der ihn bemerkt.',
+                        'text_en': 'Technically prepared, but needlessly risky: an overlooked special case hits all sites at once, and at the weekend nobody is there to notice it.',
+                    },
+                    {
+                        'id': 'etage',
+                        'outcome': 'good',
+                        'text_de': 'So bleibt jeder Schritt klein und umkehrbar. Und weil Closed Mode ohne RADIUS niemanden mehr hereinlässt, gehört die Critical-VLAN-Entscheidung (nächstes Modul) vor den Umstieg, nicht danach.',
+                        'text_en': 'This keeps every step small and reversible. And since Closed Mode admits nobody without RADIUS, the critical-VLAN decision (next module) belongs before the switch, not after it.',
+                    },
+                ],
+            },
+        },
         {'type': 'reflect', 'id': 'reflect-1',
          'payload': {
              'prompt_de': 'Nordwind will alle Etagen der Zentrale gleichzeitig auf Closed Mode '
@@ -262,6 +534,10 @@ NAC_DEPLOYMENT_MODULE = {
                  'It is automatically moved into a quarantine VLAN',
                  'It only gets access to DHCP and DNS',
              ],
+         },
+         'explanation': {
+             'de': 'Monitor Mode erzwingt nichts: Der Fehlschlag steht nur im Log. Eingeschränkter Zugriff auf DHCP/DNS wäre schon Low-Impact, die Trennung vom Netz Closed Mode.',
+             'en': 'Monitor Mode enforces nothing: the failure only shows up in the log. Restricted access to DHCP/DNS would already be Low-Impact, disconnection Closed Mode.',
          }},
         {'id': 'dp2', 'type': 'single',
          'prompt': {'de': 'Was kennzeichnet Low-Impact Mode?',
@@ -282,6 +558,10 @@ NAC_DEPLOYMENT_MODULE = {
                  'DHCP/DNS',
                  'It is used exclusively for guest devices',
              ],
+         },
+         'explanation': {
+             'de': 'Low-Impact lässt den Port offen, begrenzt ihn aber vor der Anmeldung per Port-ACL auf Basisdienste. Ganz offen wäre Monitor, ganz zu wäre Closed.',
+             'en': 'Low-Impact keeps the port open but limits it to basic services via a port ACL before login. Fully open would be Monitor, fully shut would be Closed.',
          }},
         {'id': 'dp3', 'type': 'single',
          'prompt': {'de': 'Was ist Closed Mode?',
@@ -301,6 +581,10 @@ NAC_DEPLOYMENT_MODULE = {
                  'A mode that only applies to Wi-Fi, not wired ports',
                  'A mode in which authentication is disabled',
              ],
+         },
+         'explanation': {
+             'de': 'Im Closed Mode passiert vor erfolgreicher Anmeldung nur EAPOL den Port. Er gilt für verkabelte Ports ebenso und ist der Dauerbetrieb, kein Wartungsmodus.',
+             'en': 'In Closed Mode only EAPOL passes the port before a successful login. It applies to wired ports as well and is the steady state, not a maintenance mode.',
          }},
         {'id': 'dp4', 'type': 'single',
          'prompt': {'de': 'Warum gilt das Überspringen von Monitor Mode als einer der '
@@ -323,6 +607,10 @@ NAC_DEPLOYMENT_MODULE = {
                  'Because overlooked devices or supplicant problems then only surface once '
                  'enforcement is switched on, locking out real users',
              ],
+         },
+         'explanation': {
+             'de': 'Ohne Monitor Mode erfährst du von vergessenen Geräten erst, wenn sie ausgesperrt sind. Verschlüsselung oder eine gesetzliche Pflicht haben damit nichts zu tun.',
+             'en': 'Without Monitor Mode you only learn about forgotten devices once they are locked out. Encryption or a legal obligation have nothing to do with it.',
          }},
         {'id': 'dp5', 'type': 'single',
          'prompt': {'de': 'In welcher Reihenfolge wird ein 802.1X-Rollout typischerweise '
@@ -342,6 +630,59 @@ NAC_DEPLOYMENT_MODULE = {
                  'Low-Impact Mode → Monitor Mode → Closed Mode',
                  'All three modes are activated at the same time',
              ],
+         },
+         'explanation': {
+             'de': 'Vom Harmlosen zum Strengen: beobachten, begrenzen, durchsetzen. Die umgekehrte Reihenfolge würde mit dem größten Risiko beginnen.',
+             'en': 'From harmless to strict: observe, limit, enforce. The reverse order would start with the greatest risk.',
          }},
+        {
+            'id': 'dp6',
+            'type': 'single',
+            'prompt': {
+                'de': 'Ein Port ist so konfiguriert: „authentication open“, „authentication port-control auto“, „mab“, „dot1x pae authenticator“ — eine Zeile „ip access-group …“ gibt es nicht. In welchem Modus läuft er?',
+                'en': 'A port is configured like this: "authentication open", "authentication port-control auto", "mab", "dot1x pae authenticator" — there is no "ip access-group …" line. Which mode is it running in?',
+            },
+            'options': {
+                'de': [
+                    'Monitor Mode',
+                    'Low-Impact Mode',
+                    'Closed Mode',
+                    '802.1X ist auf dem Port abgeschaltet',
+                ],
+                'en': ['Monitor Mode', 'Low-Impact Mode', 'Closed Mode', '802.1X is disabled on the port'],
+            },
+            'answer': 0,
+            'explanation': {
+                'de': '„authentication open“ ohne begrenzende Port-ACL bedeutet: authentifizieren und protokollieren, aber nichts einschränken — Monitor Mode. Erst die ACL macht daraus Low-Impact; abgeschaltet ist 802.1X wegen „port-control auto“ gerade nicht.',
+                'en': '"authentication open" without a limiting port ACL means: authenticate and log, but restrict nothing — Monitor Mode. Only the ACL turns it into Low-Impact; and 802.1X is precisely not disabled, because of "port-control auto".',
+            },
+        },
+        {
+            'id': 'dp7',
+            'type': 'multi',
+            'prompt': {
+                'de': 'Nordwind will von Monitor Mode auf Low-Impact Mode wechseln. Was sollte vorher erfüllt sein? (Mehrere richtig)',
+                'en': 'Nordwind wants to move from Monitor Mode to Low-Impact Mode. What should be in place beforehand? (Several correct)',
+            },
+            'options': {
+                'de': [
+                    'Die im Log aufgefallenen Fehlschläge sind geklärt oder behoben',
+                    'Geräte ohne Supplicant sind für MAB erfasst',
+                    'Die dACL, die nach erfolgreicher Anmeldung den Zugriff öffnet, ist auf dem RADIUS-Server hinterlegt',
+                    'Alle Ports wurden bereits einmal testweise auf Closed Mode gestellt',
+                ],
+                'en': [
+                    'The failures seen in the log have been explained or fixed',
+                    'Devices without a supplicant have been registered for MAB',
+                    'The dACL that opens up access after a successful login is defined on the RADIUS server',
+                    'All ports have already been set to Closed Mode once as a test',
+                ],
+            },
+            'answer': [0, 1, 2],
+            'explanation': {
+                'de': 'Low-Impact begrenzt jeden Port per ACL — fehlt die dACL für angemeldete Geräte, bleiben auch die erfolgreich authentifizierten auf DHCP und DNS beschränkt. Ein Probelauf im Closed Mode ist dagegen genau das Risiko, das die Stufen vermeiden sollen.',
+                'en': 'Low-Impact limits every port via ACL — if the dACL for logged-in devices is missing, even the successfully authenticated ones stay restricted to DHCP and DNS. A trial run in Closed Mode, by contrast, is exactly the risk the stages are meant to avoid.',
+            },
+        },
     ]},
 }
