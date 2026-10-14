@@ -20,8 +20,8 @@ from app.config import settings
 from app.database import Base, engine
 from app.main import app
 
-_HEAD = "5e7f0a1b2c3d"        # live_steering_follow_and_module_entered_at
-_VORGAENGER = "7305d4053e50"  # add_trainer_credential (danach laufen 75aeb8d5399c … 3f9a1c7e2b40, 9f3e7a1c5b2d, 5e7f0a1b2c3d erneut)
+_HEAD = "5d2c8e7f1a90"        # add_spaced_review_and_module_state
+_VORGAENGER = "7305d4053e50"  # add_trainer_credential (danach laufen 75aeb8d5399c … 3f9a1c7e2b40, 9f3e7a1c5b2d, 5e7f0a1b2c3d, 5d2c8e7f1a90 erneut)
 
 
 def _blocked() -> OperationalError:
@@ -268,3 +268,20 @@ def test_3f9a1c7e2b40_macht_aeltesten_trainer_zum_admin(leere_db, monkeypatch):
         rollen = dict(conn.execute(text("SELECT id, role FROM trainer")).all())
     eigene.dispose()
     assert rollen == {3: "admin", 7: "trainer", 9: "trainer"}
+
+
+def test_5d2c8e7f1a90_downgrade_entfernt_review_und_module_state(leere_db, monkeypatch):
+    """Wiederholung/Aufwärmrunde/Übungsstand: der Downgrade entfernt genau die vier
+    neuen Tabellen, ein erneuter Upgrade legt sie wieder an."""
+    monkeypatch.setattr(settings, "database_url", leere_db)
+    cfg = db_migrate._config()
+    eigene = create_engine(leere_db)
+    neu = {"review_item", "warmup", "warmup_result", "module_state"}
+    command.upgrade(cfg, "head")
+    assert neu <= set(inspect(eigene).get_table_names())
+    command.downgrade(cfg, "5e7f0a1b2c3d")
+    tabellen = set(inspect(eigene).get_table_names())
+    assert not neu & tabellen and "live_poll" in tabellen
+    command.upgrade(cfg, "head")
+    assert neu <= set(inspect(eigene).get_table_names())
+    eigene.dispose()

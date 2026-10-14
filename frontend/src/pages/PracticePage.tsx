@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { useQuery } from '@tanstack/react-query'
-import { Link, Navigate } from 'react-router-dom'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { Link, Navigate, useSearchParams } from 'react-router-dom'
 import { learnApi, type PracticeQuestion } from '@/lib/learnApi'
 import { errMsg } from '@/lib/api'
 import { useAuthStore } from '@/store/auth'
@@ -13,7 +13,9 @@ import { WorkbenchTopbar } from '@/components/workbench/WorkbenchShell'
 import { QuestionInput, isAnswered, shuffledIndices } from '@/components/Quiz'
 import { useResultFocus } from '@/components/blocks/useResultFocus'
 
-type Mode = 'wrong' | 'mixed'
+// review = Wiederholung (spaced review, backend/app/services/review.py): fällige Fragen
+// abgeschlossener Module; nur hier schreibt die Prüfung etwas (den Wiederholungs-Verlauf).
+type Mode = 'wrong' | 'mixed' | 'review'
 interface Feedback { correct: boolean; explanation: string | null }
 
 // Übungsmodus: Fragen aus bereits bearbeiteten Modulen wiederholen. Bewertet
@@ -27,6 +29,9 @@ export function PracticePage() {
   const de = lang === 'de'
   useDocumentTitle(de ? 'Üben & Wiederholen' : 'Practice & review')
 
+  const qc = useQueryClient()
+  const [params] = useSearchParams()
+  const [mode, setMode] = useState<Mode>('mixed')
   const [questions, setQuestions] = useState<PracticeQuestion[] | null>(null)
   const [index, setIndex] = useState(0)
   const [answer, setAnswer] = useState<unknown>(undefined)
@@ -46,21 +51,25 @@ export function PracticePage() {
   const summary = useRef<HTMLParagraphElement>(null)
   const ended = questions !== null && index >= questions.length
   useEffect(() => { if (ended) summary.current?.focus() }, [ended, questions])
+  // Einstieg über die Wiederholen-Karte/Aufwärmrunde: Satz direkt laden.
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- nur beim Öffnen
+  useEffect(() => { if (isParticipant && params.get('modus') === 'wiederholen') start('review') }, [])
   // je Frage einmal mischen — die abgegebene Antwort bleibt der Original-Index
   const order = useMemo(() => (q && q.type !== 'number' ? shuffledIndices(q.options.length) : undefined), [q])
 
-  async function start(mode: Mode) {
+  async function start(next: Mode) {
     setError(''); setBusy(true)
     try {
-      const r = await learnApi.practice(mode)
-      setQuestions(r.data.questions); setIndex(0); setAnswer(undefined); setFeedback(null); setRight(0); setRetried(false)
+      const r = next === 'review' ? await learnApi.review() : await learnApi.practice(next)
+      setMode(next); setQuestions(r.data.questions); setIndex(0); setAnswer(undefined); setFeedback(null); setRight(0); setRetried(false)
     } catch (e) { setError(errMsg(e, failed)) } finally { setBusy(false) }
   }
   async function check() {
     if (!q) return
     setError(''); setBusy(true)
     try {
-      const r = await learnApi.practiceCheck(q.id, answer)
+      const r = await (mode === 'review' ? learnApi.reviewCheck : learnApi.practiceCheck)(q.id, answer)
+      if (mode === 'review') qc.invalidateQueries({ queryKey: ['review-status'] })
       setFeedback(r.data)
       if (r.data.correct && !retried) setRight((n) => n + 1)
     } catch (e) { setError(errMsg(e, failed)) } finally { setBusy(false) }
@@ -98,12 +107,18 @@ export function PracticePage() {
                 )}
                 {questions?.length === 0 && (
                   <p ref={summary} tabIndex={-1} className="mb-4 text-sm text-[var(--wb-muted)] outline-none">
-                    {de ? 'Dafür gibt es gerade keine Fragen. Gib zuerst den Wissenscheck eines Moduls ab — oder wähle „Gemischtes Üben“.'
-                      : 'There are no questions for this right now. Submit a module’s knowledge check first — or choose “Mixed practice”.'}
+                    {mode === 'review'
+                      ? (de ? 'Gerade ist nichts zur Wiederholung fällig. Fragen bestandener Module kommen nach ein paar Stunden wieder — richtig beantwortete in wachsenden Abständen.'
+                        : 'Nothing is due for review right now. Questions from passed modules come back after a few hours — correctly answered ones at growing intervals.')
+                      : (de ? 'Dafür gibt es gerade keine Fragen. Gib zuerst den Wissenscheck eines Moduls ab — oder wähle „Gemischtes Üben“.'
+                        : 'There are no questions for this right now. Submit a module’s knowledge check first — or choose “Mixed practice”.')}
                   </p>
                 )}
-                <div className="flex flex-col gap-3 sm:flex-row">
-                  <button type="button" className={primary} disabled={busy} onClick={() => start('wrong')}>
+                <div className="flex flex-col flex-wrap gap-3 sm:flex-row">
+                  <button type="button" className={primary} disabled={busy} onClick={() => start('review')}>
+                    {de ? 'Fällige wiederholen' : 'Review due questions'}
+                  </button>
+                  <button type="button" className={secondary} disabled={busy} onClick={() => start('wrong')}>
                     {de ? 'Falsch beantwortete wiederholen' : 'Review questions I got wrong'}
                   </button>
                   <button type="button" className={secondary} disabled={busy} onClick={() => start('mixed')}>

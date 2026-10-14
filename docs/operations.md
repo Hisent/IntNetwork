@@ -283,10 +283,12 @@ löscht das Backend beim Start und danach alle 24 Stunden die Teilnehmerdaten
 aller Kurse, in denen seit so vielen Tagen kein Teilnehmer mehr aktiv war.
 
 - **Aktivität** = jüngster Zeitpunkt aus Beitritt, Heartbeat (Modul offen),
-  abgeschlossenem Modul, Quiz-Abgabe und Teilnehmer-Kommentar. Ein Kurs mit
-  einem einzigen aktiven Teilnehmer bleibt vollständig erhalten.
+  abgeschlossenem Modul, Quiz-Abgabe, Teilnehmer-Kommentar, gespeichertem
+  Übungs-/Lesestand und Wiederholung. Ein Kurs mit einem einzigen aktiven
+  Teilnehmer bleibt vollständig erhalten.
 - **Gelöscht:** Teilnehmer, Fortschritt, Quiz-Ergebnisse, Teilnehmer-Kommentare,
-  Abstimmungs-Stimmen.
+  Abstimmungs-Stimmen, Übungs-/Lesestand (`module_state`), Wiederholungs-Verlauf
+  (`review_item`) und Aufwärm-Ergebnisse.
 - **Bleibt:** Kurs, Kurs-Code, Modulauswahl, Trainer-Kommentare, Inhalte und
   ausgestellte Teilnahmebestätigungen (wie beim Kurs-Löschen: bewusst
   unveränderlicher Nachweis; wer sie mitlöschen will, löscht den Kurs mit

@@ -2,9 +2,11 @@
 COURSE_RETENTION_DAYS Tagen kein Teilnehmer mehr aktiv war.
 
 Aktivität = jüngster Zeitstempel aus Beitritt, Heartbeat (last_seen),
-Fortschritt, Quiz-Abgabe und Teilnehmer-Kommentar. Gelöscht werden die
-Teilnehmer; Fortschritt, Quiz-Ergebnisse, Kommentare und Abstimmungs-Stimmen
-hängen per ON DELETE CASCADE daran. Kurs, Kurs-Code, Modulauswahl,
+Fortschritt, Quiz-Abgabe, Teilnehmer-Kommentar, gespeichertem Übungs-/Lesestand
+und Wiederholung. Gelöscht werden die Teilnehmer; Fortschritt, Quiz-Ergebnisse,
+Kommentare, Abstimmungs-Stimmen, Übungs-/Lesestand (module_state),
+Wiederholungs-Verlauf (review_item) und Aufwärm-Ergebnisse hängen per
+ON DELETE CASCADE daran. Kurs, Kurs-Code, Modulauswahl,
 Trainer-Kommentare und Teilnahmebestätigungen (bewusst ohne FK, siehe
 models/certificate.py) bleiben.
 
@@ -23,9 +25,11 @@ from sqlalchemy.orm import Session
 from app.config import settings
 from app.database import SessionLocal
 from app.models.comment import Comment
+from app.models.module_state import ModuleState
 from app.models.participant import Participant
 from app.models.progress import Progress
 from app.models.quiz_result import QuizResult
+from app.models.review import ReviewItem, WarmupResult
 from app.services.audit import log_action
 from app.utils import utc_now
 
@@ -44,6 +48,8 @@ def stale_course_ids(db: Session, days: int, now=None) -> list[int]:
         select(Participant.course_id, Progress.completed_at).join(Progress, Progress.participant_id == Participant.id),
         select(Participant.course_id, QuizResult.created_at).join(QuizResult, QuizResult.participant_id == Participant.id),
         select(Comment.course_id, Comment.created_at).where(Comment.participant_id.isnot(None)),
+        select(Participant.course_id, ModuleState.updated_at).join(ModuleState, ModuleState.participant_id == Participant.id),
+        select(Participant.course_id, ReviewItem.last_reviewed).join(ReviewItem, ReviewItem.participant_id == Participant.id),
     ).subquery()
     # max() ignoriert NULL (nie gesehen / nicht abgeschlossen); created_at ist immer gesetzt.
     return list(db.scalars(
@@ -53,7 +59,8 @@ def stale_course_ids(db: Session, days: int, now=None) -> list[int]:
 def purge(db: Session, days: int, now=None) -> dict:
     """Ein Lauf. Gibt nur Zahlen zurück (keine Namen) und protokolliert sie."""
     stale = stale_course_ids(db, days, now)
-    counts = {"courses": len(stale), "participants": 0, "progress": 0, "quiz_results": 0, "comments": 0}
+    counts = {"courses": len(stale), "participants": 0, "progress": 0, "quiz_results": 0, "comments": 0,
+              "module_state": 0, "review": 0}
     if not stale:
         return counts
     pids = select(Participant.id).where(Participant.course_id.in_(stale)).scalar_subquery()
@@ -61,6 +68,9 @@ def purge(db: Session, days: int, now=None) -> dict:
     counts["progress"] = db.query(Progress).filter(Progress.participant_id.in_(pids)).delete(synchronize_session=False)
     counts["quiz_results"] = db.query(QuizResult).filter(QuizResult.participant_id.in_(pids)).delete(synchronize_session=False)
     counts["comments"] = db.query(Comment).filter(Comment.participant_id.in_(pids)).delete(synchronize_session=False)
+    counts["module_state"] = db.query(ModuleState).filter(ModuleState.participant_id.in_(pids)).delete(synchronize_session=False)
+    counts["review"] = db.query(ReviewItem).filter(ReviewItem.participant_id.in_(pids)).delete(synchronize_session=False)
+    db.query(WarmupResult).filter(WarmupResult.participant_id.in_(pids)).delete(synchronize_session=False)
     counts["participants"] = db.query(Participant).filter(Participant.course_id.in_(stale)).delete(synchronize_session=False)
     db.commit()
     if counts["participants"]:

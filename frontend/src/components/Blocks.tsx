@@ -458,7 +458,7 @@ export function Blocks({
           <span className="h-1 w-24 overflow-hidden rounded-full bg-slate-200" aria-hidden="true">
             <span className="block h-full rounded-full bg-teal-500 transition-[width]" style={{ width: `${Math.round((doneCount / exerciseUids.length) * 100)}%` }} />
           </span>
-          <span>{lang === 'de' ? 'nur in diesem Browser gemerkt' : 'remembered in this browser only'}</span>
+          <span>{lang === 'de' ? 'geräteübergreifend gemerkt' : 'saved across devices'}</span>
         </div>
       )}
       {blocks.map((b, i) => (
