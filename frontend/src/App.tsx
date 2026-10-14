@@ -14,6 +14,8 @@ const WorkshopPage = lazy(() => import('@/pages/WorkshopPage').then((m) => ({ de
 const LearnPage = lazy(() => import('@/pages/LearnPage').then((m) => ({ default: m.LearnPage })))
 const ModulePage = lazy(() => import('@/pages/ModulePage').then((m) => ({ default: m.ModulePage })))
 const PracticePage = lazy(() => import('@/pages/PracticePage').then((m) => ({ default: m.PracticePage })))
+const AssessmentPage = lazy(() => import('@/pages/OutcomePages').then((m) => ({ default: m.AssessmentPage })))
+const EvaluationPage = lazy(() => import('@/pages/OutcomePages').then((m) => ({ default: m.EvaluationPage })))
 const CertificatePage = lazy(() => import('@/pages/CertificatePage').then((m) => ({ default: m.CertificatePage })))
 const TrainerPage = lazy(() => import('@/pages/TrainerPage').then((m) => ({ default: m.TrainerPage })))
 const TrainerModulePage = lazy(() => import('@/pages/TrainerModulePage').then((m) => ({ default: m.TrainerModulePage })))
@@ -75,6 +77,8 @@ export default function App() {
             <Route path="/lernen" element={<LearnPage />} />
             <Route path="/lernen/zertifikat" element={<CertificatePage />} />
             <Route path="/lernen/ueben" element={<PracticePage />} />
+            <Route path="/lernen/wissenstest" element={<AssessmentPage />} />
+            <Route path="/lernen/bewertung" element={<EvaluationPage />} />
             <Route path="/verifizieren" element={<VerifyPage />} />
             <Route path="/verifizieren/:id" element={<VerifyPage />} />
             <Route path="/lernen/:key" element={<ModulePage />} />

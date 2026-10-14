@@ -10,6 +10,28 @@ export interface Dashboard {
   participants: { id: number; name: string; approved: boolean; cells: Record<string, { done: boolean; best: number | null }> }[]
 }
 
+// Lernerfolg (routers/learning_outcomes.py)
+export interface AssessmentQuestionStat {
+  id: string; module_key: string; module_title: string; prompt: string; type: string
+  pre_correct: number; pre_attempts: number; post_correct: number; post_attempts: number
+}
+export interface TrainerAssessment {
+  phase: 'pre' | 'post' | null
+  fixed: boolean  // Fragensatz festgeschrieben (beim ersten Öffnen)
+  answered: boolean  // es gibt Antworten -> kein Neuziehen mehr
+  questions: AssessmentQuestionStat[]
+  participants: { id: number; name: string; pre: number | null; post: number | null }[]
+  summary: { pre_count: number; post_count: number; avg_pre: number | null; avg_post: number | null; avg_gain: number | null; gain_count: number }
+}
+export interface ScaleStat { n: number; mean: number | null; counts: number[] }
+export interface TrainerEvaluation {
+  open: boolean; count: number
+  overall: ScaleStat; clarity: ScaleStat; practice: ScaleStat; trainer: ScaleStat
+  pace: { slow: number; ok: number; fast: number }
+  good: string[]; improve: string[]  // in zufälliger Reihenfolge
+}
+export type ExportKind = 'dashboard' | 'quiz' | 'assessment' | 'evaluation'
+
 export interface ChangelogEntry { date: string; title: string; text: string }
 export interface CourseModule { key: string; title: string; order: number; workshop_key: string | null; active: boolean }
 export interface PresenceEntry { name: string; module_key: string; module_title: string }
@@ -159,6 +181,14 @@ export const trainerApi = {
     api.patch<LivePoll>(`/trainer/courses/${cid}/poll/words`, { word, hidden }),
   revealPoll: (cid: number) => api.post<LivePoll>(`/trainer/courses/${cid}/poll/reveal`),
   closePoll: (cid: number) => api.delete(`/trainer/courses/${cid}/poll`),
+  assessment: (cid: number) => api.get<TrainerAssessment>(`/trainer/courses/${cid}/assessment`),
+  setAssessmentPhase: (cid: number, phase: 'pre' | 'post' | null) =>
+    api.put<TrainerAssessment>(`/trainer/courses/${cid}/assessment`, { phase }),
+  regenerateAssessment: (cid: number) => api.post<TrainerAssessment>(`/trainer/courses/${cid}/assessment/regenerate`),
+  evaluation: (cid: number) => api.get<TrainerEvaluation>(`/trainer/courses/${cid}/evaluation`),
+  setEvaluationOpen: (cid: number, open: boolean) => api.put<TrainerEvaluation>(`/trainer/courses/${cid}/evaluation`, { open }),
+  exportCsv: (cid: number, kind: ExportKind, lang: 'de' | 'en') =>
+    api.download(`/trainer/courses/${cid}/export/${kind}?lang=${lang}`, `intlab-kurs${cid}-${kind}.csv`),
   listContentModules: () => api.get<EditorModuleMeta[]>('/trainer/content/modules'),
   getContentModule: (key: string) => api.get<EditorModule>(`/trainer/content/modules/${key}`),
   createContentModule: (key: string, title_de: string, workshop_key: string) =>
