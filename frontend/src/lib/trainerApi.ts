@@ -155,6 +155,8 @@ export const trainerApi = {
     api.post<LivePoll>(`/trainer/courses/${cid}/poll`, { module_key, source: 'adhoc', ...poll }),
   hidePollAnswer: (cid: number, id: number, hidden: boolean) =>
     api.patch<LivePoll>(`/trainer/courses/${cid}/poll/answers/${id}`, { hidden }),
+  hidePollWord: (cid: number, word: string, hidden: boolean) =>
+    api.patch<LivePoll>(`/trainer/courses/${cid}/poll/words`, { word, hidden }),
   revealPoll: (cid: number) => api.post<LivePoll>(`/trainer/courses/${cid}/poll/reveal`),
   closePoll: (cid: number) => api.delete(`/trainer/courses/${cid}/poll`),
   listContentModules: () => api.get<EditorModuleMeta[]>('/trainer/content/modules'),

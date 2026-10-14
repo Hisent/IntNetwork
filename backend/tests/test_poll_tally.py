@@ -1,7 +1,7 @@
 """Abstimmungsarten: Prüfung und Auswertung als reine Funktionen (services/poll_tally.py)."""
 import pytest
 
-from app.services.poll_tally import TEXT_MAX, normalize_word, parse_answer, tally, text_answers
+from app.services.poll_tally import TEXT_MAX, normalize_word, parse_answer, tally, text_answers, word_moderation
 
 
 def bad(*args, **kw):
@@ -72,6 +72,16 @@ def test_tally_words_zaehlt_und_sortiert():
 def test_text_answers_alphabetisch_und_nur_sichtbare_fuer_teilnehmer():
     rows = [(5, "zebra", False), (2, "Apfel", True), (9, "birne", False)]
     assert text_answers(rows, moderator=True) == {"votes": 3, "answers": [
+        {"id": 9, "text": "birne"}, {"id": 5, "text": "zebra"}], "moderation": [
         {"id": 2, "text": "Apfel", "hidden": True}, {"id": 9, "text": "birne", "hidden": False},
         {"id": 5, "text": "zebra", "hidden": False}]}
     assert text_answers(rows, moderator=False) == {"votes": 3, "answers": [{"text": "birne"}, {"text": "zebra"}]}
+
+
+def test_ausgeblendetes_wort_zaehlt_nirgends():
+    values = [["vlan", "mist"], ["mist"], ["trunk"]]
+    out = tally("words", values, hidden_words=frozenset({"mist"}))
+    assert out == {"votes": 3, "words": [{"word": "trunk", "count": 1}, {"word": "vlan", "count": 1}]}
+    assert word_moderation(values, frozenset({"mist"})) == [
+        {"word": "mist", "count": 2, "hidden": True}, {"word": "trunk", "count": 1, "hidden": False},
+        {"word": "vlan", "count": 1, "hidden": False}]

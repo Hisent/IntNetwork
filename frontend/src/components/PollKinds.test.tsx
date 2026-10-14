@@ -173,23 +173,41 @@ describe('TrainerPresentPage — eigene Abstimmung', () => {
       module_key: 'm1', source: 'adhoc', kind: 'multi', prompt: 'Welche?', options: ['a', 'b'], max_selections: null }))
   })
 
-  it('Freitext: vor dem Auflösen nur hinter Klick, Ausblenden; ausgeblendete nie groß', async () => {
-    const answers = [{ id: 1, text: 'Gut', hidden: false }, { id: 2, text: 'Unpassend', hidden: false }]
-    const open: LivePoll = { ...base, kind: 'text', answers, votes: 2 }
-    vi.mocked(api.patch).mockResolvedValue({ data: { ...open, answers: [answers[0], { ...answers[1], hidden: true }] } })
-    vi.mocked(api.post).mockResolvedValue({ data: { ...open, status: 'revealed', answers: [answers[0], { ...answers[1], hidden: true }] } })
+  it('Freitext: vor dem Auflösen nur die Zahl, Prüfliste eingeklappt; ausgeblendete nie groß', async () => {
+    const moderation = [{ id: 1, text: 'Gut', hidden: false }, { id: 2, text: 'Unpassend', hidden: false }]
+    const open: LivePoll = { ...base, kind: 'text', moderation, votes: 2 }
+    const hiddenMod = [moderation[0], { ...moderation[1], hidden: true }]
+    vi.mocked(api.patch).mockResolvedValue({ data: { ...open, moderation: hiddenMod } })
+    vi.mocked(api.post).mockResolvedValue({ data: { ...open, status: 'revealed', moderation: hiddenMod, answers: [{ id: 1, text: 'Gut' }] } })
     renderPage(open)
 
     const details = (await screen.findByText(/Antworten prüfen \(2\)/)).closest('details')!
     expect(details.open).toBe(false)
+    expect(screen.getByTestId('poll-votes').textContent).toBe('2 Antworten')
+    expect(screen.getAllByText('Gut').every((el) => details.contains(el))).toBe(true)  // nur in der Prüfliste
     fireEvent.click(within(details).getByRole('button', { name: 'Ausblenden: Unpassend' }))
     await waitFor(() => expect(api.patch).toHaveBeenCalledWith('/trainer/courses/7/poll/answers/2', { hidden: true }))
 
     fireEvent.click(screen.getByRole('button', { name: 'Auflösen' }))
-    const hiddenBox = (await screen.findByText('Ausgeblendete Antworten (1)')).closest('details')!
-    expect(screen.getByText('Gut')).toBeTruthy()
-    expect(within(hiddenBox).getByRole('button', { name: 'Einblenden: Unpassend' })).toBeTruthy()
+    expect(await screen.findByText(/1 ausgeblendet/)).toBeTruthy()
+    expect(screen.getAllByText('Gut').some((el) => !details.contains(el))).toBe(true)  // groß auf dem Beamer
+    expect(within(details).getByRole('button', { name: 'Einblenden: Unpassend' })).toBeTruthy()
     // „Unpassend“ steht nur in der eingeklappten Liste
-    expect(screen.getAllByText('Unpassend').every((el) => hiddenBox.contains(el))).toBe(true)
+    expect(screen.getAllByText('Unpassend').every((el) => details.contains(el))).toBe(true)
+  })
+
+  it('Wortwolke: vor dem Auflösen keine Wolke, Wort in der Prüfliste ausblenden', async () => {
+    const moderation = [{ word: 'mist', count: 2, hidden: false }, { word: 'vlan', count: 1, hidden: false }]
+    const open: LivePoll = { ...base, kind: 'words', moderation, votes: 2 }
+    vi.mocked(api.patch).mockResolvedValue({ data: { ...open, moderation: [{ ...moderation[0], hidden: true }, moderation[1]] } })
+    renderPage(open)
+
+    const details = (await screen.findByText(/Wörter prüfen \(2\)/)).closest('details')!
+    expect(details.open).toBe(false)
+    expect(screen.queryByTestId('word-cloud')).toBeNull()
+    expect(screen.getByTestId('poll-votes').textContent).toBe('2 Antworten')
+    fireEvent.click(within(details).getByRole('button', { name: 'Ausblenden: mist' }))
+    await waitFor(() => expect(api.patch).toHaveBeenCalledWith('/trainer/courses/7/poll/words', { word: 'mist', hidden: true }))
+    expect(await within(details).findByRole('button', { name: 'Einblenden: mist' })).toBeTruthy()
   })
 })

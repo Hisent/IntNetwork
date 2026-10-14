@@ -77,7 +77,8 @@ export function TrainerPresentPage() {
     onSuccess: (data) => { setPoll(data); setComposing(false) },
   })
   const hideAnswer = useMutation({
-    mutationFn: (v: { id: number; hidden: boolean }) => trainerApi.hidePollAnswer(cid!, v.id, v.hidden).then((r) => r.data),
+    mutationFn: (v: { id?: number; word?: string; hidden: boolean }) =>
+      (v.id != null ? trainerApi.hidePollAnswer(cid!, v.id, v.hidden) : trainerApi.hidePollWord(cid!, v.word!, v.hidden)).then((r) => r.data),
     onSuccess: setPoll,
   })
   const revealPoll = useMutation({ mutationFn: () => trainerApi.revealPoll(cid!).then((r) => r.data), onSuccess: setPoll })
@@ -138,6 +139,8 @@ export function TrainerPresentPage() {
   const singles = m.quiz.questions.map((q, i) => ({ q, n: i + 1 })).filter(({ q }) => q.type === 'single' || q.type === 'multi')
   const courseOptions = (courses.data ?? []).filter((c) => (c.workshop_key ?? null) === (m.workshop_key ?? null))
   const courseName = courseOptions.find((c) => c.id === cid)?.name
+  // Freitext/Wortwolke: vor dem Auflösen nur die Zahl auf dem Beamer (die API liefert auch nicht mehr).
+  const moderated = livePoll?.kind === 'text' || livePoll?.kind === 'words'
 
   if (livePoll)
     return (
@@ -148,14 +151,16 @@ export function TrainerPresentPage() {
           </p>
           <h1 className="mt-3 text-3xl font-bold leading-tight sm:text-4xl">{livePoll.prompt}</h1>
           <div className="mt-8">
-            {livePoll.kind === 'scale' ? <ScaleResult poll={livePoll} lang="de" big />
-              : livePoll.kind === 'words' ? <WordCloud words={livePoll.words ?? []} lang="de" big />
-                : livePoll.kind === 'text' ? <TextModeration poll={livePoll} pending={hideAnswer.isPending} onHide={(id, hidden) => hideAnswer.mutate({ id, hidden })} />
-                  : <PollOptions poll={livePoll} lang="de" big />}
+            {moderated && livePoll.status !== 'revealed' ? <p className="text-2xl text-[var(--wb-muted)]">Die Antworten erscheinen nach dem Auflösen.</p>
+              : livePoll.kind === 'scale' ? <ScaleResult poll={livePoll} lang="de" big />
+                : livePoll.kind === 'words' ? <WordCloud words={livePoll.words ?? []} lang="de" big />
+                  : livePoll.kind === 'text' ? <TextAnswers answers={livePoll.answers ?? []} lang="de" big onHide={(id) => hideAnswer.mutate({ id, hidden: true })} />
+                    : <PollOptions poll={livePoll} lang="de" big />}
           </div>
           <p className="mt-6 text-2xl font-semibold tabular-nums" data-testid="poll-votes">
-            {livePoll.votes} {livePoll.votes === 1 ? 'Stimme' : 'Stimmen'}
+            {livePoll.votes} {moderated ? (livePoll.votes === 1 ? 'Antwort' : 'Antworten') : livePoll.votes === 1 ? 'Stimme' : 'Stimmen'}
           </p>
+          {moderated && <PollModeration poll={livePoll} pending={hideAnswer.isPending} onHide={(item, hidden) => hideAnswer.mutate({ id: item.id, word: item.word, hidden })} />}
           {livePoll.status === 'revealed' && livePoll.explanation && (
             <p className="mt-4 border-l-4 border-[var(--wb-accent)] pl-4 text-xl leading-relaxed text-[var(--wb-muted)]">{livePoll.explanation}</p>
           )}
@@ -287,41 +292,36 @@ export function TrainerPresentPage() {
   )
 }
 
-/** Freitext auf dem Beamer: vor dem Auflösen nur hinter einem Klick (der Trainer
- *  prüft, bevor etwas groß erscheint), danach die sichtbaren Antworten groß.
- *  Ausgeblendete stehen nur in der eingeklappten Liste — nie groß auf dem Beamer. */
-function TextModeration({ poll, pending, onHide }: { poll: LivePoll; pending: boolean; onHide: (id: number, hidden: boolean) => void }) {
-  const answers = poll.answers ?? []
-  const hidden = answers.filter((a) => a.hidden)
-  const list = (items: typeof answers) => (
-    <ul className="mt-3 space-y-2 text-base">
-      {items.map((a) => (
-        <li key={a.id} className="wb-surface flex items-start gap-3 px-3 py-2">
-          <span className={`min-w-0 flex-1 [overflow-wrap:anywhere] ${a.hidden ? 'text-[var(--wb-muted)] line-through' : ''}`}>{a.text}</span>
-          <button type="button" disabled={pending} onClick={() => onHide(a.id!, !a.hidden)} aria-label={`${a.hidden ? 'Einblenden' : 'Ausblenden'}: ${a.text}`}
-            className="wb-control shrink-0 rounded-lg px-2 text-sm text-[var(--wb-muted)] hover:text-[var(--wb-ink)]">
-            {a.hidden ? 'Einblenden' : 'Ausblenden'}
-          </button>
-        </li>
-      ))}
-    </ul>
-  )
-  if (poll.status !== 'revealed')
-    return (
-      <details className="text-xl">
-        <summary className="wb-control cursor-pointer text-[var(--wb-muted)]">Antworten prüfen ({answers.length}) — erst nach Klick sichtbar</summary>
-        {list(answers)}
-      </details>
-    )
+/** Prüfliste nur für den Trainer: Freitexte bzw. Wörter der Wortwolke mit
+ *  Aus-/Einblenden, vor und nach dem Auflösen. Eingeklappt — auf dem Beamer erst
+ *  nach Klick sichtbar, der Trainer öffnet sie auf dem eigenen Bildschirm.
+ *  Ausgeblendetes erscheint nie groß; ausgeblendete Wörter zählen nirgends. */
+function PollModeration({ poll, pending, onHide }: {
+  poll: LivePoll; pending: boolean; onHide: (item: NonNullable<LivePoll['moderation']>[number], hidden: boolean) => void
+}) {
+  const items = poll.moderation ?? []
+  const hidden = items.filter((m) => m.hidden).length
   return (
-    <>
-      <TextAnswers answers={answers} lang="de" big onHide={(id) => onHide(id, true)} />
-      {hidden.length > 0 && (
-        <details className="mt-6 text-base">
-          <summary className="wb-control cursor-pointer text-[var(--wb-muted)]">Ausgeblendete Antworten ({hidden.length})</summary>
-          {list(hidden)}
-        </details>
-      )}
-    </>
+    <details className="mt-6 text-base">
+      <summary className="wb-control cursor-pointer text-[var(--wb-muted)]">
+        {poll.kind === 'words' ? 'Wörter' : 'Antworten'} prüfen ({items.length}{hidden ? `, ${hidden} ausgeblendet` : ''}) — erst nach Klick sichtbar
+      </summary>
+      <ul className="mt-3 space-y-2">
+        {items.map((m) => {
+          const label = m.text ?? m.word ?? ''
+          return (
+            <li key={m.id ?? m.word} className="wb-surface flex items-start gap-3 px-3 py-2">
+              <span className={`min-w-0 flex-1 [overflow-wrap:anywhere] ${m.hidden ? 'text-[var(--wb-muted)] line-through' : ''}`}>
+                {label}{m.count != null && <span className="ml-2 text-sm tabular-nums text-[var(--wb-muted)]">{m.count}×</span>}
+              </span>
+              <button type="button" disabled={pending} onClick={() => onHide(m, !m.hidden)} aria-label={`${m.hidden ? 'Einblenden' : 'Ausblenden'}: ${label}`}
+                className="wb-control shrink-0 rounded-lg px-2 text-sm text-[var(--wb-muted)] hover:text-[var(--wb-ink)]">
+                {m.hidden ? 'Einblenden' : 'Ausblenden'}
+              </button>
+            </li>
+          )
+        })}
+      </ul>
+    </details>
   )
 }

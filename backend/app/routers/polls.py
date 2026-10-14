@@ -10,6 +10,8 @@ kein Prozessspeicher, damit mehrere Worker dasselbe sehen.
 
 Die Abstimmung ist ungewertet: sie schreibt weder quiz_result noch progress.
 Lösung, Erklärung und Ergebnis gehen an Teilnehmer erst bei status=revealed.
+Freitext und Wortwolke auch an den Trainer (= Beamer) erst dann; vorher nur die
+Zahl der Antworten und die Prüfliste `moderation` zum Ausblenden.
 """
 from typing import Annotated, Literal
 
@@ -27,10 +29,15 @@ from app.models.participant import Participant
 from app.services.audit import log_action
 from app.services.course_membership import active_module_keys
 from app.services.deps import get_participant, get_trainer
-from app.services.poll_tally import TEXT_MAX, WORD_MAX, WORDS_MAX, parse_answer, tally, text_answers
+from app.services.poll_tally import (TEXT_MAX, WORD_MAX, WORDS_MAX, normalize_word, parse_answer, tally,
+                                     text_answers, word_moderation)
 from app.services.ratelimit import rate_limit
 
 router = APIRouter(tags=["polls"])
+
+# Ergebnis erst nach dem Auflösen, auch in der Trainer-/Beamer-Ansicht: der
+# Trainer prüft vorher (moderation), bevor etwas groß an der Wand steht.
+MODERATED = ("text", "words")
 
 
 def _question(db: Session, module_key: str, source: str, ref: str) -> dict | None:
@@ -93,8 +100,9 @@ def _scale(question: dict) -> tuple[int, int]:
 
 def _view(db: Session, poll: LivePoll, question: dict, lang: str, solution: bool, moderator: bool = False) -> dict:
     """Feste Optionsreihenfolge (wie gespeichert) — Beamer und Teilnehmer sehen
-    dieselben Buchstaben. Lösung, Erklärung und Ergebnis nur mit solution=True;
-    ausgeblendete Freitexte und deren ids nur mit moderator=True (Trainer)."""
+    dieselben Buchstaben. Lösung, Erklärung und Ergebnis nur mit solution=True
+    (Freitext/Wortwolke zusätzlich erst nach dem Auflösen); die Prüfliste samt
+    Ausgeblendetem und die Antwort-ids nur mit moderator=True (Trainer)."""
     kind = question["kind"]
     prompt = (question["prompt"][1] if lang == "en" else None) or question["prompt"][0] or ""
     out = {"id": poll.id, "kind": kind, "status": poll.status, "prompt": prompt}
@@ -119,7 +127,13 @@ def _view(db: Session, poll: LivePoll, question: dict, lang: str, solution: bool
             LivePollVote.poll_id == poll.id).all(), moderator))
     else:
         values = [v for (v,) in db.query(LivePollVote.value).filter(LivePollVote.poll_id == poll.id)]
-        out.update(tally(kind, values, len(options), *_scale(question)))
+        hidden = frozenset(question.get("hidden_words") or ())
+        out.update(tally(kind, values, len(options), *_scale(question), hidden_words=hidden))
+        if kind == "words" and moderator:
+            out["moderation"] = word_moderation(values, hidden)
+    if kind in MODERATED and poll.status != "revealed":
+        out.pop("answers", None)  # bleibt: votes (Zahl) und für den Trainer moderation
+        out.pop("words", None)
     if "answer" in question:  # nur Inhaltsfragen haben eine Lösung
         out["answer"] = question["answer"]
         out["explanation"] = (question["explanation"][1] if lang == "en" else None) or question["explanation"][0]
@@ -234,6 +248,30 @@ def hide_answer(cid: int, aid: int, data: AnswerHidden, db: Session = Depends(ge
     if not row or row.poll_id != poll.id:
         raise HTTPException(status_code=404, detail="Antwort nicht gefunden")
     row.hidden = data.hidden
+    db.commit()
+    return _trainer_view(db, poll)
+
+
+class WordHidden(BaseModel):
+    word: str = Field(max_length=WORD_MAX * 2)
+    hidden: bool
+
+
+@router.patch("/trainer/courses/{cid}/poll/words")
+def hide_word(cid: int, data: WordHidden, db: Session = Depends(get_db), _t: dict = Depends(get_trainer)):
+    """Wort der Wortwolke aus- bzw. wieder einblenden, vor und nach dem Auflösen.
+    Gespeichert normalisiert in config["hidden_words"] — gilt damit auch für
+    Stimmen, die das Wort erst später nennen."""
+    _course(db, cid)
+    poll = _current(db, cid)
+    word = normalize_word(data.word)
+    if not poll or poll.kind != "words" or not word:
+        raise HTTPException(status_code=404, detail="Wort nicht gefunden")
+    hidden = set((poll.config or {}).get("hidden_words") or ())
+    hidden = hidden | {word} if data.hidden else hidden - {word}
+    # ponytail: read-modify-write ohne Sperre — zwei gleichzeitige Klicks können
+    # einen verlieren. Ein Trainer je Abstimmung; Zeilensperre, falls das je stört.
+    poll.config = {**(poll.config or {}), "hidden_words": sorted(hidden)}  # neues dict: JSON-Änderung wird erkannt
     db.commit()
     return _trainer_view(db, poll)
 

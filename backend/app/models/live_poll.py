@@ -18,7 +18,8 @@ class LivePoll(Base):
     source: Mapped[str] = mapped_column(String, nullable=False)  # "quiz" | "check" | "adhoc"
     # single | multi | scale | text | words (services/poll_tally.py)
     kind: Mapped[str] = mapped_column(String, nullable=False, default="single", server_default="single")
-    # Nur "adhoc": Frage und Einstellungen (prompt, options, max_selections, min/max, label_min/label_max)
+    # Nur "adhoc": Frage und Einstellungen (prompt, options, max_selections, min/max, label_min/label_max);
+    # bei "words" zusätzlich hidden_words (normalisiert, vom Trainer ausgeblendet)
     config: Mapped[dict | None] = mapped_column(JSON, nullable=True)
     # Stabile Kennung (uid) der Frage bzw. des Blocks; ohne uid die Zeilen-id.
     ref: Mapped[str] = mapped_column(String, nullable=False)

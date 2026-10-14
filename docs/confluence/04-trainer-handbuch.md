@@ -88,15 +88,15 @@ Variante C: Eigene Abstimmung (ohne Lösung)
 | --- | --- | --- | --- |
 | Mehrfachauswahl | „Antworten (eine je Zeile, 2 bis 10)“, optional „Höchstens wählbar“ | wählen eine oder mehrere Antworten (bis zur Höchstzahl) | Balken je Antwort; Prozent bezogen auf die Teilnehmer, die abgestimmt haben |
 | Skala | „Von“ (0 oder 1), „Bis“ (2 bis 10), optional „Beschriftung unten“ und „Beschriftung oben“ (je höchstens 40 Zeichen) | wählen einen Wert | Säule je Wert und „Mittelwert“ |
-| Freitext | keine | schreiben eine kurze Antwort (höchstens 280 Zeichen) | Antwortkarten, alphabetisch sortiert |
-| Wortwolke | keine | nennen ein bis drei Wörter (je höchstens 30 Zeichen) | Wortwolke, häufige Wörter größer (höchstens 60 Wörter) |
+| Freitext | keine | schreiben eine kurze Antwort (höchstens 280 Zeichen) | vor „Auflösen“ nur die Zahl der Antworten, danach Antwortkarten, alphabetisch sortiert |
+| Wortwolke | keine | nennen ein bis drei Wörter (je höchstens 30 Zeichen) | vor „Auflösen“ nur die Zahl der Antworten, danach Wortwolke, häufige Wörter größer (höchstens 60 Wörter) |
 
 3. „Abstimmung starten“ wählen. Weiter wie in Variante A ab Schritt 3. Eigene Abstimmungen haben keine richtige Antwort; Teilnehmer sehen nach der Auflösung „Danke fürs Mitmachen!“ und das Ergebnis.
 
 Hinweise zu den Arten:
 
 - Wortwolke: Groß-/Kleinschreibung und Leerzeichen werden vereinheitlicht („ VLAN“ und „vlan“ zählen zusammen). Nennt ein Teilnehmer dasselbe Wort mehrfach, zählt es einmal.
-- Freitext moderieren: Vor dem Auflösen stehen die Antworten nicht groß auf dem Beamer, sondern eingeklappt unter „Antworten prüfen (n) — erst nach Klick sichtbar“. Dort blendet „Ausblenden“ eine Antwort aus, „Einblenden“ holt sie zurück. Nach „Auflösen“ erscheinen nur die sichtbaren Antworten groß; jede hat weiterhin „Ausblenden“. Ausgeblendete stehen eingeklappt unter „Ausgeblendete Antworten (n)“. Ausgeblendete Antworten sehen die Teilnehmer nicht; wer sie geschrieben hat, sieht seine eigene weiterhin. Ändert ein Teilnehmer eine ausgeblendete Antwort, bleibt sie ausgeblendet.
+- Freitext und Wortwolke moderieren: Vor dem Auflösen zeigen weder Beamer noch Teilnehmer Antworten, nur „n Antworten“. Zum Prüfen gibt es unter der Zahl die eingeklappte Liste „Antworten prüfen (n) — erst nach Klick sichtbar“ bzw. „Wörter prüfen (n)“ (jedes genannte Wort mit Anzahl). Sie ist auf dem Beamer erst nach Klick sichtbar; am besten auf dem eigenen Bildschirm öffnen, bevor gespiegelt wird. „Ausblenden“ blendet eine Antwort bzw. ein Wort aus, „Einblenden“ holt es zurück; das geht vor und nach „Auflösen“. Nach „Auflösen“ erscheinen nur die sichtbaren Antworten groß (jede Freitext-Karte hat weiterhin „Ausblenden“). Ein ausgeblendetes Wort zählt in keiner Wortwolke mit, auch wenn es später noch jemand nennt. Ausgeblendetes sehen die Teilnehmer nicht; wer es geschrieben hat, sieht seine eigene Antwort weiterhin. Ändert ein Teilnehmer eine ausgeblendete Freitext-Antwort, bleibt sie ausgeblendet.
 - Anonymität: Weder Beamer noch Trainer noch andere Teilnehmer sehen, wer was geantwortet hat. Freitexte erscheinen alphabetisch, nicht in der Reihenfolge der Abgabe.
 
 Laufende Abstimmung im Kurs-Detail: Solange im gewählten Kurs eine Abstimmung offen ist, zeigt das Kurs-Detail oben einen Kasten „Live-Abstimmung läuft“ (nach der Auflösung „Live-Abstimmung läuft (aufgelöst)“) mit der Zahl der Stimmen und der Frage. Der Knopf „Abstimmung beenden“ schließt sie von dort aus, auch wenn der Beamer-Modus nicht mehr offen ist.

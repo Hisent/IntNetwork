@@ -46,7 +46,7 @@ Zum Stand der ausgelieferten Inhalte: 99 Module, 1242 Blöcke, 754 Quizfragen (Q
 
 - Kurse anlegen, Einladungslink und QR-Code, Module je Kurs freischalten oder abwählen.
 - Fortschrittstabelle je Kurs, Live-Präsenz („Gerade aktiv“), Quiz-Statistik je Frage und Modul.
-- Beamer-Modus („▶ Präsentieren“) mit Notizen; mit Kurs-Bezug zusätzlich Live-Abstimmung zu Single- und Multiple-Choice-Quizfragen, Auswahl-Checks und eigenen Fragen (Mehrfachauswahl, Skala, Freitext mit Ausblenden einzelner Antworten, Wortwolke). Eine laufende Abstimmung zeigt das Kurs-Detail und lässt sich dort mit „Abstimmung beenden“ schließen.
+- Beamer-Modus („▶ Präsentieren“) mit Notizen; mit Kurs-Bezug zusätzlich Live-Abstimmung zu Single- und Multiple-Choice-Quizfragen, Auswahl-Checks und eigenen Fragen (Mehrfachauswahl, Skala, Freitext und Wortwolke, beide erst nach dem Auflösen sichtbar und vorher in einer eingeklappten Prüfliste ausblendbar). Eine laufende Abstimmung zeigt das Kurs-Detail und lässt sich dort mit „Abstimmung beenden“ schließen.
 - Feedback-Kommentare der Teilnehmer lesen und beantworten (Enter sendet; Löschen mit Rückfrage).
 - Teilnehmerverwaltung: Wiederaufnahme-Code zurücksetzen, Teilnehmer löschen; Kurs löschen (mit Wahl für die Teilnahmebestätigungen).
 - Modul-Editor mit einer Wiederherstellungsstufe und „Auslieferungszustand laden“, Statusleiste für das Speichern (mit Sprung zum fehlerhaften Block), Schutz ungespeicherter Änderungen und Konfliktbehandlung über „Serverstand laden (eigene Änderungen verwerfen)“.

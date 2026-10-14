@@ -55,9 +55,17 @@ def parse_answer(kind: str, raw, options: int = 0, max_selections: int | None = 
     raise ValueError("Unbekannte Art")
 
 
-def tally(kind: str, values: list, options: int = 0, lo: int = 1, hi: int = 5) -> dict:
+def _word_counts(values: list) -> list[tuple[str, int]]:
+    """(Wort, Anzahl), häufigste zuerst, bei Gleichstand alphabetisch."""
+    counter = Counter(w for words in values if isinstance(words, list) for w in words if isinstance(w, str))
+    return sorted(counter.items(), key=lambda kv: (-kv[1], kv[0]))
+
+
+def tally(kind: str, values: list, options: int = 0, lo: int = 1, hi: int = 5,
+          hidden_words: frozenset[str] = frozenset()) -> dict:
     """Ergebnis für multi/scale/words aus den gespeicherten Werten.
-    Werte, die (etwa nach einer Inhaltsänderung) nicht mehr passen, zählen nicht."""
+    Werte, die (etwa nach einer Inhaltsänderung) nicht mehr passen, zählen nicht;
+    vom Trainer ausgeblendete Wörter (normalisiert) zählen nirgends."""
     if kind == "multi":
         counts = [0] * options
         for picked in values:
@@ -73,17 +81,25 @@ def tally(kind: str, values: list, options: int = 0, lo: int = 1, hi: int = 5) -
         return {"counts": counts, "votes": len(valid),
                 "mean": round(sum(valid) / len(valid), 2) if valid else None}
     if kind == "words":
-        counter = Counter(w for words in values if isinstance(words, list) for w in words if isinstance(w, str))
-        top = sorted(counter.items(), key=lambda kv: (-kv[1], kv[0]))[:CLOUD_MAX]
+        top = [(w, n) for w, n in _word_counts(values) if w not in hidden_words][:CLOUD_MAX]
         return {"words": [{"word": w, "count": n} for w, n in top], "votes": len(values)}
     raise ValueError("Unbekannte Art")
 
 
+def word_moderation(values: list, hidden_words: frozenset[str]) -> list[dict]:
+    """Prüfliste des Trainers: alle genannten Wörter (nicht nur die Wolke) samt
+    Ausblend-Status — nur Wort und Anzahl, nie wer es genannt hat."""
+    return [{"word": w, "count": n, "hidden": w in hidden_words} for w, n in _word_counts(values)]
+
+
 def text_answers(rows: list[tuple[int, str, bool]], moderator: bool) -> dict:
     """Freitexte (id, text, hidden). Alphabetisch statt in Abgabe-Reihenfolge —
-    die Reihenfolge verriete sonst, wer wann geschrieben hat. Der Trainer bekommt
-    alle samt id (zum Ausblenden), Teilnehmer nur die sichtbaren, ohne id."""
+    die Reihenfolge verriete sonst, wer wann geschrieben hat. `answers` enthält
+    nur die sichtbaren (für den Trainer mit id zum Ausblenden); der Trainer
+    bekommt zusätzlich die Prüfliste `moderation` mit allen samt hidden."""
     rows = sorted((r for r in rows if isinstance(r[1], str)), key=lambda r: (r[1].lower(), r[0]))
-    answers = ([{"id": i, "text": text, "hidden": hidden} for i, text, hidden in rows] if moderator
-               else [{"text": text} for _i, text, hidden in rows if not hidden])
-    return {"answers": answers, "votes": len(rows)}
+    out = {"answers": [{"id": i, "text": text} if moderator else {"text": text}
+                       for i, text, hidden in rows if not hidden], "votes": len(rows)}
+    if moderator:
+        out["moderation"] = [{"id": i, "text": text, "hidden": hidden} for i, text, hidden in rows]
+    return out

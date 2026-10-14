@@ -87,16 +87,21 @@ def test_freitext_ausblenden_und_anonym():
         assert _vote(c, a, poll["id"], "   ").status_code == 422
         assert _vote(c, a, poll["id"], "Etwas  Unpassendes").json()["my_choice"] == "Etwas Unpassendes"
         _vote(c, b, poll["id"], "Trunks verstehen")
+        # Vor dem Auflösen: Beamer (Trainer-Ansicht) und Teilnehmer sehen keine Texte,
+        # der Trainer nur die Zahl und die Prüfliste.
         live = c.get(f"/api/trainer/courses/{cid}/poll", headers=h).json()
-        assert [x["text"] for x in live["answers"]] == ["Etwas Unpassendes", "Trunks verstehen"]
-        bad_id = live["answers"][0]["id"]
+        assert "answers" not in live and live["votes"] == 2
+        assert [x["text"] for x in live["moderation"]] == ["Etwas Unpassendes", "Trunks verstehen"]
+        assert "answers" not in _mine(c, b) and "moderation" not in _mine(c, b)
+        bad_id = live["moderation"][0]["id"]
         # vor dem Auflösen ausblenden
         hidden = c.patch(f"/api/trainer/courses/{cid}/poll/answers/{bad_id}", headers=h, json={"hidden": True}).json()
-        assert hidden["answers"][0]["hidden"] is True and hidden["votes"] == 2
+        assert hidden["moderation"][0]["hidden"] is True and hidden["votes"] == 2 and "answers" not in hidden
         # Ändern hebt das Ausblenden nicht auf
         _vote(c, a, poll["id"], "Noch was")
         out = _reveal(c, h, cid)
-        assert {x["text"]: x["hidden"] for x in out["answers"]} == {"Noch was": True, "Trunks verstehen": False}
+        assert {x["text"]: x["hidden"] for x in out["moderation"]} == {"Noch was": True, "Trunks verstehen": False}
+        assert [x["text"] for x in out["answers"]] == ["Trunks verstehen"]  # Beamer: nur Sichtbares
         seen_b = c.get(f"/api/modules/{MOD}/poll", headers=b)
         assert seen_b.json()["answers"] == [{"text": "Trunks verstehen"}]
         assert _mine(c, a)["my_choice"] == "Noch was"  # die eigene Antwort sieht man selbst
@@ -107,7 +112,7 @@ def test_freitext_ausblenden_und_anonym():
         # Anonym: weder Namen noch ids/participant in irgendeiner Antwort
         for resp in (seen_b, r, c.get(f"/api/trainer/courses/{cid}/poll", headers=h)):
             assert "TypText-Person" not in resp.text and "participant" not in resp.text
-        assert "id" not in _mine(c, b)["answers"][0]
+        assert "id" not in _mine(c, b)["answers"][0] and "moderation" not in _mine(c, b)
         # Rollen und fremde/unpassende Ziele
         assert c.patch(f"/api/trainer/courses/{cid}/poll/answers/{bad_id}", headers=a,
                        json={"hidden": True}).status_code == 403
@@ -140,6 +145,9 @@ def test_wortwolke_normalisiert_und_zaehlt():
         assert _vote(c, a, poll["id"], [" Trunk", "TAG", "trunk "]).json()["my_choice"] == ["trunk", "tag"]
         _vote(c, b, poll["id"], ["trunk", "Native  VLAN"])
         assert "words" not in _mine(c, a)
+        live = c.get(f"/api/trainer/courses/{cid}/poll", headers=h).json()
+        assert "words" not in live and live["votes"] == 2  # Beamer: vor dem Auflösen nur die Zahl
+        assert live["moderation"][0] == {"word": "trunk", "count": 2, "hidden": False}
         out = _reveal(c, h, cid)
         assert out["votes"] == 2 and out["words"] == [
             {"word": "trunk", "count": 2}, {"word": "native vlan", "count": 1}, {"word": "tag", "count": 1}]
@@ -166,3 +174,31 @@ def test_multiple_choice_quizfrage_mit_loesung():
         _reveal(c, h, cid)
         out = c.get(f"/api/modules/{key}/poll", headers=p).json()
         assert out["answer"] == q["answer"] and sum(out["counts"]) == len(q["answer"])
+
+
+def test_wortwolke_wort_ausblenden():
+    with TestClient(app) as c:
+        h, cid, (a, b) = _setup(c, "TypWortWeg")
+        poll = _adhoc(c, h, cid, kind="words", prompt="Ein Wort?").json()
+        _vote(c, a, poll["id"], ["Mist", "vlan"])
+        url = f"/api/trainer/courses/{cid}/poll/words"
+        out = c.patch(url, headers=h, json={"word": "  MIST ", "hidden": True}).json()  # normalisiert
+        assert "words" not in out and {"word": "mist", "count": 1, "hidden": True} in out["moderation"]
+        _vote(c, b, poll["id"], ["mist", "trunk"])  # später genannt: bleibt ausgeblendet
+        out = _reveal(c, h, cid)
+        assert [w["word"] for w in out["words"]] == ["trunk", "vlan"] and out["votes"] == 2
+        assert out["moderation"][0] == {"word": "mist", "count": 2, "hidden": True}
+        seen = c.get(f"/api/modules/{MOD}/poll", headers=b)
+        assert seen.json()["words"] == out["words"] and "moderation" not in seen.json()
+        for text in (seen.text, str(out)):  # anonym: weder Namen noch Teilnehmer-Bezug
+            assert "TypWortWeg-Person" not in text and "participant" not in text
+        # wieder einblenden
+        out = c.patch(url, headers=h, json={"word": "mist", "hidden": False}).json()
+        assert out["words"][0] == {"word": "mist", "count": 2}
+        # Rollen und unpassende Ziele
+        assert c.patch(url, headers=a, json={"word": "vlan", "hidden": True}).status_code == 403
+        assert c.patch(url, headers=h, json={"word": " ", "hidden": True}).status_code == 404
+        h2, cid2, _ = _setup(c, "TypWortText", 0)
+        _adhoc(c, h2, cid2, kind="text", prompt="Freitext")
+        assert c.patch(f"/api/trainer/courses/{cid2}/poll/words", headers=h2,
+                       json={"word": "x", "hidden": True}).status_code == 404

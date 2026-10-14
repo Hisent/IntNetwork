@@ -71,8 +71,10 @@ export interface LivePoll {
   counts?: number[]  // single/multi je Option, scale je Wert ab min
   votes?: number
   mean?: number | null
-  answers?: { id?: number; text: string; hidden?: boolean }[]  // text
-  words?: { word: string; count: number }[]  // words, häufigste zuerst
+  answers?: { id?: number; text: string }[]  // text, erst nach dem Auflösen; nur sichtbare (id nur für den Trainer)
+  words?: { word: string; count: number }[]  // words, erst nach dem Auflösen; häufigste zuerst, ohne ausgeblendete
+  // Nur Trainer, text/words: Prüfliste mit allem samt Ausblend-Status (text: id+text, words: word+count)
+  moderation?: { id?: number; text?: string; word?: string; count?: number; hidden: boolean }[]
   answer?: number | number[]
   explanation?: string | null
 }

@@ -107,15 +107,14 @@ export function TextInput({ poll, lang, pending, onSend }: { poll: LivePoll; lan
   )
 }
 
-/** Freitexte als Karten. Ausgeblendete fehlen; onHide nur in der Trainer-Ansicht. */
+/** Freitexte als Karten (die API liefert nur sichtbare); onHide nur in der Trainer-Ansicht. */
 export function TextAnswers({ answers, lang, big, onHide }: {
   answers: NonNullable<LivePoll['answers']>; lang: Lang; big?: boolean; onHide?: (id: number) => void
 }) {
-  const visible = answers.filter((a) => !a.hidden)
-  if (visible.length === 0) return <p className={`text-[var(--wb-muted)] ${big ? 'text-2xl' : 'text-sm'}`}>{t(lang, 'pollNoAnswers')}</p>
+  if (answers.length === 0) return <p className={`text-[var(--wb-muted)] ${big ? 'text-2xl' : 'text-sm'}`}>{t(lang, 'pollNoAnswers')}</p>
   return (
     <ul className={big ? 'grid gap-3 text-2xl sm:grid-cols-2' : 'space-y-2 text-sm'}>
-      {visible.map((a, i) => (
+      {answers.map((a, i) => (
         <li key={a.id ?? i} className={`wb-surface flex items-start gap-3 ${big ? 'px-5 py-4' : 'px-3 py-2'}`}>
           <span className="min-w-0 flex-1 [overflow-wrap:anywhere]">{a.text}</span>
           {onHide && a.id != null && (
