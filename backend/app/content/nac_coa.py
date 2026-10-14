@@ -343,7 +343,7 @@ NAC_COA_MODULE = {
                  'Der Policy-Server sendet eine CoA-Request-Nachricht an den zuständigen NAS '
                  '(Switch/WLC)',
                  'Der NAS wendet die neue Autorisierung auf die laufende Session an (zum '
-                 'Beispiel Wechsel ins Quarantäne-VLAN)',
+                 'Beispiel Quarantäne-ACL im bisherigen VLAN)',
                  'Der NAS bestätigt die Änderung an den Policy-Server zurück',
              ],
              'items_en': [
@@ -354,7 +354,7 @@ NAC_COA_MODULE = {
                  'The policy server sends a CoA-Request message to the responsible NAS '
                  '(switch/WLC)',
                  'The NAS applies the new authorization to the running session (for example a '
-                 'move into the quarantine VLAN)',
+                 'quarantine ACL in the current VLAN)',
                  'The NAS confirms the change back to the policy server',
              ],
          }},
