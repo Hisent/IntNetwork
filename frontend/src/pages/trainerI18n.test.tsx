@@ -28,7 +28,7 @@ afterEach(() => {
 // Gleichlautende Wörter/Symbole in beiden Sprachen (kein fehlender Key).
 const SAME_IN_BOTH = new Set([
   'trTrainer', 'trWorkshop', 'trNameLabel', 'trFeedback', 'trPasskeys', 'trQuiz', 'trBlockN', 'trBackTrainer',
-  'trTextDe', 'trTextEn', 'trOptionDe', 'trOptionEn', 'trAddOption', 'trKey',
+  'trTextDe', 'trTextEn', 'trOptionDe', 'trOptionEn', 'trAddOption',
 ])
 
 describe('Trainer-Wörterbuch', () => {

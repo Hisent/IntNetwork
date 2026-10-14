@@ -1,5 +1,15 @@
 # Projekt-Changelog (nur für Trainer sichtbar). Neueste zuerst.
 CHANGELOG = [
+    {"date": "2026-10-14", "title": "v1.45.0 — Admin-Rolle, neue Umfragetypen und Trainer-Oberfläche auf Englisch",
+     "text": "Trainerkonten und globale Einstellungen verwalten jetzt nur noch Admins; beim Update "
+             "wird der älteste Trainer automatisch zum Admin. Live-Abstimmungen gibt es nun auch "
+             "als Mehrfachauswahl, Skala, Freitext und Wortwolke — als spontane Umfragen im "
+             "Kursdetail, mit Moderation vor der Auflösung. Die Trainer-Oberfläche lässt sich auf "
+             "Englisch umstellen. Optional löscht COURSE_RETENTION_DAYS alte Kurse automatisch "
+             "(Standard 0 = aus). Bei Fehlern zeigt die Oberfläche eine Fehler-ID, die im "
+             "Server-Log wiederzufinden ist; Fehlerberichte aus dem Browser landen ebenfalls im "
+             "Server-Log. Das Trainer-Dashboard aktualisiert sich selbst, solange der Tab sichtbar "
+             "ist. Neu in der CI: Browser-E2E-Tests mit Playwright."},
     {"date": "2026-10-14", "title": "v1.44.0 — Hands-on-Labs für Infoblox und NAC",
      "text": "Im Infoblox-Lehrgang gibt es erstmals ein interaktives Element: eine WAPI-Konsole, "
              "in der Teilnehmer Anfragen gegen ein simuliertes Grid absetzen (im Modul "

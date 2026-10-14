@@ -1,4 +1,4 @@
-Stand: v1.43.0 + Trennung der Lab-Läufe per uid, Admin-Rolle, Aufbewahrung, Fehler-IDs (2026-10-14) · Quelle: docs/operations.md, README.md, .env.example, docker-compose.yml, docs/lab-sicherheit.md, backend/app/database.py, backend/app/utils.py, backend/app/content/changelog.py, backend/app/routers/trainer_accounts.py, backend/app/services/retention.py, backend/app/main.py
+Stand: v1.45.0 + Trennung der Lab-Läufe per uid, Admin-Rolle, Aufbewahrung, Fehler-IDs (2026-10-14) · Quelle: docs/operations.md, README.md, .env.example, docker-compose.yml, docs/lab-sicherheit.md, backend/app/database.py, backend/app/utils.py, backend/app/content/changelog.py, backend/app/routers/trainer_accounts.py, backend/app/services/retention.py, backend/app/main.py
 
 # IntLab: Betrieb
 

@@ -51,7 +51,7 @@ export function CourseDetail({ course, workshopTitle, workshops, portalContainer
   const cid = course.id
   const courseMods = useQuery({ queryKey: ['course-modules', cid], queryFn: () => trainerApi.courseModules(cid).then((r) => r.data) })
   const presence = useQuery({ queryKey: ['presence', cid], queryFn: () => trainerApi.coursePresence(cid).then((r) => r.data), refetchInterval: 10_000 })
-  const dash = useQuery({ queryKey: ['dashboard', cid], queryFn: () => trainerApi.dashboard(cid).then((r) => r.data) })
+  const dash = useQuery({ queryKey: ['dashboard', cid], queryFn: () => trainerApi.dashboard(cid).then((r) => r.data), refetchInterval: 15_000 })
   const features = useQuery({ queryKey: ['features'], queryFn: () => trainerApi.features().then((r) => r.data) })
   // Läuft noch eine Live-Abstimmung (z. B. Präsentation per Zurück/Tab-Schließen
   // verlassen)? Sie bliebe für die Teilnehmer offen und hier unsichtbar.
