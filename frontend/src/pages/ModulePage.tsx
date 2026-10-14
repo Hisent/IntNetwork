@@ -7,6 +7,8 @@ import { Blocks } from '@/components/Blocks'
 import { BlockComments } from '@/components/BlockComments'
 import { Quiz } from '@/components/Quiz'
 import { loadRead, pruneOtherParticipants, toggleRead } from '@/lib/readProgress'
+import { useModuleStateSync } from '@/lib/moduleStateSync'
+import { ReviewWarmupBanner } from '@/components/ReviewCard'
 import { PageSkeleton } from '@/components/PageSkeleton'
 import { LoadError, ModuleMissing } from '@/components/LoadError'
 import { localTitle, storeLang, t, useDocumentLang, useDocumentTitle, type Lang } from '@/lib/i18n'
@@ -25,6 +27,7 @@ import { modulePositions } from '@/lib/modulePosition'
 import { WorkshopTheme } from '@/components/WorkshopTheme'
 import { PrintContext, usePrintState } from '@/lib/printMode'
 import { ParticipantPoll } from '@/components/LivePoll'
+import { FollowBanner } from '@/components/FollowBanner'
 
 export function ModulePage() {
   const { key = '' } = useParams()
@@ -45,15 +48,20 @@ export function ModulePage() {
   const courseId = me.data?.course_id
   const participantId = me.data?.participant_id
   const scoped = participantId != null && courseId != null
+  // Lese-/Übungsstand erst mit dem Server abgleichen (frisches Gerät: der Server gewinnt),
+  // dann aus dem lokalen Cache anzeigen — bis dahin bleibt keyScope leer wie vor /me.
+  const synced = useModuleStateSync(scoped ? `${participantId}-${courseId}` : '', key)
   // Reflexions-/Lese-Keys pro Teilnehmer trennen (geteilter Browser).
-  const keyScope = scoped ? `${participantId}-${courseId}` : ''
+  const keyScope = scoped && synced ? `${participantId}-${courseId}` : ''
   useEffect(() => {
     if (!scoped) return
     // Genau hier wird die participantId app-weit zuerst bekannt — passender
     // Zeitpunkt, um Reste anderer Teilnehmer am geteilten Browser zu räumen.
     pruneOtherParticipants(participantId)
-    setRead(loadRead(participantId, courseId, key))
-  }, [scoped, participantId, courseId, key])
+  }, [scoped, participantId])
+  useEffect(() => {
+    setRead(scoped && synced ? loadRead(participantId, courseId, key) : [])
+  }, [scoped, synced, participantId, courseId, key])
   const lang: Lang = me.data?.language ?? 'de'
   useDocumentLang(lang)
   const mod = useQuery({
@@ -126,7 +134,8 @@ export function ModulePage() {
   if (!isParticipant) return <Navigate to="/" replace />
   if ((mod.error as ApiError | null)?.response?.status === 404) return <ModuleMissing lang={lang} code={(mod.error as ApiError).response?.data?.code} />
   if (mod.isError || me.isError) return <LoadError lang={lang} onRetry={() => { me.refetch(); mod.refetch() }} />
-  if (mod.isLoading || !mod.data) return <PageSkeleton />
+  // Erst nach dem Abgleich rendern: sonst landete eine Eingabe davor im noch leeren Scope.
+  if (mod.isLoading || !mod.data || (scoped && !synced)) return <PageSkeleton />
 
   const commentsOn = features.data?.comments ?? false
   const textIndexes = mod.data.blocks.map((b, i) => (b.type === 'text' ? i : -1)).filter((i) => i >= 0)
@@ -160,7 +169,7 @@ export function ModulePage() {
         nextModule={nextModule}
         justPassed={justPassed}
         setLanguage={switchLanguage}
-        onToggleRead={(index) => scoped && setRead(toggleRead(participantId, courseId, key, read, index))}
+        onToggleRead={(index) => scoped && synced && setRead(toggleRead(participantId, courseId, key, read, index))}
         onQuizResult={(passed) => { setJustPassed(passed); qc.invalidateQueries({ queryKey: ['me'] }) }}
       />
       </PrintContext.Provider>
@@ -251,7 +260,7 @@ export function WorkbenchModuleView({ lang, moduleKey, keyScope, module, modules
   const openKeys = openPrerequisites(module, progress, modules)
   const buildsOn = modules.filter((m) => openKeys.includes(m.key))
   const languageControl = (
-    <><LangToggle lang={lang} onChange={setLanguage} className="hidden sm:flex" />{showGlossary && <div className="xl:hidden"><GlossaryPanel moduleKey={moduleKey} lang={lang} /></div>}</>
+    <><LangToggle lang={lang} onChange={setLanguage} className="hidden sm:flex" />{showGlossary && <div className="xl:hidden"><GlossaryPanel moduleKey={moduleKey} workshopKey={module.workshop_key} lang={lang} /></div>}</>
   )
   return (
     <div className="workbench">
@@ -261,6 +270,7 @@ export function WorkbenchModuleView({ lang, moduleKey, keyScope, module, modules
       <WorkbenchTopbar lang={lang} title={title} actions={languageControl} />
       <div className="h-1 bg-[var(--wb-subtle)] print:hidden"><div className="h-full bg-[var(--wb-accent)]" style={{ width: `${readPct}%` }} /></div>
       <div className="wb-shell">
+        <FollowBanner lang={lang} current={moduleKey} modules={modules} progress={progress} />
         <details id="module-nav" className="wb-surface mb-5 scroll-mt-20 p-3 lg:hidden print:hidden">
           <summary className="wb-control flex cursor-pointer items-center px-2 font-semibold">{lang === 'de' ? 'Kursnavigation öffnen' : 'Open course navigation'}</summary>
           <div className="mt-2 max-h-[60dvh] overflow-y-auto border-t border-[var(--wb-border)] pt-3">
@@ -269,6 +279,7 @@ export function WorkbenchModuleView({ lang, moduleKey, keyScope, module, modules
           </div>
         </details>
 
+        <ReviewWarmupBanner lang={lang} />
         <div className="wb-module-grid">
           <aside aria-label={lang === 'de' ? 'Modulübersicht' : 'Course overview'} className="sticky top-20 hidden max-h-[calc(100dvh-6rem)] overflow-y-auto lg:block print:hidden">
             <WorkbenchSectionTitle>{lang === 'de' ? 'Kursmodule' : 'Course modules'}</WorkbenchSectionTitle>
@@ -335,7 +346,7 @@ export function WorkbenchModuleView({ lang, moduleKey, keyScope, module, modules
           </main>
 
           <aside aria-label={lang === 'de' ? 'Auf dieser Seite' : 'On this page'} className="sticky top-20 hidden max-h-[calc(100dvh-6rem)] space-y-5 overflow-y-auto xl:block print:hidden">
-            <section className="wb-surface p-4"><WorkbenchProgress value={readPct} label={lang === 'de' ? 'Gelesen' : 'Read'} />{showGlossary && <div className="mt-4"><GlossaryPanel moduleKey={moduleKey} lang={lang} /></div>}</section>
+            <section className="wb-surface p-4"><WorkbenchProgress value={readPct} label={lang === 'de' ? 'Gelesen' : 'Read'} />{showGlossary && <div className="mt-4"><GlossaryPanel moduleKey={moduleKey} workshopKey={module.workshop_key} lang={lang} /></div>}</section>
             {toc.length > 0 && <section><WorkbenchSectionTitle>{t(lang, 'tocTitle')}</WorkbenchSectionTitle><nav aria-label={t(lang, 'tocTitle')} className="space-y-1">{toc.map((item, index) => <a key={`${item.i}-${index}`} href={`#block-${item.i}`} className="wb-control flex items-center border-l border-[var(--wb-border)] px-3 text-sm text-[var(--wb-muted)] hover:border-[var(--wb-accent)] hover:text-[var(--wb-accent)]">{item.title}</a>)}</nav></section>}
           </aside>
         </div>

@@ -1,14 +1,16 @@
 import json
+from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import JSONResponse
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, Field, field_validator, model_validator
 from sqlalchemy import func
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.models.content import ContentBlock, ContentModule, ContentQuizQuestion
+from app.models.module_state import ModuleState
 from app.models.participant import Participant
 from app.models.progress import Progress
 from app.models.quiz_result import QuizResult
@@ -16,8 +18,9 @@ from app.services.deps import get_participant
 from app.services import grading
 from app.services.course_membership import active_module_keys
 from app.services.ratelimit import rate_limit
+from app.routers.presence import touch_presence
 from app.content.registry import module_meta, public_module, trainer_module
-from app.utils import utc_now
+from app.utils import iso_utc, utc_now
 
 router = APIRouter(prefix="/modules", tags=["modules"])
 
@@ -146,7 +149,57 @@ def heartbeat(key: str, db: Session = Depends(get_db), p: Participant = Depends(
     # Klassenraum-Gruppe treffen, nicht Angreifer.
     if denied := _unavailable(db, p, key):
         return denied
-    p.current_module_key = key
-    p.last_seen = utc_now()
+    touch_presence(p, key)
     db.commit()
     return {"ok": True}
+
+
+# Lese-Haken + Übungsstand je Modul (frontend/src/lib/moduleStateSync.ts). Obergrenze
+# für den ganzen Blob: ein Modul hat ~15 Übungen mit je wenigen hundert Bytes Stand.
+STATE_MAX_BYTES = 64_000
+
+
+class ModuleStateIn(BaseModel):
+    read: list[Annotated[int, Field(ge=0, le=10_000)]] = Field(default_factory=list, max_length=1_000)
+    exercises: dict[Annotated[str, Field(max_length=200)], Any] = Field(default_factory=dict, max_length=500)
+
+    @model_validator(mode="after")
+    def _begrenzt(self):
+        if len(json.dumps(self.model_dump())) > STATE_MAX_BYTES:
+            raise ValueError("Stand zu gross")
+        return self
+
+
+@router.get("/{key}/state")
+def get_state(key: str, db: Session = Depends(get_db), p: Participant = Depends(get_participant)):
+    if denied := _unavailable(db, p, key):
+        return denied
+    row = db.query(ModuleState).filter(ModuleState.participant_id == p.id, ModuleState.module_key == key).first()
+    if not row:
+        return {"read": [], "exercises": {}, "updated_at": None}
+    return {**row.data, "updated_at": iso_utc(row.updated_at)}
+
+
+# Gespeichert wird entprellt (~1,5 s nach der letzten Änderung); ein NAT-Klassenraum
+# teilt sich die IP -> großzügig, bremst nur Skript-Spam.
+@router.put("/{key}/state", dependencies=[Depends(rate_limit(600, 60))])
+def put_state(key: str, data: ModuleStateIn, db: Session = Depends(get_db),
+              p: Participant = Depends(get_participant)):
+    """Ersetzt den ganzen Stand und stempelt updated_at. Der Client merkt sich den
+    zurückgegebenen Wert als Basisversion: eine ungesendete lokale Änderung gewinnt
+    beim Öffnen nur, wenn GET noch genau diesen Wert liefert (moduleStateSync.ts) —
+    verglichen wird als Kennung, nicht als Uhrzeit."""
+    if denied := _unavailable(db, p, key):
+        return denied
+    now = utc_now().replace(tzinfo=None)
+    values = {"data": data.model_dump(), "updated_at": now}
+    mine = db.query(ModuleState).filter(ModuleState.participant_id == p.id, ModuleState.module_key == key)
+    if not mine.update(values, synchronize_session=False):
+        db.add(ModuleState(participant_id=p.id, module_key=key, **values))
+    try:
+        db.commit()
+    except IntegrityError:  # zwei Tabs speichern gleichzeitig zum ersten Mal
+        db.rollback()
+        mine.update(values, synchronize_session=False)
+        db.commit()
+    return {"updated_at": iso_utc(now)}

@@ -11,7 +11,7 @@ import { useAuthStore } from '@/store/auth'
 import type { LivePoll } from '@/types'
 
 vi.mock('@/lib/api', () => ({
-  api: { get: vi.fn(), post: vi.fn(), put: vi.fn(), patch: vi.fn(), delete: vi.fn() },
+  api: { get: vi.fn(), post: vi.fn(), put: vi.fn(() => Promise.resolve({ data: null })), patch: vi.fn(), delete: vi.fn() },
   errMsg: (_e: unknown, fallback: string) => fallback,
 }))
 
@@ -76,6 +76,23 @@ describe('ParticipantPoll', () => {
     expect(screen.getByText('Deine Wahl')).toBeTruthy()
     expect(screen.getAllByTestId('poll-bar').map((bar) => bar.style.width)).toEqual(['25%', '75%', '0%'])
     expect(screen.queryByRole('button', { name: /Switch/ })).toBeNull()
+  })
+
+  it('behält einen nicht abgeschickten Freitext beim Minimieren (Entwurf je Abstimmung)', async () => {
+    sessionStorage.clear()
+    mockGet({ '/modules/m1/poll': { id: 9, kind: 'text', status: 'open', prompt: 'Was nehmt ihr mit?', my_choice: null } })
+    vi.mocked(api.post).mockResolvedValue({ data: { ok: true, my_choice: 'Halb fertig' } })
+    renderPoll()
+
+    fireEvent.change(await screen.findByLabelText('Deine Antwort'), { target: { value: 'Halb fertig' } })
+    fireEvent.keyDown(document, { key: 'Escape' })
+    expect(screen.queryByRole('dialog')).toBeNull()
+    fireEvent.click(screen.getByRole('button', { name: 'Live-Abstimmung läuft' }))
+    expect((screen.getByLabelText('Deine Antwort') as HTMLTextAreaElement).value).toBe('Halb fertig')
+    // Abschicken räumt den Entwurf weg
+    fireEvent.click(screen.getByRole('button', { name: 'Senden' }))
+    await waitFor(() => expect(api.post).toHaveBeenCalledWith('/modules/m1/poll/vote', { poll_id: 9, choice: 'Halb fertig' }))
+    expect(sessionStorage.getItem('poll-draft-9')).toBeNull()
   })
 
   it('rendert nichts, solange keine Abstimmung läuft', async () => {
@@ -154,6 +171,21 @@ describe('TrainerPresentPage — Live-Abstimmung', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Abstimmung beenden' }))
     expect(await screen.findByText('2 / 2')).toBeTruthy()  // zurück auf derselben Folie
     expect(api.delete).toHaveBeenCalledWith('/trainer/courses/7/poll')
+  })
+
+  it('mit Kurs: „Folgt mir“ teilt Modul und Block je Folie; abschalten löscht den Stand', async () => {
+    vi.mocked(api.delete).mockResolvedValue({ data: { ok: true } })
+    renderPage('?kurs=7')
+    await waitFor(() => expect(api.put).toHaveBeenCalledWith('/trainer/courses/7/follow', { module_key: 'm1', block_uid: null }))
+    fireEvent.click(await screen.findByRole('button', { name: /weiter/ }))
+    await waitFor(() => expect(api.put).toHaveBeenCalledWith('/trainer/courses/7/follow', { module_key: 'm1', block_uid: 'check-1' }))
+
+    fireEvent.click(screen.getByRole('checkbox', { name: 'Meine Position teilen („Folgt mir“)' }))
+    await waitFor(() => expect(api.delete).toHaveBeenCalledWith('/trainer/courses/7/follow'))
+    vi.mocked(api.put).mockClear()
+    fireEvent.click(screen.getByRole('button', { name: /zurück/ }))
+    expect(screen.getByText('1 / 2')).toBeTruthy()
+    expect(api.put).not.toHaveBeenCalled()  // abgeschaltet: Folienwechsel teilt nichts mehr
   })
 
   it('mit Kurs: eine Quizfrage lässt sich über die Auswahl zur Abstimmung stellen', async () => {

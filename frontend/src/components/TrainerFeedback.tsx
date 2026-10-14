@@ -2,6 +2,7 @@ import { useRef, useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { trainerApi } from '@/lib/trainerApi'
 import { ConfirmDialog } from '@/components/ConfirmDialog'
+import { localTitle } from '@/lib/i18n'
 import { useTr } from '@/store/lang'
 import { groupByModuleBlock, blockSnippet, type TrainerComment } from '@/components/commentGroups'
 
@@ -41,7 +42,7 @@ function FeedbackModule({
   moduleKey: string
   comments: TrainerComment[]
 }) {
-  const { tr } = useTr()
+  const { lang, tr } = useTr()
   const qc = useQueryClient()
   const mod = useQuery({
     queryKey: ['trainer-module', moduleKey],
@@ -74,7 +75,7 @@ function FeedbackModule({
 
   return (
     <div ref={rootRef} className="rounded-xl border bg-white p-4">
-      <h4 className="text-sm font-semibold text-slate-800 mb-2">{mod.data?.title ?? moduleKey}</h4>
+      <h4 className="text-sm font-semibold text-slate-800 mb-2">{mod.data ? localTitle(mod.data, lang) : moduleKey}</h4>
       {(add.isError || del.isError) && <p role="alert" className="mb-2 text-xs text-rose-600">{tr('trActionFailed')}</p>}
       <div className="flex flex-col gap-3">
         {groups.map((g) => {
@@ -128,7 +129,6 @@ function FeedbackModule({
         title={tr('trDeleteComment')}
         description={<>{tr('trDeleteCommentDesc', { name: deleteTarget?.author_name ?? '' })}</>}
         confirmLabel={tr('trDelete')}
-        cancelLabel={tr('trCancel')}
         triggerRef={deleteTriggerRef}
         container={rootRef.current?.closest('.workbench')}
         onConfirm={() => { if (deleteTarget) del.mutate(deleteTarget.id); setDeleteTarget(null) }}

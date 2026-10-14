@@ -1,18 +1,49 @@
 import { useQuery } from '@tanstack/react-query'
 import { api } from '@/lib/api'
-import type { AdhocPoll, LivePoll, ModuleMeta, TrainerModuleDetail } from '@/types'
+import type { AdhocPoll, Follow, LivePoll, ModuleMeta, TrainerModuleDetail } from '@/types'
 import type { TrainerComment } from '@/components/commentGroups'
+import type { Lang } from '@/lib/i18n'
 
-export interface Course { id: number; name: string; join_code: string; workshop_key: string | null; participant_count?: number; require_approval?: boolean; /** nur im Dashboard: ausgestellte Zertifikate dieses Kurses */ certificate_count?: number }
+const enQuery = (lang: Lang) => (lang === 'en' ? '?lang=en' : '')
+
+export interface Course { id: number; name: string; join_code: string; workshop_key: string | null; participant_count?: number; require_approval?: boolean; /** nur im Dashboard: ausgestellte Zertifikate dieses Kurses */ certificate_count?: number; /** nur im Dashboard: geteilte Trainer-Position („Folgt mir“) */ follow?: Follow | null }
 export interface Dashboard {
   course: Course
-  modules: { key: string; title: string; order: number }[]
+  modules: { key: string; title: string; title_en?: string; order: number }[]
   participants: { id: number; name: string; approved: boolean; cells: Record<string, { done: boolean; best: number | null }> }[]
 }
 
-export interface ChangelogEntry { date: string; title: string; text: string }
-export interface CourseModule { key: string; title: string; order: number; workshop_key: string | null; active: boolean }
-export interface PresenceEntry { name: string; module_key: string; module_title: string }
+export interface ChangelogEntry { date: string; title: string; text: string; title_en?: string; text_en?: string }
+// Lernerfolg (routers/learning_outcomes.py)
+export interface AssessmentQuestionStat {
+  id: string; module_key: string; module_title: string; prompt: string; type: string
+  pre_correct: number; pre_attempts: number; post_correct: number; post_attempts: number
+}
+export interface TrainerAssessment {
+  phase: 'pre' | 'post' | null
+  fixed: boolean  // Fragensatz festgeschrieben (beim ersten Öffnen)
+  answered: boolean  // es gibt Antworten -> kein Neuziehen mehr
+  questions: AssessmentQuestionStat[]
+  participants: { id: number; name: string; pre: number | null; post: number | null }[]
+  summary: { pre_count: number; post_count: number; avg_pre: number | null; avg_post: number | null; avg_gain: number | null; gain_count: number }
+}
+export interface ScaleStat { n: number; mean: number | null; counts: number[] }
+// Anonymität: unter min_count Abgaben (MIN_EVALUATIONS im Backend) nur die Zahl.
+export type TrainerEvaluation = { open: boolean; count: number; min_count: number } & ({ hidden: true } | {
+  hidden: false
+  overall: ScaleStat; clarity: ScaleStat; practice: ScaleStat; trainer: ScaleStat
+  pace: { slow: number; ok: number; fast: number }
+  good: string[]; improve: string[]  // in zufälliger Reihenfolge
+})
+export type ExportKind = 'dashboard' | 'quiz' | 'assessment' | 'evaluation'
+
+export interface CourseModule { key: string; title: string; title_en?: string; order: number; workshop_key: string | null; active: boolean }
+export interface PresenceEntry {
+  participant_id: number; name: string; module_key: string; module_title: string; module_title_en?: string | null
+  // „Wer hängt fest?“ — Regeln und Schwellen in backend/app/routers/presence.py
+  minutes_in_module: number; failed_attempts: number; done: boolean; needs_help: boolean
+  reasons: ('failed_attempts' | 'long_in_module')[]
+}
 
 // typ-spezifische Zusatzdaten: check nutzt prompt/options/answer (kind
 // "number": answer = Zahl), reveal teaser, order items, debug lines/wrong/explanation
@@ -78,12 +109,18 @@ export interface EditorModule {
 }
 export interface EditorModuleMeta { key: string; title_de: string; title_en: string; order: number; workshop_key: string | null }
 export interface TrainerAccount { id: number; email: string; name: string; role: 'admin' | 'trainer'; /** der angemeldete Trainer selbst */ is_self: boolean }
-export interface QuizQuestionStat { id: string; prompt: string; correct: number; attempts: number }
+export interface QuizQuestionStat {
+  id: string; prompt: string; correct: number; attempts: number
+  /** Auswahlfragen: wie oft jede Option gewählt wurde (Index = Optionsreihenfolge des Inhalts, nicht die gemischte Anzeige) */
+  options?: number[]
+}
 export interface QuizStats { submissions: number; questions: QuizQuestionStat[] }
 export interface AuditLogEntry {
   id: number; created_at: string; trainer_email: string
   action: string; target: string | null; detail: string | null
 }
+/** Letzte Aufwärmrunde: Teilnahme und Durchschnitt in Prozent (null = noch keine Antwort), keine Namen. */
+export interface Warmup { id: number; started_at: string; active: boolean; participants: number; average: number | null }
 export interface PasskeySummary { id: string; label: string; created_at: string; last_used_at?: string | null }
 
 // Die beiden Options-Typen kommen 1:1 vom Backend (Base64url-Strings statt
@@ -137,9 +174,12 @@ export const trainerApi = {
   setCourseModule: (id: number, module_key: string, active: boolean) =>
     api.put(`/courses/${id}/modules`, { module_key, active }),
   trainerModules: () => api.get<ModuleMeta[]>('/trainer/modules'),
-  trainerModule: (key: string) => api.get<TrainerModuleDetail>(`/trainer/modules/${key}`),
-  quizStats: (key: string, courseId?: number) =>
-    api.get<QuizStats>(`/trainer/modules/${key}/quiz-stats${courseId != null ? `?course_id=${courseId}` : ''}`),
+  // lang: Inhalte aus den _en-Feldern (Trainer-Oberfläche auf Englisch); Deutsch = ohne Parameter
+  trainerModule: (key: string, lang: Lang = 'de') => api.get<TrainerModuleDetail>(`/trainer/modules/${key}${enQuery(lang)}`),
+  quizStats: (key: string, courseId?: number, lang: Lang = 'de') => {
+    const q = new URLSearchParams({ ...(courseId != null && { course_id: String(courseId) }), ...(lang === 'en' && { lang }) }).toString()
+    return api.get<QuizStats>(`/trainer/modules/${key}/quiz-stats${q ? `?${q}` : ''}`)
+  },
   features: () => api.get<{ comments: boolean }>('/features'),
   setFeature: (comments: boolean) => api.put<{ comments: boolean }>('/trainer/features', { comments }),
   courseComments: (cid: number) => api.get<TrainerComment[]>(`/trainer/courses/${cid}/comments`),
@@ -147,6 +187,10 @@ export const trainerApi = {
     api.post(`/trainer/courses/${cid}/modules/${key}/comments`, { block_index, body }),
   deleteTrainerComment: (id: number) => api.delete(`/trainer/comments/${id}`),
   coursePresence: (cid: number) => api.get<PresenceEntry[]>(`/trainer/courses/${cid}/presence`),
+  // „Folgt mir“: Trainer-Position im Kurs teilen bzw. das Teilen beenden
+  setFollow: (cid: number, module_key: string, block_uid: string | null) =>
+    api.put<Follow | null>(`/trainer/courses/${cid}/follow`, { module_key, block_uid }),
+  clearFollow: (cid: number) => api.delete(`/trainer/courses/${cid}/follow`),
   // Live-Abstimmung (höchstens eine je Kurs); null = keine laufende
   poll: (cid: number) => api.get<LivePoll | null>(`/trainer/courses/${cid}/poll`),
   startPoll: (cid: number, module_key: string, source: 'quiz' | 'check', ref: string) =>
@@ -159,6 +203,19 @@ export const trainerApi = {
     api.patch<LivePoll>(`/trainer/courses/${cid}/poll/words`, { word, hidden }),
   revealPoll: (cid: number) => api.post<LivePoll>(`/trainer/courses/${cid}/poll/reveal`),
   closePoll: (cid: number) => api.delete(`/trainer/courses/${cid}/poll`),
+  // Aufwärmrunde (spaced review für den ganzen Kurs); null = noch nie gestartet
+  warmup: (cid: number) => api.get<Warmup | null>(`/trainer/courses/${cid}/warmup`),
+  startWarmup: (cid: number) => api.post<Warmup>(`/trainer/courses/${cid}/warmup`),
+  endWarmup: (cid: number) => api.delete<Warmup>(`/trainer/courses/${cid}/warmup`),
+  assessment: (cid: number, lang: Lang = 'de') => api.get<TrainerAssessment>(`/trainer/courses/${cid}/assessment${enQuery(lang)}`),
+  setAssessmentPhase: (cid: number, phase: 'pre' | 'post' | null, lang: Lang = 'de') =>
+    api.put<TrainerAssessment>(`/trainer/courses/${cid}/assessment${enQuery(lang)}`, { phase }),
+  regenerateAssessment: (cid: number, lang: Lang = 'de') =>
+    api.post<TrainerAssessment>(`/trainer/courses/${cid}/assessment/regenerate${enQuery(lang)}`),
+  evaluation: (cid: number) => api.get<TrainerEvaluation>(`/trainer/courses/${cid}/evaluation`),
+  setEvaluationOpen: (cid: number, open: boolean) => api.put<TrainerEvaluation>(`/trainer/courses/${cid}/evaluation`, { open }),
+  exportCsv: (cid: number, kind: ExportKind, lang: 'de' | 'en') =>
+    api.download(`/trainer/courses/${cid}/export/${kind}?lang=${lang}`, `intlab-kurs${cid}-${kind}.csv`),
   listContentModules: () => api.get<EditorModuleMeta[]>('/trainer/content/modules'),
   getContentModule: (key: string) => api.get<EditorModule>(`/trainer/content/modules/${key}`),
   createContentModule: (key: string, title_de: string, workshop_key: string) =>

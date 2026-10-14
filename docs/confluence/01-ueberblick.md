@@ -1,4 +1,4 @@
-Stand: v1.45.0 (2026-10-13) · Quelle: README.md, docs/lernwelt-nordwind.md, backend/app/content/changelog.py, backend/app/content/registry.py, frontend/src/App.tsx
+Stand: v1.46.0 (2026-10-14) · Quelle: README.md, docs/lernwelt-nordwind.md, backend/app/content/changelog.py, backend/app/content/registry.py, frontend/src/App.tsx
 
 # IntLab: Überblick
 
@@ -33,19 +33,23 @@ Zum Stand der ausgelieferten Inhalte: 99 Module, 1242 Blöcke, 754 Quizfragen (Q
 - **Empfohlene Reihenfolge, keine Sperre:** Module mit offener Voraussetzung sind auf der Lernseite ausgegraut („Voraussetzung offen“), bleiben aber über Suche und Links erreichbar; Voraussetzungen, die im Kurs abgewählt sind, zählen als erfüllt. Ein im Kurs nicht freigeschaltetes oder unbekanntes Modul zeigt eine eigene Meldung mit dem Grund.
 - **Zweisprachige Inhalte:** Die englische Fassung aller Module wurde lektoriert.
 - **Quiz-Erklärungen:** Jede Quizfrage zeigt nach der Abgabe eine Erklärung, bei richtiger wie bei falscher Antwort.
-- **Übungsstand:** Der Stand der Mini-Übungen bleibt im Browser erhalten („x von y Übungen erledigt“).
+- **Übungsstand:** Der Stand der Mini-Übungen und die Lese-Haken werden je Modul auf dem Server gespeichert und sind nach der Wiederaufnahme mit dem persönlichen Code auf jedem Gerät da („x von y Übungen erledigt“, „geräteübergreifend gemerkt“).
+- **Wiederholung:** Die Karte „Wiederholen“ auf der Kursübersicht zeigt, wie viele Fragen aus bestandenen Modulen fällig sind (frühestens 3 Stunden nach dem Bestehen; zuerst früher falsch beantwortete, richtig beantwortete in wachsenden Abständen). Der Trainer kann eine „Aufwärmrunde“ für den ganzen Kurs starten (siehe Trainer-Handbuch).
 - **Üben:** Der Übungsmodus (`/lernen/ueben`, Seitentitel „Üben & Wiederholen“) wiederholt falsch beantwortete Fragen oder übt gemischt, ohne Wertung.
 - **Suche** über Titel, Lernziele, Texte und Glossar der freigeschalteten Module.
 - **Druckansicht** je Modul als Spickzettel (Theorie, Diagramme, eigene Notizen); Knopf „Drucken / PDF“ im Modul.
 - **Live-Abstimmung:** Während der Trainer im Beamer-Modus eine Frage stellt, blendet sich im geöffneten Modul eine Abstimmung ein (Single/Multiple Choice mit Antworten A/B/C/D, Skala, Freitext oder Wortwolke; Antwort bis zur Auflösung änderbar, anonym, Minimieren möglich).
 - Persönlicher Wiederaufnahme-Code beim Erstbeitritt; nur damit lässt sich später unter demselben Namen fortsetzen.
 - Teilnahmebestätigung nach Abschluss aller aktiven Module, öffentlich prüfbar unter `/verifizieren`.
+- **Lernerfolg:** Öffnet der Trainer einen Wissenstest (Eingangs- bzw. Abschlusstest) oder die Kursbewertung, erscheint auf der Kursseite eine Hinweiskarte. Der Test hat einen Versuch und zählt nicht für Fortschritt oder Bestätigung; die Kursbewertung ist anonym.
 - Optional: Kommentare an Blöcken (Schalter im Trainer-Bereich).
 
 ## Funktionen für Trainer
 
 - Kurse anlegen, Einladungslink und QR-Code, Module je Kurs freischalten oder abwählen.
-- Fortschrittstabelle je Kurs, Live-Präsenz („Gerade aktiv“), Quiz-Statistik je Frage und Modul.
+- Fortschrittstabelle je Kurs, Live-Präsenz mit Hilfe-Hinweis („Gerade aktiv · Wer hängt fest?“), Quiz-Statistik je Frage und Modul.
+- „Folgt mir“: Beim Präsentieren mit Kurs sehen Teilnehmer einen Hinweis, bei welchem Modul der Trainer ist, und können per Knopf dorthin (keine erzwungene Navigation).
+- Lernerfolg messen: Wissenstest vorher/nachher (gleiche Fragen, Zuwachs je Teilnehmer und je Frage), anonyme Kursbewertung (Mittelwerte, Verteilung, Freitexte) und CSV-Export für Excel (Fortschritt, Quiz je Frage, Vorher/Nachher, Kursbewertung).
 - Beamer-Modus („▶ Präsentieren“) mit Notizen; mit Kurs-Bezug zusätzlich Live-Abstimmung zu Single- und Multiple-Choice-Quizfragen, Auswahl-Checks und eigenen Fragen (Mehrfachauswahl, Skala, Freitext und Wortwolke, beide erst nach dem Auflösen sichtbar und vorher in einer eingeklappten Prüfliste ausblendbar). Eine laufende Abstimmung zeigt das Kurs-Detail und lässt sich dort mit „Abstimmung beenden“ schließen.
 - Feedback-Kommentare der Teilnehmer lesen und beantworten (Enter sendet; Löschen mit Rückfrage).
 - Teilnehmerverwaltung: Wiederaufnahme-Code zurücksetzen, Teilnehmer löschen; Kurs löschen (mit Wahl für die Teilnahmebestätigungen).

@@ -1,6 +1,7 @@
 import { useEffect, useRef, type ReactNode, type RefObject } from 'react'
 import { createPortal } from 'react-dom'
 import { clearInert, focusableElements, setInert, siblingsOf } from '@/lib/focusTrap'
+import { useTr } from '@/store/lang'
 
 // Eigener Bestätigungsdialog als Ersatz für `window.confirm()` bei
 // unwiderruflichen Aktionen (z.B. Teilnehmer löschen). Fokus-Handling folgt
@@ -14,6 +15,7 @@ export interface ConfirmDialogProps {
   title: string
   description: ReactNode
   confirmLabel: string
+  /** Standard: „Abbrechen“/„Cancel“ in der gewählten Sprache */
   cancelLabel?: string
   /** Auslöser-Element, zu dem der Fokus beim Schließen zurückkehrt. */
   triggerRef: RefObject<HTMLElement | null>
@@ -31,8 +33,9 @@ export interface ConfirmDialogProps {
 }
 
 export function ConfirmDialog({
-  open, title, description, confirmLabel, cancelLabel = 'Abbrechen', triggerRef, onConfirm, onCancel, container,
+  open, title, description, confirmLabel, cancelLabel, triggerRef, onConfirm, onCancel, container,
 }: ConfirmDialogProps) {
+  const { tr } = useTr()
   const portalTarget = container ?? document.body
   const dialogRef = useRef<HTMLDivElement | null>(null)
   const cancelButtonRef = useRef<HTMLButtonElement | null>(null)
@@ -109,7 +112,7 @@ export function ConfirmDialog({
             onClick={onCancel}
             className="rounded-lg border border-[var(--wb-border)] px-3 py-2 text-sm font-medium text-[var(--wb-ink)] hover:bg-[var(--wb-subtle)]"
           >
-            {cancelLabel}
+            {cancelLabel ?? tr('trCancel')}
           </button>
           <button
             type="button"

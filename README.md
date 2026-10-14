@@ -49,13 +49,14 @@ serverseitig bewertetes Quiz mit.
 - Heller und dunkler Modus (folgt anfangs der Systemeinstellung)
 - Interaktive Widgets, Visualisierungen und Lernphasen
 - Lernziele je Modul, geschätzte Bearbeitungszeit, Status (offen/begonnen/bestanden) und „Hier weitermachen“
-- Übungsstand der Mini-Übungen bleibt im Browser erhalten („x von y Übungen erledigt“)
+- Übungsstand der Mini-Übungen und Lese-Haken werden je Modul auf dem Server gespeichert und sind nach der Wiederaufnahme auf jedem Gerät da („x von y Übungen erledigt“; localStorage bleibt Offline-Cache; eine ungesendete Änderung gewinnt nur, wenn seitdem kein anderes Gerät gespeichert hat — `frontend/src/lib/moduleStateSync.ts`)
 - Übungsmodus (`/lernen/ueben`): falsch beantwortete Fragen wiederholen oder gemischt üben — ohne Wertung
+- Wiederholung (spaced review): Karte „Wiederholen“ auf der Kursübersicht mit den fälligen Fragen bestandener Module (Leitner-Kästen, Regeln in `backend/app/services/review.py`); der Trainer kann eine „Aufwärmrunde“ für den ganzen Kurs starten
 - Suche über Titel, Lernziele, Texte und Glossar der freigeschalteten Module
 - Druckansicht je Modul als Spickzettel (Theorie, Diagramme, eigene Notizen)
 - Empfohlene Reihenfolge statt Sperre: Module mit offener Voraussetzung sind ausgegraut, aber über Suche und Link erreichbar; im Kurs abgewählte Voraussetzungen zählen als erfüllt, ein nicht freigeschaltetes oder unbekanntes Modul zeigt eine Meldung mit dem Grund
 - Englische Fassung aller Module (Texte, Quiz, Lernziele)
-- Trainer-Dashboard mit Kursen, Modul-Aktivierung, Fortschritt, Live-Präsenz und Kommentaren (Enter sendet Antworten, Löschen mit Rückfrage)
+- Trainer-Dashboard mit Kursen, Modul-Aktivierung, Fortschritt, Live-Präsenz mit „Wer hängt fest?“-Hinweis, „Folgt mir“ (Teilnehmer sehen beim Präsentieren, bei welchem Modul der Trainer ist) und Kommentaren (Enter sendet Antworten, Löschen mit Rückfrage)
 - Live-Abstimmung im Präsenz-Workshop: Im Beamer-Modus (Einstieg „▶ Präsentieren“ im Kurs-Detail, `?kurs=<id>`) stellt der Trainer eine Single-/Multiple-Choice-Quizfrage, einen Auswahl-Check oder eine eigene Frage (Mehrfachauswahl, Skala, Freitext, Wortwolke) zur Abstimmung; Teilnehmer mit offenem Modul antworten in einer Einblendung (A/B/C/D für alle gleich). Ergebnis anonym, Freitexte und Wörter der Wortwolke erst nach „Auflösen“ sichtbar und vorher einzeln ausblendbar, Lösung erst nach „Auflösen“, ohne Einfluss auf Quiz, Fortschritt und Zertifikat; eine laufende Abstimmung lässt sich auch im Kurs-Detail mit „Abstimmung beenden“ schließen
 - Modul-Editor mit einer Wiederherstellungsstufe, Statusleiste beim Speichern (Sprung zum fehlerhaften Block, „Serverstand laden“ bei Konflikt) und Schutz ungespeicherter Änderungen; `base_version` ist Pflicht, offene Editor-Tabs nach einem Deploy neu laden
 - Persönlicher Wiederaufnahme-Code beim Beitritt; öffentlich prüfbare Teilnahmebestätigung unter `/verifizieren`

@@ -10,9 +10,10 @@ export interface ModuleGroup {
 
 export function groupModulesByWorkshop(
   modules: ModuleMeta[],
-  workshops: { key: string; title: { de: string } }[],
+  workshops: { key: string; title: { de: string; en: string } }[],
+  lang: 'de' | 'en' = 'de',
 ): ModuleGroup[] {
-  const groups: ModuleGroup[] = workshops.map((w) => ({ key: w.key, title: w.title.de, modules: [] }))
+  const groups: ModuleGroup[] = workshops.map((w) => ({ key: w.key, title: w.title[lang], modules: [] }))
   const rest: ModuleMeta[] = []
   for (const m of modules) {
     const group = m.workshop_key ? groups.find((g) => g.key === m.workshop_key) : undefined
@@ -20,6 +21,6 @@ export function groupModulesByWorkshop(
     else rest.push(m)
   }
   const nonEmpty = groups.filter((g) => g.modules.length > 0)
-  if (rest.length > 0) nonEmpty.push({ key: '__sonstige', title: 'Sonstige', modules: rest })
+  if (rest.length > 0) nonEmpty.push({ key: '__sonstige', title: lang === 'en' ? 'Other' : 'Sonstige', modules: rest })
   return nonEmpty
 }

@@ -5,6 +5,7 @@ import { learnApi } from '@/lib/learnApi'
 import { PageSkeleton } from '@/components/PageSkeleton'
 import { LoadError } from '@/components/LoadError'
 import type { Company, ModuleMeta, ProgressItem } from '@/types'
+import type { OpenTasks } from '@/lib/learnApi'
 import { useAuthStore } from '@/store/auth'
 import { localTitle, storeLang, t, useDocumentLang, useDocumentTitle, type Lang } from '@/lib/i18n'
 import { LangToggle, WorkbenchProgress, WorkbenchSectionTitle, WorkbenchTopbar } from '@/components/workbench/WorkbenchShell'
@@ -14,7 +15,9 @@ import { coursePrerequisites, markLockedVisibility, openPrerequisites } from '@/
 import { WorkshopTheme } from '@/components/WorkshopTheme'
 import { Icon } from '@/components/Icon'
 import { SearchBox } from '@/components/SearchBox'
+import { FollowBanner } from '@/components/FollowBanner'
 import { hasLocalProgress, pruneOtherParticipants } from '@/lib/readProgress'
+import { ReviewCard, ReviewWarmupBanner } from '@/components/ReviewCard'
 
 type Group = { key: string; title: string; mods: ModuleMeta[] }
 
@@ -97,6 +100,7 @@ export function LearnPage() {
         workshopTitle={workshopTitle}
         workshopSummary={workshopSummary}
         completionText={completionText}
+        tasks={me.data?.tasks}
         setLanguage={(value) => setLang.mutate(value)}
       />
     </WorkshopTheme>
@@ -119,10 +123,12 @@ export interface WorkbenchLearnProps {
   workshopTitle: string
   workshopSummary: string
   completionText: string
+  /** Vom Trainer geöffneter Wissenstest / Kursbewertung -> Hinweiskarten (nicht blockierend) */
+  tasks?: OpenTasks
   setLanguage: (lang: Lang) => void
 }
 
-export function WorkbenchLearnView({ lang, displayName, modules, groups, progress, company, links, doneCount, donePct, continueAt, startedKeys = [], titleOf, workshopTitle, workshopSummary, completionText, setLanguage }: WorkbenchLearnProps) {
+export function WorkbenchLearnView({ lang, displayName, modules, groups, progress, company, links, doneCount, donePct, continueAt, startedKeys = [], titleOf, workshopTitle, workshopSummary, completionText, tasks, setLanguage }: WorkbenchLearnProps) {
   const progressOf = (key: string) => progress.find((item) => item.module_key === key)
   // Anzeigeposition (1..n) statt des internen `order`-Sortierschlüssels —
   // sonst zeigt der Claude-Workshop "Modul 101" statt "Modul 1" (siehe modulePosition.ts).
@@ -179,6 +185,7 @@ export function WorkbenchLearnView({ lang, displayName, modules, groups, progres
     <div className="workbench">
       <WorkbenchTopbar lang={lang} title={workshopTitle} actions={langControl} />
       <div className="wb-shell">
+        <FollowBanner lang={lang} current={null} modules={modules} progress={progress} />
         <div className="mb-8 grid gap-5 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-end">
           <div>
             <p className="mb-2 text-sm font-medium text-[var(--wb-accent)]">{workshopTitle}</p>
@@ -204,6 +211,13 @@ export function WorkbenchLearnView({ lang, displayName, modules, groups, progres
 
         <div className="grid min-w-0 gap-8 xl:grid-cols-[minmax(0,1fr)_320px]">
           <main id="main-content" tabIndex={-1} className="min-w-0">
+            <ReviewWarmupBanner lang={lang} />
+            {(tasks?.assessment || tasks?.evaluation) && (
+              <div className="mb-6 grid gap-3 sm:grid-cols-2">
+                {tasks.assessment && <TaskCard title={t(lang, tasks.assessment === 'post' ? 'taskPostTitle' : 'taskPreTitle')} hint={t(lang, 'taskTestHint')} to="/lernen/wissenstest" action={t(lang, 'taskTestStart')} />}
+                {tasks.evaluation && <TaskCard title={t(lang, 'taskEvalTitle')} hint={t(lang, 'taskEvalHint')} to="/lernen/bewertung" action={t(lang, 'taskEvalStart')} />}
+              </div>
+            )}
             {continueAt && (
               <Link to={`/lernen/${continueAt.key}`} className="wb-surface wb-surface--highlight group mb-8 block border-[var(--wb-accent)] p-5 hover:border-[var(--wb-accent)]">
                 <span className="text-xs font-semibold uppercase tracking-[0.14em] opacity-80">{t(lang, 'continueHere')}</span>
@@ -216,6 +230,8 @@ export function WorkbenchLearnView({ lang, displayName, modules, groups, progres
                 </span>
               </Link>
             )}
+
+            <ReviewCard lang={lang} className="mb-8" />
 
             <SearchBox lang={lang} modules={modules} progress={progress} />
 
@@ -258,7 +274,7 @@ export function WorkbenchLearnView({ lang, displayName, modules, groups, progres
 
           <aside className="min-w-0 space-y-5 xl:sticky xl:top-20 xl:self-start">
             <section className="wb-surface p-5">
-              <WorkbenchSectionTitle>{lang === 'de' ? 'Üben & Wiederholen' : 'Practice & review'}</WorkbenchSectionTitle>
+              <WorkbenchSectionTitle>{lang === 'de' ? 'Frei üben' : 'Free practice'}</WorkbenchSectionTitle>
               <p className="text-sm leading-relaxed text-[var(--wb-muted)]">{lang === 'de' ? 'Falsch beantwortete Fragen wiederholen oder gemischt üben — ohne Wertung.' : 'Review questions you got wrong or practise a mix — ungraded.'}</p>
               <Link to="/lernen/ueben" className="wb-control mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-[var(--wb-accent)] hover:underline">{lang === 'de' ? 'Übungsmodus starten' : 'Start practice mode'}<Icon name="arrowRight" className="h-4 w-4" /></Link>
             </section>
@@ -268,5 +284,15 @@ export function WorkbenchLearnView({ lang, displayName, modules, groups, progres
         </div>
       </div>
     </div>
+  )
+}
+
+function TaskCard({ title, hint, to, action }: { title: string; hint: string; to: string; action: string }) {
+  return (
+    <section className="wb-surface border-[var(--wb-accent)] bg-[var(--wb-accent-soft)] p-4">
+      <h2 className="font-semibold text-[var(--wb-ink)]">{title}</h2>
+      <p className="mt-1 text-sm text-[var(--wb-muted)]">{hint}</p>
+      <Link to={to} className="wb-control mt-3 inline-flex items-center gap-1.5 rounded-lg bg-[var(--wb-accent)] px-4 text-sm font-semibold text-white hover:bg-[var(--wb-accent-hover)]">{action}<Icon name="arrowRight" className="h-4 w-4" /></Link>
+    </section>
   )
 }

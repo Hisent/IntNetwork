@@ -103,7 +103,7 @@ export function WapiConsole({ lang }: { lang: Lang }) {
                   {panel === 'hint' && <p className="mt-1.5 text-[var(--wb-muted)]">{task.hint[lang]}</p>}
                   {panel === 'solution' && task.solution(grid).map((step, i) => (
                     <div key={i} className="mt-1.5">
-                      <pre className="overflow-x-auto whitespace-pre-wrap break-all rounded-md bg-[var(--wb-subtle)] p-2 font-mono text-xs">{`${step.method} ${step.path}${step.body ? `\n${step.body}` : ''}`}</pre>
+                      <pre className="overflow-x-auto whitespace-pre-wrap [overflow-wrap:anywhere] rounded-md bg-[var(--wb-subtle)] p-2 font-mono text-xs">{`${step.method} ${step.path}${step.body ? `\n${step.body}` : ''}`}</pre>
                       <button type="button" className={`${SMALL} mt-1`} onClick={() => load(step)}>{s.load}</button>
                     </div>
                   ))}
@@ -116,7 +116,7 @@ export function WapiConsole({ lang }: { lang: Lang }) {
       {solved.length === TASKS.length && <p className="mt-2 text-sm font-semibold text-[var(--wb-success)]">{s.all}</p>}
 
       <form onSubmit={send} className="mt-4 border-t border-[var(--wb-border)] pt-4">
-        <p className="break-all font-mono text-xs text-[var(--wb-muted)]">{BASE}</p>
+        <p className="[overflow-wrap:anywhere] font-mono text-xs text-[var(--wb-muted)]">{BASE}</p>
         <div className="mt-1 flex flex-wrap gap-2">
           <label className="sr-only" htmlFor={`${uid}-m`}>{s.method}</label>
           <select id={`${uid}-m`} value={method} onChange={(e) => setMethod(e.target.value as Method)}
@@ -147,13 +147,13 @@ export function WapiConsole({ lang }: { lang: Lang }) {
       <p className="sr-only" aria-live="polite">{announce}</p>
       {!res ? <p className="mt-1 text-sm text-[var(--wb-muted)]">{s.none}</p> : (
         <div className="mt-1">
-          <p className="break-all font-mono text-xs text-[var(--wb-muted)]">{last?.line}</p>
+          <p className="[overflow-wrap:anywhere] font-mono text-xs text-[var(--wb-muted)]">{last?.line}</p>
           {res.status ? (
             <>
               <p className={`mt-1 font-mono text-sm font-semibold ${res.status < 300 ? 'text-[var(--wb-success)]' : 'text-[var(--wb-warning)]'}`}>
                 HTTP {res.status} {statusText(res.status)}
               </p>
-              <pre className="mt-1 max-h-80 overflow-auto whitespace-pre-wrap break-all rounded-lg bg-[var(--wb-subtle)] p-3 font-mono text-xs">{JSON.stringify(res.body, null, 2)}</pre>
+              <pre className="mt-1 max-h-80 overflow-auto whitespace-pre-wrap [overflow-wrap:anywhere] rounded-lg bg-[var(--wb-subtle)] p-3 font-mono text-xs">{JSON.stringify(res.body, null, 2)}</pre>
             </>
           ) : (
             <p className="mt-1 text-sm"><span className="font-semibold">{s.simNote}:</span> {res.note?.[lang]}</p>

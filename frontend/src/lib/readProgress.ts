@@ -1,5 +1,8 @@
-// Lese-Fortschritt je Teilnehmer, Kurs und Modul, nur im Browser (localStorage) —
-// bewusst ohne Backend: persönliche Orientierung, der echte Abschluss bleibt das Quiz.
+// Lese-Fortschritt je Teilnehmer, Kurs und Modul im Browser (localStorage), vom
+// Server geräteübergreifend abgeglichen (lib/moduleStateSync.ts) — persönliche
+// Orientierung, der echte Abschluss bleibt das Quiz.
+import { markChanged } from '@/lib/moduleStateSync'
+
 // participantId gehört zwingend in den Schlüssel, sonst sehen zwei Personen am
 // selben Browser die Haken der jeweils anderen.
 // ponytail: Indizes verschieben sich, wenn der Trainer Blöcke umsortiert —
@@ -20,6 +23,7 @@ export function toggleRead(participantId: number, courseId: number, moduleKey: s
   const next = current.includes(index) ? current.filter((x) => x !== index) : [...current, index]
   try {
     localStorage.setItem(storageKey(participantId, courseId, moduleKey), JSON.stringify(next))
+    markChanged(`${participantId}-${courseId}-${moduleKey}`)
   } catch {
     // Speicher voll/blockiert — der Haken gilt dann nur für diese Sitzung.
   }
@@ -38,10 +42,10 @@ export function hasLocalProgress(participantId: number, courseId: number, module
 }
 
 // Alle participantId-tragenden Schlüsselarten (Lese-Fortschritt, Reflexionen,
-// Übungsstand — siehe exerciseState.ts —, Live-CLI-Session, Lab-Snapshots — siehe Blocks.tsx / ClaudeCliWidget.tsx /
+// Übungsstand — siehe exerciseState.ts —, ungesendete Änderungen — moduleStateSync.ts —, Live-CLI-Session, Lab-Snapshots — siehe Blocks.tsx / ClaudeCliWidget.tsx /
 // widgets/*lab*). Die participantId
 // steht dabei immer als erstes Zahlen-Segment nach der Art.
-const SCOPED_KEY = /^intnetwork-(?:read|reflect|exercise|cli|ansiblelab|gitlab|opensslab)-(\d+)-/
+const SCOPED_KEY = /^intnetwork-(?:read|reflect|exercise|pending|cli|ansiblelab|gitlab|opensslab)-(\d+)-/
 
 // Räumt an geteilten Browsern die Reste anderer Teilnehmer auf: ruft man beim
 // Bekanntwerden der aktuellen participantId auf, entfernt sie alle App-eigenen

@@ -70,6 +70,34 @@ test('Wiederaufnahme-Code: neuer Browser-Kontext behält den Quiz-Fortschritt', 
   await fresh.context().close()
 })
 
+test('Wiederaufnahme-Code: Lückentext-Stand kommt im frischen Browser-Kontext vom Server', async ({ page, browser, request }) => {
+  const token = await apiToken(request)
+  const course = await createCourse(request, token)
+  const name = unique('Hedy')
+
+  const resumeCode = await joinCourse(page, course.join_code, name)
+  await page.goto('/lernen/vlan')
+  const cloze = page.locator('[data-uid="cloze-trunk-config"]')
+  await cloze.getByLabel('Lücke 1').selectOption({ label: 'access' })
+  await cloze.getByLabel('Lücke 2').fill('20')
+  // entprellter Upload (moduleStateSync.ts): die Marke „ungesendet“ verschwindet erst nach Erfolg
+  await expect.poll(() => page.evaluate(() => Object.entries(localStorage).some(([k, v]) => k.startsWith('intnetwork-exercise-') && v.includes('"20"')))).toBe(true)
+  await expect.poll(() => page.evaluate(() => Object.keys(localStorage).filter((k) => k.startsWith('intnetwork-pending-')).length)).toBe(0)
+
+  const fresh = await (await browser.newContext()).newPage()
+  await fresh.goto('/workshops/network')
+  await fresh.getByLabel('Kurs-Code').fill(course.join_code)
+  await fresh.getByLabel('Dein Name').fill(name)
+  await fresh.getByLabel('Wiederaufnahme-Code').fill(resumeCode)
+  await fresh.getByRole('button', { name: 'Workshop starten' }).click()
+  await expect(fresh.getByRole('heading', { name: `Hallo ${name}` })).toBeVisible()
+  await fresh.goto('/lernen/vlan')
+  const restored = fresh.locator('[data-uid="cloze-trunk-config"]')
+  await expect(restored.getByLabel('Lücke 2')).toHaveValue('20')
+  await expect(restored.getByLabel('Lücke 1')).toHaveValue('0')
+  await fresh.context().close()
+})
+
 test('Live-Abstimmung: Wortwolke mit Moderation, Zählung vor dem Auflösen', async ({ page, browser, request }) => {
   const token = await apiToken(request)
   const course = await createCourse(request, token)
@@ -181,4 +209,31 @@ test('Mobil 375×812: Modulseite ohne horizontales Überlaufen', async ({ page, 
     scrollWidth: document.scrollingElement!.scrollWidth, innerWidth: window.innerWidth,
   }))
   expect(scrollWidth).toBeLessThanOrEqual(innerWidth)
+})
+
+test('Folgt mir: Trainer präsentiert, Teilnehmer (375 px) sieht den Hinweis und geht hin', async ({ page, browser, request }) => {
+  const token = await apiToken(request)
+  const course = await createCourse(request, token)
+  const mod = await firstModule(request, token)
+
+  const participant = await (await browser.newContext({ viewport: { width: 375, height: 812 } })).newPage()
+  await joinCourse(participant, course.join_code, unique('Margaret'))  // bleibt auf der Kursübersicht
+
+  await trainerLogin(page)
+  await page.goto(`/trainer/modul/${mod.key}/praesentieren?kurs=${course.id}`)
+  await expect(page.getByRole('checkbox', { name: 'Meine Position teilen („Folgt mir“)' })).toBeChecked()
+  await page.keyboard.press('ArrowRight')  // erste Inhaltsfolie: Block wird mitgeteilt
+
+  const banner = participant.getByRole('status').filter({ hasText: `Trainer ist bei Modul „${mod.title}“` })
+  await expect(banner).toBeVisible({ timeout: 15_000 })  // Teilnehmer fragen alle 10 s nach
+  const { scrollWidth, innerWidth } = await participant.evaluate(() => ({
+    scrollWidth: document.scrollingElement!.scrollWidth, innerWidth: window.innerWidth,
+  }))
+  expect(scrollWidth).toBeLessThanOrEqual(innerWidth)
+
+  await banner.getByRole('link', { name: 'Hingehen' }).click()
+  await expect(participant).toHaveURL(new RegExp(`/lernen/${mod.key}(#b-.+)?$`))
+  await expect(participant.getByRole('heading', { name: mod.title, level: 1 })).toBeVisible()
+  await expect(banner).toHaveCount(0)  // schon dort: kein Hinweis mehr
+  await participant.context().close()
 })

@@ -267,10 +267,14 @@ def hide_word(cid: int, data: WordHidden, db: Session = Depends(get_db), _t: dic
     word = normalize_word(data.word)
     if not poll or poll.kind != "words" or not word:
         raise HTTPException(status_code=404, detail="Wort nicht gefunden")
+    # Zeilensperre vor dem Lesen: zwei gleichzeitige Klicks (zwei Trainer-Tabs)
+    # verlören sonst je einen Eintrag. Postgres: SELECT ... FOR UPDATE, die zweite
+    # Anfrage wartet und liest danach den neuen Stand.
+    # ponytail: SQLite (nur Tests/Entwicklung) lässt FOR UPDATE weg — dort bleibt
+    # das Rennen theoretisch offen; Produktion ist Postgres.
+    db.refresh(poll, with_for_update=True)
     hidden = set((poll.config or {}).get("hidden_words") or ())
     hidden = hidden | {word} if data.hidden else hidden - {word}
-    # ponytail: read-modify-write ohne Sperre — zwei gleichzeitige Klicks können
-    # einen verlieren. Ein Trainer je Abstimmung; Zeilensperre, falls das je stört.
     poll.config = {**(poll.config or {}), "hidden_words": sorted(hidden)}  # neues dict: JSON-Änderung wird erkannt
     db.commit()
     return _trainer_view(db, poll)

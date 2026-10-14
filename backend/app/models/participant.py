@@ -19,6 +19,9 @@ class Participant(Base):
     language: Mapped[str] = mapped_column(String, default="de", nullable=False)
     current_module_key: Mapped[str | None] = mapped_column(String, nullable=True)
     last_seen: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    # Seit wann im aktuellen Modul (Heartbeat, routers/presence.py::touch_presence) —
+    # Grundlage für „Wer hängt fest?“.
+    module_entered_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
     # Persönlicher Wiederaufnahme-Code. Nullable für Bestands-Teilnehmer, die vor
     # Einführung des Codes beigetreten sind — die kommen erst wieder hinein,
     # nachdem der Trainer ihnen einen Code vergeben hat (siehe join.py).
@@ -30,3 +33,6 @@ class Participant(Base):
     # Code-Reset erhöht, ins Token geschrieben und beim Prüfen mit der DB
     # verglichen (siehe app/services/deps.py::get_participant).
     token_version: Mapped[int] = mapped_column(Integer, default=0, nullable=False, server_default="0")
+    # Hat an der anonymen Kursbewertung teilgenommen — nur dieses Flag, die
+    # Antworten selbst (course_evaluation) tragen keinen Verweis auf den Teilnehmer.
+    evaluation_submitted: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False, server_default="0")

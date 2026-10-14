@@ -91,11 +91,34 @@ function SendButton({ lang, disabled }: { lang: Lang; disabled: boolean }) {
 
 const field = 'w-full rounded-lg border border-[var(--wb-border)] bg-[var(--wb-surface)] px-3 py-2 text-base text-[var(--wb-ink)]'
 
+/** Noch nicht abgeschickter Entwurf je Abstimmung in sessionStorage: das Minimieren
+ *  des Dialogs (oder ein Modulwechsel) hängt die Eingabe aus, der Text bliebe sonst
+ *  nicht erhalten. Ohne Speicher (privater Modus) gilt er nur, solange sie hängt. */
+function useDraft<T>(pollId: number, initial: () => T, valid: (v: unknown) => v is T) {
+  const key = `poll-draft-${pollId}`
+  const [value, setValue] = useState<T>(() => {
+    try {
+      const stored: unknown = JSON.parse(sessionStorage.getItem(key) ?? 'null')
+      if (valid(stored)) return stored
+    } catch { /* kein Speicher oder kaputter Eintrag */ }
+    return initial()
+  })
+  const store = (next: T) => {
+    setValue(next)
+    try { sessionStorage.setItem(key, JSON.stringify(next)) } catch { /* dann nur im State */ }
+  }
+  const clear = () => { try { sessionStorage.removeItem(key) } catch { /* nichts zu tun */ } }
+  return [value, store, clear] as const
+}
+
+const isText = (v: unknown): v is string => typeof v === 'string'
+const isWords = (v: unknown): v is string[] => Array.isArray(v) && v.length === WORD_SLOTS && v.every(isText)
+
 /** Kurze Antwort; vorbelegt mit der eigenen, solange die Abstimmung offen ist. */
 export function TextInput({ poll, lang, pending, onSend }: { poll: LivePoll; lang: Lang; pending: boolean; onSend: (text: string) => void }) {
-  const [text, setText] = useState(typeof poll.my_choice === 'string' ? poll.my_choice : '')
+  const [text, setText, clearDraft] = useDraft(poll.id, () => (typeof poll.my_choice === 'string' ? poll.my_choice : ''), isText)
   return (
-    <form onSubmit={(e) => { e.preventDefault(); if (text.trim()) onSend(text.trim()) }}>
+    <form onSubmit={(e) => { e.preventDefault(); if (text.trim()) { clearDraft(); onSend(text.trim()) } }}>
       <label htmlFor="poll-text" className="text-sm font-medium text-[var(--wb-ink)]">{t(lang, 'pollAnswerLabel')}</label>
       <textarea id="poll-text" value={text} rows={3} maxLength={TEXT_MAX} aria-describedby="poll-text-count"
         onChange={(e) => setText(e.target.value)} className={`mt-1 ${field}`} />
@@ -118,9 +141,9 @@ export function TextAnswers({ answers, lang, big, onHide }: {
         <li key={a.id ?? i} className={`wb-surface flex items-start gap-3 ${big ? 'px-5 py-4' : 'px-3 py-2'}`}>
           <span className="min-w-0 flex-1 [overflow-wrap:anywhere]">{a.text}</span>
           {onHide && a.id != null && (
-            <button type="button" onClick={() => onHide(a.id!)} aria-label={`Ausblenden: ${a.text}`}
+            <button type="button" onClick={() => onHide(a.id!)} aria-label={`${t(lang, 'trHide')}: ${a.text}`}
               className="wb-control shrink-0 rounded-lg px-2 text-sm text-[var(--wb-muted)] hover:text-[var(--wb-ink)]">
-              Ausblenden
+              {t(lang, 'trHide')}
             </button>
           )}
         </li>
@@ -131,11 +154,13 @@ export function TextAnswers({ answers, lang, big, onHide }: {
 
 /** Bis zu drei Wörter; die API normalisiert Groß/klein und Leerraum. */
 export function WordsInput({ poll, lang, pending, onSend }: { poll: LivePoll; lang: Lang; pending: boolean; onSend: (words: string[]) => void }) {
-  const mine = Array.isArray(poll.my_choice) ? poll.my_choice.map(String) : []
-  const [words, setWords] = useState(() => Array.from({ length: WORD_SLOTS }, (_v, i) => mine[i] ?? ''))
+  const [words, setWords, clearDraft] = useDraft(poll.id, () => {
+    const mine = Array.isArray(poll.my_choice) ? poll.my_choice.map(String) : []
+    return Array.from({ length: WORD_SLOTS }, (_v, i) => mine[i] ?? '')
+  }, isWords)
   const filled = words.map((w) => w.trim()).filter(Boolean)
   return (
-    <form onSubmit={(e) => { e.preventDefault(); if (filled.length) onSend(filled) }}>
+    <form onSubmit={(e) => { e.preventDefault(); if (filled.length) { clearDraft(); onSend(filled) } }}>
       <div className="grid gap-2 sm:grid-cols-3">
         {words.map((w, i) => (
           <label key={i} className="text-xs font-medium text-[var(--wb-muted)]">

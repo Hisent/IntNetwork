@@ -28,7 +28,7 @@ afterEach(() => {
 // Gleichlautende Wörter/Symbole in beiden Sprachen (kein fehlender Key).
 const SAME_IN_BOTH = new Set([
   'trTrainer', 'trWorkshop', 'trNameLabel', 'trFeedback', 'trPasskeys', 'trQuiz', 'trBlockN', 'trBackTrainer',
-  'trTextDe', 'trTextEn', 'trOptionDe', 'trOptionEn', 'trAddOption',
+  'trTextDe', 'trTextEn', 'trOptionDe', 'trOptionEn', 'trAddOption', 'trEvalTrainer',
 ])
 
 describe('Trainer-Wörterbuch', () => {
@@ -64,12 +64,21 @@ describe('Trainer-UI in EN', () => {
     useLangStore.setState({ lang: 'en' })
     useAuthStore.setState({ token: 'demo', role: 'trainer', displayName: 'T' })
     vi.mocked(api.get).mockImplementation((url: string) => Promise.resolve({
-      data: url === '/features' ? { comments: false } : [],
+      data: url === '/features' ? { comments: false }
+        : url === '/changelog' ? [
+          { date: '2026-10-14', title: 'v2 — Neu', text: 'Neuer Text', title_en: 'v2 — New', text_en: 'New text' },
+          { date: '2026-01-01', title: 'v1 — Alt', text: 'Nur deutsch' }]
+        : [],
     }))
     renderWithProviders(<TrainerPage />)
     expect(await screen.findByText('Course overview')).toBeTruthy()
     expect(await screen.findByText('Administration')).toBeTruthy()
     expect(await screen.findByText('Trainer accounts')).toBeTruthy()
+    // Changelog: EN, wo vorhanden, sonst der deutsche Eintrag
+    expect(await screen.findByText('v2 — New')).toBeTruthy()
+    expect(screen.getByText('New text')).toBeTruthy()
+    expect(screen.getByText('v1 — Alt')).toBeTruthy()
+    expect(screen.queryByText('Neuer Text')).toBeNull()
     expect(document.body.textContent).not.toMatch(GERMAN)
   })
 

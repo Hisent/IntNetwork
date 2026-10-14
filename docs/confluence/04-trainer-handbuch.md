@@ -1,4 +1,4 @@
-Stand: v1.45.0 + Admin-Rolle (2026-10-14) · Quelle: frontend/src/pages/TrainerPage.tsx, frontend/src/pages/trainer/*, frontend/src/pages/TrainerPresentPage.tsx, frontend/src/pages/TrainerModulePage.tsx, frontend/src/pages/TrainerModuleEditPage.tsx, frontend/src/components/TrainerFeedback.tsx, frontend/src/lib/i18n.ts, backend/app/routers/trainer_content.py, README.md
+Stand: v1.46.0 (2026-10-14) · Quelle: frontend/src/pages/TrainerPage.tsx, frontend/src/pages/trainer/*, frontend/src/pages/OutcomePages.tsx, backend/app/routers/learning_outcomes.py, frontend/src/pages/TrainerPresentPage.tsx, frontend/src/pages/TrainerModulePage.tsx, frontend/src/pages/TrainerModuleEditPage.tsx, frontend/src/components/TrainerFeedback.tsx, frontend/src/lib/i18n.ts, backend/app/routers/trainer_content.py, README.md
 
 # IntLab: Trainer-Handbuch
 
@@ -110,13 +110,77 @@ Hinweise:
 
 Was Teilnehmer sehen: In ihrem geöffneten Modul blendet sich „Live-Abstimmung“ ein (Abfrage alle 5 Sekunden; im Hintergrund-Tab pausiert sie). Sie wählen eine Antwort („Wähle eine Antwort.“), ihre Stimme zählt („Stimme gezählt. Bis zur Auflösung kannst du dich umentscheiden.“). Bei den übrigen Arten lauten die Hinweise „Wähle eine oder mehrere Antworten.“ bzw. „Wähle bis zu n Antworten.“, „Wähle einen Wert.“, „Schreib eine kurze Antwort.“ und „Nenne ein bis drei Wörter.“; Freitext und Wörter werden mit „Senden“ abgeschickt („Gespeichert. Bis zur Auflösung kannst du deine Antwort ändern.“). Mit „Minimieren“, Esc oder Klick daneben wird die Einblendung zum Hinweis „Live-Abstimmung läuft“, aus dem sie sich wieder öffnen lässt; ein noch nicht gesendeter Text geht dabei verloren. Nach der Auflösung sehen sie „Richtig!“, „Leider falsch.“, „Danke fürs Mitmachen!“ (eigene Abstimmung) oder „Du hast nicht abgestimmt.“ und das Ergebnis. Die Einblendung gibt es auf Deutsch und Englisch, je nach Sprache des Teilnehmers; Fragen und Antworten eigener Abstimmungen erscheinen so, wie der Trainer sie eingegeben hat.
 
+## „Folgt mir“: Teilnehmer zur eigenen Stelle holen
+
+Im Beamer-Modus mit Kurs ist unten „Meine Position teilen („Folgt mir“)“ angehakt. Dann sehen die Teilnehmer dieses Kurses in der Kursübersicht und in jedem anderen Modul einen Hinweis „Trainer ist bei Modul „<Titel>““ mit dem Knopf „Hingehen“ (führt ins Modul, bei einer Inhaltsfolie direkt zum Block). Es ist nur ein Angebot: niemand wird umgeleitet, der Hinweis lässt sich je Modul wegklicken und erscheint nicht, wenn der Teilnehmer schon dort ist oder das Modul für ihn noch nicht offen ist (nicht freigeschaltet, Voraussetzung nicht bestanden). Teilnehmer fragen alle 10 Sekunden nach.
+
+- Abschalten: Haken entfernen — der Hinweis verschwindet bei den Teilnehmern. Nach dem Neuladen der Präsentation ist der Haken wieder gesetzt.
+- Die Position bleibt nach dem Verlassen der Präsentation stehen. Das Kurs-Detail zeigt dann oben „Teilnehmer sehen: Trainer ist bei „<Titel>““ mit dem Knopf „Teilen beenden“. Eine Position, die drei Stunden lang kein Folienwechsel erneuert hat, gilt als erledigt.
+
+## Aufwärmrunde (Wiederholung zum Tagesbeginn)
+
+Die Aufwärmrunde schickt alle Teilnehmer eines Kurses in ihre persönliche Wiederholung, zum Beispiel zu Beginn von Tag 2. Jeder bekommt eigene Fragen: aus Modulen, die er vor mindestens 3 Stunden bestanden hat, zuerst die Fragen, die er in einer Quiz-Abgabe falsch beantwortet hatte, danach die am längsten nicht gesehenen; höchstens 8 Fragen je Durchgang. Nach jeder Antwort erscheint die Erklärung. Die Aufwärmrunde hat keinen Einfluss auf Quiz-Ergebnisse, Fortschritt und Teilnahmebestätigung.
+
+1. Im Kurs-Detail den Abschnitt „Aufwärmrunde“ öffnen.
+2. „Aufwärmrunde starten“ wählen. Darüber steht jetzt „Aufwärmrunde läuft:“ mit dem Zwischenstand.
+3. Die Teilnehmer sehen auf der Kursübersicht und in jedem geöffneten Modul innerhalb von etwa 15 Sekunden den Hinweis „Aufwärmrunde: Dein Trainer hat eine Wiederholung gestartet — n Fragen warten auf dich.“ mit dem Knopf „Los geht’s“. Der Hinweis blockiert nichts; Teilnehmer können ihn mit dem Kreuz ausblenden. Er verschwindet, sobald jemand die erste Frage beantwortet hat.
+4. Der Zwischenstand aktualisiert sich alle 10 Sekunden: „n Teilnehmer haben mitgemacht · im Schnitt x % richtig“. Gezählt wird je Teilnehmer die erste Antwort auf jede fällige Frage; „Nochmal“ nach einer falschen Antwort zählt nicht. Namen werden nicht angezeigt. Solange niemand geantwortet hat, steht dort „Noch niemand hat eine Frage beantwortet.“
+5. „Aufwärmrunde beenden“ wählen. Die Zahlen bleiben als „Letzte Aufwärmrunde:“ stehen, bis eine neue Runde startet.
+
+Hinweise:
+
+- Pro Kurs läuft höchstens eine Aufwärmrunde; eine neue Runde beendet die vorige. Eine vergessene Runde endet nach 4 Stunden von selbst.
+- Wer noch kein Modul bestanden hat oder für wen gerade nichts fällig ist, sieht „Dein Trainer hat eine Wiederholung gestartet. Für dich ist gerade nichts fällig.“
+- Auch ohne Aufwärmrunde zeigt die Kursübersicht der Teilnehmer die Karte „Wiederholen“ mit der Zahl der fälligen Fragen („Jetzt wiederholen“). Richtig beantwortete Fragen kommen in wachsenden Abständen wieder (etwa nach 20 Stunden, 3, 7 und 21 Tagen), falsch beantwortete nach 10 Minuten.
+- Teilnehmer sehen den Hinweis und ihre Fragen auf Deutsch oder Englisch, je nach ihrer Sprache.
+- Bei Fehlern erscheint „Die letzte Aktion ist fehlgeschlagen und wurde nicht gespeichert — bitte erneut versuchen.“
+
 ## Fortschritt und Präsenz lesen
 
 Im Kurs-Detail:
 
-- **„Gerade aktiv“:** Wer gerade im Kurs arbeitet und in welchem Modul (aktualisiert sich alle 10 Sekunden).
+- **„Gerade aktiv · Wer hängt fest?“:** Wer gerade im Kurs arbeitet (Heartbeat der letzten 30 Sekunden), in welchem Modul, seit wie vielen Minuten und mit wie vielen Quiz-Fehlversuchen dort (aktualisiert sich alle 10 Sekunden). „braucht evtl. Hilfe“ steht an Teilnehmern, die das Modul noch nicht bestanden haben und entweder mindestens 2 Fehlversuche bei mindestens 10 Minuten im Modul oder mindestens 40 Minuten im Modul haben; sie stehen oben in der Liste. Wer länger als 10 Minuten nicht aktiv war oder das Modul wechselt, beginnt bei 0 Minuten.
 - **„Fortschritt“:** Tabelle mit einer Zeile je Teilnehmer und einer Spalte je Modul. Ein Haken zeigt ein bestandenes Modul, daneben der beste Quiz-Wert in Prozent. Ein Strich „–“ heißt: noch nicht bestanden. Ist die Freigabe aktiv, gibt es zusätzlich die Spalte „Freigabe“. Ohne Teilnehmer steht dort „Noch keine Teilnehmer.“
 - Bei vielen Modulen scrollt die Tabelle waagerecht; die Teilnehmerspalte bleibt stehen.
+
+## Lernerfolg messen: Wissenstest vorher/nachher
+
+Im Kurs-Detail, Abschnitt „Wissenstest vorher/nachher“. Eingangs- und Abschlusstest bestehen aus denselben Fragen: je aktivem Modul ein bis zwei Quizfragen, höchstens 15. Die Auswahl ist je Kurs fest und wird beim ersten Öffnen gespeichert. Ergebnisse zählen weder für den Fortschritt noch für die Teilnahmebestätigung.
+
+1. Vor dem Kurs: „Fragen ansehen (n)“ aufklappen und prüfen. Gefällt die Auswahl nicht, „Fragen neu ziehen“. Das geht nur, solange noch niemand geantwortet hat („Der Fragensatz ist fest – es gibt schon Antworten.“).
+2. „Eingangstest öffnen“. Die Statuszeile zeigt „Eingangstest ist geöffnet“. Teilnehmer sehen auf ihrer Kursseite die Karte „Eingangstest“ mit „Test starten“.
+3. Teilnehmer antworten einmal. Danach sehen sie nur ihre Punktzahl („n von m richtig“), keine Lösungen und keine Erklärungen. So lernt niemand gezielt auf den Test hin.
+4. „Test schließen“, sobald alle fertig sind.
+5. Am Kursende „Abschlusstest öffnen“. Teilnehmer sehen die Karte „Abschlusstest“, antworten einmal und bekommen danach je Frage „Richtig“/„Falsch“ samt Erklärung.
+6. Auswertung im selben Abschnitt: Tabelle je Teilnehmer („Vorher“, „Nachher“, „Zuwachs“ in Prozentpunkten) und die Zeile „Ø vorher … · Ø nachher … · Ø Zuwachs … Prozentpunkte (n mit beiden Tests)“. Der Zuwachs zählt nur Teilnehmer, die beide Tests gemacht haben. Darunter „Je Frage: richtig / Antworten“ für vorher und nachher.
+
+Wer zu spät kommt, kann den Eingangstest nicht mehr nachholen, sobald der Abschlusstest geöffnet ist: Es ist immer nur ein Test offen.
+
+## Lernerfolg messen: Kursbewertung (anonym)
+
+Im Kurs-Detail, Abschnitt „Kursbewertung (anonym)“.
+
+1. Am Kursende „Kursbewertung öffnen“. Teilnehmer sehen auf ihrer Kursseite die Karte „Kursbewertung“ mit „Kurs bewerten“.
+2. Das Formular fragt „Gesamteindruck“ (Pflicht, 1 bis 5) sowie optional „Inhalt verständlich“, „Praxisanteil“, „Trainer“ (je 1 bis 5), „Tempo“ („zu langsam“, „passend“, „zu schnell“), „Was war gut?“ und „Was sollten wir verbessern?“. Jeder Teilnehmer kann einmal bewerten.
+3. Die Auswertung zeigt die Zahl der Abgaben („n Abgaben“). Erst ab 3 Abgaben erscheinen je Frage Mittelwert und Verteilung 1 bis 5, das Tempo und die Freitexte in zufälliger Reihenfolge; darunter steht nur der Hinweis „Ergebnisse erscheinen ab 3 Abgaben, damit sich keine Antwort einer Person zuordnen lässt.“ Dasselbe gilt für den CSV-Export.
+4. „Kursbewertung schließen“ beendet die Abgabe; die Ergebnisse bleiben sichtbar.
+
+Anonymität: Gespeichert werden die Antworten ohne Namen, ohne Teilnehmer-Verweis und ohne Zeitpunkt. Am Teilnehmer steht nur, dass er bewertet hat. Beides wird in einem Schritt gespeichert, damit niemand doppelt bewertet. Ergebnisse gibt es deshalb erst ab 3 Abgaben. Grenzen: Bei kleinen Gruppen oder wenn man live zusieht, wer gerade abgibt, und dabei die Zahl der Abgaben verfolgt, sind Rückschlüsse auf Personen trotzdem möglich. Mit direktem Datenbankzugriff lässt sich zusätzlich die Speicherreihenfolge auswerten. Bei kleinen Gruppen die Ergebnisse deshalb erst nach dem Schließen ansehen.
+
+Die Kursbewertung enthält keine personenbezogenen Daten. Sie bleibt beim Kurs, auch wenn Teilnehmerdaten gelöscht werden (Aufbewahrung), und verschwindet erst mit dem Kurs.
+
+## Lernerfolg messen: CSV-Export
+
+Im Kurs-Detail, Abschnitt „Export (CSV)“. Die Dateien öffnen sich direkt in Excel (UTF-8 mit BOM, Semikolon als Trenner, Dezimalkomma). Zellen, die mit `=`, `+`, `-` oder `@` beginnen, bekommen ein vorangestelltes `'`, damit Excel sie nicht als Formel ausführt.
+
+| Knopf | Inhalt |
+|---|---|
+| „Fortschritt (CSV)“ | je Teilnehmer: Name, erledigte Module, Bestwert in Prozent je Modul, letzte Aktivität (UTC) |
+| „Quiz je Frage (CSV)“ | je Modul und Frage: richtig, Versuche, Quote (nur dieser Kurs) |
+| „Vorher/Nachher (CSV)“ | je Teilnehmer: Eingangstest, Abschlusstest, Zuwachs; Durchschnitt; je Frage richtig/Antworten vorher und nachher |
+| „Kursbewertung (CSV)“ | Zahl der Abgaben; ab 3 Abgaben zusätzlich Mittelwert und Verteilung je Frage, Tempo, Freitexte |
+
+Die Spaltenüberschriften folgen der Sprache der Trainer-Oberfläche. Jeder Export steht im „Protokoll“ (Aktion `course.export`). Exportieren darf jeder Trainer, der auch das Kurs-Dashboard sieht.
 
 ## Quiz-Statistik lesen
 

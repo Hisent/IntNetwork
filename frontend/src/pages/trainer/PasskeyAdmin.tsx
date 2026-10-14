@@ -97,7 +97,6 @@ export function PasskeyAdmin({ portalContainer }: { portalContainer: HTMLElement
         title={tr('trRemovePasskey')}
         description={<>{tr('trRemovePasskeyDesc', { label: deleteTarget?.label ?? '' })}</>}
         confirmLabel={tr('trRemovePermanently')}
-        cancelLabel={tr('trCancel')}
         triggerRef={deleteTriggerRef}
         container={portalContainer}
         onConfirm={() => { if (deleteTarget) remove.mutate(deleteTarget.id); setDeleteTarget(null) }}

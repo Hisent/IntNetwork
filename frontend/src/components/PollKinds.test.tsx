@@ -11,7 +11,7 @@ import { useAuthStore } from '@/store/auth'
 import type { LivePoll } from '@/types'
 
 vi.mock('@/lib/api', () => ({
-  api: { get: vi.fn(), post: vi.fn(), put: vi.fn(), patch: vi.fn(), delete: vi.fn() },
+  api: { get: vi.fn(), post: vi.fn(), put: vi.fn(() => Promise.resolve({ data: null })), patch: vi.fn(), delete: vi.fn() },
   errMsg: (_e: unknown, fallback: string) => fallback,
 }))
 

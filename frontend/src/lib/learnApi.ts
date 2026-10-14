@@ -1,9 +1,13 @@
 import { api } from '@/lib/api'
-import type { Company, LivePoll, PollChoice, ModuleDetail, ModuleMeta, ProgressItem, Question, Workshop } from '@/types'
+import type { Company, Follow, LivePoll, PollChoice, ModuleDetail, ModuleMeta, ProgressItem, Question, Workshop } from '@/types'
 import type { Lang } from '@/lib/i18n'
 
 export const learnApi = {
-  me: () => api.get<{ name: string; participant_id: number; course_id: number; language: Lang; course: { id: number; name: string }; workshop: Workshop | null; progress: ProgressItem[] }>('/me'),
+  me: () => api.get<{ name: string; participant_id: number; course_id: number; language: Lang; course: { id: number; name: string }; workshop: Workshop | null; progress: ProgressItem[]; tasks?: OpenTasks }>('/me'),
+  assessment: () => api.get<Assessment | null>('/assessment'),
+  submitAssessment: (phase: AssessmentPhase, answers: Record<string, unknown>) =>
+    api.post<AssessmentResult>('/assessment', { phase, answers }),
+  submitEvaluation: (body: EvaluationInput) => api.post<{ ok: boolean }>('/evaluation', body),
   setLanguage: (language: Lang) => api.patch<{ language: Lang }>('/me/language', { language }),
   company: () => api.get<Company>('/company'),
   listModules: () => api.get<ModuleMeta[]>('/modules'),
@@ -15,6 +19,13 @@ export const learnApi = {
     api.get<{ questions: PracticeQuestion[]; wrong_total: number }>(`/practice?mode=${mode}`),
   practiceCheck: (question_id: string, answer: unknown) =>
     api.post<{ correct: boolean; explanation: string | null }>('/practice/check', { question_id, answer }),
+  getState: (key: string) => api.get<ModuleState>(`/modules/${key}/state`),
+  putState: (key: string, state: Pick<ModuleState, 'read' | 'exercises'>) =>
+    api.put<{ updated_at: string }>(`/modules/${key}/state`, state),
+  reviewStatus: () => api.get<ReviewStatus>('/review/status'),
+  review: () => api.get<{ questions: PracticeQuestion[]; due: number }>('/review'),
+  reviewCheck: (question_id: string, answer: unknown) =>
+    api.post<{ correct: boolean; explanation: string | null }>('/review/check', { question_id, answer }),
   search: (q: string) => api.get<{ hits: SearchHit[]; more: boolean }>(`/search?q=${encodeURIComponent(q)}`),
   features: () => api.get<{ comments: boolean }>('/features'),
   listComments: (key: string) => api.get<Comment[]>(`/modules/${key}/comments`),
@@ -23,12 +34,17 @@ export const learnApi = {
   deleteComment: (id: number) => api.delete(`/comments/${id}`),
   heartbeat: (key: string) => api.post(`/modules/${key}/heartbeat`),
   poll: (key: string) => api.get<LivePoll | null>(`/modules/${key}/poll`),
+  follow: () => api.get<Follow | null>('/follow'),
   pollVote: (key: string, poll_id: number, choice: PollChoice) => api.post<{ ok: boolean; my_choice: PollChoice }>(`/modules/${key}/poll/vote`, { poll_id, choice }),
   links: () => api.get<LinkCategory[]>('/links'),
   issueCertificate: () => api.post<CertificateData>('/certificate'),
   verifyCertificate: (id: string) => api.get<CertificateData>(`/verify/${encodeURIComponent(id)}`),
 }
 
+/** Serverseitiger Lese-/Übungsstand eines Moduls (lib/moduleStateSync.ts); updated_at null = noch nie gespeichert. */
+export interface ModuleState { read: number[]; exercises: Record<string, unknown>; updated_at: string | null }
+/** due = fällige Wiederholungsfragen, candidates = alle wiederholbaren; warmup = laufende Aufwärmrunde. */
+export interface ReviewStatus { due: number; candidates: number; warmup: { id: number; answered: number } | null }
 export type PracticeQuestion = Question & { module_key: string; module_title: string }
 export interface SearchHit { module_key: string; module_title: string; kind: 'title' | 'goal' | 'text'; uid: string | null; snippet: string }
 
@@ -59,4 +75,20 @@ export interface Comment {
   author_name: string
   created_at: string
   own: boolean
+}
+
+// Lernerfolg: offener Wissenstest (Eingangs-/Abschlusstest) und anonyme Kursbewertung
+export type AssessmentPhase = 'pre' | 'post'
+export interface OpenTasks { assessment: AssessmentPhase | null; evaluation: boolean }
+/** Nach dem Eingangstest nur score/total; nach dem Abschlusstest auch details/explanations. */
+export interface AssessmentResult { score: number; total: number; details?: Record<string, boolean>; explanations?: Record<string, string> }
+export interface Assessment { phase: AssessmentPhase; questions: (Question & { module_key: string })[]; result: AssessmentResult | null }
+export interface EvaluationInput {
+  overall: number
+  clarity?: number | null
+  practice?: number | null
+  pace?: 'slow' | 'ok' | 'fast' | null
+  trainer?: number | null
+  good?: string
+  improve?: string
 }

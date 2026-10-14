@@ -16,6 +16,7 @@ from app.services.audit import log_action
 from app.services.codes import new_code
 from app.services.deps import get_trainer
 from app.services.course_membership import active_module_keys
+from app.routers.presence import current_follow
 from app.content.registry import module_meta
 from app.models.content import ContentModule
 from app.utils import generate_resume_code
@@ -201,7 +202,9 @@ def dashboard(course_id: int, db: Session = Depends(get_db), _=Depends(get_train
                        "workshop_key": course.workshop_key, "require_approval": course.require_approval,
                        # Für den Lösch-Dialog: so viele Zertifikate blieben stehen.
                        "certificate_count": db.query(Certificate).filter(
-                           Certificate.course_id == course_id).count()},
+                           Certificate.course_id == course_id).count(),
+                       # „Folgt mir“: geteilte Trainer-Position, damit sich das Teilen hier beenden lässt.
+                       "follow": current_follow(course, active_keys)},
             "modules": metas, "participants": rows}
 
 
@@ -212,7 +215,7 @@ def course_modules(course_id: int, db: Session = Depends(get_db), _=Depends(get_
         raise HTTPException(status_code=404, detail="Kurs nicht gefunden")
     active_keys = active_module_keys(db, course_id)
     allowed_workshop = course.workshop_key
-    return [{"key": m["key"], "title": m["title"], "order": m["order"],
+    return [{"key": m["key"], "title": m["title"], "title_en": m["title_en"], "order": m["order"],
              "workshop_key": m["workshop_key"], "active": m["key"] in active_keys}
             for m in module_meta(db)
             if allowed_workshop is None or m["workshop_key"] == allowed_workshop]

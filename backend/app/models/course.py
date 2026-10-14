@@ -1,5 +1,5 @@
 from datetime import datetime
-from sqlalchemy import Boolean, DateTime, Integer, String
+from sqlalchemy import JSON, Boolean, DateTime, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column
 from app.database import Base
 from app.utils import utc_now
@@ -15,3 +15,16 @@ class Course(Base):
     # Opt-in: verlangt Trainerfreigabe je Teilnehmer, bevor die Teilnahmebestätigung
     # ausgestellt wird. Default aus -> Verhalten unverändert (Bestätigung bei allen Modulen done).
     require_approval: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False, server_default="0")
+    # „Folgt mir“: wo der Trainer gerade ist (Modul, optional Block-uid). Gesetzt
+    # beim Präsentieren mit Kurs, gelöscht per Schalter; ältere Stände als
+    # routers/presence.py::FOLLOW_TTL gelten als erledigt.
+    follow_module_key: Mapped[str | None] = mapped_column(String, nullable=True)
+    follow_block_uid: Mapped[str | None] = mapped_column(String, nullable=True)
+    follow_updated_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    # Wissenstest vorher/nachher (routers/learning_outcomes.py): gezogene Frage-ids
+    # (None = noch nicht gezogen), Zufalls-Seed der Ziehung, gerade offene Phase.
+    assessment_questions: Mapped[list | None] = mapped_column(JSON, nullable=True)
+    assessment_seed: Mapped[int] = mapped_column(Integer, default=0, nullable=False, server_default="0")
+    assessment_phase: Mapped[str | None] = mapped_column(String, nullable=True)  # "pre" | "post" | None
+    # Anonyme Kursbewertung offen?
+    evaluation_open: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False, server_default="0")
