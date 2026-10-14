@@ -1,7 +1,7 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 DEFAULT_SECRET_KEY = "change-me-intnetwork-default-secret"
-APP_VERSION = "1.44.0"
+APP_VERSION = "1.45.0"
 
 
 class Settings(BaseSettings):
@@ -38,6 +38,10 @@ class Settings(BaseSettings):
     webauthn_rp_id: str = ""
     webauthn_rp_name: str = "IntLab"
     webauthn_origin: str = ""
+    # DSGVO-Aufbewahrung (opt-in): Teilnehmerdaten von Kursen ohne
+    # Teilnehmer-Aktivität seit N Tagen werden gelöscht (app/services/retention.py).
+    # 0/leer = aus. Kurs und Inhalte bleiben.
+    course_retention_days: int = 0
 
     @property
     def origins(self) -> list[str]:

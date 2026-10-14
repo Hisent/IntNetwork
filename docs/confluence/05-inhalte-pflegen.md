@@ -1,4 +1,4 @@
-Stand: v1.43.0 (2026-10-13) · Quelle: docs/content-authoring.md, docs/lernwelt-nordwind.md, docs/lernwelt-check.py, frontend/src/pages/TrainerModuleEditPage.tsx
+Stand: v1.45.0 (2026-10-13) · Quelle: docs/content-authoring.md, docs/lernwelt-nordwind.md, docs/lernwelt-check.py, frontend/src/pages/TrainerModuleEditPage.tsx
 
 # IntLab: Inhalte pflegen (Kurzfassung für Autoren)
 

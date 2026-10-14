@@ -29,7 +29,17 @@ def get_trainer(payload: dict = Depends(_payload), db: Session = Depends(get_db)
     if payload.get("token_version", 0) != t.token_version:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
                             detail="Sitzung abgelaufen, bitte neu anmelden")
-    return payload
+    # Rolle aus der DB statt aus dem Token: Herabstufen wirkt sofort, ohne
+    # dass laufende 8-h-Tokens noch Admin-Rechte tragen.
+    return {**payload, "is_admin": t.role == "admin"}
+
+
+def get_admin(trainer: dict = Depends(get_trainer)) -> dict:
+    """Wie get_trainer, aber nur für Trainer mit role == "admin" (Zugänge,
+    Rollen, globale Einstellungen)."""
+    if not trainer["is_admin"]:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Nur für Administratoren")
+    return trainer
 
 
 def get_participant(payload: dict = Depends(_payload), db: Session = Depends(get_db)) -> Participant:

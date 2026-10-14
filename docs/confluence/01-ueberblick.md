@@ -1,4 +1,4 @@
-Stand: v1.43.0 (2026-10-13) · Quelle: README.md, docs/lernwelt-nordwind.md, backend/app/content/changelog.py, backend/app/content/registry.py, frontend/src/App.tsx
+Stand: v1.45.0 (2026-10-13) · Quelle: README.md, docs/lernwelt-nordwind.md, backend/app/content/changelog.py, backend/app/content/registry.py, frontend/src/App.tsx
 
 # IntLab: Überblick
 
@@ -37,7 +37,7 @@ Zum Stand der ausgelieferten Inhalte: 99 Module, 1242 Blöcke, 754 Quizfragen (Q
 - **Üben:** Der Übungsmodus (`/lernen/ueben`, Seitentitel „Üben & Wiederholen“) wiederholt falsch beantwortete Fragen oder übt gemischt, ohne Wertung.
 - **Suche** über Titel, Lernziele, Texte und Glossar der freigeschalteten Module.
 - **Druckansicht** je Modul als Spickzettel (Theorie, Diagramme, eigene Notizen); Knopf „Drucken / PDF“ im Modul.
-- **Live-Abstimmung:** Während der Trainer im Beamer-Modus eine Frage stellt, blendet sich im geöffneten Modul eine Abstimmung ein (Antworten A/B/C/D, Stimme bis zur Auflösung änderbar, Minimieren möglich).
+- **Live-Abstimmung:** Während der Trainer im Beamer-Modus eine Frage stellt, blendet sich im geöffneten Modul eine Abstimmung ein (Single/Multiple Choice mit Antworten A/B/C/D, Skala, Freitext oder Wortwolke; Antwort bis zur Auflösung änderbar, anonym, Minimieren möglich).
 - Persönlicher Wiederaufnahme-Code beim Erstbeitritt; nur damit lässt sich später unter demselben Namen fortsetzen.
 - Teilnahmebestätigung nach Abschluss aller aktiven Module, öffentlich prüfbar unter `/verifizieren`.
 - Optional: Kommentare an Blöcken (Schalter im Trainer-Bereich).
@@ -46,7 +46,7 @@ Zum Stand der ausgelieferten Inhalte: 99 Module, 1242 Blöcke, 754 Quizfragen (Q
 
 - Kurse anlegen, Einladungslink und QR-Code, Module je Kurs freischalten oder abwählen.
 - Fortschrittstabelle je Kurs, Live-Präsenz („Gerade aktiv“), Quiz-Statistik je Frage und Modul.
-- Beamer-Modus („▶ Präsentieren“) mit Notizen; mit Kurs-Bezug zusätzlich Live-Abstimmung zu Single-Choice-Quizfragen und Auswahl-Checks. Eine laufende Abstimmung zeigt das Kurs-Detail und lässt sich dort mit „Abstimmung beenden“ schließen.
+- Beamer-Modus („▶ Präsentieren“) mit Notizen; mit Kurs-Bezug zusätzlich Live-Abstimmung zu Single- und Multiple-Choice-Quizfragen, Auswahl-Checks und eigenen Fragen (Mehrfachauswahl, Skala, Freitext und Wortwolke, beide erst nach dem Auflösen sichtbar und vorher in einer eingeklappten Prüfliste ausblendbar). Eine laufende Abstimmung zeigt das Kurs-Detail und lässt sich dort mit „Abstimmung beenden“ schließen.
 - Feedback-Kommentare der Teilnehmer lesen und beantworten (Enter sendet; Löschen mit Rückfrage).
 - Teilnehmerverwaltung: Wiederaufnahme-Code zurücksetzen, Teilnehmer löschen; Kurs löschen (mit Wahl für die Teilnahmebestätigungen).
 - Modul-Editor mit einer Wiederherstellungsstufe und „Auslieferungszustand laden“, Statusleiste für das Speichern (mit Sprung zum fehlerhaften Block), Schutz ungespeicherter Änderungen und Konfliktbehandlung über „Serverstand laden (eigene Änderungen verwerfen)“.

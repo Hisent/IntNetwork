@@ -1,5 +1,6 @@
+import { useQuery } from '@tanstack/react-query'
 import { api } from '@/lib/api'
-import type { LivePoll, ModuleMeta, TrainerModuleDetail } from '@/types'
+import type { AdhocPoll, LivePoll, ModuleMeta, TrainerModuleDetail } from '@/types'
 import type { TrainerComment } from '@/components/commentGroups'
 
 export interface Course { id: number; name: string; join_code: string; workshop_key: string | null; participant_count?: number; require_approval?: boolean; /** nur im Dashboard: ausgestellte Zertifikate dieses Kurses */ certificate_count?: number }
@@ -76,7 +77,7 @@ export interface EditorModule {
   version?: string
 }
 export interface EditorModuleMeta { key: string; title_de: string; title_en: string; order: number; workshop_key: string | null }
-export interface TrainerAccount { id: number; email: string; name: string }
+export interface TrainerAccount { id: number; email: string; name: string; role: 'admin' | 'trainer'; /** der angemeldete Trainer selbst */ is_self: boolean }
 export interface QuizQuestionStat { id: string; prompt: string; correct: number; attempts: number }
 export interface QuizStats { submissions: number; questions: QuizQuestionStat[] }
 export interface AuditLogEntry {
@@ -150,6 +151,12 @@ export const trainerApi = {
   poll: (cid: number) => api.get<LivePoll | null>(`/trainer/courses/${cid}/poll`),
   startPoll: (cid: number, module_key: string, source: 'quiz' | 'check', ref: string) =>
     api.post<LivePoll>(`/trainer/courses/${cid}/poll`, { module_key, source, ref }),
+  startAdhocPoll: (cid: number, module_key: string, poll: AdhocPoll) =>
+    api.post<LivePoll>(`/trainer/courses/${cid}/poll`, { module_key, source: 'adhoc', ...poll }),
+  hidePollAnswer: (cid: number, id: number, hidden: boolean) =>
+    api.patch<LivePoll>(`/trainer/courses/${cid}/poll/answers/${id}`, { hidden }),
+  hidePollWord: (cid: number, word: string, hidden: boolean) =>
+    api.patch<LivePoll>(`/trainer/courses/${cid}/poll/words`, { word, hidden }),
   revealPoll: (cid: number) => api.post<LivePoll>(`/trainer/courses/${cid}/poll/reveal`),
   closePoll: (cid: number) => api.delete(`/trainer/courses/${cid}/poll`),
   listContentModules: () => api.get<EditorModuleMeta[]>('/trainer/content/modules'),
@@ -167,6 +174,9 @@ export const trainerApi = {
   createTrainerAccount: (email: string, name: string, password: string) =>
     api.post<TrainerAccount>('/trainer/accounts', { email, name, password }),
   deleteTrainerAccount: (id: number) => api.delete(`/trainer/accounts/${id}`),
+  // nur Admins (sonst 403); der Server verhindert, dass der letzte Admin herabgestuft wird
+  setTrainerRole: (id: number, role: TrainerAccount['role']) =>
+    api.patch<TrainerAccount>(`/trainer/accounts/${id}/role`, { role }),
   auditLog: (limit: number, offset: number) => api.get<AuditLogEntry[]>(`/trainer/audit?limit=${limit}&offset=${offset}`),
   // Passkey (WebAuthn): status ist auch ohne Login abrufbar (Anmeldeformular
   // muss vor dem Login wissen, ob der Knopf erscheinen soll). Ist die Funktion
@@ -181,4 +191,17 @@ export const trainerApi = {
   passkeyLoginVerify: (credential: unknown) => api.post<{ access_token: string }>('/trainer/passkey/login/verify', { credential }),
   listPasskeys: () => api.get<PasskeySummary[]>('/trainer/passkey'),
   deletePasskey: (id: string) => api.delete(`/trainer/passkey/${id}`),
+}
+
+export const trainerAccountsQuery = {
+  queryKey: ['trainer-accounts'],
+  queryFn: () => trainerApi.listTrainerAccounts().then((r) => r.data),
+}
+
+/** Ist der angemeldete Trainer Admin? Aus der Zugangsliste (is_self) abgeleitet —
+ *  derselbe Query wie TrainerAccounts, also kein zusätzlicher Request. Nur
+ *  Bedienkomfort: die Rechte prüft der Server (403 für Nicht-Admins). */
+export function useIsAdmin(): boolean {
+  const accounts = useQuery(trainerAccountsQuery)
+  return accounts.data?.some((t) => t.is_self && t.role === 'admin') ?? false
 }

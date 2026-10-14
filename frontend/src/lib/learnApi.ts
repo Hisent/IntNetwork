@@ -1,5 +1,5 @@
 import { api } from '@/lib/api'
-import type { Company, LivePoll, ModuleDetail, ModuleMeta, ProgressItem, Question, Workshop } from '@/types'
+import type { Company, LivePoll, PollChoice, ModuleDetail, ModuleMeta, ProgressItem, Question, Workshop } from '@/types'
 import type { Lang } from '@/lib/i18n'
 
 export const learnApi = {
@@ -23,7 +23,7 @@ export const learnApi = {
   deleteComment: (id: number) => api.delete(`/comments/${id}`),
   heartbeat: (key: string) => api.post(`/modules/${key}/heartbeat`),
   poll: (key: string) => api.get<LivePoll | null>(`/modules/${key}/poll`),
-  pollVote: (key: string, poll_id: number, choice: number) => api.post(`/modules/${key}/poll/vote`, { poll_id, choice }),
+  pollVote: (key: string, poll_id: number, choice: PollChoice) => api.post<{ ok: boolean; my_choice: PollChoice }>(`/modules/${key}/poll/vote`, { poll_id, choice }),
   links: () => api.get<LinkCategory[]>('/links'),
   issueCertificate: () => api.post<CertificateData>('/certificate'),
   verifyCertificate: (id: string) => api.get<CertificateData>(`/verify/${encodeURIComponent(id)}`),

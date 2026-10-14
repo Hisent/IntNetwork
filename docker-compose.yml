@@ -46,6 +46,10 @@ services:
       # registrieren. Das Passwort bleibt in jedem Fall nutzbar.
       WEBAUTHN_RP_ID: ${WEBAUTHN_RP_ID}
       WEBAUTHN_ORIGIN: ${WEBAUTHN_ORIGIN}
+      # DSGVO-Aufbewahrung: Teilnehmerdaten von Kursen ohne Aktivitaet seit N
+      # Tagen loeschen (taeglich). 0 = aus. ":-0", weil Compose eine ungesetzte
+      # Variable sonst als "" durchreicht und das keine Zahl ist.
+      COURSE_RETENTION_DAYS: ${COURSE_RETENTION_DAYS:-0}
     depends_on:
       db:
         condition: service_healthy

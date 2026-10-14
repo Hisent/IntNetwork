@@ -5,11 +5,14 @@ import { trainerApi } from '@/lib/trainerApi'
 import { isPasskeyCancelled, registerPasskey } from '@/lib/passkey'
 import { ConfirmDialog } from '@/components/ConfirmDialog'
 import { Icon } from '@/components/Icon'
+import { localeOf } from '@/lib/i18n'
+import { useTr } from '@/store/lang'
 import { Field, Section, QueryState } from './shared'
 
 // --- Verwaltung: Passkeys ------------------------------------------------------
 
 export function PasskeyAdmin({ portalContainer }: { portalContainer: HTMLElement | null }) {
+  const { lang, tr } = useTr()
   const qc = useQueryClient()
   const status = useQuery({ queryKey: ['passkey-status'], queryFn: () => trainerApi.passkeyStatus().then((r) => r.data) })
   // Liste nur abfragen, wenn die Funktion serverseitig überhaupt aktiv ist —
@@ -25,7 +28,7 @@ export function PasskeyAdmin({ portalContainer }: { portalContainer: HTMLElement
   const remove = useMutation({
     mutationFn: (id: string) => trainerApi.deletePasskey(id),
     onSuccess: () => { setError(''); qc.invalidateQueries({ queryKey: ['passkeys'] }) },
-    onError: (e) => setError(errMsg(e)),
+    onError: (e) => setError(errMsg(e, tr('trErrorFallback'))),
   })
   // Gleiches Muster wie beim Teilnehmer-/Trainer-Löschen weiter oben: ein
   // Passkey ist ein eigenständiger Anmeldeweg, kein einfacher Datensatz —
@@ -45,19 +48,19 @@ export function PasskeyAdmin({ portalContainer }: { portalContainer: HTMLElement
       setLabel('')
       qc.invalidateQueries({ queryKey: ['passkeys'] })
     } catch (e) {
-      if (!isPasskeyCancelled(e)) setError(errMsg(e, 'Registrierung fehlgeschlagen.'))
+      if (!isPasskeyCancelled(e)) setError(errMsg(e, tr('trRegisterFailed')))
     } finally {
       setRegistering(false)
     }
   }
 
   return (
-    <Section title="Passkeys">
+    <Section title={tr('trPasskeys')}>
       <p className="mb-3 text-xs text-[var(--wb-muted)]">
-        Passkeys sind an diese Adresse gebunden — zieht die Instanz auf eine andere Domain um, müssen sie neu angelegt werden.
+        {tr('trPasskeyDomainNote')}
       </p>
       {!status.isLoading && !status.data?.enabled ? (
-        <p className="text-sm text-[var(--wb-muted)]">Passkey-Anmeldung ist auf dieser Instanz nicht eingerichtet.</p>
+        <p className="text-sm text-[var(--wb-muted)]">{tr('trPasskeyNotConfigured')}</p>
       ) : (
         <>
           <QueryState query={passkeys} empty={passkeys.data?.length === 0}>
@@ -67,23 +70,23 @@ export function PasskeyAdmin({ portalContainer }: { portalContainer: HTMLElement
                   <span className="min-w-0 truncate text-[var(--wb-ink)]">
                     {p.label}
                     <span className="ml-2 text-xs text-[var(--wb-muted)]">
-                      angelegt {new Date(p.created_at).toLocaleDateString('de-DE')}
+                      {tr('trCreatedOn', { date: new Date(p.created_at).toLocaleDateString(localeOf(lang)) })}
                       {' · '}
-                      {p.last_used_at ? `zuletzt genutzt ${new Date(p.last_used_at).toLocaleDateString('de-DE')}` : 'noch nicht genutzt'}
+                      {p.last_used_at ? tr('trLastUsed', { date: new Date(p.last_used_at).toLocaleDateString(localeOf(lang)) }) : tr('trNeverUsed')}
                     </span>
                   </span>
                   <button
                     onClick={(e) => { deleteTriggerRef.current = e.currentTarget; setDeleteTarget({ id: p.id, label: p.label }) }}
-                    aria-label={`Passkey „${p.label}“ entfernen`} className="shrink-0 text-rose-600 hover:text-rose-700"><Icon name="trash" className="h-4 w-4" /></button>
+                    aria-label={tr('trRemovePasskeyAria', { label: p.label })} className="shrink-0 text-rose-600 hover:text-rose-700"><Icon name="trash" className="h-4 w-4" /></button>
                 </li>
               ))}
             </ul>
           </QueryState>
           <form onSubmit={addPasskey} className="flex flex-wrap items-end gap-2">
-            <Field label="Bezeichnung" placeholder="Notebook" value={label} onChange={(e) => setLabel(e.target.value)} disabled={registering} />
+            <Field label={tr('trLabelField')} placeholder={tr('trLabelFieldPh')} value={label} onChange={(e) => setLabel(e.target.value)} disabled={registering} />
             <button disabled={registering}
               className="wb-control inline-flex items-center gap-1 rounded-lg bg-[var(--wb-accent)] px-3 text-sm font-medium text-white hover:bg-[var(--wb-accent-hover)] disabled:opacity-50">
-              <Icon name="plus" className="h-4 w-4" /> {registering ? 'Registriert…' : 'Passkey hinzufügen'}
+              <Icon name="plus" className="h-4 w-4" /> {registering ? tr('trRegistering') : tr('trAddPasskey')}
             </button>
           </form>
         </>
@@ -91,10 +94,10 @@ export function PasskeyAdmin({ portalContainer }: { portalContainer: HTMLElement
       {error && <p aria-live="polite" className="mt-2 text-sm text-rose-600">{error}</p>}
       <ConfirmDialog
         open={deleteTarget !== null}
-        title="Passkey entfernen"
-        description={<>Passkey „{deleteTarget?.label}“ endgültig entfernen? Danach bleiben nur noch das Passwort und die übrigen Passkeys zur Anmeldung.</>}
-        confirmLabel="Endgültig entfernen"
-        cancelLabel="Abbrechen"
+        title={tr('trRemovePasskey')}
+        description={<>{tr('trRemovePasskeyDesc', { label: deleteTarget?.label ?? '' })}</>}
+        confirmLabel={tr('trRemovePermanently')}
+        cancelLabel={tr('trCancel')}
         triggerRef={deleteTriggerRef}
         container={portalContainer}
         onConfirm={() => { if (deleteTarget) remove.mutate(deleteTarget.id); setDeleteTarget(null) }}

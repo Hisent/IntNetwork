@@ -1,8 +1,10 @@
 import logging
 import time
+import uuid
 
-from fastapi import APIRouter, FastAPI
+from fastapi import APIRouter, FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from sqlalchemy import inspect, text
 from sqlalchemy.exc import OperationalError
 
@@ -24,6 +26,8 @@ from app.models import certificate as _certificate  # noqa: F401
 from app.models import audit_log as _audit_log  # noqa: F401
 from app.models import trainer_credential as _trainer_credential  # noqa: F401
 from app.models import live_poll as _live_poll  # noqa: F401
+
+_log = logging.getLogger(__name__)
 
 # Leer (Compose reicht eine ungesetzte Variable als "" durch) oder noch ein
 # "change-me"-Platzhalter (Code-Default bzw. .env.example): beides ist ein
@@ -120,7 +124,32 @@ try:
 finally:
     _seed_db.close()
 
+from app.services import retention  # noqa: E402
+
+retention.start()
+
 app = FastAPI(title="IntLab", version=APP_VERSION)
+
+
+@app.middleware("http")
+async def _request_id(request: Request, call_next):
+    """Jede Response trägt X-Request-ID; ein unbehandelter Fehler wird mit
+    Traceback und dieser ID geloggt und als generischer 500 beantwortet (die ID
+    steht in `detail`, damit die Oberfläche sie über errMsg ohnehin anzeigt und
+    ein Trainer sie melden kann). Bewusst hier statt exception_handler(Exception):
+    der läuft in Starlettes ServerErrorMiddleware, wirft danach erneut (doppelter
+    Traceback im Log) und liegt außerhalb dieser Middleware (kein Header).
+    Die ID wird nie vom Client übernommen (keine Log-Injection). Vor
+    _security_headers registriert = innen: auch der 500er bekommt dessen Header."""
+    rid = uuid.uuid4().hex[:16]
+    try:
+        response = await call_next(request)
+    except Exception:
+        _log.exception("Unbehandelter Fehler request_id=%s %s %s", rid, request.method, request.url.path)
+        response = JSONResponse(status_code=500, content={
+            "detail": f"Interner Fehler (Fehler-ID {rid})", "request_id": rid})
+    response.headers["X-Request-ID"] = rid
+    return response
 
 
 @app.middleware("http")
@@ -174,6 +203,7 @@ from app.routers import lab as lab_router  # noqa: E402
 from app.routers import trainer_audit as trainer_audit_router  # noqa: E402
 from app.routers import trainer_passkey as trainer_passkey_router  # noqa: E402
 from app.routers import polls as polls_router  # noqa: E402
+from app.routers import client_errors as client_errors_router  # noqa: E402
 _api.include_router(auth_router.router)
 _api.include_router(courses_router.router)
 _api.include_router(join_router.router)
@@ -194,5 +224,6 @@ _api.include_router(lab_router.router)
 _api.include_router(trainer_audit_router.router)
 _api.include_router(trainer_passkey_router.router)
 _api.include_router(polls_router.router)
+_api.include_router(client_errors_router.router)
 
 app.include_router(_api)

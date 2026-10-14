@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { TRAINER_DE, TRAINER_EN } from './i18nTrainer'
 
 export type Lang = 'de' | 'en'
 
@@ -55,6 +56,7 @@ export function usePublicLang(): [Lang, (lang: Lang) => void] {
 
 export const STRINGS = {
   de: {
+    ...TRAINER_DE,
     join: 'Beitreten',
     courseCode: 'Kurs-Code',
     modules: 'Module',
@@ -162,8 +164,23 @@ export const STRINGS = {
     pollRight: 'Richtige Antwort',
     pollVotes: 'Stimmen',
     pollError: 'Stimme konnte nicht gespeichert werden.',
+    pollChooseMulti: 'Wähle eine oder mehrere Antworten.',
+    pollChooseMax: 'Wähle bis zu {n} Antworten.',
+    pollChooseScale: 'Wähle einen Wert.',
+    pollChooseText: 'Schreib eine kurze Antwort.',
+    pollChooseWords: 'Nenne ein bis drei Wörter.',
+    pollSaved: 'Gespeichert. Bis zur Auflösung kannst du deine Antwort ändern.',
+    pollThanks: 'Danke fürs Mitmachen!',
+    pollSend: 'Senden',
+    pollWord: 'Wort',
+    pollMean: 'Mittelwert',
+    pollAnswerLabel: 'Deine Antwort',
+    pollNoAnswers: 'Noch keine Antworten.',
+    pollWordCloud: 'Wortwolke',
+    pollScaleValue: 'Wert',
   },
   en: {
+    ...TRAINER_EN,
     join: 'Join',
     courseCode: 'Course code',
     modules: 'Modules',
@@ -271,9 +288,33 @@ export const STRINGS = {
     pollRight: 'Correct answer',
     pollVotes: 'votes',
     pollError: 'Your vote could not be saved.',
+    pollChooseMulti: 'Choose one or more answers.',
+    pollChooseMax: 'Choose up to {n} answers.',
+    pollChooseScale: 'Pick a value.',
+    pollChooseText: 'Write a short answer.',
+    pollChooseWords: 'Name one to three words.',
+    pollSaved: 'Saved. You can change your answer until the results are revealed.',
+    pollThanks: 'Thanks for taking part!',
+    pollSend: 'Send',
+    pollWord: 'Word',
+    pollMean: 'Average',
+    pollAnswerLabel: 'Your answer',
+    pollNoAnswers: 'No answers yet.',
+    pollWordCloud: 'Word cloud',
+    pollScaleValue: 'Value',
   },
 } as const
 
 export function t(lang: Lang, key: keyof typeof STRINGS['de']): string {
   return STRINGS[lang][key]
+}
+
+/** t() mit {name}-Platzhaltern (Zählungen, Namen in Bestätigungstexten). */
+export function tf(lang: Lang, key: keyof typeof STRINGS['de'], vars: Record<string, string | number> = {}): string {
+  return t(lang, key).replace(/\{(\w+)\}/g, (m, name: string) => (name in vars ? String(vars[name]) : m))
+}
+
+/** Locale für Datum/Zahl — wie CertificatePage/VerifyPage. */
+export function localeOf(lang: Lang): string {
+  return lang === 'de' ? 'de-DE' : 'en-GB'
 }

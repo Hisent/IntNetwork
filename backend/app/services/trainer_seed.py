@@ -14,6 +14,8 @@ def seed_trainer_if_empty(db: Session) -> None:
     # .env.example darf nie zum echten ersten Trainer-Passwort werden.
     if not settings.debug and settings.admin_password.startswith("change-me"):
         raise RuntimeError("ADMIN_PASSWORD ist noch der change-me-Platzhalter aus .env.example.")
+    # Der Bootstrap-Trainer ist admin: sonst könnte auf einer frischen DB
+    # niemand weitere Zugänge anlegen.
     db.add(Trainer(email=settings.admin_email.strip().lower(), name="Trainer",
-                   password_hash=hash_password(settings.admin_password)))
+                   password_hash=hash_password(settings.admin_password), role="admin"))
     db.commit()

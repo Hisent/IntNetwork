@@ -1,5 +1,6 @@
 import { useId, useState, type ReactNode } from 'react'
 import { t, type Lang } from '@/lib/i18n'
+import { useTr } from '@/store/lang'
 
 // --- kleine Bausteine ---------------------------------------------------------
 // Ab hier durchgehend auf den Token-Klassen aus workbench.css (--wb-surface,
@@ -31,9 +32,10 @@ export function Section({ title, action, children, className = '' }: { title: st
 }
 
 export function QueryState({ query, empty, children }: { query: { isLoading: boolean; isError: boolean }; empty?: boolean; children: ReactNode }) {
-  if (query.isLoading) return <p className="text-sm text-[var(--wb-muted)]">Lädt …</p>
-  if (query.isError) return <p className="text-sm text-rose-600">Konnte nicht geladen werden.</p>
-  if (empty) return <p className="text-sm text-[var(--wb-muted)]">Nichts vorhanden.</p>
+  const { tr } = useTr()
+  if (query.isLoading) return <p className="text-sm text-[var(--wb-muted)]">{tr('trLoading')}</p>
+  if (query.isError) return <p className="text-sm text-rose-600">{tr('trLoadFailed')}</p>
+  if (empty) return <p className="text-sm text-[var(--wb-muted)]">{tr('trNothing')}</p>
   return <>{children}</>
 }
 
@@ -50,8 +52,10 @@ function copyToClipboard(text: string, setCopied: (copied: boolean) => void) {
   }).catch(() => {})
 }
 
-export function CopyButton({ text, lang = 'de' as Lang, label }: { text: string; lang?: Lang; label?: string }) {
+export function CopyButton({ text, lang: langProp, label }: { text: string; lang?: Lang; label?: string }) {
   const [copied, setCopied] = useState(false)
+  const { lang: storeLang } = useTr()
+  const lang = langProp ?? storeLang
   return (
     <span className="relative inline-flex shrink-0">
       <button
@@ -68,8 +72,10 @@ export function CopyButton({ text, lang = 'de' as Lang, label }: { text: string;
   )
 }
 
-export function CopyCode({ code, lang = 'de' as Lang }: { code: string; lang?: Lang }) {
+export function CopyCode({ code, lang: langProp }: { code: string; lang?: Lang }) {
   const [copied, setCopied] = useState(false)
+  const { lang: storeLang, tr } = useTr()
+  const lang = langProp ?? storeLang
   return (
     <span className="relative inline-flex shrink-0">
       <button
@@ -77,7 +83,7 @@ export function CopyCode({ code, lang = 'de' as Lang }: { code: string; lang?: L
           e.stopPropagation()
           copyToClipboard(code, setCopied)
         }}
-        title="Kurs-Code kopieren"
+        title={tr('trCopyCourseCode')}
         className="font-mono text-sm text-[var(--wb-accent)] hover:text-[var(--wb-accent-hover)] hover:underline"
       >
         {copied ? `${t(lang, 'copiedCode')} ✓` : code}

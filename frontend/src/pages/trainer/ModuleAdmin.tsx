@@ -4,11 +4,13 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { trainerApi } from '@/lib/trainerApi'
 import { Icon } from '@/components/Icon'
 import { groupModulesByWorkshop } from '@/lib/trainerModules'
+import { useTr } from '@/store/lang'
 import { Field, Section, QueryState } from './shared'
 
 // --- Verwaltung: Module -------------------------------------------------------
 
-export function ModuleAdmin({ workshops }: { workshops: { key: string; title: { de: string } }[] }) {
+export function ModuleAdmin({ workshops }: { workshops: { key: string; title: Record<'de' | 'en', string> }[] }) {
+  const { lang, tr } = useTr()
   const qc = useQueryClient()
   const navigate = useNavigate()
   const [newKey, setNewKey] = useState('')
@@ -39,15 +41,15 @@ export function ModuleAdmin({ workshops }: { workshops: { key: string; title: { 
   // etwas zeigt; manuelles Auf-/Zuklappen bleibt über openGroups erhalten.
   const isGroupOpen = (key: string) => needle !== '' || openGroups.has(key)
   return (
-    <Section title="Module präsentieren & bearbeiten">
+    <Section title={tr('trModulesTitle')}>
       <label className="mb-3 flex max-w-xs flex-col gap-1 text-xs font-medium text-[var(--wb-muted)]">
-        Modul suchen
-        <input value={filter} onChange={(e) => setFilter(e.target.value)} placeholder="Titel filtern …"
+        {tr('trFindModule')}
+        <input value={filter} onChange={(e) => setFilter(e.target.value)} placeholder={tr('trFilterTitlePh')}
           className="wb-control rounded-lg border border-[var(--wb-border)] bg-[var(--wb-surface)] px-3 py-2 text-sm font-normal text-[var(--wb-ink)]" />
       </label>
       <QueryState query={presentMods} empty={presentMods.data?.length === 0}>
         {filtered.length === 0
-          ? <p className="text-sm text-[var(--wb-muted)]">Keine Module gefunden.</p>
+          ? <p className="text-sm text-[var(--wb-muted)]">{tr('trNoModulesFound')}</p>
           : <div className="flex flex-col gap-2">
               {groups.map((g) => (
                 <details key={g.key} className="group" open={isGroupOpen(g.key)}
@@ -75,7 +77,7 @@ export function ModuleAdmin({ workshops }: { workshops: { key: string; title: { 
                     {g.modules.map((m) => (
                       <li key={m.key} className="flex items-center justify-between gap-2 py-1.5">
                         <Link to={`/trainer/modul/${m.key}`} title={m.title} className="min-w-0 truncate text-sm text-[var(--wb-ink)] hover:text-[var(--wb-accent-hover)] hover:underline">{m.title}</Link>
-                        <Link to={`/trainer/modul/${m.key}/bearbeiten`} title="Bearbeiten" aria-label={`${m.title} bearbeiten`}
+                        <Link to={`/trainer/modul/${m.key}/bearbeiten`} title={tr('trEdit')} aria-label={tr('trEditModuleAria', { title: m.title })}
                           className="shrink-0 rounded-lg p-1.5 text-[var(--wb-muted)] hover:bg-[var(--wb-subtle)] hover:text-[var(--wb-ink)]"><Icon name="pencil" className="h-4 w-4" /></Link>
                       </li>
                     ))}
@@ -85,19 +87,19 @@ export function ModuleAdmin({ workshops }: { workshops: { key: string; title: { 
             </div>}
       </QueryState>
       <form onSubmit={(e) => { e.preventDefault(); if (newKey.trim() && newTitle.trim()) createContent.mutate() }} className="mt-4 flex flex-wrap items-end gap-2">
-        <Field label="Key" placeholder="mein-modul" value={newKey} onChange={(e) => setNewKey(e.target.value)} />
-        <Field label="Titel DE" placeholder="Mein Modul" value={newTitle} onChange={(e) => setNewTitle(e.target.value)} />
-        <label className="flex flex-col gap-1 text-xs font-medium text-[var(--wb-muted)]">Workshop
+        <Field label="Key" placeholder={tr('trModuleKeyPh')} value={newKey} onChange={(e) => setNewKey(e.target.value)} />
+        <Field label={tr('trTitleDe')} placeholder={tr('trModuleTitlePh')} value={newTitle} onChange={(e) => setNewTitle(e.target.value)} />
+        <label className="flex flex-col gap-1 text-xs font-medium text-[var(--wb-muted)]">{tr('trWorkshop')}
           <select value={moduleWorkshopKey} onChange={(e) => setModuleWorkshopKey(e.target.value)} className="wb-control rounded-lg border border-[var(--wb-border)] bg-[var(--wb-surface)] px-3 py-2 text-sm font-normal text-[var(--wb-ink)]">
-            {workshops.map((w) => <option key={w.key} value={w.key}>{w.title.de}</option>)}
+            {workshops.map((w) => <option key={w.key} value={w.key}>{w.title[lang]}</option>)}
           </select>
         </label>
         <button disabled={!newKey.trim() || !newTitle.trim() || createContent.isPending}
           className="wb-control inline-flex items-center gap-1 rounded-lg bg-[var(--wb-accent)] px-3 text-sm font-medium text-white hover:bg-[var(--wb-accent-hover)] disabled:opacity-50">
-          <Icon name="plus" className="h-4 w-4" /> Neues Modul
+          <Icon name="plus" className="h-4 w-4" /> {tr('trNewModule')}
         </button>
       </form>
-      {createContent.isError && <p className="mt-1 text-sm text-rose-600">Anlegen fehlgeschlagen (Key ggf. vergeben).</p>}
+      {createContent.isError && <p className="mt-1 text-sm text-rose-600">{tr('trCreateModuleFailed')}</p>}
     </Section>
   )
 }

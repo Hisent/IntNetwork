@@ -4,8 +4,10 @@ import type { Block } from '@/types'
 import { DeclarativeBlock, MD_COMPONENTS, WidgetBlock } from '@/components/Blocks'
 import { isDeclarative } from '@/components/blocks/types'
 import { gapSolution, resolveGaps } from '@/components/blocks/exerciseLogic'
+import { useTr } from '@/store/lang'
 
 function NoteBox({ note }: { note: string }) {
+  const { tr } = useTr()
   const [open, setOpen] = useState(false)
   return (
     <div className="mt-1">
@@ -13,7 +15,7 @@ function NoteBox({ note }: { note: string }) {
         onClick={() => setOpen((o) => !o)}
         className="text-xs font-medium text-teal-700 hover:text-teal-800"
       >
-        {open ? '▾' : '▸'} 💬 Notiz
+        {open ? '▾' : '▸'} 💬 {tr('trNote')}
       </button>
       {open && (
         <div className="mt-1 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-slate-700">
@@ -25,20 +27,21 @@ function NoteBox({ note }: { note: string }) {
 }
 
 export function TrainerBlocks({ blocks }: { blocks: Block[] }) {
+  const { lang, tr } = useTr()
   return (
     <div className="flex flex-col gap-6">
       {blocks.map((b, i) => (
         <div key={b.uid || i} className="flex flex-col gap-1">
           {b.type === 'text' && <Markdown components={MD_COMPONENTS}>{b.value}</Markdown>}
-          {b.type === 'widget' && <WidgetBlock id={b.id} lang="de" />}
+          {b.type === 'widget' && <WidgetBlock id={b.id} lang={lang} />}
           {b.type === 'check' && (
             <div className="rounded-xl border border-slate-200 bg-white p-4">
               <p className="text-xs font-semibold uppercase tracking-wide text-teal-700 mb-1">
-                {b.kind === 'number' ? 'Rechen-Check' : 'Kurz-Check'}
+                {b.kind === 'number' ? tr('trCalcCheck') : tr('trQuickCheck')}
               </p>
               <p className="font-medium text-slate-800 mb-2">{b.prompt}</p>
               {b.kind === 'number' ? (
-                <p className="text-sm text-green-700 font-medium">Antwort: <span className="font-mono">{b.answer}</span></p>
+                <p className="text-sm text-green-700 font-medium">{tr('trAnswerColon')}<span className="font-mono">{b.answer}</span></p>
               ) : (
                 <ul className="flex flex-col gap-1 text-sm">
                   {b.options.map((opt, oi) => (
@@ -52,9 +55,9 @@ export function TrainerBlocks({ blocks }: { blocks: Block[] }) {
           )}
           {b.type === 'order' && (
             <div className="rounded-xl border border-slate-200 bg-white p-4">
-              <p className="text-xs font-semibold uppercase tracking-wide text-teal-700 mb-1">Reihenfolge</p>
+              <p className="text-xs font-semibold uppercase tracking-wide text-teal-700 mb-1">{tr('trOrder')}</p>
               <p className="font-medium text-slate-800 mb-1">{b.prompt}</p>
-              <p className="text-xs text-slate-500 mb-2">(Teilnehmer sieht die Schritte gemischt)</p>
+              <p className="text-xs text-slate-500 mb-2">{tr('trOrderHint')}</p>
               <ol className="list-decimal list-inside flex flex-col gap-1 text-sm text-slate-600">
                 {b.items.map((it, oi) => <li key={oi}>{it}</li>)}
               </ol>
@@ -62,7 +65,7 @@ export function TrainerBlocks({ blocks }: { blocks: Block[] }) {
           )}
           {b.type === 'debug' && (
             <div className="rounded-xl border border-slate-200 bg-white p-4">
-              <p className="text-xs font-semibold uppercase tracking-wide text-teal-700 mb-1">Fehler finden</p>
+              <p className="text-xs font-semibold uppercase tracking-wide text-teal-700 mb-1">{tr('trFindBug')}</p>
               <p className="font-medium text-slate-800 mb-2">{b.prompt}</p>
               <div className="rounded-lg border border-slate-200 bg-slate-900 py-2 mb-2 font-mono text-xs">
                 {b.lines.map((line, li) => (
@@ -76,24 +79,24 @@ export function TrainerBlocks({ blocks }: { blocks: Block[] }) {
           )}
           {b.type === 'reflect' && (
             <div className="rounded-xl border border-slate-200 bg-white p-4">
-              <p className="text-xs font-semibold uppercase tracking-wide text-teal-700 mb-1">Reflexion</p>
+              <p className="text-xs font-semibold uppercase tracking-wide text-teal-700 mb-1">{tr('trReflection')}</p>
               <p className="font-medium text-slate-800 mb-1">{b.prompt}</p>
-              <p className="text-xs text-slate-500">(Freitext — bleibt nur lokal im Browser des Teilnehmers)</p>
+              <p className="text-xs text-slate-500">{tr('trReflectHint')}</p>
             </div>
           )}
           {b.type === 'reveal' && (
             <div className="rounded-xl border border-slate-200 bg-white p-4">
               <p className="font-medium text-slate-800 mb-1">{b.teaser}</p>
-              <p className="text-xs text-slate-500 mb-2">(für Teilnehmer erst nach Klick sichtbar)</p>
+              <p className="text-xs text-slate-500 mb-2">{tr('trRevealHint')}</p>
               <Markdown components={MD_COMPONENTS}>{b.value}</Markdown>
             </div>
           )}
           {/* Baukasten-Blöcke: dieselbe interaktive Komponente wie beim Teilnehmer (am Beamer
               vorführbar); die Lösung der Übungen steht eingeklappt darunter. */}
-          {isDeclarative(b) && <DeclarativeBlock block={b} lang="de" />}
+          {isDeclarative(b) && <DeclarativeBlock block={b} lang={lang} />}
           {(b.type === 'match' || b.type === 'cloze') && (
             <details className="text-sm text-slate-600">
-              <summary className="cursor-pointer text-xs font-medium text-teal-700">Lösung</summary>
+              <summary className="cursor-pointer text-xs font-medium text-teal-700">{tr('trSolution')}</summary>
               <ul className="mt-1 list-disc pl-5">
                 {b.type === 'match' && b.pairs.map((p, pi) => <li key={pi}><strong>{p.left}</strong> — {p.right}</li>)}
                 {b.type === 'cloze' && resolveGaps(b).map((g) => <li key={g.id}><span className="font-mono">{g.id}</span>: {gapSolution(g)}</li>)}

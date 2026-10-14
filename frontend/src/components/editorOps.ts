@@ -71,13 +71,13 @@ export function declarativeTemplate(type: DeclarativeType): BlockPayload {
 }
 
 /** JSON-Text des Editors -> Payload. Nur ein Objekt ist gültig (kein Array, keine Zahl). */
-export function parsePayloadJson(text: string): { payload: BlockPayload } | { error: string } {
+export function parsePayloadJson(text: string, notObject = 'Erwartet wird ein JSON-Objekt { … }', invalid = 'Ungültiges JSON'): { payload: BlockPayload } | { error: string } {
   try {
     const parsed: unknown = JSON.parse(text)
-    if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) return { error: 'Erwartet wird ein JSON-Objekt { … }' }
+    if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) return { error: notObject }
     return { payload: parsed as BlockPayload }
   } catch (err) {
-    return { error: err instanceof Error ? err.message : 'Ungültiges JSON' }
+    return { error: err instanceof Error ? err.message : invalid }
   }
 }
 

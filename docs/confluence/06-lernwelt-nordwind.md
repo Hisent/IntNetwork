@@ -1,4 +1,4 @@
-Stand: v1.43.0 (2026-10-13) · Quelle: docs/lernwelt-nordwind.md, docs/lernwelt-check.py
+Stand: v1.45.0 (2026-10-13) · Quelle: docs/lernwelt-nordwind.md, docs/lernwelt-check.py
 
 # IntLab: Lernwelt „Nordwind Logistik“ – Adress- und Namensplan
 

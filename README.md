@@ -56,7 +56,7 @@ serverseitig bewertetes Quiz mit.
 - Empfohlene Reihenfolge statt Sperre: Module mit offener Voraussetzung sind ausgegraut, aber über Suche und Link erreichbar; im Kurs abgewählte Voraussetzungen zählen als erfüllt, ein nicht freigeschaltetes oder unbekanntes Modul zeigt eine Meldung mit dem Grund
 - Englische Fassung aller Module (Texte, Quiz, Lernziele)
 - Trainer-Dashboard mit Kursen, Modul-Aktivierung, Fortschritt, Live-Präsenz und Kommentaren (Enter sendet Antworten, Löschen mit Rückfrage)
-- Live-Abstimmung im Präsenz-Workshop: Im Beamer-Modus (Einstieg „▶ Präsentieren“ im Kurs-Detail, `?kurs=<id>`) stellt der Trainer eine Single-Choice-Quizfrage oder einen Auswahl-Check zur Abstimmung; Teilnehmer mit offenem Modul stimmen in einer Einblendung ab (A/B/C/D für alle gleich). Verteilung anonym, Lösung erst nach „Auflösen“, ohne Einfluss auf Quiz, Fortschritt und Zertifikat; eine laufende Abstimmung lässt sich auch im Kurs-Detail mit „Abstimmung beenden“ schließen
+- Live-Abstimmung im Präsenz-Workshop: Im Beamer-Modus (Einstieg „▶ Präsentieren“ im Kurs-Detail, `?kurs=<id>`) stellt der Trainer eine Single-/Multiple-Choice-Quizfrage, einen Auswahl-Check oder eine eigene Frage (Mehrfachauswahl, Skala, Freitext, Wortwolke) zur Abstimmung; Teilnehmer mit offenem Modul antworten in einer Einblendung (A/B/C/D für alle gleich). Ergebnis anonym, Freitexte und Wörter der Wortwolke erst nach „Auflösen“ sichtbar und vorher einzeln ausblendbar, Lösung erst nach „Auflösen“, ohne Einfluss auf Quiz, Fortschritt und Zertifikat; eine laufende Abstimmung lässt sich auch im Kurs-Detail mit „Abstimmung beenden“ schließen
 - Modul-Editor mit einer Wiederherstellungsstufe, Statusleiste beim Speichern (Sprung zum fehlerhaften Block, „Serverstand laden“ bei Konflikt) und Schutz ungespeicherter Änderungen; `base_version` ist Pflicht, offene Editor-Tabs nach einem Deploy neu laden
 - Persönlicher Wiederaufnahme-Code beim Beitritt; öffentlich prüfbare Teilnahmebestätigung unter `/verifizieren`
 
@@ -106,6 +106,24 @@ cd backend && pytest
 cd frontend && npm run test && npm run build
 python3 docs/lernwelt-check.py   # Adress- und Namensplan der Lernwelt (Standardbibliothek)
 ```
+
+Browser-E2E (Playwright, Chromium) für die kritischen Pfade — Trainer-Login und
+Kurs anlegen, Beitritt und Quiz, Wiederaufnahme-Code, Live-Abstimmung,
+Admin-Rolle, Sprachwechsel, Mobilansicht:
+
+```bash
+cd frontend
+npx playwright install chromium   # einmalig
+npm run e2e                       # Bericht bei Fehlern: npx playwright show-report
+```
+
+`playwright.config.ts` startet dafür selbst ein Backend (Port 8100, frische
+SQLite-Datei im Temp-Verzeichnis, fester Admin `admin@e2e.test`) und das gebaute
+Frontend per `vite preview` (Port 5180, `/api` als Proxy aufs Backend). Ein
+laufender Dev-Server auf 8000/5173 stört nicht. Python kommt aus
+`backend/.venv` (Abschnitt „Lokal starten“, dort `requirements.txt` installieren),
+sonst aus `python3`; abweichend per `E2E_PYTHON=/pfad/zu/python`. Die Dateien
+heißen `e2e/*.e2e.ts`, damit Vitest sie nicht einsammelt.
 
 ## Inhalte aktualisieren / Entwicklungsreset
 
