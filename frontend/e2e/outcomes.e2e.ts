@@ -3,7 +3,8 @@ import { expect, test } from '@playwright/test'
 import { apiToken, createCourse, joinCourse, trainerLogin, unique } from './helpers.ts'
 
 // Lernerfolg: Trainer öffnet die anonyme Kursbewertung, ein Teilnehmer bewertet
-// über die Hinweiskarte, der Trainer sieht das Aggregat und lädt die CSV.
+// über die Hinweiskarte; Ergebnisse erst ab 3 Abgaben (MIN_EVALUATIONS) -- zwei
+// weitere Teilnehmer bewerten per API. Dann Aggregat sehen und CSV laden.
 test('Kursbewertung: öffnen, anonym abgeben, Aggregat sehen, CSV herunterladen', async ({ page, browser, request }) => {
   const token = await apiToken(request)
   const course = await createCourse(request, token)
@@ -31,7 +32,18 @@ test('Kursbewertung: öffnen, anonym abgeben, Aggregat sehen, CSV herunterladen'
   await trainer.reload()
   await trainer.getByRole('button', { name: course.name }).click()
   await expect(trainer.getByText('1 Abgaben')).toBeVisible()
-  await expect(trainer.getByRole('row', { name: /Gesamteindruck/ })).toContainText('Ø 5 (n = 1)')
+  await expect(trainer.getByText(/Ergebnisse erscheinen ab 3 Abgaben/)).toBeVisible()
+  await expect(trainer.getByText(praise)).toHaveCount(0)
+
+  for (const name of ['Zweite', 'Dritter']) {
+    const joined = await request.post('/api/join', { data: { code: course.join_code, name: unique(name) } })
+    const headers = { Authorization: `Bearer ${(await joined.json()).access_token}` }
+    expect((await request.post('/api/evaluation', { data: { overall: 5 }, headers })).ok()).toBe(true)
+  }
+  await trainer.reload()
+  await trainer.getByRole('button', { name: course.name }).click()
+  await expect(trainer.getByText('3 Abgaben')).toBeVisible()
+  await expect(trainer.getByRole('row', { name: /Gesamteindruck/ })).toContainText('Ø 5 (n = 3)')
   await expect(trainer.getByText(praise)).toBeVisible()
 
   const [download] = await Promise.all([
@@ -41,7 +53,7 @@ test('Kursbewertung: öffnen, anonym abgeben, Aggregat sehen, CSV herunterladen'
   expect(download.suggestedFilename()).toBe(`intlab-kurs${course.id}-evaluation.csv`)
   const csv = await readFile((await download.path())!, 'utf8')
   expect(csv.charCodeAt(0)).toBe(0xfeff)
-  expect(csv).toContain('Gesamteindruck;1;5,0;0;0;0;0;1')
+  expect(csv).toContain('Gesamteindruck;3;5,0;0;0;0;0;3')
   expect(csv).toContain(`Was war gut?;${praise}`)
   await trainer.context().close()
 })

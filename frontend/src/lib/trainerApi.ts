@@ -25,12 +25,13 @@ export interface TrainerAssessment {
   summary: { pre_count: number; post_count: number; avg_pre: number | null; avg_post: number | null; avg_gain: number | null; gain_count: number }
 }
 export interface ScaleStat { n: number; mean: number | null; counts: number[] }
-export interface TrainerEvaluation {
-  open: boolean; count: number
+// Anonymität: unter min_count Abgaben (MIN_EVALUATIONS im Backend) nur die Zahl.
+export type TrainerEvaluation = { open: boolean; count: number; min_count: number } & ({ hidden: true } | {
+  hidden: false
   overall: ScaleStat; clarity: ScaleStat; practice: ScaleStat; trainer: ScaleStat
   pace: { slow: number; ok: number; fast: number }
   good: string[]; improve: string[]  // in zufälliger Reihenfolge
-}
+})
 export type ExportKind = 'dashboard' | 'quiz' | 'assessment' | 'evaluation'
 
 export interface CourseModule { key: string; title: string; order: number; workshop_key: string | null; active: boolean }

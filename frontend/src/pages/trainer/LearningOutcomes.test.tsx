@@ -23,7 +23,7 @@ const ASSESSMENT: TrainerAssessment = {
 }
 const scale = (mean: number | null, n: number, counts = [0, 0, 0, 0, 0]) => ({ mean, n, counts })
 const EVALUATION: TrainerEvaluation = {
-  open: true, count: 2, overall: scale(4.5, 2, [0, 0, 0, 1, 1]), clarity: scale(null, 0), practice: scale(3, 1),
+  open: true, count: 3, min_count: 3, hidden: false, overall: scale(4.5, 2, [0, 0, 0, 1, 1]), clarity: scale(null, 0), practice: scale(3, 1),
   trainer: scale(5, 1), pace: { slow: 0, ok: 1, fast: 1 }, good: ['Viele Übungen'], improve: ['Mehr Pausen'],
 }
 
@@ -62,7 +62,7 @@ describe('LearningOutcomes (Trainer)', () => {
     mockGet({ '/trainer/courses/5/assessment': ASSESSMENT, '/trainer/courses/5/evaluation': EVALUATION })
     renderWithProviders(<LearningOutcomes cid={5} />)
 
-    expect(await screen.findByText('2 Abgaben')).toBeTruthy()
+    expect(await screen.findByText('3 Abgaben')).toBeTruthy()
     expect(screen.getByRole('row', { name: /Gesamteindruck/ }).textContent).toContain('Ø 4,5 (n = 2)')
     expect(screen.getByText('Viele Übungen')).toBeTruthy()
     expect(screen.getByText('Mehr Pausen')).toBeTruthy()
@@ -71,6 +71,16 @@ describe('LearningOutcomes (Trainer)', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Kursbewertung schließen' }))
     await waitFor(() => expect(api.put).toHaveBeenCalledWith('/trainer/courses/5/evaluation', { open: false }))
     expect(await screen.findByRole('button', { name: 'Kursbewertung öffnen' })).toBeTruthy()
+  })
+
+  it('unter der Mindestzahl nur die Zahl der Abgaben und ein Hinweis', async () => {
+    mockGet({ '/trainer/courses/5/assessment': ASSESSMENT,
+      '/trainer/courses/5/evaluation': { open: true, count: 2, min_count: 3, hidden: true } satisfies TrainerEvaluation })
+    renderWithProviders(<LearningOutcomes cid={5} />)
+
+    expect(await screen.findByText('2 Abgaben')).toBeTruthy()
+    expect(screen.getByText(/Ergebnisse erscheinen ab 3 Abgaben/)).toBeTruthy()
+    expect(screen.queryByRole('row', { name: /Gesamteindruck/ })).toBeNull()
   })
 
   it('lädt die CSV-Exporte mit Token herunter und meldet Fehler', async () => {

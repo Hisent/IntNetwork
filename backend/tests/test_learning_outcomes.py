@@ -11,7 +11,7 @@ from app.models.course import Course
 from app.models.learning_outcome import AssessmentAnswer, CourseEvaluation
 from app.models.participant import Participant
 from app.models.quiz_result import QuizResult
-from app.routers.learning_outcomes import MAX_QUESTIONS, draw_questions
+from app.routers.learning_outcomes import MAX_QUESTIONS, MIN_EVALUATIONS, draw_questions
 from app.services import retention
 from app.services.csv_export import to_csv
 from app.utils import utc_now
@@ -141,9 +141,18 @@ def test_evaluation_is_anonymous_and_once_per_participant():
         assert c.get("/api/me", headers=anna).json()["tasks"]["evaluation"] is False
         assert c.post("/api/evaluation", json={"overall": 2}, headers=ben).status_code == 200
 
+        # Unter MIN_EVALUATIONS nur die Zahl -- weder API noch CSV verraten Inhalte.
+        res = c.get(f"/api/trainer/courses/{cid}/evaluation", headers=h)
+        assert res.json() == {"open": True, "count": 2, "min_count": MIN_EVALUATIONS, "hidden": True}
+        ev = c.get(f"/api/trainer/courses/{cid}/export/evaluation", headers=h).content.decode("utf-8-sig")
+        assert "Viele Übungen" not in ev and "Mehr Pausen" not in ev and "Gesamteindruck" not in ev
+        assert ev.splitlines()[:3] == ["Abgaben;2", "", "Ergebnisse erst ab 3 Abgaben (Anonymität)."]
+
+        assert c.post("/api/evaluation", json={"overall": 3}, headers=_join(c, course, "Cleo Anonym")).status_code == 200
         res = c.get(f"/api/trainer/courses/{cid}/evaluation", headers=h)
         data = res.json()
-        assert data["count"] == 2 and data["overall"] == {"n": 2, "mean": 3.0, "counts": [0, 1, 0, 1, 0]}
+        assert data["count"] == 3 and data["hidden"] is False
+        assert data["overall"] == {"n": 3, "mean": 3.0, "counts": [0, 1, 1, 1, 0]}
         assert data["clarity"]["n"] == 1 and data["pace"] == {"slow": 0, "ok": 0, "fast": 1}
         assert data["good"] == ["Viele Übungen"] and data["improve"] == ["Mehr Pausen"]
         assert "Anonym" not in res.text and "participant" not in res.text
@@ -155,10 +164,10 @@ def test_evaluation_is_anonymous_and_once_per_participant():
         try:
             rows = db.query(CourseEvaluation).filter(CourseEvaluation.course_id == cid).all()
             pids = {p.id for p in db.query(Participant).filter(Participant.course_id == cid)}
-            assert len(rows) == 2 and all(len(r.id) == 24 for r in rows)  # zufällig, nicht fortlaufend
+            assert len(rows) == 3 and all(len(r.id) == 24 for r in rows)  # zufällig, nicht fortlaufend
             # Teilnehmer löschen lässt die anonyme Bewertung stehen
             c.delete(f"/api/courses/{cid}/participants/{min(pids)}", headers=h)
-            assert db.query(CourseEvaluation).filter(CourseEvaluation.course_id == cid).count() == 2
+            assert db.query(CourseEvaluation).filter(CourseEvaluation.course_id == cid).count() == 3
         finally:
             db.close()
 
@@ -188,6 +197,8 @@ def test_csv_exports_authz_and_content():
         evil = _join(c, course, "=HYPERLINK(\"http://x\")")
         c.put(f"/api/trainer/courses/{cid}/evaluation", json={"open": True}, headers=h)
         c.post("/api/evaluation", json={"overall": 5, "good": "@cmd; \"quoted\""}, headers=evil)
+        for name in ("Zwei", "Drei"):  # ab MIN_EVALUATIONS zeigt der Export Inhalte
+            c.post("/api/evaluation", json={"overall": 5}, headers=_join(c, course, name))
         c.put(f"/api/trainer/courses/{cid}/assessment", json={"phase": "pre"}, headers=h)
 
         for kind in ("dashboard", "quiz", "assessment", "evaluation"):
@@ -201,7 +212,7 @@ def test_csv_exports_authz_and_content():
         assert '"\'=HYPERLINK(""http://x"")"' in dash
         assert "\n=HYPERLINK" not in dash
         ev = c.get(f"/api/trainer/courses/{cid}/export/evaluation?lang=en", headers=h).content.decode("utf-8-sig")
-        assert "Overall;1;5,0;0;0;0;0;1" in ev and '"\'@cmd; ""quoted"""' in ev
+        assert "Overall;3;5,0;0;0;0;0;3" in ev and '"\'@cmd; ""quoted"""' in ev
 
         # Nur Trainer; unbekannter Kurs/Typ
         assert c.get(f"/api/trainer/courses/{cid}/export/dashboard", headers=evil).status_code == 403

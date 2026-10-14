@@ -162,10 +162,10 @@ Im Kurs-Detail, Abschnitt „Kursbewertung (anonym)“.
 
 1. Am Kursende „Kursbewertung öffnen“. Teilnehmer sehen auf ihrer Kursseite die Karte „Kursbewertung“ mit „Kurs bewerten“.
 2. Das Formular fragt „Gesamteindruck“ (Pflicht, 1 bis 5) sowie optional „Inhalt verständlich“, „Praxisanteil“, „Trainer“ (je 1 bis 5), „Tempo“ („zu langsam“, „passend“, „zu schnell“), „Was war gut?“ und „Was sollten wir verbessern?“. Jeder Teilnehmer kann einmal bewerten.
-3. Die Auswertung zeigt die Zahl der Abgaben („n Abgaben“), je Frage Mittelwert und Verteilung 1 bis 5, das Tempo und die Freitexte in zufälliger Reihenfolge.
+3. Die Auswertung zeigt die Zahl der Abgaben („n Abgaben“). Erst ab 3 Abgaben erscheinen je Frage Mittelwert und Verteilung 1 bis 5, das Tempo und die Freitexte in zufälliger Reihenfolge; darunter steht nur der Hinweis „Ergebnisse erscheinen ab 3 Abgaben, damit sich keine Antwort einer Person zuordnen lässt.“ Dasselbe gilt für den CSV-Export.
 4. „Kursbewertung schließen“ beendet die Abgabe; die Ergebnisse bleiben sichtbar.
 
-Anonymität: Gespeichert werden die Antworten ohne Namen, ohne Teilnehmer-Verweis und ohne Zeitpunkt. Am Teilnehmer steht nur, dass er bewertet hat. Beides wird in einem Schritt gespeichert, damit niemand doppelt bewertet. Grenzen: Bei sehr kleinen Gruppen (ein oder zwei Abgaben) oder wenn man live zusieht, wer gerade abgibt, und dabei die Zahl der Abgaben verfolgt, sind Rückschlüsse auf Personen trotzdem möglich. Mit direktem Datenbankzugriff lässt sich zusätzlich die Speicherreihenfolge auswerten. Bei kleinen Gruppen die Ergebnisse deshalb erst nach dem Schließen ansehen.
+Anonymität: Gespeichert werden die Antworten ohne Namen, ohne Teilnehmer-Verweis und ohne Zeitpunkt. Am Teilnehmer steht nur, dass er bewertet hat. Beides wird in einem Schritt gespeichert, damit niemand doppelt bewertet. Ergebnisse gibt es deshalb erst ab 3 Abgaben. Grenzen: Bei kleinen Gruppen oder wenn man live zusieht, wer gerade abgibt, und dabei die Zahl der Abgaben verfolgt, sind Rückschlüsse auf Personen trotzdem möglich. Mit direktem Datenbankzugriff lässt sich zusätzlich die Speicherreihenfolge auswerten. Bei kleinen Gruppen die Ergebnisse deshalb erst nach dem Schließen ansehen.
 
 Die Kursbewertung enthält keine personenbezogenen Daten. Sie bleibt beim Kurs, auch wenn Teilnehmerdaten gelöscht werden (Aufbewahrung), und verschwindet erst mit dem Kurs.
 
@@ -178,7 +178,7 @@ Im Kurs-Detail, Abschnitt „Export (CSV)“. Die Dateien öffnen sich direkt in
 | „Fortschritt (CSV)“ | je Teilnehmer: Name, erledigte Module, Bestwert in Prozent je Modul, letzte Aktivität (UTC) |
 | „Quiz je Frage (CSV)“ | je Modul und Frage: richtig, Versuche, Quote (nur dieser Kurs) |
 | „Vorher/Nachher (CSV)“ | je Teilnehmer: Eingangstest, Abschlusstest, Zuwachs; Durchschnitt; je Frage richtig/Antworten vorher und nachher |
-| „Kursbewertung (CSV)“ | Zahl der Abgaben, Mittelwert und Verteilung je Frage, Tempo, Freitexte |
+| „Kursbewertung (CSV)“ | Zahl der Abgaben; ab 3 Abgaben zusätzlich Mittelwert und Verteilung je Frage, Tempo, Freitexte |
 
 Die Spaltenüberschriften folgen der Sprache der Trainer-Oberfläche. Jeder Export steht im „Protokoll“ (Aktion `course.export`). Exportieren darf jeder Trainer, der auch das Kurs-Dashboard sieht.
 

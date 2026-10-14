@@ -11,7 +11,8 @@ noch progress: Fortschritt und Teilnahmebestätigung bleiben unberührt.
 Kursbewertung: anonym. Die Antwortzeile (course_evaluation) trägt weder
 participant_id noch Zeitstempel und hat eine zufällige id; am Teilnehmer steht
 nur das Flag evaluation_submitted. Flag und Zeile entstehen in EINER Transaktion,
-das bedingte UPDATE auf das Flag verhindert Doppelabgaben. Grenze der Anonymität
+das bedingte UPDATE auf das Flag verhindert Doppelabgaben. Trainer-Ansicht und CSV
+zeigen Inhalte erst ab MIN_EVALUATIONS Abgaben. Grenze der Anonymität
 (bewusst, siehe docs/confluence/04-trainer-handbuch.md): bei sehr kleinen Gruppen
 oder wenn der Trainer live zusieht, wer gerade abgibt, lässt sich eine Antwort
 über die Zahl der Abgaben einer Person zuordnen; mit DB-Zugriff zusätzlich über
@@ -48,6 +49,10 @@ router = APIRouter(tags=["learning-outcomes"])
 MAX_QUESTIONS = 15
 SCALES = ("overall", "clarity", "practice", "trainer")
 PACES = ("slow", "ok", "fast")
+# Kursbewertung: Mittelwerte, Verteilung und Freitexte erst ab so vielen Abgaben
+# (Trainer-Ansicht und CSV) -- darunter ließe sich eine Antwort zu leicht einer
+# Person zuordnen. Bis dahin nur die Zahl der Abgaben.
+MIN_EVALUATIONS = 3
 
 
 # --- Fragensatz -------------------------------------------------------------
@@ -261,7 +266,10 @@ def open_tasks(db: Session, p: Participant, course: Course | None) -> dict:
 # --- Kursbewertung ----------------------------------------------------------
 
 def _evaluation_summary(rows: list[CourseEvaluation]) -> dict:
-    out: dict = {"count": len(rows), "pace": {k: sum(1 for r in rows if r.pace == k) for k in PACES}}
+    out: dict = {"count": len(rows), "min_count": MIN_EVALUATIONS, "hidden": len(rows) < MIN_EVALUATIONS}
+    if out["hidden"]:
+        return out
+    out["pace"] = {k: sum(1 for r in rows if r.pace == k) for k in PACES}
     for field in SCALES:
         values = [v for r in rows if (v := getattr(r, field)) is not None]
         out[field] = {"n": len(values), "mean": _mean(values), "counts": [values.count(i) for i in range(1, 6)]}
@@ -335,7 +343,8 @@ _H = {
            "item": "Frage", "n": "Antworten", "mean": "Mittelwert", "count": "Abgaben",
            "overall": "Gesamteindruck", "clarity": "Inhalt verständlich", "practice": "Praxisanteil",
            "trainer": "Trainer", "pace": "Tempo", "slow": "zu langsam", "ok": "passend", "fast": "zu schnell",
-           "good": "Was war gut?", "improve": "Was verbessern?", "kind": "Art", "text": "Text"},
+           "good": "Was war gut?", "improve": "Was verbessern?", "kind": "Art", "text": "Text",
+           "hidden": "Ergebnisse erst ab {n} Abgaben (Anonymität)."},
     "en": {"name": "Participant", "done": "Modules done", "best": "Best % {t}", "last": "Last activity (UTC)",
            "module": "Module", "question": "Question", "correct": "Correct", "attempts": "Attempts", "rate": "Rate %",
            "pre": "Pre-test %", "post": "Post-test %", "gain": "Gain (percentage points)",
@@ -343,7 +352,8 @@ _H = {
            "item": "Item", "n": "Answers", "mean": "Mean", "count": "Submissions",
            "overall": "Overall", "clarity": "Content clear", "practice": "Hands-on share",
            "trainer": "Trainer", "pace": "Pace", "slow": "too slow", "ok": "right", "fast": "too fast",
-           "good": "What was good?", "improve": "What to improve?", "kind": "Type", "text": "Text"},
+           "good": "What was good?", "improve": "What to improve?", "kind": "Type", "text": "Text",
+           "hidden": "Results only from {n} submissions on (anonymity)."},
 }
 
 
@@ -398,6 +408,8 @@ def _assessment_rows(db: Session, course: Course, h: dict, _lang: str) -> list[l
 
 def _evaluation_rows(db: Session, course: Course, h: dict, _lang: str) -> list[list]:
     s = _evaluation_summary(db.query(CourseEvaluation).filter(CourseEvaluation.course_id == course.id).all())
+    if s["hidden"]:
+        return [[h["count"], s["count"]], [], [h["hidden"].format(n=MIN_EVALUATIONS)]]
     rows = [[h["count"], s["count"]], [], [h["item"], h["n"], h["mean"], "1", "2", "3", "4", "5"]]
     rows += [[h[f], s[f]["n"], s[f]["mean"], *s[f]["counts"]] for f in SCALES]
     rows += [[], [h["pace"], h["slow"], h["ok"], h["fast"]], ["", *[s["pace"][k] for k in PACES]],

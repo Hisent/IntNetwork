@@ -139,7 +139,8 @@ function EvaluationResults({ e, fmt }: { e: TrainerEvaluation; fmt: (n: number |
     <div className="flex flex-col gap-3 text-sm">
       <p className="text-[var(--wb-muted)]">{tr('trEvaluationHint')}</p>
       <p role="status" className="font-semibold text-[var(--wb-ink)]">{tr('trEvalCount', { n: e.count })}</p>
-      {e.count > 0 && (<>
+      {e.hidden && <p className="text-[var(--wb-muted)]">{tr('trEvalHidden', { min: e.min_count })}</p>}
+      {!e.hidden && (<>
         <div className="overflow-x-auto">
           <table className="w-full border-separate border-spacing-0">
             <thead><tr><th scope="col" className={th}><span className="sr-only">{tr('trEvaluation')}</span></th><th scope="col" className={th}>Ø</th>{[1, 2, 3, 4, 5].map((n) => <th key={n} scope="col" className={th}>{n}</th>)}</tr></thead>
