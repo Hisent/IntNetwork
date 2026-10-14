@@ -78,6 +78,23 @@ describe('ParticipantPoll', () => {
     expect(screen.queryByRole('button', { name: /Switch/ })).toBeNull()
   })
 
+  it('behält einen nicht abgeschickten Freitext beim Minimieren (Entwurf je Abstimmung)', async () => {
+    sessionStorage.clear()
+    mockGet({ '/modules/m1/poll': { id: 9, kind: 'text', status: 'open', prompt: 'Was nehmt ihr mit?', my_choice: null } })
+    vi.mocked(api.post).mockResolvedValue({ data: { ok: true, my_choice: 'Halb fertig' } })
+    renderPoll()
+
+    fireEvent.change(await screen.findByLabelText('Deine Antwort'), { target: { value: 'Halb fertig' } })
+    fireEvent.keyDown(document, { key: 'Escape' })
+    expect(screen.queryByRole('dialog')).toBeNull()
+    fireEvent.click(screen.getByRole('button', { name: 'Live-Abstimmung läuft' }))
+    expect((screen.getByLabelText('Deine Antwort') as HTMLTextAreaElement).value).toBe('Halb fertig')
+    // Abschicken räumt den Entwurf weg
+    fireEvent.click(screen.getByRole('button', { name: 'Senden' }))
+    await waitFor(() => expect(api.post).toHaveBeenCalledWith('/modules/m1/poll/vote', { poll_id: 9, choice: 'Halb fertig' }))
+    expect(sessionStorage.getItem('poll-draft-9')).toBeNull()
+  })
+
   it('rendert nichts, solange keine Abstimmung läuft', async () => {
     mockGet({ '/modules/m1/poll': null })
     renderPoll()
