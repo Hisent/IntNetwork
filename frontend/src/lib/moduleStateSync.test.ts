@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
-// Abgleich Lese-/Übungsstand Browser <-> Server: frisches Gerät, letzter Schreiber
-// gewinnt, Entprellen, Hook-Bereitschaft.
+// Abgleich Lese-/Übungsstand Browser <-> Server: frisches Gerät, Basisversion
+// entscheidet Konflikte, Entprellen, Hook-Bereitschaft.
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { act, renderHook, waitFor } from '@testing-library/react'
 
@@ -33,24 +33,38 @@ describe('syncOnOpen', () => {
     expect(learnApi.putState).not.toHaveBeenCalled()
   })
 
-  it('ungesendete lokale Änderung, jünger als der Server: lokal gewinnt und wird hochgeladen', async () => {
+  it('ungesendete lokale Änderung, Server noch auf der gemerkten Basis: lokal gewinnt und wird hochgeladen', async () => {
     localStorage.setItem('intnetwork-read-7-3-vlan', '[5]')
-    localStorage.setItem('intnetwork-pending-7-3-vlan', '2026-10-14T09:30:00.000Z')
+    localStorage.setItem('intnetwork-pending-7-3-vlan', '1')
+    localStorage.setItem('intnetwork-base-7-3-vlan', '2026-10-14T09:00:00+00:00')
     server({ read: [1], updated_at: '2026-10-14T09:00:00+00:00' })
     await syncOnOpen(ID)
     expect(learnApi.putState).toHaveBeenCalledWith('vlan', { read: [5], exercises: {} })
     expect(localStorage.getItem('intnetwork-read-7-3-vlan')).toBe('[5]')
     expect(localStorage.getItem('intnetwork-pending-7-3-vlan')).toBeNull()
+    expect(localStorage.getItem('intnetwork-base-7-3-vlan')).toBe('2026-10-14T10:00:00+00:00')  // Antwort des PUT
   })
 
-  it('ungesendete lokale Änderung, älter als der Server: der Server gewinnt', async () => {
+  it('ungesendete lokale Änderung, aber ein anderes Gerät hat seitdem gespeichert: der Server gewinnt', async () => {
     localStorage.setItem('intnetwork-read-7-3-vlan', '[5]')
-    localStorage.setItem('intnetwork-pending-7-3-vlan', '2026-10-14T08:00:00.000Z')
-    server({ read: [1], updated_at: '2026-10-14T09:00:00+00:00' })
+    localStorage.setItem('intnetwork-pending-7-3-vlan', '1')
+    localStorage.setItem('intnetwork-base-7-3-vlan', '2026-10-14T09:00:00+00:00')
+    server({ read: [1], updated_at: '2026-10-14T09:00:01+00:00' })
     await syncOnOpen(ID)
     expect(learnApi.putState).not.toHaveBeenCalled()
     expect(localStorage.getItem('intnetwork-read-7-3-vlan')).toBe('[1]')
     expect(localStorage.getItem('intnetwork-pending-7-3-vlan')).toBeNull()
+    expect(localStorage.getItem('intnetwork-base-7-3-vlan')).toBe('2026-10-14T09:00:01+00:00')
+  })
+
+  it('die Uhr des Browsers spielt keine Rolle: eine weit vorgehende Uhr überstimmt fremde Änderungen nicht', async () => {
+    vi.useFakeTimers({ now: new Date('2099-01-01T00:00:00Z'), toFake: ['Date'] })
+    localStorage.setItem('intnetwork-read-7-3-vlan', '[5]')
+    localStorage.setItem('intnetwork-pending-7-3-vlan', String(Date.now()))
+    server({ read: [1], updated_at: '2026-10-14T09:00:00+00:00' })  // keine Basis gemerkt
+    await syncOnOpen(ID)
+    expect(learnApi.putState).not.toHaveBeenCalled()
+    expect(localStorage.getItem('intnetwork-read-7-3-vlan')).toBe('[1]')
   })
 
   it('Server leer, lokal schon Stand (aus der Zeit vor dem Abgleich): wird hochgeladen', async () => {

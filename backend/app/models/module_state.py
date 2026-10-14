@@ -8,8 +8,8 @@ class ModuleState(Base):
     """Lese-Haken und Übungsstand eines Teilnehmers in einem Modul — das, was
     frontend/src/lib/readProgress.ts und exerciseState.ts im Browser halten, als
     ein JSON-Blob ({"read": [...], "exercises": {...}}), damit er nach der
-    Wiederaufnahme auf einem anderen Gerät da ist. Konfliktregel: letzter
-    Schreiber gewinnt (updated_at, siehe routers/modules.py::put_state)."""
+    Wiederaufnahme auf einem anderen Gerät da ist. updated_at dient dem Client
+    als Basisversion für Konflikte (routers/modules.py::put_state)."""
     __tablename__ = "module_state"
     __table_args__ = (UniqueConstraint("participant_id", "module_key", name="uq_module_state"),)
     id: Mapped[int] = mapped_column(Integer, primary_key=True)

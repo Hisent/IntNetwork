@@ -49,7 +49,7 @@ serverseitig bewertetes Quiz mit.
 - Heller und dunkler Modus (folgt anfangs der Systemeinstellung)
 - Interaktive Widgets, Visualisierungen und Lernphasen
 - Lernziele je Modul, geschätzte Bearbeitungszeit, Status (offen/begonnen/bestanden) und „Hier weitermachen“
-- Übungsstand der Mini-Übungen und Lese-Haken werden je Modul auf dem Server gespeichert und sind nach der Wiederaufnahme auf jedem Gerät da („x von y Übungen erledigt“; localStorage bleibt Offline-Cache, letzter Schreiber gewinnt — `frontend/src/lib/moduleStateSync.ts`)
+- Übungsstand der Mini-Übungen und Lese-Haken werden je Modul auf dem Server gespeichert und sind nach der Wiederaufnahme auf jedem Gerät da („x von y Übungen erledigt“; localStorage bleibt Offline-Cache; eine ungesendete Änderung gewinnt nur, wenn seitdem kein anderes Gerät gespeichert hat — `frontend/src/lib/moduleStateSync.ts`)
 - Übungsmodus (`/lernen/ueben`): falsch beantwortete Fragen wiederholen oder gemischt üben — ohne Wertung
 - Wiederholung (spaced review): Karte „Wiederholen“ auf der Kursübersicht mit den fälligen Fragen bestandener Module (Leitner-Kästen, Regeln in `backend/app/services/review.py`); der Trainer kann eine „Aufwärmrunde“ für den ganzen Kurs starten
 - Suche über Titel, Lernziele, Texte und Glossar der freigeschalteten Module

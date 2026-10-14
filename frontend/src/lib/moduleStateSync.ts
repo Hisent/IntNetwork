@@ -5,17 +5,17 @@
 // cacheId = `<participantId>-<courseId>-<modul>` — derselbe Suffix wie in den
 // Schlüsseln intnetwork-read-… und intnetwork-exercise-….
 //
-// Konfliktregel „letzter Schreiber gewinnt“ (Server: PUT /modules/{key}/state stempelt updated_at):
-// - Jede lokale Änderung merkt ihren Zeitpunkt unter intnetwork-pending-<cacheId>
-//   und wird ~1,5 s später (entprellt) als Ganzes gesendet; erst ein erfolgreicher
-//   Upload löscht die Marke.
+// Konfliktregel über eine Basisversion (keine Uhrzeiten verschiedener Rechner vergleichen):
+// - Der Client merkt sich unter intnetwork-base-<cacheId> das updated_at des Servers,
+//   das er zuletzt geladen oder selbst gespeichert hat — nur als Kennung, nie als Zeit.
+// - Jede lokale Änderung setzt die Marke intnetwork-pending-<cacheId> und wird ~1,5 s
+//   später (entprellt) als Ganzes gesendet; erst ein erfolgreicher Upload löscht die
+//   Marke und merkt das neue updated_at als Basis.
 // - Beim Öffnen des Moduls: hat der Server noch nichts, wird ein vorhandener lokaler
-//   Stand hochgeladen. Liegt eine ungesendete lokale Änderung vor, die jünger ist als
-//   updated_at des Servers, gewinnt sie (Upload). Sonst gewinnt der Server und
-//   ersetzt den lokalen Cache (frisches Gerät, oder ein anderes Gerät war später).
-// ponytail: vergleicht die Uhr des Browsers mit der des Servers; Uhrabweichung von
-// Minuten kann eine fast gleichzeitige Änderung auf zwei Geräten falsch entscheiden.
-// Versionszähler statt Zeitstempel, falls das je in der Praxis auffällt.
+//   Stand hochgeladen. Liegt eine ungesendete lokale Änderung vor und ist der Server
+//   noch auf der gemerkten Basis, gewinnt lokal (Upload). Sonst gewinnt der Server und
+//   ersetzt den lokalen Cache (frisches Gerät, oder ein anderes Gerät hat inzwischen
+//   gespeichert — dessen Stand geht vor, die ungesendete Änderung verfällt).
 import { useEffect, useState } from 'react'
 import { learnApi, type ModuleState } from '@/lib/learnApi'
 
@@ -23,6 +23,7 @@ export const DEBOUNCE_MS = 1500
 const readKey = (cacheId: string) => `intnetwork-read-${cacheId}`
 const exerciseKey = (cacheId: string) => `intnetwork-exercise-${cacheId}`
 const pendingKey = (cacheId: string) => `intnetwork-pending-${cacheId}`
+const baseKey = (cacheId: string) => `intnetwork-base-${cacheId}`
 const moduleOf = (cacheId: string) => cacheId.match(/^\d+-\d+-(.+)$/)?.[1] ?? ''
 
 function get(key: string): string | null {
@@ -51,7 +52,8 @@ const timers = new Map<string, ReturnType<typeof setTimeout>>()
 
 async function push(cacheId: string): Promise<void> {
   const marker = get(pendingKey(cacheId))
-  await learnApi.putState(moduleOf(cacheId), localState(cacheId))
+  const { data } = await learnApi.putState(moduleOf(cacheId), localState(cacheId))
+  set(baseKey(cacheId), data.updated_at)
   // Nur löschen, wenn seitdem nichts Neues dazukam (sonst sendet der nächste Timer).
   if (get(pendingKey(cacheId)) === marker) set(pendingKey(cacheId), null)
 }
@@ -59,7 +61,7 @@ async function push(cacheId: string): Promise<void> {
 /** Nach jeder lokalen Änderung aufrufen (readProgress/exerciseState tun das). */
 export function markChanged(cacheId: string): void {
   if (!moduleOf(cacheId)) return
-  set(pendingKey(cacheId), new Date().toISOString())
+  set(pendingKey(cacheId), String(Date.now()))  // nur Änderungsmarke, kein Vergleichszeitpunkt
   clearTimeout(timers.get(cacheId))
   timers.set(cacheId, setTimeout(() => { timers.delete(cacheId); push(cacheId).catch(() => {}) }, DEBOUNCE_MS))
 }
@@ -81,10 +83,11 @@ export async function syncOnOpen(cacheId: string): Promise<void> {
     if (pending || local.read.length || Object.keys(local.exercises).length) await push(cacheId)
     return
   }
-  if (pending && Date.parse(pending) > Date.parse(data.updated_at)) return push(cacheId)
+  if (pending && get(baseKey(cacheId)) === data.updated_at) return push(cacheId)
   set(readKey(cacheId), JSON.stringify(data.read))
   set(exerciseKey(cacheId), JSON.stringify(data.exercises))
   set(pendingKey(cacheId), null)
+  set(baseKey(cacheId), data.updated_at)
 }
 
 // Je Seitenaufruf nur einmal je Modul abgleichen: danach ist der lokale Cache aktuell

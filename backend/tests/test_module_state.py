@@ -1,4 +1,4 @@
-"""Serverseitiger Übungs-/Lesestand je Modul: Rundreise, letzter Schreiber gewinnt,
+"""Serverseitiger Übungs-/Lesestand je Modul: Rundreise, PUT ersetzt den Stand,
 Größengrenze, nur eigene und freigeschaltete Module."""
 from fastapi.testclient import TestClient
 
@@ -33,7 +33,10 @@ def test_state_roundtrip_last_write_wins_and_isolation():
         newer = {"read": [1], "exercises": {}}
         second = c.put("/api/modules/vlan/state", json=newer, headers=p).json()["updated_at"]
         got = c.get("/api/modules/vlan/state", headers=p).json()
-        assert got["read"] == [1] and got["exercises"] == {} and got["updated_at"] >= second >= first
+        assert got["read"] == [1] and got["exercises"] == {}
+        # updated_at ist die Basisversion des Clients (moduleStateSync.ts): GET liefert
+        # exakt den String der PUT-Antwort, jeder PUT einen neuen.
+        assert got["updated_at"] == second != first
 
         # anderer Teilnehmer sieht nichts davon
         assert c.get("/api/modules/vlan/state", headers=other).json()["updated_at"] is None

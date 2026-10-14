@@ -185,9 +185,10 @@ def get_state(key: str, db: Session = Depends(get_db), p: Participant = Depends(
 @router.put("/{key}/state", dependencies=[Depends(rate_limit(600, 60))])
 def put_state(key: str, data: ModuleStateIn, db: Session = Depends(get_db),
               p: Participant = Depends(get_participant)):
-    """Ersetzt den ganzen Stand. Konfliktregel: letzter Schreiber gewinnt — der
-    Server stempelt updated_at; der Client vergleicht beim Öffnen seinen noch
-    nicht gesendeten lokalen Stand mit diesem Zeitpunkt (moduleStateSync.ts)."""
+    """Ersetzt den ganzen Stand und stempelt updated_at. Der Client merkt sich den
+    zurückgegebenen Wert als Basisversion: eine ungesendete lokale Änderung gewinnt
+    beim Öffnen nur, wenn GET noch genau diesen Wert liefert (moduleStateSync.ts) —
+    verglichen wird als Kennung, nicht als Uhrzeit."""
     if denied := _unavailable(db, p, key):
         return denied
     now = utc_now().replace(tzinfo=None)
