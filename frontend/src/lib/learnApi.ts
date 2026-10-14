@@ -3,7 +3,11 @@ import type { Company, Follow, LivePoll, PollChoice, ModuleDetail, ModuleMeta, P
 import type { Lang } from '@/lib/i18n'
 
 export const learnApi = {
-  me: () => api.get<{ name: string; participant_id: number; course_id: number; language: Lang; course: { id: number; name: string }; workshop: Workshop | null; progress: ProgressItem[] }>('/me'),
+  me: () => api.get<{ name: string; participant_id: number; course_id: number; language: Lang; course: { id: number; name: string }; workshop: Workshop | null; progress: ProgressItem[]; tasks?: OpenTasks }>('/me'),
+  assessment: () => api.get<Assessment | null>('/assessment'),
+  submitAssessment: (phase: AssessmentPhase, answers: Record<string, unknown>) =>
+    api.post<AssessmentResult>('/assessment', { phase, answers }),
+  submitEvaluation: (body: EvaluationInput) => api.post<{ ok: boolean }>('/evaluation', body),
   setLanguage: (language: Lang) => api.patch<{ language: Lang }>('/me/language', { language }),
   company: () => api.get<Company>('/company'),
   listModules: () => api.get<ModuleMeta[]>('/modules'),
@@ -71,4 +75,20 @@ export interface Comment {
   author_name: string
   created_at: string
   own: boolean
+}
+
+// Lernerfolg: offener Wissenstest (Eingangs-/Abschlusstest) und anonyme Kursbewertung
+export type AssessmentPhase = 'pre' | 'post'
+export interface OpenTasks { assessment: AssessmentPhase | null; evaluation: boolean }
+/** Nach dem Eingangstest nur score/total; nach dem Abschlusstest auch details/explanations. */
+export interface AssessmentResult { score: number; total: number; details?: Record<string, boolean>; explanations?: Record<string, string> }
+export interface Assessment { phase: AssessmentPhase; questions: (Question & { module_key: string })[]; result: AssessmentResult | null }
+export interface EvaluationInput {
+  overall: number
+  clarity?: number | null
+  practice?: number | null
+  pace?: 'slow' | 'ok' | 'fast' | null
+  trainer?: number | null
+  good?: string
+  improve?: string
 }

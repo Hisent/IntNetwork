@@ -9,6 +9,7 @@ import { groupModulesBySection } from '@/lib/moduleGroups'
 import { useTr } from '@/store/lang'
 import type { ModuleMeta, Workshop } from '@/types'
 import { Section, QueryState, CopyButton } from './shared'
+import { LearningOutcomes } from './LearningOutcomes'
 
 // QR-Groesse: mittig im gewuenschten 160-200px-Fenster.
 const INVITE_QR_PX = 176
@@ -282,6 +283,9 @@ export function CourseDetail({ course, workshopTitle, workshops, portalContainer
         </label>}>
         <ProgressTable dash={dash} requireApproval={requireApproval} onApprove={(pid, a) => approve.mutate({ pid, approved: a })} />
       </Section>
+
+      {/* Wissenstest vorher/nachher, anonyme Kursbewertung, CSV-Export */}
+      <LearningOutcomes cid={cid} />
 
       <Section title={tr('trManageParticipants')}>
         <QueryState query={dash} empty={dash.data?.participants.length === 0}>

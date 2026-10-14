@@ -1,4 +1,4 @@
-Stand: v1.45.0 + Trennung der Lab-Läufe per uid, Admin-Rolle, Aufbewahrung, Fehler-IDs, Übungsstand/Wiederholung (2026-10-14) · Quelle: docs/operations.md, README.md, .env.example, docker-compose.yml, docs/lab-sicherheit.md, backend/app/database.py, backend/app/utils.py, backend/app/content/changelog.py, backend/app/routers/trainer_accounts.py, backend/app/services/retention.py, backend/app/main.py
+Stand: v1.45.0 + Trennung der Lab-Läufe per uid, Admin-Rolle, Aufbewahrung, Fehler-IDs, Übungsstand/Wiederholung, Lernerfolg (2026-10-14) · Quelle: docs/operations.md, README.md, .env.example, docker-compose.yml, docs/lab-sicherheit.md, backend/app/database.py, backend/app/utils.py, backend/app/content/changelog.py, backend/app/routers/trainer_accounts.py, backend/app/services/retention.py, backend/app/main.py
 
 # IntLab: Betrieb
 
@@ -258,9 +258,9 @@ Opt-in über `COURSE_RETENTION_DAYS` (Standard `0` = aus). Ist ein Wert gesetzt,
 
 | Aspekt | Verhalten |
 |---|---|
-| Aktivität | jüngster Zeitpunkt aus Beitritt, geöffnetem Modul, abgeschlossenem Modul, Quiz-Abgabe, Teilnehmer-Kommentar, gespeichertem Übungs-/Lesestand und Wiederholung |
-| Gelöscht | Teilnehmer, Fortschritt, Quiz-Ergebnisse, Teilnehmer-Kommentare, Abstimmungs-Stimmen, Übungs-/Lesestand, Wiederholungs-Verlauf, Aufwärm-Ergebnisse |
-| Bleibt | Kurs, Kurs-Code, Modulauswahl, Trainer-Kommentare, Inhalte, ausgestellte Teilnahmebestätigungen |
+| Aktivität | jüngster Zeitpunkt aus Beitritt, geöffnetem Modul, abgeschlossenem Modul, Quiz-Abgabe, Wissenstest-Abgabe, Teilnehmer-Kommentar, gespeichertem Übungs-/Lesestand und Wiederholung |
+| Gelöscht | Teilnehmer, Fortschritt, Quiz-Ergebnisse, Wissenstest-Antworten (Eingangs-/Abschlusstest), Teilnehmer-Kommentare, Abstimmungs-Stimmen, Übungs-/Lesestand, Wiederholungs-Verlauf, Aufwärm-Ergebnisse |
+| Bleibt | Kurs, Kurs-Code, Modulauswahl, Trainer-Kommentare, Inhalte, anonyme Kursbewertungen (ohne Personenbezug), ausgestellte Teilnahmebestätigungen |
 | Protokoll | nur Zahlen, keine Namen: Logzeile `Aufbewahrung (N Tage): gelöscht …` und Audit-Eintrag `retention.purge` (Benutzer `system:retention`) |
 | Mehrere Worker, Neustarts | unkritisch: jeder Lauf ist ein DELETE in einer Transaktion; ein zweiter Lauf findet nichts mehr. Ein Neustart zählt als Lauf. |
 

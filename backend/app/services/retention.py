@@ -2,13 +2,15 @@
 COURSE_RETENTION_DAYS Tagen kein Teilnehmer mehr aktiv war.
 
 Aktivität = jüngster Zeitstempel aus Beitritt, Heartbeat (last_seen),
-Fortschritt, Quiz-Abgabe, Teilnehmer-Kommentar, gespeichertem Übungs-/Lesestand
-und Wiederholung. Gelöscht werden die Teilnehmer; Fortschritt, Quiz-Ergebnisse,
-Kommentare, Abstimmungs-Stimmen, Übungs-/Lesestand (module_state),
-Wiederholungs-Verlauf (review_item) und Aufwärm-Ergebnisse hängen per
-ON DELETE CASCADE daran. Kurs, Kurs-Code, Modulauswahl,
-Trainer-Kommentare und Teilnahmebestätigungen (bewusst ohne FK, siehe
-models/certificate.py) bleiben.
+Fortschritt, Quiz-Abgabe, Wissenstest-Abgabe, Teilnehmer-Kommentar,
+gespeichertem Übungs-/Lesestand und Wiederholung. Gelöscht werden die
+Teilnehmer; Fortschritt, Quiz-Ergebnisse, Wissenstest-Antworten
+(vorher/nachher), Kommentare, Abstimmungs-Stimmen, Übungs-/Lesestand
+(module_state), Wiederholungs-Verlauf (review_item) und Aufwärm-Ergebnisse
+hängen per ON DELETE CASCADE daran. Kurs, Kurs-Code, Modulauswahl,
+Trainer-Kommentare, Teilnahmebestätigungen (bewusst ohne FK, siehe
+models/certificate.py) und die anonymen Kursbewertungen (kein Personenbezug,
+siehe models/learning_outcome.py) bleiben.
 
 Mehrere Worker/Neustarts: jeder Lauf ist ein einziges DELETE ... WHERE in einer
 Transaktion; läuft er doppelt, findet der zweite nichts mehr. Die Zahlen kommen
@@ -25,6 +27,7 @@ from sqlalchemy.orm import Session
 from app.config import settings
 from app.database import SessionLocal
 from app.models.comment import Comment
+from app.models.learning_outcome import AssessmentAnswer
 from app.models.module_state import ModuleState
 from app.models.participant import Participant
 from app.models.progress import Progress
@@ -47,6 +50,8 @@ def stale_course_ids(db: Session, days: int, now=None) -> list[int]:
         select(Participant.course_id, Participant.last_seen),
         select(Participant.course_id, Progress.completed_at).join(Progress, Progress.participant_id == Participant.id),
         select(Participant.course_id, QuizResult.created_at).join(QuizResult, QuizResult.participant_id == Participant.id),
+        select(Participant.course_id, AssessmentAnswer.created_at).join(
+            AssessmentAnswer, AssessmentAnswer.participant_id == Participant.id),
         select(Comment.course_id, Comment.created_at).where(Comment.participant_id.isnot(None)),
         select(Participant.course_id, ModuleState.updated_at).join(ModuleState, ModuleState.participant_id == Participant.id),
         select(Participant.course_id, ReviewItem.last_reviewed).join(ReviewItem, ReviewItem.participant_id == Participant.id),
@@ -59,14 +64,16 @@ def stale_course_ids(db: Session, days: int, now=None) -> list[int]:
 def purge(db: Session, days: int, now=None) -> dict:
     """Ein Lauf. Gibt nur Zahlen zurück (keine Namen) und protokolliert sie."""
     stale = stale_course_ids(db, days, now)
-    counts = {"courses": len(stale), "participants": 0, "progress": 0, "quiz_results": 0, "comments": 0,
-              "module_state": 0, "review": 0}
+    counts = {"courses": len(stale), "participants": 0, "progress": 0, "quiz_results": 0, "assessment_answers": 0,
+              "comments": 0, "module_state": 0, "review": 0}
     if not stale:
         return counts
     pids = select(Participant.id).where(Participant.course_id.in_(stale)).scalar_subquery()
     # Kindtabellen explizit (statt nur per Kaskade), damit rowcount die Mengen liefert.
     counts["progress"] = db.query(Progress).filter(Progress.participant_id.in_(pids)).delete(synchronize_session=False)
     counts["quiz_results"] = db.query(QuizResult).filter(QuizResult.participant_id.in_(pids)).delete(synchronize_session=False)
+    counts["assessment_answers"] = db.query(AssessmentAnswer).filter(
+        AssessmentAnswer.participant_id.in_(pids)).delete(synchronize_session=False)
     counts["comments"] = db.query(Comment).filter(Comment.participant_id.in_(pids)).delete(synchronize_session=False)
     counts["module_state"] = db.query(ModuleState).filter(ModuleState.participant_id.in_(pids)).delete(synchronize_session=False)
     counts["review"] = db.query(ReviewItem).filter(ReviewItem.participant_id.in_(pids)).delete(synchronize_session=False)

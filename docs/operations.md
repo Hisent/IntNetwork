@@ -283,18 +283,20 @@ löscht das Backend beim Start und danach alle 24 Stunden die Teilnehmerdaten
 aller Kurse, in denen seit so vielen Tagen kein Teilnehmer mehr aktiv war.
 
 - **Aktivität** = jüngster Zeitpunkt aus Beitritt, Heartbeat (Modul offen),
-  abgeschlossenem Modul, Quiz-Abgabe, Teilnehmer-Kommentar, gespeichertem
-  Übungs-/Lesestand und Wiederholung. Ein Kurs mit einem einzigen aktiven
-  Teilnehmer bleibt vollständig erhalten.
-- **Gelöscht:** Teilnehmer, Fortschritt, Quiz-Ergebnisse, Teilnehmer-Kommentare,
-  Abstimmungs-Stimmen, Übungs-/Lesestand (`module_state`), Wiederholungs-Verlauf
-  (`review_item`) und Aufwärm-Ergebnisse.
-- **Bleibt:** Kurs, Kurs-Code, Modulauswahl, Trainer-Kommentare, Inhalte und
+  abgeschlossenem Modul, Quiz-Abgabe, Wissenstest-Abgabe, Teilnehmer-Kommentar,
+  gespeichertem Übungs-/Lesestand und Wiederholung. Ein Kurs mit einem einzigen
+  aktiven Teilnehmer bleibt vollständig erhalten.
+- **Gelöscht:** Teilnehmer, Fortschritt, Quiz-Ergebnisse, Wissenstest-Antworten
+  (Eingangs-/Abschlusstest), Teilnehmer-Kommentare, Abstimmungs-Stimmen,
+  Übungs-/Lesestand (`module_state`), Wiederholungs-Verlauf (`review_item`) und
+  Aufwärm-Ergebnisse.
+- **Bleibt:** Kurs, Kurs-Code, Modulauswahl, Trainer-Kommentare, Inhalte,
+  anonyme Kursbewertungen (ohne Personenbezug) und
   ausgestellte Teilnahmebestätigungen (wie beim Kurs-Löschen: bewusst
   unveränderlicher Nachweis; wer sie mitlöschen will, löscht den Kurs mit
   „Teilnahmebestätigungen mitlöschen“).
 - **Protokoll:** nur Zahlen, keine Namen — Logzeile
-  `Aufbewahrung (N Tage): gelöscht courses=… participants=… progress=… quiz_results=… comments=…`
+  `Aufbewahrung (N Tage): gelöscht courses=… participants=… progress=… quiz_results=… assessment_answers=… comments=…`
   und ein Audit-Eintrag `retention.purge` mit Benutzer `system:retention`.
   Läufe ohne Treffer protokollieren nichts.
 - **Mehrere Worker/Neustarts:** jeder Lauf ist ein DELETE in einer Transaktion;

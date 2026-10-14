@@ -40,6 +40,18 @@ export const api = {
   put: <T = unknown>(url: string, body?: unknown) => request<T>('PUT', url, body),
   patch: <T = unknown>(url: string, body?: unknown) => request<T>('PATCH', url, body),
   delete: <T = unknown>(url: string) => request<T>('DELETE', url),
+  /** Datei-Download (CSV-Export) mit Token: fetch -> Blob -> temporärer Link mit download-Attribut. */
+  download: async (url: string, filename: string): Promise<void> => {
+    const token = useAuthStore.getState().token
+    const res = await fetch('/api' + url, { headers: token ? { Authorization: `Bearer ${token}` } : {} })
+    if (!res.ok) throw new Error(`HTTP ${res.status}`)
+    const href = URL.createObjectURL(await res.blob())
+    const a = Object.assign(document.createElement('a'), { href, download: filename })
+    document.body.append(a)
+    a.click()
+    a.remove()
+    setTimeout(() => URL.revokeObjectURL(href), 1000)  // sofort freigegeben bricht Firefox den Download ab
+  },
 }
 
 export function errMsg(e: unknown, fallback = 'Fehler.'): string {

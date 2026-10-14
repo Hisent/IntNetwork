@@ -5,6 +5,7 @@ import { learnApi } from '@/lib/learnApi'
 import { PageSkeleton } from '@/components/PageSkeleton'
 import { LoadError } from '@/components/LoadError'
 import type { Company, ModuleMeta, ProgressItem } from '@/types'
+import type { OpenTasks } from '@/lib/learnApi'
 import { useAuthStore } from '@/store/auth'
 import { localTitle, storeLang, t, useDocumentLang, useDocumentTitle, type Lang } from '@/lib/i18n'
 import { LangToggle, WorkbenchProgress, WorkbenchSectionTitle, WorkbenchTopbar } from '@/components/workbench/WorkbenchShell'
@@ -99,6 +100,7 @@ export function LearnPage() {
         workshopTitle={workshopTitle}
         workshopSummary={workshopSummary}
         completionText={completionText}
+        tasks={me.data?.tasks}
         setLanguage={(value) => setLang.mutate(value)}
       />
     </WorkshopTheme>
@@ -121,10 +123,12 @@ export interface WorkbenchLearnProps {
   workshopTitle: string
   workshopSummary: string
   completionText: string
+  /** Vom Trainer geöffneter Wissenstest / Kursbewertung -> Hinweiskarten (nicht blockierend) */
+  tasks?: OpenTasks
   setLanguage: (lang: Lang) => void
 }
 
-export function WorkbenchLearnView({ lang, displayName, modules, groups, progress, company, links, doneCount, donePct, continueAt, startedKeys = [], titleOf, workshopTitle, workshopSummary, completionText, setLanguage }: WorkbenchLearnProps) {
+export function WorkbenchLearnView({ lang, displayName, modules, groups, progress, company, links, doneCount, donePct, continueAt, startedKeys = [], titleOf, workshopTitle, workshopSummary, completionText, tasks, setLanguage }: WorkbenchLearnProps) {
   const progressOf = (key: string) => progress.find((item) => item.module_key === key)
   // Anzeigeposition (1..n) statt des internen `order`-Sortierschlüssels —
   // sonst zeigt der Claude-Workshop "Modul 101" statt "Modul 1" (siehe modulePosition.ts).
@@ -208,6 +212,12 @@ export function WorkbenchLearnView({ lang, displayName, modules, groups, progres
         <div className="grid min-w-0 gap-8 xl:grid-cols-[minmax(0,1fr)_320px]">
           <main id="main-content" tabIndex={-1} className="min-w-0">
             <ReviewWarmupBanner lang={lang} />
+            {(tasks?.assessment || tasks?.evaluation) && (
+              <div className="mb-6 grid gap-3 sm:grid-cols-2">
+                {tasks.assessment && <TaskCard title={t(lang, tasks.assessment === 'post' ? 'taskPostTitle' : 'taskPreTitle')} hint={t(lang, 'taskTestHint')} to="/lernen/wissenstest" action={t(lang, 'taskTestStart')} />}
+                {tasks.evaluation && <TaskCard title={t(lang, 'taskEvalTitle')} hint={t(lang, 'taskEvalHint')} to="/lernen/bewertung" action={t(lang, 'taskEvalStart')} />}
+              </div>
+            )}
             {continueAt && (
               <Link to={`/lernen/${continueAt.key}`} className="wb-surface wb-surface--highlight group mb-8 block border-[var(--wb-accent)] p-5 hover:border-[var(--wb-accent)]">
                 <span className="text-xs font-semibold uppercase tracking-[0.14em] opacity-80">{t(lang, 'continueHere')}</span>
@@ -274,5 +284,15 @@ export function WorkbenchLearnView({ lang, displayName, modules, groups, progres
         </div>
       </div>
     </div>
+  )
+}
+
+function TaskCard({ title, hint, to, action }: { title: string; hint: string; to: string; action: string }) {
+  return (
+    <section className="wb-surface border-[var(--wb-accent)] bg-[var(--wb-accent-soft)] p-4">
+      <h2 className="font-semibold text-[var(--wb-ink)]">{title}</h2>
+      <p className="mt-1 text-sm text-[var(--wb-muted)]">{hint}</p>
+      <Link to={to} className="wb-control mt-3 inline-flex items-center gap-1.5 rounded-lg bg-[var(--wb-accent)] px-4 text-sm font-semibold text-white hover:bg-[var(--wb-accent-hover)]">{action}<Icon name="arrowRight" className="h-4 w-4" /></Link>
+    </section>
   )
 }

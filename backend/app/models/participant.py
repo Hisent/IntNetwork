@@ -33,3 +33,6 @@ class Participant(Base):
     # Code-Reset erhöht, ins Token geschrieben und beim Prüfen mit der DB
     # verglichen (siehe app/services/deps.py::get_participant).
     token_version: Mapped[int] = mapped_column(Integer, default=0, nullable=False, server_default="0")
+    # Hat an der anonymen Kursbewertung teilgenommen — nur dieses Flag, die
+    # Antworten selbst (course_evaluation) tragen keinen Verweis auf den Teilnehmer.
+    evaluation_submitted: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False, server_default="0")

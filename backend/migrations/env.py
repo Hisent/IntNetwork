@@ -25,6 +25,7 @@ from app.models import trainer_credential as _trainer_credential  # noqa: F401
 from app.models import live_poll as _live_poll  # noqa: F401
 from app.models import review as _review  # noqa: F401
 from app.models import module_state as _module_state  # noqa: F401
+from app.models import learning_outcome as _learning_outcome  # noqa: F401
 
 config = context.config
 config.set_main_option("sqlalchemy.url", settings.database_url)

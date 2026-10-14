@@ -1,4 +1,4 @@
-Stand: v1.45.0 + Admin-Rolle + Aufwärmrunde (2026-10-14) · Quelle: frontend/src/pages/TrainerPage.tsx, frontend/src/pages/trainer/*, frontend/src/pages/TrainerPresentPage.tsx, frontend/src/pages/TrainerModulePage.tsx, frontend/src/pages/TrainerModuleEditPage.tsx, frontend/src/components/TrainerFeedback.tsx, frontend/src/lib/i18n.ts, backend/app/routers/trainer_content.py, README.md
+Stand: v1.45.0 + Admin-Rolle, Aufwärmrunde, Lernerfolg (2026-10-14) · Quelle: frontend/src/pages/TrainerPage.tsx, frontend/src/pages/trainer/*, frontend/src/pages/OutcomePages.tsx, backend/app/routers/learning_outcomes.py, frontend/src/pages/TrainerPresentPage.tsx, frontend/src/pages/TrainerModulePage.tsx, frontend/src/pages/TrainerModuleEditPage.tsx, frontend/src/components/TrainerFeedback.tsx, frontend/src/lib/i18n.ts, backend/app/routers/trainer_content.py, README.md
 
 # IntLab: Trainer-Handbuch
 
@@ -142,6 +142,45 @@ Im Kurs-Detail:
 - **„Gerade aktiv · Wer hängt fest?“:** Wer gerade im Kurs arbeitet (Heartbeat der letzten 30 Sekunden), in welchem Modul, seit wie vielen Minuten und mit wie vielen Quiz-Fehlversuchen dort (aktualisiert sich alle 10 Sekunden). „braucht evtl. Hilfe“ steht an Teilnehmern, die das Modul noch nicht bestanden haben und entweder mindestens 2 Fehlversuche bei mindestens 10 Minuten im Modul oder mindestens 40 Minuten im Modul haben; sie stehen oben in der Liste. Wer länger als 10 Minuten nicht aktiv war oder das Modul wechselt, beginnt bei 0 Minuten.
 - **„Fortschritt“:** Tabelle mit einer Zeile je Teilnehmer und einer Spalte je Modul. Ein Haken zeigt ein bestandenes Modul, daneben der beste Quiz-Wert in Prozent. Ein Strich „–“ heißt: noch nicht bestanden. Ist die Freigabe aktiv, gibt es zusätzlich die Spalte „Freigabe“. Ohne Teilnehmer steht dort „Noch keine Teilnehmer.“
 - Bei vielen Modulen scrollt die Tabelle waagerecht; die Teilnehmerspalte bleibt stehen.
+
+## Lernerfolg messen: Wissenstest vorher/nachher
+
+Im Kurs-Detail, Abschnitt „Wissenstest vorher/nachher“. Eingangs- und Abschlusstest bestehen aus denselben Fragen: je aktivem Modul ein bis zwei Quizfragen, höchstens 15. Die Auswahl ist je Kurs fest und wird beim ersten Öffnen gespeichert. Ergebnisse zählen weder für den Fortschritt noch für die Teilnahmebestätigung.
+
+1. Vor dem Kurs: „Fragen ansehen (n)“ aufklappen und prüfen. Gefällt die Auswahl nicht, „Fragen neu ziehen“. Das geht nur, solange noch niemand geantwortet hat („Der Fragensatz ist fest – es gibt schon Antworten.“).
+2. „Eingangstest öffnen“. Die Statuszeile zeigt „Eingangstest ist geöffnet“. Teilnehmer sehen auf ihrer Kursseite die Karte „Eingangstest“ mit „Test starten“.
+3. Teilnehmer antworten einmal. Danach sehen sie nur ihre Punktzahl („n von m richtig“), keine Lösungen und keine Erklärungen. So lernt niemand gezielt auf den Test hin.
+4. „Test schließen“, sobald alle fertig sind.
+5. Am Kursende „Abschlusstest öffnen“. Teilnehmer sehen die Karte „Abschlusstest“, antworten einmal und bekommen danach je Frage „Richtig“/„Falsch“ samt Erklärung.
+6. Auswertung im selben Abschnitt: Tabelle je Teilnehmer („Vorher“, „Nachher“, „Zuwachs“ in Prozentpunkten) und die Zeile „Ø vorher … · Ø nachher … · Ø Zuwachs … Prozentpunkte (n mit beiden Tests)“. Der Zuwachs zählt nur Teilnehmer, die beide Tests gemacht haben. Darunter „Je Frage: richtig / Antworten“ für vorher und nachher.
+
+Wer zu spät kommt, kann den Eingangstest nicht mehr nachholen, sobald der Abschlusstest geöffnet ist: Es ist immer nur ein Test offen.
+
+## Lernerfolg messen: Kursbewertung (anonym)
+
+Im Kurs-Detail, Abschnitt „Kursbewertung (anonym)“.
+
+1. Am Kursende „Kursbewertung öffnen“. Teilnehmer sehen auf ihrer Kursseite die Karte „Kursbewertung“ mit „Kurs bewerten“.
+2. Das Formular fragt „Gesamteindruck“ (Pflicht, 1 bis 5) sowie optional „Inhalt verständlich“, „Praxisanteil“, „Trainer“ (je 1 bis 5), „Tempo“ („zu langsam“, „passend“, „zu schnell“), „Was war gut?“ und „Was sollten wir verbessern?“. Jeder Teilnehmer kann einmal bewerten.
+3. Die Auswertung zeigt die Zahl der Abgaben („n Abgaben“), je Frage Mittelwert und Verteilung 1 bis 5, das Tempo und die Freitexte in zufälliger Reihenfolge.
+4. „Kursbewertung schließen“ beendet die Abgabe; die Ergebnisse bleiben sichtbar.
+
+Anonymität: Gespeichert werden die Antworten ohne Namen, ohne Teilnehmer-Verweis und ohne Zeitpunkt. Am Teilnehmer steht nur, dass er bewertet hat. Beides wird in einem Schritt gespeichert, damit niemand doppelt bewertet. Grenzen: Bei sehr kleinen Gruppen (ein oder zwei Abgaben) oder wenn man live zusieht, wer gerade abgibt, und dabei die Zahl der Abgaben verfolgt, sind Rückschlüsse auf Personen trotzdem möglich. Mit direktem Datenbankzugriff lässt sich zusätzlich die Speicherreihenfolge auswerten. Bei kleinen Gruppen die Ergebnisse deshalb erst nach dem Schließen ansehen.
+
+Die Kursbewertung enthält keine personenbezogenen Daten. Sie bleibt beim Kurs, auch wenn Teilnehmerdaten gelöscht werden (Aufbewahrung), und verschwindet erst mit dem Kurs.
+
+## Lernerfolg messen: CSV-Export
+
+Im Kurs-Detail, Abschnitt „Export (CSV)“. Die Dateien öffnen sich direkt in Excel (UTF-8 mit BOM, Semikolon als Trenner, Dezimalkomma). Zellen, die mit `=`, `+`, `-` oder `@` beginnen, bekommen ein vorangestelltes `'`, damit Excel sie nicht als Formel ausführt.
+
+| Knopf | Inhalt |
+|---|---|
+| „Fortschritt (CSV)“ | je Teilnehmer: Name, erledigte Module, Bestwert in Prozent je Modul, letzte Aktivität (UTC) |
+| „Quiz je Frage (CSV)“ | je Modul und Frage: richtig, Versuche, Quote (nur dieser Kurs) |
+| „Vorher/Nachher (CSV)“ | je Teilnehmer: Eingangstest, Abschlusstest, Zuwachs; Durchschnitt; je Frage richtig/Antworten vorher und nachher |
+| „Kursbewertung (CSV)“ | Zahl der Abgaben, Mittelwert und Verteilung je Frage, Tempo, Freitexte |
+
+Die Spaltenüberschriften folgen der Sprache der Trainer-Oberfläche. Jeder Export steht im „Protokoll“ (Aktion `course.export`). Exportieren darf jeder Trainer, der auch das Kurs-Dashboard sieht.
 
 ## Quiz-Statistik lesen
 

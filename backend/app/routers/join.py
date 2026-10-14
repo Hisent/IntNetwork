@@ -19,6 +19,7 @@ from app.utils import generate_resume_code
 from app.content.registry import module_meta, _resolve
 from app.content.company import COMPANY
 from app.services.course_membership import active_module_keys
+from app.routers.learning_outcomes import open_tasks
 
 router = APIRouter(tags=["join"])
 
@@ -111,7 +112,9 @@ def me(db: Session = Depends(get_db), p: Participant = Depends(get_participant))
     return {"name": p.name, "participant_id": p.id, "course_id": p.course_id,
             "language": p.language,
             "course": {"id": course.id, "name": course.name}, "workshop": workshop_data,
-            "progress": progress}
+            "progress": progress,
+            # offener Wissenstest ("pre"/"post", None) und Kursbewertung -> Hinweiskarte auf /lernen
+            "tasks": open_tasks(db, p, course)}
 
 
 class LanguageReq(BaseModel):

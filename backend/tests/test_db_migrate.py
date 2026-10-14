@@ -20,8 +20,8 @@ from app.config import settings
 from app.database import Base, engine
 from app.main import app
 
-_HEAD = "5d2c8e7f1a90"        # add_spaced_review_and_module_state
-_VORGAENGER = "7305d4053e50"  # add_trainer_credential (danach laufen 75aeb8d5399c … 3f9a1c7e2b40, 9f3e7a1c5b2d, 5e7f0a1b2c3d, 5d2c8e7f1a90 erneut)
+_HEAD = "e7c4a2b9d1f3"        # add_learning_outcomes
+_VORGAENGER = "7305d4053e50"  # add_trainer_credential (danach laufen 75aeb8d5399c … 3f9a1c7e2b40, 9f3e7a1c5b2d, 5e7f0a1b2c3d, 5d2c8e7f1a90, e7c4a2b9d1f3 erneut)
 
 
 def _blocked() -> OperationalError:
@@ -284,4 +284,43 @@ def test_5d2c8e7f1a90_downgrade_entfernt_review_und_module_state(leere_db, monke
     assert not neu & tabellen and "live_poll" in tabellen
     command.upgrade(cfg, "head")
     assert neu <= set(inspect(eigene).get_table_names())
+    eigene.dispose()
+
+
+def test_e7c4a2b9d1f3_downgrade_entfernt_lernerfolg_und_upgrade_stellt_ihn_wieder_her(leere_db, monkeypatch):
+    """Lernerfolg (Wissenstest + Kursbewertung): Downgrade nimmt Tabellen und
+    Spalten zurück, Kurse/Teilnehmer bleiben; erneutes Upgrade legt alles wieder an."""
+    from app.models.course import Course
+    from app.models.learning_outcome import AssessmentAnswer, CourseEvaluation
+    from app.models.participant import Participant
+
+    monkeypatch.setattr(settings, "database_url", leere_db)
+    cfg = db_migrate._config()
+    eigene = create_engine(leere_db)
+    command.upgrade(cfg, "head")
+    with Session(eigene) as db:
+        course = Course(name="K", join_code="LODOWN", assessment_questions=["1"], assessment_phase="pre",
+                        evaluation_open=True)
+        db.add(course)
+        db.flush()
+        p = Participant(course_id=course.id, name="P", evaluation_submitted=True)
+        db.add(p)
+        db.flush()
+        db.add_all([AssessmentAnswer(participant_id=p.id, phase="pre", answers={}, score=0, total=1),
+                    CourseEvaluation(id="x", course_id=course.id, overall=4)])
+        db.commit()
+
+    command.downgrade(cfg, "5d2c8e7f1a90")
+    insp = inspect(eigene)
+    assert not insp.has_table("assessment_answer") and not insp.has_table("course_evaluation")
+    assert "evaluation_open" not in {c["name"] for c in insp.get_columns("course")}
+    assert "evaluation_submitted" not in {c["name"] for c in insp.get_columns("participant")}
+    with eigene.connect() as conn:
+        assert conn.execute(text("SELECT name FROM participant")).scalars().all() == ["P"]
+
+    command.upgrade(cfg, "head")
+    insp = inspect(eigene)
+    assert insp.has_table("assessment_answer") and insp.has_table("course_evaluation")
+    with eigene.connect() as conn:
+        assert tuple(conn.execute(text("SELECT evaluation_open, assessment_seed FROM course")).one()) in ((False, 0), (0, 0))
     eigene.dispose()

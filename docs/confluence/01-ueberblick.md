@@ -41,6 +41,7 @@ Zum Stand der ausgelieferten Inhalte: 99 Module, 1242 Blöcke, 754 Quizfragen (Q
 - **Live-Abstimmung:** Während der Trainer im Beamer-Modus eine Frage stellt, blendet sich im geöffneten Modul eine Abstimmung ein (Single/Multiple Choice mit Antworten A/B/C/D, Skala, Freitext oder Wortwolke; Antwort bis zur Auflösung änderbar, anonym, Minimieren möglich).
 - Persönlicher Wiederaufnahme-Code beim Erstbeitritt; nur damit lässt sich später unter demselben Namen fortsetzen.
 - Teilnahmebestätigung nach Abschluss aller aktiven Module, öffentlich prüfbar unter `/verifizieren`.
+- **Lernerfolg:** Öffnet der Trainer einen Wissenstest (Eingangs- bzw. Abschlusstest) oder die Kursbewertung, erscheint auf der Kursseite eine Hinweiskarte. Der Test hat einen Versuch und zählt nicht für Fortschritt oder Bestätigung; die Kursbewertung ist anonym.
 - Optional: Kommentare an Blöcken (Schalter im Trainer-Bereich).
 
 ## Funktionen für Trainer
@@ -48,6 +49,7 @@ Zum Stand der ausgelieferten Inhalte: 99 Module, 1242 Blöcke, 754 Quizfragen (Q
 - Kurse anlegen, Einladungslink und QR-Code, Module je Kurs freischalten oder abwählen.
 - Fortschrittstabelle je Kurs, Live-Präsenz mit Hilfe-Hinweis („Gerade aktiv · Wer hängt fest?“), Quiz-Statistik je Frage und Modul.
 - „Folgt mir“: Beim Präsentieren mit Kurs sehen Teilnehmer einen Hinweis, bei welchem Modul der Trainer ist, und können per Knopf dorthin (keine erzwungene Navigation).
+- Lernerfolg messen: Wissenstest vorher/nachher (gleiche Fragen, Zuwachs je Teilnehmer und je Frage), anonyme Kursbewertung (Mittelwerte, Verteilung, Freitexte) und CSV-Export für Excel (Fortschritt, Quiz je Frage, Vorher/Nachher, Kursbewertung).
 - Beamer-Modus („▶ Präsentieren“) mit Notizen; mit Kurs-Bezug zusätzlich Live-Abstimmung zu Single- und Multiple-Choice-Quizfragen, Auswahl-Checks und eigenen Fragen (Mehrfachauswahl, Skala, Freitext und Wortwolke, beide erst nach dem Auflösen sichtbar und vorher in einer eingeklappten Prüfliste ausblendbar). Eine laufende Abstimmung zeigt das Kurs-Detail und lässt sich dort mit „Abstimmung beenden“ schließen.
 - Feedback-Kommentare der Teilnehmer lesen und beantworten (Enter sendet; Löschen mit Rückfrage).
 - Teilnehmerverwaltung: Wiederaufnahme-Code zurücksetzen, Teilnehmer löschen; Kurs löschen (mit Wahl für die Teilnahmebestätigungen).
