@@ -162,6 +162,13 @@ EN = {
     "Kein Auslieferungszustand vorhanden (nur für mitgelieferte Module)":
         "No shipped version available (only for built-in modules)",
     "Keine vorherige Version vorhanden": "No previous version available",
+    # Lernerfolg: Wissenstest vorher/nachher, Kursbewertung
+    "Die aktiven Module haben keine Quizfragen.": "The active modules have no quiz questions.",
+    "Es gibt schon Antworten — der Fragensatz bleibt.": "There are already answers — the question set stays.",
+    "Dieser Test ist nicht (mehr) geöffnet.": "This test is not open (anymore).",
+    "Du hast diesen Test schon abgegeben.": "You have already submitted this test.",
+    "Die Kursbewertung ist nicht geöffnet.": "The course evaluation is not open.",
+    "Du hast den Kurs schon bewertet.": "You have already rated this course.",
 }
 
 # Vorlagen mit Platzhaltern als Regex; ein Platzhalter darf alles enthalten.
