@@ -139,7 +139,9 @@ NAC_AUTORISIERUNG_MODULE = {
                    'Geräte) beziehungsweise das **Gast-VLAN** (für unbekannte oder externe '
                    'Geräte). Beide erlauben typischerweise nur eingeschränkten Zugriff — etwa '
                    'auf Internet, aber nicht auf interne Ressourcen, oder nur auf die zur '
-                   'Fehlerbehebung nötigen Server.\n\n'
+                   'Fehlerbehebung nötigen Server. Bei Nordwind ist das VLAN 99, wenn ein Gerät schon bei der '
+                   'Anmeldung nicht konform ist; wird eine laufende Session per CoA in die Quarantäne '
+                   'gesetzt, bleibt das VLAN und eine Quarantäne-ACL (dACL/Filter-Id) beschränkt den Zugriff.\n\n'
                    'Für Nordwind Logistik ist das die Auffangebene: Ein Gerät, das keiner '
                    'anderen Autorisierungsregel entspricht, landet nicht offen im '
                    'Produktivnetz, sondern in einem klar begrenzten Segment.',
@@ -150,7 +152,9 @@ NAC_AUTORISIERUNG_MODULE = {
                    'generally known devices) or the **guest VLAN** (for unknown or external '
                    'devices). Both typically only allow restricted access — for example to the '
                    'Internet but not to internal resources, or only to the servers needed for '
-                   'remediation.\n\n'
+                   'remediation. At Nordwind that is VLAN 99 when a device is already non-compliant at login; '
+                   'if a running session is put into quarantine via CoA, it keeps its VLAN and a '
+                   'quarantine ACL (dACL/Filter-Id) restricts access.\n\n'
                    'For Nordwind Logistik, this is the catch-all layer: a device that matches '
                    'no other authorization rule does not end up openly in the production '
                    'network, but in a clearly bounded segment.',
@@ -278,8 +282,8 @@ NAC_AUTORISIERUNG_MODULE = {
                     {
                         'left_de': 'Firmen-Notebook, nicht konform',
                         'left_en': 'Company laptop, non-compliant',
-                        'right_de': 'VLAN 99 (Quarantäne), nur Update-Server',
-                        'right_en': 'VLAN 99 (quarantine), update servers only',
+                        'right_de': 'Quarantäne, nur Update-Server (VLAN 99 bei der Anmeldung, Quarantäne-ACL bei laufender Session)',
+                        'right_en': 'Quarantine, update servers only (VLAN 99 at login, quarantine ACL for a running session)',
                     },
                     {
                         'left_de': 'Etikettendrucker, per MAB erkannt',
