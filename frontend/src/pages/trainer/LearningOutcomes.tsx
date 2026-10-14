@@ -148,7 +148,7 @@ function EvaluationResults({ e, fmt }: { e: TrainerEvaluation; fmt: (n: number |
               {scales.map(([key, label]) => (
                 <tr key={key}>
                   <th scope="row" className={`${td} text-left font-medium text-[var(--wb-ink)]`}>{tr(label)}</th>
-                  <td className={td}>{tr('trMean', { mean: fmt(e[key].mean), n: e[key].n })}</td>
+                  <td className={`${td} whitespace-nowrap`}>{tr('trMean', { mean: fmt(e[key].mean), n: e[key].n })}</td>
                   {e[key].counts.map((c, i) => <td key={i} className={td}>{c}</td>)}
                 </tr>
               ))}

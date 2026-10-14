@@ -51,7 +51,7 @@ export function ReviewWarmupBanner({ lang }: { lang: Lang }) {
   return (
     <div role="status" className="wb-surface mb-5 flex flex-wrap items-center gap-3 border-[var(--wb-accent)] bg-[var(--wb-accent-soft)] p-4 text-sm print:hidden">
       <Icon name="lightbulb" className="h-5 w-5 shrink-0 text-[var(--wb-accent)]" />
-      <p className="min-w-0 flex-1 text-[var(--wb-ink)]">
+      <p className="min-w-0 flex-1 basis-56 text-[var(--wb-ink)]">
         <span className="font-semibold">{t(lang, 'warmupLabel')}</span>
         {data.due > 0 ? tf(lang, 'warmupDue', { n: data.due }) : t(lang, 'warmupNothingDue')}
       </p>
