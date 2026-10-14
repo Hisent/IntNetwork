@@ -73,4 +73,6 @@ export const WIDGETS: Record<string, ComponentType<{ lang: Lang }>> = {
   'nac-deployment': lazy(() => import('@/widgets/nac/DeploymentWidget').then((m) => ({ default: m.NacDeployment }))),
   'openssl-lab': lazy(() => import('@/widgets/opensslab/OpensslLabWidget').then((m) => ({ default: m.OpensslLab }))),
   'git-lab': lazy(() => import('@/widgets/gitlab/GitLabWidget').then((m) => ({ default: m.GitLab }))),
+  'wapi-console': lazy(() => import('@/widgets/infoblox/WapiConsoleWidget').then((m) => ({ default: m.WapiConsole }))),
+  'nac-radius-lab': lazy(() => import('@/widgets/nac/RadiusLabWidget').then((m) => ({ default: m.NacRadiusLab }))),
 }
