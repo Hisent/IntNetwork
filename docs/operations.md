@@ -237,7 +237,8 @@ Jede Antwort trägt den Header `X-Request-ID`. Meldet ein Trainer eine
 Browser-Berichte (`POST /api/client-errors`, ohne Anmeldung) enthalten nur
 Meldung, Stack (max. 4000 Zeichen), Pfad ohne Query und App-Version — keine
 Namen, Tokens oder Request-Inhalte. Grenzen: 10 Berichte je IP und Minute,
-5 je Seitenaufruf, zu lange Felder werden mit 422 abgelehnt. Gespeichert wird
+5 je Seitenaufruf, Körper über 32 KB mit 413 (vor dem JSON-Parsen), zu lange
+Felder mit 422. Gespeichert wird
 nichts außer der Logzeile.
 
 ## Rollen: Admin und Trainer

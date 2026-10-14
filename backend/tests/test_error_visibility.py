@@ -49,6 +49,24 @@ def test_client_error_report_is_size_capped():
         assert c.post("/api/client-errors", json={"message": "x", "stack": "y" * 4001}).status_code == 422
 
 
+def test_client_error_report_rejects_large_body_before_parsing(monkeypatch):
+    from app.routers import client_errors
+
+    def no_parse(*_a, **_k):
+        raise AssertionError("darf nicht geparst werden")
+
+    with TestClient(app) as c:
+        monkeypatch.setattr(client_errors.ClientError, "model_validate_json", no_parse)
+        big = b'{"message": "' + b"x" * client_errors.MAX_BODY + b'"}'
+        assert c.post("/api/client-errors", content=big,
+                      headers={"Content-Type": "application/json"}).status_code == 413
+        # ohne Content-Length (chunked): die gezählte Lesegrenze greift
+        chunks = (b"x" * 4096 for _ in range(client_errors.MAX_BODY // 4096 + 2))
+        assert c.post("/api/client-errors", content=chunks).status_code == 413
+        monkeypatch.undo()
+        assert c.post("/api/client-errors", content=b"kein json").status_code == 422
+
+
 def test_client_error_report_is_rate_limited(monkeypatch):
     monkeypatch.setattr(ratelimit, "_ENABLED", True)
     monkeypatch.setattr(ratelimit, "_HITS", ratelimit.defaultdict(ratelimit.deque))

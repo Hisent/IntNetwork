@@ -222,7 +222,7 @@ Es gibt keinen externen Fehlerdienst. Alles landet im Log des Backend-Containers
 docker compose logs backend | grep <fehler-id>
 ```
 
-- Browser-Berichte (`POST /api/client-errors`, ohne Anmeldung) enthalten nur Meldung, Stack (höchstens 4000 Zeichen), Pfad ohne Query und App-Version. Keine Namen, Tokens oder Request-Inhalte.
+- Browser-Berichte (`POST /api/client-errors`, ohne Anmeldung) enthalten nur Meldung, Stack (höchstens 4000 Zeichen), Pfad ohne Query und App-Version. Keine Namen, Tokens oder Request-Inhalte. Körper über 32 KB lehnt die API vor dem Parsen mit 413 ab.
 - Grenzen: 10 Berichte je IP und Minute, 5 je Seitenaufruf; zu lange Felder lehnt der Server mit 422 ab. Gespeichert wird nur die Logzeile.
 - Nach jedem Deploy einmal im Backend-Log nach `Unbehandelter Fehler` und `Client-Fehler` suchen.
 
