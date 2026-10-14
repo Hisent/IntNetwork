@@ -1,4 +1,4 @@
-Stand: v1.45.0 + Admin-Rolle, Aufwärmrunde, Lernerfolg (2026-10-14) · Quelle: frontend/src/pages/TrainerPage.tsx, frontend/src/pages/trainer/*, frontend/src/pages/OutcomePages.tsx, backend/app/routers/learning_outcomes.py, frontend/src/pages/TrainerPresentPage.tsx, frontend/src/pages/TrainerModulePage.tsx, frontend/src/pages/TrainerModuleEditPage.tsx, frontend/src/components/TrainerFeedback.tsx, frontend/src/lib/i18n.ts, backend/app/routers/trainer_content.py, README.md
+Stand: v1.46.0 (2026-10-14) · Quelle: frontend/src/pages/TrainerPage.tsx, frontend/src/pages/trainer/*, frontend/src/pages/OutcomePages.tsx, backend/app/routers/learning_outcomes.py, frontend/src/pages/TrainerPresentPage.tsx, frontend/src/pages/TrainerModulePage.tsx, frontend/src/pages/TrainerModuleEditPage.tsx, frontend/src/components/TrainerFeedback.tsx, frontend/src/lib/i18n.ts, backend/app/routers/trainer_content.py, README.md
 
 # IntLab: Trainer-Handbuch
 

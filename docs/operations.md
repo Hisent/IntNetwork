@@ -192,6 +192,16 @@ gespeichert oder bekannter Stand bis v1.42.0 = unverändert); Module, die je im
 Editor gespeichert wurden, bleiben vorsichtshalber Trainer-Stand
 („Auslieferungszustand laden“ holt sie zurück).
 
+## Migrationen v1.46.0
+
+Linear: `9f3e7a1c5b2d` → `5e7f0a1b2c3d` („Folgt mir“-Spalten an `course`,
+`participant.module_entered_at`) → `5d2c8e7f1a90` (`review_item`, `warmup`,
+`warmup_result`, `module_state`) → `e7c4a2b9d1f3` (`assessment_answer`,
+`course_evaluation`, Wissenstest-/Bewertungs-Spalten an `course` und
+`participant`). Head: `e7c4a2b9d1f3`. Alle additiv und idempotent; nichts zu
+konfigurieren. `course_evaluation` hat bewusst weder `participant_id` noch
+Zeitstempel (anonym) und bleibt beim Kurs.
+
 ## Live-Abstimmung
 
 Zwei Tabellen (Migration `c8d9e0f1a2b3`): `live_poll` (je Kurs höchstens eine

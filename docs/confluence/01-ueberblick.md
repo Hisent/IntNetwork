@@ -1,4 +1,4 @@
-Stand: v1.45.0 + Wiederholung, serverseitiger Übungsstand (2026-10-14) · Quelle: README.md, docs/lernwelt-nordwind.md, backend/app/content/changelog.py, backend/app/content/registry.py, frontend/src/App.tsx
+Stand: v1.46.0 (2026-10-14) · Quelle: README.md, docs/lernwelt-nordwind.md, backend/app/content/changelog.py, backend/app/content/registry.py, frontend/src/App.tsx
 
 # IntLab: Überblick
 

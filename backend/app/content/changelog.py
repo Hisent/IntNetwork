@@ -1,5 +1,33 @@
 # Projekt-Changelog (nur für Trainer sichtbar). Neueste zuerst.
 CHANGELOG = [
+    {"date": "2026-10-14", "title": "v1.46.0 — Live-Steuerung, Lernerfolg messen und Wiederholung",
+     "title_en": "v1.46.0 — Live steering, measuring learning outcomes and spaced review",
+     "text_en": ("The live view in the course detail now shows “Who is stuck?”: minutes in the current module, "
+                 "failed attempts and a “may need help” hint. With “Follow me” participants see in a banner "
+                 "which module the trainer is presenting and can jump there with one click — nobody is "
+                 "redirected. A pre/post knowledge test with the same questions shows the learning gain per "
+                 "participant and per question. The course evaluation is anonymous; results and free texts "
+                 "appear from 3 submissions on. Progress, quiz statistics, pre/post test and evaluation can be "
+                 "exported as CSV for Excel. Spaced review brings questions from passed modules back at growing "
+                 "intervals; trainers can start a warm-up round for the whole course, for example at the "
+                 "beginning of day 2. Exercise progress and read marks are stored on the server and follow "
+                 "participants to other devices. The quiz statistics show per option how often it was chosen "
+                 "(distractor analysis). The glossary now covers all six courses. Server messages and this "
+                 "changelog are available in English, and several layout issues have been fixed."),
+     "text": "Die Live-Ansicht im Kursdetail zeigt jetzt „Wer hängt fest?“: Minuten im aktuellen "
+             "Modul, Fehlversuche und einen Hinweis „braucht evtl. Hilfe“. Mit „Folgt mir“ sehen "
+             "Teilnehmer in einem Banner, welches Modul der Trainer gerade präsentiert, und kommen "
+             "mit einem Klick dorthin — umgeleitet wird niemand. Ein Wissenstest vorher/nachher mit "
+             "denselben Fragen zeigt den Lernzuwachs je Teilnehmer und je Frage. Die Kursbewertung "
+             "ist anonym; Ergebnisse und Freitexte erscheinen ab 3 Abgaben. Fortschritt, "
+             "Quiz-Statistik, Vorher/Nachher und Kursbewertung lassen sich als CSV für Excel "
+             "exportieren. Die Wiederholung holt Fragen bestandener Module in wachsenden Abständen "
+             "zurück; Trainer können für den ganzen Kurs eine Aufwärmrunde starten, etwa zu Beginn "
+             "von Tag 2. Übungsstand und Lese-Haken werden auf dem Server gespeichert und sind auf "
+             "jedem Gerät da. Die Quiz-Statistik zeigt je Antwortoption, wie oft sie gewählt wurde "
+             "(Distraktor-Analyse). Das Glossar deckt jetzt alle sechs Lehrgänge ab. "
+             "Server-Meldungen und dieser Changelog gibt es auf Englisch, außerdem wurden mehrere "
+             "Layout-Fehler behoben."},
     {"date": "2026-10-14", "title": "v1.45.0 — Admin-Rolle, neue Umfragetypen und Trainer-Oberfläche auf Englisch",
      "title_en": "v1.45.0 — Admin role, new poll types and the trainer UI in English",
      "text_en": ("Only admins now manage trainer accounts and global settings; on update the oldest trainer "

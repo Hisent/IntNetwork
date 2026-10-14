@@ -1,4 +1,4 @@
-Stand: v1.45.0 (2026-10-13) · Quelle: README.md, docs/*.md (Repository)
+Stand: v1.46.0 (2026-10-14) · Quelle: README.md, docs/*.md (Repository)
 
 # IntLab: Confluence-Fassungen der Dokumentation
 

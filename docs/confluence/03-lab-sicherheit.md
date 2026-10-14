@@ -1,4 +1,4 @@
-Stand: v1.45.0 + Trennung der Läufe per uid, nach Sicherheitsprüfung gehärtet (2026-10-13) · Quelle: docs/lab-sicherheit.md, runner/worker.py, runner/Dockerfile, docker-compose.yml, backend/app/routers/lab.py, runner/tests/isolation_check.py
+Stand: v1.46.0 (2026-10-14) · Quelle: docs/lab-sicherheit.md, runner/worker.py, runner/Dockerfile, docker-compose.yml, backend/app/routers/lab.py, runner/tests/isolation_check.py
 
 # IntLab: Sicherheit des Labs
 

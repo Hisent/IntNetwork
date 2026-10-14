@@ -1,4 +1,4 @@
-Stand: v1.45.0 + Trennung der Lab-Läufe per uid, Admin-Rolle, Aufbewahrung, Fehler-IDs, Übungsstand/Wiederholung, Lernerfolg (2026-10-14) · Quelle: docs/operations.md, README.md, .env.example, docker-compose.yml, docs/lab-sicherheit.md, backend/app/database.py, backend/app/utils.py, backend/app/content/changelog.py, backend/app/routers/trainer_accounts.py, backend/app/services/retention.py, backend/app/main.py
+Stand: v1.46.0 (2026-10-14) · Quelle: docs/operations.md, README.md, .env.example, docker-compose.yml, docs/lab-sicherheit.md, backend/app/database.py, backend/app/utils.py, backend/app/content/changelog.py, backend/app/routers/trainer_accounts.py, backend/app/services/retention.py, backend/app/main.py
 
 # IntLab: Betrieb
 
@@ -350,6 +350,18 @@ Lokale Entwicklung ohne Docker: `RUNNER_ISOLATION=aus-unsicher` schaltet die Tre
 - **Kurs löschen und Zertifikate.** Zertifikate überleben das Löschen eines Kurses standardmäßig und bleiben mit Namen unter `/verify/<id>` öffentlich. Der Lösch-Dialog nennt die Zahl und bietet „Teilnahmebestätigungen mitlöschen“ an (`DELETE /api/courses/{id}?delete_certificates=true`). Das Audit-Log hält fest, wie viele gelöscht bzw. behalten wurden.
 - **Teilnehmer ohne Wiederaufnahme-Code.** Sie kommen seit v1.43 nicht mehr allein über ihren Namen hinein. Der Trainer vergibt im Kurs-Detail über „Code zurücksetzen“ einen Code und gibt ihn persönlich weiter.
 
+## Upgrade auf v1.46.0
+
+Drei neue Migrationen, linear hintereinander: `5e7f0a1b2c3d` → `5d2c8e7f1a90` → `e7c4a2b9d1f3`. Neuer Head: `e7c4a2b9d1f3`. Alle drei sind rein additiv und idempotent; zu konfigurieren ist nichts.
+
+| Migration | Inhalt |
+|---|---|
+| `5e7f0a1b2c3d` | „Folgt mir“ und „Wer hängt fest?“: Spalten `course.follow_module_key`, `course.follow_block_uid`, `course.follow_updated_at`, `participant.module_entered_at` |
+| `5d2c8e7f1a90` | Wiederholung, Aufwärmrunde, Übungsstand: Tabellen `review_item`, `warmup`, `warmup_result`, `module_state` |
+| `e7c4a2b9d1f3` | Lernerfolg: Tabellen `assessment_answer`, `course_evaluation`; Spalten `course.assessment_questions`, `course.assessment_seed`, `course.assessment_phase`, `course.evaluation_open`, `participant.evaluation_submitted` |
+
+Nach dem Deploy: `SELECT version_num FROM alembic_version;` liefert `e7c4a2b9d1f3`. Die Aufbewahrung (`COURSE_RETENTION_DAYS`) löscht jetzt zusätzlich Wissenstest-Antworten, Wiederholungs-Verlauf, Aufwärm-Ergebnisse und Übungsstand; anonyme Kursbewertungen bleiben beim Kurs.
+
 ## Upgrade auf v1.42.0 / v1.43.0
 
 Diese Checkliste fasst die im Repository dokumentierten Rollout-Schritte zusammen (Quelle: `docs/operations.md`, Abschnitte „Modul-Editor“, „Zeitstempel der API“, „Content-Sync“). Die Reihenfolge ist eine Zusammenstellung; die einzelnen Schritte stammen aus `docs/operations.md`, `docs/lab-sicherheit.md`, `README.md` und dem Änderungslog.
@@ -362,7 +374,7 @@ Hintergrund: Auf Postgres-Instanzen mit v1.24.1 bis v1.41.1 sind Migrationen nie
 4. **Zeitzone des Postgres prüfen.** `SHOW timezone;` ausführen und das Ergebnis notieren. Das Backend setzt seine Sitzungszeitzone jetzt auf UTC (`backend/app/database.py`). Stand der Server bisher nicht auf UTC, enthalten Bestandszeilen Ortszeit und werden nach dem Deploy um den Versatz falsch angezeigt; neue Zeilen stimmen. API-Zeitfelder (`created_at`, `issued_at`, `last_used_at`) tragen den Offset `+00:00`.
 5. **Platzhalter-Secrets prüfen.** `SECRET_KEY`, `POSTGRES_PASSWORD` und `ADMIN_PASSWORD` dürfen keine `change-me`-Platzhalter sein; mit Platzhaltern startet das Backend bewusst nicht.
 6. **Backend und Runner gemeinsam ausrollen.** Ein neues Backend mit altem Runner verwirft jedes Lab-Ergebnis mit `502`. Ein neuer Runner mit altem Backend funktioniert. `LAB_KINDS` und `RUNNER_KINDS` dabei zusammen pflegen. Läuft das Lab nicht, entfällt dieser Schritt.
-7. **Deployen und Start beobachten.** Beim ersten Start laufen die ausstehenden Migrationen, darunter `a6b7c8d9e0f1` (Kennungen und Quiz-Erklärung), `b7c8d9e0f1a2` (`goals_en`), `c8d9e0f1a2b3` (Live-Abstimmung), `3f9a1c7e2b40` (Trainer-Rolle) und `9f3e7a1c5b2d` (Abstimmungsarten). Danach: `alembic_version` entspricht dem Head (laut Repository `9f3e7a1c5b2d`), und der zweite Start zeigt keine „Running upgrade“-Zeile mehr.
+7. **Deployen und Start beobachten.** Beim ersten Start laufen die ausstehenden Migrationen, darunter `a6b7c8d9e0f1` (Kennungen und Quiz-Erklärung), `b7c8d9e0f1a2` (`goals_en`), `c8d9e0f1a2b3` (Live-Abstimmung), `3f9a1c7e2b40` (Trainer-Rolle) und `9f3e7a1c5b2d` (Abstimmungsarten). Danach: `alembic_version` entspricht dem Head (laut Repository `e7c4a2b9d1f3`, siehe „Upgrade auf v1.46.0“), und der zweite Start zeigt keine „Running upgrade“-Zeile mehr.
 8. **Content-Sync-Log prüfen.** Erwartet wird `Content-Sync: N Module auf Auslieferungsstand aktualisiert: …` und ein Audit-Eintrag `content.sync`. Eine Meldung „konnte nicht aktualisiert werden“ bitte melden.
 9. **Trainer-editierte Module nachziehen.** Module, die ein Trainer verändert hat, bleiben unangetastet und stehen in der Meldung „weichen vom Auslieferungsstand ab“. Wer die neuen Inhalte will: im Modul-Editor „Auslieferungszustand laden“ und eigene Änderungen danach wieder einpflegen. Wer seinen Stand behalten will, muss nichts tun.
 10. **Modul-Auswahl der Kurse prüfen.** Abgewählte Module bleiben seit v1.42.0 nach einem Neustart abgewählt (Tabelle `module_disabled`). Die Modul-Auswahl jedes Kurses einmal kontrollieren. Neue Module rücken automatisch in bestehende Kurse nach.
