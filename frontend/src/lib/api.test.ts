@@ -43,6 +43,17 @@ describe('api: abgelaufene Sitzung', () => {
   })
 })
 
+describe('api: Sprache der Fehlermeldungen', () => {
+  it('schickt die Seitensprache als Accept-Language (Standard de)', async () => {
+    respond(200)
+    await api.get('/x')
+    vi.stubGlobal('document', { documentElement: { lang: 'en' } })
+    await api.get('/y')
+    const sent = vi.mocked(fetch).mock.calls.map(([, init]) => (init?.headers as Record<string, string>)['Accept-Language'])
+    expect(sent).toEqual(['de', 'en'])
+  })
+})
+
 describe('errMsg', () => {
   it('gibt nur String-Details zurück — 422-Listen fallen auf den Fallback', () => {
     expect(errMsg({ response: { status: 403, data: { detail: 'Kurs-Code ungültig' } } }, 'x')).toBe('Kurs-Code ungültig')
