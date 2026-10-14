@@ -318,7 +318,7 @@ function PollModeration({ poll, pending, onHide }: {
         {items.map((m) => {
           const label = m.text ?? m.word ?? ''
           return (
-            <li key={m.id ?? m.word} className="wb-surface flex items-start gap-3 px-3 py-2">
+            <li key={m.id ?? m.word} className="wb-surface flex items-center gap-3 px-3 py-2">
               <span className={`min-w-0 flex-1 [overflow-wrap:anywhere] ${m.hidden ? 'text-[var(--wb-muted)] line-through' : ''}`}>
                 {label}{m.count != null && <span className="ml-2 text-sm tabular-nums text-[var(--wb-muted)]">{m.count}×</span>}
               </span>

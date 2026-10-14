@@ -141,9 +141,9 @@ export function TextAnswers({ answers, lang, big, onHide }: {
         <li key={a.id ?? i} className={`wb-surface flex items-start gap-3 ${big ? 'px-5 py-4' : 'px-3 py-2'}`}>
           <span className="min-w-0 flex-1 [overflow-wrap:anywhere]">{a.text}</span>
           {onHide && a.id != null && (
-            <button type="button" onClick={() => onHide(a.id!)} aria-label={`Ausblenden: ${a.text}`}
+            <button type="button" onClick={() => onHide(a.id!)} aria-label={`${t(lang, 'trHide')}: ${a.text}`}
               className="wb-control shrink-0 rounded-lg px-2 text-sm text-[var(--wb-muted)] hover:text-[var(--wb-ink)]">
-              Ausblenden
+              {t(lang, 'trHide')}
             </button>
           )}
         </li>

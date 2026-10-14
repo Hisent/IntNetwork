@@ -322,11 +322,11 @@ export function TrainerModuleEditPage() {
                         <div key={oi} className="flex items-center gap-2">
                           <input type="radio" name={`b${i}-answer`} aria-label={tr('trOptionCorrectAria', { n: oi + 1 })} checked={b.payload?.answer === oi}
                             onChange={() => updatePayload(i, { answer: oi })} />
-                          <input className="border rounded-lg px-2 py-1 text-sm flex-1" placeholder={tr('trOptionDe')} value={opt}
+                          <input className="border rounded-lg px-2 py-1 text-sm flex-1 min-w-0" placeholder={tr('trOptionDe')} value={opt}
                             onChange={(e) => updatePayload(i, {
                               options_de: (b.payload?.options_de ?? []).map((o, idx) => (idx === oi ? e.target.value : o)),
                             })} />
-                          <input className="border rounded-lg px-2 py-1 text-sm flex-1" placeholder={tr('trOptionEn')}
+                          <input className="border rounded-lg px-2 py-1 text-sm flex-1 min-w-0" placeholder={tr('trOptionEn')}
                             value={(b.payload?.options_en ?? [])[oi] ?? ''}
                             onChange={(e) => updatePayload(i, {
                               options_en: (b.payload?.options_en ?? []).map((o, idx) => (idx === oi ? e.target.value : o)),
@@ -368,11 +368,11 @@ export function TrainerModuleEditPage() {
                       {(b.payload?.items_de ?? []).map((it, oi) => (
                         <div key={oi} className="flex items-center gap-2">
                           <span className="text-xs text-slate-500 font-mono w-5">{oi + 1}.</span>
-                          <input className="border rounded-lg px-2 py-1 text-sm flex-1" placeholder={tr('trStepDe')} value={it}
+                          <input className="border rounded-lg px-2 py-1 text-sm flex-1 min-w-0" placeholder={tr('trStepDe')} value={it}
                             onChange={(e) => updatePayload(i, {
                               items_de: (b.payload?.items_de ?? []).map((o, idx) => (idx === oi ? e.target.value : o)),
                             })} />
-                          <input className="border rounded-lg px-2 py-1 text-sm flex-1" placeholder={tr('trStepEn')}
+                          <input className="border rounded-lg px-2 py-1 text-sm flex-1 min-w-0" placeholder={tr('trStepEn')}
                             value={(b.payload?.items_en ?? [])[oi] ?? ''}
                             onChange={(e) => updatePayload(i, {
                               items_en: (b.payload?.items_en ?? []).map((o, idx) => (idx === oi ? e.target.value : o)),
@@ -406,11 +406,11 @@ export function TrainerModuleEditPage() {
                                 ? [...(b.payload?.wrong ?? []), oi]
                                 : (b.payload?.wrong ?? []).filter((w) => w !== oi),
                             })} />
-                          <input className="border rounded-lg px-2 py-1 text-sm font-mono flex-1" placeholder={tr('trLineDe')} value={line}
+                          <input className="border rounded-lg px-2 py-1 text-sm font-mono flex-1 min-w-0" placeholder={tr('trLineDe')} value={line}
                             onChange={(e) => updatePayload(i, {
                               lines_de: (b.payload?.lines_de ?? []).map((o, idx) => (idx === oi ? e.target.value : o)),
                             })} />
-                          <input className="border rounded-lg px-2 py-1 text-sm font-mono flex-1" placeholder={tr('trLineEn')}
+                          <input className="border rounded-lg px-2 py-1 text-sm font-mono flex-1 min-w-0" placeholder={tr('trLineEn')}
                             value={(b.payload?.lines_en ?? [])[oi] ?? ''}
                             onChange={(e) => updatePayload(i, {
                               lines_en: (b.payload?.lines_en ?? []).map((o, idx) => (idx === oi ? e.target.value : o)),
@@ -501,11 +501,11 @@ export function TrainerModuleEditPage() {
                               updateQuestion(i, { answer: cur.includes(oi) ? cur.filter((a) => a !== oi) : [...cur, oi] })
                             }
                           }} />
-                        <input className="border rounded-lg px-2 py-1 text-sm flex-1" placeholder={tr('trOptionDe')} value={opt}
+                        <input className="border rounded-lg px-2 py-1 text-sm flex-1 min-w-0" placeholder={tr('trOptionDe')} value={opt}
                           onChange={(e) => updateQuestion(i, {
                             options_de: (q.options_de ?? []).map((o, idx) => (idx === oi ? e.target.value : o)),
                           })} />
-                        <input className="border rounded-lg px-2 py-1 text-sm flex-1" placeholder={tr('trOptionEn')} value={(q.options_en ?? [])[oi] ?? ''}
+                        <input className="border rounded-lg px-2 py-1 text-sm flex-1 min-w-0" placeholder={tr('trOptionEn')} value={(q.options_en ?? [])[oi] ?? ''}
                           onChange={(e) => updateQuestion(i, {
                             options_en: (q.options_en ?? []).map((o, idx) => (idx === oi ? e.target.value : o)),
                           })} />

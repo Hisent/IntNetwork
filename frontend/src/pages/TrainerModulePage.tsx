@@ -41,12 +41,12 @@ function OptionBars({ question, counts, attempts }: { question: Question; counts
         return (
           <li key={i} className={`rounded px-1 ${attractive ? 'bg-rose-50 ring-1 ring-rose-200' : ''}`}>
             <div className="flex items-center gap-2 text-xs text-slate-600">
-              <span aria-hidden="true" className="w-4 shrink-0 font-semibold text-slate-400">{String.fromCharCode(65 + i)}</span>
-              <span title={option} className="min-w-0 flex-1 truncate">
-                {option}
-                {correct(i) && <span className="ml-1 font-semibold text-green-700"><span aria-hidden="true">✓</span><span className="sr-only">({tr('trCorrectOption')})</span></span>}
-                {attractive && <span className="ml-1 font-semibold text-rose-700">· {tr('trAttractiveDistractor')}</span>}
-              </span>
+              <span aria-hidden="true" className="w-4 shrink-0 font-semibold text-slate-500">{String.fromCharCode(65 + i)}</span>
+              <span title={option} className="min-w-0 truncate">{option}</span>
+              {/* Markierungen außerhalb des gekürzten Texts: bleiben auch bei 375 px sichtbar */}
+              {correct(i) && <span className="-ml-1 shrink-0 font-semibold text-green-700"><span aria-hidden="true">✓</span><span className="sr-only">({tr('trCorrectOption')})</span></span>}
+              {attractive && <span className="-ml-1 shrink-0 font-semibold text-rose-700">· {tr('trAttractiveDistractor')}</span>}
+              <span className="flex-1" />
               <span className="w-16 shrink-0 text-right tabular-nums">{counts[i] ?? 0} · {Math.round(share * 100)} %</span>
             </div>
             <div className="ml-6 h-1 overflow-hidden rounded-full bg-slate-100">
@@ -187,7 +187,7 @@ export function TrainerModulePage() {
                 value={courseId ?? ''}
                 onChange={(e) => setCourseId(e.target.value === '' ? undefined : Number(e.target.value))}
                 aria-label={tr('trCourses')}
-                className="min-w-0 max-w-full truncate rounded-lg border border-slate-200 px-2 py-1 text-xs text-slate-600 bg-white"
+                className="min-w-0 max-w-full truncate rounded-lg border border-slate-200 px-2 py-1 text-xs text-slate-600 bg-white sm:max-w-xs"
               >
                 <option value="">{tr('trAllCourses')}</option>
                 {courses.data?.map((c) => (

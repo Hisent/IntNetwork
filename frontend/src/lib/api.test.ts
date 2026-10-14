@@ -49,7 +49,7 @@ describe('api: Sprache der Fehlermeldungen', () => {
     await api.get('/x')
     vi.stubGlobal('document', { documentElement: { lang: 'en' } })
     await api.get('/y')
-    const sent = vi.mocked(fetch).mock.calls.map(([, init]) => (init?.headers as Record<string, string>)['Accept-Language'])
+    const sent = vi.mocked(fetch).mock.calls.map(([, init]) => (init!.headers as Record<string, string>)['Accept-Language'])
     expect(sent).toEqual(['de', 'en'])
   })
 })
