@@ -1,15 +1,15 @@
 import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 
-import { GLOSSARY, termsForModule } from '@/lib/glossary'
+import { termsForCourse, termsForModule } from '@/lib/glossary'
 import { clearInert, focusableElements, setInert, siblingsOf } from '@/lib/focusTrap'
 import type { Lang } from '@/lib/i18n'
 
-export function GlossaryPanel({ moduleKey, lang }: { moduleKey: string; lang: Lang }) {
+export function GlossaryPanel({ moduleKey, workshopKey, lang }: { moduleKey: string; workshopKey?: string | null; lang: Lang }) {
   const [open, setOpen] = useState(false)
   const [all, setAll] = useState(false)
   const [search, setSearch] = useState('')
-  const terms = (all ? GLOSSARY : termsForModule(moduleKey)).filter((term) => {
+  const terms = (all ? termsForCourse(workshopKey) : termsForModule(moduleKey)).filter((term) => {
     const query = search.trim().toLocaleLowerCase()
     return !query || (term.label[lang] + ' ' + term.description[lang]).toLocaleLowerCase().includes(query)
   })

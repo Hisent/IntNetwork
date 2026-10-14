@@ -251,7 +251,7 @@ export function WorkbenchModuleView({ lang, moduleKey, keyScope, module, modules
   const openKeys = openPrerequisites(module, progress, modules)
   const buildsOn = modules.filter((m) => openKeys.includes(m.key))
   const languageControl = (
-    <><LangToggle lang={lang} onChange={setLanguage} className="hidden sm:flex" />{showGlossary && <div className="xl:hidden"><GlossaryPanel moduleKey={moduleKey} lang={lang} /></div>}</>
+    <><LangToggle lang={lang} onChange={setLanguage} className="hidden sm:flex" />{showGlossary && <div className="xl:hidden"><GlossaryPanel moduleKey={moduleKey} workshopKey={module.workshop_key} lang={lang} /></div>}</>
   )
   return (
     <div className="workbench">
@@ -335,7 +335,7 @@ export function WorkbenchModuleView({ lang, moduleKey, keyScope, module, modules
           </main>
 
           <aside aria-label={lang === 'de' ? 'Auf dieser Seite' : 'On this page'} className="sticky top-20 hidden max-h-[calc(100dvh-6rem)] space-y-5 overflow-y-auto xl:block print:hidden">
-            <section className="wb-surface p-4"><WorkbenchProgress value={readPct} label={lang === 'de' ? 'Gelesen' : 'Read'} />{showGlossary && <div className="mt-4"><GlossaryPanel moduleKey={moduleKey} lang={lang} /></div>}</section>
+            <section className="wb-surface p-4"><WorkbenchProgress value={readPct} label={lang === 'de' ? 'Gelesen' : 'Read'} />{showGlossary && <div className="mt-4"><GlossaryPanel moduleKey={moduleKey} workshopKey={module.workshop_key} lang={lang} /></div>}</section>
             {toc.length > 0 && <section><WorkbenchSectionTitle>{t(lang, 'tocTitle')}</WorkbenchSectionTitle><nav aria-label={t(lang, 'tocTitle')} className="space-y-1">{toc.map((item, index) => <a key={`${item.i}-${index}`} href={`#block-${item.i}`} className="wb-control flex items-center border-l border-[var(--wb-border)] px-3 text-sm text-[var(--wb-muted)] hover:border-[var(--wb-accent)] hover:text-[var(--wb-accent)]">{item.title}</a>)}</nav></section>}
           </aside>
         </div>
