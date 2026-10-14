@@ -19,6 +19,9 @@ class Participant(Base):
     language: Mapped[str] = mapped_column(String, default="de", nullable=False)
     current_module_key: Mapped[str | None] = mapped_column(String, nullable=True)
     last_seen: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    # Seit wann im aktuellen Modul (Heartbeat, routers/presence.py::touch_presence) —
+    # Grundlage für „Wer hängt fest?“.
+    module_entered_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
     # Persönlicher Wiederaufnahme-Code. Nullable für Bestands-Teilnehmer, die vor
     # Einführung des Codes beigetreten sind — die kommen erst wieder hinein,
     # nachdem der Trainer ihnen einen Code vergeben hat (siehe join.py).

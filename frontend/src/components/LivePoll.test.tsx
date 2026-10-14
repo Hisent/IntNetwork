@@ -11,7 +11,7 @@ import { useAuthStore } from '@/store/auth'
 import type { LivePoll } from '@/types'
 
 vi.mock('@/lib/api', () => ({
-  api: { get: vi.fn(), post: vi.fn(), put: vi.fn(), patch: vi.fn(), delete: vi.fn() },
+  api: { get: vi.fn(), post: vi.fn(), put: vi.fn(() => Promise.resolve({ data: null })), patch: vi.fn(), delete: vi.fn() },
   errMsg: (_e: unknown, fallback: string) => fallback,
 }))
 
@@ -154,6 +154,21 @@ describe('TrainerPresentPage — Live-Abstimmung', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Abstimmung beenden' }))
     expect(await screen.findByText('2 / 2')).toBeTruthy()  // zurück auf derselben Folie
     expect(api.delete).toHaveBeenCalledWith('/trainer/courses/7/poll')
+  })
+
+  it('mit Kurs: „Folgt mir“ teilt Modul und Block je Folie; abschalten löscht den Stand', async () => {
+    vi.mocked(api.delete).mockResolvedValue({ data: { ok: true } })
+    renderPage('?kurs=7')
+    await waitFor(() => expect(api.put).toHaveBeenCalledWith('/trainer/courses/7/follow', { module_key: 'm1', block_uid: null }))
+    fireEvent.click(await screen.findByRole('button', { name: /weiter/ }))
+    await waitFor(() => expect(api.put).toHaveBeenCalledWith('/trainer/courses/7/follow', { module_key: 'm1', block_uid: 'check-1' }))
+
+    fireEvent.click(screen.getByRole('checkbox', { name: 'Meine Position teilen („Folgt mir“)' }))
+    await waitFor(() => expect(api.delete).toHaveBeenCalledWith('/trainer/courses/7/follow'))
+    vi.mocked(api.put).mockClear()
+    fireEvent.click(screen.getByRole('button', { name: /zurück/ }))
+    expect(screen.getByText('1 / 2')).toBeTruthy()
+    expect(api.put).not.toHaveBeenCalled()  // abgeschaltet: Folienwechsel teilt nichts mehr
   })
 
   it('mit Kurs: eine Quizfrage lässt sich über die Auswahl zur Abstimmung stellen', async () => {

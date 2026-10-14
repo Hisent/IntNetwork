@@ -182,3 +182,30 @@ test('Mobil 375×812: Modulseite ohne horizontales Überlaufen', async ({ page, 
   }))
   expect(scrollWidth).toBeLessThanOrEqual(innerWidth)
 })
+
+test('Folgt mir: Trainer präsentiert, Teilnehmer (375 px) sieht den Hinweis und geht hin', async ({ page, browser, request }) => {
+  const token = await apiToken(request)
+  const course = await createCourse(request, token)
+  const mod = await firstModule(request, token)
+
+  const participant = await (await browser.newContext({ viewport: { width: 375, height: 812 } })).newPage()
+  await joinCourse(participant, course.join_code, unique('Margaret'))  // bleibt auf der Kursübersicht
+
+  await trainerLogin(page)
+  await page.goto(`/trainer/modul/${mod.key}/praesentieren?kurs=${course.id}`)
+  await expect(page.getByRole('checkbox', { name: 'Meine Position teilen („Folgt mir“)' })).toBeChecked()
+  await page.keyboard.press('ArrowRight')  // erste Inhaltsfolie: Block wird mitgeteilt
+
+  const banner = participant.getByRole('status').filter({ hasText: `Trainer ist bei Modul „${mod.title}“` })
+  await expect(banner).toBeVisible({ timeout: 15_000 })  // Teilnehmer fragen alle 10 s nach
+  const { scrollWidth, innerWidth } = await participant.evaluate(() => ({
+    scrollWidth: document.scrollingElement!.scrollWidth, innerWidth: window.innerWidth,
+  }))
+  expect(scrollWidth).toBeLessThanOrEqual(innerWidth)
+
+  await banner.getByRole('link', { name: 'Hingehen' }).click()
+  await expect(participant).toHaveURL(new RegExp(`/lernen/${mod.key}(#b-.+)?$`))
+  await expect(participant.getByRole('heading', { name: mod.title, level: 1 })).toBeVisible()
+  await expect(banner).toHaveCount(0)  // schon dort: kein Hinweis mehr
+  await participant.context().close()
+})

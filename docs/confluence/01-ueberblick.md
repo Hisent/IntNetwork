@@ -45,7 +45,8 @@ Zum Stand der ausgelieferten Inhalte: 99 Module, 1242 Blöcke, 754 Quizfragen (Q
 ## Funktionen für Trainer
 
 - Kurse anlegen, Einladungslink und QR-Code, Module je Kurs freischalten oder abwählen.
-- Fortschrittstabelle je Kurs, Live-Präsenz („Gerade aktiv“), Quiz-Statistik je Frage und Modul.
+- Fortschrittstabelle je Kurs, Live-Präsenz mit Hilfe-Hinweis („Gerade aktiv · Wer hängt fest?“), Quiz-Statistik je Frage und Modul.
+- „Folgt mir“: Beim Präsentieren mit Kurs sehen Teilnehmer einen Hinweis, bei welchem Modul der Trainer ist, und können per Knopf dorthin (keine erzwungene Navigation).
 - Beamer-Modus („▶ Präsentieren“) mit Notizen; mit Kurs-Bezug zusätzlich Live-Abstimmung zu Single- und Multiple-Choice-Quizfragen, Auswahl-Checks und eigenen Fragen (Mehrfachauswahl, Skala, Freitext und Wortwolke, beide erst nach dem Auflösen sichtbar und vorher in einer eingeklappten Prüfliste ausblendbar). Eine laufende Abstimmung zeigt das Kurs-Detail und lässt sich dort mit „Abstimmung beenden“ schließen.
 - Feedback-Kommentare der Teilnehmer lesen und beantworten (Enter sendet; Löschen mit Rückfrage).
 - Teilnehmerverwaltung: Wiederaufnahme-Code zurücksetzen, Teilnehmer löschen; Kurs löschen (mit Wahl für die Teilnahmebestätigungen).

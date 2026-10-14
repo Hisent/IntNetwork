@@ -14,6 +14,7 @@ import { coursePrerequisites, markLockedVisibility, openPrerequisites } from '@/
 import { WorkshopTheme } from '@/components/WorkshopTheme'
 import { Icon } from '@/components/Icon'
 import { SearchBox } from '@/components/SearchBox'
+import { FollowBanner } from '@/components/FollowBanner'
 import { hasLocalProgress, pruneOtherParticipants } from '@/lib/readProgress'
 
 type Group = { key: string; title: string; mods: ModuleMeta[] }
@@ -179,6 +180,7 @@ export function WorkbenchLearnView({ lang, displayName, modules, groups, progres
     <div className="workbench">
       <WorkbenchTopbar lang={lang} title={workshopTitle} actions={langControl} />
       <div className="wb-shell">
+        <FollowBanner lang={lang} current={null} modules={modules} progress={progress} />
         <div className="mb-8 grid gap-5 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-end">
           <div>
             <p className="mb-2 text-sm font-medium text-[var(--wb-accent)]">{workshopTitle}</p>

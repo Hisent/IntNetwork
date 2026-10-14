@@ -20,8 +20,8 @@ from app.config import settings
 from app.database import Base, engine
 from app.main import app
 
-_HEAD = "9f3e7a1c5b2d"        # add_live_poll_types
-_VORGAENGER = "7305d4053e50"  # add_trainer_credential (danach laufen 75aeb8d5399c … 3f9a1c7e2b40, 9f3e7a1c5b2d erneut)
+_HEAD = "5e7f0a1b2c3d"        # live_steering_follow_and_module_entered_at
+_VORGAENGER = "7305d4053e50"  # add_trainer_credential (danach laufen 75aeb8d5399c … 3f9a1c7e2b40, 9f3e7a1c5b2d, 5e7f0a1b2c3d erneut)
 
 
 def _blocked() -> OperationalError:

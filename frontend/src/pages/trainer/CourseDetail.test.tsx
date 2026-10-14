@@ -167,3 +167,35 @@ describe('CourseDetail — Feedback beantworten und löschen', () => {
     await waitFor(() => expect(api.delete).toHaveBeenCalledTimes(1))
   })
 })
+
+describe('CourseDetail — Live-Steuerung', () => {
+  const entry = (name: string, extra: object) => ({
+    participant_id: name.length, name, module_key: 'm1', module_title: 'Modul Eins',
+    minutes_in_module: 3, failed_attempts: 0, done: false, needs_help: false, reasons: [], ...extra,
+  })
+
+  it('„Wer hängt fest?“ zeigt Zeit, Fehlversuche und den Hilfe-Hinweis; „Folgt mir“ lässt sich beenden', async () => {
+    mockGet({
+      '/courses/1/modules': [],
+      '/trainer/courses/1/presence': [
+        entry('Zoe', { minutes_in_module: 14, failed_attempts: 2, needs_help: true, reasons: ['failed_attempts'] }),
+        entry('Adam', {}),
+      ],
+      '/courses/1/dashboard': { course: { ...COURSE, follow: { module_key: 'm1', block_uid: null, updated_at: '' } },
+        modules: [{ key: 'm1', title: 'Modul Eins', order: 1 }], participants: [] },
+      '/features': { comments: false },
+    })
+    vi.mocked(api.delete).mockResolvedValue({ data: { ok: true } })
+    renderWithProviders(<CourseDetail course={COURSE} workshopTitle={() => ''} workshops={[]} portalContainer={null} onDeleted={() => {}} />)
+
+    const rows = await screen.findAllByRole('listitem')
+    expect(rows[0].textContent).toContain('Zoe')
+    expect(rows[0].textContent).toContain('braucht evtl. Hilfe')
+    expect(rows[0].textContent).toContain('14 min im Modul · 2 Fehlversuche')
+    expect(rows[1].textContent).not.toContain('braucht evtl. Hilfe')
+
+    expect(await screen.findByText('Teilnehmer sehen: Trainer ist bei „Modul Eins“')).toBeTruthy()
+    fireEvent.click(screen.getByRole('button', { name: 'Teilen beenden' }))
+    await waitFor(() => expect(api.delete).toHaveBeenCalledWith('/trainer/courses/1/follow'))
+  })
+})

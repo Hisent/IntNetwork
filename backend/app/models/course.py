@@ -15,3 +15,9 @@ class Course(Base):
     # Opt-in: verlangt Trainerfreigabe je Teilnehmer, bevor die Teilnahmebestätigung
     # ausgestellt wird. Default aus -> Verhalten unverändert (Bestätigung bei allen Modulen done).
     require_approval: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False, server_default="0")
+    # „Folgt mir“: wo der Trainer gerade ist (Modul, optional Block-uid). Gesetzt
+    # beim Präsentieren mit Kurs, gelöscht per Schalter; ältere Stände als
+    # routers/presence.py::FOLLOW_TTL gelten als erledigt.
+    follow_module_key: Mapped[str | None] = mapped_column(String, nullable=True)
+    follow_block_uid: Mapped[str | None] = mapped_column(String, nullable=True)
+    follow_updated_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
