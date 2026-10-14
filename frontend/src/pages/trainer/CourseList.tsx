@@ -2,17 +2,19 @@ import { useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { trainerApi, type Course } from '@/lib/trainerApi'
 import { Icon } from '@/components/Icon'
+import { useTr } from '@/store/lang'
 import { CopyCode, Field, QueryState } from './shared'
 
 // --- Kursliste (Master) -------------------------------------------------------
 
 export function CourseList({ courses, workshops, workshopTitle, selected, onSelect }: {
   courses: ReturnType<typeof useQuery<Course[]>>
-  workshops: { key: string; title: { de: string } }[]
+  workshops: { key: string; title: Record<'de' | 'en', string> }[]
   workshopTitle: (key: string | null) => string
   selected: number | null
   onSelect: (id: number) => void
 }) {
+  const { lang, tr } = useTr()
   const qc = useQueryClient()
   const [name, setName] = useState('')
   const [workshopKey, setWorkshopKey] = useState('network')
@@ -23,19 +25,19 @@ export function CourseList({ courses, workshops, workshopTitle, selected, onSele
 
   return (
     <section className="wb-surface p-4 lg:sticky lg:top-6">
-      <h3 className="mb-3 text-sm font-semibold text-[var(--wb-ink)]">Kurse</h3>
+      <h3 className="mb-3 text-sm font-semibold text-[var(--wb-ink)]">{tr('trCourses')}</h3>
       <form onSubmit={(e) => { e.preventDefault(); if (name.trim()) create.mutate() }} className="mb-4 flex flex-col gap-2">
-        <Field label="Neuer Kurs" placeholder="Kurs-Name" value={name} onChange={(e) => setName(e.target.value)} />
-        <label className="flex flex-col gap-1 text-xs font-medium text-[var(--wb-muted)]">Workshop
+        <Field label={tr('trNewCourse')} placeholder={tr('trCourseNamePh')} value={name} onChange={(e) => setName(e.target.value)} />
+        <label className="flex flex-col gap-1 text-xs font-medium text-[var(--wb-muted)]">{tr('trWorkshop')}
           <select value={workshopKey} onChange={(e) => setWorkshopKey(e.target.value)} className="wb-control rounded-lg border border-[var(--wb-border)] bg-[var(--wb-surface)] px-3 py-2 text-sm font-normal text-[var(--wb-ink)]">
-            {workshops.map((w) => <option key={w.key} value={w.key}>{w.title.de}</option>)}
+            {workshops.map((w) => <option key={w.key} value={w.key}>{w.title[lang]}</option>)}
           </select>
         </label>
         <button disabled={!name.trim() || create.isPending}
           className="wb-control inline-flex items-center justify-center gap-1 rounded-lg bg-[var(--wb-accent)] px-4 text-sm font-medium text-white hover:bg-[var(--wb-accent-hover)] disabled:opacity-50">
-          <Icon name="plus" className="h-4 w-4" /> Kurs anlegen
+          <Icon name="plus" className="h-4 w-4" /> {tr('trCreateCourse')}
         </button>
-        {create.isError && <p className="text-xs text-rose-600">Anlegen fehlgeschlagen.</p>}
+        {create.isError && <p className="text-xs text-rose-600">{tr('trCreateFailed')}</p>}
       </form>
 
       <QueryState query={courses} empty={courses.data?.length === 0}>

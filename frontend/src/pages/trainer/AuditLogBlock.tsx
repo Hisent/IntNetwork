@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
 import { trainerApi, type AuditLogEntry } from '@/lib/trainerApi'
 import { useQuery } from '@tanstack/react-query'
+import { localeOf } from '@/lib/i18n'
+import { useTr } from '@/store/lang'
 import { Section, QueryState } from './shared'
 
 // --- Verwaltung: Audit-Protokoll ----------------------------------------------
@@ -8,6 +10,7 @@ import { Section, QueryState } from './shared'
 const AUDIT_PAGE_SIZE = 50
 
 export function AuditLogBlock() {
+  const { lang, tr } = useTr()
   // Nachschlagewerk statt Analysewerkzeug: erste Seite laden, weitere Seiten
   // nur auf Anfrage per Button nachladen — kein Filter/Suchfeld, der
   // Backend-Endpunkt unterstützt limit/offset bereits (siehe trainer_audit.py).
@@ -38,18 +41,18 @@ export function AuditLogBlock() {
   }
 
   return (
-    <Section title="Protokoll">
+    <Section title={tr('trAuditLog')}>
       <QueryState query={first} empty={first.isSuccess && entries.length === 0}>
         <details>
           <summary className="wb-control cursor-pointer select-none text-sm text-[var(--wb-muted)] hover:text-[var(--wb-ink)]">
-            {entries.length}{hasMore ? '+' : ''} Aktionen anzeigen
+            {tr('trShowActions', { n: `${entries.length}${hasMore ? '+' : ''}` })}
           </summary>
           <ul className="mt-3 flex max-h-96 flex-col divide-y divide-[var(--wb-border)] overflow-y-auto" aria-live="polite">
             {entries.map((e) => (
               <li key={e.id} className="py-2 text-sm">
                 <div className="flex items-baseline justify-between gap-2">
                   <span className="font-medium text-[var(--wb-ink)]">{e.action}</span>
-                  <span className="shrink-0 text-xs text-[var(--wb-muted)]">{new Date(e.created_at).toLocaleString('de-DE')}</span>
+                  <span className="shrink-0 text-xs text-[var(--wb-muted)]">{new Date(e.created_at).toLocaleString(localeOf(lang))}</span>
                 </div>
                 <p className="mt-1 text-[var(--wb-muted)]">
                   {e.trainer_email}
@@ -62,7 +65,7 @@ export function AuditLogBlock() {
           {hasMore && (
             <button onClick={loadMore} disabled={loadingMore}
               className="mt-2 text-xs font-medium text-[var(--wb-accent)] hover:underline disabled:opacity-50">
-              {loadingMore ? 'Lädt…' : 'Weitere laden'}
+              {loadingMore ? tr('trLoadingShort') : tr('trLoadMore')}
             </button>
           )}
         </details>

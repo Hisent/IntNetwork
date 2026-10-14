@@ -6,7 +6,7 @@ import { TrainerFeedback } from '@/components/TrainerFeedback'
 import { ConfirmDialog } from '@/components/ConfirmDialog'
 import { Icon } from '@/components/Icon'
 import { groupModulesBySection } from '@/lib/moduleGroups'
-import { t } from '@/lib/i18n'
+import { useTr } from '@/store/lang'
 import type { ModuleMeta, Workshop } from '@/types'
 import { Section, QueryState, CopyButton } from './shared'
 
@@ -46,6 +46,7 @@ function InviteQr({ link, alt }: { link: string; alt: string }) {
 // --- Kurs-Detail (Detail) -----------------------------------------------------
 
 export function CourseDetail({ course, workshopTitle, workshops, portalContainer, onDeleted }: { course: Course; workshopTitle: (key: string | null) => string; workshops: Workshop[]; portalContainer: HTMLElement | null; onDeleted: () => void }) {
+  const { lang, tr } = useTr()
   const qc = useQueryClient()
   const cid = course.id
   const courseMods = useQuery({ queryKey: ['course-modules', cid], queryFn: () => trainerApi.courseModules(cid).then((r) => r.data) })
@@ -125,28 +126,28 @@ export function CourseDetail({ course, workshopTitle, workshops, portalContainer
       <div className="wb-surface p-4">
         <div className="flex flex-wrap items-baseline justify-between gap-2">
           <h2 className="text-lg font-bold text-[var(--wb-ink)]">{course.name}</h2>
-          <span className="text-xs text-[var(--wb-muted)]">{workshopTitle(course.workshop_key)} · {course.participant_count ?? 0} Teilnehmer · Code <span className="font-mono">{course.join_code}</span></span>
+          <span className="text-xs text-[var(--wb-muted)]">{workshopTitle(course.workshop_key)} · {tr('trParticipantsCode', { n: course.participant_count ?? 0 })} <span className="font-mono">{course.join_code}</span></span>
         </div>
         <div className="mt-3 flex justify-end">
           <button
             onClick={(e) => { deleteCourseTriggerRef.current = e.currentTarget; setDeleteCourseConfirm(true) }}
             disabled={deleteCourse.isPending}
             className="wb-control inline-flex items-center gap-1.5 rounded-lg border border-rose-300 bg-rose-50 px-3 text-sm font-semibold text-rose-700 hover:border-rose-400 disabled:opacity-50">
-            <Icon name="trash" className="h-4 w-4" /> Kurs löschen
+            <Icon name="trash" className="h-4 w-4" /> {tr('trDeleteCourse')}
           </button>
         </div>
-        {deleteCourse.isError && <p className="mt-2 text-right text-sm text-rose-600">Löschen fehlgeschlagen.</p>}
+        {deleteCourse.isError && <p className="mt-2 text-right text-sm text-rose-600">{tr('trDeleteFailed')}</p>}
       </div>
 
       {poll.data && (
         <div role="status" className="wb-surface flex flex-wrap items-center gap-3 border-[var(--wb-accent)] p-4 text-sm">
           <div className="min-w-0 flex-1">
-            <p className="font-semibold text-[var(--wb-ink)]">Live-Abstimmung läuft{poll.data.status === 'revealed' ? ' (aufgelöst)' : ''} · {poll.data.votes ?? 0} {poll.data.votes === 1 ? 'Stimme' : 'Stimmen'}</p>
+            <p className="font-semibold text-[var(--wb-ink)]">{tr('trPollRunning')}{poll.data.status === 'revealed' ? tr('trPollRevealedSuffix') : ''} · {poll.data.votes ?? 0} {poll.data.votes === 1 ? tr('trVoteOne') : tr('trVoteMany')}</p>
             <p className="mt-0.5 text-[var(--wb-muted)] [overflow-wrap:anywhere]">{poll.data.prompt}</p>
           </div>
           <button type="button" onClick={() => closePoll.mutate()} disabled={closePoll.isPending}
             className="wb-control rounded-lg border border-[var(--wb-border)] px-4 font-semibold text-[var(--wb-ink)] hover:border-[var(--wb-accent)] disabled:opacity-50">
-            Abstimmung beenden
+            {tr('trEndPoll')}
           </button>
         </div>
       )}
@@ -154,33 +155,33 @@ export function CourseDetail({ course, workshopTitle, workshops, portalContainer
       {/* Vorher scheiterten Modul-Freischaltung, Freigabe, Code-Reset und Teilnehmer-Löschen lautlos. */}
       {[toggleMod, setApproval, approve, resetCode, removeParticipant, closePoll].some((mutation) => mutation.isError) && (
         <p role="alert" className="rounded-lg border border-rose-300 bg-rose-50 px-3 py-2 text-sm text-rose-700">
-          Die letzte Aktion ist fehlgeschlagen und wurde nicht gespeichert — bitte erneut versuchen.
+          {tr('trLastActionFailed')}
         </p>
       )}
 
       {course.workshop_key && (
-        <Section title={t('de', 'inviteTitle')}>
+        <Section title={tr('inviteTitle')}>
           {(() => {
             const inviteLink = `${window.location.origin}/workshops/${course.workshop_key}?code=${course.join_code}`
             return (
               <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm text-[var(--wb-muted)]">{t('de', 'inviteHint')}</p>
-                  <label className="mt-3 block text-xs font-semibold uppercase tracking-wide text-[var(--wb-muted)]">{t('de', 'inviteLinkLabel')}</label>
+                  <p className="text-sm text-[var(--wb-muted)]">{tr('inviteHint')}</p>
+                  <label className="mt-3 block text-xs font-semibold uppercase tracking-wide text-[var(--wb-muted)]">{tr('inviteLinkLabel')}</label>
                   <div className="mt-1 flex items-center gap-2 rounded-lg border border-[var(--wb-border)] bg-[var(--wb-subtle)] px-3 py-2">
                     <code className="min-w-0 flex-1 truncate text-sm text-[var(--wb-ink)]">{inviteLink}</code>
-                    <CopyButton text={inviteLink} label={t('de', 'copyLink')} />
+                    <CopyButton text={inviteLink} label={tr('copyLink')} />
                   </div>
-                  {requireApproval && <p className="mt-2 text-xs text-amber-700">{t('de', 'inviteApprovalNote')}</p>}
+                  {requireApproval && <p className="mt-2 text-xs text-amber-700">{tr('inviteApprovalNote')}</p>}
                 </div>
-                <InviteQr link={inviteLink} alt={t('de', 'inviteQrAlt')} />
+                <InviteQr link={inviteLink} alt={tr('inviteQrAlt')} />
               </div>
             )
           })()}
         </Section>
       )}
 
-      <Section title="Gerade aktiv">
+      <Section title={tr('trActiveNow')}>
         <QueryState query={presence} empty={presence.data?.length === 0}>
           <div className="flex flex-col gap-1.5">
             {presence.data?.map((entry) => (
@@ -193,13 +194,13 @@ export function CourseDetail({ course, workshopTitle, workshops, portalContainer
         </QueryState>
       </Section>
 
-      <Section title="Module in diesem Kurs">
+      <Section title={tr('trModulesInCourse')}>
         <QueryState query={courseMods} empty={courseMods.data?.length === 0}>
           <div className="flex flex-col gap-3">
             {courseModuleGroups.map((g) => (
               <div key={g.key}>
                 {courseModuleGroups.length > 1 && (
-                  <p className="mb-1 px-0.5 text-[10px] font-semibold uppercase tracking-wide text-[var(--wb-muted)]">{g.title_de}</p>
+                  <p className="mb-1 px-0.5 text-[10px] font-semibold uppercase tracking-wide text-[var(--wb-muted)]">{lang === 'de' ? g.title_de : g.title_en}</p>
                 )}
                 <div className="grid gap-1.5 sm:grid-cols-2">
                   {g.modules.map((meta) => {
@@ -214,8 +215,8 @@ export function CourseDetail({ course, workshopTitle, workshops, portalContainer
                         </label>
                         {/* Einstieg in den Beamer-Modus MIT Kurs: nur so gibt es dort die Live-Abstimmung */}
                         {m.active && (
-                          <Link to={`/trainer/modul/${m.key}/praesentieren?kurs=${cid}`} title="Präsentieren (mit Live-Abstimmung)" aria-label={`${m.title} präsentieren`}
-                            className="shrink-0 rounded-lg px-2 py-1 text-xs text-[var(--wb-muted)] hover:bg-[var(--wb-subtle)] hover:text-[var(--wb-ink)]">▶ Präsentieren</Link>
+                          <Link to={`/trainer/modul/${m.key}/praesentieren?kurs=${cid}`} title={tr('trPresentWithPoll')} aria-label={tr('trPresentAria', { title: m.title })}
+                            className="shrink-0 rounded-lg px-2 py-1 text-xs text-[var(--wb-muted)] hover:bg-[var(--wb-subtle)] hover:text-[var(--wb-ink)]">{tr('trPresentBtn')}</Link>
                         )}
                       </div>
                     )
@@ -227,16 +228,16 @@ export function CourseDetail({ course, workshopTitle, workshops, portalContainer
         </QueryState>
       </Section>
 
-      <Section title="Fortschritt" action={
+      <Section title={tr('trProgress')} action={
         <label className="flex items-center gap-1.5 text-xs font-normal text-[var(--wb-muted)]">
           <input type="checkbox" checked={requireApproval} disabled={setApproval.isPending}
             onChange={(e) => setApproval.mutate(e.target.checked)} />
-          Freigabe für Bestätigung nötig
+          {tr('trApprovalRequired')}
         </label>}>
         <ProgressTable dash={dash} requireApproval={requireApproval} onApprove={(pid, a) => approve.mutate({ pid, approved: a })} />
       </Section>
 
-      <Section title="Teilnehmer verwalten">
+      <Section title={tr('trManageParticipants')}>
         <QueryState query={dash} empty={dash.data?.participants.length === 0}>
           <div className="flex flex-col gap-1.5">
             {dash.data?.participants.map((p) => (
@@ -244,10 +245,10 @@ export function CourseDetail({ course, workshopTitle, workshops, portalContainer
                 <span className="min-w-0 truncate text-[var(--wb-ink)]">{p.name}</span>
                 <div className="flex shrink-0 items-center gap-2">
                   <button onClick={() => resetCode.mutate(p.id)} disabled={resetCode.isPending}
-                    className="text-xs text-[var(--wb-muted)] hover:text-[var(--wb-accent-hover)]">Code zurücksetzen</button>
+                    className="text-xs text-[var(--wb-muted)] hover:text-[var(--wb-accent-hover)]">{tr('trResetCode')}</button>
                   <button
                     onClick={(e) => { deleteTriggerRef.current = e.currentTarget; setDeleteTarget({ id: p.id, name: p.name }) }}
-                    aria-label={`${p.name} löschen`} className="text-rose-600 hover:text-rose-700"><Icon name="trash" className="h-4 w-4" /></button>
+                    aria-label={tr('trDeleteAria', { name: p.name })} className="text-rose-600 hover:text-rose-700"><Icon name="trash" className="h-4 w-4" /></button>
                 </div>
               </div>
             ))}
@@ -255,15 +256,15 @@ export function CourseDetail({ course, workshopTitle, workshops, portalContainer
         </QueryState>
         {shownCode && (
           <p className="mt-3 rounded-lg bg-[var(--wb-accent-soft)] px-3 py-2 text-sm text-[var(--wb-ink)]">
-            Neuer Wiederaufnahme-Code für <b>{shownCode.name}</b>: <code className="select-all font-mono font-bold">{shownCode.code}</code> — bitte persönlich weitergeben.
+            {tr('trNewResumeCodeFor')} <b>{shownCode.name}</b>: <code className="select-all font-mono font-bold">{shownCode.code}</code> {tr('trHandOverPersonally')}
           </p>
         )}
         <ConfirmDialog
           open={deleteTarget !== null}
-          title="Teilnehmer löschen"
-          description={<>„{deleteTarget?.name}“ endgültig löschen? Fortschritt, Quizergebnisse und Teilnahmebestätigung gehen unwiderruflich mit verloren.</>}
-          confirmLabel="Endgültig löschen"
-          cancelLabel="Abbrechen"
+          title={tr('trDeleteParticipant')}
+          description={<>{tr('trDeleteParticipantDesc', { name: deleteTarget?.name ?? '' })}</>}
+          confirmLabel={tr('trDeletePermanently')}
+          cancelLabel={tr('trCancel')}
           triggerRef={deleteTriggerRef}
           container={portalContainer}
           onConfirm={() => { if (deleteTarget) removeParticipant.mutate(deleteTarget.id); setDeleteTarget(null) }}
@@ -272,26 +273,26 @@ export function CourseDetail({ course, workshopTitle, workshops, portalContainer
       </Section>
 
       {features.data?.comments && (
-        <Section title="Feedback"><TrainerFeedback courseId={cid} /></Section>
+        <Section title={tr('trFeedback')}><TrainerFeedback courseId={cid} /></Section>
       )}
 
       <ConfirmDialog
         open={deleteCourseConfirm}
-        title="Kurs löschen"
+        title={tr('trDeleteCourse')}
         description={<>
-          „{course.name}“ endgültig löschen? ALLE Teilnehmer, ihr Fortschritt und alle Kommentare dieses Kurses werden unwiderruflich mitgelöscht.
+          {tr('trDeleteCourseDesc', { name: course.name })}
           {certificateCount > 0 && (
             <span className="mt-3 block">
-              {certificateCount === 1 ? '1 ausgestellte Teilnahmebestätigung bleibt' : `${certificateCount} ausgestellte Teilnahmebestätigungen bleiben`} erhalten und mit Namen öffentlich prüfbar.
+              {certificateCount === 1 ? tr('trCertKeptOne') : tr('trCertKeptMany', { n: certificateCount })}
               <label className="mt-2 flex items-start gap-2 text-[var(--wb-ink)]">
                 <input type="checkbox" className="mt-0.5" checked={deleteCertificates} onChange={(e) => setDeleteCertificates(e.target.checked)} />
-                <span>Teilnahmebestätigungen mitlöschen</span>
+                <span>{tr('trDeleteCertsToo')}</span>
               </label>
             </span>
           )}
         </>}
-        confirmLabel="Endgültig löschen"
-        cancelLabel="Abbrechen"
+        confirmLabel={tr('trDeletePermanently')}
+        cancelLabel={tr('trCancel')}
         triggerRef={deleteCourseTriggerRef}
         container={portalContainer}
         onConfirm={() => { deleteCourse.mutate(); setDeleteCourseConfirm(false) }}
@@ -306,6 +307,7 @@ function ProgressTable({ dash, requireApproval, onApprove }: {
   requireApproval: boolean
   onApprove: (participantId: number, approved: boolean) => void
 }) {
+  const { tr } = useTr()
   // Scroll-Andeutung statt hartem Abbruch am Kartenrand: klassischer CSS-only
   // "Scroll-Schatten" (vier Hintergrund-Ebenen, zwei davon scroll-fix
   // positioniert, zwei mit dem Inhalt mitscrollend). Der Trick blendet den
@@ -335,9 +337,9 @@ function ProgressTable({ dash, requireApproval, onApprove }: {
         <table className="w-full border-separate border-spacing-0 text-sm" style={scrollShadowStyle}>
           <thead>
             <tr>
-              <th className="sticky left-0 z-10 bg-[var(--wb-subtle)] px-3 py-2 text-left font-semibold text-[var(--wb-ink)]">Teilnehmer</th>
+              <th className="sticky left-0 z-10 bg-[var(--wb-subtle)] px-3 py-2 text-left font-semibold text-[var(--wb-ink)]">{tr('trParticipantHeader')}</th>
               {dash.data?.modules.map((m) => <th key={m.key} className="whitespace-nowrap bg-[var(--wb-subtle)] px-3 py-2 text-xs font-medium text-[var(--wb-muted)]">{m.title}</th>)}
-              {requireApproval && <th className="whitespace-nowrap bg-[var(--wb-subtle)] px-3 py-2 text-xs font-medium text-[var(--wb-muted)]">Freigabe</th>}
+              {requireApproval && <th className="whitespace-nowrap bg-[var(--wb-subtle)] px-3 py-2 text-xs font-medium text-[var(--wb-muted)]">{tr('trApprovalHeader')}</th>}
             </tr>
           </thead>
           <tbody>
@@ -357,13 +359,13 @@ function ProgressTable({ dash, requireApproval, onApprove }: {
                 {requireApproval && (
                   <td className="border-t border-[var(--wb-border)] px-3 py-2 text-center">
                     <input type="checkbox" checked={p.approved} onChange={(e) => onApprove(p.id, e.target.checked)}
-                      aria-label={`${p.name} freigeben`} />
+                      aria-label={tr('trApproveAria', { name: p.name })} />
                   </td>
                 )}
               </tr>
             ))}
             {dash.data?.participants.length === 0 && (
-              <tr><td colSpan={(dash.data?.modules.length ?? 0) + (requireApproval ? 2 : 1)} className="px-3 py-6 text-center text-[var(--wb-muted)]">Noch keine Teilnehmer.</td></tr>
+              <tr><td colSpan={(dash.data?.modules.length ?? 0) + (requireApproval ? 2 : 1)} className="px-3 py-6 text-center text-[var(--wb-muted)]">{tr('trNoParticipants')}</td></tr>
             )}
           </tbody>
         </table>

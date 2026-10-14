@@ -13,18 +13,24 @@ import { WorkshopTheme } from '@/components/WorkshopTheme'
 import { LoadError } from '@/components/LoadError'
 import { useAuthStore } from '@/store/auth'
 import { workshopTheme } from '@/lib/workshopTheme'
-import { useDocumentTitle } from '@/lib/i18n'
+import { useDocumentLang, useDocumentTitle } from '@/lib/i18n'
+import { TrainerLangToggle } from '@/components/TrainerLangToggle'
+import { useTr, type TrKey } from '@/store/lang'
 
-const TYPE_LABELS: Record<EditorBlock['type'], string> = {
-  text: 'Text', widget: 'Widget', check: 'Kurz-Check', reveal: 'Aufdecken',
-  order: 'Reihenfolge', debug: 'Fehler finden', reflect: 'Reflexion',
-  diagram: 'Diagramm', terminal: 'Terminal', match: 'Zuordnung', cloze: 'Lückentext', scenario: 'Szenario',
+// Text/Widget/Terminal heißen in beiden Sprachen gleich (null = wörtlich).
+const TYPE_LABEL_KEYS: Record<EditorBlock['type'], TrKey | null> = {
+  text: null, widget: null, check: 'trQuickCheck', reveal: 'trBlkReveal',
+  order: 'trOrder', debug: 'trFindBug', reflect: 'trReflection',
+  diagram: 'trBlkDiagram', terminal: null, match: 'trBlkMatch', cloze: 'trBlkCloze', scenario: 'trBlkScenario',
 }
+const TYPE_LITERALS: Partial<Record<EditorBlock['type'], string>> = { text: 'Text', widget: 'Widget', terminal: 'Terminal' }
+// Baukasten-Typen werden im Editor als JSON bearbeitet.
+const JSON_TYPES: EditorBlock['type'][] = ['diagram', 'terminal', 'match', 'cloze', 'scenario']
 
 // Zusammenfassungszeile für eingeklappte Blöcke: Typ + Inhaltsanriss.
-function blockSnippet(b: EditorBlock): string {
+function blockSnippet(b: EditorBlock, noWidget: string): string {
   const src = b.type === 'widget'
-    ? (b.widget_id || '— kein Widget gewählt —')
+    ? (b.widget_id || noWidget)
     : (b.value_de || b.payload?.prompt_de || b.payload?.teaser_de || String(b.payload?.title_de ?? b.payload?.title ?? b.payload?.prompt ?? ''))
   return src.replace(/[#*`>\n]+/g, ' ').trim().slice(0, 70)
 }
@@ -34,6 +40,9 @@ const WIDGET_IDS = Object.keys(WIDGETS)
 
 export function TrainerModuleEditPage() {
   const { key = '' } = useParams()
+  const { lang, tr } = useTr()
+  useDocumentLang(lang)
+  const typeLabel = (type: EditorBlock['type']) => { const k = TYPE_LABEL_KEYS[type]; return k ? tr(k) : (TYPE_LITERALS[type] ?? type) }
   const navigate = useNavigate()
   const qc = useQueryClient()
   const [form, setForm] = useState<EditorModule | null>(null)
@@ -54,7 +63,7 @@ export function TrainerModuleEditPage() {
     refetchOnWindowFocus: !dirty,
   })
   // Serverstand-Titel (nicht das Formular): der Tab-Titel springt nicht bei jedem Tastendruck.
-  useDocumentTitle(mod.data ? `${mod.data.title_de} · Editor` : 'Modul-Editor')
+  useDocumentTitle(mod.data ? `${mod.data.title_de} · Editor` : tr('trModuleEditor'))
   const allMods = useQuery({
     queryKey: ['content-modules'],
     queryFn: () => trainerApi.listContentModules().then((r) => r.data),
@@ -77,7 +86,7 @@ export function TrainerModuleEditPage() {
     const { data } = await mod.refetch()
     if (data) { adopt(data); setStatus(null); setBadBlock(null) }
   }
-  const failed = (e: unknown) => setStatus({ kind: (e as ApiError).response?.status === 409 ? 'conflict' : 'error', text: errMsg(e) })
+  const failed = (e: unknown) => setStatus({ kind: (e as ApiError).response?.status === 409 ? 'conflict' : 'error', text: errMsg(e, tr('trErrorFallback')) })
 
   const save = useMutation({
     mutationFn: (data: EditorModule) => trainerApi.saveContentModule(key, data),
@@ -89,14 +98,14 @@ export function TrainerModuleEditPage() {
       const saved = { ...sent, version: response.data.version }
       setBase(saved)
       setForm((current) => (current === sent ? saved : current && { ...current, version: saved.version }))
-      setStatus({ kind: 'ok', text: 'Gespeichert.' })
+      setStatus({ kind: 'ok', text: '' })
       qc.invalidateQueries({ queryKey: ['content-module', key] })
       qc.invalidateQueries({ queryKey: ['trainer-modules'] })
     },
     onError: (e, sent) => {
       failed(e)
       // Nennt die Meldung einen Block, diesen aufklappen und hinspringen.
-      const index = blockIndexFromError(errMsg(e), sent.blocks)
+      const index = blockIndexFromError(errMsg(e, tr('trErrorFallback')), sent.blocks)
       const el = index < 0 ? null : document.getElementById(`edit-block-${index}`) as HTMLDetailsElement | null
       if (!el) return
       setBadBlock(index)
@@ -131,13 +140,13 @@ export function TrainerModuleEditPage() {
   if (!isTrainer)
     return (
       <div className="p-10 text-slate-600">
-        Nur für Trainer. <Link to="/trainer" className="text-teal-600">Zum Login</Link>
+        {tr('trTrainerOnly')} <Link to="/trainer" className="text-teal-600">{tr('trToLogin')}</Link>
       </div>
     )
   // Nur ohne geladenes Formular: ein fehlgeschlagener Hintergrund-Refetch darf den Editor nicht verdrängen.
-  if (mod.isError && !form) return <LoadError onRetry={() => mod.refetch()} />
+  if (mod.isError && !form) return <LoadError lang={lang} onRetry={() => mod.refetch()} />
   // form.key !== key: bei Modulwechsel nie das Formular des vorherigen Moduls unter dem neuen Key speichern.
-  if (mod.isLoading || !form || form.key !== key) return <div className="p-10">Lädt…</div>
+  if (mod.isLoading || !form || form.key !== key) return <div className="p-10">{tr('trLoadingShort')}</div>
 
   function updateBlock(i: number, patch: Partial<EditorBlock>) {
     setForm((f) => f && { ...f, blocks: f.blocks.map((b, idx) => (idx === i ? { ...b, ...patch } : b)) })
@@ -167,29 +176,32 @@ export function TrainerModuleEditPage() {
     <WorkshopTheme theme={workshopTheme(form.workshop_key)}><main id="main-content" tabIndex={-1} className="min-h-dvh bg-slate-50 p-6 sm:p-10">
       <div className="max-w-2xl mx-auto">
         <div className="flex items-center justify-between gap-4">
-          <Link to={`/trainer/modul/${key}`} className="text-sm text-slate-500 hover:text-slate-600">← Zur Trainer-Ansicht</Link>
-          <Link to="/"><BrandLogo className="h-8 text-base" showName /></Link>
+          <Link to={`/trainer/modul/${key}`} className="text-sm text-slate-500 hover:text-slate-600">{tr('trBackToTrainerView')}</Link>
+          <div className="flex items-center gap-3">
+            <TrainerLangToggle />
+            <Link to="/"><BrandLogo className="h-8 text-base" showName /></Link>
+          </div>
         </div>
-        <h1 className="text-2xl font-bold text-slate-900 mt-2 mb-4">Modul bearbeiten: {key}</h1>
+        <h1 className="text-2xl font-bold text-slate-900 mt-2 mb-4">{tr('trEditModule', { key })}</h1>
 
         <div className="rounded-xl border bg-white p-4 mb-6 flex flex-col gap-3">
           <label className="flex flex-col gap-1 text-sm">
-            Titel DE
+            {tr('trTitleDe')}
             <input className="border rounded-lg px-3 py-1.5" value={form.title_de}
               onChange={(e) => setForm({ ...form, title_de: e.target.value })} />
           </label>
           <label className="flex flex-col gap-1 text-sm">
-            Titel EN
+            {tr('trTitleEn')}
             <input className="border rounded-lg px-3 py-1.5" value={form.title_en}
               onChange={(e) => setForm({ ...form, title_en: e.target.value })} />
           </label>
           <label className="flex flex-col gap-1 text-sm">
-            Reihenfolge
+            {tr('trOrder')}
             <input type="number" className="border rounded-lg px-3 py-1.5 w-24" value={form.order}
               onChange={(e) => setForm({ ...form, order: Number(e.target.value) })} />
           </label>
           <div className="text-sm">
-            Voraussetzungen
+            {tr('trPrerequisites')}
             <div className="flex flex-wrap gap-3 mt-1">
               {prerequisiteChoices(allMods.data ?? [], key, form.workshop_key, form.prerequisites).map((m) => (
                 <label key={m.key} className="flex items-center gap-1.5">
@@ -206,52 +218,43 @@ export function TrainerModuleEditPage() {
             </div>
           </div>
           <label className="flex flex-col gap-1 text-sm">
-            Lernziele (eine Zeile je Ziel)
+            {tr('trGoalsLines')}
             <textarea className="border rounded-lg px-3 py-1.5" rows={3} value={form.goals.join('\n')}
               onChange={(e) => setForm({ ...form, goals: e.target.value.split('\n') })} />
           </label>
           <label className="flex flex-col gap-1 text-sm">
-            Lernziele EN (gleiche Zeilenzahl wie oben — oder leer lassen: Teilnehmer sehen dann Deutsch)
+            {tr('trGoalsEn')}
             <textarea className="border rounded-lg px-3 py-1.5" rows={3} value={(form.goals_en ?? []).join('\n')}
               onChange={(e) => setForm({ ...form, goals_en: e.target.value === '' ? null : e.target.value.split('\n') })} />
           </label>
           <label className="flex flex-col gap-1 text-sm">
-            Szenario DE
+            {tr('trScenarioDe')}
             <textarea className="border rounded-lg px-3 py-1.5" rows={3} value={form.scenario_de}
               onChange={(e) => setForm({ ...form, scenario_de: e.target.value })} />
           </label>
           <label className="flex flex-col gap-1 text-sm">
-            Szenario EN
+            {tr('trScenarioEn')}
             <textarea className="border rounded-lg px-3 py-1.5" rows={3} value={form.scenario_en}
               onChange={(e) => setForm({ ...form, scenario_en: e.target.value })} />
           </label>
         </div>
 
         <div className="rounded-xl border bg-white p-4 mb-6">
-          <h2 className="text-sm font-semibold text-slate-700 mb-3">Blöcke</h2>
+          <h2 className="text-sm font-semibold text-slate-700 mb-3">{tr('trBlocks')}</h2>
           <div className="flex flex-col gap-4">
             {form.blocks.map((b, i) => (
               <details key={i} id={`edit-block-${i}`} className={`group rounded-lg border ${badBlock === i ? 'border-red-400' : ''}`}>
                 <summary className="cursor-pointer select-none rounded-lg px-3 py-2 text-sm hover:bg-slate-50">
-                  <span className="font-medium text-slate-700">{i + 1}. {TYPE_LABELS[b.type]}</span>
-                  <span className="ml-2 text-xs text-slate-500">{blockSnippet(b)}</span>
+                  <span className="font-medium text-slate-700">{i + 1}. {typeLabel(b.type)}</span>
+                  <span className="ml-2 text-xs text-slate-500">{blockSnippet(b, tr('trNoWidget'))}</span>
                 </summary>
                 <div className="border-t border-slate-100 p-3 flex flex-col gap-2">
                 <div className="flex items-center justify-between">
-                  <select aria-label={`Typ von Block ${i + 1}`} className="border rounded px-2 py-1 text-sm" value={b.type}
+                  <select aria-label={tr('trBlockTypeAria', { n: i + 1 })} className="border rounded px-2 py-1 text-sm" value={b.type}
                     onChange={(e) => changeBlockType(i, e.target.value as EditorBlock['type'])}>
-                    <option value="text">Text</option>
-                    <option value="widget">Widget</option>
-                    <option value="check">Kurz-Check</option>
-                    <option value="reveal">Aufdecken</option>
-                    <option value="order">Reihenfolge</option>
-                    <option value="debug">Fehler finden</option>
-                    <option value="reflect">Reflexion</option>
-                    <option value="diagram">Diagramm (JSON)</option>
-                    <option value="terminal">Terminal (JSON)</option>
-                    <option value="match">Zuordnung (JSON)</option>
-                    <option value="cloze">Lückentext (JSON)</option>
-                    <option value="scenario">Szenario (JSON)</option>
+                    {(Object.keys(TYPE_LABEL_KEYS) as EditorBlock['type'][]).map((type) => (
+                      <option key={type} value={type}>{typeLabel(type)}{JSON_TYPES.includes(type) ? ' (JSON)' : ''}</option>
+                    ))}
                   </select>
                   <div className="flex gap-1">
                     <button onClick={() => setForm({ ...form, blocks: moveItem(form.blocks, i, -1) })} className="px-2 text-slate-500 hover:text-slate-700">↑</button>
@@ -263,7 +266,7 @@ export function TrainerModuleEditPage() {
                   <>
                     <button onClick={() => setPreview((p) => ({ ...p, [i]: !p[i] }))}
                       className="self-start text-xs text-teal-700 hover:text-teal-800">
-                      {preview[i] ? '✎ Bearbeiten' : '👁 Markdown-Vorschau'}
+                      {preview[i] ? tr('trPreviewBack') : tr('trMarkdownPreview')}
                     </button>
                     {preview[i] ? (
                       <div className="rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm">
@@ -274,42 +277,42 @@ export function TrainerModuleEditPage() {
                       </div>
                     ) : (
                       <>
-                        <textarea placeholder="Text DE" className="border rounded-lg px-3 py-1.5 text-sm" rows={6}
+                        <textarea placeholder={tr('trTextDe')} className="border rounded-lg px-3 py-1.5 text-sm" rows={6}
                           value={b.value_de ?? ''} onChange={(e) => updateBlock(i, { value_de: e.target.value })} />
-                        <textarea placeholder="Text EN" className="border rounded-lg px-3 py-1.5 text-sm" rows={6}
+                        <textarea placeholder={tr('trTextEn')} className="border rounded-lg px-3 py-1.5 text-sm" rows={6}
                           value={b.value_en ?? ''} onChange={(e) => updateBlock(i, { value_en: e.target.value })} />
                       </>
                     )}
-                    <textarea placeholder="Notiz (Trainer, DE)" className="border rounded-lg px-3 py-1.5 text-sm" rows={2}
+                    <textarea placeholder={tr('trTrainerNoteDe')} className="border rounded-lg px-3 py-1.5 text-sm" rows={2}
                       value={b.note ?? ''} onChange={(e) => updateBlock(i, { note: e.target.value })} />
                   </>
                 )}
                 {b.type === 'widget' && (
-                  <select aria-label={`Widget in Block ${i + 1}`} className="border rounded-lg px-3 py-1.5 text-sm" value={b.widget_id ?? ''}
+                  <select aria-label={tr('trWidgetInBlockAria', { n: i + 1 })} className="border rounded-lg px-3 py-1.5 text-sm" value={b.widget_id ?? ''}
                     onChange={(e) => updateBlock(i, { widget_id: e.target.value })}>
-                    <option value="">— auswählen —</option>
+                    <option value="">{tr('trPleaseSelect')}</option>
                     {WIDGET_IDS.map((w) => <option key={w} value={w}>{w}</option>)}
                   </select>
                 )}
                 {b.type === 'check' && (
                   <>
                     <label className="flex items-center gap-2 text-xs text-slate-600">
-                      Antwort-Typ
+                      {tr('trAnswerType')}
                       <select className="border rounded px-2 py-1 text-sm" value={b.payload?.kind ?? 'choice'}
                         onChange={(e) => updatePayload(i, e.target.value === 'number'
                           ? { kind: 'number', answer: 0 }
                           : { kind: 'choice', answer: 0, options_de: b.payload?.options_de ?? ['', ''], options_en: b.payload?.options_en ?? ['', ''] })}>
-                        <option value="choice">Auswahl</option>
-                        <option value="number">Zahl</option>
+                        <option value="choice">{tr('trChoice')}</option>
+                        <option value="number">{tr('trNumber')}</option>
                       </select>
                     </label>
-                    <input placeholder="Frage DE" className="border rounded-lg px-3 py-1.5 text-sm"
+                    <input placeholder={tr('trQuestionDe')} className="border rounded-lg px-3 py-1.5 text-sm"
                       value={b.payload?.prompt_de ?? ''} onChange={(e) => updatePayload(i, { prompt_de: e.target.value })} />
-                    <input placeholder="Frage EN" className="border rounded-lg px-3 py-1.5 text-sm"
+                    <input placeholder={tr('trQuestionEn')} className="border rounded-lg px-3 py-1.5 text-sm"
                       value={b.payload?.prompt_en ?? ''} onChange={(e) => updatePayload(i, { prompt_en: e.target.value })} />
                     {b.payload?.kind === 'number' ? (
                       <label className="flex items-center gap-2 text-xs text-slate-600">
-                        Richtige Zahl
+                        {tr('trCorrectNumber')}
                         <input type="number" className="border rounded-lg px-3 py-1.5 text-sm w-32"
                           value={b.payload?.answer ?? 0} onChange={(e) => updatePayload(i, { answer: Number(e.target.value) })} />
                       </label>
@@ -317,13 +320,13 @@ export function TrainerModuleEditPage() {
                     <div className="flex flex-col gap-1.5">
                       {(b.payload?.options_de ?? []).map((opt, oi) => (
                         <div key={oi} className="flex items-center gap-2">
-                          <input type="radio" name={`b${i}-answer`} aria-label={`Option ${oi + 1} ist richtig`} checked={b.payload?.answer === oi}
+                          <input type="radio" name={`b${i}-answer`} aria-label={tr('trOptionCorrectAria', { n: oi + 1 })} checked={b.payload?.answer === oi}
                             onChange={() => updatePayload(i, { answer: oi })} />
-                          <input className="border rounded-lg px-2 py-1 text-sm flex-1" placeholder="Option DE" value={opt}
+                          <input className="border rounded-lg px-2 py-1 text-sm flex-1" placeholder={tr('trOptionDe')} value={opt}
                             onChange={(e) => updatePayload(i, {
                               options_de: (b.payload?.options_de ?? []).map((o, idx) => (idx === oi ? e.target.value : o)),
                             })} />
-                          <input className="border rounded-lg px-2 py-1 text-sm flex-1" placeholder="Option EN"
+                          <input className="border rounded-lg px-2 py-1 text-sm flex-1" placeholder={tr('trOptionEn')}
                             value={(b.payload?.options_en ?? [])[oi] ?? ''}
                             onChange={(e) => updatePayload(i, {
                               options_en: (b.payload?.options_en ?? []).map((o, idx) => (idx === oi ? e.target.value : o)),
@@ -337,39 +340,39 @@ export function TrainerModuleEditPage() {
                       <button onClick={() => {
                         const [de, en] = addOption(b.payload?.options_de ?? [], b.payload?.options_en ?? [])
                         updatePayload(i, { options_de: de, options_en: en })
-                      }} className="text-xs text-teal-700 hover:text-teal-800 self-start">+ Option</button>
+                      }} className="text-xs text-teal-700 hover:text-teal-800 self-start">{tr('trAddOption')}</button>
                     </div>
                     )}
                   </>
                 )}
                 {b.type === 'reveal' && (
                   <>
-                    <input placeholder="Frage/Teaser DE (immer sichtbar)" className="border rounded-lg px-3 py-1.5 text-sm"
+                    <input placeholder={tr('trTeaserDe')} className="border rounded-lg px-3 py-1.5 text-sm"
                       value={b.payload?.teaser_de ?? ''} onChange={(e) => updatePayload(i, { teaser_de: e.target.value })} />
-                    <input placeholder="Frage/Teaser EN (immer sichtbar)" className="border rounded-lg px-3 py-1.5 text-sm"
+                    <input placeholder={tr('trTeaserEn')} className="border rounded-lg px-3 py-1.5 text-sm"
                       value={b.payload?.teaser_en ?? ''} onChange={(e) => updatePayload(i, { teaser_en: e.target.value })} />
-                    <textarea placeholder="Auflösung DE (erst nach Klick sichtbar)" className="border rounded-lg px-3 py-1.5 text-sm" rows={3}
+                    <textarea placeholder={tr('trRevealDe')} className="border rounded-lg px-3 py-1.5 text-sm" rows={3}
                       value={b.value_de ?? ''} onChange={(e) => updateBlock(i, { value_de: e.target.value })} />
-                    <textarea placeholder="Auflösung EN (erst nach Klick sichtbar)" className="border rounded-lg px-3 py-1.5 text-sm" rows={3}
+                    <textarea placeholder={tr('trRevealEn')} className="border rounded-lg px-3 py-1.5 text-sm" rows={3}
                       value={b.value_en ?? ''} onChange={(e) => updateBlock(i, { value_en: e.target.value })} />
                   </>
                 )}
                 {b.type === 'order' && (
                   <>
-                    <input placeholder="Aufgabe DE" className="border rounded-lg px-3 py-1.5 text-sm"
+                    <input placeholder={tr('trTaskDe')} className="border rounded-lg px-3 py-1.5 text-sm"
                       value={b.payload?.prompt_de ?? ''} onChange={(e) => updatePayload(i, { prompt_de: e.target.value })} />
-                    <input placeholder="Aufgabe EN" className="border rounded-lg px-3 py-1.5 text-sm"
+                    <input placeholder={tr('trTaskEn')} className="border rounded-lg px-3 py-1.5 text-sm"
                       value={b.payload?.prompt_en ?? ''} onChange={(e) => updatePayload(i, { prompt_en: e.target.value })} />
-                    <p className="text-xs text-slate-500">Schritte in der richtigen Reihenfolge — Teilnehmer sieht sie gemischt.</p>
+                    <p className="text-xs text-slate-500">{tr('trOrderStepsHint')}</p>
                     <div className="flex flex-col gap-1.5">
                       {(b.payload?.items_de ?? []).map((it, oi) => (
                         <div key={oi} className="flex items-center gap-2">
                           <span className="text-xs text-slate-500 font-mono w-5">{oi + 1}.</span>
-                          <input className="border rounded-lg px-2 py-1 text-sm flex-1" placeholder="Schritt DE" value={it}
+                          <input className="border rounded-lg px-2 py-1 text-sm flex-1" placeholder={tr('trStepDe')} value={it}
                             onChange={(e) => updatePayload(i, {
                               items_de: (b.payload?.items_de ?? []).map((o, idx) => (idx === oi ? e.target.value : o)),
                             })} />
-                          <input className="border rounded-lg px-2 py-1 text-sm flex-1" placeholder="Schritt EN"
+                          <input className="border rounded-lg px-2 py-1 text-sm flex-1" placeholder={tr('trStepEn')}
                             value={(b.payload?.items_en ?? [])[oi] ?? ''}
                             onChange={(e) => updatePayload(i, {
                               items_en: (b.payload?.items_en ?? []).map((o, idx) => (idx === oi ? e.target.value : o)),
@@ -383,31 +386,31 @@ export function TrainerModuleEditPage() {
                       <button onClick={() => {
                         const [de, en] = addOption(b.payload?.items_de ?? [], b.payload?.items_en ?? [])
                         updatePayload(i, { items_de: de, items_en: en })
-                      }} className="text-xs text-teal-700 hover:text-teal-800 self-start">+ Schritt</button>
+                      }} className="text-xs text-teal-700 hover:text-teal-800 self-start">{tr('trAddStep')}</button>
                     </div>
                   </>
                 )}
                 {b.type === 'debug' && (
                   <>
-                    <input placeholder="Aufgabe DE" className="border rounded-lg px-3 py-1.5 text-sm"
+                    <input placeholder={tr('trTaskDe')} className="border rounded-lg px-3 py-1.5 text-sm"
                       value={b.payload?.prompt_de ?? ''} onChange={(e) => updatePayload(i, { prompt_de: e.target.value })} />
-                    <input placeholder="Aufgabe EN" className="border rounded-lg px-3 py-1.5 text-sm"
+                    <input placeholder={tr('trTaskEn')} className="border rounded-lg px-3 py-1.5 text-sm"
                       value={b.payload?.prompt_en ?? ''} onChange={(e) => updatePayload(i, { prompt_en: e.target.value })} />
-                    <p className="text-xs text-slate-500">Haken = diese Zeile ist der Fehler.</p>
+                    <p className="text-xs text-slate-500">{tr('trDebugHint')}</p>
                     <div className="flex flex-col gap-1.5">
                       {(b.payload?.lines_de ?? []).map((line, oi) => (
                         <div key={oi} className="flex items-center gap-2">
-                          <input type="checkbox" aria-label={`Zeile ${oi + 1} ist der Fehler`} checked={(b.payload?.wrong ?? []).includes(oi)}
+                          <input type="checkbox" aria-label={tr('trLineIsBugAria', { n: oi + 1 })} checked={(b.payload?.wrong ?? []).includes(oi)}
                             onChange={(e) => updatePayload(i, {
                               wrong: e.target.checked
                                 ? [...(b.payload?.wrong ?? []), oi]
                                 : (b.payload?.wrong ?? []).filter((w) => w !== oi),
                             })} />
-                          <input className="border rounded-lg px-2 py-1 text-sm font-mono flex-1" placeholder="Zeile DE" value={line}
+                          <input className="border rounded-lg px-2 py-1 text-sm font-mono flex-1" placeholder={tr('trLineDe')} value={line}
                             onChange={(e) => updatePayload(i, {
                               lines_de: (b.payload?.lines_de ?? []).map((o, idx) => (idx === oi ? e.target.value : o)),
                             })} />
-                          <input className="border rounded-lg px-2 py-1 text-sm font-mono flex-1" placeholder="Zeile EN"
+                          <input className="border rounded-lg px-2 py-1 text-sm font-mono flex-1" placeholder={tr('trLineEn')}
                             value={(b.payload?.lines_en ?? [])[oi] ?? ''}
                             onChange={(e) => updatePayload(i, {
                               lines_en: (b.payload?.lines_en ?? []).map((o, idx) => (idx === oi ? e.target.value : o)),
@@ -423,27 +426,27 @@ export function TrainerModuleEditPage() {
                       <button onClick={() => {
                         const [de, en] = addOption(b.payload?.lines_de ?? [], b.payload?.lines_en ?? [])
                         updatePayload(i, { lines_de: de, lines_en: en })
-                      }} className="text-xs text-teal-700 hover:text-teal-800 self-start">+ Zeile</button>
+                      }} className="text-xs text-teal-700 hover:text-teal-800 self-start">{tr('trAddLine')}</button>
                     </div>
-                    <textarea placeholder="Erklärung DE (nach dem Prüfen sichtbar)" className="border rounded-lg px-3 py-1.5 text-sm" rows={2}
+                    <textarea placeholder={tr('trExplanationDe')} className="border rounded-lg px-3 py-1.5 text-sm" rows={2}
                       value={b.payload?.explanation_de ?? ''} onChange={(e) => updatePayload(i, { explanation_de: e.target.value })} />
-                    <textarea placeholder="Erklärung EN (nach dem Prüfen sichtbar)" className="border rounded-lg px-3 py-1.5 text-sm" rows={2}
+                    <textarea placeholder={tr('trExplanationEn')} className="border rounded-lg px-3 py-1.5 text-sm" rows={2}
                       value={b.payload?.explanation_en ?? ''} onChange={(e) => updatePayload(i, { explanation_en: e.target.value })} />
                   </>
                 )}
                 {b.type === 'reflect' && (
                   <>
-                    <input placeholder="Frage DE" className="border rounded-lg px-3 py-1.5 text-sm"
+                    <input placeholder={tr('trQuestionDe')} className="border rounded-lg px-3 py-1.5 text-sm"
                       value={b.payload?.prompt_de ?? ''} onChange={(e) => updatePayload(i, { prompt_de: e.target.value })} />
-                    <input placeholder="Frage EN" className="border rounded-lg px-3 py-1.5 text-sm"
+                    <input placeholder={tr('trQuestionEn')} className="border rounded-lg px-3 py-1.5 text-sm"
                       value={b.payload?.prompt_en ?? ''} onChange={(e) => updatePayload(i, { prompt_en: e.target.value })} />
-                    <p className="text-xs text-slate-500">Freitext-Antwort — wird nur lokal im Browser des Teilnehmers gespeichert.</p>
+                    <p className="text-xs text-slate-500">{tr('trReflectEditHint')}</p>
                   </>
                 )}
                 {isDeclarativeType(b.type) && (
                   <>
                     <PayloadJsonField value={b.payload} onChange={(payload) => updateBlock(i, { payload })} />
-                    <input className="border rounded-lg px-3 py-1.5 text-sm" placeholder="Trainer-Notiz (optional)"
+                    <input className="border rounded-lg px-3 py-1.5 text-sm" placeholder={tr('trTrainerNoteOpt')}
                       value={b.note ?? ''} onChange={(e) => updateBlock(i, { note: e.target.value })} />
                   </>
                 )}
@@ -453,33 +456,33 @@ export function TrainerModuleEditPage() {
           </div>
           <button onClick={() => setForm({ ...form, blocks: [...form.blocks, emptyBlock()] })}
             className="mt-3 rounded-lg border px-3 py-1.5 text-sm text-slate-700 hover:bg-slate-50">
-            + Block hinzufügen
+            {tr('trAddBlock')}
           </button>
         </div>
 
         <div className="rounded-xl border bg-white p-4 mb-6">
-          <h2 className="text-sm font-semibold text-slate-700 mb-3">Quiz</h2>
+          <h2 className="text-sm font-semibold text-slate-700 mb-3">{tr('trQuiz')}</h2>
           <div className="flex flex-col gap-4">
             {form.quiz.map((q, i) => (
               <div key={i} className="rounded-lg border p-3 flex flex-col gap-2">
                 <div className="flex items-center justify-between">
-                  <select aria-label={`Typ von Frage ${i + 1}`} className="border rounded px-2 py-1 text-sm" value={q.qtype}
+                  <select aria-label={tr('trQuestionTypeAria', { n: i + 1 })} className="border rounded px-2 py-1 text-sm" value={q.qtype}
                     onChange={(e) => updateQuestion(i, {
                       qtype: e.target.value as EditorQuestion['qtype'],
                       answer: e.target.value === 'multi' ? [] : 0,
                     })}>
-                    <option value="single">Einzelauswahl</option>
-                    <option value="multi">Mehrfachauswahl</option>
-                    <option value="number">Zahl</option>
+                    <option value="single">{tr('trSingleChoice')}</option>
+                    <option value="multi">{tr('trKindMulti')}</option>
+                    <option value="number">{tr('trNumber')}</option>
                   </select>
                   <button onClick={() => setForm({ ...form, quiz: removeAt(form.quiz, i) })} className="px-2 text-red-500 hover:text-red-700">✕</button>
                 </div>
-                <input placeholder="Frage DE" className="border rounded-lg px-3 py-1.5 text-sm"
+                <input placeholder={tr('trQuestionDe')} className="border rounded-lg px-3 py-1.5 text-sm"
                   value={q.prompt_de} onChange={(e) => updateQuestion(i, { prompt_de: e.target.value })} />
-                <input placeholder="Frage EN" className="border rounded-lg px-3 py-1.5 text-sm"
+                <input placeholder={tr('trQuestionEn')} className="border rounded-lg px-3 py-1.5 text-sm"
                   value={q.prompt_en} onChange={(e) => updateQuestion(i, { prompt_en: e.target.value })} />
                 {q.qtype === 'number' ? (
-                  <input type="number" placeholder="Antwort" className="border rounded-lg px-3 py-1.5 text-sm w-32"
+                  <input type="number" placeholder={tr('trAnswerPh')} className="border rounded-lg px-3 py-1.5 text-sm w-32"
                     value={typeof q.answer === 'number' ? q.answer : 0}
                     onChange={(e) => updateQuestion(i, { answer: Number(e.target.value) })} />
                 ) : (
@@ -489,7 +492,7 @@ export function TrainerModuleEditPage() {
                         <input
                           type={q.qtype === 'single' ? 'radio' : 'checkbox'}
                           name={`q${i}-answer`}
-                          aria-label={`Option ${oi + 1} ist richtig`}
+                          aria-label={tr('trOptionCorrectAria', { n: oi + 1 })}
                           checked={q.qtype === 'single' ? q.answer === oi : Array.isArray(q.answer) && q.answer.includes(oi)}
                           onChange={() => {
                             if (q.qtype === 'single') updateQuestion(i, { answer: oi })
@@ -498,11 +501,11 @@ export function TrainerModuleEditPage() {
                               updateQuestion(i, { answer: cur.includes(oi) ? cur.filter((a) => a !== oi) : [...cur, oi] })
                             }
                           }} />
-                        <input className="border rounded-lg px-2 py-1 text-sm flex-1" placeholder="Option DE" value={opt}
+                        <input className="border rounded-lg px-2 py-1 text-sm flex-1" placeholder={tr('trOptionDe')} value={opt}
                           onChange={(e) => updateQuestion(i, {
                             options_de: (q.options_de ?? []).map((o, idx) => (idx === oi ? e.target.value : o)),
                           })} />
-                        <input className="border rounded-lg px-2 py-1 text-sm flex-1" placeholder="Option EN" value={(q.options_en ?? [])[oi] ?? ''}
+                        <input className="border rounded-lg px-2 py-1 text-sm flex-1" placeholder={tr('trOptionEn')} value={(q.options_en ?? [])[oi] ?? ''}
                           onChange={(e) => updateQuestion(i, {
                             options_en: (q.options_en ?? []).map((o, idx) => (idx === oi ? e.target.value : o)),
                           })} />
@@ -515,13 +518,13 @@ export function TrainerModuleEditPage() {
                     <button onClick={() => {
                       const [de, en] = addOption(q.options_de ?? [], q.options_en ?? [])
                       updateQuestion(i, { options_de: de, options_en: en })
-                    }} className="text-xs text-teal-700 hover:text-teal-800 self-start">+ Option</button>
+                    }} className="text-xs text-teal-700 hover:text-teal-800 self-start">{tr('trAddOption')}</button>
                   </div>
                 )}
-                <textarea placeholder="Erklärung DE (optional, erscheint nach der Abgabe)" rows={2}
+                <textarea placeholder={tr('trExplanationOptDe')} rows={2}
                   className="border rounded-lg px-3 py-1.5 text-sm"
                   value={q.explanation_de ?? ''} onChange={(e) => updateQuestion(i, { explanation_de: e.target.value })} />
-                <textarea placeholder="Erklärung EN (optional)" rows={2}
+                <textarea placeholder={tr('trExplanationOptEn')} rows={2}
                   className="border rounded-lg px-3 py-1.5 text-sm"
                   value={q.explanation_en ?? ''} onChange={(e) => updateQuestion(i, { explanation_en: e.target.value })} />
               </div>
@@ -529,7 +532,7 @@ export function TrainerModuleEditPage() {
           </div>
           <button onClick={() => setForm({ ...form, quiz: [...form.quiz, emptyQuestion()] })}
             className="mt-3 rounded-lg border px-3 py-1.5 text-sm text-slate-700 hover:bg-slate-50">
-            + Frage hinzufügen
+            {tr('trAddQuestion')}
           </button>
         </div>
 
@@ -537,15 +540,15 @@ export function TrainerModuleEditPage() {
             Seitenanfang, tausende Pixel über dem Knopf, und ein Erfolg wurde gar nicht gemeldet. */}
         <div data-testid="save-bar" className="sticky bottom-0 z-10 -mx-2 border-t border-slate-200 bg-slate-50 px-2 py-3">
         {status?.kind === 'ok' && !dirty && (
-          <p role="status" className="mb-2 rounded-lg bg-green-50 px-3 py-2 text-sm font-medium text-green-800">{status.text}</p>
+          <p role="status" className="mb-2 rounded-lg bg-green-50 px-3 py-2 text-sm font-medium text-green-800">{tr('trSaved')}</p>
         )}
         {status && status.kind !== 'ok' && (
           <div role="alert" className="mb-2 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">
-            <p className="font-medium">Nicht gespeichert: {status.text}</p>
+            <p className="font-medium">{tr('trNotSaved', { text: status.text })}</p>
             {status.kind === 'conflict' && (
               <button type="button" onClick={() => void loadServer()}
                 className="mt-2 rounded-lg border border-red-300 bg-white px-3 py-1.5 font-medium text-red-700 hover:bg-red-50">
-                Serverstand laden (eigene Änderungen verwerfen)
+                {tr('trLoadServer')}
               </button>
             )}
           </div>
@@ -553,28 +556,27 @@ export function TrainerModuleEditPage() {
         <div className="flex flex-wrap gap-2">
         <button onClick={() => save.mutate(form)} disabled={save.isPending || restore.isPending || reseed.isPending}
           className="rounded-lg bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 font-medium disabled:opacity-60">
-          {save.isPending ? 'Speichert…' : 'Speichern'}
+          {save.isPending ? tr('trSaving') : tr('trSave')}
         </button>
         {form.has_snapshot && (
           <button
-            onClick={() => window.confirm('Aktuelle Version durch die vorherige ersetzen?') && restore.mutate()}
+            onClick={() => window.confirm(tr('trRestoreConfirm')) && restore.mutate()}
             disabled={restore.isPending}
             className="rounded-lg border px-4 py-2 font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-60">
-            {restore.isPending ? 'Stelle wieder her…' : 'Vorherige Version wiederherstellen'}
+            {restore.isPending ? tr('trRestoring') : tr('trRestorePrev')}
           </button>
         )}
         {form.has_seed && (
           <button
-            onClick={() => window.confirm('Modul auf den mitgelieferten Auslieferungszustand zurücksetzen? '
-              + 'Eigene Änderungen werden ersetzt (einmaliges Undo über „Vorherige Version“ möglich).')
+            onClick={() => window.confirm(tr('trReseedConfirm'))
               && reseed.mutate()}
             disabled={reseed.isPending}
             className="rounded-lg border border-amber-300 px-4 py-2 font-medium text-amber-700 hover:bg-amber-50 disabled:opacity-60">
-            {reseed.isPending ? 'Setze zurück…' : 'Auslieferungszustand laden'}
+            {reseed.isPending ? tr('trReseeding') : tr('trReseed')}
           </button>
         )}
         <button onClick={() => navigate('/trainer')} className="rounded-lg border px-4 py-2 font-medium text-slate-700 hover:bg-slate-50">
-          Zurück
+          {tr('trBack')}
         </button>
         </div>
         </div>

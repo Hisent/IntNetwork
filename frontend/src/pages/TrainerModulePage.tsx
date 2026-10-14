@@ -11,7 +11,9 @@ import { useAuthStore } from '@/store/auth'
 import { BrandLogo } from '@/components/BrandLogo'
 import { WorkshopTheme } from '@/components/WorkshopTheme'
 import { workshopTheme } from '@/lib/workshopTheme'
-import { useDocumentTitle } from '@/lib/i18n'
+import { useDocumentLang, useDocumentTitle } from '@/lib/i18n'
+import { TrainerLangToggle } from '@/components/TrainerLangToggle'
+import { useTr } from '@/store/lang'
 
 // Ampelfarbe je Erfolgsquote: ab 70% grün, ab 40% gelb, darunter rot.
 function rateColor(rate: number) {
@@ -21,21 +23,22 @@ function rateColor(rate: number) {
 }
 
 function QuizStatsBox({ stats, courseFilter }: { stats: QuizStats; courseFilter: React.ReactNode }) {
+  const { tr } = useTr()
   return (
     <div className="rounded-xl border bg-white p-4 mb-6 text-sm">
       <div className="flex items-center justify-between gap-3 mb-1">
         <p className="font-semibold text-slate-700">
-          Quiz-Ergebnisse
-          <span className="ml-2 font-normal text-slate-500">{stats.submissions} Abgabe(n)</span>
+          {tr('trQuizResults')}
+          <span className="ml-2 font-normal text-slate-500">{tr('trSubmissions', { n: stats.submissions })}</span>
         </p>
         {courseFilter}
       </div>
       {stats.submissions === 0 ? (
-        <p className="text-xs text-slate-500">Noch keine Quiz-Abgaben{' '}— ggf. anderen Kurs wählen.</p>
+        <p className="text-xs text-slate-500">{tr('trNoSubmissions')}</p>
       ) : (
         <>
       <p className="text-xs text-slate-500 mb-3">
-        Anteil richtiger Antworten je Frage — rote Balken zeigen, wo es hakt.
+        {tr('trQuizRateHint')}
       </p>
       <div className="flex flex-col gap-2">
         {stats.questions.map((q, i) => {
@@ -62,6 +65,8 @@ function QuizStatsBox({ stats, courseFilter }: { stats: QuizStats; courseFilter:
 
 export function TrainerModulePage() {
   const { key = '' } = useParams()
+  const { lang, tr } = useTr()
+  useDocumentLang(lang)
   const { token, role } = useAuthStore()
   const [courseId, setCourseId] = useState<number | undefined>(undefined)
   const mod = useQuery({
@@ -69,7 +74,7 @@ export function TrainerModulePage() {
     queryFn: () => trainerApi.trainerModule(key).then((r) => r.data),
     enabled: role === 'trainer' && !!token,
   })
-  useDocumentTitle(mod.data ? `${mod.data.title} · Trainer` : 'Trainer')
+  useDocumentTitle(mod.data ? `${mod.data.title} · ${tr('trTrainer')}` : tr('trTrainer'))
   const courses = useQuery({
     queryKey: ['courses'],
     queryFn: () => trainerApi.listCourses().then((r) => r.data),
@@ -89,10 +94,10 @@ export function TrainerModulePage() {
   if (role !== 'trainer' || !token)
     return (
       <div className="p-10 text-slate-600">
-        Nur für Trainer. <Link to="/trainer" className="text-teal-600">Zum Login</Link>
+        {tr('trTrainerOnly')} <Link to="/trainer" className="text-teal-600">{tr('trToLogin')}</Link>
       </div>
     )
-  if (mod.isError && !mod.data) return <LoadError onRetry={() => mod.refetch()} />
+  if (mod.isError && !mod.data) return <LoadError lang={lang} onRetry={() => mod.refetch()} />
   if (mod.isLoading || !mod.data) return <PageSkeleton />
   const m = mod.data
 
@@ -100,28 +105,31 @@ export function TrainerModulePage() {
     <WorkshopTheme theme={workshopTheme(m.workshop_key)}><main id="main-content" tabIndex={-1} className="min-h-dvh bg-slate-50 p-6 sm:p-10">
       <div className="max-w-2xl mx-auto">
         <div className="flex items-center justify-between gap-4">
-          <Link to="/trainer" className="text-sm text-slate-500 hover:text-slate-700">← Trainer</Link>
-          <Link to="/"><BrandLogo className="h-8 text-base" showName /></Link>
+          <Link to="/trainer" className="text-sm text-slate-500 hover:text-slate-700">{tr('trBackTrainer')}</Link>
+          <div className="flex items-center gap-3">
+            <TrainerLangToggle />
+            <Link to="/"><BrandLogo className="h-8 text-base" showName /></Link>
+          </div>
         </div>
         <div className="flex items-start justify-between gap-3 mt-2 mb-4">
           <h1 className="text-2xl font-bold text-slate-900">
-            {m.title} <span className="text-sm font-normal text-slate-500">· Trainer-Ansicht</span>
+            {m.title} <span className="text-sm font-normal text-slate-500">{tr('trTrainerView')}</span>
           </h1>
           <Link to={`/trainer/modul/${key}/praesentieren`}
             className="shrink-0 rounded-lg bg-teal-600 hover:bg-teal-700 text-white px-3 py-1.5 text-sm font-medium">
-            ▶ Präsentieren
+            {tr('trPresentBtn')}
           </Link>
         </div>
 
         <div className="rounded-xl border bg-white p-4 mb-6 text-sm">
           <div className="flex flex-wrap gap-x-6 gap-y-1 text-slate-600">
-            <span>Voraussetzungen: {m.prerequisites.length ? m.prerequisites.map((k) => allModules.data?.find((x) => x.key === k)?.title ?? k).join(', ') : '—'}</span>
-            <span>{m.blocks.length} Blöcke</span>
-            <span>{m.quiz.questions.length} Quiz-Fragen</span>
+            <span>{tr('trPrerequisites')}: {m.prerequisites.length ? m.prerequisites.map((k) => allModules.data?.find((x) => x.key === k)?.title ?? k).join(', ') : '—'}</span>
+            <span>{tr('trBlocksCount', { n: m.blocks.length })}</span>
+            <span>{tr('trQuizQuestionsCount', { n: m.quiz.questions.length })}</span>
           </div>
           {m.goals && m.goals.length > 0 && (
             <div className="mt-2">
-              <p className="font-semibold text-slate-700">Lernziele</p>
+              <p className="font-semibold text-slate-700">{tr('trLearningGoals')}</p>
               <ul className="list-disc pl-5 text-slate-600">
                 {m.goals.map((g, i) => <li key={i}>{g}</li>)}
               </ul>
@@ -138,7 +146,7 @@ export function TrainerModulePage() {
                 onChange={(e) => setCourseId(e.target.value === '' ? undefined : Number(e.target.value))}
                 className="rounded-lg border border-slate-200 px-2 py-1 text-xs text-slate-600 bg-white"
               >
-                <option value="">Alle Kurse</option>
+                <option value="">{tr('trAllCourses')}</option>
                 {courses.data?.map((c) => (
                   <option key={c.id} value={c.id}>{c.name}</option>
                 ))}

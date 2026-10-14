@@ -1,10 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { trainerApi, useIsAdmin } from '@/lib/trainerApi'
+import { useTr } from '@/store/lang'
 import { Section, QueryState } from './shared'
 
 // --- Verwaltung: Einstellungen ------------------------------------------------
 
 export function SettingsBlock() {
+  const { tr } = useTr()
   const qc = useQueryClient()
   // Die Einstellungen gelten global für alle Kurse -> nur Admins dürfen schalten.
   const isAdmin = useIsAdmin()
@@ -14,15 +16,15 @@ export function SettingsBlock() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ['features'] }),
   })
   return (
-    <Section title="Einstellungen">
+    <Section title={tr('trSettings')}>
       <QueryState query={features}>
         <label className="flex items-center gap-2 text-sm text-[var(--wb-ink)]">
           <input type="checkbox" checked={features.data?.comments ?? false} disabled={!isAdmin || toggle.isPending}
             onChange={(e) => toggle.mutate(e.target.checked)} />
-          Feedback-Kommentare für Teilnehmer aktiv
+          {tr('trFeedbackCommentsActive')}
         </label>
-        {!isAdmin && <p className="mt-2 text-xs text-[var(--wb-muted)]">Globale Einstellungen ändern nur Administratoren.</p>}
-        {toggle.isError && <p role="alert" className="mt-2 text-sm text-rose-600">Speichern fehlgeschlagen.</p>}
+        {!isAdmin && <p className="mt-2 text-xs text-[var(--wb-muted)]">{tr('trGlobalAdminsOnly')}</p>}
+        {toggle.isError && <p role="alert" className="mt-2 text-sm text-rose-600">{tr('trSaveFailed')}</p>}
       </QueryState>
     </Section>
   )

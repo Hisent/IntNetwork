@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { TRAINER_DE, TRAINER_EN } from './i18nTrainer'
 
 export type Lang = 'de' | 'en'
 
@@ -55,6 +56,7 @@ export function usePublicLang(): [Lang, (lang: Lang) => void] {
 
 export const STRINGS = {
   de: {
+    ...TRAINER_DE,
     join: 'Beitreten',
     courseCode: 'Kurs-Code',
     modules: 'Module',
@@ -178,6 +180,7 @@ export const STRINGS = {
     pollScaleValue: 'Wert',
   },
   en: {
+    ...TRAINER_EN,
     join: 'Join',
     courseCode: 'Course code',
     modules: 'Modules',
@@ -304,4 +307,14 @@ export const STRINGS = {
 
 export function t(lang: Lang, key: keyof typeof STRINGS['de']): string {
   return STRINGS[lang][key]
+}
+
+/** t() mit {name}-Platzhaltern (Zählungen, Namen in Bestätigungstexten). */
+export function tf(lang: Lang, key: keyof typeof STRINGS['de'], vars: Record<string, string | number> = {}): string {
+  return t(lang, key).replace(/\{(\w+)\}/g, (m, name: string) => (name in vars ? String(vars[name]) : m))
+}
+
+/** Locale für Datum/Zahl — wie CertificatePage/VerifyPage. */
+export function localeOf(lang: Lang): string {
+  return lang === 'de' ? 'de-DE' : 'en-GB'
 }

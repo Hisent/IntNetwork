@@ -18,7 +18,9 @@ import { slideKeyAction } from '@/lib/slideKeys'
 import { modulePositions } from '@/lib/modulePosition'
 import { LoadError } from '@/components/LoadError'
 import { validPollCourse } from '@/lib/pollCourse'
-import { useDocumentTitle } from '@/lib/i18n'
+import { useDocumentLang, useDocumentTitle } from '@/lib/i18n'
+import { TrainerLangToggle } from '@/components/TrainerLangToggle'
+import { useTr } from '@/store/lang'
 
 // Beamer-Modus: Folie 0 = Titel/Szenario/Lernziele, danach ein Block pro Folie.
 // Navigation: Pfeiltasten/Leertaste, Esc beendet. Notizen bleiben einklappbar
@@ -27,6 +29,8 @@ import { useDocumentTitle } from '@/lib/i18n'
 // setzt ihn). Ohne Kurs bleibt die Präsentation wie bisher, nur ohne Abstimmung.
 export function TrainerPresentPage() {
   const { key = '' } = useParams()
+  const { lang, tr } = useTr()
+  useDocumentLang(lang)
   const navigate = useNavigate()
   const { token, role } = useAuthStore()
   const [slide, setSlide] = useState(0)
@@ -61,7 +65,7 @@ export function TrainerPresentPage() {
   useEffect(() => {
     if (cidRejected) setParams({}, { replace: true })
   }, [cidRejected, setParams])
-  useDocumentTitle(mod.data ? `${mod.data.title} · Präsentation` : undefined)
+  useDocumentTitle(mod.data ? `${mod.data.title} · ${tr('trPresentationTitle')}` : undefined)
   const pollKey = ['trainer-poll', cid]
   const poll = useQuery({
     queryKey: pollKey,
@@ -126,11 +130,11 @@ export function TrainerPresentPage() {
   if (role !== 'trainer' || !token)
     return (
       <div className="p-10 text-slate-600">
-        Nur für Trainer. <Link to="/trainer" className="text-teal-600">Zum Login</Link>
+        {tr('trTrainerOnly')} <Link to="/trainer" className="text-teal-600">{tr('trToLogin')}</Link>
       </div>
     )
-  if (mod.isError && !mod.data) return <LoadError onRetry={() => mod.refetch()} />
-  if (mod.isLoading || !mod.data) return <div className="p-10">Lädt…</div>
+  if (mod.isError && !mod.data) return <LoadError lang={lang} onRetry={() => mod.refetch()} />
+  if (mod.isLoading || !mod.data) return <div className="p-10">{tr('trLoadingShort')}</div>
   const m = mod.data
   const position = modulePositions((allMods.data ?? []).filter((x) => (x.workshop_key ?? null) === (m.workshop_key ?? null))).get(key)
   const block = slide > 0 ? m.blocks[slide - 1] : null
@@ -147,18 +151,18 @@ export function TrainerPresentPage() {
       <WorkshopTheme theme={workshopTheme(m.workshop_key)}><main id="main-content" tabIndex={-1} className="workbench flex flex-col">
         <div className="mx-auto flex w-full max-w-5xl flex-1 flex-col justify-center px-8 py-6 sm:px-14">
           <p className="text-sm font-semibold uppercase tracking-widest text-[var(--wb-accent)]">
-            Live-Abstimmung{courseName ? ` · ${courseName}` : ''}
+            {tr('trLivePoll')}{courseName ? ` · ${courseName}` : ''}
           </p>
           <h1 className="mt-3 text-3xl font-bold leading-tight sm:text-4xl">{livePoll.prompt}</h1>
           <div className="mt-8">
-            {moderated && livePoll.status !== 'revealed' ? <p className="text-2xl text-[var(--wb-muted)]">Die Antworten erscheinen nach dem Auflösen.</p>
-              : livePoll.kind === 'scale' ? <ScaleResult poll={livePoll} lang="de" big />
-                : livePoll.kind === 'words' ? <WordCloud words={livePoll.words ?? []} lang="de" big />
-                  : livePoll.kind === 'text' ? <TextAnswers answers={livePoll.answers ?? []} lang="de" big onHide={(id) => hideAnswer.mutate({ id, hidden: true })} />
-                    : <PollOptions poll={livePoll} lang="de" big />}
+            {moderated && livePoll.status !== 'revealed' ? <p className="text-2xl text-[var(--wb-muted)]">{tr('trAnswersAfterReveal')}</p>
+              : livePoll.kind === 'scale' ? <ScaleResult poll={livePoll} lang={lang} big />
+                : livePoll.kind === 'words' ? <WordCloud words={livePoll.words ?? []} lang={lang} big />
+                  : livePoll.kind === 'text' ? <TextAnswers answers={livePoll.answers ?? []} lang={lang} big onHide={(id) => hideAnswer.mutate({ id, hidden: true })} />
+                    : <PollOptions poll={livePoll} lang={lang} big />}
           </div>
           <p className="mt-6 text-2xl font-semibold tabular-nums" data-testid="poll-votes">
-            {livePoll.votes} {moderated ? (livePoll.votes === 1 ? 'Antwort' : 'Antworten') : livePoll.votes === 1 ? 'Stimme' : 'Stimmen'}
+            {livePoll.votes} {moderated ? (livePoll.votes === 1 ? tr('trAnswerOne') : tr('trAnswerMany')) : livePoll.votes === 1 ? tr('trVoteOne') : tr('trVoteMany')}
           </p>
           {moderated && <PollModeration poll={livePoll} pending={hideAnswer.isPending} onHide={(item, hidden) => hideAnswer.mutate({ id: item.id, word: item.word, hidden })} />}
           {livePoll.status === 'revealed' && livePoll.explanation && (
@@ -169,18 +173,18 @@ export function TrainerPresentPage() {
           {/* Verlassen beendet die Abstimmung mit — sonst bliebe sie für die Teilnehmer offen und für den Trainer unsichtbar. */}
           <button type="button" onClick={() => closePoll.mutate(undefined, { onSuccess: () => navigate(`/trainer/modul/${key}`) })} disabled={closePoll.isPending}
             className="wb-control mr-auto rounded-lg px-3 text-[var(--wb-muted)] hover:text-[var(--wb-ink)]">
-            ✕ Abstimmung beenden und Präsentation verlassen
+            {tr('trEndPollAndLeave')}
           </button>
-          {(revealPoll.isError || closePoll.isError || hideAnswer.isError) && <p role="alert" className="text-[var(--wb-ink)]">Aktion fehlgeschlagen — bitte erneut versuchen.</p>}
+          {(revealPoll.isError || closePoll.isError || hideAnswer.isError) && <p role="alert" className="text-[var(--wb-ink)]">{tr('trActionFailed')}</p>}
           {livePoll.status === 'open' && (
             <button type="button" onClick={() => revealPoll.mutate()} disabled={revealPoll.isPending}
               className="wb-control rounded-lg bg-[var(--wb-accent)] px-5 font-semibold text-white hover:bg-[var(--wb-accent-hover)]">
-              Auflösen
+              {tr('trReveal')}
             </button>
           )}
           <button type="button" onClick={() => closePoll.mutate()} disabled={closePoll.isPending}
             className="wb-control rounded-lg border border-[var(--wb-border)] px-5 font-semibold hover:border-[var(--wb-accent)]">
-            Abstimmung beenden
+            {tr('trEndPoll')}
           </button>
         </div>
       </main></WorkshopTheme>
@@ -197,7 +201,7 @@ export function TrainerPresentPage() {
             <div>
               <BrandLogo className="mb-8 h-10 text-lg" showName />
               <p className="text-sm font-semibold uppercase tracking-widest text-teal-700 mb-3">
-                {position ? `Modul ${position}` : 'Modul'}
+                {position ? tr('trModuleN', { n: position }) : tr('trModuleWord')}
               </p>
               <h1 className="text-4xl sm:text-5xl font-bold text-slate-900 leading-tight mb-6">{m.title}</h1>
               {m.scenario && (
@@ -222,16 +226,16 @@ export function TrainerPresentPage() {
               // Teilnehmern); Lösung und Notiz bleiben hinter einem Klick.
               <>
                 <div className="workbench !min-h-0 !bg-transparent">
-                  <p className="text-sm font-semibold uppercase tracking-widest text-[var(--wb-accent)]">Kurz-Check</p>
+                  <p className="text-sm font-semibold uppercase tracking-widest text-[var(--wb-accent)]">{tr('trQuickCheck')}</p>
                   <h2 className="mb-6 mt-2 text-3xl font-bold leading-tight">{pollCheck.prompt}</h2>
-                  <PollOptions poll={{ id: 0, status: 'open', prompt: pollCheck.prompt, options: pollCheck.options }} lang="de" big />
+                  <PollOptions poll={{ id: 0, status: 'open', prompt: pollCheck.prompt, options: pollCheck.options }} lang={lang} big />
                 </div>
                 <button type="button" onClick={() => startPoll.mutate({ source: 'check', ref: pollCheck.uid! })} disabled={startPoll.isPending}
                   className="mt-6 rounded-lg bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 text-base font-medium">
-                  Abstimmung starten
+                  {tr('trStartPoll')}
                 </button>
                 <details className="mt-6 text-base">
-                  <summary className="cursor-pointer text-sm text-slate-500">Lösung und Notiz anzeigen</summary>
+                  <summary className="cursor-pointer text-sm text-slate-500">{tr('trShowSolutionNote')}</summary>
                   <div className="mt-3"><TrainerBlocks blocks={[pollCheck]} /></div>
                 </details>
               </>
@@ -242,51 +246,54 @@ export function TrainerPresentPage() {
 
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-slate-100 px-6 py-2 text-sm text-slate-600">
         <label className="flex items-center gap-2">
-          Kurs für Live-Abstimmung
+          {tr('trCourseForPoll')}
           <select value={cid ?? ''} onChange={(e) => setParams(e.target.value ? { kurs: e.target.value } : {}, { replace: true })}
             className="max-w-56 rounded-lg border bg-white px-2 py-1.5 text-slate-700">
-            <option value="">— ohne —</option>
+            <option value="">{tr('trWithout')}</option>
             {courseOptions.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
           </select>
         </label>
         {cid != null && singles.length > 0 && (
-          <select aria-label="Quizfrage zur Abstimmung stellen" value="" disabled={startPoll.isPending}
+          <select aria-label={tr('trQuizAsPollAria')} value="" disabled={startPoll.isPending}
             onChange={(e) => { if (e.target.value) startPoll.mutate({ source: 'quiz', ref: e.target.value }) }}
             className="max-w-72 rounded-lg border bg-white px-2 py-1.5 text-slate-700">
-            <option value="">Quizfrage abstimmen …</option>
-            {singles.map(({ q, n }) => <option key={q.id} value={q.id}>{n}. {q.prompt.length > 70 ? `${q.prompt.slice(0, 70)}…` : q.prompt}{q.type === 'multi' ? ' (Mehrfachauswahl)' : ''}</option>)}
+            <option value="">{tr('trQuizAsPollOpt')}</option>
+            {singles.map(({ q, n }) => <option key={q.id} value={q.id}>{n}. {q.prompt.length > 70 ? `${q.prompt.slice(0, 70)}…` : q.prompt}{q.type === 'multi' ? ` (${tr('trKindMulti')})` : ''}</option>)}
           </select>
         )}
         {cid != null && !composing && (
           <button type="button" onClick={() => setComposing(true)} className="rounded-lg border bg-white px-3 py-1.5 text-slate-700 hover:bg-slate-50">
-            Eigene Abstimmung …
+            {tr('trOwnPollBtn')}
           </button>
         )}
-        {startPoll.isError && <span role="alert" className="text-slate-900">{errMsg(startPoll.error, 'Abstimmung konnte nicht gestartet werden.')}</span>}
+        {startPoll.isError && <span role="alert" className="text-slate-900">{errMsg(startPoll.error, tr('trPollStartFailed'))}</span>}
         {pollFailed && (
           <span role="alert" className="text-slate-900">
-            Der Stand der Live-Abstimmung konnte nicht geladen werden — eine laufende Abstimmung ist für die Teilnehmer evtl. noch offen.{' '}
-            <button type="button" onClick={() => poll.refetch()} className="font-semibold underline">Erneut versuchen</button>
+            {tr('trPollStateFailed')}{' '}
+            <button type="button" onClick={() => poll.refetch()} className="font-semibold underline">{tr('trRetry')}</button>
           </span>
         )}
       </div>
 
       <div className="flex items-center justify-between border-t border-slate-100 px-6 py-3 text-sm">
         <Link to={`/trainer/modul/${key}`} className="text-slate-600 hover:text-slate-900">
-          ✕ Beenden <span className="text-xs">(Esc)</span>
+          {tr('trExit')} <span className="text-xs">(Esc)</span>
         </Link>
         <div className="flex items-center gap-3">
           <button onClick={() => setSlide((s) => Math.max(s - 1, 0))} disabled={slide === 0}
             className="rounded-lg border px-3 py-1.5 text-slate-700 hover:bg-slate-50 disabled:opacity-30">
-            ← zurück
+            {tr('trBackSlide')}
           </button>
           <span className="tabular-nums text-slate-500">{slide + 1} / {total}</span>
           <button onClick={() => setSlide((s) => Math.min(s + 1, total - 1))} disabled={slide === total - 1}
             className="rounded-lg border px-3 py-1.5 text-slate-700 hover:bg-slate-50 disabled:opacity-30">
-            weiter →
+            {tr('trNextSlide')}
           </button>
         </div>
-        <span className="text-xs text-slate-500 hidden sm:block">Pfeiltasten / Leertaste</span>
+        <div className="flex items-center gap-3">
+          <TrainerLangToggle />
+          <span className="text-xs text-slate-500 hidden sm:block">{tr('trArrowKeys')}</span>
+        </div>
       </div>
     </main></WorkshopTheme>
   )
@@ -299,12 +306,13 @@ export function TrainerPresentPage() {
 function PollModeration({ poll, pending, onHide }: {
   poll: LivePoll; pending: boolean; onHide: (item: NonNullable<LivePoll['moderation']>[number], hidden: boolean) => void
 }) {
+  const { tr } = useTr()
   const items = poll.moderation ?? []
   const hidden = items.filter((m) => m.hidden).length
   return (
     <details className="mt-6 text-base">
       <summary className="wb-control cursor-pointer text-[var(--wb-muted)]">
-        {poll.kind === 'words' ? 'Wörter' : 'Antworten'} prüfen ({items.length}{hidden ? `, ${hidden} ausgeblendet` : ''}) — erst nach Klick sichtbar
+        {tr('trModerateHead', { what: poll.kind === 'words' ? tr('trWords') : tr('trAnswerMany'), count: `${items.length}${hidden ? tr('trHiddenCount', { n: hidden }) : ''}` })}
       </summary>
       <ul className="mt-3 space-y-2">
         {items.map((m) => {
@@ -314,9 +322,9 @@ function PollModeration({ poll, pending, onHide }: {
               <span className={`min-w-0 flex-1 [overflow-wrap:anywhere] ${m.hidden ? 'text-[var(--wb-muted)] line-through' : ''}`}>
                 {label}{m.count != null && <span className="ml-2 text-sm tabular-nums text-[var(--wb-muted)]">{m.count}×</span>}
               </span>
-              <button type="button" disabled={pending} onClick={() => onHide(m, !m.hidden)} aria-label={`${m.hidden ? 'Einblenden' : 'Ausblenden'}: ${label}`}
+              <button type="button" disabled={pending} onClick={() => onHide(m, !m.hidden)} aria-label={`${m.hidden ? tr('trShow') : tr('trHide')}: ${label}`}
                 className="wb-control shrink-0 rounded-lg px-2 text-sm text-[var(--wb-muted)] hover:text-[var(--wb-ink)]">
-                {m.hidden ? 'Einblenden' : 'Ausblenden'}
+                {m.hidden ? tr('trShow') : tr('trHide')}
               </button>
             </li>
           )

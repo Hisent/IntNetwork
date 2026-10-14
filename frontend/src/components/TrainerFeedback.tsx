@@ -2,9 +2,11 @@ import { useRef, useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { trainerApi } from '@/lib/trainerApi'
 import { ConfirmDialog } from '@/components/ConfirmDialog'
+import { useTr } from '@/store/lang'
 import { groupByModuleBlock, blockSnippet, type TrainerComment } from '@/components/commentGroups'
 
 export function TrainerFeedback({ courseId }: { courseId: number }) {
+  const { tr } = useTr()
   const comments = useQuery({
     queryKey: ['course-comments', courseId],
     queryFn: () => trainerApi.courseComments(courseId).then((r) => r.data),
@@ -12,7 +14,7 @@ export function TrainerFeedback({ courseId }: { courseId: number }) {
 
   if (!comments.data) return null
   if (comments.data.length === 0)
-    return <p className="text-sm text-slate-500">Noch kein Feedback in diesem Kurs.</p>
+    return <p className="text-sm text-slate-500">{tr('trNoFeedback')}</p>
 
   const byModule = new Map<string, TrainerComment[]>()
   for (const c of comments.data) {
@@ -39,6 +41,7 @@ function FeedbackModule({
   moduleKey: string
   comments: TrainerComment[]
 }) {
+  const { tr } = useTr()
   const qc = useQueryClient()
   const mod = useQuery({
     queryKey: ['trainer-module', moduleKey],
@@ -72,25 +75,25 @@ function FeedbackModule({
   return (
     <div ref={rootRef} className="rounded-xl border bg-white p-4">
       <h4 className="text-sm font-semibold text-slate-800 mb-2">{mod.data?.title ?? moduleKey}</h4>
-      {(add.isError || del.isError) && <p role="alert" className="mb-2 text-xs text-rose-600">Aktion fehlgeschlagen — bitte erneut versuchen.</p>}
+      {(add.isError || del.isError) && <p role="alert" className="mb-2 text-xs text-rose-600">{tr('trActionFailed')}</p>}
       <div className="flex flex-col gap-3">
         {groups.map((g) => {
           const snippet = blockSnippet(mod.data?.blocks[g.blockIndex])
           return (
             <div key={g.blockIndex} className="border-t pt-2">
               <p className="text-xs text-slate-500">
-                Block {g.blockIndex + 1}
-                {snippet && <span> · „{snippet}"</span>}
+                {tr('trBlockN', { n: g.blockIndex + 1 })}
+                {snippet && <span> · {tr('trQuoted', { text: snippet })}</span>}
               </p>
               {g.items.map((c) => (
                 <div key={c.id} className="text-sm mt-1">
                   <span className="font-medium text-slate-700">{c.author_name}</span>
                   <button
                     onClick={(e) => { deleteTriggerRef.current = e.currentTarget; setDeleteTarget(c) }}
-                    aria-label={`Kommentar von ${c.author_name} löschen`}
+                    aria-label={tr('trDeleteCommentAria', { name: c.author_name })}
                     className="ml-2 text-xs text-rose-600 hover:text-rose-700"
                   >
-                    löschen
+                    {tr('trDeleteLower')}
                   </button>
                   <p className="text-slate-700">{c.body}</p>
                 </div>
@@ -104,16 +107,16 @@ function FeedbackModule({
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) { e.preventDefault(); send(g.blockIndex) }
                   }}
-                  aria-label={`Antwort zu Block ${g.blockIndex + 1}`}
-                  title="Enter sendet, Umschalt+Enter fügt eine Zeile ein"
-                  placeholder="Antwort…"
+                  aria-label={tr('trReplyToBlockAria', { n: g.blockIndex + 1 })}
+                  title={tr('trEnterSends')}
+                  placeholder={tr('trReplyPh')}
                   className="flex-1 border rounded-lg px-2 py-1 text-sm"
                 />
                 <button
                   onClick={() => send(g.blockIndex)}
                   className="rounded-lg bg-teal-600 hover:bg-teal-700 text-white px-3 text-sm font-medium"
                 >
-                  Antworten
+                  {tr('trReply')}
                 </button>
               </div>
             </div>
@@ -122,9 +125,10 @@ function FeedbackModule({
       </div>
       <ConfirmDialog
         open={deleteTarget !== null}
-        title="Kommentar löschen"
-        description={<>Den Kommentar von „{deleteTarget?.author_name}“ endgültig löschen?</>}
-        confirmLabel="Löschen"
+        title={tr('trDeleteComment')}
+        description={<>{tr('trDeleteCommentDesc', { name: deleteTarget?.author_name ?? '' })}</>}
+        confirmLabel={tr('trDelete')}
+        cancelLabel={tr('trCancel')}
         triggerRef={deleteTriggerRef}
         container={rootRef.current?.closest('.workbench')}
         onConfirm={() => { if (deleteTarget) del.mutate(deleteTarget.id); setDeleteTarget(null) }}

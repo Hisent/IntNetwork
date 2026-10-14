@@ -1,19 +1,21 @@
 import type { Question } from '@/types'
 import { t } from '@/lib/i18n'
+import { useTr } from '@/store/lang'
 import { isCorrect } from '@/components/quizSolutions'
 
 export function TrainerQuiz({ questions }: { questions: Question[] }) {
+  const { lang, tr } = useTr()
   return (
     <div className="mt-8 rounded-2xl border bg-white p-6">
-      <h3 className="text-lg font-semibold text-slate-900 mb-4">Quiz — mit Lösungen</h3>
+      <h3 className="text-lg font-semibold text-slate-900 mb-4">{tr('trQuizWithSolutions')}</h3>
       <div className="flex flex-col gap-5">
         {questions.map((q) => (
           <div key={q.id}>
             <p className="font-medium text-slate-800 mb-2">{q.prompt}</p>
-            {q.type === 'multi' && <p className="mb-2 text-sm text-slate-500">{t('de', 'multiHint')}</p>}
+            {q.type === 'multi' && <p className="mb-2 text-sm text-slate-500">{t(lang, 'multiHint')}</p>}
             {q.type === 'number' ? (
               <p className="text-sm">
-                <span className="text-slate-500">Antwort: </span>
+                <span className="text-slate-500">{tr('trAnswerColon')}</span>
                 <span className="font-mono font-semibold text-teal-700">{q.answer}</span>
               </p>
             ) : (
@@ -33,7 +35,7 @@ export function TrainerQuiz({ questions }: { questions: Question[] }) {
               </div>
             )}
             {q.explanation && (
-              <p className="mt-2 text-sm text-slate-600"><span className="font-semibold">Erklärung: </span>{q.explanation}</p>
+              <p className="mt-2 text-sm text-slate-600"><span className="font-semibold">{tr('trExplanationColon')}</span>{q.explanation}</p>
             )}
           </div>
         ))}
