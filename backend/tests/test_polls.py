@@ -98,7 +98,7 @@ def test_keine_loesung_vor_dem_aufloesen():
         _vote(c, p, poll["id"], q["answer"])
         # Weder Lösung noch Erklärung noch Verteilung/Stimmenzahl (indirekter Hinweis) noch die Referenz.
         assert set(c.get(f"/api/modules/{MOD}/poll", headers=p).json()) == {
-            "id", "status", "prompt", "options", "my_choice"}
+            "id", "kind", "status", "prompt", "options", "my_choice"}
         assert set(_vote(c, p, poll["id"], q["answer"]).json()) == {"ok", "my_choice"}
 
 
@@ -143,7 +143,7 @@ def test_stimmen_bleiben_gegenueber_dem_trainer_anonym():
         _vote(c, p, poll["id"], 0)
         for r in (c.get(f"/api/trainer/courses/{cid}/poll", headers=h),
                   c.post(f"/api/trainer/courses/{cid}/poll/reveal", headers=h)):
-            assert set(r.json()) == {"id", "status", "prompt", "options", "counts", "votes", "answer",
+            assert set(r.json()) == {"id", "kind", "status", "prompt", "options", "counts", "votes", "answer",
                                      "explanation", "module_key", "source", "ref"}
             assert "Geheimnisvoll" not in r.text and "participant" not in r.text
 
@@ -178,10 +178,10 @@ def test_start_prueft_referenz_und_typ():
         assert start(ref=_single(c, h, "dns")["id"]) == 422
         mods = [c.get(f"/api/trainer/modules/{m['key']}", headers=h).json()
                 for m in c.get("/api/trainer/modules", headers=h).json() if m["workshop_key"] == "network"]
-        # Nicht-Single-Fragen und Zahlen-Checks sind keine Abstimmung
-        multi = next(((m["key"], q) for m in mods for q in m["quiz"]["questions"] if q["type"] != "single"), None)
-        if multi:
-            assert start(module_key=multi[0], ref=multi[1]["id"]) == 422
+        # Zahlenfragen und Zahlen-Checks sind keine Abstimmung
+        numq = next(((m["key"], q) for m in mods for q in m["quiz"]["questions"] if q["type"] == "number"), None)
+        if numq:
+            assert start(module_key=numq[0], ref=numq[1]["id"]) == 422
         number = next((m["key"], b) for m in mods for b in m["blocks"]
                       if b["type"] == "check" and b["kind"] == "number")
         assert start(module_key=number[0], source="check", ref=number[1]["uid"]) == 422

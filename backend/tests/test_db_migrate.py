@@ -20,8 +20,8 @@ from app.config import settings
 from app.database import Base, engine
 from app.main import app
 
-_HEAD = "c8d9e0f1a2b3"        # add_live_poll
-_VORGAENGER = "7305d4053e50"  # add_trainer_credential (danach laufen 75aeb8d5399c, a6b7c8d9e0f1, b7c8d9e0f1a2 und c8d9e0f1a2b3 erneut)
+_HEAD = "9f3e7a1c5b2d"        # add_live_poll_types
+_VORGAENGER = "7305d4053e50"  # add_trainer_credential (danach laufen 75aeb8d5399c … 9f3e7a1c5b2d erneut)
 
 
 def _blocked() -> OperationalError:
@@ -195,6 +195,46 @@ def test_downgrade_und_erneutes_upgrade_laesst_module_unediert(leere_db, monkeyp
     eigene.dispose()
     assert ergebnis["skipped"] == {} and ergebnis["failed"] == []
     assert "arp" in ergebnis["updated"]  # Erklärungen/goals_en sind wieder da
+
+
+def test_9f3e7a1c5b2d_downgrade_behaelt_single_und_entfernt_neue_arten(leere_db, monkeypatch):
+    """Abstimmungsarten: der Downgrade lässt Single-Choice-Abstimmungen samt
+    Stimmen stehen und entfernt nur, was das alte Schema nicht abbilden kann."""
+    from app.models.course import Course
+    from app.models.live_poll import LivePoll, LivePollVote
+    from app.models.participant import Participant
+
+    monkeypatch.setattr(settings, "database_url", leere_db)
+    cfg = db_migrate._config()
+    eigene = create_engine(leere_db)
+    command.upgrade(cfg, "head")
+    with Session(eigene) as db:
+        course = Course(name="K", join_code="DOWN1")
+        db.add(course)
+        db.flush()
+        p = Participant(course_id=course.id, name="P")
+        single = LivePoll(course_id=course.id, module_key="vlan", source="quiz", ref="q1")
+        words = LivePoll(course_id=course.id, module_key="vlan", source="adhoc", ref="", kind="words",
+                         config={"prompt": "?"})
+        db.add_all([p, single, words])
+        db.flush()
+        db.add_all([LivePollVote(poll_id=single.id, participant_id=p.id, choice=1),
+                    LivePollVote(poll_id=words.id, participant_id=p.id, value=["vlan"])])
+        db.commit()
+        single_id = single.id
+
+    command.downgrade(cfg, "c8d9e0f1a2b3")
+    with eigene.connect() as conn:
+        assert conn.execute(text("SELECT id FROM live_poll")).scalars().all() == [single_id]
+        assert conn.execute(text("SELECT poll_id, choice FROM live_poll_vote")).all() == [(single_id, 1)]
+    cols = {c["name"]: c for c in inspect(eigene).get_columns("live_poll_vote")}
+    assert "value" not in cols and "hidden" not in cols and cols["choice"]["nullable"] is False
+    assert "kind" not in {c["name"] for c in inspect(eigene).get_columns("live_poll")}
+
+    command.upgrade(cfg, "head")
+    with eigene.connect() as conn:
+        assert conn.execute(text("SELECT kind FROM live_poll")).scalars().all() == ["single"]
+    eigene.dispose()
 
 
 def test_env_py_importiert_alle_modelle():

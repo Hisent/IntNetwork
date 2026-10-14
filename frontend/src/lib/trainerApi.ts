@@ -1,5 +1,5 @@
 import { api } from '@/lib/api'
-import type { LivePoll, ModuleMeta, TrainerModuleDetail } from '@/types'
+import type { AdhocPoll, LivePoll, ModuleMeta, TrainerModuleDetail } from '@/types'
 import type { TrainerComment } from '@/components/commentGroups'
 
 export interface Course { id: number; name: string; join_code: string; workshop_key: string | null; participant_count?: number; require_approval?: boolean; /** nur im Dashboard: ausgestellte Zertifikate dieses Kurses */ certificate_count?: number }
@@ -150,6 +150,10 @@ export const trainerApi = {
   poll: (cid: number) => api.get<LivePoll | null>(`/trainer/courses/${cid}/poll`),
   startPoll: (cid: number, module_key: string, source: 'quiz' | 'check', ref: string) =>
     api.post<LivePoll>(`/trainer/courses/${cid}/poll`, { module_key, source, ref }),
+  startAdhocPoll: (cid: number, module_key: string, poll: AdhocPoll) =>
+    api.post<LivePoll>(`/trainer/courses/${cid}/poll`, { module_key, source: 'adhoc', ...poll }),
+  hidePollAnswer: (cid: number, id: number, hidden: boolean) =>
+    api.patch<LivePoll>(`/trainer/courses/${cid}/poll/answers/${id}`, { hidden }),
   revealPoll: (cid: number) => api.post<LivePoll>(`/trainer/courses/${cid}/poll/reveal`),
   closePoll: (cid: number) => api.delete(`/trainer/courses/${cid}/poll`),
   listContentModules: () => api.get<EditorModuleMeta[]>('/trainer/content/modules'),

@@ -55,15 +55,31 @@ export interface WorkshopDetail extends Workshop {
 }
 
 // Live-Abstimmung. Teilnehmer bekommen my_choice und erst bei status "revealed"
-// counts/votes/answer/explanation; der Trainer sieht diese Felder immer.
+// das Ergebnis (counts/votes/mean/answers/words, bei Inhaltsfragen answer/explanation);
+// der Trainer sieht es immer, bei Freitext samt ausgeblendeter Antworten und deren id.
+export type PollKind = 'single' | 'multi' | 'scale' | 'text' | 'words'
+export type PollChoice = number | number[] | string | string[]
 export interface LivePoll {
   id: number
+  kind?: PollKind  // fehlt = single
   status: 'open' | 'revealed'
   prompt: string
-  options: string[]  // feste Reihenfolge — Beamer und Teilnehmer sehen dieselben Buchstaben
-  my_choice?: number | null
-  counts?: number[]
+  options?: string[]  // single/multi; feste Reihenfolge — Beamer und Teilnehmer sehen dieselben Buchstaben
+  max_selections?: number  // multi
+  min?: number; max?: number; label_min?: string; label_max?: string  // scale
+  my_choice?: PollChoice | null
+  counts?: number[]  // single/multi je Option, scale je Wert ab min
   votes?: number
-  answer?: number
+  mean?: number | null
+  answers?: { id?: number; text: string; hidden?: boolean }[]  // text
+  words?: { word: string; count: number }[]  // words, häufigste zuerst
+  answer?: number | number[]
   explanation?: string | null
+}
+export interface AdhocPoll {
+  kind: Exclude<PollKind, 'single'>
+  prompt: string
+  options?: string[]
+  max_selections?: number | null
+  min?: number; max?: number; label_min?: string; label_max?: string
 }
