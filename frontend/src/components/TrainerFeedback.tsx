@@ -128,7 +128,6 @@ function FeedbackModule({
         title={tr('trDeleteComment')}
         description={<>{tr('trDeleteCommentDesc', { name: deleteTarget?.author_name ?? '' })}</>}
         confirmLabel={tr('trDelete')}
-        cancelLabel={tr('trCancel')}
         triggerRef={deleteTriggerRef}
         container={rootRef.current?.closest('.workbench')}
         onConfirm={() => { if (deleteTarget) del.mutate(deleteTarget.id); setDeleteTarget(null) }}

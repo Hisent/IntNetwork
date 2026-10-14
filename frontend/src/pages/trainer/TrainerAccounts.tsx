@@ -88,7 +88,6 @@ export function TrainerAccounts({ portalContainer }: { portalContainer: HTMLElem
         title={tr('trRemoveAccount')}
         description={<>{tr('trRemoveAccountDesc', { name: deleteTarget?.name ?? '' })}</>}
         confirmLabel={tr('trRemovePermanently')}
-        cancelLabel={tr('trCancel')}
         triggerRef={deleteTriggerRef}
         container={portalContainer}
         onConfirm={() => { if (deleteTarget) remove.mutate(deleteTarget.id); setDeleteTarget(null) }}
