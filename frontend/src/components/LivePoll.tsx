@@ -4,24 +4,36 @@ import { learnApi } from '@/lib/learnApi'
 import { clearInert, focusableElements, setInert, siblingsOf } from '@/lib/focusTrap'
 import { t, type Lang } from '@/lib/i18n'
 import { Icon } from '@/components/Icon'
-import type { LivePoll } from '@/types'
+import { ScaleInput, ScaleResult, TextAnswers, TextInput, WordCloud, WordsInput } from '@/components/PollKinds'
+import type { LivePoll, PollChoice } from '@/types'
 
 // Live-Abstimmung: Optionsliste (Beamer + Teilnehmer) und die Einblendung im
 // offenen Modul. Braucht die --wb-*-Tokens, also eine ".workbench"-Wurzel.
 
+const has = (value: LivePoll['my_choice'] | LivePoll['answer'], index: number) =>
+  Array.isArray(value) ? (value as unknown[]).includes(index) : value === index
+
+/** Gleiche Auswahl (Single: Zahl, Multiple: Menge)? */
+function sameChoice(a: LivePoll['my_choice'] | LivePoll['answer'], b: LivePoll['my_choice'] | LivePoll['answer']) {
+  const norm = (v: typeof a) => JSON.stringify(Array.isArray(v) ? [...v].sort() : v)
+  return a != null && b != null && norm(a) === norm(b)
+}
+
 /** Optionen in der festen Server-Reihenfolge mit Buchstaben. Balken erscheinen,
  *  sobald `counts` da sind; die Lösung wird erst bei status "revealed" markiert
- *  (der Trainer kennt `answer` schon vorher — der Beamer darf sie nicht zeigen). */
-export function PollOptions({ poll, lang, big, onVote }: { poll: LivePoll; lang: Lang; big?: boolean; onVote?: (choice: number) => void }) {
+ *  (der Trainer kennt `answer` schon vorher — der Beamer darf sie nicht zeigen).
+ *  Mehrfachauswahl: Prozent je Option bezogen auf die Teilnehmer, `full` sperrt
+ *  weitere Optionen, sobald die Höchstzahl gewählt ist. */
+export function PollOptions({ poll, lang, big, full, onVote }: { poll: LivePoll; lang: Lang; big?: boolean; full?: boolean; onVote?: (choice: number) => void }) {
   const total = poll.votes ?? 0
   const revealed = poll.status === 'revealed'
   return (
     <ol className={big ? 'space-y-3 text-2xl sm:text-3xl' : 'space-y-2 text-sm'}>
-      {poll.options.map((option, index) => {
+      {(poll.options ?? []).map((option, index) => {
         const count = poll.counts?.[index]
         const pct = count != null && total > 0 ? Math.round((count / total) * 100) : 0
-        const correct = revealed && poll.answer === index
-        const mine = poll.my_choice === index
+        const correct = revealed && has(poll.answer, index)
+        const mine = has(poll.my_choice, index)
         const row = `relative block w-full overflow-hidden rounded-xl border-2 bg-[var(--wb-surface)] text-left text-[var(--wb-ink)] ${big ? 'px-5 py-4' : 'px-3 py-2.5'} ${correct ? 'border-[var(--wb-success)]' : mine ? 'border-[var(--wb-accent)]' : 'border-[var(--wb-border)]'}`
         const body = (
           <>
@@ -39,7 +51,7 @@ export function PollOptions({ poll, lang, big, onVote }: { poll: LivePoll; lang:
         return (
           <li key={index}>
             {onVote
-              ? <button type="button" aria-pressed={mine} onClick={() => onVote(index)} className={`${row} wb-control hover:border-[var(--wb-accent)]`}>{body}</button>
+              ? <button type="button" aria-pressed={mine} disabled={full && !mine} onClick={() => onVote(index)} className={`${row} wb-control hover:border-[var(--wb-accent)] disabled:opacity-50`}>{body}</button>
               : <div className={row}>{body}</div>}
           </li>
         )
@@ -59,9 +71,12 @@ export function ParticipantPoll({ moduleKey, lang }: { moduleKey: string; lang: 
   const { data: poll } = useQuery({
     queryKey, queryFn: () => learnApi.poll(moduleKey).then((r) => r.data), refetchInterval: 5_000, retry: false,
   })
+  const setMine = (choice: PollChoice) => qc.setQueryData<LivePoll | null>(queryKey, (old) => (old ? { ...old, my_choice: choice } : old))
   const vote = useMutation({
-    mutationFn: (choice: number) => learnApi.pollVote(moduleKey, poll!.id, choice),
-    onSuccess: (_r, choice) => qc.setQueryData<LivePoll | null>(queryKey, (old) => (old ? { ...old, my_choice: choice } : old)),
+    mutationFn: (choice: PollChoice) => learnApi.pollVote(moduleKey, poll!.id, choice),
+    // Sofort übernehmen: schnelles Umklicken bei Mehrfachauswahl rechnet sonst mit dem alten Stand.
+    onMutate: setMine,
+    onSuccess: (r, choice) => setMine(r.data?.my_choice ?? choice),  // Server normalisiert Text/Wörter
     onError: () => qc.invalidateQueries({ queryKey }),  // z. B. 409: inzwischen aufgelöst
   })
   const stage = poll ? `${poll.id}-${poll.status}` : ''
@@ -115,9 +130,36 @@ export function ParticipantPoll({ moduleKey, lang }: { moduleKey: string; lang: 
         {t(lang, revealed ? 'pollChipRevealed' : 'pollChipOpen')}
       </button>
     )
+  const kind = poll.kind ?? 'single'
+  const voted = poll.my_choice != null
+  const graded = poll.answer != null  // nur Inhaltsfragen haben eine Lösung
+  const correct = graded && sameChoice(poll.my_choice, poll.answer)
+  const picked = Array.isArray(poll.my_choice) ? (poll.my_choice as number[]) : []
+  const choose = kind === 'multi' && poll.max_selections
+    ? t(lang, 'pollChooseMax').replace('{n}', String(poll.max_selections))
+    : t(lang, ({ single: 'pollChoose', multi: 'pollChooseMulti', scale: 'pollChooseScale', text: 'pollChooseText', words: 'pollChooseWords' } as const)[kind])
   const status = revealed
-    ? poll.my_choice == null ? t(lang, 'pollNoVote') : t(lang, poll.my_choice === poll.answer ? 'pollCorrect' : 'pollWrong')
-    : poll.my_choice == null ? t(lang, 'pollChoose') : t(lang, 'pollVoted')
+    ? !voted ? t(lang, 'pollNoVote') : graded ? t(lang, correct ? 'pollCorrect' : 'pollWrong') : t(lang, 'pollThanks')
+    : !voted ? choose : t(lang, kind === 'text' || kind === 'words' ? 'pollSaved' : 'pollVoted')
+  const send = (choice: PollChoice) => vote.mutate(choice)
+  const toggle = (index: number) => {
+    const next = picked.includes(index) ? picked.filter((i) => i !== index) : [...picked, index].sort((a, b) => a - b)
+    if (next.length) send(next)  // mindestens eine Antwort bleibt gewählt (wie bei Single Choice)
+  }
+  const body =
+    kind === 'single' || kind === 'multi'
+      ? <PollOptions poll={poll} lang={lang} full={kind === 'multi' && !!poll.max_selections && picked.length >= poll.max_selections}
+          onVote={revealed ? undefined : kind === 'single' ? send : toggle} />
+      : kind === 'scale'
+        ? revealed ? <ScaleResult poll={poll} lang={lang} /> : <ScaleInput poll={poll} lang={lang} onVote={send} />
+        : kind === 'text'
+          ? revealed
+            ? <>
+                {typeof poll.my_choice === 'string' && <p className="mb-3 text-sm text-[var(--wb-muted)]">{t(lang, 'pollAnswerLabel')}: <span className="text-[var(--wb-ink)] [overflow-wrap:anywhere]">{poll.my_choice}</span></p>}
+                <TextAnswers answers={poll.answers ?? []} lang={lang} />
+              </>
+            : <TextInput key={poll.id} poll={poll} lang={lang} pending={vote.isPending} onSend={send} />
+          : revealed ? <WordCloud words={poll.words ?? []} lang={lang} /> : <WordsInput key={poll.id} poll={poll} lang={lang} pending={vote.isPending} onSend={send} />
   return (
     <div ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby="poll-title" aria-describedby="poll-prompt"
       className="fixed inset-0 z-[100] flex items-end justify-center bg-slate-900/30 p-4 sm:items-center print:hidden"
@@ -129,8 +171,8 @@ export function ParticipantPoll({ moduleKey, lang }: { moduleKey: string; lang: 
             className="wb-control -my-2 -mr-2 grid w-11 place-items-center rounded-lg text-[var(--wb-muted)] hover:text-[var(--wb-ink)]"><Icon name="close" className="h-5 w-5" /></button>
         </div>
         <h2 id="poll-prompt" className="mt-2 text-lg font-semibold leading-snug text-[var(--wb-ink)]">{poll.prompt}</h2>
-        <div className="mt-4"><PollOptions poll={poll} lang={lang} onVote={revealed ? undefined : (choice) => vote.mutate(choice)} /></div>
-        <p role="status" className={`mt-4 text-sm font-medium ${revealed && poll.my_choice === poll.answer ? 'text-[var(--wb-success)]' : 'text-[var(--wb-ink)]'}`}>
+        <div className="mt-4">{body}</div>
+        <p role="status" className={`mt-4 text-sm font-medium ${revealed && correct ? 'text-[var(--wb-success)]' : 'text-[var(--wb-ink)]'}`}>
           {vote.isError ? t(lang, 'pollError') : status}
           {revealed && <span className="ml-2 font-normal text-[var(--wb-muted)]">{poll.votes} {t(lang, 'pollVotes')}</span>}
         </p>

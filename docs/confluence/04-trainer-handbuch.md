@@ -67,7 +67,7 @@ Voraussetzungen: Der Beamer-Modus wurde mit Kurs gestartet (siehe oben), und die
 Variante A: Quizfrage des Moduls abstimmen lassen
 
 1. Im Beamer-Modus unten sicherstellen, dass bei „Kurs für Live-Abstimmung“ der richtige Kurs gewählt ist (die Liste enthält die Kurse desselben Lehrgangs; „— ohne —“ schaltet die Abstimmung aus).
-2. In der Auswahl „Quizfrage abstimmen …“ eine Frage wählen. Angeboten werden nur Single-Choice-Fragen des Moduls, nummeriert wie im Quiz.
+2. In der Auswahl „Quizfrage abstimmen …“ eine Frage wählen. Angeboten werden die Single- und Multiple-Choice-Fragen des Moduls, nummeriert wie im Quiz; Multiple-Choice-Fragen tragen den Zusatz „(Mehrfachauswahl)“. Bei ihnen wählen Teilnehmer mehrere Antworten, „Richtig!“ gibt es nur für genau die richtige Kombination.
 3. Der Bildschirm wechselt in die Ansicht „Live-Abstimmung · <Kursname>“ mit der Frage, den Antworten A, B, C, D und einem Zähler („n Stimmen“). Die Reihenfolge und die Buchstaben sind für alle gleich.
 4. Warten, bis genug Stimmen da sind. Der Beamer lädt die Zählung automatisch nach.
 5. „Auflösen“ zeigt die richtige Antwort, die Verteilung und, falls vorhanden, die Erklärung. Teilnehmer sehen gleichzeitig ihr eigenes Ergebnis.
@@ -79,6 +79,26 @@ Variante B: Kurz-Check auf einer Folie
 2. „Abstimmung starten“ wählen. Weiter wie in Variante A ab Schritt 3.
 3. „Lösung und Notiz anzeigen“ blendet Lösung und Trainer-Notiz erst nach Klick ein.
 
+Variante C: Eigene Abstimmung (ohne Lösung)
+
+1. Im Beamer-Modus unten „Eigene Abstimmung …“ wählen (nur mit gewähltem Kurs sichtbar). Es erscheint das Formular „Eigene Abstimmung“; „Abbrechen“ oder Esc schließt es, die Präsentation bleibt auf der Folie.
+2. Unter „Art“ eine der vier Arten wählen und die „Frage“ eintragen (höchstens 300 Zeichen):
+
+| Art | Eingaben im Formular | Teilnehmer | Ergebnis auf dem Beamer |
+| --- | --- | --- | --- |
+| Mehrfachauswahl | „Antworten (eine je Zeile, 2 bis 10)“, optional „Höchstens wählbar“ | wählen eine oder mehrere Antworten (bis zur Höchstzahl) | Balken je Antwort; Prozent bezogen auf die Teilnehmer, die abgestimmt haben |
+| Skala | „Von“ (0 oder 1), „Bis“ (2 bis 10), optional „Beschriftung unten“ und „Beschriftung oben“ (je höchstens 40 Zeichen) | wählen einen Wert | Säule je Wert und „Mittelwert“ |
+| Freitext | keine | schreiben eine kurze Antwort (höchstens 280 Zeichen) | Antwortkarten, alphabetisch sortiert |
+| Wortwolke | keine | nennen ein bis drei Wörter (je höchstens 30 Zeichen) | Wortwolke, häufige Wörter größer (höchstens 60 Wörter) |
+
+3. „Abstimmung starten“ wählen. Weiter wie in Variante A ab Schritt 3. Eigene Abstimmungen haben keine richtige Antwort; Teilnehmer sehen nach der Auflösung „Danke fürs Mitmachen!“ und das Ergebnis.
+
+Hinweise zu den Arten:
+
+- Wortwolke: Groß-/Kleinschreibung und Leerzeichen werden vereinheitlicht („ VLAN“ und „vlan“ zählen zusammen). Nennt ein Teilnehmer dasselbe Wort mehrfach, zählt es einmal.
+- Freitext moderieren: Vor dem Auflösen stehen die Antworten nicht groß auf dem Beamer, sondern eingeklappt unter „Antworten prüfen (n) — erst nach Klick sichtbar“. Dort blendet „Ausblenden“ eine Antwort aus, „Einblenden“ holt sie zurück. Nach „Auflösen“ erscheinen nur die sichtbaren Antworten groß; jede hat weiterhin „Ausblenden“. Ausgeblendete stehen eingeklappt unter „Ausgeblendete Antworten (n)“. Ausgeblendete Antworten sehen die Teilnehmer nicht; wer sie geschrieben hat, sieht seine eigene weiterhin. Ändert ein Teilnehmer eine ausgeblendete Antwort, bleibt sie ausgeblendet.
+- Anonymität: Weder Beamer noch Trainer noch andere Teilnehmer sehen, wer was geantwortet hat. Freitexte erscheinen alphabetisch, nicht in der Reihenfolge der Abgabe.
+
 Laufende Abstimmung im Kurs-Detail: Solange im gewählten Kurs eine Abstimmung offen ist, zeigt das Kurs-Detail oben einen Kasten „Live-Abstimmung läuft“ (nach der Auflösung „Live-Abstimmung läuft (aufgelöst)“) mit der Zahl der Stimmen und der Frage. Der Knopf „Abstimmung beenden“ schließt sie von dort aus, auch wenn der Beamer-Modus nicht mehr offen ist.
 
 Hinweise:
@@ -88,7 +108,7 @@ Hinweise:
 - Bleibt eine Abstimmung versehentlich offen (zum Beispiel Browser geschlossen), im Kurs-Detail oder im Beamer-Modus desselben Kurses „Abstimmung beenden“ wählen oder eine neue starten.
 - Bei Fehlern erscheint „Aktion fehlgeschlagen — bitte erneut versuchen.“ bzw. „Abstimmung konnte nicht gestartet werden.“
 
-Was Teilnehmer sehen: In ihrem geöffneten Modul blendet sich „Live-Abstimmung“ ein (Abfrage alle 5 Sekunden; im Hintergrund-Tab pausiert sie). Sie wählen eine Antwort („Wähle eine Antwort.“), ihre Stimme zählt („Stimme gezählt. Bis zur Auflösung kannst du dich umentscheiden.“). Mit „Minimieren“, Esc oder Klick daneben wird die Einblendung zum Hinweis „Live-Abstimmung läuft“, aus dem sie sich wieder öffnen lässt. Nach der Auflösung sehen sie „Richtig!“, „Leider falsch.“ oder „Du hast nicht abgestimmt.“
+Was Teilnehmer sehen: In ihrem geöffneten Modul blendet sich „Live-Abstimmung“ ein (Abfrage alle 5 Sekunden; im Hintergrund-Tab pausiert sie). Sie wählen eine Antwort („Wähle eine Antwort.“), ihre Stimme zählt („Stimme gezählt. Bis zur Auflösung kannst du dich umentscheiden.“). Bei den übrigen Arten lauten die Hinweise „Wähle eine oder mehrere Antworten.“ bzw. „Wähle bis zu n Antworten.“, „Wähle einen Wert.“, „Schreib eine kurze Antwort.“ und „Nenne ein bis drei Wörter.“; Freitext und Wörter werden mit „Senden“ abgeschickt („Gespeichert. Bis zur Auflösung kannst du deine Antwort ändern.“). Mit „Minimieren“, Esc oder Klick daneben wird die Einblendung zum Hinweis „Live-Abstimmung läuft“, aus dem sie sich wieder öffnen lässt; ein noch nicht gesendeter Text geht dabei verloren. Nach der Auflösung sehen sie „Richtig!“, „Leider falsch.“, „Danke fürs Mitmachen!“ (eigene Abstimmung) oder „Du hast nicht abgestimmt.“ und das Ergebnis. Die Einblendung gibt es auf Deutsch und Englisch, je nach Sprache des Teilnehmers; Fragen und Antworten eigener Abstimmungen erscheinen so, wie der Trainer sie eingegeben hat.
 
 ## Fortschritt und Präsenz lesen
 

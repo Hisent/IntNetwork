@@ -196,7 +196,13 @@ Editor gespeichert wurden, bleiben vorsichtshalber Trainer-Stand
 
 Zwei Tabellen (Migration `c8d9e0f1a2b3`): `live_poll` (je Kurs höchstens eine
 nicht geschlossene Zeile) und `live_poll_vote` (eine Zeile je Teilnehmer und
-Abstimmung). Beide hängen per `ON DELETE CASCADE` am Kurs bzw. Teilnehmer; ein
+Abstimmung). Migration `9f3e7a1c5b2d` ergänzt die Abstimmungsarten:
+`live_poll.kind` (`single`/`multi`/`scale`/`text`/`words`, Bestand `single`),
+`live_poll.config` (eigene Fragen), `live_poll_vote.value` und `.hidden`
+(ausgeblendeter Freitext); der Downgrade löscht Abstimmungen der neuen Arten.
+Grenzen an der API: Freitext 280 Zeichen, 1–3 Wörter à 30 Zeichen, Antworten
+über den Stimm-Endpunkt (Rate-Limit 240/min je IP, eine Zeile je Teilnehmer).
+Beide Tabellen hängen per `ON DELETE CASCADE` am Kurs bzw. Teilnehmer; ein
 Aufräumjob ist nicht nötig (wenige Zeilen je Workshop-Tag). Der Zustand liegt
 ausschließlich in der DB, mehrere Worker sind unkritisch.
 

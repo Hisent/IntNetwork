@@ -5,7 +5,9 @@ import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { trainerApi } from '@/lib/trainerApi'
 import { errMsg } from '@/lib/api'
 import { PollOptions } from '@/components/LivePoll'
-import type { LivePoll } from '@/types'
+import { ScaleResult, TextAnswers, WordCloud } from '@/components/PollKinds'
+import { PollComposer } from '@/components/PollComposer'
+import type { AdhocPoll, LivePoll } from '@/types'
 import { TrainerBlocks } from '@/components/TrainerBlocks'
 import { MD_COMPONENTS } from '@/components/Blocks'
 import { useAuthStore } from '@/store/auth'
@@ -68,8 +70,14 @@ export function TrainerPresentPage() {
     refetchInterval: (query) => (query.state.data ? 2_000 : false),  // Zählung nur während einer Abstimmung nachladen
   })
   const setPoll = (data: LivePoll | null) => qc.setQueryData(pollKey, data)
+  const [composing, setComposing] = useState(false)
   const startPoll = useMutation({
-    mutationFn: (v: { source: 'quiz' | 'check'; ref: string }) => trainerApi.startPoll(cid!, key, v.source, v.ref).then((r) => r.data),
+    mutationFn: (v: { source: 'quiz' | 'check'; ref: string } | { source: 'adhoc'; poll: AdhocPoll }) =>
+      (v.source === 'adhoc' ? trainerApi.startAdhocPoll(cid!, key, v.poll) : trainerApi.startPoll(cid!, key, v.source, v.ref)).then((r) => r.data),
+    onSuccess: (data) => { setPoll(data); setComposing(false) },
+  })
+  const hideAnswer = useMutation({
+    mutationFn: (v: { id: number; hidden: boolean }) => trainerApi.hidePollAnswer(cid!, v.id, v.hidden).then((r) => r.data),
     onSuccess: setPoll,
   })
   const revealPoll = useMutation({ mutationFn: () => trainerApi.revealPoll(cid!).then((r) => r.data), onSuccess: setPoll })
@@ -94,6 +102,11 @@ export function TrainerPresentPage() {
       // Während einer Abstimmung gibt es keine Folie: Pfeile/Leertaste/Esc dürfen weder
       // darunter blättern noch die Präsentation verlassen — beendet wird per Knopf.
       if (pollRunning) return
+      // Im Formular „Eigene Abstimmung“ schließt Esc nur das Formular.
+      if (composing) {
+        if (e.key === 'Escape') setComposing(false)
+        return
+      }
       const action = slideKeyAction(e.key, e.target)
       if (action === 'next') {
         e.preventDefault()
@@ -107,7 +120,7 @@ export function TrainerPresentPage() {
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [total, key, navigate, pollRunning])
+  }, [total, key, navigate, pollRunning, composing])
 
   if (role !== 'trainer' || !token)
     return (
@@ -122,7 +135,7 @@ export function TrainerPresentPage() {
   const block = slide > 0 ? m.blocks[slide - 1] : null
   // Auswahl-Check auf der aktuellen Folie, zu dem sich (mit Kurs) abstimmen lässt
   const pollCheck = cid != null && block?.type === 'check' && (block.kind ?? 'choice') === 'choice' && block.uid ? block : null
-  const singles = m.quiz.questions.map((q, i) => ({ q, n: i + 1 })).filter(({ q }) => q.type === 'single')
+  const singles = m.quiz.questions.map((q, i) => ({ q, n: i + 1 })).filter(({ q }) => q.type === 'single' || q.type === 'multi')
   const courseOptions = (courses.data ?? []).filter((c) => (c.workshop_key ?? null) === (m.workshop_key ?? null))
   const courseName = courseOptions.find((c) => c.id === cid)?.name
 
@@ -134,7 +147,12 @@ export function TrainerPresentPage() {
             Live-Abstimmung{courseName ? ` · ${courseName}` : ''}
           </p>
           <h1 className="mt-3 text-3xl font-bold leading-tight sm:text-4xl">{livePoll.prompt}</h1>
-          <div className="mt-8"><PollOptions poll={livePoll} lang="de" big /></div>
+          <div className="mt-8">
+            {livePoll.kind === 'scale' ? <ScaleResult poll={livePoll} lang="de" big />
+              : livePoll.kind === 'words' ? <WordCloud words={livePoll.words ?? []} lang="de" big />
+                : livePoll.kind === 'text' ? <TextModeration poll={livePoll} pending={hideAnswer.isPending} onHide={(id, hidden) => hideAnswer.mutate({ id, hidden })} />
+                  : <PollOptions poll={livePoll} lang="de" big />}
+          </div>
           <p className="mt-6 text-2xl font-semibold tabular-nums" data-testid="poll-votes">
             {livePoll.votes} {livePoll.votes === 1 ? 'Stimme' : 'Stimmen'}
           </p>
@@ -148,7 +166,7 @@ export function TrainerPresentPage() {
             className="wb-control mr-auto rounded-lg px-3 text-[var(--wb-muted)] hover:text-[var(--wb-ink)]">
             ✕ Abstimmung beenden und Präsentation verlassen
           </button>
-          {(revealPoll.isError || closePoll.isError) && <p role="alert" className="text-[var(--wb-ink)]">Aktion fehlgeschlagen — bitte erneut versuchen.</p>}
+          {(revealPoll.isError || closePoll.isError || hideAnswer.isError) && <p role="alert" className="text-[var(--wb-ink)]">Aktion fehlgeschlagen — bitte erneut versuchen.</p>}
           {livePoll.status === 'open' && (
             <button type="button" onClick={() => revealPoll.mutate()} disabled={revealPoll.isPending}
               className="wb-control rounded-lg bg-[var(--wb-accent)] px-5 font-semibold text-white hover:bg-[var(--wb-accent-hover)]">
@@ -167,7 +185,10 @@ export function TrainerPresentPage() {
     <WorkshopTheme theme={workshopTheme(m.workshop_key)}><main id="main-content" tabIndex={-1} className="min-h-[100dvh] bg-white flex flex-col">
       <div className="flex-1 flex items-center justify-center p-8 sm:p-14">
         <div className="w-full max-w-3xl text-lg">
-          {slide === 0 ? (
+          {composing ? (
+            <PollComposer pending={startPoll.isPending} onCancel={() => setComposing(false)}
+              onStart={(poll) => startPoll.mutate({ source: 'adhoc', poll })} />
+          ) : slide === 0 ? (
             <div>
               <BrandLogo className="mb-8 h-10 text-lg" showName />
               <p className="text-sm font-semibold uppercase tracking-widest text-teal-700 mb-3">
@@ -228,8 +249,13 @@ export function TrainerPresentPage() {
             onChange={(e) => { if (e.target.value) startPoll.mutate({ source: 'quiz', ref: e.target.value }) }}
             className="max-w-72 rounded-lg border bg-white px-2 py-1.5 text-slate-700">
             <option value="">Quizfrage abstimmen …</option>
-            {singles.map(({ q, n }) => <option key={q.id} value={q.id}>{n}. {q.prompt.length > 70 ? `${q.prompt.slice(0, 70)}…` : q.prompt}</option>)}
+            {singles.map(({ q, n }) => <option key={q.id} value={q.id}>{n}. {q.prompt.length > 70 ? `${q.prompt.slice(0, 70)}…` : q.prompt}{q.type === 'multi' ? ' (Mehrfachauswahl)' : ''}</option>)}
           </select>
+        )}
+        {cid != null && !composing && (
+          <button type="button" onClick={() => setComposing(true)} className="rounded-lg border bg-white px-3 py-1.5 text-slate-700 hover:bg-slate-50">
+            Eigene Abstimmung …
+          </button>
         )}
         {startPoll.isError && <span role="alert" className="text-slate-900">{errMsg(startPoll.error, 'Abstimmung konnte nicht gestartet werden.')}</span>}
         {pollFailed && (
@@ -258,5 +284,44 @@ export function TrainerPresentPage() {
         <span className="text-xs text-slate-500 hidden sm:block">Pfeiltasten / Leertaste</span>
       </div>
     </main></WorkshopTheme>
+  )
+}
+
+/** Freitext auf dem Beamer: vor dem Auflösen nur hinter einem Klick (der Trainer
+ *  prüft, bevor etwas groß erscheint), danach die sichtbaren Antworten groß.
+ *  Ausgeblendete stehen nur in der eingeklappten Liste — nie groß auf dem Beamer. */
+function TextModeration({ poll, pending, onHide }: { poll: LivePoll; pending: boolean; onHide: (id: number, hidden: boolean) => void }) {
+  const answers = poll.answers ?? []
+  const hidden = answers.filter((a) => a.hidden)
+  const list = (items: typeof answers) => (
+    <ul className="mt-3 space-y-2 text-base">
+      {items.map((a) => (
+        <li key={a.id} className="wb-surface flex items-start gap-3 px-3 py-2">
+          <span className={`min-w-0 flex-1 [overflow-wrap:anywhere] ${a.hidden ? 'text-[var(--wb-muted)] line-through' : ''}`}>{a.text}</span>
+          <button type="button" disabled={pending} onClick={() => onHide(a.id!, !a.hidden)} aria-label={`${a.hidden ? 'Einblenden' : 'Ausblenden'}: ${a.text}`}
+            className="wb-control shrink-0 rounded-lg px-2 text-sm text-[var(--wb-muted)] hover:text-[var(--wb-ink)]">
+            {a.hidden ? 'Einblenden' : 'Ausblenden'}
+          </button>
+        </li>
+      ))}
+    </ul>
+  )
+  if (poll.status !== 'revealed')
+    return (
+      <details className="text-xl">
+        <summary className="wb-control cursor-pointer text-[var(--wb-muted)]">Antworten prüfen ({answers.length}) — erst nach Klick sichtbar</summary>
+        {list(answers)}
+      </details>
+    )
+  return (
+    <>
+      <TextAnswers answers={answers} lang="de" big onHide={(id) => onHide(id, true)} />
+      {hidden.length > 0 && (
+        <details className="mt-6 text-base">
+          <summary className="wb-control cursor-pointer text-[var(--wb-muted)]">Ausgeblendete Antworten ({hidden.length})</summary>
+          {list(hidden)}
+        </details>
+      )}
+    </>
   )
 }
