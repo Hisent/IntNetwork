@@ -17,3 +17,8 @@ class Trainer(Base):
     # mit der DB verglichen (siehe app/services/deps.py::get_trainer) --
     # analog zu Participant.token_version.
     token_version: Mapped[int] = mapped_column(Integer, default=0, nullable=False, server_default="0")
+    # "admin" darf Trainer-Zugänge anlegen/löschen, Rollen ändern und globale
+    # Einstellungen (Feature-Flags) setzen; "trainer" alles Kursbezogene. Wird
+    # bei jedem Request aus der DB gelesen (deps.get_trainer), nicht aus dem
+    # Token -> ein Rollenwechsel wirkt sofort.
+    role: Mapped[str] = mapped_column(String, default="trainer", nullable=False, server_default="trainer")

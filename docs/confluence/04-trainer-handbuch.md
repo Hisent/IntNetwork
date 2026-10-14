@@ -1,4 +1,4 @@
-Stand: v1.43.0 (2026-10-13) · Quelle: frontend/src/pages/TrainerPage.tsx, frontend/src/pages/trainer/*, frontend/src/pages/TrainerPresentPage.tsx, frontend/src/pages/TrainerModulePage.tsx, frontend/src/pages/TrainerModuleEditPage.tsx, frontend/src/components/TrainerFeedback.tsx, frontend/src/lib/i18n.ts, backend/app/routers/trainer_content.py, README.md
+Stand: v1.43.0 + Admin-Rolle (2026-10-14) · Quelle: frontend/src/pages/TrainerPage.tsx, frontend/src/pages/trainer/*, frontend/src/pages/TrainerPresentPage.tsx, frontend/src/pages/TrainerModulePage.tsx, frontend/src/pages/TrainerModuleEditPage.tsx, frontend/src/components/TrainerFeedback.tsx, frontend/src/lib/i18n.ts, backend/app/routers/trainer_content.py, README.md
 
 # IntLab: Trainer-Handbuch
 
@@ -110,7 +110,7 @@ Hinweis: Neue Fragen zählen erst ab der nächsten Abgabe. Je Frage zählt nur a
 
 ## Kommentare und Feedback
 
-1. In der „Verwaltung“ unter „Einstellungen“ das Kontrollkästchen „Feedback-Kommentare für Teilnehmer aktiv“ setzen, damit Teilnehmer Blöcke kommentieren können.
+1. In der „Verwaltung“ unter „Einstellungen“ das Kontrollkästchen „Feedback-Kommentare für Teilnehmer aktiv“ setzen (nur Admins), damit Teilnehmer Blöcke kommentieren können.
 2. Ist die Funktion aktiv, erscheint im Kurs-Detail der Abschnitt „Feedback“. Die Kommentare sind nach Modul und Block gruppiert („Block n · „Textausschnitt““); ohne Kommentare steht dort „Noch kein Feedback in diesem Kurs.“
 3. Antworten: Text in das Feld „Antwort…“ schreiben und mit Enter oder dem Knopf „Antworten“ senden. Umschalt+Enter fügt eine neue Zeile ein. Schlägt das Senden fehl („Aktion fehlgeschlagen — bitte erneut versuchen.“), bleibt der Text zum erneuten Versuch stehen.
 4. Einen Kommentar entfernen: „löschen“ hinter dem Namen des Autors. Es folgt die Rückfrage „Kommentar löschen“ („Den Kommentar von „<Autor>“ endgültig löschen?“); erst „Löschen“ entfernt ihn, „Abbrechen“ bricht ab.
@@ -188,7 +188,7 @@ Wichtig: Behaltene Bestätigungen bleiben mit dem Namen des Teilnehmers öffentl
 
 ## Weitere Verwaltungsbereiche
 
-- **„Trainer-Zugänge“:** weitere Trainer anlegen (E-Mail, Name, Passwort, Knopf „Trainer“) und Zugänge entfernen (Dialog fragt nach; die Person kann sich danach nicht mehr anmelden).
+- **„Trainer-Zugänge“:** zeigt alle Zugänge mit Rolle („Admin“ oder „Trainer“; der eigene ist mit „Sie“ markiert). Nur Admins können weitere Trainer anlegen (E-Mail, Name, Passwort, Knopf „Trainer“), Zugänge entfernen (Dialog fragt nach; die Person kann sich danach nicht mehr anmelden) und die Rolle über die Auswahl neben dem Namen ändern. Den eigenen Zugang kann niemand löschen, den letzten Admin niemand herabstufen. Trainer ohne Admin-Rolle sehen den Hinweis „Zugänge und Rollen verwalten nur Administratoren.“
 - **„Passkeys“:** Passkeys hinzufügen, benennen und entfernen; nur sichtbar, wenn die Instanz für Passkeys eingerichtet ist („Passkey-Anmeldung ist auf dieser Instanz nicht eingerichtet.“ sonst). Passkeys sind an die Domain gebunden; bei einem Domainwechsel müssen sie neu angelegt werden.
 - **„Änderungslog“:** Neuigkeiten je Version („n Einträge anzeigen“).
 - **„Protokoll“:** wer wann Teilnehmer gelöscht, Codes zurückgesetzt, Inhalte gespeichert oder Kurse umgestellt hat („n Aktionen anzeigen“).

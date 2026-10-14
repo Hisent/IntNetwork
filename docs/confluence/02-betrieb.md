@@ -1,4 +1,4 @@
-Stand: v1.43.0 + Trennung der Lab-Läufe per uid, nach Sicherheitsprüfung gehärtet (2026-10-13) · Quelle: docs/operations.md, README.md, .env.example, docker-compose.yml, docs/lab-sicherheit.md, backend/app/database.py, backend/app/utils.py, backend/app/content/changelog.py
+Stand: v1.43.0 + Trennung der Lab-Läufe per uid, Admin-Rolle, Aufbewahrung, Fehler-IDs (2026-10-14) · Quelle: docs/operations.md, README.md, .env.example, docker-compose.yml, docs/lab-sicherheit.md, backend/app/database.py, backend/app/utils.py, backend/app/content/changelog.py, backend/app/routers/trainer_accounts.py, backend/app/services/retention.py, backend/app/main.py
 
 # IntLab: Betrieb
 
@@ -45,6 +45,7 @@ Konfiguration erfolgt über Umgebungsvariablen (Vorlage: `.env.example`).
 | `LAB_KINDS` (Backend), `RUNNER_KINDS` (Runner) | Freigegebene Lab-Arten (`ansible`, `openssl`, `git`; Standard `ansible`). Werden nicht automatisch abgeglichen |
 | `RUNNER_TIMEOUT`, `RUNNER_MAX_PARALLEL`, `RUNNER_MAX_QUEUE_DEPTH`, `RUNNER_MAX_OUTPUT` | Runner-Grenzen (Vorlage: 30 s, 2, 4, 65536); passend zu den Container-Limits wählen |
 | `WEBAUTHN_RP_ID`, `WEBAUTHN_ORIGIN` | Passkey-Anmeldung für Trainer; beide setzen oder beide leer lassen |
+| `COURSE_RETENTION_DAYS` | Aufbewahrung von Teilnehmerdaten in Tagen ohne Aktivität (siehe „Aufbewahrung von Teilnehmerdaten“); `0` oder leer = aus (Standard) |
 
 Passkey-Werte:
 
@@ -204,6 +205,74 @@ docker compose start backend
 ## Monitoring
 
 Ein externer Monitor soll mindestens `/api/health` im Minutenintervall aufrufen und bei zwei aufeinanderfolgenden Fehlschlägen alarmieren. Die Einrichtung erfolgt in der Hosting-Plattform; das Repository kann keinen externen Alarmkanal konfigurieren.
+
+### Wo Fehler auftauchen
+
+Es gibt keinen externen Fehlerdienst. Alles landet im Log des Backend-Containers (`docker compose logs backend`, in Coolify: Logs des Backend-Dienstes).
+
+| Quelle | Logzeile | Was der Nutzer sieht |
+|---|---|---|
+| Unbehandelter Fehler im Backend | `ERROR [app.main] Unbehandelter Fehler request_id=<id> GET /api/...` und Traceback | HTTP 500 mit „Interner Fehler (Fehler-ID <id>)“ |
+| Fehler im Browser (Render-Fehler, Skriptfehler, unbehandelte Promise) | `WARNING [app.routers.client_errors] Client-Fehler version=… route=… message=… stack=…` | den bisherigen Fehlerhinweis der Oberfläche |
+
+- Jede Antwort trägt den Header `X-Request-ID`.
+- Meldet ein Trainer eine Fehler-ID, findet man den Traceback so:
+
+```bash
+docker compose logs backend | grep <fehler-id>
+```
+
+- Browser-Berichte (`POST /api/client-errors`, ohne Anmeldung) enthalten nur Meldung, Stack (höchstens 4000 Zeichen), Pfad ohne Query und App-Version. Keine Namen, Tokens oder Request-Inhalte.
+- Grenzen: 10 Berichte je IP und Minute, 5 je Seitenaufruf; zu lange Felder lehnt der Server mit 422 ab. Gespeichert wird nur die Logzeile.
+- Nach jedem Deploy einmal im Backend-Log nach `Unbehandelter Fehler` und `Client-Fehler` suchen.
+
+## Rollen: Admin und Trainer
+
+Seit Migration `3f9a1c7e2b40` hat jeder Trainer-Zugang eine Rolle (Spalte `trainer.role`).
+
+| Aktion | Trainer | Admin |
+|---|---|---|
+| Kurse, Teilnehmer, Module, Inhalte, Abstimmungen, Protokoll lesen | ja | ja |
+| Trainer-Zugänge anlegen und löschen | nein | ja |
+| Rollen ändern | nein | ja |
+| Globale Einstellungen (Feedback-Kommentare an/aus) | nein | ja |
+
+- Beim Upgrade wird der älteste Trainer (niedrigste `id`, in der Regel der über `ADMIN_EMAIL` angelegte) Admin; alle anderen bleiben Trainer.
+- Auf einer leeren Datenbank ist der über `ADMIN_EMAIL` und `ADMIN_PASSWORD` angelegte erste Trainer Admin. Neu angelegte Zugänge sind immer Trainer.
+- Schutz vor Aussperren: Der letzte Admin kann weder gelöscht noch herabgestuft werden. Niemand kann den eigenen Zugang löschen.
+- Die Rolle wird bei jedem Request aus der Datenbank gelesen; ein Rollenwechsel wirkt sofort, ohne Neuanmeldung.
+- Rollenwechsel stehen im Protokoll als `trainer.role_change`.
+
+Trainer zum Admin machen: Als Admin unter „Verwaltung“, Bereich „Trainer-Zugänge“, die Auswahl neben dem Namen auf „Admin“ stellen.
+
+Notfall (kein Admin erreichbar):
+
+```bash
+docker compose exec db psql -U intnetwork -d intnetwork \
+  -c "UPDATE trainer SET role = 'admin' WHERE email = 'person@firma.de';"
+```
+
+## Aufbewahrung von Teilnehmerdaten (DSGVO)
+
+Opt-in über `COURSE_RETENTION_DAYS` (Standard `0` = aus). Ist ein Wert gesetzt, löscht das Backend beim Start und danach alle 24 Stunden die Teilnehmerdaten aller Kurse, in denen seit so vielen Tagen kein Teilnehmer mehr aktiv war.
+
+| Aspekt | Verhalten |
+|---|---|
+| Aktivität | jüngster Zeitpunkt aus Beitritt, geöffnetem Modul, abgeschlossenem Modul, Quiz-Abgabe und Teilnehmer-Kommentar |
+| Gelöscht | Teilnehmer, Fortschritt, Quiz-Ergebnisse, Teilnehmer-Kommentare, Abstimmungs-Stimmen |
+| Bleibt | Kurs, Kurs-Code, Modulauswahl, Trainer-Kommentare, Inhalte, ausgestellte Teilnahmebestätigungen |
+| Protokoll | nur Zahlen, keine Namen: Logzeile `Aufbewahrung (N Tage): gelöscht …` und Audit-Eintrag `retention.purge` (Benutzer `system:retention`) |
+| Mehrere Worker, Neustarts | unkritisch: jeder Lauf ist ein DELETE in einer Transaktion; ein zweiter Lauf findet nichts mehr. Ein Neustart zählt als Lauf. |
+
+- Ein Kurs mit einem einzigen noch aktiven Teilnehmer bleibt vollständig erhalten.
+- Teilnahmebestätigungen bleiben wie beim Kurs-Löschen bewusst stehen (unveränderlicher Nachweis). Wer sie entfernen will, löscht den Kurs mit „Teilnahmebestätigungen mitlöschen“.
+- Die Einstellung wirkt beim ersten Start sofort auf alle Altkurse. Vorher ein Backup ziehen (`ops/backup.sh`).
+
+Beispiel in `.env`:
+
+```text
+COURSE_RETENTION_DAYS=180
+```
 
 ## Live-Abstimmung und Polling-Last
 

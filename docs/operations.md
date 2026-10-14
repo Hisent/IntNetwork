@@ -12,6 +12,8 @@ sie bei jedem Rollout tatsächlich durchgeführt werden.
    `Trennung aktiv` zeigt (Details in `docs/lab-sicherheit.md`).
 4. Die CI muss grün sein. `pip-audit` und `npm audit --omit=dev` sind bewusst
    blockierend; ein Advisory wird vor dem Deploy bewertet und nicht übergangen.
+5. Im Backend-Log nach `Unbehandelter Fehler` und `Client-Fehler` suchen
+   (siehe „Wo Fehler auftauchen“ unter Monitoring).
 
 ## Content-Sync: geänderte Kursinhalte nach einem Deploy
 
@@ -211,6 +213,83 @@ Ein externer Monitor soll mindestens `/api/health` im Minutenintervall
 aufrufen und bei zwei aufeinanderfolgenden Fehlschlägen alarmieren. Die
 Einrichtung erfolgt in der jeweiligen Hosting-Plattform; dieses Repository
 kann keinen externen Alarmkanal mit Zugangsdaten konfigurieren.
+
+### Wo Fehler auftauchen
+
+Ohne externen Dienst — alles landet im Log des Backend-Containers
+(`docker compose logs backend`, in Coolify: Logs des Backend-Dienstes).
+
+| Quelle | Logzeile | Was der Nutzer sieht |
+|---|---|---|
+| Unbehandelter Fehler im Backend | `ERROR [app.main] Unbehandelter Fehler request_id=<id> GET /api/...` plus Traceback | HTTP 500, `{"detail": "Interner Fehler (Fehler-ID <id>)", "request_id": "<id>"}` |
+| Fehler im Browser (Render-Fehler, `window.onerror`, unbehandelte Promise) | `WARNING [app.routers.client_errors] Client-Fehler version='…' route='…' message='…' stack='…'` | den bisherigen Fehlerhinweis der Oberfläche |
+
+Jede Antwort trägt den Header `X-Request-ID`. Meldet ein Trainer eine
+„Fehler-ID“, findet man den Traceback mit
+`docker compose logs backend | grep <id>`.
+
+Browser-Berichte (`POST /api/client-errors`, ohne Anmeldung) enthalten nur
+Meldung, Stack (max. 4000 Zeichen), Pfad ohne Query und App-Version — keine
+Namen, Tokens oder Request-Inhalte. Grenzen: 10 Berichte je IP und Minute,
+5 je Seitenaufruf, zu lange Felder werden mit 422 abgelehnt. Gespeichert wird
+nichts außer der Logzeile.
+
+## Rollen: Admin und Trainer
+
+Seit Migration `3f9a1c7e2b40` hat jeder Trainer-Zugang eine Rolle (Spalte
+`trainer.role`).
+
+| Aktion | Trainer | Admin |
+|---|---|---|
+| Kurse, Teilnehmer, Module, Inhalte, Abstimmungen, Protokoll lesen | ja | ja |
+| Trainer-Zugänge anlegen und löschen | nein (403) | ja |
+| Rollen ändern | nein (403) | ja |
+| Globale Einstellungen (Feedback-Kommentare an/aus, `PUT /api/trainer/features`) | nein (403) | ja |
+
+- Beim Upgrade wird der älteste Trainer (niedrigste `id`, in der Regel der
+  über `ADMIN_EMAIL` angelegte) Admin, alle anderen bleiben Trainer.
+- Auf einer leeren Datenbank ist der über `ADMIN_EMAIL`/`ADMIN_PASSWORD`
+  angelegte erste Trainer Admin. Neu angelegte Zugänge sind immer Trainer.
+- Schutz vor Aussperren: der letzte Admin kann weder gelöscht noch
+  herabgestuft werden; niemand kann den eigenen Zugang löschen.
+- Die Rolle wird bei jedem Request aus der Datenbank gelesen — ein
+  Rollenwechsel wirkt sofort, ohne Neuanmeldung.
+- Rollenwechsel stehen im Protokoll als `trainer.role_change`
+  (`<email>: trainer -> admin`).
+
+Trainer zum Admin machen: als Admin unter „Verwaltung → Trainer-Zugänge“ die
+Rolle in der Auswahl neben dem Namen auf „Admin“ stellen. Notfall (kein Admin
+erreichbar, z. B. Person ausgeschieden):
+
+```bash
+docker compose exec db psql -U intnetwork -d intnetwork \
+  -c "UPDATE trainer SET role = 'admin' WHERE email = 'person@firma.de';"
+```
+
+## Aufbewahrung von Teilnehmerdaten (DSGVO)
+
+Opt-in über `COURSE_RETENTION_DAYS` (Standard `0` = aus). Ist ein Wert gesetzt,
+löscht das Backend beim Start und danach alle 24 Stunden die Teilnehmerdaten
+aller Kurse, in denen seit so vielen Tagen kein Teilnehmer mehr aktiv war.
+
+- **Aktivität** = jüngster Zeitpunkt aus Beitritt, Heartbeat (Modul offen),
+  abgeschlossenem Modul, Quiz-Abgabe und Teilnehmer-Kommentar. Ein Kurs mit
+  einem einzigen aktiven Teilnehmer bleibt vollständig erhalten.
+- **Gelöscht:** Teilnehmer, Fortschritt, Quiz-Ergebnisse, Teilnehmer-Kommentare,
+  Abstimmungs-Stimmen.
+- **Bleibt:** Kurs, Kurs-Code, Modulauswahl, Trainer-Kommentare, Inhalte und
+  ausgestellte Teilnahmebestätigungen (wie beim Kurs-Löschen: bewusst
+  unveränderlicher Nachweis; wer sie mitlöschen will, löscht den Kurs mit
+  „Teilnahmebestätigungen mitlöschen“).
+- **Protokoll:** nur Zahlen, keine Namen — Logzeile
+  `Aufbewahrung (N Tage): gelöscht courses=… participants=… progress=… quiz_results=… comments=…`
+  und ein Audit-Eintrag `retention.purge` mit Benutzer `system:retention`.
+  Läufe ohne Treffer protokollieren nichts.
+- **Mehrere Worker/Neustarts:** jeder Lauf ist ein DELETE in einer Transaktion;
+  läuft er parallel oder doppelt, findet der zweite nichts mehr. Ein Neustart
+  zählt als Lauf und startet den 24-h-Takt neu.
+- Wirkt beim ersten Start sofort auf alle Altkurse: vor dem Einschalten ein
+  Backup ziehen (`ops/backup.sh`).
 
 ## Backups und Restore-Test
 

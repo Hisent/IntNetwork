@@ -20,8 +20,8 @@ from app.config import settings
 from app.database import Base, engine
 from app.main import app
 
-_HEAD = "c8d9e0f1a2b3"        # add_live_poll
-_VORGAENGER = "7305d4053e50"  # add_trainer_credential (danach laufen 75aeb8d5399c, a6b7c8d9e0f1, b7c8d9e0f1a2 und c8d9e0f1a2b3 erneut)
+_HEAD = "3f9a1c7e2b40"        # add_trainer_role
+_VORGAENGER = "7305d4053e50"  # add_trainer_credential (danach laufen 75aeb8d5399c, a6b7c8d9e0f1, b7c8d9e0f1a2, c8d9e0f1a2b3 und 3f9a1c7e2b40 erneut)
 
 
 def _blocked() -> OperationalError:
@@ -210,3 +210,21 @@ def test_env_py_importiert_alle_modelle():
     with TestClient(app):
         pass
     assert set(out) == set(inspect(engine).get_table_names()) - {"alembic_version"}
+
+
+def test_3f9a1c7e2b40_macht_aeltesten_trainer_zum_admin(leere_db, monkeypatch):
+    """Bestands-DB ohne Rollen: der Trainer mit der niedrigsten id wird admin,
+    alle anderen trainer."""
+    monkeypatch.setattr(settings, "database_url", leere_db)
+    cfg = db_migrate._config()
+    command.upgrade(cfg, "c8d9e0f1a2b3")
+    eigene = create_engine(leere_db)
+    with eigene.begin() as conn:
+        for tid, email in ((7, "zweiter@test.de"), (3, "erster@test.de"), (9, "dritter@test.de")):
+            conn.execute(text("INSERT INTO trainer (id, email, name, password_hash, token_version, created_at) "
+                              "VALUES (:id, :e, 'T', 'x', 0, CURRENT_TIMESTAMP)"), {"id": tid, "e": email})
+    command.upgrade(cfg, "head")
+    with eigene.connect() as conn:
+        rollen = dict(conn.execute(text("SELECT id, role FROM trainer")).all())
+    eigene.dispose()
+    assert rollen == {3: "admin", 7: "trainer", 9: "trainer"}

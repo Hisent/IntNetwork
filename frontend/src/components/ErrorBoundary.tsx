@@ -1,4 +1,5 @@
 import { Component, type ReactNode } from 'react'
+import { reportError } from '@/lib/errorReport'
 
 // Fängt Render-Fehler (was Suspense nicht abdeckt), damit ein einzelner
 // abgestürzter Teilbaum nicht die ganze Seite leert.
@@ -14,6 +15,7 @@ export class ErrorBoundary extends Component<
 
   componentDidCatch(error: unknown) {
     console.error('Render-Fehler abgefangen:', error)
+    reportError(error)
   }
 
   render() {

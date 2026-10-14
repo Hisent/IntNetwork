@@ -280,6 +280,40 @@ describe('TrainerPage — Kurs löschen', () => {
   })
 })
 
+describe('TrainerPage — Rollen (Admin/Trainer)', () => {
+  const base = { '/courses': [], '/workshops': [], '/trainer/modules': [], '/features': { comments: true }, '/changelog': [] }
+  const admin = { id: 1, email: 'a@x.de', name: 'Anna', role: 'admin', is_self: true }
+  const plain = { id: 2, email: 'b@x.de', name: 'Bert', role: 'trainer', is_self: false }
+
+  it('Trainer ohne Admin-Rolle sieht Rollen, aber keine Verwaltungs-Bedienelemente', async () => {
+    useAuthStore.setState({ token: 'demo', role: 'trainer', displayName: 'Trainer' })
+    mockGet({ ...base, '/trainer/accounts': [{ ...admin, is_self: false }, { ...plain, is_self: true }] })
+
+    renderWithProviders(<TrainerPage />)
+
+    expect(await screen.findByText('Zugänge und Rollen verwalten nur Administratoren.')).toBeTruthy()
+    expect(screen.getByText('Admin')).toBeTruthy()
+    expect(screen.queryByRole('button', { name: 'Anna entfernen' })).toBeNull()
+    expect(screen.queryByRole('combobox', { name: 'Rolle von Bert' })).toBeNull()
+    expect((screen.getByRole('checkbox', { name: /Feedback-Kommentare/ }) as HTMLInputElement).disabled).toBe(true)
+  })
+
+  it('Admin ändert eine Rolle und kann andere, aber nicht sich selbst entfernen', async () => {
+    useAuthStore.setState({ token: 'demo', role: 'trainer', displayName: 'Trainer' })
+    vi.mocked(api.patch).mockResolvedValue({ data: { ...plain, role: 'admin' } })
+    mockGet({ ...base, '/trainer/accounts': [admin, plain] })
+
+    renderWithProviders(<TrainerPage />)
+
+    const select = await screen.findByRole('combobox', { name: 'Rolle von Bert' })
+    expect(screen.getByRole('button', { name: 'Bert entfernen' })).toBeTruthy()
+    expect(screen.queryByRole('button', { name: 'Anna entfernen' })).toBeNull()
+    await waitFor(() => expect((screen.getByRole('checkbox', { name: /Feedback-Kommentare/ }) as HTMLInputElement).disabled).toBe(false))
+    fireEvent.change(select, { target: { value: 'admin' } })
+    await waitFor(() => expect(api.patch).toHaveBeenCalledWith('/trainer/accounts/2/role', { role: 'admin' }))
+  })
+})
+
 describe('TrainerPage — Passkeys (Verwaltung)', () => {
   it('zeigt „noch nicht genutzt“ für einen Passkey ohne last_used_at', async () => {
     useAuthStore.setState({ token: 'demo', role: 'trainer', displayName: 'Trainer' })

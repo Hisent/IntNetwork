@@ -38,6 +38,10 @@ class Settings(BaseSettings):
     webauthn_rp_id: str = ""
     webauthn_rp_name: str = "IntLab"
     webauthn_origin: str = ""
+    # DSGVO-Aufbewahrung (opt-in): Teilnehmerdaten von Kursen ohne
+    # Teilnehmer-Aktivität seit N Tagen werden gelöscht (app/services/retention.py).
+    # 0/leer = aus. Kurs und Inhalte bleiben.
+    course_retention_days: int = 0
 
     @property
     def origins(self) -> list[str]:
