@@ -36,7 +36,7 @@ def _last_answers(db: Session, p: Participant) -> dict[str, dict]:
     return last
 
 
-def _as_graded(q: ContentQuizQuestion) -> dict:
+def as_graded(q: ContentQuizQuestion) -> dict:
     return {"type": q.qtype, "answer": q.answer}
 
 
@@ -50,15 +50,21 @@ def practice_questions(mode: str = Query("mixed", pattern="^(wrong|mixed)$"),
         return {"questions": [], "wrong_total": 0}
     questions = db.query(ContentQuizQuestion).filter(ContentQuizQuestion.module_key.in_(last)).all()
     wrong = [q for q in questions if str(q.id) in last[q.module_key]
-             and not grading._correct(_as_graded(q), last[q.module_key][str(q.id)])]
+             and not grading._correct(as_graded(q), last[q.module_key][str(q.id)])]
     random.shuffle(wrong)
     picked = wrong[:PRACTICE_SIZE]
     if mode == "mixed":
         rest = [q for q in questions if q not in wrong]
         picked += random.sample(rest, min(len(rest), PRACTICE_SIZE - len(picked)))
+    return {"questions": public_questions(db, picked, p.language), "wrong_total": len(wrong)}
+
+
+def public_questions(db: Session, picked: list[ContentQuizQuestion], lang: str) -> list[dict]:
+    """Fragen für den Client: Text und Optionen in der Teilnehmersprache, ohne
+    Lösung und Erklärung (auch von routers/review.py genutzt)."""
     titles = {m.key: (m.title_de, m.title_en) for m in
               db.query(ContentModule).filter(ContentModule.key.in_({q.module_key for q in picked}))}
-    en = p.language == "en"
+    en = lang == "en"
     out = []
     for q in picked:
         qd = {"id": str(q.id), "type": q.qtype, "module_key": q.module_key,
@@ -67,7 +73,17 @@ def practice_questions(mode: str = Query("mixed", pattern="^(wrong|mixed)$"),
         if q.qtype != "number":
             qd["options"] = q.options_en if en else q.options_de
         out.append(qd)
-    return {"questions": out, "wrong_total": len(wrong)}
+    return out
+
+
+def explanation(q: ContentQuizQuestion, lang: str) -> str | None:
+    return (q.explanation_en if lang == "en" else None) or q.explanation_de
+
+
+def question_by_id(db: Session, raw: str) -> ContentQuizQuestion | None:
+    # Nur ASCII-Ziffern, höchstens 9: str.isdigit() lässt auch "²" durch (int() wirft),
+    # und 10+ Ziffern sprengen den Integer der Datenbank.
+    return db.get(ContentQuizQuestion, int(raw)) if _QUESTION_ID.fullmatch(raw) else None
 
 
 class PracticeCheck(BaseModel):
@@ -90,13 +106,10 @@ def practice_check(data: PracticeCheck, db: Session = Depends(get_db),
     """Bewertet EINE Frage serverseitig und liefert richtig/falsch + Erklärung —
     wie das Quiz nie die Lösung selbst. Schreibt nichts: gespeicherte Ergebnisse,
     Fortschritt und Zertifikat bleiben unberührt."""
-    # Nur ASCII-Ziffern, höchstens 9: str.isdigit() lässt auch "²" durch (int() wirft),
-    # und 10+ Ziffern sprengen den Integer der Datenbank.
-    q = db.get(ContentQuizQuestion, int(data.question_id)) if _QUESTION_ID.fullmatch(data.question_id) else None
+    q = question_by_id(db, data.question_id)
     if q is None or q.module_key not in _last_answers(db, p):
         raise HTTPException(status_code=404, detail="Frage nicht gefunden")
-    explanation = (q.explanation_en if p.language == "en" else None) or q.explanation_de
-    return {"correct": grading._correct(_as_graded(q), data.answer), "explanation": explanation}
+    return {"correct": grading._correct(as_graded(q), data.answer), "explanation": explanation(q, p.language)}
 
 
 SEARCH_MAX_HITS = 30

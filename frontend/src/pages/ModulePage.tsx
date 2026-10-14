@@ -7,6 +7,8 @@ import { Blocks } from '@/components/Blocks'
 import { BlockComments } from '@/components/BlockComments'
 import { Quiz } from '@/components/Quiz'
 import { loadRead, pruneOtherParticipants, toggleRead } from '@/lib/readProgress'
+import { useModuleStateSync } from '@/lib/moduleStateSync'
+import { ReviewWarmupBanner } from '@/components/ReviewCard'
 import { PageSkeleton } from '@/components/PageSkeleton'
 import { LoadError, ModuleMissing } from '@/components/LoadError'
 import { localTitle, storeLang, t, useDocumentLang, useDocumentTitle, type Lang } from '@/lib/i18n'
@@ -45,15 +47,20 @@ export function ModulePage() {
   const courseId = me.data?.course_id
   const participantId = me.data?.participant_id
   const scoped = participantId != null && courseId != null
+  // Lese-/Übungsstand erst mit dem Server abgleichen (frisches Gerät: der Server gewinnt),
+  // dann aus dem lokalen Cache anzeigen — bis dahin bleibt keyScope leer wie vor /me.
+  const synced = useModuleStateSync(scoped ? `${participantId}-${courseId}` : '', key)
   // Reflexions-/Lese-Keys pro Teilnehmer trennen (geteilter Browser).
-  const keyScope = scoped ? `${participantId}-${courseId}` : ''
+  const keyScope = scoped && synced ? `${participantId}-${courseId}` : ''
   useEffect(() => {
     if (!scoped) return
     // Genau hier wird die participantId app-weit zuerst bekannt — passender
     // Zeitpunkt, um Reste anderer Teilnehmer am geteilten Browser zu räumen.
     pruneOtherParticipants(participantId)
-    setRead(loadRead(participantId, courseId, key))
-  }, [scoped, participantId, courseId, key])
+  }, [scoped, participantId])
+  useEffect(() => {
+    setRead(scoped && synced ? loadRead(participantId, courseId, key) : [])
+  }, [scoped, synced, participantId, courseId, key])
   const lang: Lang = me.data?.language ?? 'de'
   useDocumentLang(lang)
   const mod = useQuery({
@@ -126,7 +133,8 @@ export function ModulePage() {
   if (!isParticipant) return <Navigate to="/" replace />
   if ((mod.error as ApiError | null)?.response?.status === 404) return <ModuleMissing lang={lang} code={(mod.error as ApiError).response?.data?.code} />
   if (mod.isError || me.isError) return <LoadError lang={lang} onRetry={() => { me.refetch(); mod.refetch() }} />
-  if (mod.isLoading || !mod.data) return <PageSkeleton />
+  // Erst nach dem Abgleich rendern: sonst landete eine Eingabe davor im noch leeren Scope.
+  if (mod.isLoading || !mod.data || (scoped && !synced)) return <PageSkeleton />
 
   const commentsOn = features.data?.comments ?? false
   const textIndexes = mod.data.blocks.map((b, i) => (b.type === 'text' ? i : -1)).filter((i) => i >= 0)
@@ -160,7 +168,7 @@ export function ModulePage() {
         nextModule={nextModule}
         justPassed={justPassed}
         setLanguage={switchLanguage}
-        onToggleRead={(index) => scoped && setRead(toggleRead(participantId, courseId, key, read, index))}
+        onToggleRead={(index) => scoped && synced && setRead(toggleRead(participantId, courseId, key, read, index))}
         onQuizResult={(passed) => { setJustPassed(passed); qc.invalidateQueries({ queryKey: ['me'] }) }}
       />
       </PrintContext.Provider>
@@ -269,6 +277,7 @@ export function WorkbenchModuleView({ lang, moduleKey, keyScope, module, modules
           </div>
         </details>
 
+        <ReviewWarmupBanner lang={lang} />
         <div className="wb-module-grid">
           <aside aria-label={lang === 'de' ? 'Modulübersicht' : 'Course overview'} className="sticky top-20 hidden max-h-[calc(100dvh-6rem)] overflow-y-auto lg:block print:hidden">
             <WorkbenchSectionTitle>{lang === 'de' ? 'Kursmodule' : 'Course modules'}</WorkbenchSectionTitle>

@@ -1,4 +1,4 @@
-Stand: v1.45.0 + Admin-Rolle (2026-10-14) · Quelle: frontend/src/pages/TrainerPage.tsx, frontend/src/pages/trainer/*, frontend/src/pages/TrainerPresentPage.tsx, frontend/src/pages/TrainerModulePage.tsx, frontend/src/pages/TrainerModuleEditPage.tsx, frontend/src/components/TrainerFeedback.tsx, frontend/src/lib/i18n.ts, backend/app/routers/trainer_content.py, README.md
+Stand: v1.45.0 + Admin-Rolle + Aufwärmrunde (2026-10-14) · Quelle: frontend/src/pages/TrainerPage.tsx, frontend/src/pages/trainer/*, frontend/src/pages/TrainerPresentPage.tsx, frontend/src/pages/TrainerModulePage.tsx, frontend/src/pages/TrainerModuleEditPage.tsx, frontend/src/components/TrainerFeedback.tsx, frontend/src/lib/i18n.ts, backend/app/routers/trainer_content.py, README.md
 
 # IntLab: Trainer-Handbuch
 
@@ -109,6 +109,24 @@ Hinweise:
 - Bei Fehlern erscheint „Aktion fehlgeschlagen — bitte erneut versuchen.“ bzw. „Abstimmung konnte nicht gestartet werden.“
 
 Was Teilnehmer sehen: In ihrem geöffneten Modul blendet sich „Live-Abstimmung“ ein (Abfrage alle 5 Sekunden; im Hintergrund-Tab pausiert sie). Sie wählen eine Antwort („Wähle eine Antwort.“), ihre Stimme zählt („Stimme gezählt. Bis zur Auflösung kannst du dich umentscheiden.“). Bei den übrigen Arten lauten die Hinweise „Wähle eine oder mehrere Antworten.“ bzw. „Wähle bis zu n Antworten.“, „Wähle einen Wert.“, „Schreib eine kurze Antwort.“ und „Nenne ein bis drei Wörter.“; Freitext und Wörter werden mit „Senden“ abgeschickt („Gespeichert. Bis zur Auflösung kannst du deine Antwort ändern.“). Mit „Minimieren“, Esc oder Klick daneben wird die Einblendung zum Hinweis „Live-Abstimmung läuft“, aus dem sie sich wieder öffnen lässt; ein noch nicht gesendeter Text geht dabei verloren. Nach der Auflösung sehen sie „Richtig!“, „Leider falsch.“, „Danke fürs Mitmachen!“ (eigene Abstimmung) oder „Du hast nicht abgestimmt.“ und das Ergebnis. Die Einblendung gibt es auf Deutsch und Englisch, je nach Sprache des Teilnehmers; Fragen und Antworten eigener Abstimmungen erscheinen so, wie der Trainer sie eingegeben hat.
+
+## Aufwärmrunde (Wiederholung zum Tagesbeginn)
+
+Die Aufwärmrunde schickt alle Teilnehmer eines Kurses in ihre persönliche Wiederholung, zum Beispiel zu Beginn von Tag 2. Jeder bekommt eigene Fragen: aus Modulen, die er vor mindestens 3 Stunden bestanden hat, zuerst die Fragen, die er in einer Quiz-Abgabe falsch beantwortet hatte, danach die am längsten nicht gesehenen; höchstens 8 Fragen je Durchgang. Nach jeder Antwort erscheint die Erklärung. Die Aufwärmrunde hat keinen Einfluss auf Quiz-Ergebnisse, Fortschritt und Teilnahmebestätigung.
+
+1. Im Kurs-Detail den Abschnitt „Aufwärmrunde“ öffnen.
+2. „Aufwärmrunde starten“ wählen. Darüber steht jetzt „Aufwärmrunde läuft:“ mit dem Zwischenstand.
+3. Die Teilnehmer sehen auf der Kursübersicht und in jedem geöffneten Modul innerhalb von etwa 15 Sekunden den Hinweis „Aufwärmrunde: Dein Trainer hat eine Wiederholung gestartet — n Fragen warten auf dich.“ mit dem Knopf „Los geht’s“. Der Hinweis blockiert nichts; Teilnehmer können ihn mit dem Kreuz ausblenden. Er verschwindet, sobald jemand die erste Frage beantwortet hat.
+4. Der Zwischenstand aktualisiert sich alle 10 Sekunden: „n Teilnehmer haben mitgemacht · im Schnitt x % richtig“. Gezählt wird je Teilnehmer die erste Antwort auf jede fällige Frage; „Nochmal“ nach einer falschen Antwort zählt nicht. Namen werden nicht angezeigt. Solange niemand geantwortet hat, steht dort „Noch niemand hat eine Frage beantwortet.“
+5. „Aufwärmrunde beenden“ wählen. Die Zahlen bleiben als „Letzte Aufwärmrunde:“ stehen, bis eine neue Runde startet.
+
+Hinweise:
+
+- Pro Kurs läuft höchstens eine Aufwärmrunde; eine neue Runde beendet die vorige. Eine vergessene Runde endet nach 4 Stunden von selbst.
+- Wer noch kein Modul bestanden hat oder für wen gerade nichts fällig ist, sieht „Dein Trainer hat eine Wiederholung gestartet. Für dich ist gerade nichts fällig.“
+- Auch ohne Aufwärmrunde zeigt die Kursübersicht der Teilnehmer die Karte „Wiederholen“ mit der Zahl der fälligen Fragen („Jetzt wiederholen“). Richtig beantwortete Fragen kommen in wachsenden Abständen wieder (etwa nach 20 Stunden, 3, 7 und 21 Tagen), falsch beantwortete nach 10 Minuten.
+- Teilnehmer sehen den Hinweis und ihre Fragen auf Deutsch oder Englisch, je nach ihrer Sprache.
+- Bei Fehlern erscheint „Die letzte Aktion ist fehlgeschlagen und wurde nicht gespeichert — bitte erneut versuchen.“
 
 ## Fortschritt und Präsenz lesen
 

@@ -88,3 +88,36 @@ def test_retention_off_by_default_starts_no_thread(monkeypatch):
     monkeypatch.setattr(retention.settings, "course_retention_days", 0)
     retention.start()
     assert started == []
+
+
+def test_purge_removes_module_state_review_history_and_warmup_results():
+    from app.models.module_state import ModuleState
+    from app.models.review import ReviewItem, Warmup, WarmupResult
+
+    with TestClient(app):
+        pass
+    db = SessionLocal()
+    try:
+        long_ago = utc_now() - timedelta(days=200)
+        old, old_p = _course(db, "st-old", 200)
+        recent, recent_p = _course(db, "st-new", 200)
+        warmup = Warmup(course_id=old, started_at=long_ago)
+        db.add(warmup)
+        db.flush()
+        db.add_all([ModuleState(participant_id=old_p, module_key="m1", data={"read": [1]}, updated_at=long_ago),
+                    ReviewItem(participant_id=old_p, question_id=1, last_reviewed=long_ago, streak=1),
+                    WarmupResult(warmup_id=warmup.id, participant_id=old_p, answered=1, correct=1),
+                    # gestern noch Übungsstand gespeichert -> Kurs gilt als aktiv
+                    ModuleState(participant_id=recent_p, module_key="m1", data={},
+                                updated_at=utc_now() - timedelta(days=1))])
+        db.commit()
+
+        assert old in retention.stale_course_ids(db, 90) and recent not in retention.stale_course_ids(db, 90)
+        counts = retention.purge(db, 90)
+        assert counts["module_state"] >= 1 and counts["review"] >= 1
+        assert db.query(ModuleState).filter(ModuleState.participant_id == old_p).count() == 0
+        assert db.query(ReviewItem).filter(ReviewItem.participant_id == old_p).count() == 0
+        assert db.query(WarmupResult).filter(WarmupResult.participant_id == old_p).count() == 0
+        assert db.query(ModuleState).filter(ModuleState.participant_id == recent_p).count() == 1
+    finally:
+        db.close()

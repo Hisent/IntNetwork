@@ -84,6 +84,8 @@ export interface AuditLogEntry {
   id: number; created_at: string; trainer_email: string
   action: string; target: string | null; detail: string | null
 }
+/** Letzte Aufwärmrunde: Teilnahme und Durchschnitt in Prozent (null = noch keine Antwort), keine Namen. */
+export interface Warmup { id: number; started_at: string; active: boolean; participants: number; average: number | null }
 export interface PasskeySummary { id: string; label: string; created_at: string; last_used_at?: string | null }
 
 // Die beiden Options-Typen kommen 1:1 vom Backend (Base64url-Strings statt
@@ -159,6 +161,10 @@ export const trainerApi = {
     api.patch<LivePoll>(`/trainer/courses/${cid}/poll/words`, { word, hidden }),
   revealPoll: (cid: number) => api.post<LivePoll>(`/trainer/courses/${cid}/poll/reveal`),
   closePoll: (cid: number) => api.delete(`/trainer/courses/${cid}/poll`),
+  // Aufwärmrunde (spaced review für den ganzen Kurs); null = noch nie gestartet
+  warmup: (cid: number) => api.get<Warmup | null>(`/trainer/courses/${cid}/warmup`),
+  startWarmup: (cid: number) => api.post<Warmup>(`/trainer/courses/${cid}/warmup`),
+  endWarmup: (cid: number) => api.delete<Warmup>(`/trainer/courses/${cid}/warmup`),
   listContentModules: () => api.get<EditorModuleMeta[]>('/trainer/content/modules'),
   getContentModule: (key: string) => api.get<EditorModule>(`/trainer/content/modules/${key}`),
   createContentModule: (key: string, title_de: string, workshop_key: string) =>

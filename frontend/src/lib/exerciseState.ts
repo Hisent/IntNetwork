@@ -3,7 +3,9 @@
 // Orientierung ohne Bewertung; der echte Abschluss bleibt das Quiz.
 // Ein Key je Modul (`intnetwork-exercise-<participantId>-<courseId>-<modul>`) mit
 // { <block-uid>: { v, s, done } } — pruneOtherParticipants räumt ihn mit auf.
+// Zusätzlich auf dem Server, geräteübergreifend: lib/moduleStateSync.ts (markChanged).
 import { createContext, useContext, useEffect, useRef, useState, type Dispatch, type SetStateAction } from 'react'
+import { markChanged } from '@/lib/moduleStateSync'
 
 export interface ExerciseRecord {
   v: string // Fingerabdruck des Blockinhalts, zu dem der Stand gehört
@@ -11,8 +13,9 @@ export interface ExerciseRecord {
   done: boolean
 }
 
+const PREFIX = 'intnetwork-exercise-'
 export const exerciseStorageKey = (keyScope: string, moduleKey: string) =>
-  keyScope && moduleKey ? `intnetwork-exercise-${keyScope}-${moduleKey}` : ''
+  keyScope && moduleKey ? `${PREFIX}${keyScope}-${moduleKey}` : ''
 
 export function loadExercises(storageKey: string): Record<string, ExerciseRecord> {
   if (!storageKey) return {}
@@ -27,6 +30,7 @@ export function loadExercises(storageKey: string): Record<string, ExerciseRecord
 function saveExercise(storageKey: string, uid: string, record: ExerciseRecord): void {
   try {
     localStorage.setItem(storageKey, JSON.stringify({ ...loadExercises(storageKey), [uid]: record }))
+    markChanged(storageKey.slice(PREFIX.length))
   } catch {
     // Speicher voll/blockiert — der Stand gilt dann nur für diese Sitzung.
   }

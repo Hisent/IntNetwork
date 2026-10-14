@@ -15,6 +15,7 @@ import { WorkshopTheme } from '@/components/WorkshopTheme'
 import { Icon } from '@/components/Icon'
 import { SearchBox } from '@/components/SearchBox'
 import { hasLocalProgress, pruneOtherParticipants } from '@/lib/readProgress'
+import { ReviewCard, ReviewWarmupBanner } from '@/components/ReviewCard'
 
 type Group = { key: string; title: string; mods: ModuleMeta[] }
 
@@ -204,6 +205,7 @@ export function WorkbenchLearnView({ lang, displayName, modules, groups, progres
 
         <div className="grid min-w-0 gap-8 xl:grid-cols-[minmax(0,1fr)_320px]">
           <main id="main-content" tabIndex={-1} className="min-w-0">
+            <ReviewWarmupBanner lang={lang} />
             {continueAt && (
               <Link to={`/lernen/${continueAt.key}`} className="wb-surface wb-surface--highlight group mb-8 block border-[var(--wb-accent)] p-5 hover:border-[var(--wb-accent)]">
                 <span className="text-xs font-semibold uppercase tracking-[0.14em] opacity-80">{t(lang, 'continueHere')}</span>
@@ -216,6 +218,8 @@ export function WorkbenchLearnView({ lang, displayName, modules, groups, progres
                 </span>
               </Link>
             )}
+
+            <ReviewCard lang={lang} className="mb-8" />
 
             <SearchBox lang={lang} modules={modules} progress={progress} />
 
@@ -258,7 +262,7 @@ export function WorkbenchLearnView({ lang, displayName, modules, groups, progres
 
           <aside className="min-w-0 space-y-5 xl:sticky xl:top-20 xl:self-start">
             <section className="wb-surface p-5">
-              <WorkbenchSectionTitle>{lang === 'de' ? 'Üben & Wiederholen' : 'Practice & review'}</WorkbenchSectionTitle>
+              <WorkbenchSectionTitle>{lang === 'de' ? 'Frei üben' : 'Free practice'}</WorkbenchSectionTitle>
               <p className="text-sm leading-relaxed text-[var(--wb-muted)]">{lang === 'de' ? 'Falsch beantwortete Fragen wiederholen oder gemischt üben — ohne Wertung.' : 'Review questions you got wrong or practise a mix — ungraded.'}</p>
               <Link to="/lernen/ueben" className="wb-control mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-[var(--wb-accent)] hover:underline">{lang === 'de' ? 'Übungsmodus starten' : 'Start practice mode'}<Icon name="arrowRight" className="h-4 w-4" /></Link>
             </section>

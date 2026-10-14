@@ -1,4 +1,4 @@
-Stand: v1.45.0 (2026-10-13) · Quelle: README.md, docs/lernwelt-nordwind.md, backend/app/content/changelog.py, backend/app/content/registry.py, frontend/src/App.tsx
+Stand: v1.45.0 + Wiederholung, serverseitiger Übungsstand (2026-10-14) · Quelle: README.md, docs/lernwelt-nordwind.md, backend/app/content/changelog.py, backend/app/content/registry.py, frontend/src/App.tsx
 
 # IntLab: Überblick
 
@@ -33,7 +33,8 @@ Zum Stand der ausgelieferten Inhalte: 99 Module, 1242 Blöcke, 754 Quizfragen (Q
 - **Empfohlene Reihenfolge, keine Sperre:** Module mit offener Voraussetzung sind auf der Lernseite ausgegraut („Voraussetzung offen“), bleiben aber über Suche und Links erreichbar; Voraussetzungen, die im Kurs abgewählt sind, zählen als erfüllt. Ein im Kurs nicht freigeschaltetes oder unbekanntes Modul zeigt eine eigene Meldung mit dem Grund.
 - **Zweisprachige Inhalte:** Die englische Fassung aller Module wurde lektoriert.
 - **Quiz-Erklärungen:** Jede Quizfrage zeigt nach der Abgabe eine Erklärung, bei richtiger wie bei falscher Antwort.
-- **Übungsstand:** Der Stand der Mini-Übungen bleibt im Browser erhalten („x von y Übungen erledigt“).
+- **Übungsstand:** Der Stand der Mini-Übungen und die Lese-Haken werden je Modul auf dem Server gespeichert und sind nach der Wiederaufnahme mit dem persönlichen Code auf jedem Gerät da („x von y Übungen erledigt“, „geräteübergreifend gemerkt“).
+- **Wiederholung:** Die Karte „Wiederholen“ auf der Kursübersicht zeigt, wie viele Fragen aus bestandenen Modulen fällig sind (frühestens 3 Stunden nach dem Bestehen; zuerst früher falsch beantwortete, richtig beantwortete in wachsenden Abständen). Der Trainer kann eine „Aufwärmrunde“ für den ganzen Kurs starten (siehe Trainer-Handbuch).
 - **Üben:** Der Übungsmodus (`/lernen/ueben`, Seitentitel „Üben & Wiederholen“) wiederholt falsch beantwortete Fragen oder übt gemischt, ohne Wertung.
 - **Suche** über Titel, Lernziele, Texte und Glossar der freigeschalteten Module.
 - **Druckansicht** je Modul als Spickzettel (Theorie, Diagramme, eigene Notizen); Knopf „Drucken / PDF“ im Modul.

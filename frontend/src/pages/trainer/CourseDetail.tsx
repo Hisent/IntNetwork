@@ -58,6 +58,14 @@ export function CourseDetail({ course, workshopTitle, workshops, portalContainer
   const pollKey = ['trainer-poll', cid]
   const poll = useQuery({ queryKey: pollKey, queryFn: () => trainerApi.poll(cid).then((r) => r.data), refetchInterval: 10_000 })
   const closePoll = useMutation({ mutationFn: () => trainerApi.closePoll(cid), onSuccess: () => qc.setQueryData(pollKey, null) })
+  // Aufwärmrunde: Teilnahme/Durchschnitt laufen live mit, solange sie aktiv ist.
+  const warmupKey = ['trainer-warmup', cid]
+  const warmup = useQuery({ queryKey: warmupKey, queryFn: () => trainerApi.warmup(cid).then((r) => r.data),
+    refetchInterval: (query) => (query.state.data?.active ? 10_000 : false) })
+  const toggleWarmup = useMutation({
+    mutationFn: (start: boolean) => (start ? trainerApi.startWarmup(cid) : trainerApi.endWarmup(cid)).then((r) => r.data),
+    onSuccess: (data) => qc.setQueryData(warmupKey, data),
+  })
   const toggleMod = useMutation({
     mutationFn: (v: { module_key: string; active: boolean }) => trainerApi.setCourseModule(cid, v.module_key, v.active),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['course-modules', cid] }),
@@ -153,7 +161,7 @@ export function CourseDetail({ course, workshopTitle, workshops, portalContainer
       )}
 
       {/* Vorher scheiterten Modul-Freischaltung, Freigabe, Code-Reset und Teilnehmer-Löschen lautlos. */}
-      {[toggleMod, setApproval, approve, resetCode, removeParticipant, closePoll].some((mutation) => mutation.isError) && (
+      {[toggleMod, setApproval, approve, resetCode, removeParticipant, closePoll, toggleWarmup].some((mutation) => mutation.isError) && (
         <p role="alert" className="rounded-lg border border-rose-300 bg-rose-50 px-3 py-2 text-sm text-rose-700">
           {tr('trLastActionFailed')}
         </p>
@@ -192,6 +200,20 @@ export function CourseDetail({ course, workshopTitle, workshops, portalContainer
             ))}
           </div>
         </QueryState>
+      </Section>
+
+      <Section title={tr('trWarmup')}>
+        <p className="text-sm text-[var(--wb-muted)]">{tr('trWarmupHint')}</p>
+        {warmup.data && (
+          <p role="status" className="mt-3 text-sm text-[var(--wb-ink)]">
+            <span className="font-semibold">{warmup.data.active ? tr('trWarmupRunning') : tr('trWarmupLast')}:</span>{' '}
+            {warmup.data.average != null ? tr('trWarmupStats', { n: warmup.data.participants, avg: warmup.data.average }) : tr('trWarmupStatsNone')}
+          </p>
+        )}
+        <button type="button" onClick={() => toggleWarmup.mutate(!warmup.data?.active)} disabled={toggleWarmup.isPending || warmup.isLoading}
+          className="wb-control mt-3 rounded-lg border border-[var(--wb-border)] px-4 text-sm font-semibold text-[var(--wb-ink)] hover:border-[var(--wb-accent)] disabled:opacity-50">
+          {warmup.data?.active ? tr('trWarmupEnd') : tr('trWarmupStart')}
+        </button>
       </Section>
 
       <Section title={tr('trModulesInCourse')}>

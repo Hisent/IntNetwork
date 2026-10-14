@@ -15,6 +15,13 @@ export const learnApi = {
     api.get<{ questions: PracticeQuestion[]; wrong_total: number }>(`/practice?mode=${mode}`),
   practiceCheck: (question_id: string, answer: unknown) =>
     api.post<{ correct: boolean; explanation: string | null }>('/practice/check', { question_id, answer }),
+  getState: (key: string) => api.get<ModuleState>(`/modules/${key}/state`),
+  putState: (key: string, state: Pick<ModuleState, 'read' | 'exercises'>) =>
+    api.put<{ updated_at: string }>(`/modules/${key}/state`, state),
+  reviewStatus: () => api.get<ReviewStatus>('/review/status'),
+  review: () => api.get<{ questions: PracticeQuestion[]; due: number }>('/review'),
+  reviewCheck: (question_id: string, answer: unknown) =>
+    api.post<{ correct: boolean; explanation: string | null }>('/review/check', { question_id, answer }),
   search: (q: string) => api.get<{ hits: SearchHit[]; more: boolean }>(`/search?q=${encodeURIComponent(q)}`),
   features: () => api.get<{ comments: boolean }>('/features'),
   listComments: (key: string) => api.get<Comment[]>(`/modules/${key}/comments`),
@@ -29,6 +36,10 @@ export const learnApi = {
   verifyCertificate: (id: string) => api.get<CertificateData>(`/verify/${encodeURIComponent(id)}`),
 }
 
+/** Serverseitiger Lese-/Übungsstand eines Moduls (lib/moduleStateSync.ts); updated_at null = noch nie gespeichert. */
+export interface ModuleState { read: number[]; exercises: Record<string, unknown>; updated_at: string | null }
+/** due = fällige Wiederholungsfragen, candidates = alle wiederholbaren; warmup = laufende Aufwärmrunde. */
+export interface ReviewStatus { due: number; candidates: number; warmup: { id: number; answered: number } | null }
 export type PracticeQuestion = Question & { module_key: string; module_title: string }
 export interface SearchHit { module_key: string; module_title: string; kind: 'title' | 'goal' | 'text'; uid: string | null; snippet: string }
 

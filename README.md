@@ -49,8 +49,9 @@ serverseitig bewertetes Quiz mit.
 - Heller und dunkler Modus (folgt anfangs der Systemeinstellung)
 - Interaktive Widgets, Visualisierungen und Lernphasen
 - Lernziele je Modul, geschätzte Bearbeitungszeit, Status (offen/begonnen/bestanden) und „Hier weitermachen“
-- Übungsstand der Mini-Übungen bleibt im Browser erhalten („x von y Übungen erledigt“)
+- Übungsstand der Mini-Übungen und Lese-Haken werden je Modul auf dem Server gespeichert und sind nach der Wiederaufnahme auf jedem Gerät da („x von y Übungen erledigt“; localStorage bleibt Offline-Cache, letzter Schreiber gewinnt — `frontend/src/lib/moduleStateSync.ts`)
 - Übungsmodus (`/lernen/ueben`): falsch beantwortete Fragen wiederholen oder gemischt üben — ohne Wertung
+- Wiederholung (spaced review): Karte „Wiederholen“ auf der Kursübersicht mit den fälligen Fragen bestandener Module (Leitner-Kästen, Regeln in `backend/app/services/review.py`); der Trainer kann eine „Aufwärmrunde“ für den ganzen Kurs starten
 - Suche über Titel, Lernziele, Texte und Glossar der freigeschalteten Module
 - Druckansicht je Modul als Spickzettel (Theorie, Diagramme, eigene Notizen)
 - Empfohlene Reihenfolge statt Sperre: Module mit offener Voraussetzung sind ausgegraut, aber über Suche und Link erreichbar; im Kurs abgewählte Voraussetzungen zählen als erfüllt, ein nicht freigeschaltetes oder unbekanntes Modul zeigt eine Meldung mit dem Grund
