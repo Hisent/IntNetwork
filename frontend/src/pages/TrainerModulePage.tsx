@@ -14,6 +14,7 @@ import { workshopTheme } from '@/lib/workshopTheme'
 import { useDocumentLang, useDocumentTitle } from '@/lib/i18n'
 import { TrainerLangToggle } from '@/components/TrainerLangToggle'
 import { useTr } from '@/store/lang'
+import type { Question } from '@/types'
 
 // Ampelfarbe je Erfolgsquote: ab 70% grün, ab 40% gelb, darunter rot.
 function rateColor(rate: number) {
@@ -22,14 +23,52 @@ function rateColor(rate: number) {
   return 'bg-rose-500'
 }
 
-function QuizStatsBox({ stats, courseFilter }: { stats: QuizStats; courseFilter: React.ReactNode }) {
+// Ab diesem Anteil der Versuche gilt eine falsche Option als „attraktiver Distraktor“.
+const ATTRACTIVE = 0.3
+
+/** Je Option ein schmaler Balken (Anteil der Versuche), die Lösung mit ✓;
+ *  falsche Optionen ab ATTRACTIVE hervorgehoben. Multiple Choice: Anteile summieren
+ *  sich nicht zu 100 %. */
+function OptionBars({ question, counts, attempts }: { question: Question; counts: number[]; attempts: number }) {
   const { tr } = useTr()
+  if (question.type === 'number') return null
+  const correct = (i: number) => (Array.isArray(question.answer) ? question.answer.includes(i) : question.answer === i)
+  return (
+    <ol className="mt-1.5 flex flex-col gap-1 pl-4">
+      {question.options.map((option, i) => {
+        const share = attempts ? (counts[i] ?? 0) / attempts : 0
+        const attractive = !correct(i) && share >= ATTRACTIVE
+        return (
+          <li key={i} className={`rounded px-1 ${attractive ? 'bg-rose-50 ring-1 ring-rose-200' : ''}`}>
+            <div className="flex items-center gap-2 text-xs text-slate-600">
+              <span aria-hidden="true" className="w-4 shrink-0 font-semibold text-slate-400">{String.fromCharCode(65 + i)}</span>
+              <span title={option} className="min-w-0 flex-1 truncate">
+                {option}
+                {correct(i) && <span className="ml-1 font-semibold text-green-700"><span aria-hidden="true">✓</span><span className="sr-only">({tr('trCorrectOption')})</span></span>}
+                {attractive && <span className="ml-1 font-semibold text-rose-700">· {tr('trAttractiveDistractor')}</span>}
+              </span>
+              <span className="w-16 shrink-0 text-right tabular-nums">{counts[i] ?? 0} · {Math.round(share * 100)} %</span>
+            </div>
+            <div className="ml-6 h-1 overflow-hidden rounded-full bg-slate-100">
+              <div className={`h-full rounded-full ${correct(i) ? 'bg-green-500' : attractive ? 'bg-rose-500' : 'bg-slate-400'}`}
+                style={{ width: `${Math.round(share * 100)}%` }} />
+            </div>
+          </li>
+        )
+      })}
+    </ol>
+  )
+}
+
+function QuizStatsBox({ stats, questions, courseFilter }: { stats: QuizStats; questions: Question[]; courseFilter: React.ReactNode }) {
+  const { tr } = useTr()
+  const byId = new Map(questions.map((q) => [q.id, q]))
   return (
     <div className="rounded-xl border bg-white p-4 mb-6 text-sm">
-      <div className="flex items-center justify-between gap-3 mb-1">
+      <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2 mb-1">
         <p className="font-semibold text-slate-700">
           {tr('trQuizResults')}
-          <span className="ml-2 font-normal text-slate-500">{tr('trSubmissions', { n: stats.submissions })}</span>
+          <span className="ml-2 font-normal text-slate-500 whitespace-nowrap">{tr('trSubmissions', { n: stats.submissions })}</span>
         </p>
         {courseFilter}
       </div>
@@ -38,11 +77,12 @@ function QuizStatsBox({ stats, courseFilter }: { stats: QuizStats; courseFilter:
       ) : (
         <>
       <p className="text-xs text-slate-500 mb-3">
-        {tr('trQuizRateHint')}
+        {tr('trQuizRateHint')} {tr('trOptionsHint', { pct: ATTRACTIVE * 100 })}
       </p>
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-3">
         {stats.questions.map((q, i) => {
           const rate = q.attempts ? q.correct / q.attempts : 0
+          const question = byId.get(q.id)
           return (
             <div key={q.id}>
               <div className="flex justify-between gap-3 text-xs text-slate-600 mb-0.5">
@@ -53,6 +93,7 @@ function QuizStatsBox({ stats, courseFilter }: { stats: QuizStats; courseFilter:
                 <div className={`h-full rounded-full ${rateColor(rate)}`}
                   style={{ width: `${Math.round(rate * 100)}%` }} />
               </div>
+              {q.options && question && q.attempts > 0 && <OptionBars question={question} counts={q.options} attempts={q.attempts} />}
             </div>
           )
         })}
@@ -140,11 +181,13 @@ export function TrainerModulePage() {
         {stats.data && (
           <QuizStatsBox
             stats={stats.data}
+            questions={m.quiz.questions}
             courseFilter={
               <select
                 value={courseId ?? ''}
                 onChange={(e) => setCourseId(e.target.value === '' ? undefined : Number(e.target.value))}
-                className="rounded-lg border border-slate-200 px-2 py-1 text-xs text-slate-600 bg-white"
+                aria-label={tr('trCourses')}
+                className="min-w-0 max-w-full truncate rounded-lg border border-slate-200 px-2 py-1 text-xs text-slate-600 bg-white"
               >
                 <option value="">{tr('trAllCourses')}</option>
                 {courses.data?.map((c) => (

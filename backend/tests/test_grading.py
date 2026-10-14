@@ -62,3 +62,21 @@ def test_multi_with_unsortable_client_input_is_wrong_not_500():
     q = {"id": "m", "type": "multi", "answer": [0, 2]}
     assert grading._correct(q, [1, "a"]) is False
     assert grading._correct(q, [{}, 1]) is False
+
+
+def test_option_counts_per_original_index():
+    """Distraktor-Analyse: gezählt wird je Original-Index (das Mischen betrifft nur
+    die Anzeige), Multi einmal je Option und Abgabe, Client-Unsinn fällt raus."""
+    quiz = {"questions": [
+        {"id": "s", "type": "single", "answer": 1, "options": ["a", "b", "c"]},
+        {"id": "m", "type": "multi", "answer": [0, 2], "options": ["a", "b", "c"]},
+        {"id": "n", "type": "number", "answer": 3}]}
+    subs = [{"s": 0, "m": [0, 2, 2], "n": 3},
+            {"s": 0, "m": [1]},
+            {"s": True, "m": [{}, 7, "x"]},
+            {"s": {"x": 1}, "m": "kaputt"},
+            {}]
+    stats = {s["id"]: s for s in grading.question_stats(quiz, subs)}
+    assert stats["s"]["options"] == [2, 0, 0]
+    assert stats["m"]["options"] == [1, 1, 1]
+    assert "options" not in stats["n"]

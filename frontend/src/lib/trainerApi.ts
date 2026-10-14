@@ -10,7 +10,7 @@ export interface Dashboard {
   participants: { id: number; name: string; approved: boolean; cells: Record<string, { done: boolean; best: number | null }> }[]
 }
 
-export interface ChangelogEntry { date: string; title: string; text: string }
+export interface ChangelogEntry { date: string; title: string; text: string; title_en?: string; text_en?: string }
 export interface CourseModule { key: string; title: string; order: number; workshop_key: string | null; active: boolean }
 export interface PresenceEntry { name: string; module_key: string; module_title: string }
 
@@ -78,7 +78,11 @@ export interface EditorModule {
 }
 export interface EditorModuleMeta { key: string; title_de: string; title_en: string; order: number; workshop_key: string | null }
 export interface TrainerAccount { id: number; email: string; name: string; role: 'admin' | 'trainer'; /** der angemeldete Trainer selbst */ is_self: boolean }
-export interface QuizQuestionStat { id: string; prompt: string; correct: number; attempts: number }
+export interface QuizQuestionStat {
+  id: string; prompt: string; correct: number; attempts: number
+  /** Auswahlfragen: wie oft jede Option gewählt wurde (Index = Optionsreihenfolge des Inhalts, nicht die gemischte Anzeige) */
+  options?: number[]
+}
 export interface QuizStats { submissions: number; questions: QuizQuestionStat[] }
 export interface AuditLogEntry {
   id: number; created_at: string; trainer_email: string

@@ -37,8 +37,23 @@ def question_stats(quiz: dict, submissions: list[dict]) -> list[dict]:
     die Frage stammt also aus der Zeit vor ihr."""
     return [{"id": q["id"],
              "correct": sum(1 for a in submissions if _correct(q, (a or {}).get(q["id"]))),
-             "attempts": sum(1 for a in submissions if q["id"] in (a or {}))}
+             "attempts": sum(1 for a in submissions if q["id"] in (a or {})),
+             **({"options": option_counts(q, submissions)} if q.get("options") else {})}
             for q in quiz["questions"]]
+
+
+def option_counts(question: dict, submissions: list[dict]) -> list[int]:
+    """Distraktor-Analyse: wie oft wurde jede Option gewählt? Gespeichert ist der
+    Original-Index (das Mischen im Client betrifft nur die Anzeige), die Zählung
+    passt also zur Optionsreihenfolge des Inhalts. Bei Multiple Choice zählt jede
+    Option einmal je Abgabe; Unsinn vom Client (Bool, außerhalb der Liste) fällt raus."""
+    counts = [0] * len(question["options"])
+    for a in submissions:
+        picked = (a or {}).get(question["id"])
+        for i in {i for i in (picked if isinstance(picked, list) else [picked])
+                  if type(i) is int and 0 <= i < len(counts)}:
+            counts[i] += 1
+    return counts
 
 
 # ponytail: einheitliche Bestehensgrenze; wieder pro Modul (DB-Feld + Editor-UI),
