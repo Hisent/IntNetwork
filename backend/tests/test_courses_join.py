@@ -121,6 +121,16 @@ def test_changelog_trainer_only():
         assert c.get("/api/changelog", headers={"Authorization": f"Bearer {tok}"}).status_code == 403
 
 
+def test_changelog_englisch_ab_v1_40():
+    """Ab v1.40.0 trägt jeder Eintrag eine englische Fassung (Trainer-UI in EN);
+    ältere bleiben nur deutsch, das Frontend fällt dann auf title/text zurück."""
+    from app.content.changelog import CHANGELOG
+    newest = CHANGELOG[:next(i for i, e in enumerate(CHANGELOG) if e["title"].startswith("v1.40.0")) + 1]
+    for e in newest:
+        assert e["title_en"].split(" ")[0] == e["title"].split(" ")[0] and e["text_en"], e["title"]
+        assert not set("äöüÄÖÜß") & set(e["title_en"] + e["text_en"]), e["title"]
+
+
 def test_company_endpoint():
     with TestClient(app) as c:
         h = _trainer(c)

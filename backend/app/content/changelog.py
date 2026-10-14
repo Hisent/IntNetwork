@@ -1,6 +1,15 @@
 # Projekt-Changelog (nur für Trainer sichtbar). Neueste zuerst.
 CHANGELOG = [
     {"date": "2026-10-14", "title": "v1.45.0 — Admin-Rolle, neue Umfragetypen und Trainer-Oberfläche auf Englisch",
+     "title_en": "v1.45.0 — Admin role, new poll types and the trainer UI in English",
+     "text_en": ("Only admins now manage trainer accounts and global settings; on update the oldest trainer "
+                 "automatically becomes admin. Live polls now also come as multiple choice, scale, free text "
+                 "and word cloud — as ad-hoc polls in the course detail, with moderation before the reveal. "
+                 "The trainer interface can be switched to English. Optionally, COURSE_RETENTION_DAYS deletes "
+                 "old courses automatically (default 0 = off). On errors the interface shows an error ID that "
+                 "can be found in the server log; error reports from the browser end up in the server log as "
+                 "well. The trainer dashboard refreshes itself while the tab is visible. New in CI: browser "
+                 "E2E tests with Playwright."),
      "text": "Trainerkonten und globale Einstellungen verwalten jetzt nur noch Admins; beim Update "
              "wird der älteste Trainer automatisch zum Admin. Live-Abstimmungen gibt es nun auch "
              "als Mehrfachauswahl, Skala, Freitext und Wortwolke — als spontane Umfragen im "
@@ -11,6 +20,15 @@ CHANGELOG = [
              "Server-Log. Das Trainer-Dashboard aktualisiert sich selbst, solange der Tab sichtbar "
              "ist. Neu in der CI: Browser-E2E-Tests mit Playwright."},
     {"date": "2026-10-14", "title": "v1.44.0 — Hands-on-Labs für Infoblox und NAC",
+     "title_en": "v1.44.0 — Hands-on labs for Infoblox and NAC",
+     "text_en": ("The Infoblox course gets its first interactive element: a WAPI console in which participants "
+                 "send requests against a simulated grid (in the WAPI automation module). The NAC course gets "
+                 "a simulator for 802.1X, MAB and RADIUS (in the Change of Authorization module): first "
+                 "predict the method, attributes and CoA, then step through the packets. Quarantine in the NAC "
+                 "course has also been made consistent: VLAN 99 for a non-compliant login, a quarantine ACL "
+                 "(dACL/Filter-Id) in the existing VLAN when a running session is moved via CoA. The new "
+                 "content reaches existing courses automatically on startup; modules edited by trainers only "
+                 "get it via “Load shipped version”."),
      "text": "Im Infoblox-Lehrgang gibt es erstmals ein interaktives Element: eine WAPI-Konsole, "
              "in der Teilnehmer Anfragen gegen ein simuliertes Grid absetzen (im Modul "
              "WAPI-Automatisierung). Im NAC-Lehrgang gibt es einen Simulator für 802.1X, MAB und "
@@ -21,6 +39,27 @@ CHANGELOG = [
              "wird. Die Neuerungen kommen beim Start automatisch in bestehende Kurse; von Trainern "
              "bearbeitete Module erhalten sie erst über „Auslieferungszustand laden“."},
     {"date": "2026-10-13", "title": "v1.43.0 — Mehr Interaktion, Grafiken und Lernfunktionen",
+     "title_en": "v1.43.0 — More interaction, graphics and learning features",
+     "text_en": ("All 99 modules have been expanded: every quiz question shows an explanation after "
+                 "submission, each module has two to four new, more demanding questions, and around 300 new "
+                 "building blocks have been added — step-by-step diagrams, terminal simulations with tasks, "
+                 "matching and fill-in-the-gap exercises, and decision scenarios. The Ansible and OpenSSL labs "
+                 "have new exercises. Participants get a search, a practice mode for wrongly answered "
+                 "questions, English learning goals, estimated time and status per module, saved exercise "
+                 "progress and a print view. For in-person workshops there is the live poll: choose “Present” "
+                 "in the course detail, then let the room vote on a question on the projector and reveal the "
+                 "result. The new content reaches existing courses automatically on startup; quiz results, "
+                 "progress and certificates stay unchanged. Modules edited by trainers only get the changes "
+                 "via “Load shipped version”. Operational notes: participants without a resume code need a "
+                 "one-time “Reset code” in the course detail; when deleting a course you can now choose "
+                 "whether the certificates of attendance are deleted too. Added later: the module editor shows "
+                 "the result of saving in a fixed status bar (with a jump to the faulty block) and protects "
+                 "unsaved changes; a running poll can be closed in the course detail with “End poll”; the "
+                 "module order is a recommended order, not a lock; the English version of all modules has been "
+                 "copy-edited. After the update please reload open editor tabs, otherwise saving is rejected "
+                 "with a notice. The labs are more strongly isolated: every run starts under its own "
+                 "unprivileged user ID and can read neither other jobs nor other working directories — nothing "
+                 "changes for participants."),
      "text": "Alle 99 Module wurden ausgebaut: Jede Quizfrage zeigt nach der Abgabe eine "
              "Erklärung, je Modul gibt es zwei bis vier neue, anspruchsvollere Fragen, und rund "
              "300 neue Bausteine sind dazugekommen — Schritt-für-Schritt-Diagramme, "
@@ -46,6 +85,18 @@ CHANGELOG = [
              "fremde Aufträge noch fremde Arbeitsverzeichnisse lesen — für Teilnehmer ändert sich "
              "an der Bedienung nichts."},
     {"date": "2026-10-12", "title": "v1.42.0 — Inhalts- und Technik-Audit aller Lehrgänge",
+     "title_en": "v1.42.0 — Content and technical audit of all courses",
+     "text_en": ("All six courses were checked against primary sources and corrected (including Infoblox "
+                 "HA/MCLT/WAPI, Ansible facts as of ansible-core 2.20, PKI lifetimes per SC-081, NAC "
+                 "dACL/TEAP, current Claude Code modes). In the Ansible and Infoblox courses the “find the "
+                 "bug” exercises graded the wrong line — this is fixed. Several widgets now calculate "
+                 "correctly (DNS path, port ranges, IPv6 check, Wireshark filters). Corrected content is "
+                 "applied to existing installations automatically on startup; modules edited by trainers stay "
+                 "untouched and are reported in the audit log. Deselected modules now stay deselected after a "
+                 "restart — please check the module selection of your courses once after this update. Also: "
+                 "database migrations are persisted on Postgres again, the lab command check for OpenSSL and "
+                 "git is stricter, expired trainer sessions lead cleanly back to the login, and the "
+                 "certificate shows the correct course name and issue date."),
      "text": "Alle sechs Lehrgänge wurden fachlich gegen Primärquellen geprüft und korrigiert "
              "(u. a. Infoblox HA/MCLT/WAPI, Ansible-Fakten ab ansible-core 2.20, PKI-Laufzeiten "
              "nach SC-081, NAC dACL/TEAP, aktuelle Claude-Code-Modi). In den Lehrgängen Ansible "
@@ -60,6 +111,13 @@ CHANGELOG = [
              "Trainer-Sitzungen führen sauber zur Anmeldung zurück, und das Zertifikat zeigt den "
              "richtigen Kursnamen und das Ausstellungsdatum."},
     {"date": "2026-07-23", "title": "v1.41.1 — Stabilerer Start nach Updates",
+     "title_en": "v1.41.1 — More robust startup after updates",
+     "text_en": ("An update could put the application into a restart loop if the database came from a very "
+                 "early version and one schema step had never been applied cleanly there — the site was then "
+                 "unreachable. This is fixed: the affected schema step now runs repeatably on any older state, "
+                 "and on startup the application checks the schema up front and reports a missing column "
+                 "clearly in the log instead of failing incomprehensibly deep in operation. Nothing changes "
+                 "for trainers and participants."),
      "text": "Ein Update konnte die Anwendung in eine Neustart-Schleife bringen, wenn die "
              "Datenbank aus einer sehr frühen Version stammte und ein Schema-Schritt dort "
              "nie sauber angewandt worden war — die Seite war dann nicht erreichbar. Das ist "
@@ -69,6 +127,15 @@ CHANGELOG = [
              "unverständlich abzubrechen. Für Trainer und Teilnehmer ändert sich an der "
              "Bedienung nichts."},
     {"date": "2026-07-22", "title": "v1.41.0 — Einladungslink & QR statt Code-Diktat",
+     "title_en": "v1.41.0 — Invitation link & QR code instead of dictating codes",
+     "text_en": ("Participants no longer need to be told the course code individually. The course detail now "
+                 "has an “Invite participants” section with an invitation link and a QR code: put it on the "
+                 "projector once or add it to the calendar invitation. Whoever opens or scans it has the "
+                 "course code filled in already and only enters their name — the name stays on purpose so that "
+                 "progress, presence and the certificate of attendance remain tied to one person. Access stays "
+                 "protected (no link, no joining), and if the course requires approval, that still applies — "
+                 "the link does not bypass it. The QR code is generated locally in the browser; no external "
+                 "service is called."),
      "text": "Teilnehmer müssen den Kurs-Code nicht mehr einzeln mitgeteilt bekommen. "
              "Im Kursdetail gibt es jetzt eine Sektion „Teilnehmer einladen“ mit einem "
              "Einladungslink und einem QR-Code: einmal an die Wand werfen oder in die "
@@ -80,6 +147,20 @@ CHANGELOG = [
              "Link umgeht sie nicht. Der QR-Code wird lokal im Browser erzeugt, es wird kein "
              "externer Dienst aufgerufen."},
     {"date": "2026-07-22", "title": "v1.40.0 — Neuer Lehrgang: Network Access Control (NAC)",
+     "title_en": "v1.40.0 — New course: Network Access Control (NAC)",
+     "text_en": ("The portal has a sixth course with 14 modules. It leads from the fundamentals (who may enter "
+                 "the network, and in what state) through 802.1X, RADIUS and the EAP methods for "
+                 "authentication, through MAC bypass, certificate-based login, dynamic VLAN assignment and "
+                 "changing authorization after the fact, on to device profiling, endpoint posture and guest "
+                 "access, all the way to a staged rollout and troubleshooting. Its colour scheme is indigo. "
+                 "Four interactive building blocks come with it, all in the browser: an animated 802.1X "
+                 "handshake that plays through the messages between client, switch and RADIUS server step by "
+                 "step (respecting the system setting for reduced motion), a policy decider (which result does "
+                 "which device get), a comparison of the three rollout stages and an endpoint compliance "
+                 "check. For the certificate side the course refers to the PKI course, for 802.1X to the WLAN "
+                 "module and for VLAN assignment to the networking module. It is based on documented source "
+                 "research (docs/research-nac.md); uncertain points — such as product details and rules of "
+                 "thumb from practice — are deliberately worded cautiously instead of being stated as fact."),
      "text": "Das Portal hat einen sechsten Lehrgang mit 14 Modulen. Er führt von den "
              "Grundlagen (Wer darf ins Netz, in welchem Zustand) über 802.1X, RADIUS und "
              "die EAP-Methoden zur Authentifizierung, über MAC-Bypass, "
