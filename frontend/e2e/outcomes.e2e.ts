@@ -31,7 +31,7 @@ test('Kursbewertung: öffnen, anonym abgeben, Aggregat sehen, CSV herunterladen'
 
   await trainer.reload()
   await trainer.getByRole('button', { name: course.name }).click()
-  await expect(trainer.getByText('1 Abgaben')).toBeVisible()
+  await expect(trainer.getByText('1 Abgaben', { exact: true })).toBeVisible()
   await expect(trainer.getByText(/Ergebnisse erscheinen ab 3 Abgaben/)).toBeVisible()
   await expect(trainer.getByText(praise)).toHaveCount(0)
 
@@ -42,7 +42,7 @@ test('Kursbewertung: öffnen, anonym abgeben, Aggregat sehen, CSV herunterladen'
   }
   await trainer.reload()
   await trainer.getByRole('button', { name: course.name }).click()
-  await expect(trainer.getByText('3 Abgaben')).toBeVisible()
+  await expect(trainer.getByText('3 Abgaben', { exact: true })).toBeVisible()
   await expect(trainer.getByRole('row', { name: /Gesamteindruck/ })).toContainText('Ø 5 (n = 3)')
   await expect(trainer.getByText(praise)).toBeVisible()
 
