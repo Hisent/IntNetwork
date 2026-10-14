@@ -443,6 +443,31 @@ NAC_COA_MODULE = {
                 ],
             },
         },
+        {'type': 'text', 'id': 'text-radius-lab',
+         'value': {
+             'de': '## Alles zusammen: das RADIUS-Labor\n\n'
+                   'Mit CoA ist die Kette aus Block 2 komplett: Methode, RADIUS-Antwort, '
+                   'Autorisierungsattribute und die nachträgliche Änderung. Im Labor sagst du für '
+                   'sechs Nordwind-Endgeräte voraus, was passiert — erst danach siehst du den '
+                   'Paketablauf mit den Attributen jedes Pakets. Achte besonders darauf, wann das '
+                   'erste Access-Accept schon alles regelt und wann erst ein CoA die Sitzung fertig '
+                   'macht.',
+             'en': '## Putting It All Together: The RADIUS Lab\n\n'
+                   'With CoA, the chain of block 2 is complete: method, RADIUS answer, '
+                   'authorization attributes, and the change after the fact. In the lab you predict '
+                   'what happens for six Nordwind endpoints — only then do you see the packet flow '
+                   'with the attributes of every packet. Pay particular attention to when the first '
+                   'Access-Accept already settles everything and when only a CoA completes the '
+                   'session.',
+         }},
+        {'type': 'widget', 'id': 'nac-radius-lab',
+         'note': 'Erst vorhersagen lassen, dann den Ablauf durchklicken. Das Nordwind-Regelwerk im '
+                 'Widget ist bewusst aufklappbar: Die Schwierigkeit liegt im Einordnen des Geräts '
+                 '(Methode, Reject vs. Timeout, CoA ja/nein), nicht im Auswendiglernen der VLANs. '
+                 'Vereinfacht: EAP auf eine Challenge-Runde verdichtet, die Re-Authentifizierung nach '
+                 'dem CoA ist ein Schritt; die CoA-Anweisung „reauthenticate“ und die Portal-URL '
+                 'sind herstellerspezifische Attribute. Filter-Id steht für die named ACL; mit dACL '
+                 'lädt der Switch den Inhalt per zweiter Access-Request nach.'},
         {'type': 'reflect', 'id': 'reflect-1',
          'payload': {
              'prompt_de': 'Nordwind Logistik überlegt, ob eine erkannte Posture-'
