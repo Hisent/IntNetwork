@@ -102,6 +102,17 @@ export function TrainerPresentPage() {
     return () => window.removeEventListener('beforeunload', warn)
   }, [pollRunning])
 
+  // „Folgt mir“: mit Kurs teilt jede Folie Modul (und Block) mit den Teilnehmern —
+  // nur ein Hinweis bei ihnen, keine Navigation. Abschalten löscht den Stand.
+  // ponytail: Schalter nur im Seitenzustand (Neuladen = wieder an); speichern, falls das stört.
+  const [sharing, setSharing] = useState(true)
+  const followBlock = slide > 0 ? mod.data?.blocks[slide - 1]?.uid ?? null : null
+  const followReady = !!mod.data
+  useEffect(() => {
+    if (cid == null || !sharing || !followReady) return
+    trainerApi.setFollow(cid, key, followBlock).catch(() => {})  // weicher Hinweis: ein verpasster Stand heilt beim nächsten Folienwechsel
+  }, [cid, key, followBlock, sharing, followReady])
+
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
       // Während einer Abstimmung gibt es keine Folie: Pfeile/Leertaste/Esc dürfen weder
@@ -253,6 +264,13 @@ export function TrainerPresentPage() {
             {courseOptions.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
           </select>
         </label>
+        {cid != null && (
+          <label className="flex items-center gap-2">
+            <input type="checkbox" checked={sharing}
+              onChange={(e) => { setSharing(e.target.checked); if (!e.target.checked) trainerApi.clearFollow(cid).catch(() => setSharing(true)) }} />
+            {tr('trFollowShare')}
+          </label>
+        )}
         {cid != null && singles.length > 0 && (
           <select aria-label={tr('trQuizAsPollAria')} value="" disabled={startPoll.isPending}
             onChange={(e) => { if (e.target.value) startPoll.mutate({ source: 'quiz', ref: e.target.value }) }}

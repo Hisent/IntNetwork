@@ -178,6 +178,9 @@ export const STRINGS = {
     pollNoAnswers: 'Noch keine Antworten.',
     pollWordCloud: 'Wortwolke',
     pollScaleValue: 'Wert',
+    followBanner: 'Trainer ist bei Modul „{title}“',
+    followGo: 'Hingehen',
+    followDismiss: 'Hinweis ausblenden',
   },
   en: {
     ...TRAINER_EN,
@@ -302,6 +305,9 @@ export const STRINGS = {
     pollNoAnswers: 'No answers yet.',
     pollWordCloud: 'Word cloud',
     pollScaleValue: 'Value',
+    followBanner: 'Your trainer is at module “{title}”',
+    followGo: 'Go there',
+    followDismiss: 'Dismiss hint',
   },
 } as const
 

@@ -16,6 +16,7 @@ from app.services.deps import get_participant
 from app.services import grading
 from app.services.course_membership import active_module_keys
 from app.services.ratelimit import rate_limit
+from app.routers.presence import touch_presence
 from app.content.registry import module_meta, public_module, trainer_module
 from app.utils import utc_now
 
@@ -146,7 +147,6 @@ def heartbeat(key: str, db: Session = Depends(get_db), p: Participant = Depends(
     # Klassenraum-Gruppe treffen, nicht Angreifer.
     if denied := _unavailable(db, p, key):
         return denied
-    p.current_module_key = key
-    p.last_seen = utc_now()
+    touch_presence(p, key)
     db.commit()
     return {"ok": True}

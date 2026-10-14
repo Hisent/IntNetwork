@@ -58,6 +58,8 @@ export function CourseDetail({ course, workshopTitle, workshops, portalContainer
   const pollKey = ['trainer-poll', cid]
   const poll = useQuery({ queryKey: pollKey, queryFn: () => trainerApi.poll(cid).then((r) => r.data), refetchInterval: 10_000 })
   const closePoll = useMutation({ mutationFn: () => trainerApi.closePoll(cid), onSuccess: () => qc.setQueryData(pollKey, null) })
+  const follow = dash.data?.course.follow
+  const stopFollow = useMutation({ mutationFn: () => trainerApi.clearFollow(cid), onSuccess: () => qc.invalidateQueries({ queryKey: ['dashboard', cid] }) })
   const toggleMod = useMutation({
     mutationFn: (v: { module_key: string; active: boolean }) => trainerApi.setCourseModule(cid, v.module_key, v.active),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['course-modules', cid] }),
@@ -152,8 +154,21 @@ export function CourseDetail({ course, workshopTitle, workshops, portalContainer
         </div>
       )}
 
+      {/* „Folgt mir“ läuft weiter, auch wenn die Präsentation verlassen wurde — hier lässt es sich beenden. */}
+      {follow && (
+        <div role="status" className="wb-surface flex flex-wrap items-center gap-3 p-4 text-sm">
+          <p className="min-w-0 flex-1 font-semibold text-[var(--wb-ink)] [overflow-wrap:anywhere]">
+            {tr('trFollowSharing', { title: dash.data?.modules.find((m) => m.key === follow.module_key)?.title ?? follow.module_key })}
+          </p>
+          <button type="button" onClick={() => stopFollow.mutate()} disabled={stopFollow.isPending}
+            className="wb-control rounded-lg border border-[var(--wb-border)] px-4 font-semibold text-[var(--wb-ink)] hover:border-[var(--wb-accent)] disabled:opacity-50">
+            {tr('trFollowStop')}
+          </button>
+        </div>
+      )}
+
       {/* Vorher scheiterten Modul-Freischaltung, Freigabe, Code-Reset und Teilnehmer-Löschen lautlos. */}
-      {[toggleMod, setApproval, approve, resetCode, removeParticipant, closePoll].some((mutation) => mutation.isError) && (
+      {[toggleMod, setApproval, approve, resetCode, removeParticipant, closePoll, stopFollow].some((mutation) => mutation.isError) && (
         <p role="alert" className="rounded-lg border border-rose-300 bg-rose-50 px-3 py-2 text-sm text-rose-700">
           {tr('trLastActionFailed')}
         </p>
@@ -181,17 +196,26 @@ export function CourseDetail({ course, workshopTitle, workshops, portalContainer
         </Section>
       )}
 
-      <Section title={tr('trActiveNow')}>
+      {/* „Wer hängt fest?“: Server sortiert „braucht evtl. Hilfe“ nach oben (Regeln: routers/presence.py) */}
+      <Section title={tr('trWhoIsStuck')}>
         <QueryState query={presence} empty={presence.data?.length === 0}>
-          <div className="flex flex-col gap-1.5">
+          <ul className="flex flex-col gap-2">
             {presence.data?.map((entry) => (
-              <div key={entry.name} className="flex justify-between text-sm">
-                <span className="text-[var(--wb-ink)]">{entry.name}</span>
-                <span className="text-[var(--wb-muted)]">{entry.module_title}</span>
-              </div>
+              <li key={entry.participant_id} className={`rounded-lg px-2 py-1.5 text-sm ${entry.needs_help ? 'border-l-4 border-[var(--wb-warning)] bg-[var(--wb-subtle)]' : ''}`}>
+                <div className="flex flex-wrap items-baseline justify-between gap-x-3">
+                  <span className="min-w-0 font-medium text-[var(--wb-ink)] [overflow-wrap:anywhere]">{entry.name}</span>
+                  {entry.needs_help && <span className="inline-flex items-center gap-1 text-xs font-semibold text-[var(--wb-ink)]"><Icon name="alert" className="h-3.5 w-3.5 text-[var(--wb-warning)]" />{tr('trNeedsHelp')}</span>}
+                </div>
+                <p className="text-xs text-[var(--wb-muted)] [overflow-wrap:anywhere]">
+                  {entry.module_title} · {tr('trMinutesInModule', { n: entry.minutes_in_module })}
+                  {entry.failed_attempts > 0 && <> · {tr('trFailedAttempts', { n: entry.failed_attempts })}</>}
+                  {entry.done && <> · {tr('trModuleDone')}</>}
+                </p>
+              </li>
             ))}
-          </div>
+          </ul>
         </QueryState>
+        <p className="mt-3 text-xs text-[var(--wb-muted)]">{tr('trStuckRules')}</p>
       </Section>
 
       <Section title={tr('trModulesInCourse')}>

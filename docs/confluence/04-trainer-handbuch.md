@@ -110,11 +110,18 @@ Hinweise:
 
 Was Teilnehmer sehen: In ihrem geöffneten Modul blendet sich „Live-Abstimmung“ ein (Abfrage alle 5 Sekunden; im Hintergrund-Tab pausiert sie). Sie wählen eine Antwort („Wähle eine Antwort.“), ihre Stimme zählt („Stimme gezählt. Bis zur Auflösung kannst du dich umentscheiden.“). Bei den übrigen Arten lauten die Hinweise „Wähle eine oder mehrere Antworten.“ bzw. „Wähle bis zu n Antworten.“, „Wähle einen Wert.“, „Schreib eine kurze Antwort.“ und „Nenne ein bis drei Wörter.“; Freitext und Wörter werden mit „Senden“ abgeschickt („Gespeichert. Bis zur Auflösung kannst du deine Antwort ändern.“). Mit „Minimieren“, Esc oder Klick daneben wird die Einblendung zum Hinweis „Live-Abstimmung läuft“, aus dem sie sich wieder öffnen lässt; ein noch nicht gesendeter Text geht dabei verloren. Nach der Auflösung sehen sie „Richtig!“, „Leider falsch.“, „Danke fürs Mitmachen!“ (eigene Abstimmung) oder „Du hast nicht abgestimmt.“ und das Ergebnis. Die Einblendung gibt es auf Deutsch und Englisch, je nach Sprache des Teilnehmers; Fragen und Antworten eigener Abstimmungen erscheinen so, wie der Trainer sie eingegeben hat.
 
+## „Folgt mir“: Teilnehmer zur eigenen Stelle holen
+
+Im Beamer-Modus mit Kurs ist unten „Meine Position teilen („Folgt mir“)“ angehakt. Dann sehen die Teilnehmer dieses Kurses in der Kursübersicht und in jedem anderen Modul einen Hinweis „Trainer ist bei Modul „<Titel>““ mit dem Knopf „Hingehen“ (führt ins Modul, bei einer Inhaltsfolie direkt zum Block). Es ist nur ein Angebot: niemand wird umgeleitet, der Hinweis lässt sich je Modul wegklicken und erscheint nicht, wenn der Teilnehmer schon dort ist oder das Modul für ihn noch nicht offen ist (nicht freigeschaltet, Voraussetzung nicht bestanden). Teilnehmer fragen alle 10 Sekunden nach.
+
+- Abschalten: Haken entfernen — der Hinweis verschwindet bei den Teilnehmern. Nach dem Neuladen der Präsentation ist der Haken wieder gesetzt.
+- Die Position bleibt nach dem Verlassen der Präsentation stehen. Das Kurs-Detail zeigt dann oben „Teilnehmer sehen: Trainer ist bei „<Titel>““ mit dem Knopf „Teilen beenden“. Eine Position, die drei Stunden lang kein Folienwechsel erneuert hat, gilt als erledigt.
+
 ## Fortschritt und Präsenz lesen
 
 Im Kurs-Detail:
 
-- **„Gerade aktiv“:** Wer gerade im Kurs arbeitet und in welchem Modul (aktualisiert sich alle 10 Sekunden).
+- **„Gerade aktiv · Wer hängt fest?“:** Wer gerade im Kurs arbeitet (Heartbeat der letzten 30 Sekunden), in welchem Modul, seit wie vielen Minuten und mit wie vielen Quiz-Fehlversuchen dort (aktualisiert sich alle 10 Sekunden). „braucht evtl. Hilfe“ steht an Teilnehmern, die das Modul noch nicht bestanden haben und entweder mindestens 2 Fehlversuche bei mindestens 10 Minuten im Modul oder mindestens 40 Minuten im Modul haben; sie stehen oben in der Liste. Wer länger als 10 Minuten nicht aktiv war oder das Modul wechselt, beginnt bei 0 Minuten.
 - **„Fortschritt“:** Tabelle mit einer Zeile je Teilnehmer und einer Spalte je Modul. Ein Haken zeigt ein bestandenes Modul, daneben der beste Quiz-Wert in Prozent. Ein Strich „–“ heißt: noch nicht bestanden. Ist die Freigabe aktiv, gibt es zusätzlich die Spalte „Freigabe“. Ohne Teilnehmer steht dort „Noch keine Teilnehmer.“
 - Bei vielen Modulen scrollt die Tabelle waagerecht; die Teilnehmerspalte bleibt stehen.
 

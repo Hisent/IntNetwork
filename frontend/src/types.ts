@@ -54,6 +54,9 @@ export interface WorkshopDetail extends Workshop {
   modules: { key: string; title: Record<'de' | 'en', string>; order: number }[]
 }
 
+// „Folgt mir“: wo der Trainer gerade ist (GET /follow, Dashboard). block_uid = Block.uid.
+export interface Follow { module_key: string; block_uid: string | null; updated_at: string }
+
 // Live-Abstimmung. Teilnehmer bekommen my_choice und erst bei status "revealed"
 // das Ergebnis (counts/votes/mean/answers/words, bei Inhaltsfragen answer/explanation);
 // der Trainer sieht es immer, bei Freitext samt ausgeblendeter Antworten und deren id.

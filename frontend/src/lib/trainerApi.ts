@@ -1,9 +1,9 @@
 import { useQuery } from '@tanstack/react-query'
 import { api } from '@/lib/api'
-import type { AdhocPoll, LivePoll, ModuleMeta, TrainerModuleDetail } from '@/types'
+import type { AdhocPoll, Follow, LivePoll, ModuleMeta, TrainerModuleDetail } from '@/types'
 import type { TrainerComment } from '@/components/commentGroups'
 
-export interface Course { id: number; name: string; join_code: string; workshop_key: string | null; participant_count?: number; require_approval?: boolean; /** nur im Dashboard: ausgestellte Zertifikate dieses Kurses */ certificate_count?: number }
+export interface Course { id: number; name: string; join_code: string; workshop_key: string | null; participant_count?: number; require_approval?: boolean; /** nur im Dashboard: ausgestellte Zertifikate dieses Kurses */ certificate_count?: number; /** nur im Dashboard: geteilte Trainer-Position („Folgt mir“) */ follow?: Follow | null }
 export interface Dashboard {
   course: Course
   modules: { key: string; title: string; order: number }[]
@@ -12,7 +12,12 @@ export interface Dashboard {
 
 export interface ChangelogEntry { date: string; title: string; text: string; title_en?: string; text_en?: string }
 export interface CourseModule { key: string; title: string; order: number; workshop_key: string | null; active: boolean }
-export interface PresenceEntry { name: string; module_key: string; module_title: string }
+export interface PresenceEntry {
+  participant_id: number; name: string; module_key: string; module_title: string
+  // „Wer hängt fest?“ — Regeln und Schwellen in backend/app/routers/presence.py
+  minutes_in_module: number; failed_attempts: number; done: boolean; needs_help: boolean
+  reasons: ('failed_attempts' | 'long_in_module')[]
+}
 
 // typ-spezifische Zusatzdaten: check nutzt prompt/options/answer (kind
 // "number": answer = Zahl), reveal teaser, order items, debug lines/wrong/explanation
@@ -151,6 +156,10 @@ export const trainerApi = {
     api.post(`/trainer/courses/${cid}/modules/${key}/comments`, { block_index, body }),
   deleteTrainerComment: (id: number) => api.delete(`/trainer/comments/${id}`),
   coursePresence: (cid: number) => api.get<PresenceEntry[]>(`/trainer/courses/${cid}/presence`),
+  // „Folgt mir“: Trainer-Position im Kurs teilen bzw. das Teilen beenden
+  setFollow: (cid: number, module_key: string, block_uid: string | null) =>
+    api.put<Follow | null>(`/trainer/courses/${cid}/follow`, { module_key, block_uid }),
+  clearFollow: (cid: number) => api.delete(`/trainer/courses/${cid}/follow`),
   // Live-Abstimmung (höchstens eine je Kurs); null = keine laufende
   poll: (cid: number) => api.get<LivePoll | null>(`/trainer/courses/${cid}/poll`),
   startPoll: (cid: number, module_key: string, source: 'quiz' | 'check', ref: string) =>

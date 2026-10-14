@@ -25,6 +25,7 @@ import { modulePositions } from '@/lib/modulePosition'
 import { WorkshopTheme } from '@/components/WorkshopTheme'
 import { PrintContext, usePrintState } from '@/lib/printMode'
 import { ParticipantPoll } from '@/components/LivePoll'
+import { FollowBanner } from '@/components/FollowBanner'
 
 export function ModulePage() {
   const { key = '' } = useParams()
@@ -261,6 +262,7 @@ export function WorkbenchModuleView({ lang, moduleKey, keyScope, module, modules
       <WorkbenchTopbar lang={lang} title={title} actions={languageControl} />
       <div className="h-1 bg-[var(--wb-subtle)] print:hidden"><div className="h-full bg-[var(--wb-accent)]" style={{ width: `${readPct}%` }} /></div>
       <div className="wb-shell">
+        <FollowBanner lang={lang} current={moduleKey} modules={modules} progress={progress} />
         <details id="module-nav" className="wb-surface mb-5 scroll-mt-20 p-3 lg:hidden print:hidden">
           <summary className="wb-control flex cursor-pointer items-center px-2 font-semibold">{lang === 'de' ? 'Kursnavigation öffnen' : 'Open course navigation'}</summary>
           <div className="mt-2 max-h-[60dvh] overflow-y-auto border-t border-[var(--wb-border)] pt-3">
