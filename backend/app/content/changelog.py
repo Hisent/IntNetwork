@@ -1,5 +1,15 @@
 # Projekt-Changelog (nur für Trainer sichtbar). Neueste zuerst.
 CHANGELOG = [
+    {"date": "2026-10-14", "title": "v1.44.0 — Hands-on-Labs für Infoblox und NAC",
+     "text": "Im Infoblox-Lehrgang gibt es erstmals ein interaktives Element: eine WAPI-Konsole, "
+             "in der Teilnehmer Anfragen gegen ein simuliertes Grid absetzen (im Modul "
+             "WAPI-Automatisierung). Im NAC-Lehrgang gibt es einen Simulator für 802.1X, MAB und "
+             "RADIUS (im Modul Change of Authorization): erst Methode, Attribute und CoA vorhersagen, "
+             "dann die Pakete Schritt für Schritt durchgehen. Außerdem wurde die Quarantäne im "
+             "NAC-Lehrgang vereinheitlicht: VLAN 99 bei nicht-konformer Anmeldung, Quarantäne-ACL "
+             "(dACL/Filter-Id) im bisherigen VLAN, wenn eine laufende Session per CoA verschoben "
+             "wird. Die Neuerungen kommen beim Start automatisch in bestehende Kurse; von Trainern "
+             "bearbeitete Module erhalten sie erst über „Auslieferungszustand laden“."},
     {"date": "2026-10-13", "title": "v1.43.0 — Mehr Interaktion, Grafiken und Lernfunktionen",
      "text": "Alle 99 Module wurden ausgebaut: Jede Quizfrage zeigt nach der Abgabe eine "
              "Erklärung, je Modul gibt es zwei bis vier neue, anspruchsvollere Fragen, und rund "
