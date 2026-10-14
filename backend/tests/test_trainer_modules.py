@@ -82,6 +82,14 @@ def test_quiz_stats_filters_by_course():
         assert b["submissions"] == 1
         assert all(q["correct"] == 1 for q in a["questions"])
         assert all(q["correct"] == 0 for q in b["questions"])
+        # Distraktor-Analyse: in Kurs A hat genau die Lösung je eine Stimme, Kurs B keine
+        solutions = {q["id"]: q["answer"] for q in c.get("/api/trainer/modules/vlan", headers=h).json()["quiz"]["questions"]}
+        for q in a["questions"]:
+            if "options" in q:
+                sol = solutions[q["id"]]
+                assert q["options"] == [int(i == sol or (isinstance(sol, list) and i in sol))
+                                        for i in range(len(q["options"]))]
+        assert all(sum(q.get("options", [])) == 0 for q in b["questions"])
         # ohne Filter: mindestens beide zusammen
         alle = c.get("/api/trainer/modules/vlan/quiz-stats", headers=h).json()
         assert alle["submissions"] >= 2

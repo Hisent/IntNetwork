@@ -1,8 +1,9 @@
 """Abstimmungsarten über die API: eigene Fragen (Mehrfachauswahl, Skala, Freitext,
 Wortwolke) und Multiple-Choice-Quizfragen — Prüfung, Auswertung, Ausblenden, Anonymität."""
 from fastapi.testclient import TestClient
+from sqlalchemy import event
 
-from app.database import SessionLocal
+from app.database import SessionLocal, engine
 from app.main import app
 from app.models.live_poll import LivePollVote
 from tests.test_polls import MOD, _course, _join, _trainer, _vote
@@ -202,3 +203,22 @@ def test_wortwolke_wort_ausblenden():
         _adhoc(c, h2, cid2, kind="text", prompt="Freitext")
         assert c.patch(f"/api/trainer/courses/{cid2}/poll/words", headers=h2,
                        json={"word": "x", "hidden": True}).status_code == 404
+
+
+def test_wort_ausblenden_sperrt_die_zeile():
+    """Read-modify-write auf config["hidden_words"] unter Zeilensperre. Prüfbar nur
+    unter Postgres (CI-Job backend-postgres-migration): SQLite lässt FOR UPDATE weg."""
+    statements = []
+    with TestClient(app) as c:
+        h, cid, (a,) = _setup(c, "TypWortSperre", 1)
+        poll = _adhoc(c, h, cid, kind="words", prompt="Ein Wort?").json()
+        _vote(c, a, poll["id"], ["mist"])
+        listener = lambda *args: statements.append(args[2])  # noqa: E731 (conn, cursor, statement, ...)
+        event.listen(engine, "before_cursor_execute", listener)
+        try:
+            out = c.patch(f"/api/trainer/courses/{cid}/poll/words", headers=h, json={"word": "mist", "hidden": True})
+        finally:
+            event.remove(engine, "before_cursor_execute", listener)
+        assert out.status_code == 200 and out.json()["moderation"][0]["hidden"] is True
+    if engine.dialect.name == "postgresql":
+        assert any("FROM live_poll" in s and "FOR UPDATE" in s for s in statements)

@@ -11,6 +11,9 @@ async function request<T>(method: string, url: string, body?: unknown): Promise<
   const res = await fetch('/api' + url, {
     method,
     headers: {
+      // Sprache der angezeigten Seite (useDocumentLang setzt <html lang>): das Backend
+      // liefert `detail`-Meldungen dann englisch (backend/app/services/messages.py).
+      'Accept-Language': globalThis.document?.documentElement.lang === 'en' ? 'en' : 'de',
       ...(body !== undefined ? { 'Content-Type': 'application/json' } : {}),
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
     },

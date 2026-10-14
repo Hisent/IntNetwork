@@ -7,6 +7,8 @@ __pycache__/
 *.local
 .env
 .DS_Store
+# Lokale Agent-Worktrees und -Einstellungen (Claude Code)
+.claude/
 
 docs/*
 # Ausnahme: Die Lab-Sicherheitsdoku beschreibt eine Sicherheitsgrenze des

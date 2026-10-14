@@ -2,8 +2,8 @@ import { errMsg, type ApiError } from '@/lib/api'
 import type { Lang } from '@/lib/i18n'
 
 /** Meldung nach einem fehlgeschlagenen Beitritt. Das Backend antwortet auf
- *  „Name vergeben, kein Code“ und „Code falsch“ mit demselben 403-Text (und nur
- *  deutsch) — hier wird danach unterschieden, ob ein Code eingegeben wurde,
+ *  „Name vergeben, kein Code“ und „Code falsch“ mit demselben 403-Text — hier
+ *  wird danach unterschieden, ob ein Code eingegeben wurde,
  *  damit klar ist, was als Nächstes zu tun ist. */
 export function joinErrorMessage(error: unknown, hadResumeCode: boolean, lang: Lang): string {
   const de = lang === 'de'

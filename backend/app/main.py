@@ -3,14 +3,17 @@ import time
 import uuid
 
 from fastapi import APIRouter, FastAPI, Request
+from fastapi.exception_handlers import http_exception_handler
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from sqlalchemy import inspect, text
 from sqlalchemy.exc import OperationalError
+from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from app.config import APP_VERSION, DEFAULT_SECRET_KEY, settings
 from app.database import Base, SessionLocal, engine
 from app.db_migrate import run_migrations
+from app.services import messages
 from app.models import course as _course  # noqa: F401
 from app.models import course_module as _course_module  # noqa: F401
 from app.models import participant as _participant  # noqa: F401
@@ -146,10 +149,21 @@ async def _request_id(request: Request, call_next):
         response = await call_next(request)
     except Exception:
         _log.exception("Unbehandelter Fehler request_id=%s %s %s", rid, request.method, request.url.path)
-        response = JSONResponse(status_code=500, content={
-            "detail": f"Interner Fehler (Fehler-ID {rid})", "request_id": rid})
+        detail = f"Interner Fehler (Fehler-ID {rid})"
+        if messages.wants_en(request.headers.get("accept-language")):
+            detail = messages.to_en(detail)
+        response = JSONResponse(status_code=500, content={"detail": detail, "request_id": rid})
     response.headers["X-Request-ID"] = rid
     return response
+
+
+@app.exception_handler(StarletteHTTPException)
+async def _localized_detail(request: Request, exc: StarletteHTTPException):
+    """Englische Meldung, wenn die Oberfläche englisch ist (Accept-Language vom
+    Frontend, services/messages.py); sonst unverändert der deutsche Text."""
+    if isinstance(exc.detail, str) and messages.wants_en(request.headers.get("accept-language")):
+        exc = StarletteHTTPException(exc.status_code, messages.to_en(exc.detail), exc.headers)
+    return await http_exception_handler(request, exc)
 
 
 @app.middleware("http")

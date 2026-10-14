@@ -33,7 +33,7 @@ export function ModuleAdmin({ workshops }: { workshops: { key: string; title: Re
   // nicht mehr — daher Gruppierung nach Workshop plus Titel-Filter.
   const needle = filter.trim().toLowerCase()
   const filtered = presentMods.data?.filter((m) => m.title.toLowerCase().includes(needle)) ?? []
-  const groups = groupModulesByWorkshop(filtered, workshops)
+  const groups = groupModulesByWorkshop(filtered, workshops, lang)
   // Gruppen sind <details>: standardmäßig zu (spart Tab-Stopps auf dem Weg zu
   // den Karten darunter — bei ~35 Zeilen mit je zwei fokussierbaren Elementen
   // macht das den Unterschied zwischen ~70 und wenigen Tabs). Sobald gesucht

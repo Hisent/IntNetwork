@@ -50,7 +50,7 @@ function TrainerDashboard({ onLogout }: { onLogout: () => void }) {
   return (
     <main id="main-content" tabIndex={-1} className="workbench p-6 sm:p-10" ref={workbenchRootRef}>
       <div className="mx-auto max-w-6xl">
-        <header className="mb-8 flex items-center justify-between gap-3">
+        <header className="mb-8 flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <Link to="/"><BrandLogo className="h-9 text-lg" showName /></Link>
             <h1 className="text-2xl font-bold text-[var(--wb-ink)]">{tr('trTrainer')}</h1>
@@ -59,13 +59,13 @@ function TrainerDashboard({ onLogout }: { onLogout: () => void }) {
           <div className="flex items-center gap-2">
             <TrainerLangToggle />
             <ThemeToggle lang={lang} className="text-[var(--wb-muted)]" />
-            <button onClick={onLogout} className="text-sm text-[var(--wb-muted)] hover:text-[var(--wb-ink)]">{tr('trLogout')}</button>
+            <button onClick={onLogout} className="whitespace-nowrap text-sm text-[var(--wb-muted)] hover:text-[var(--wb-ink)]">{tr('trLogout')}</button>
           </div>
         </header>
 
         {/* Master-Detail: Kurse wählen (links) → Kurs-Detail (rechts) */}
         <h2 className="mb-4 text-xs font-bold uppercase tracking-[0.16em] text-[var(--wb-muted)]">{tr('trCourseOverview')}</h2>
-        <div className="grid gap-6 lg:grid-cols-[340px_minmax(0,1fr)] lg:items-start">
+        <div className="grid grid-cols-[minmax(0,1fr)] gap-6 lg:grid-cols-[340px_minmax(0,1fr)] lg:items-start">
           <CourseList
             courses={courses} workshopTitle={workshopTitle} workshops={workshops.data ?? []}
             selected={selected} onSelect={setSelected} />

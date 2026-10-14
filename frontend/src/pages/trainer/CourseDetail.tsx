@@ -264,7 +264,6 @@ export function CourseDetail({ course, workshopTitle, workshops, portalContainer
           title={tr('trDeleteParticipant')}
           description={<>{tr('trDeleteParticipantDesc', { name: deleteTarget?.name ?? '' })}</>}
           confirmLabel={tr('trDeletePermanently')}
-          cancelLabel={tr('trCancel')}
           triggerRef={deleteTriggerRef}
           container={portalContainer}
           onConfirm={() => { if (deleteTarget) removeParticipant.mutate(deleteTarget.id); setDeleteTarget(null) }}
@@ -292,7 +291,6 @@ export function CourseDetail({ course, workshopTitle, workshops, portalContainer
           )}
         </>}
         confirmLabel={tr('trDeletePermanently')}
-        cancelLabel={tr('trCancel')}
         triggerRef={deleteCourseTriggerRef}
         container={portalContainer}
         onConfirm={() => { deleteCourse.mutate(); setDeleteCourseConfirm(false) }}
