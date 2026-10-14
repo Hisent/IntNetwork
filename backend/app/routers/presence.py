@@ -78,7 +78,7 @@ def touch_presence(p: Participant, key: str) -> None:
 def course_presence(cid: int, db: Session = Depends(get_db), _t: dict = Depends(get_trainer)):
     now = _naive(utc_now())
     cutoff = now - timedelta(seconds=STALE_AFTER_SECONDS)
-    titles = {m["key"]: m["title"] for m in module_meta(db)}
+    metas = {m["key"]: m for m in module_meta(db)}
     rows = db.query(Participant).filter(
         Participant.course_id == cid,
         Participant.last_seen.isnot(None),
@@ -102,7 +102,8 @@ def course_presence(cid: int, db: Session = Depends(get_db), _t: dict = Depends(
         is_done = (p.id, p.current_module_key) in done
         reasons = stuck_reasons(minutes, failed.get(p.id, 0), is_done)
         out.append({"participant_id": p.id, "name": p.name, "module_key": p.current_module_key,
-                    "module_title": titles.get(p.current_module_key, p.current_module_key),
+                    "module_title": metas.get(p.current_module_key, {}).get("title", p.current_module_key),
+                    "module_title_en": metas.get(p.current_module_key, {}).get("title_en"),
                     "minutes_in_module": minutes, "failed_attempts": failed.get(p.id, 0), "done": is_done,
                     "needs_help": bool(reasons), "reasons": reasons})
     out.sort(key=lambda e: (not e["needs_help"], e["name"]))  # wer Hilfe braucht, zuerst

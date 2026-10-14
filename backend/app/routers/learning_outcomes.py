@@ -49,6 +49,7 @@ router = APIRouter(tags=["learning-outcomes"])
 MAX_QUESTIONS = 15
 SCALES = ("overall", "clarity", "practice", "trainer")
 PACES = ("slow", "ok", "fast")
+Lang = Literal["de", "en"]  # Sprache der Trainer-Oberfläche: Titel/Fragen aus den _en-Feldern
 # Kursbewertung: Mittelwerte, Verteilung und Freitexte erst ab so vielen Abgaben
 # (Trainer-Ansicht und CSV) -- darunter ließe sich eine Antwort zu leicht einer
 # Person zuordnen. Bis dahin nur die Zahl der Abgaben.
@@ -125,7 +126,7 @@ def _course(db: Session, cid: int) -> Course:
     return course
 
 
-def _assessment_view(db: Session, course: Course) -> dict:
+def _assessment_view(db: Session, course: Course, lang: str = "de") -> dict:
     qs = _questions(db, _question_ids(db, course))
     participants = db.query(Participant).filter(Participant.course_id == course.id).order_by(Participant.name).all()
     answers = {(a.participant_id, a.phase): a for a in db.query(AssessmentAnswer).filter(
@@ -139,12 +140,12 @@ def _assessment_view(db: Session, course: Course) -> dict:
     quiz = _quiz(qs)
     stats = {phase: grading.question_stats(quiz, [a.answers for (_pid, ph), a in answers.items() if ph == phase])
              for phase in ("pre", "post")}
-    titles = {m["key"]: m["title"] for m in module_meta(db)}
+    titles = {m["key"]: (m["title_en"] if lang == "en" and m["title_en"] else m["title"]) for m in module_meta(db)}
     return {
         "phase": course.assessment_phase, "fixed": course.assessment_questions is not None,
         "answered": bool(answers),
-        "questions": [{**_public(q, "de"), "module_title": titles.get(q.module_key, q.module_key),
-                       "answer": q.answer, "explanation": q.explanation_de,
+        "questions": [{**_public(q, lang), "module_title": titles.get(q.module_key, q.module_key),
+                       "answer": q.answer, "explanation": _explanation(q, lang),
                        "pre_correct": pre["correct"], "pre_attempts": pre["attempts"],
                        "post_correct": post["correct"], "post_attempts": post["attempts"]}
                       for q, pre, post in zip(qs, stats["pre"], stats["post"], strict=True)],
@@ -161,8 +162,8 @@ def _assessment_view(db: Session, course: Course) -> dict:
 # --- Wissenstest: Trainer ---------------------------------------------------
 
 @router.get("/trainer/courses/{cid}/assessment")
-def trainer_assessment(cid: int, db: Session = Depends(get_db), _t: dict = Depends(get_trainer)):
-    return _assessment_view(db, _course(db, cid))
+def trainer_assessment(cid: int, lang: Lang = "de", db: Session = Depends(get_db), _t: dict = Depends(get_trainer)):
+    return _assessment_view(db, _course(db, cid), lang)
 
 
 class PhaseIn(BaseModel):
@@ -170,7 +171,7 @@ class PhaseIn(BaseModel):
 
 
 @router.put("/trainer/courses/{cid}/assessment")
-def set_assessment_phase(cid: int, data: PhaseIn, db: Session = Depends(get_db),
+def set_assessment_phase(cid: int, data: PhaseIn, lang: Lang = "de", db: Session = Depends(get_db),
                          trainer: dict = Depends(get_trainer)):
     """Eingangs- oder Abschlusstest öffnen (None = schließen). Das erste Öffnen
     schreibt den Fragensatz fest."""
@@ -183,11 +184,12 @@ def set_assessment_phase(cid: int, data: PhaseIn, db: Session = Depends(get_db),
     course.assessment_phase = data.phase
     db.commit()
     log_action(db, trainer, "assessment.phase", target=f"course:{cid}", detail=f"phase={data.phase}")
-    return _assessment_view(db, course)
+    return _assessment_view(db, course, lang)
 
 
 @router.post("/trainer/courses/{cid}/assessment/regenerate")
-def regenerate_assessment(cid: int, db: Session = Depends(get_db), trainer: dict = Depends(get_trainer)):
+def regenerate_assessment(cid: int, lang: Lang = "de", db: Session = Depends(get_db),
+                          trainer: dict = Depends(get_trainer)):
     """Neue Ziehung — nur solange niemand geantwortet hat, sonst wären vorher und
     nachher nicht mehr dieselben Fragen."""
     course = _course(db, cid)
@@ -198,7 +200,7 @@ def regenerate_assessment(cid: int, db: Session = Depends(get_db), trainer: dict
         course.assessment_questions = _draw(db, course) or course.assessment_questions
     db.commit()
     log_action(db, trainer, "assessment.regenerate", target=f"course:{cid}")
-    return _assessment_view(db, course)
+    return _assessment_view(db, course, lang)
 
 
 # --- Wissenstest: Teilnehmer ------------------------------------------------
@@ -392,8 +394,8 @@ def _quiz_rows(db: Session, course: Course, h: dict, lang: str) -> list[list]:
     return rows
 
 
-def _assessment_rows(db: Session, course: Course, h: dict, _lang: str) -> list[list]:
-    view = _assessment_view(db, course)
+def _assessment_rows(db: Session, course: Course, h: dict, lang: str) -> list[list]:
+    view = _assessment_view(db, course, lang)
     s = view["summary"]
     rows = [[h["name"], h["pre"], h["post"], h["gain"]]]
     for r in view["participants"]:

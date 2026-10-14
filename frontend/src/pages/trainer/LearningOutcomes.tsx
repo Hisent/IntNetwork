@@ -18,16 +18,16 @@ export function LearningOutcomes({ cid }: { cid: number }) {
   const { lang, tr } = useTr()
   const qc = useQueryClient()
   const fmt = (n: number | null) => (n == null ? '–' : n.toLocaleString(localeOf(lang)))
-  const assessmentKey = ['trainer-assessment', cid]
+  const assessmentKey = ['trainer-assessment', cid, lang]
   const evaluationKey = ['trainer-evaluation', cid]
-  const assessment = useQuery({ queryKey: assessmentKey, queryFn: () => trainerApi.assessment(cid).then((r) => r.data), refetchInterval: 15_000 })
+  const assessment = useQuery({ queryKey: assessmentKey, queryFn: () => trainerApi.assessment(cid, lang).then((r) => r.data), refetchInterval: 15_000 })
   const evaluation = useQuery({ queryKey: evaluationKey, queryFn: () => trainerApi.evaluation(cid).then((r) => r.data), refetchInterval: 15_000 })
   const setPhase = useMutation({
-    mutationFn: (phase: TrainerAssessment['phase']) => trainerApi.setAssessmentPhase(cid, phase).then((r) => r.data),
+    mutationFn: (phase: TrainerAssessment['phase']) => trainerApi.setAssessmentPhase(cid, phase, lang).then((r) => r.data),
     onSuccess: (d) => qc.setQueryData(assessmentKey, d),
   })
   const regenerate = useMutation({
-    mutationFn: () => trainerApi.regenerateAssessment(cid).then((r) => r.data),
+    mutationFn: () => trainerApi.regenerateAssessment(cid, lang).then((r) => r.data),
     onSuccess: (d) => qc.setQueryData(assessmentKey, d),
   })
   const setEvaluation = useMutation({

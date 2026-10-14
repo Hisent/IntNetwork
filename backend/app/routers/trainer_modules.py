@@ -1,3 +1,5 @@
+from typing import Literal
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
@@ -17,21 +19,22 @@ def list_trainer_modules(db: Session = Depends(get_db), _t: dict = Depends(get_t
 
 
 @router.get("/{key}")
-def get_trainer_module(key: str, db: Session = Depends(get_db), _t: dict = Depends(get_trainer)):
-    m = trainer_module(db, key)
+def get_trainer_module(key: str, lang: Literal["de", "en"] = "de",
+                       db: Session = Depends(get_db), _t: dict = Depends(get_trainer)):
+    m = trainer_module(db, key, lang)
     if not m:
         raise HTTPException(status_code=404, detail="Modul nicht gefunden")
     return m
 
 
 @router.get("/{key}/quiz-stats")
-def quiz_stats(key: str, course_id: int | None = None,
+def quiz_stats(key: str, course_id: int | None = None, lang: Literal["de", "en"] = "de",
                db: Session = Depends(get_db), _t: dict = Depends(get_trainer)):
     """Pro Quizfrage: wie viele Abgaben waren richtig? Zeigt dem Trainer, welche
     Konzepte hängen. Optional auf einen Kurs gefiltert (sonst alle Kurse).
     Abgaben zu inzwischen gelöschten/ersetzten Fragen fallen stillschweigend
-    raus (IDs matchen nicht mehr)."""
-    m = trainer_module(db, key)
+    raus (IDs matchen nicht mehr). lang: Fragetexte wie in der Trainer-Ansicht."""
+    m = trainer_module(db, key, lang)
     if not m:
         raise HTTPException(status_code=404, detail="Modul nicht gefunden")
     q = db.query(QuizResult).filter(QuizResult.module_key == key)

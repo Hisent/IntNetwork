@@ -215,7 +215,7 @@ def course_modules(course_id: int, db: Session = Depends(get_db), _=Depends(get_
         raise HTTPException(status_code=404, detail="Kurs nicht gefunden")
     active_keys = active_module_keys(db, course_id)
     allowed_workshop = course.workshop_key
-    return [{"key": m["key"], "title": m["title"], "order": m["order"],
+    return [{"key": m["key"], "title": m["title"], "title_en": m["title_en"], "order": m["order"],
              "workshop_key": m["workshop_key"], "active": m["key"] in active_keys}
             for m in module_meta(db)
             if allowed_workshop is None or m["workshop_key"] == allowed_workshop]

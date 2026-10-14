@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { trainerApi } from '@/lib/trainerApi'
 import { Icon } from '@/components/Icon'
 import { groupModulesByWorkshop } from '@/lib/trainerModules'
+import { localTitle } from '@/lib/i18n'
 import { useTr } from '@/store/lang'
 import { Field, Section, QueryState } from './shared'
 
@@ -32,7 +33,7 @@ export function ModuleAdmin({ workshops }: { workshops: { key: string; title: Re
   // Bei ~35 Modulen über zwei Workshops verteilt skaliert eine flache Pill-Wand
   // nicht mehr — daher Gruppierung nach Workshop plus Titel-Filter.
   const needle = filter.trim().toLowerCase()
-  const filtered = presentMods.data?.filter((m) => m.title.toLowerCase().includes(needle)) ?? []
+  const filtered = presentMods.data?.filter((m) => localTitle(m, lang).toLowerCase().includes(needle)) ?? []
   const groups = groupModulesByWorkshop(filtered, workshops, lang)
   // Gruppen sind <details>: standardmäßig zu (spart Tab-Stopps auf dem Weg zu
   // den Karten darunter — bei ~35 Zeilen mit je zwei fokussierbaren Elementen
@@ -76,8 +77,8 @@ export function ModuleAdmin({ workshops }: { workshops: { key: string; title: Re
                   <ul className="flex flex-col divide-y divide-[var(--wb-border)]">
                     {g.modules.map((m) => (
                       <li key={m.key} className="flex items-center justify-between gap-2 py-1.5">
-                        <Link to={`/trainer/modul/${m.key}`} title={m.title} className="min-w-0 truncate text-sm text-[var(--wb-ink)] hover:text-[var(--wb-accent-hover)] hover:underline">{m.title}</Link>
-                        <Link to={`/trainer/modul/${m.key}/bearbeiten`} title={tr('trEdit')} aria-label={tr('trEditModuleAria', { title: m.title })}
+                        <Link to={`/trainer/modul/${m.key}`} title={localTitle(m, lang)} className="min-w-0 truncate text-sm text-[var(--wb-ink)] hover:text-[var(--wb-accent-hover)] hover:underline">{localTitle(m, lang)}</Link>
+                        <Link to={`/trainer/modul/${m.key}/bearbeiten`} title={tr('trEdit')} aria-label={tr('trEditModuleAria', { title: localTitle(m, lang) })}
                           className="shrink-0 rounded-lg p-1.5 text-[var(--wb-muted)] hover:bg-[var(--wb-subtle)] hover:text-[var(--wb-ink)]"><Icon name="pencil" className="h-4 w-4" /></Link>
                       </li>
                     ))}

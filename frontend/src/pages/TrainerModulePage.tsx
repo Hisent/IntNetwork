@@ -11,7 +11,7 @@ import { useAuthStore } from '@/store/auth'
 import { BrandLogo } from '@/components/BrandLogo'
 import { WorkshopTheme } from '@/components/WorkshopTheme'
 import { workshopTheme } from '@/lib/workshopTheme'
-import { useDocumentLang, useDocumentTitle } from '@/lib/i18n'
+import { localTitle, useDocumentLang, useDocumentTitle } from '@/lib/i18n'
 import { TrainerLangToggle } from '@/components/TrainerLangToggle'
 import { useTr } from '@/store/lang'
 import type { Question } from '@/types'
@@ -111,11 +111,11 @@ export function TrainerModulePage() {
   const { token, role } = useAuthStore()
   const [courseId, setCourseId] = useState<number | undefined>(undefined)
   const mod = useQuery({
-    queryKey: ['trainer-module', key],
-    queryFn: () => trainerApi.trainerModule(key).then((r) => r.data),
+    queryKey: ['trainer-module', key, lang],
+    queryFn: () => trainerApi.trainerModule(key, lang).then((r) => r.data),
     enabled: role === 'trainer' && !!token,
   })
-  useDocumentTitle(mod.data ? `${mod.data.title} · ${tr('trTrainer')}` : tr('trTrainer'))
+  useDocumentTitle(mod.data ? `${localTitle(mod.data, lang)} · ${tr('trTrainer')}` : tr('trTrainer'))
   const courses = useQuery({
     queryKey: ['courses'],
     queryFn: () => trainerApi.listCourses().then((r) => r.data),
@@ -127,8 +127,8 @@ export function TrainerModulePage() {
     enabled: role === 'trainer' && !!token,
   })
   const stats = useQuery({
-    queryKey: ['quiz-stats', key, courseId],
-    queryFn: () => trainerApi.quizStats(key, courseId).then((r) => r.data),
+    queryKey: ['quiz-stats', key, courseId, lang],
+    queryFn: () => trainerApi.quizStats(key, courseId, lang).then((r) => r.data),
     enabled: role === 'trainer' && !!token,
   })
 
@@ -154,7 +154,7 @@ export function TrainerModulePage() {
         </div>
         <div className="flex items-start justify-between gap-3 mt-2 mb-4">
           <h1 className="text-2xl font-bold text-slate-900">
-            {m.title} <span className="text-sm font-normal text-slate-500">{tr('trTrainerView')}</span>
+            {localTitle(m, lang)} <span className="text-sm font-normal text-slate-500">{tr('trTrainerView')}</span>
           </h1>
           <Link to={`/trainer/modul/${key}/praesentieren`}
             className="shrink-0 rounded-lg bg-teal-600 hover:bg-teal-700 text-white px-3 py-1.5 text-sm font-medium">
@@ -164,7 +164,7 @@ export function TrainerModulePage() {
 
         <div className="rounded-xl border bg-white p-4 mb-6 text-sm">
           <div className="flex flex-wrap gap-x-6 gap-y-1 text-slate-600">
-            <span>{tr('trPrerequisites')}: {m.prerequisites.length ? m.prerequisites.map((k) => allModules.data?.find((x) => x.key === k)?.title ?? k).join(', ') : '—'}</span>
+            <span>{tr('trPrerequisites')}: {m.prerequisites.length ? m.prerequisites.map((k) => localTitle(allModules.data?.find((x) => x.key === k) ?? { title: k }, lang)).join(', ') : '—'}</span>
             <span>{tr('trBlocksCount', { n: m.blocks.length })}</span>
             <span>{tr('trQuizQuestionsCount', { n: m.quiz.questions.length })}</span>
           </div>

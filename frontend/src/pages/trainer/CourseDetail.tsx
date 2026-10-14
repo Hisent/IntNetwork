@@ -6,6 +6,7 @@ import { TrainerFeedback } from '@/components/TrainerFeedback'
 import { ConfirmDialog } from '@/components/ConfirmDialog'
 import { Icon } from '@/components/Icon'
 import { groupModulesBySection } from '@/lib/moduleGroups'
+import { localTitle } from '@/lib/i18n'
 import { useTr } from '@/store/lang'
 import type { ModuleMeta, Workshop } from '@/types'
 import { Section, QueryState, CopyButton } from './shared'
@@ -127,7 +128,7 @@ export function CourseDetail({ course, workshopTitle, workshops, portalContainer
   // Folge an-/abwählen, nicht erst pro Abschnitt aufklappen.
   const courseModulesByKey = new Map(courseMods.data?.map((m) => [m.key, m]))
   const courseModuleMetas: ModuleMeta[] = (courseMods.data ?? []).map((m) => (
-    { key: m.key, title: m.title, title_en: m.title, order: m.order, prerequisites: [], workshop_key: m.workshop_key ?? undefined }
+    { key: m.key, title: m.title, title_en: m.title_en ?? m.title, order: m.order, prerequisites: [], workshop_key: m.workshop_key ?? undefined }
   ))
   const courseWorkshop = workshops.find((w) => w.key === course.workshop_key)
   const courseModuleGroups = groupModulesBySection(courseModuleMetas, courseWorkshop?.sections)
@@ -167,7 +168,7 @@ export function CourseDetail({ course, workshopTitle, workshops, portalContainer
       {follow && (
         <div role="status" className="wb-surface flex flex-wrap items-center gap-3 p-4 text-sm">
           <p className="min-w-0 flex-1 font-semibold text-[var(--wb-ink)] [overflow-wrap:anywhere]">
-            {tr('trFollowSharing', { title: dash.data?.modules.find((m) => m.key === follow.module_key)?.title ?? follow.module_key })}
+            {tr('trFollowSharing', { title: localTitle(dash.data?.modules.find((m) => m.key === follow.module_key) ?? { title: follow.module_key }, lang) })}
           </p>
           <button type="button" onClick={() => stopFollow.mutate()} disabled={stopFollow.isPending}
             className="wb-control rounded-lg border border-[var(--wb-border)] px-4 font-semibold text-[var(--wb-ink)] hover:border-[var(--wb-accent)] disabled:opacity-50">
@@ -216,7 +217,7 @@ export function CourseDetail({ course, workshopTitle, workshops, portalContainer
                   {entry.needs_help && <span className="inline-flex items-center gap-1 text-xs font-semibold text-[var(--wb-ink)]"><Icon name="alert" className="h-3.5 w-3.5 text-[var(--wb-warning)]" />{tr('trNeedsHelp')}</span>}
                 </div>
                 <p className="text-xs text-[var(--wb-muted)] [overflow-wrap:anywhere]">
-                  {entry.module_title} · {tr('trMinutesInModule', { n: entry.minutes_in_module })}
+                  {localTitle({ title: entry.module_title, title_en: entry.module_title_en }, lang)} · {tr('trMinutesInModule', { n: entry.minutes_in_module })}
                   {entry.failed_attempts > 0 && <> · {tr('trFailedAttempts', { n: entry.failed_attempts })}</>}
                   {entry.done && <> · {tr('trModuleDone')}</>}
                 </p>
@@ -258,11 +259,11 @@ export function CourseDetail({ course, workshopTitle, workshops, portalContainer
                         <label className="flex min-w-0 flex-1 items-center gap-2 text-sm text-[var(--wb-ink)]">
                           <input type="checkbox" checked={m.active} disabled={toggleMod.isPending}
                             onChange={(e) => toggleMod.mutate({ module_key: m.key, active: e.target.checked })} />
-                          {m.title}
+                          {localTitle(m, lang)}
                         </label>
                         {/* Einstieg in den Beamer-Modus MIT Kurs: nur so gibt es dort die Live-Abstimmung */}
                         {m.active && (
-                          <Link to={`/trainer/modul/${m.key}/praesentieren?kurs=${cid}`} title={tr('trPresentWithPoll')} aria-label={tr('trPresentAria', { title: m.title })}
+                          <Link to={`/trainer/modul/${m.key}/praesentieren?kurs=${cid}`} title={tr('trPresentWithPoll')} aria-label={tr('trPresentAria', { title: localTitle(m, lang) })}
                             className="shrink-0 rounded-lg px-2 py-1 text-xs text-[var(--wb-muted)] hover:bg-[var(--wb-subtle)] hover:text-[var(--wb-ink)]">{tr('trPresentBtn')}</Link>
                         )}
                       </div>
@@ -355,7 +356,7 @@ function ProgressTable({ dash, requireApproval, onApprove }: {
   requireApproval: boolean
   onApprove: (participantId: number, approved: boolean) => void
 }) {
-  const { tr } = useTr()
+  const { lang, tr } = useTr()
   // Scroll-Andeutung statt hartem Abbruch am Kartenrand: klassischer CSS-only
   // "Scroll-Schatten" (vier Hintergrund-Ebenen, zwei davon scroll-fix
   // positioniert, zwei mit dem Inhalt mitscrollend). Der Trick blendet den
@@ -386,7 +387,7 @@ function ProgressTable({ dash, requireApproval, onApprove }: {
           <thead>
             <tr>
               <th className="sticky left-0 z-10 bg-[var(--wb-subtle)] px-3 py-2 text-left font-semibold text-[var(--wb-ink)]">{tr('trParticipantHeader')}</th>
-              {dash.data?.modules.map((m) => <th key={m.key} className="whitespace-nowrap bg-[var(--wb-subtle)] px-3 py-2 text-xs font-medium text-[var(--wb-muted)]">{m.title}</th>)}
+              {dash.data?.modules.map((m) => <th key={m.key} className="whitespace-nowrap bg-[var(--wb-subtle)] px-3 py-2 text-xs font-medium text-[var(--wb-muted)]">{localTitle(m, lang)}</th>)}
               {requireApproval && <th className="whitespace-nowrap bg-[var(--wb-subtle)] px-3 py-2 text-xs font-medium text-[var(--wb-muted)]">{tr('trApprovalHeader')}</th>}
             </tr>
           </thead>

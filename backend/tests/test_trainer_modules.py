@@ -102,3 +102,26 @@ def test_quiz_result_has_module_key_participant_id_index():
     with TestClient(app):
         cols = {tuple(ix["column_names"]) for ix in inspect(engine).get_indexes("quiz_result")}
         assert ("module_key", "participant_id") in cols
+
+
+def test_trainer_views_follow_the_trainer_language():
+    """Trainer-Oberfläche auf Englisch: Modul, Quiz-Statistik, Kursmodule und
+    Präsenz liefern die englischen Felder; ohne lang bleibt alles deutsch."""
+    with TestClient(app) as c:
+        h = _trainer(c)
+        de = c.get("/api/trainer/modules/arp", headers=h).json()
+        en = c.get("/api/trainer/modules/arp?lang=en", headers=h).json()
+        assert de["title"] == en["title"] and en["title_en"] and en["title_en"] != en["title"]
+        assert en["quiz"]["questions"][0]["prompt"] != de["quiz"]["questions"][0]["prompt"]
+        stats = c.get("/api/trainer/modules/arp/quiz-stats?lang=en", headers=h).json()
+        assert stats["questions"][0]["prompt"] == en["quiz"]["questions"][0]["prompt"]
+        assert c.get("/api/trainer/modules/arp?lang=fr", headers=h).status_code == 422
+
+        course = c.post("/api/courses", json={"name": "LangKurs", "workshop_key": "network"}, headers=h).json()
+        arp = next(m for m in c.get(f"/api/courses/{course['id']}/modules", headers=h).json() if m["key"] == "arp")
+        assert arp["title_en"] == en["title_en"]
+        ph = {"Authorization": "Bearer " + c.post(
+            "/api/join", json={"code": course["join_code"], "name": "Lang-Lea"}).json()["access_token"]}
+        assert c.post("/api/modules/arp/heartbeat", headers=ph).status_code == 200
+        entry = c.get(f"/api/trainer/courses/{course['id']}/presence", headers=h).json()[0]
+        assert (entry["module_title"], entry["module_title_en"]) == (de["title"], en["title_en"])
