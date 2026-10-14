@@ -419,6 +419,28 @@ WAPI_MODULE = {
                 "explanation_en": "Step 1 makes the script idempotent: first the EA search (asterisk before the EA name), then the POST only if the result is empty. The nextavailablenetwork function is given the container and the desired prefix length; NIOS decides which /24 it will be — so two scripts running at the same time do not get in each other's way.",
             },
         },
+        {"type": "text", "id": "text-wapi-konsole",
+         "value": {
+             "de": "## Selbst ausprobieren: die WAPI-Konsole\n\n"
+                   "Bisher hast du fertige Anfragen gelesen. In der Konsole darunter stellst du sie "
+                   "selbst zusammen — Methode, Pfad mit Suchparametern und bei POST/PUT einen "
+                   "JSON-Body — gegen einen kleinen simulierten Grid mit der Zone "
+                   "`nordwind-intern.de` und den Netzen `10.20.30.0/24` und `10.20.40.0/24`. "
+                   "Was du anlegst, änderst oder löschst, bleibt bis zum Zurücksetzen erhalten; "
+                   "Fehler kommen so zurück, wie WAPI sie meldet: als JSON mit `Error`, `code` "
+                   "und `text`. Arbeite die Aufgaben der Reihe nach ab — jede baut auf der "
+                   "_ref-Logik vom Anfang des Moduls auf.",
+             "en": "## Try It Yourself: the WAPI Console\n\n"
+                   "So far you have read finished requests. In the console below you build them "
+                   "yourself — method, path with search parameters and, for POST/PUT, a JSON "
+                   "body — against a small simulated Grid with the zone `nordwind-intern.de` and "
+                   "the networks `10.20.30.0/24` and `10.20.40.0/24`. Whatever you create, change "
+                   "or delete persists until you reset; errors come back the way WAPI reports "
+                   "them: as JSON with `Error`, `code` and `text`. Work through the tasks in "
+                   "order — each builds on the _ref logic from the start of the module.",
+         }},
+        {"type": "widget", "id": "wapi-console",
+         "note": "Simulation im Browser (frontend/src/widgets/infoblox/wapi.ts). Basisfelder, Suchmodifikatoren je Feld, Statuscodes, _ref-Form, _return_fields(+), _max_results, next_available_ip und func:nextavailableip nach der WAPI-Doku; einzelne Fehlertexte (z. B. Konflikt, 404, nicht durchsuchbares Feld) sind im WAPI-Stil nachgebaut. Nicht modelliert: DHCP-Ranges, weitere Views, Extensible Attributes, Paging."},
         {"type": "text", "id": "text-5",
          "value": {
              "de": "## Fehlerbehandlung und Abgrenzung zu Ansible/Terraform\n\n"
