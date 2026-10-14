@@ -78,6 +78,41 @@ jobs:
       - run: npm run build
       - run: npm audit --omit=dev
 
+  # Browser-E2E (Playwright, nur Chromium): echtes Backend auf frischer SQLite-DB
+  # plus gebautes Frontend, gestartet von frontend/playwright.config.ts (webServer).
+  # Deckt die kritischen Pfade Trainer -> Kurs -> Teilnehmer -> Quiz/Abstimmung ab,
+  # die die jsdom-Tests oben nicht erreichen.
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version: "3.11"  # = FROM in backend/Dockerfile
+          cache: pip
+          cache-dependency-path: backend/requirements.lock
+      - run: pip install -r ../backend/requirements.lock
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: "24"  # = FROM in frontend/Dockerfile
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm run e2e
+      - if: failure()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: playwright-report
+          path: |
+            frontend/playwright-report/
+            frontend/test-results/
+          retention-days: 7
+
   # Baut alle drei Images ohne Push. Ohne diesen Job faellt ein kaputtes
   # Dockerfile (z.B. durch eine neue Paketinstallation im Runner) erst beim
   # Deploy auf, nicht schon in CI.

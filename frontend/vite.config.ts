@@ -14,6 +14,9 @@ export default defineConfig({
   plugins: [react(), tailwindcss()],
   define: { __APP_VERSION__: JSON.stringify(pkg.version) },
   resolve: { alias: { '@': '/src' } },
-  server: { proxy: { '/api': 'http://localhost:8000' } },
+  // API_PROXY_TARGET: die E2E-Tests (playwright.config.ts) fahren ein eigenes
+  // Backend auf einem anderen Port, damit ein laufender Dev-Server nicht stört.
+  // `vite preview` übernimmt diesen Proxy (preview.proxy erbt server.proxy).
+  server: { proxy: { '/api': process.env.API_PROXY_TARGET ?? 'http://localhost:8000' } },
   test: { setupFiles: ['./src/test/setup.ts'] },
 })
