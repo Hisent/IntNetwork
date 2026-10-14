@@ -107,6 +107,24 @@ cd frontend && npm run test && npm run build
 python3 docs/lernwelt-check.py   # Adress- und Namensplan der Lernwelt (Standardbibliothek)
 ```
 
+Browser-E2E (Playwright, Chromium) für die kritischen Pfade — Trainer-Login und
+Kurs anlegen, Beitritt und Quiz, Wiederaufnahme-Code, Live-Abstimmung,
+Admin-Rolle, Sprachwechsel, Mobilansicht:
+
+```bash
+cd frontend
+npx playwright install chromium   # einmalig
+npm run e2e                       # Bericht bei Fehlern: npx playwright show-report
+```
+
+`playwright.config.ts` startet dafür selbst ein Backend (Port 8100, frische
+SQLite-Datei im Temp-Verzeichnis, fester Admin `admin@e2e.test`) und das gebaute
+Frontend per `vite preview` (Port 5180, `/api` als Proxy aufs Backend). Ein
+laufender Dev-Server auf 8000/5173 stört nicht. Python kommt aus
+`backend/.venv` (Abschnitt „Lokal starten“, dort `requirements.txt` installieren),
+sonst aus `python3`; abweichend per `E2E_PYTHON=/pfad/zu/python`. Die Dateien
+heißen `e2e/*.e2e.ts`, damit Vitest sie nicht einsammelt.
+
 ## Inhalte aktualisieren / Entwicklungsreset
 
 Beim App-Start werden neue Seed-Module automatisch in bestehende Kurse des
