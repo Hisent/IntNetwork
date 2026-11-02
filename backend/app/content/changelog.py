@@ -1,5 +1,12 @@
 # Projekt-Changelog (nur für Trainer sichtbar). Neueste zuerst.
 CHANGELOG = [
+    {"date": "2026-11-02", "title": "v1.46.0 — Lehrgänge mit Claude anlegen",
+     "text": "Trainer können ganze Lehrgänge mit Claude Code oder Claude Desktop anlegen und "
+             "bearbeiten: Im Trainerbereich unter „API-Tokens“ einen persönlichen Token erstellen und "
+             "den fertigen Befehl für „claude mcp add“ übernehmen. Neue Lehrgänge starten als Entwurf, "
+             "den nur Besitzer und Admins sehen; veröffentlichen kann nur ein Admin. Trainer bearbeiten "
+             "nur eigene Lehrgänge, ausgelieferte Module können nur noch Admins ändern. Tokens haben "
+             "kein Ablaufdatum und lassen sich jederzeit widerrufen."},
     {"date": "2026-10-14", "title": "v1.45.0 — Admin-Rolle, neue Umfragetypen und Trainer-Oberfläche auf Englisch",
      "text": "Trainerkonten und globale Einstellungen verwalten jetzt nur noch Admins; beim Update "
              "wird der älteste Trainer automatisch zum Admin. Live-Abstimmungen gibt es nun auch "
