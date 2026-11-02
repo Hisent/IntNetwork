@@ -23,7 +23,7 @@ from app.content.seed import (LEARNING_LABS_MIGRATION, NETWORK_VISUALS_MIGRATION
                               NETWORK_ENRICHMENT_MIGRATION,
                               _source_block, _block_matches_source,
                               seed_missing_content)
-from app.routers.trainer_content import VALID_WIDGET_IDS
+from app.services.content_editor import VALID_WIDGET_IDS
 
 
 @pytest.fixture

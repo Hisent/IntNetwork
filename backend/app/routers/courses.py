@@ -14,6 +14,7 @@ from app.models.workshop import Workshop
 from app.models.certificate import Certificate
 from app.services.audit import log_action
 from app.services.codes import new_code
+from app.services.content_access import can_see_workshop
 from app.services.deps import get_trainer
 from app.services.course_membership import active_module_keys
 from app.content.registry import module_meta
@@ -35,6 +36,8 @@ def create_course(data: CourseCreate, db: Session = Depends(get_db), trainer: di
     workshop = db.get(Workshop, data.workshop_key)
     if not workshop:
         raise HTTPException(status_code=422, detail="Unbekannter Workshop")
+    if not can_see_workshop(trainer, workshop):
+        raise HTTPException(status_code=403, detail=f"Lehrgang ‚{workshop.key}‘ gehört einem anderen Trainer.")
     c = Course(name=data.name.strip(), join_code=new_code(db), workshop_key=workshop.key)
     db.add(c)
     db.flush()

@@ -9,7 +9,7 @@ import { CopyCode, Field, QueryState } from './shared'
 
 export function CourseList({ courses, workshops, workshopTitle, selected, onSelect }: {
   courses: ReturnType<typeof useQuery<Course[]>>
-  workshops: { key: string; title: Record<'de' | 'en', string> }[]
+  workshops: { key: string; title: Record<'de' | 'en', string>; status?: 'draft' | 'published' }[]
   workshopTitle: (key: string | null) => string
   selected: number | null
   onSelect: (id: number) => void
@@ -30,7 +30,7 @@ export function CourseList({ courses, workshops, workshopTitle, selected, onSele
         <Field label={tr('trNewCourse')} placeholder={tr('trCourseNamePh')} value={name} onChange={(e) => setName(e.target.value)} />
         <label className="flex flex-col gap-1 text-xs font-medium text-[var(--wb-muted)]">{tr('trWorkshop')}
           <select value={workshopKey} onChange={(e) => setWorkshopKey(e.target.value)} className="wb-control rounded-lg border border-[var(--wb-border)] bg-[var(--wb-surface)] px-3 py-2 text-sm font-normal text-[var(--wb-ink)]">
-            {workshops.map((w) => <option key={w.key} value={w.key}>{w.title[lang]}</option>)}
+            {workshops.map((w) => <option key={w.key} value={w.key}>{w.title[lang]}{w.status === 'draft' ? tr('trDraftSuffix') : ''}</option>)}
           </select>
         </label>
         <button disabled={!name.trim() || create.isPending}

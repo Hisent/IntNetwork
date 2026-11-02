@@ -22,13 +22,14 @@ def _card(workshop: Workshop) -> dict:
 
 @router.get("")
 def list_workshops(db: Session = Depends(get_db)):
-    return [_card(workshop) for workshop in db.query(Workshop).order_by(Workshop.key).all()]
+    return [_card(workshop) for workshop in db.query(Workshop)
+            .filter(Workshop.status == "published").order_by(Workshop.key).all()]
 
 
 @router.get("/{key}")
 def get_workshop(key: str, db: Session = Depends(get_db)):
     workshop = db.get(Workshop, key)
-    if not workshop:
+    if not workshop or workshop.status != "published":
         raise HTTPException(status_code=404, detail="Workshop nicht gefunden")
     card = _card(workshop)
     card["modules"] = [

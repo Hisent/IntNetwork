@@ -20,7 +20,7 @@ from app.config import settings
 from app.database import Base, engine
 from app.main import app
 
-_HEAD = "9f3e7a1c5b2d"        # add_live_poll_types
+_HEAD = "a1b2c3d4e5f6"        # add_workshop_owner_and_api_tokens
 _VORGAENGER = "7305d4053e50"  # add_trainer_credential (danach laufen 75aeb8d5399c … 3f9a1c7e2b40, 9f3e7a1c5b2d erneut)
 
 
@@ -124,6 +124,30 @@ def test_75aeb8d5399c_ist_idempotent_wenn_objekte_schon_existieren(tmp_path, mon
     #    "already exists"/"duplicate column" scheitern.
     command.upgrade(cfg, "head")
 
+    with legacy_engine.connect() as conn:
+        version = conn.execute(text("SELECT version_num FROM alembic_version")).scalar()
+    legacy_engine.dispose()
+    assert version == _HEAD
+
+
+def test_a1b2c3d4e5f6_ist_idempotent_wenn_objekte_schon_existieren(tmp_path, monkeypatch):
+    """Wie 75aeb8d5399c: Schema auf Head, alembic_version auf den Vorgaenger
+    (9f3e7a1c5b2d) zuruecksetzen, erneut auf Head -- Spalten/FK/Tabelle
+    existieren schon und duerfen den zweiten Lauf nicht scheitern lassen."""
+    db_url = f"sqlite:///{tmp_path / 'legacy.db'}"
+    monkeypatch.setattr(settings, "database_url", db_url)
+    cfg = db_migrate._config()
+    command.upgrade(cfg, "head")
+
+    legacy_engine = create_engine(db_url)
+    with legacy_engine.begin() as conn:
+        conn.execute(text("UPDATE alembic_version SET version_num = '9f3e7a1c5b2d'"))
+    command.upgrade(cfg, "head")
+
+    insp = inspect(legacy_engine)
+    spalten = {c["name"] for c in insp.get_columns("workshop")}
+    assert {"status", "owner_trainer_id"} <= spalten
+    assert "trainer_api_token" in insp.get_table_names()
     with legacy_engine.connect() as conn:
         version = conn.execute(text("SELECT version_num FROM alembic_version")).scalar()
     legacy_engine.dispose()

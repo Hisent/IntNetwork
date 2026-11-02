@@ -1,5 +1,5 @@
 """Validierung und Sprachauflösung der deklarativen Blocktypen
-(diagram, terminal, match, cloze, scenario) -- Autorenreferenz: docs/content-authoring.md.
+(diagram, terminal, match, cloze, scenario) -- Autorenreferenz: backend/app/content/authoring.md.
 
 Jedes Textfeld X darf sprachneutral als `X` ODER zweisprachig als `X_de` + `X_en`
 im Payload stehen. `localize` löst das für die Auslieferung zu `X` auf;

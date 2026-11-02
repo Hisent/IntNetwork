@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { trainerApi } from '@/lib/trainerApi'
+import { errMsg } from '@/lib/api'
+import { trainerApi, useIsAdmin } from '@/lib/trainerApi'
 import { Icon } from '@/components/Icon'
 import { groupModulesByWorkshop } from '@/lib/trainerModules'
 import { useTr } from '@/store/lang'
@@ -9,13 +10,25 @@ import { Field, Section, QueryState } from './shared'
 
 // --- Verwaltung: Module -------------------------------------------------------
 
-export function ModuleAdmin({ workshops }: { workshops: { key: string; title: Record<'de' | 'en', string> }[] }) {
+type AdminWorkshop = { key: string; title: Record<'de' | 'en', string>; status?: 'draft' | 'published'; owner_name?: string | null; editable?: boolean }
+
+export function ModuleAdmin({ workshops }: { workshops: AdminWorkshop[] }) {
   const { lang, tr } = useTr()
   const qc = useQueryClient()
   const navigate = useNavigate()
+  const isAdmin = useIsAdmin()
+  // nicht editierbar: fremde Entwürfe und (für Nicht-Admins) ausgelieferte Workshops — Server lehnt Speichern mit 403 ab
+  const readOnly = new Set(workshops.filter((w) => w.editable === false).map((w) => w.key))
+  const drafts = workshops.filter((w) => w.status === 'draft')
+  const publish = useMutation({
+    mutationFn: (key: string) => trainerApi.publishWorkshop(key),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['trainer-workshops'] }),
+  })
   const [newKey, setNewKey] = useState('')
   const [newTitle, setNewTitle] = useState('')
-  const [moduleWorkshopKey, setModuleWorkshopKey] = useState('network')
+  const [wsChoice, setWsChoice] = useState('network')
+  const editableWs = workshops.filter((w) => w.editable !== false)
+  const moduleWorkshopKey = editableWs.some((w) => w.key === wsChoice) ? wsChoice : (editableWs[0]?.key ?? '')
   const [filter, setFilter] = useState('')
   // Welche Workshop-Gruppen der Nutzer manuell aufgeklappt hat (Key der
   // Gruppe). Start: leer, also alle Gruppen zu.
@@ -47,6 +60,24 @@ export function ModuleAdmin({ workshops }: { workshops: { key: string; title: Re
         <input value={filter} onChange={(e) => setFilter(e.target.value)} placeholder={tr('trFilterTitlePh')}
           className="wb-control rounded-lg border border-[var(--wb-border)] bg-[var(--wb-surface)] px-3 py-2 text-sm font-normal text-[var(--wb-ink)]" />
       </label>
+      {drafts.length > 0 && (
+        <ul aria-label={tr('trDraftWorkshops')} className="mb-3 flex flex-col divide-y divide-[var(--wb-border)] rounded-lg border border-[var(--wb-border)] px-3">
+          {drafts.map((w) => (
+            <li key={w.key} className="flex items-center justify-between gap-2 py-1.5 text-sm">
+              <span className="min-w-0 truncate text-[var(--wb-ink)]">
+                {w.title[lang]}
+                <span className="ml-2 rounded bg-amber-100 px-1.5 py-0.5 text-xs font-medium text-amber-800">{tr('trDraft')}</span>
+                {w.owner_name && <span className="ml-2 text-xs text-[var(--wb-muted)]">{tr('trOwnedBy', { name: w.owner_name })}</span>}
+              </span>
+              {isAdmin && (
+                <button onClick={() => publish.mutate(w.key)} disabled={publish.isPending}
+                  className="wb-control shrink-0 rounded-lg bg-[var(--wb-accent)] px-3 text-xs font-medium text-white hover:bg-[var(--wb-accent-hover)] disabled:opacity-50">{tr('trPublish')}</button>
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
+      {publish.isError && <p className="mb-2 text-sm text-rose-600">{errMsg(publish.error, tr('trPublishFailed'))}</p>}
       <QueryState query={presentMods} empty={presentMods.data?.length === 0}>
         {filtered.length === 0
           ? <p className="text-sm text-[var(--wb-muted)]">{tr('trNoModulesFound')}</p>
@@ -77,8 +108,8 @@ export function ModuleAdmin({ workshops }: { workshops: { key: string; title: Re
                     {g.modules.map((m) => (
                       <li key={m.key} className="flex items-center justify-between gap-2 py-1.5">
                         <Link to={`/trainer/modul/${m.key}`} title={m.title} className="min-w-0 truncate text-sm text-[var(--wb-ink)] hover:text-[var(--wb-accent-hover)] hover:underline">{m.title}</Link>
-                        <Link to={`/trainer/modul/${m.key}/bearbeiten`} title={tr('trEdit')} aria-label={tr('trEditModuleAria', { title: m.title })}
-                          className="shrink-0 rounded-lg p-1.5 text-[var(--wb-muted)] hover:bg-[var(--wb-subtle)] hover:text-[var(--wb-ink)]"><Icon name="pencil" className="h-4 w-4" /></Link>
+                        {!(m.workshop_key && readOnly.has(m.workshop_key)) && <Link to={`/trainer/modul/${m.key}/bearbeiten`} title={tr('trEdit')} aria-label={tr('trEditModuleAria', { title: m.title })}
+                          className="shrink-0 rounded-lg p-1.5 text-[var(--wb-muted)] hover:bg-[var(--wb-subtle)] hover:text-[var(--wb-ink)]"><Icon name="pencil" className="h-4 w-4" /></Link>}
                       </li>
                     ))}
                   </ul>
@@ -90,8 +121,8 @@ export function ModuleAdmin({ workshops }: { workshops: { key: string; title: Re
         <Field label="Key" placeholder={tr('trModuleKeyPh')} value={newKey} onChange={(e) => setNewKey(e.target.value)} />
         <Field label={tr('trTitleDe')} placeholder={tr('trModuleTitlePh')} value={newTitle} onChange={(e) => setNewTitle(e.target.value)} />
         <label className="flex flex-col gap-1 text-xs font-medium text-[var(--wb-muted)]">{tr('trWorkshop')}
-          <select value={moduleWorkshopKey} onChange={(e) => setModuleWorkshopKey(e.target.value)} className="wb-control rounded-lg border border-[var(--wb-border)] bg-[var(--wb-surface)] px-3 py-2 text-sm font-normal text-[var(--wb-ink)]">
-            {workshops.map((w) => <option key={w.key} value={w.key}>{w.title[lang]}</option>)}
+          <select value={moduleWorkshopKey} onChange={(e) => setWsChoice(e.target.value)} className="wb-control rounded-lg border border-[var(--wb-border)] bg-[var(--wb-surface)] px-3 py-2 text-sm font-normal text-[var(--wb-ink)]">
+            {editableWs.map((w) => <option key={w.key} value={w.key}>{w.title[lang]}{w.status === 'draft' ? tr('trDraftSuffix') : ''}</option>)}
           </select>
         </label>
         <button disabled={!newKey.trim() || !newTitle.trim() || createContent.isPending}

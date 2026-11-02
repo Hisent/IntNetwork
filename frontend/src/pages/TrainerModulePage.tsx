@@ -10,7 +10,7 @@ import { TrainerQuiz } from '@/components/TrainerQuiz'
 import { useAuthStore } from '@/store/auth'
 import { BrandLogo } from '@/components/BrandLogo'
 import { WorkshopTheme } from '@/components/WorkshopTheme'
-import { workshopTheme } from '@/lib/workshopTheme'
+import { useWorkshopTheme } from '@/lib/workshopTheme'
 import { useDocumentLang, useDocumentTitle } from '@/lib/i18n'
 import { TrainerLangToggle } from '@/components/TrainerLangToggle'
 import { useTr } from '@/store/lang'
@@ -91,6 +91,7 @@ export function TrainerModulePage() {
     enabled: role === 'trainer' && !!token,
   })
 
+  const theme = useWorkshopTheme(mod.data?.workshop_key)
   if (role !== 'trainer' || !token)
     return (
       <div className="p-10 text-slate-600">
@@ -102,7 +103,7 @@ export function TrainerModulePage() {
   const m = mod.data
 
   return (
-    <WorkshopTheme theme={workshopTheme(m.workshop_key)}><main id="main-content" tabIndex={-1} className="min-h-dvh bg-slate-50 p-6 sm:p-10">
+    <WorkshopTheme theme={theme}><main id="main-content" tabIndex={-1} className="min-h-dvh bg-slate-50 p-6 sm:p-10">
       <div className="max-w-2xl mx-auto">
         <div className="flex items-center justify-between gap-4">
           <Link to="/trainer" className="text-sm text-slate-500 hover:text-slate-700">{tr('trBackTrainer')}</Link>

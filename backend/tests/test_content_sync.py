@@ -30,7 +30,7 @@ from app.models.participant import Participant
 from app.models.progress import Progress
 from app.models.quiz_result import QuizResult
 from app.models.setting import Setting
-from app.routers.trainer_content import _apply, _seed_to_module_in
+from app.services.content_editor import _apply, _seed_to_module_in
 
 KEY = "playbooks-grundlagen"  # an_*-Modul mit debug-Block
 REPO = Path(__file__).resolve().parents[2]

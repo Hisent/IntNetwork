@@ -74,4 +74,4 @@ Die Schritt-für-Schritt-Anleitung steht im Trainer-Handbuch.
 - Trainer-Handbuch: Bedienung für Trainer.
 - Inhalte pflegen: Kurzreferenz für Autoren.
 - Lernwelt Nordwind: verbindlicher Adress- und Namensplan der Beispiele im Netzwerk-Lehrgang.
-- Quelle im Repository: `README.md`, `docs/operations.md`, `docs/lab-sicherheit.md`, `docs/content-authoring.md`, `docs/lernwelt-nordwind.md`.
+- Quelle im Repository: `README.md`, `docs/operations.md`, `docs/lab-sicherheit.md`, `backend/app/content/authoring.md`, `docs/lernwelt-nordwind.md`.

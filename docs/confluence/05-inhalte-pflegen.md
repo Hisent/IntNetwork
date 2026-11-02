@@ -1,8 +1,8 @@
-Stand: v1.45.0 (2026-10-13) · Quelle: docs/content-authoring.md, docs/lernwelt-nordwind.md, docs/lernwelt-check.py, frontend/src/pages/TrainerModuleEditPage.tsx
+Stand: v1.46.0 (2026-11-02) · Quelle: backend/app/content/authoring.md, docs/lernwelt-nordwind.md, docs/lernwelt-check.py, frontend/src/pages/TrainerModuleEditPage.tsx
 
 # IntLab: Inhalte pflegen (Kurzfassung für Autoren)
 
-Diese Seite ist eine Kurzfassung. Die vollständige Referenz mit Feldtabellen und Copy-Paste-Beispielen steht im Repository in `docs/content-authoring.md` und ist maßgeblich.
+Diese Seite ist eine Kurzfassung. Die vollständige Referenz mit Feldtabellen und Copy-Paste-Beispielen steht im Repository in `backend/app/content/authoring.md` und ist maßgeblich.
 
 ## Grundlagen
 
@@ -125,6 +125,46 @@ Beispiel einer Frage mit Erklärung:
 - Terminal: `tasks[].command` nennt einen Befehl, der nicht in `commands` steht; `output` fehlt (leere Ausgabe ist `""`); `when` oder `clears` nennt ein Flag, das kein Befehl per `sets` setzt; `"\*"` statt `"\\*"` im Python-Quelltext.
 - Scenario: Endknoten ohne `outcome`, oder ein Knoten mit `options` und `outcome` zugleich.
 
+## Lehrgänge mit Claude anlegen
+
+Trainer können Lehrgänge direkt aus Claude Code oder Claude Desktop heraus anlegen und bearbeiten. Der Weg dahin läuft über einen MCP-Endpunkt der Lernplattform.
+
+**Einrichtung (einmalig):**
+
+1. Im Trainerbereich unter „API-Tokens“ (neben den Passkeys) einen persönlichen Token anlegen. Der Token (`lgt_…`) wird nur einmal angezeigt.
+2. Den angezeigten Befehl übernehmen und im Terminal ausführen:
+
+```bash
+claude mcp add --transport http lehrgang https://lehrgang.coolify.intranet.ewerk.com/api/mcp --header "Authorization: Bearer <token>"
+```
+
+Das funktioniert mit Claude Code und Claude Desktop nur im Firmennetz. Claude-Webversion und ChatGPT können den Host nicht erreichen.
+
+**Beispiel-Prompt:**
+
+> Lies zuerst get_authoring_guide. Lege dann einen Lehrgang „DNS für Einsteiger“ (Key dns-einsteiger, Theme network) mit drei Modulen an: Grundlagen, Auflösung, Fehlersuche. Jedes Modul mit Lernzielen, zwei Textblöcken, einem Check und drei Quizfragen mit Erklärung, zweisprachig DE/EN.
+
+Claude nutzt dafür diese Werkzeuge:
+
+| Werkzeug | Zweck |
+|---|---|
+| `get_authoring_guide` | Formatregeln, gültige Widget-IDs, Blocktypen, Themes, Beispielmodul; zuerst aufrufen |
+| `list_workshops` | sichtbare Lehrgänge mit Status, Besitzer, bearbeitbar |
+| `get_workshop` | Metadaten, Abschnitte, Module |
+| `create_workshop` | neuer Lehrgang als Entwurf (Key a-z 0-9 -, Theme aus: network, claude, infoblox, ansible, pki, nac) |
+| `update_workshop` | Metadaten und Abschnitte; Abschnitte als Liste `{title_de, title_en, modules: [Modul-Keys]}`, jedes Modul genau einmal; Reihenfolge vergibt der Server |
+| `get_module` | ganzes Modul inkl. `version` |
+| `save_module` | anlegen oder ändern; beim Ändern `base_version` = `version` aus `get_module` mitgeben (sonst Fehler, nichts überschrieben) |
+| `restore_module` | letztes Speichern rückgängig machen |
+| `delete_module` | nur in Lehrgängen im Entwurf |
+
+**Regeln:**
+
+- **Entwurf:** Neue Lehrgänge starten als Entwurf. Ihn sehen nur der Besitzer und Admins; der Besitzer kann einen Testkurs darauf anlegen.
+- **Veröffentlichen:** Nur Admins veröffentlichen, über „Veröffentlichen“ im Trainerbereich. Es gibt bewusst kein MCP-Werkzeug dafür.
+- **Besitz:** Trainer bearbeiten nur eigene Lehrgänge; Admins bearbeiten alle. Ausgelieferte Module können nur noch Admins ändern. Die Metadaten ausgelieferter Lehrgänge bleiben im Code festgelegt.
+- **Tokens:** Ohne Ablaufdatum, widerrufbar im Trainerbereich. Admins können in den Trainerkonten alle Tokens eines Trainers widerrufen. Tokens gelten nur für `/api/mcp`, nicht für den übrigen Trainer-API-Bereich. Ein Passwortwechsel widerruft Tokens nicht.
+
 ## Vollreferenz
 
-Feldtabellen, Beispiele für alle Typen und Gestaltungsregeln: `docs/content-authoring.md` im Repository. Adress- und Namensplan der Beispiele: `docs/lernwelt-nordwind.md` (Confluence-Fassung: Seite „Lernwelt Nordwind“). Bei Änderungen an dieser Datei diese Seite nachziehen.
+Feldtabellen, Beispiele für alle Typen und Gestaltungsregeln: `backend/app/content/authoring.md` im Repository. Adress- und Namensplan der Beispiele: `docs/lernwelt-nordwind.md` (Confluence-Fassung: Seite „Lernwelt Nordwind“). Bei Änderungen an dieser Datei diese Seite nachziehen.

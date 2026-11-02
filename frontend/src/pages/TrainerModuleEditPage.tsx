@@ -12,7 +12,7 @@ import { BrandLogo } from '@/components/BrandLogo'
 import { WorkshopTheme } from '@/components/WorkshopTheme'
 import { LoadError } from '@/components/LoadError'
 import { useAuthStore } from '@/store/auth'
-import { workshopTheme } from '@/lib/workshopTheme'
+import { useWorkshopTheme } from '@/lib/workshopTheme'
 import { useDocumentLang, useDocumentTitle } from '@/lib/i18n'
 import { TrainerLangToggle } from '@/components/TrainerLangToggle'
 import { useTr, type TrKey } from '@/store/lang'
@@ -137,6 +137,7 @@ export function TrainerModuleEditPage() {
     return () => window.removeEventListener('beforeunload', warn)
   }, [dirty])
 
+  const theme = useWorkshopTheme(form?.workshop_key)
   if (!isTrainer)
     return (
       <div className="p-10 text-slate-600">
@@ -173,7 +174,7 @@ export function TrainerModuleEditPage() {
   }
 
   return (
-    <WorkshopTheme theme={workshopTheme(form.workshop_key)}><main id="main-content" tabIndex={-1} className="min-h-dvh bg-slate-50 p-6 sm:p-10">
+    <WorkshopTheme theme={theme}><main id="main-content" tabIndex={-1} className="min-h-dvh bg-slate-50 p-6 sm:p-10">
       <div className="max-w-2xl mx-auto">
         <div className="flex items-center justify-between gap-4">
           <Link to={`/trainer/modul/${key}`} className="text-sm text-slate-500 hover:text-slate-600">{tr('trBackToTrainerView')}</Link>

@@ -28,6 +28,12 @@ export function TrainerAccounts({ portalContainer }: { portalContainer: HTMLElem
     onSuccess: () => { setError(''); qc.invalidateQueries({ queryKey: ['trainer-accounts'] }) },
     onError: (e) => setError(errMsg(e, tr('trErrorFallback'))),
   })
+  const revokeTokens = useMutation({
+    mutationFn: (id: number) => trainerApi.revokeTrainerTokens(id).then((r) => r.data),
+    onSuccess: (d) => setNotice(tr('trTokensRevoked', { n: String(d.deleted) })),
+    onError: (e) => setError(errMsg(e, tr('trErrorFallback'))),
+  })
+  const [notice, setNotice] = useState('')
   const setRole = useMutation({
     mutationFn: ({ id, role }: { id: number; role: TrainerAccount['role'] }) => trainerApi.setTrainerRole(id, role),
     onSuccess: () => { setError(''); qc.invalidateQueries({ queryKey: ['trainer-accounts'] }) },
@@ -58,6 +64,11 @@ export function TrainerAccounts({ portalContainer }: { portalContainer: HTMLElem
                 ) : (
                   <span className="text-xs text-[var(--wb-muted)]">{t.role === 'admin' ? 'Admin' : 'Trainer'}</span>
                 )}
+                {isAdmin && (
+                  <button onClick={() => { setError(''); setNotice(''); revokeTokens.mutate(t.id) }} disabled={revokeTokens.isPending}
+                    aria-label={tr('trRevokeApiTokensAria', { name: t.name })}
+                    className="text-xs text-[var(--wb-muted)] underline hover:text-[var(--wb-ink)]">{tr('trRevokeApiTokens')}</button>
+                )}
                 {/* Eigener Zugang: der Server lehnt Selbst-Löschen ohnehin ab (Aussperren). */}
                 {isAdmin && !t.is_self && (
                   <button
@@ -83,6 +94,7 @@ export function TrainerAccounts({ portalContainer }: { portalContainer: HTMLElem
         accounts.isSuccess && <p className="text-xs text-[var(--wb-muted)]">{tr('trAdminsOnlyAccounts')}</p>
       )}
       {error && <p className="mt-1 text-sm text-rose-600">{error}</p>}
+      {notice && <p aria-live="polite" className="mt-1 text-sm text-[var(--wb-muted)]">{notice}</p>}
       <ConfirmDialog
         open={deleteTarget !== null}
         title={tr('trRemoveAccount')}

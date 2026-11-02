@@ -115,7 +115,7 @@ describe('TrainerPage — Audit-Log', () => {
 
     mockGet({
       '/courses': [],
-      '/workshops': [],
+      '/trainer/workshops': [],
       '/trainer/modules': [],
       '/trainer/accounts': [],
       '/features': { comments: false },
@@ -169,7 +169,7 @@ describe('TrainerPage — Passkey-Login', () => {
     stubPasskeySupport()
     stubCredentials({ get: vi.fn().mockResolvedValue(fakeAssertionCredential()) })
     mockGet({
-      '/courses': [], '/workshops': [], '/trainer/modules': [], '/trainer/accounts': [],
+      '/courses': [], '/trainer/workshops': [], '/trainer/modules': [], '/trainer/accounts': [],
       '/features': { comments: false }, '/changelog': [],
       '/trainer/passkey/status': { enabled: true }, '/trainer/passkey': [],
     })
@@ -229,7 +229,7 @@ describe('TrainerPage — Kurs löschen', () => {
     vi.mocked(api.delete).mockResolvedValue({ data: undefined })
     mockGet({
       '/courses': [{ id: 1, name: 'Testkurs', join_code: 'ABC123', workshop_key: 'network', participant_count: 2 }],
-      '/workshops': [],
+      '/trainer/workshops': [],
       '/trainer/modules': [],
       '/trainer/accounts': [],
       '/features': { comments: false },
@@ -259,7 +259,7 @@ describe('TrainerPage — Kurs löschen', () => {
     vi.mocked(api.delete).mockResolvedValue({ data: undefined })
     mockGet({
       '/courses': [{ id: 1, name: 'Testkurs', join_code: 'ABC123', workshop_key: 'network', participant_count: 2 }],
-      '/workshops': [], '/trainer/modules': [], '/trainer/accounts': [],
+      '/trainer/workshops': [], '/trainer/modules': [], '/trainer/accounts': [],
       '/features': { comments: false }, '/changelog': [], '/courses/1/modules': [],
       '/courses/1/dashboard': { course: { id: 1, name: 'Testkurs', join_code: 'ABC123', workshop_key: 'network', certificate_count: 2 }, modules: [], participants: [] },
       '/trainer/courses/1/presence': [],
@@ -281,7 +281,7 @@ describe('TrainerPage — Kurs löschen', () => {
 })
 
 describe('TrainerPage — Rollen (Admin/Trainer)', () => {
-  const base = { '/courses': [], '/workshops': [], '/trainer/modules': [], '/features': { comments: true }, '/changelog': [] }
+  const base = { '/courses': [], '/trainer/workshops': [], '/trainer/modules': [], '/features': { comments: true }, '/changelog': [] }
   const admin = { id: 1, email: 'a@x.de', name: 'Anna', role: 'admin', is_self: true }
   const plain = { id: 2, email: 'b@x.de', name: 'Bert', role: 'trainer', is_self: false }
 
@@ -318,7 +318,7 @@ describe('TrainerPage — Passkeys (Verwaltung)', () => {
   it('zeigt „noch nicht genutzt“ für einen Passkey ohne last_used_at', async () => {
     useAuthStore.setState({ token: 'demo', role: 'trainer', displayName: 'Trainer' })
     mockGet({
-      '/courses': [], '/workshops': [], '/trainer/modules': [], '/trainer/accounts': [],
+      '/courses': [], '/trainer/workshops': [], '/trainer/modules': [], '/trainer/accounts': [],
       '/features': { comments: false }, '/changelog': [],
       '/trainer/passkey/status': { enabled: true },
       '/trainer/passkey': [{ id: 'pk1', label: 'Notebook', created_at: '2026-01-01T00:00:00Z', last_used_at: null }],

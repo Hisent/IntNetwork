@@ -15,7 +15,7 @@ import re
 from pathlib import Path
 
 from app.config import APP_VERSION
-from app.routers.trainer_content import VALID_WIDGET_IDS
+from app.services.content_editor import VALID_WIDGET_IDS
 
 FRONTEND = Path(__file__).resolve().parents[2] / "frontend"
 REGISTRY = FRONTEND / "src" / "widgets" / "registry.tsx"
