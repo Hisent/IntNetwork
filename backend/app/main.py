@@ -206,6 +206,7 @@ from app.routers import trainer_audit as trainer_audit_router  # noqa: E402
 from app.routers import trainer_passkey as trainer_passkey_router  # noqa: E402
 from app.routers import polls as polls_router  # noqa: E402
 from app.routers import client_errors as client_errors_router  # noqa: E402
+from app.routers import trainer_api_tokens as trainer_api_tokens_router  # noqa: E402
 _api.include_router(auth_router.router)
 _api.include_router(courses_router.router)
 _api.include_router(join_router.router)
@@ -228,5 +229,6 @@ _api.include_router(trainer_audit_router.router)
 _api.include_router(trainer_passkey_router.router)
 _api.include_router(polls_router.router)
 _api.include_router(client_errors_router.router)
+_api.include_router(trainer_api_tokens_router.router)
 
 app.include_router(_api)

@@ -7,7 +7,9 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.database import get_db
+from app.models.api_token import TrainerApiToken
 from app.models.trainer import Trainer
+from app.models.workshop import Workshop
 from app.services.audit import log_action
 from app.services.deps import get_admin, get_trainer
 from app.services.security import hash_password
@@ -86,10 +88,21 @@ def delete_trainer(tid: int, db: Session = Depends(get_db), trainer: dict = Depe
         if t.role == "admin" and _admin_count(db) <= 1:
             raise HTTPException(status_code=422, detail="Letzter Admin-Zugang kann nicht gelöscht werden")
         email = t.email
+        # FK-Aktionen (CASCADE / SET NULL) greifen unter SQLite nicht -> hier explizit.
+        db.query(TrainerApiToken).filter(TrainerApiToken.trainer_id == tid).delete()
+        db.query(Workshop).filter(Workshop.owner_trainer_id == tid).update({Workshop.owner_trainer_id: None})
         db.delete(t)
         db.commit()
     log_action(db, trainer, "trainer.delete", target=f"trainer:{tid}", detail=email)
     return {"ok": True}
+
+
+@router.delete("/{tid}/api-tokens")
+def revoke_api_tokens(tid: int, db: Session = Depends(get_db), trainer: dict = Depends(get_admin)):
+    n = db.query(TrainerApiToken).filter(TrainerApiToken.trainer_id == tid).delete()
+    db.commit()
+    log_action(db, trainer, "api_token.revoke_all", target=f"trainer:{tid}", detail=str(n))
+    return {"deleted": n}
 
 
 @router.patch("/{tid}/role")
