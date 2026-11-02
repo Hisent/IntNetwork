@@ -185,7 +185,7 @@ def validate_module(db: Session, key: str, data: ModuleIn) -> None:
             if not b.value_de or not b.value_en:
                 raise EditorError(422, "Reveal-Block braucht value_de und value_en (versteckter Inhalt)")
         elif b.type in DECLARATIVE_TYPES:
-            # Deklarativer Baukasten (docs/content-authoring.md): Meldung nennt Block-id und Feldpfad.
+            # Deklarativer Baukasten (backend/app/content/authoring.md): Meldung nennt Block-id und Feldpfad.
             try:
                 validate_block(b.type, b.payload)
             except ValueError as err:
