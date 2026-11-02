@@ -10,13 +10,15 @@ import { Field, Section, QueryState } from './shared'
 
 // --- Verwaltung: Module -------------------------------------------------------
 
-type AdminWorkshop = { key: string; title: Record<'de' | 'en', string>; status?: 'draft' | 'published'; owner_name?: string | null }
+type AdminWorkshop = { key: string; title: Record<'de' | 'en', string>; status?: 'draft' | 'published'; owner_name?: string | null; editable?: boolean }
 
 export function ModuleAdmin({ workshops }: { workshops: AdminWorkshop[] }) {
   const { lang, tr } = useTr()
   const qc = useQueryClient()
   const navigate = useNavigate()
   const isAdmin = useIsAdmin()
+  // nicht editierbar: fremde Entwürfe und (für Nicht-Admins) ausgelieferte Workshops — Server lehnt Speichern mit 403 ab
+  const readOnly = new Set(workshops.filter((w) => w.editable === false).map((w) => w.key))
   const drafts = workshops.filter((w) => w.status === 'draft')
   const publish = useMutation({
     mutationFn: (key: string) => trainerApi.publishWorkshop(key),
@@ -104,8 +106,8 @@ export function ModuleAdmin({ workshops }: { workshops: AdminWorkshop[] }) {
                     {g.modules.map((m) => (
                       <li key={m.key} className="flex items-center justify-between gap-2 py-1.5">
                         <Link to={`/trainer/modul/${m.key}`} title={m.title} className="min-w-0 truncate text-sm text-[var(--wb-ink)] hover:text-[var(--wb-accent-hover)] hover:underline">{m.title}</Link>
-                        <Link to={`/trainer/modul/${m.key}/bearbeiten`} title={tr('trEdit')} aria-label={tr('trEditModuleAria', { title: m.title })}
-                          className="shrink-0 rounded-lg p-1.5 text-[var(--wb-muted)] hover:bg-[var(--wb-subtle)] hover:text-[var(--wb-ink)]"><Icon name="pencil" className="h-4 w-4" /></Link>
+                        {!(m.workshop_key && readOnly.has(m.workshop_key)) && <Link to={`/trainer/modul/${m.key}/bearbeiten`} title={tr('trEdit')} aria-label={tr('trEditModuleAria', { title: m.title })}
+                          className="shrink-0 rounded-lg p-1.5 text-[var(--wb-muted)] hover:bg-[var(--wb-subtle)] hover:text-[var(--wb-ink)]"><Icon name="pencil" className="h-4 w-4" /></Link>}
                       </li>
                     ))}
                   </ul>

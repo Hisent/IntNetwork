@@ -91,13 +91,13 @@ export function TrainerModulePage() {
     enabled: role === 'trainer' && !!token,
   })
 
+  const theme = useWorkshopTheme(mod.data?.workshop_key)
   if (role !== 'trainer' || !token)
     return (
       <div className="p-10 text-slate-600">
         {tr('trTrainerOnly')} <Link to="/trainer" className="text-teal-600">{tr('trToLogin')}</Link>
       </div>
     )
-  const theme = useWorkshopTheme(mod.data?.workshop_key)
   if (mod.isError && !mod.data) return <LoadError lang={lang} onRetry={() => mod.refetch()} />
   if (mod.isLoading || !mod.data) return <PageSkeleton />
   const m = mod.data

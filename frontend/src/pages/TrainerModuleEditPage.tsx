@@ -137,6 +137,7 @@ export function TrainerModuleEditPage() {
     return () => window.removeEventListener('beforeunload', warn)
   }, [dirty])
 
+  const theme = useWorkshopTheme(form?.workshop_key)
   if (!isTrainer)
     return (
       <div className="p-10 text-slate-600">
@@ -144,7 +145,6 @@ export function TrainerModuleEditPage() {
       </div>
     )
   // Nur ohne geladenes Formular: ein fehlgeschlagener Hintergrund-Refetch darf den Editor nicht verdrängen.
-  const theme = useWorkshopTheme(form?.workshop_key)
   if (mod.isError && !form) return <LoadError lang={lang} onRetry={() => mod.refetch()} />
   // form.key !== key: bei Modulwechsel nie das Formular des vorherigen Moduls unter dem neuen Key speichern.
   if (mod.isLoading || !form || form.key !== key) return <div className="p-10">{tr('trLoadingShort')}</div>

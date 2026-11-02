@@ -16,12 +16,16 @@ const DRAFT: TrainerWorkshop = {
   status: 'draft', owner_name: 'Anna', editable: true,
 }
 
-function setup(role: 'admin' | 'trainer') {
+function setup(role: 'admin' | 'trainer', workshops: TrainerWorkshop[] = [DRAFT]) {
   vi.mocked(api.get).mockImplementation((url: string) => {
     if (url === '/trainer/accounts') return Promise.resolve({ data: [{ id: 1, name: 'Me', email: 'm@x.de', role, is_self: true }] })
+    if (url === '/trainer/modules') return Promise.resolve({ data: [
+      { key: 'm-ro', title: 'Fremd', title_en: 'x', order: 1, prerequisites: [], workshop_key: 'ro' },
+      { key: 'm-rw', title: 'Eigen', title_en: 'y', order: 2, prerequisites: [], workshop_key: 'vpn' },
+    ] })
     return Promise.resolve({ data: [] })
   })
-  renderWithProviders(<ModuleAdmin workshops={[DRAFT]} />)
+  renderWithProviders(<ModuleAdmin workshops={workshops} />)
 }
 
 afterEach(() => { cleanup(); vi.clearAllMocks() })
@@ -41,5 +45,13 @@ describe('ModuleAdmin Entwürfe', () => {
     await screen.findByText('Entwurf')
     await waitFor(() => expect(api.get).toHaveBeenCalledWith('/trainer/accounts'))
     expect(screen.queryByRole('button', { name: /Veröffentlichen/ })).toBeNull()
+  })
+
+  it('blendet Bearbeiten-Link für nicht editierbare Workshops aus', async () => {
+    setup('trainer', [DRAFT, { ...DRAFT, key: 'ro', title: { de: 'Fremd-WS', en: 'x' }, status: 'published', editable: false }])
+    fireEvent.change(await screen.findByLabelText('Modul suchen'), { target: { value: 'e' } })
+    await screen.findByText('Eigen')
+    expect(screen.getAllByRole('link', { name: /bearbeiten|edit/i }).map((a) => a.getAttribute('href')))
+      .toEqual(['/trainer/modul/m-rw/bearbeiten'])
   })
 })
