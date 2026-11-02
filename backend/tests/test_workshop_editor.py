@@ -111,3 +111,50 @@ def _block_kw(db):
             continue
         kw[n] = 0 if c.type.python_type is int else ({} if c.type.python_type is dict else "x")
     return kw
+
+
+def test_delete_module_raeumt_abhaengige_daten_und_voraussetzungen_auf():
+    from app.models.comment import Comment
+    from app.models.live_poll import LivePoll, LivePollVote
+    from app.models.module_disabled import ModuleDisabled
+    from app.models.participant import Participant
+    from app.models.progress import Progress
+    from app.models.quiz_result import QuizResult
+    from app.services.content_editor import ModuleIn, module_state, save_module
+
+    with SessionLocal() as db:
+        ws = _ws(db)
+        a, b = f"{ws.key}-a", f"{ws.key}-b"
+        create_module(db, a, ws.key, "a")
+        create_module(db, b, ws.key, "b")
+        db.get(ContentModule, b).prerequisites = [a]
+        c = Course(name="C", join_code=uuid.uuid4().hex[:8], workshop_key=ws.key)
+        db.add(c)
+        db.flush()
+        p = Participant(course_id=c.id, name="P", current_module_key=a)
+        db.add(p)
+        db.flush()
+        poll = LivePoll(course_id=c.id, module_key=a, source="adhoc", ref="r")
+        db.add(poll)
+        db.flush()
+        db.add_all([
+            Progress(participant_id=p.id, module_key=a),
+            QuizResult(participant_id=p.id, module_key=a, score=1, total=1, answers={}),
+            Comment(course_id=c.id, module_key=a, block_index=0, body="x",
+                    author_kind="participant", author_name="P", participant_id=p.id),
+            ModuleDisabled(course_id=c.id, module_key=a),
+            LivePollVote(poll_id=poll.id, participant_id=p.id, choice=0),
+        ])
+        db.commit()
+        pid, poll_id = p.id, poll.id
+
+        delete_module(db, a)
+
+        for model in (Progress, QuizResult, Comment, ModuleDisabled, LivePoll):
+            assert db.query(model).filter_by(module_key=a).count() == 0, model
+        assert db.query(LivePollVote).filter_by(poll_id=poll_id).count() == 0
+        assert db.get(Participant, pid).current_module_key is None
+        db.refresh(db.get(ContentModule, b))
+        assert db.get(ContentModule, b).prerequisites == []
+        _, state, version = module_state(db, b)
+        save_module(db, b, ModuleIn(**state), version)

@@ -7,7 +7,7 @@ from app.models.quiz_result import QuizResult
 from app.services import grading
 from app.services.deps import get_trainer
 from app.content.registry import module_meta, trainer_module
-from app.services.content_access import visible_workshop_keys
+from app.services.content_access import require_visible_course, visible_workshop_keys
 
 router = APIRouter(prefix="/trainer/modules", tags=["trainer-modules"])
 
@@ -37,6 +37,7 @@ def quiz_stats(key: str, course_id: int | None = None,
         raise HTTPException(status_code=404, detail="Modul nicht gefunden")
     q = db.query(QuizResult).filter(QuizResult.module_key == key)
     if course_id is not None:
+        require_visible_course(db, trainer, course_id)
         q = q.join(Participant, Participant.id == QuizResult.participant_id) \
              .filter(Participant.course_id == course_id)
     submissions = [r.answers for r in q]

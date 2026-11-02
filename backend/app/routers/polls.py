@@ -23,10 +23,10 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.models.content import ContentBlock, ContentQuizQuestion
-from app.models.course import Course
 from app.models.live_poll import LivePoll, LivePollVote
 from app.models.participant import Participant
 from app.services.audit import log_action
+from app.services.content_access import require_visible_course
 from app.services.course_membership import active_module_keys
 from app.services.deps import get_participant, get_trainer
 from app.services.poll_tally import (TEXT_MAX, WORD_MAX, WORDS_MAX, normalize_word, parse_answer, tally,
@@ -153,11 +153,6 @@ def _trainer_view(db: Session, poll: LivePoll | None) -> dict | None:
             "module_key": poll.module_key, "source": poll.source, "ref": poll.ref}
 
 
-def _course(db: Session, cid: int) -> None:
-    if not db.get(Course, cid):
-        raise HTTPException(status_code=404, detail="Kurs nicht gefunden")
-
-
 Label = Annotated[str, Field(max_length=40)]
 
 
@@ -197,7 +192,7 @@ def _adhoc(data: PollStart) -> dict:
 
 @router.post("/trainer/courses/{cid}/poll")
 def start_poll(cid: int, data: PollStart, db: Session = Depends(get_db), trainer: dict = Depends(get_trainer)):
-    _course(db, cid)
+    require_visible_course(db, trainer, cid)
     if data.module_key not in active_module_keys(db, cid):
         raise HTTPException(status_code=404, detail="Modul ist in diesem Kurs nicht aktiv")
     if data.source == "adhoc":
@@ -218,13 +213,13 @@ def start_poll(cid: int, data: PollStart, db: Session = Depends(get_db), trainer
 
 @router.get("/trainer/courses/{cid}/poll")
 def trainer_poll(cid: int, db: Session = Depends(get_db), _t: dict = Depends(get_trainer)):
-    _course(db, cid)
+    require_visible_course(db, _t, cid)
     return _trainer_view(db, _current(db, cid))
 
 
 @router.post("/trainer/courses/{cid}/poll/reveal")
 def reveal_poll(cid: int, db: Session = Depends(get_db), _t: dict = Depends(get_trainer)):
-    _course(db, cid)
+    require_visible_course(db, _t, cid)
     poll = _current(db, cid)
     if not poll:
         raise HTTPException(status_code=404, detail="Keine laufende Abstimmung")
@@ -242,7 +237,7 @@ def hide_answer(cid: int, aid: int, data: AnswerHidden, db: Session = Depends(ge
                 _t: dict = Depends(get_trainer)):
     """Freitext aus- bzw. wieder einblenden, vor und nach dem Auflösen. Ändert
     der Teilnehmer ihn danach noch, bleibt er ausgeblendet."""
-    _course(db, cid)
+    require_visible_course(db, _t, cid)
     poll = _current(db, cid)
     row = db.get(LivePollVote, aid) if poll and poll.kind == "text" else None
     if not row or row.poll_id != poll.id:
@@ -262,7 +257,7 @@ def hide_word(cid: int, data: WordHidden, db: Session = Depends(get_db), _t: dic
     """Wort der Wortwolke aus- bzw. wieder einblenden, vor und nach dem Auflösen.
     Gespeichert normalisiert in config["hidden_words"] — gilt damit auch für
     Stimmen, die das Wort erst später nennen."""
-    _course(db, cid)
+    require_visible_course(db, _t, cid)
     poll = _current(db, cid)
     word = normalize_word(data.word)
     if not poll or poll.kind != "words" or not word:
@@ -278,7 +273,7 @@ def hide_word(cid: int, data: WordHidden, db: Session = Depends(get_db), _t: dic
 
 @router.delete("/trainer/courses/{cid}/poll")
 def close_poll(cid: int, db: Session = Depends(get_db), _t: dict = Depends(get_trainer)):
-    _course(db, cid)
+    require_visible_course(db, _t, cid)
     _close_open(db, cid)
     db.commit()
     return {"ok": True}

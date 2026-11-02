@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.models.participant import Participant
+from app.services.content_access import require_visible_course
 from app.services.deps import get_trainer
 from app.content.registry import module_meta
 from app.utils import utc_now
@@ -16,6 +17,7 @@ STALE_AFTER_SECONDS = 30
 
 @router.get("/trainer/courses/{cid}/presence")
 def course_presence(cid: int, db: Session = Depends(get_db), _t: dict = Depends(get_trainer)):
+    require_visible_course(db, _t, cid)
     cutoff = utc_now() - timedelta(seconds=STALE_AFTER_SECONDS)
     titles = {m["key"]: m["title"] for m in module_meta(db)}
     rows = db.query(Participant).filter(

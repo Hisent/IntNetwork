@@ -31,11 +31,11 @@ const apiError = (status: number, detail: string) => Object.assign(new Error(`HT
 
 let current: EditorModule
 let client: QueryClient
-function open() {
+function open(workshops: { key: string; editable: boolean }[] = []) {
   current = server()
   useAuthStore.setState({ token: 'demo', role: 'trainer', displayName: 'T' })
   vi.mocked(api.get).mockImplementation((url: string) =>
-    Promise.resolve({ data: url === URL ? current : [] }))
+    Promise.resolve({ data: url === URL ? current : url === '/trainer/workshops' ? workshops : [] }))
   client = new QueryClient({ defaultOptions: { queries: { retry: false } } })
   return render(
     <QueryClientProvider client={client}>
@@ -59,6 +59,20 @@ afterEach(() => {
 })
 
 describe('TrainerModuleEditPage', () => {
+  it('nicht editierbarer Lehrgang: Hinweis statt Speichern-Knopf', async () => {
+    open([{ key: 'network', editable: false }])
+    expect(await screen.findByText(/nur der Besitzer oder Admins/)).toBeTruthy()
+    expect(screen.queryByRole('button', { name: 'Speichern' })).toBeNull()
+  })
+
+  it('editierbarer Lehrgang: Speichern-Knopf, kein Hinweis', async () => {
+    open([{ key: 'network', editable: true }])
+    await screen.findByDisplayValue('Server-Titel')
+    await waitFor(() => expect(vi.mocked(api.get).mock.calls.some(([u]) => u === '/trainer/workshops')).toBe(true))
+    expect(screen.getByRole('button', { name: 'Speichern' })).toBeTruthy()
+    expect(screen.queryByText(/nur der Besitzer oder Admins/)).toBeNull()
+  })
+
   it('setzt einen eigenen Tab-Titel mit dem Modultitel', async () => {
     open()
     await screen.findByDisplayValue('Server-Titel')
