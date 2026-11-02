@@ -9,7 +9,13 @@ from sqlalchemy.orm import Session
 from app.content.registry import MODULES
 from app.content.sync import apply_state, serialize_module as _serialize_module, source_state
 from app.models.content import ContentBlock, ContentModule, ContentModuleSnapshot, ContentQuizQuestion
+from app.models.comment import Comment
 from app.models.course_module import CourseModule
+from app.models.live_poll import LivePoll, LivePollVote
+from app.models.module_disabled import ModuleDisabled
+from app.models.participant import Participant
+from app.models.progress import Progress
+from app.models.quiz_result import QuizResult
 from app.models.workshop import Workshop
 from app.services.block_validation import DECLARATIVE_TYPES, validate_block
 
@@ -368,5 +374,15 @@ def delete_module(db: Session, key: str) -> None:
         raise EditorError(422, "Module veröffentlichter Lehrgänge können nicht gelöscht werden.")
     for model in (ContentBlock, ContentQuizQuestion, ContentModuleSnapshot, CourseModule):
         db.query(model).filter(model.module_key == key).delete()
+    # Tabellen mit Klartext-module_key (ohne FK) mit aufräumen
+    poll_ids = db.query(LivePoll.id).filter(LivePoll.module_key == key)
+    db.query(LivePollVote).filter(LivePollVote.poll_id.in_(poll_ids)).delete(synchronize_session=False)
+    for model in (LivePoll, Progress, QuizResult, Comment, ModuleDisabled):
+        db.query(model).filter(model.module_key == key).delete(synchronize_session=False)
+    db.query(Participant).filter(Participant.current_module_key == key).update(
+        {Participant.current_module_key: None}, synchronize_session=False)
+    for other in db.query(ContentModule).filter(ContentModule.key != key):
+        if key in (other.prerequisites or []):
+            other.prerequisites = [p for p in other.prerequisites if p != key]
     db.delete(m)
     db.commit()
