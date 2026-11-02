@@ -5,7 +5,8 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models.comment import Comment
 from app.services.audit import log_action
-from app.services.comment_validation import require_comment_target, require_course
+from app.services.comment_validation import require_comment_target
+from app.services.content_access import require_visible_course
 from app.services.deps import get_trainer
 from app.services.features import require_comments_enabled as _guard
 from app.utils import iso_utc
@@ -28,7 +29,7 @@ class TComReq(BaseModel):
 def course_comments(cid: int, limit: int = Query(500, ge=1, le=2000), offset: int = Query(0, ge=0),
                     db: Session = Depends(get_db), _t: dict = Depends(get_trainer)):
     _guard(db)
-    require_course(db, cid)
+    require_visible_course(db, _t, cid)
     rows = db.query(Comment).filter(Comment.course_id == cid).order_by(
         Comment.module_key, Comment.block_index, Comment.created_at).offset(offset).limit(limit).all()
     return [_serialize(c) for c in rows]
@@ -38,6 +39,7 @@ def course_comments(cid: int, limit: int = Query(500, ge=1, le=2000), offset: in
 def add_trainer_comment(cid: int, key: str, data: TComReq, db: Session = Depends(get_db),
                         _t: dict = Depends(get_trainer)):
     _guard(db)
+    require_visible_course(db, _t, cid)
     require_comment_target(db, cid, key, data.block_index)
     body = data.body.strip()
     if not body:
@@ -56,6 +58,7 @@ def delete_trainer_comment(cid: int, db: Session = Depends(get_db), trainer: dic
     c = db.query(Comment).filter(Comment.id == cid).first()
     if not c:
         raise HTTPException(status_code=404, detail="Kommentar nicht gefunden")
+    require_visible_course(db, trainer, c.course_id, "Kommentar nicht gefunden")
     # Bewusst ohne Kommentartext: das Audit-Log soll gelöschte Inhalte nicht
     # aufbewahren, nur wer wessen Kommentar wo entfernt hat.
     detail = f"course:{c.course_id} {c.module_key}#{c.block_index} von {c.author_kind}:{c.author_name}"

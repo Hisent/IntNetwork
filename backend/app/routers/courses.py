@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel, Field
-from sqlalchemy import func
+from sqlalchemy import func, or_
 from sqlalchemy.orm import Session
 
 from app.database import get_db
@@ -14,7 +14,7 @@ from app.models.workshop import Workshop
 from app.models.certificate import Certificate
 from app.services.audit import log_action
 from app.services.codes import new_code
-from app.services.content_access import can_see_workshop
+from app.services.content_access import can_see_workshop, require_visible_course, visible_workshop_keys
 from app.services.deps import get_trainer
 from app.services.course_membership import active_module_keys
 from app.content.registry import module_meta
@@ -51,10 +51,13 @@ def create_course(data: CourseCreate, db: Session = Depends(get_db), trainer: di
 
 @router.get("")
 def list_courses(limit: int = Query(100, ge=1, le=500), offset: int = Query(0, ge=0),
-                 db: Session = Depends(get_db), _=Depends(get_trainer)):
+                 db: Session = Depends(get_db), trainer: dict = Depends(get_trainer)):
     # Neueste zuerst, seitenweise -> wächst nicht mehr linear mit Jahren Workshop-
     # Betrieb. Default 100 schneidet heute nichts ab (Muster wie trainer_audit.py).
-    courses = db.query(Course).order_by(Course.created_at.desc()).offset(offset).limit(limit).all()
+    # Kurse auf fremden Entwürfen fehlen (im Query, damit limit/offset stimmen).
+    visible = or_(Course.workshop_key.is_(None), Course.workshop_key.in_(visible_workshop_keys(db, trainer)))
+    courses = (db.query(Course).filter(visible).order_by(Course.created_at.desc())
+               .offset(offset).limit(limit).all())
     ids = [c.id for c in courses]
     counts = dict(db.query(Participant.course_id, func.count(Participant.id))
                   .filter(Participant.course_id.in_(ids))
@@ -81,9 +84,7 @@ def delete_course(course_id: int, delete_certificates: bool = False,
     des Trainers: `delete_certificates=true` löscht sie mit; die Antwort nennt
     in beiden Fällen die Zahl (das Dashboard zeigt sie vorab als
     `certificate_count`)."""
-    course = db.query(Course).filter(Course.id == course_id).first()
-    if not course:
-        raise HTTPException(status_code=404, detail="Kurs nicht gefunden")
+    course = require_visible_course(db, trainer, course_id)
     name = course.name
     certificates = db.query(Certificate).filter(Certificate.course_id == course_id)
     kept = certificates.count()
@@ -102,9 +103,7 @@ def delete_course(course_id: int, delete_certificates: bool = False,
 @router.patch("/{course_id}/approval")
 def set_course_approval(course_id: int, data: ApprovalToggle,
                         db: Session = Depends(get_db), trainer: dict = Depends(get_trainer)):
-    course = db.query(Course).filter(Course.id == course_id).first()
-    if not course:
-        raise HTTPException(status_code=404, detail="Kurs nicht gefunden")
+    course = require_visible_course(db, trainer, course_id)
     course.require_approval = data.require_approval
     db.commit()
     log_action(db, trainer, "course.approval_toggle", target=f"course:{course_id}",
@@ -119,6 +118,7 @@ class ParticipantApproval(BaseModel):
 @router.post("/{course_id}/participants/{participant_id}/approve")
 def approve_participant(course_id: int, participant_id: int, data: ParticipantApproval,
                         db: Session = Depends(get_db), trainer: dict = Depends(get_trainer)):
+    require_visible_course(db, trainer, course_id, "Teilnehmer nicht gefunden")
     p = db.query(Participant).filter(
         Participant.id == participant_id, Participant.course_id == course_id).first()
     if not p:
@@ -137,6 +137,7 @@ def reset_resume_code(course_id: int, participant_id: int,
     haben. Der alte wird ungültig; der Trainer gibt den neuen persönlich weiter.
     Bumpt zugleich token_version: damit trennt der Reset auch die laufende
     JWT-Sitzung, nicht nur den Wiederaufnahme-Code."""
+    require_visible_course(db, trainer, course_id, "Teilnehmer nicht gefunden")
     p = db.query(Participant).filter(
         Participant.id == participant_id, Participant.course_id == course_id).first()
     if not p:
@@ -163,6 +164,7 @@ def delete_participant(course_id: int, participant_id: int,
     Löschung: es hat absichtlich KEINEN Fremdschlüssel (soll als unveränderlicher
     Nachweis auch andere Löschungen überleben können, siehe app/models/certificate.py),
     daher muss diese eine Zeile weiterhin explizit entfernt werden."""
+    require_visible_course(db, trainer, course_id, "Teilnehmer nicht gefunden")
     p = db.query(Participant).filter(
         Participant.id == participant_id, Participant.course_id == course_id).first()
     if not p:
@@ -176,10 +178,8 @@ def delete_participant(course_id: int, participant_id: int,
 
 
 @router.get("/{course_id}/dashboard")
-def dashboard(course_id: int, db: Session = Depends(get_db), _=Depends(get_trainer)):
-    course = db.query(Course).filter(Course.id == course_id).first()
-    if not course:
-        raise HTTPException(status_code=404, detail="Kurs nicht gefunden")
+def dashboard(course_id: int, db: Session = Depends(get_db), trainer: dict = Depends(get_trainer)):
+    course = require_visible_course(db, trainer, course_id)
     active_keys = active_module_keys(db, course_id)
     metas = [m for m in module_meta(db) if m["key"] in active_keys]
     participants = db.query(Participant).filter(Participant.course_id == course_id).all()
@@ -209,10 +209,8 @@ def dashboard(course_id: int, db: Session = Depends(get_db), _=Depends(get_train
 
 
 @router.get("/{course_id}/modules")
-def course_modules(course_id: int, db: Session = Depends(get_db), _=Depends(get_trainer)):
-    course = db.query(Course).filter(Course.id == course_id).first()
-    if not course:
-        raise HTTPException(status_code=404, detail="Kurs nicht gefunden")
+def course_modules(course_id: int, db: Session = Depends(get_db), trainer: dict = Depends(get_trainer)):
+    course = require_visible_course(db, trainer, course_id)
     active_keys = active_module_keys(db, course_id)
     allowed_workshop = course.workshop_key
     return [{"key": m["key"], "title": m["title"], "order": m["order"],
@@ -229,9 +227,7 @@ class ModuleToggle(BaseModel):
 @router.put("/{course_id}/modules")
 def set_course_module(course_id: int, data: ModuleToggle,
                       db: Session = Depends(get_db), trainer: dict = Depends(get_trainer)):
-    course = db.query(Course).filter(Course.id == course_id).first()
-    if not course:
-        raise HTTPException(status_code=404, detail="Kurs nicht gefunden")
+    course = require_visible_course(db, trainer, course_id)
     module = db.query(ContentModule).filter(ContentModule.key == data.module_key).first()
     if not module:
         raise HTTPException(status_code=422, detail="Unbekanntes Modul")

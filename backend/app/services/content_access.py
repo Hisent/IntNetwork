@@ -2,9 +2,11 @@
 
 Mitgelieferte Workshops (owner_trainer_id NULL) gehören den Admins; Entwürfe sieht
 nur, wer sie bearbeiten darf (Besitzer oder Admin)."""
+from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
 from app.content.workshops import WORKSHOPS
+from app.models.course import Course
 from app.models.workshop import Workshop
 from app.services.content_editor import EditorError
 
@@ -23,6 +25,17 @@ def can_see_workshop(trainer: dict | None, ws: Workshop) -> bool:
 
 def visible_workshop_keys(db: Session, trainer: dict | None) -> set[str]:
     return {ws.key for ws in db.query(Workshop) if can_see_workshop(trainer, ws)}
+
+
+def require_visible_course(db: Session, trainer: dict, course_id: int,
+                           detail: str = "Kurs nicht gefunden") -> Course:
+    """Kurs auf einem fremden Entwurf = nicht vorhanden (404, gleicher Text wie ein
+    unbekannter Kurs), sonst verraten Dashboard & Co. dessen Module."""
+    course = db.get(Course, course_id)
+    ws = db.get(Workshop, course.workshop_key) if course and course.workshop_key else None
+    if course is None or (ws is not None and not can_see_workshop(trainer, ws)):
+        raise HTTPException(status_code=404, detail=detail)
+    return course
 
 
 def require_edit(db: Session, trainer: dict, workshop_key: str) -> Workshop:
