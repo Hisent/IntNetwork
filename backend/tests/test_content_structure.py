@@ -14,14 +14,13 @@ import re
 from collections import Counter
 from pathlib import Path
 
-from fastapi import HTTPException
 from fastapi.testclient import TestClient
 
 from app.content.registry import MODULES
 from app.content.workshops import WORKSHOPS, workshop_for_order
 from app.database import SessionLocal
 from app.main import app
-from app.routers.trainer_content import KEY_RE, _seed_to_module_in, _validate
+from app.services.content_editor import KEY_RE, EditorError, _seed_to_module_in, validate_module
 
 INTERAKTIV = {"widget", "check", "order", "debug", "reveal", "reflect",
               "diagram", "terminal", "match", "cloze", "scenario"}
@@ -113,9 +112,9 @@ def test_all_modules_are_structurally_consistent():
             for key, m in MODULES.items():
                 errors += [f"{key}: {e}" for e in _modul_fehler(key, m)]
                 try:
-                    _validate(db, key, _seed_to_module_in(m))
-                except HTTPException as err:
-                    errors.append(f"{key}: Editor-Validierung: {err.detail}")
+                    validate_module(db, key, _seed_to_module_in(m))
+                except EditorError as err:
+                    errors.append(f"{key}: Editor-Validierung: {err.message}")
                 except Exception as err:  # noqa: BLE001 - kaputte Seed-Form benennen statt abbrechen
                     errors.append(f"{key}: Seed-Form unlesbar: {err!r}")
         finally:
