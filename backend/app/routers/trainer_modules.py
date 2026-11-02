@@ -7,32 +7,33 @@ from app.models.quiz_result import QuizResult
 from app.services import grading
 from app.services.deps import get_trainer
 from app.content.registry import module_meta, trainer_module
+from app.services.content_access import visible_workshop_keys
 
 router = APIRouter(prefix="/trainer/modules", tags=["trainer-modules"])
 
 
 @router.get("")
-def list_trainer_modules(db: Session = Depends(get_db), _t: dict = Depends(get_trainer)):
-    return module_meta(db)
+def list_trainer_modules(db: Session = Depends(get_db), trainer: dict = Depends(get_trainer)):
+    return module_meta(db, visible_workshop_keys(db, trainer))
 
 
 @router.get("/{key}")
-def get_trainer_module(key: str, db: Session = Depends(get_db), _t: dict = Depends(get_trainer)):
+def get_trainer_module(key: str, db: Session = Depends(get_db), trainer: dict = Depends(get_trainer)):
     m = trainer_module(db, key)
-    if not m:
+    if not m or m["workshop_key"] not in visible_workshop_keys(db, trainer):
         raise HTTPException(status_code=404, detail="Modul nicht gefunden")
     return m
 
 
 @router.get("/{key}/quiz-stats")
 def quiz_stats(key: str, course_id: int | None = None,
-               db: Session = Depends(get_db), _t: dict = Depends(get_trainer)):
+               db: Session = Depends(get_db), trainer: dict = Depends(get_trainer)):
     """Pro Quizfrage: wie viele Abgaben waren richtig? Zeigt dem Trainer, welche
     Konzepte hängen. Optional auf einen Kurs gefiltert (sonst alle Kurse).
     Abgaben zu inzwischen gelöschten/ersetzten Fragen fallen stillschweigend
     raus (IDs matchen nicht mehr)."""
     m = trainer_module(db, key)
-    if not m:
+    if not m or m["workshop_key"] not in visible_workshop_keys(db, trainer):
         raise HTTPException(status_code=404, detail="Modul nicht gefunden")
     q = db.query(QuizResult).filter(QuizResult.module_key == key)
     if course_id is not None:

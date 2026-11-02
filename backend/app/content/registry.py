@@ -205,8 +205,12 @@ def _module_dict(m: ContentModule, blocks: list[ContentBlock], questions: list[C
     return out
 
 
-def module_meta(db: Session) -> list[dict]:
+def module_meta(db: Session, workshop_keys: set[str] | None = None) -> list[dict]:
+    """workshop_keys (z.B. content_access.visible_workshop_keys) blendet Module
+    anderer Workshops aus; None = alle (kursgebundene Aufrufer filtern selbst)."""
     mods = db.query(ContentModule).order_by(ContentModule.order).all()
+    if workshop_keys is not None:
+        mods = [m for m in mods if m.workshop_key in workshop_keys]
     return [{"key": m.key, "title": m.title_de, "title_en": m.title_en,
              "workshop_key": m.workshop_key, "order": m.order,
              "prerequisites": m.prerequisites} for m in mods]
