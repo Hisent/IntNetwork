@@ -26,6 +26,7 @@ from app.models import certificate as _certificate  # noqa: F401
 from app.models import audit_log as _audit_log  # noqa: F401
 from app.models import trainer_credential as _trainer_credential  # noqa: F401
 from app.models import live_poll as _live_poll  # noqa: F401
+from app.models import api_token as _api_token  # noqa: F401
 
 _log = logging.getLogger(__name__)
 
