@@ -138,6 +138,9 @@ export function TrainerModuleEditPage() {
   }, [dirty])
 
   const theme = useWorkshopTheme(form?.workshop_key)
+  // Gleicher Query wie useWorkshopTheme (geteilter Cache). Unbekannt/lädt => wie bisher editierbar, das Backend erzwingt 403.
+  const workshops = useQuery({ queryKey: ['trainer-workshops'], queryFn: () => trainerApi.trainerWorkshops().then((r) => r.data), enabled: isTrainer })
+  const readOnly = workshops.data?.find((w) => w.key === form?.workshop_key)?.editable === false
   if (!isTrainer)
     return (
       <div className="p-10 text-slate-600">
@@ -539,6 +542,11 @@ export function TrainerModuleEditPage() {
 
         {/* Fixierte Leiste: Knopf UND Rückmeldung bleiben im Blick — die Meldung stand früher am
             Seitenanfang, tausende Pixel über dem Knopf, und ein Erfolg wurde gar nicht gemeldet. */}
+        {readOnly ? (
+          <div role="note" className="mt-4 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-800">
+            {tr('trWorkshopReadOnly')} <Link to="/trainer" className="font-medium underline">{tr('trBackTrainer')}</Link>
+          </div>
+        ) : (
         <div data-testid="save-bar" className="sticky bottom-0 z-10 -mx-2 border-t border-slate-200 bg-slate-50 px-2 py-3">
         {status?.kind === 'ok' && !dirty && (
           <p role="status" className="mb-2 rounded-lg bg-green-50 px-3 py-2 text-sm font-medium text-green-800">{tr('trSaved')}</p>
@@ -581,6 +589,7 @@ export function TrainerModuleEditPage() {
         </button>
         </div>
         </div>
+        )}
       </div>
     </main></WorkshopTheme>
   )
