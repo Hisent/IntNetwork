@@ -8,7 +8,6 @@ from app.main import app
 from app.models.content import ContentBlock, ContentModule
 from app.models.course import Course
 from app.models.course_module import CourseModule
-from app.models.workshop import Workshop
 from app.services.content_editor import EditorError, create_module, delete_module
 from app.services.workshop_editor import create_workshop, sections_view, update_workshop
 
