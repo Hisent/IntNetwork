@@ -31,7 +31,7 @@ zweiter Start ändert nichts mehr.
 Zugeordnet wird über Kennungen: jeder Block und jede Frage trägt eine je Modul
 eindeutige `id` in der Quelle (Spalte `uid` in `content_block` und
 `content_quiz_question`, seit v1.43.0; Regeln für Autoren in
-`docs/content-authoring.md`). Daraus folgt, auch wenn Teilnehmerdaten am Modul
+`backend/app/content/authoring.md`). Daraus folgt, auch wenn Teilnehmerdaten am Modul
 hängen:
 
 - **bekannte Kennung** — die Zeile wird überschrieben und behält ihre
@@ -63,7 +63,7 @@ Punktzahl, „bestanden“ und Zertifikate bleiben unberührt. Textkorrekturen a
 Frage, Erklärung und Optionswortlaut sowie eine hinten angefügte oder
 gestrichene Option behalten die Zeile samt Statistik. Nicht erkennbar ist ein
 Umsortieren, bei dem zugleich alle Optionen umformuliert werden — dafür
-vergeben Autoren eine neue Kennung (`docs/content-authoring.md`, Regel 5/6).
+vergeben Autoren eine neue Kennung (`backend/app/content/authoring.md`, Regel 5/6).
 
 Gleichzeitiges Speichern: Die Prüfung „unverändert“ sperrt die Modulzeilen
 (Postgres, `FOR NO KEY UPDATE`) bis zum Commit des Syncs; dieselbe Sperre nimmt

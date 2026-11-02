@@ -1,8 +1,8 @@
-Stand: v1.46.0 (2026-11-02) · Quelle: docs/content-authoring.md, docs/lernwelt-nordwind.md, docs/lernwelt-check.py, frontend/src/pages/TrainerModuleEditPage.tsx
+Stand: v1.46.0 (2026-11-02) · Quelle: backend/app/content/authoring.md, docs/lernwelt-nordwind.md, docs/lernwelt-check.py, frontend/src/pages/TrainerModuleEditPage.tsx
 
 # IntLab: Inhalte pflegen (Kurzfassung für Autoren)
 
-Diese Seite ist eine Kurzfassung. Die vollständige Referenz mit Feldtabellen und Copy-Paste-Beispielen steht im Repository in `docs/content-authoring.md` und ist maßgeblich.
+Diese Seite ist eine Kurzfassung. Die vollständige Referenz mit Feldtabellen und Copy-Paste-Beispielen steht im Repository in `backend/app/content/authoring.md` und ist maßgeblich.
 
 ## Grundlagen
 
@@ -144,7 +144,19 @@ Das funktioniert mit Claude Code und Claude Desktop nur im Firmennetz. Claude-We
 
 > Lies zuerst get_authoring_guide. Lege dann einen Lehrgang „DNS für Einsteiger“ (Key dns-einsteiger, Theme network) mit drei Modulen an: Grundlagen, Auflösung, Fehlersuche. Jedes Modul mit Lernzielen, zwei Textblöcken, einem Check und drei Quizfragen mit Erklärung, zweisprachig DE/EN.
 
-Claude nutzt dafür die Werkzeuge `get_authoring_guide` (Format-Referenz, zuerst aufrufen), `create_workshop`, `save_module`, `update_workshop` und weitere.
+Claude nutzt dafür diese Werkzeuge:
+
+| Werkzeug | Zweck |
+|---|---|
+| `get_authoring_guide` | Formatregeln, gültige Widget-IDs, Blocktypen, Themes, Beispielmodul; zuerst aufrufen |
+| `list_workshops` | sichtbare Lehrgänge mit Status, Besitzer, bearbeitbar |
+| `get_workshop` | Metadaten, Abschnitte, Module |
+| `create_workshop` | neuer Lehrgang als Entwurf (Key a-z 0-9 -, Theme aus: network, claude, infoblox, ansible, pki, nac) |
+| `update_workshop` | Metadaten und Abschnitte; Abschnitte als Liste `{title_de, title_en, modules: [Modul-Keys]}`, jedes Modul genau einmal; Reihenfolge vergibt der Server |
+| `get_module` | ganzes Modul inkl. `version` |
+| `save_module` | anlegen oder ändern; beim Ändern `base_version` = `version` aus `get_module` mitgeben (sonst Fehler, nichts überschrieben) |
+| `restore_module` | letztes Speichern rückgängig machen |
+| `delete_module` | nur in Lehrgängen im Entwurf |
 
 **Regeln:**
 
@@ -155,4 +167,4 @@ Claude nutzt dafür die Werkzeuge `get_authoring_guide` (Format-Referenz, zuerst
 
 ## Vollreferenz
 
-Feldtabellen, Beispiele für alle Typen und Gestaltungsregeln: `docs/content-authoring.md` im Repository. Adress- und Namensplan der Beispiele: `docs/lernwelt-nordwind.md` (Confluence-Fassung: Seite „Lernwelt Nordwind“). Bei Änderungen an dieser Datei diese Seite nachziehen.
+Feldtabellen, Beispiele für alle Typen und Gestaltungsregeln: `backend/app/content/authoring.md` im Repository. Adress- und Namensplan der Beispiele: `docs/lernwelt-nordwind.md` (Confluence-Fassung: Seite „Lernwelt Nordwind“). Bei Änderungen an dieser Datei diese Seite nachziehen.

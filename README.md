@@ -64,7 +64,7 @@ serverseitig bewertetes Quiz mit.
 
 - `docs/operations.md`: Betrieb, Content-Sync, Modul-Editor-Sperre, Zeitstempel (UTC), Alembic-Downgrade, Upgrade-Checkliste
 - `docs/lab-sicherheit.md`: Sicherheit des Labs (Runner, Allowlist für `git`/`openssl`, Ergebnis-Token)
-- `docs/content-authoring.md`: Autorenreferenz (Kennungen, Quizfragen, Block-Baukasten)
+- `backend/app/content/authoring.md`: Autorenreferenz (Kennungen, Quizfragen, Block-Baukasten; `docs/content-authoring.md` verweist nur dorthin)
 - `docs/lernwelt-nordwind.md`: verbindlicher Adress- und Namensplan der Beispiele im Netzwerk-Lehrgang; Prüfung mit `python3 docs/lernwelt-check.py` (läuft auch in der CI)
 - `docs/confluence/`: einfügefertige Confluence-Fassungen (`01-ueberblick.md` bis `06-lernwelt-nordwind.md`); Quelle bleibt das Repository, bei Änderungen an den Dokumenten oben nachziehen
 
