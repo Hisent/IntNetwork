@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session
 from app.content.registry import MODULES
 from app.content.sync import apply_state, serialize_module as _serialize_module, source_state
 from app.models.content import ContentBlock, ContentModule, ContentModuleSnapshot, ContentQuizQuestion
+from app.models.course_module import CourseModule
 from app.models.workshop import Workshop
 from app.services.block_validation import DECLARATIVE_TYPES, validate_block
 
@@ -356,3 +357,16 @@ def restore_module(db: Session, key: str) -> ContentModule:
     snap.data = current_data
     db.commit()
     return m
+
+
+def delete_module(db: Session, key: str) -> None:
+    m = db.get(ContentModule, key)
+    if not m:
+        raise EditorError(404, "Modul nicht gefunden")
+    ws = db.get(Workshop, m.workshop_key)
+    if ws is None or ws.status != "draft":
+        raise EditorError(422, "Module veröffentlichter Lehrgänge können nicht gelöscht werden.")
+    for model in (ContentBlock, ContentQuizQuestion, ContentModuleSnapshot, CourseModule):
+        db.query(model).filter(model.module_key == key).delete()
+    db.delete(m)
+    db.commit()
