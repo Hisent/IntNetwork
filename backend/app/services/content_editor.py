@@ -358,6 +358,8 @@ def restore_module(db: Session, key: str) -> ContentModule:
         raise EditorError(404, "Keine vorherige Version vorhanden")
     blocks, questions = _load_blocks_and_quiz(db, key)
     current_data = _serialize_module(m, blocks, questions)
+    # ponytail: ohne validate_module — ein Snapshot kann eine inzwischen gelöschte
+    # Voraussetzung enthalten; das nächste Speichern meldet sie dann ("Unbekannte Voraussetzung").
     restored = ModuleIn(**snap.data)
     _apply(db, key, m, restored, blocks, questions)
     snap.data = current_data

@@ -130,17 +130,17 @@ export function TrainerModuleEditPage() {
 
   // Ungespeicherte Änderungen: Tab schließen/neu laden nachfragen lassen.
   // ponytail: nur beforeunload — In-App-Links bräuchten useBlocker (Data Router).
-  useEffect(() => {
-    if (!dirty) return
-    const warn = (event: BeforeUnloadEvent) => event.preventDefault()
-    window.addEventListener('beforeunload', warn)
-    return () => window.removeEventListener('beforeunload', warn)
-  }, [dirty])
-
-  const theme = useWorkshopTheme(form?.workshop_key)
   // Gleicher Query wie useWorkshopTheme (geteilter Cache). Unbekannt/lädt => wie bisher editierbar, das Backend erzwingt 403.
   const workshops = useQuery({ queryKey: ['trainer-workshops'], queryFn: () => trainerApi.trainerWorkshops().then((r) => r.data), enabled: isTrainer })
   const readOnly = workshops.data?.find((w) => w.key === form?.workshop_key)?.editable === false
+  useEffect(() => {
+    if (!dirty || readOnly) return  // nur lesend: nichts zu verlieren
+    const warn = (event: BeforeUnloadEvent) => event.preventDefault()
+    window.addEventListener('beforeunload', warn)
+    return () => window.removeEventListener('beforeunload', warn)
+  }, [dirty, readOnly])
+
+  const theme = useWorkshopTheme(form?.workshop_key)
   if (!isTrainer)
     return (
       <div className="p-10 text-slate-600">

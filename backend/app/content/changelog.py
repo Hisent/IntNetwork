@@ -1,5 +1,11 @@
 # Projekt-Changelog (nur für Trainer sichtbar). Neueste zuerst.
 CHANGELOG = [
+    {"date": "2026-11-02", "title": "v1.46.1 — Entwürfe abgedichtet, Modul-Löschen räumt auf",
+     "text": "Kurse auf einem Lehrgang im Entwurf sehen nur noch Besitzer und Admins; nach dem "
+             "Veröffentlichen wieder alle Trainer. Wird ein Modul eines Entwurfs gelöscht, "
+             "verschwinden auch Fortschritt, Quiz-Ergebnisse, Kommentare und Umfragen dazu, und "
+             "andere Module verlieren es als Voraussetzung. Der Modul-Editor zeigt bei Lehrgängen, "
+             "die man nicht bearbeiten darf, einen Hinweis statt der Speichern-Leiste."},
     {"date": "2026-11-02", "title": "v1.46.0 — Lehrgänge mit Claude anlegen",
      "text": "Trainer können ganze Lehrgänge mit Claude Code oder Claude Desktop anlegen und "
              "bearbeiten: Im Trainerbereich unter „API-Tokens“ einen persönlichen Token erstellen und "
