@@ -4,7 +4,6 @@ import { useQuery } from '@tanstack/react-query'
 import { trainerApi } from '@/lib/trainerApi'
 import { useAuthStore } from '@/store/auth'
 import { VersionBadge } from '@/components/VersionBadge'
-import { workshopApi } from '@/lib/workshopApi'
 import { BrandLogo } from '@/components/BrandLogo'
 import { useDocumentLang, useDocumentTitle } from '@/lib/i18n'
 import { TrainerLangToggle } from '@/components/TrainerLangToggle'
@@ -16,6 +15,7 @@ import { CourseDetail } from './trainer/CourseDetail'
 import { ModuleAdmin } from './trainer/ModuleAdmin'
 import { TrainerAccounts } from './trainer/TrainerAccounts'
 import { PasskeyAdmin } from './trainer/PasskeyAdmin'
+import { ApiTokenAdmin } from './trainer/ApiTokenAdmin'
 import { SettingsBlock } from './trainer/SettingsBlock'
 import { ChangelogBlock } from './trainer/ChangelogBlock'
 import { AuditLogBlock } from './trainer/AuditLogBlock'
@@ -38,7 +38,7 @@ function TrainerDashboard({ onLogout }: { onLogout: () => void }) {
   const { lang, tr } = useTr()
   const [selected, setSelected] = useState<number | null>(null)
   const courses = useQuery({ queryKey: ['courses'], queryFn: () => trainerApi.listCourses().then((r) => r.data) })
-  const workshops = useQuery({ queryKey: ['workshops'], queryFn: () => workshopApi.list().then((r) => r.data) })
+  const workshops = useQuery({ queryKey: ['trainer-workshops'], queryFn: () => trainerApi.trainerWorkshops().then((r) => r.data) })
   const workshopTitle = (key: string | null) => workshops.data?.find((w) => w.key === key)?.title[lang] ?? tr('trExistingCourse')
   const selectedCourse = courses.data?.find((c) => c.id === selected) ?? null
   // Portal-Ziel für ConfirmDialog: die --wb-*-Tokens werden nur innerhalb
@@ -97,6 +97,7 @@ function TrainerDashboard({ onLogout }: { onLogout: () => void }) {
                 einmalig (nicht im Tagesgeschäft) — daher eigene Zeile statt
                 Verdrängung von TrainerAccounts/SettingsBlock aus der Reihe. */}
             <PasskeyAdmin portalContainer={workbenchRootRef.current} />
+            <ApiTokenAdmin />
             {/* Tertiär: reine Nachschlage-Protokolle, kein Werkzeug für den
                 Alltag — nachrangig platziert und per <details> geschlossen. */}
             <div className="grid gap-6 lg:grid-cols-2">

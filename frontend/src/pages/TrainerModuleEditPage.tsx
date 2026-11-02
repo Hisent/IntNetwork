@@ -12,7 +12,7 @@ import { BrandLogo } from '@/components/BrandLogo'
 import { WorkshopTheme } from '@/components/WorkshopTheme'
 import { LoadError } from '@/components/LoadError'
 import { useAuthStore } from '@/store/auth'
-import { workshopTheme } from '@/lib/workshopTheme'
+import { useWorkshopTheme } from '@/lib/workshopTheme'
 import { useDocumentLang, useDocumentTitle } from '@/lib/i18n'
 import { TrainerLangToggle } from '@/components/TrainerLangToggle'
 import { useTr, type TrKey } from '@/store/lang'
@@ -144,6 +144,7 @@ export function TrainerModuleEditPage() {
       </div>
     )
   // Nur ohne geladenes Formular: ein fehlgeschlagener Hintergrund-Refetch darf den Editor nicht verdrängen.
+  const theme = useWorkshopTheme(form?.workshop_key)
   if (mod.isError && !form) return <LoadError lang={lang} onRetry={() => mod.refetch()} />
   // form.key !== key: bei Modulwechsel nie das Formular des vorherigen Moduls unter dem neuen Key speichern.
   if (mod.isLoading || !form || form.key !== key) return <div className="p-10">{tr('trLoadingShort')}</div>
@@ -173,7 +174,7 @@ export function TrainerModuleEditPage() {
   }
 
   return (
-    <WorkshopTheme theme={workshopTheme(form.workshop_key)}><main id="main-content" tabIndex={-1} className="min-h-dvh bg-slate-50 p-6 sm:p-10">
+    <WorkshopTheme theme={theme}><main id="main-content" tabIndex={-1} className="min-h-dvh bg-slate-50 p-6 sm:p-10">
       <div className="max-w-2xl mx-auto">
         <div className="flex items-center justify-between gap-4">
           <Link to={`/trainer/modul/${key}`} className="text-sm text-slate-500 hover:text-slate-600">{tr('trBackToTrainerView')}</Link>

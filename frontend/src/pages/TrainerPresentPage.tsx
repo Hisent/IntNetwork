@@ -13,7 +13,7 @@ import { MD_COMPONENTS } from '@/components/Blocks'
 import { useAuthStore } from '@/store/auth'
 import { BrandLogo } from '@/components/BrandLogo'
 import { WorkshopTheme } from '@/components/WorkshopTheme'
-import { workshopTheme } from '@/lib/workshopTheme'
+import { useWorkshopTheme } from '@/lib/workshopTheme'
 import { slideKeyAction } from '@/lib/slideKeys'
 import { modulePositions } from '@/lib/modulePosition'
 import { LoadError } from '@/components/LoadError'
@@ -133,6 +133,7 @@ export function TrainerPresentPage() {
         {tr('trTrainerOnly')} <Link to="/trainer" className="text-teal-600">{tr('trToLogin')}</Link>
       </div>
     )
+  const theme = useWorkshopTheme(mod.data?.workshop_key)
   if (mod.isError && !mod.data) return <LoadError lang={lang} onRetry={() => mod.refetch()} />
   if (mod.isLoading || !mod.data) return <div className="p-10">{tr('trLoadingShort')}</div>
   const m = mod.data
@@ -148,7 +149,7 @@ export function TrainerPresentPage() {
 
   if (livePoll)
     return (
-      <WorkshopTheme theme={workshopTheme(m.workshop_key)}><main id="main-content" tabIndex={-1} className="workbench flex flex-col">
+      <WorkshopTheme theme={theme}><main id="main-content" tabIndex={-1} className="workbench flex flex-col">
         <div className="mx-auto flex w-full max-w-5xl flex-1 flex-col justify-center px-8 py-6 sm:px-14">
           <p className="text-sm font-semibold uppercase tracking-widest text-[var(--wb-accent)]">
             {tr('trLivePoll')}{courseName ? ` · ${courseName}` : ''}
@@ -191,7 +192,7 @@ export function TrainerPresentPage() {
     )
 
   return (
-    <WorkshopTheme theme={workshopTheme(m.workshop_key)}><main id="main-content" tabIndex={-1} className="min-h-[100dvh] bg-white flex flex-col">
+    <WorkshopTheme theme={theme}><main id="main-content" tabIndex={-1} className="min-h-[100dvh] bg-white flex flex-col">
       <div className="flex-1 flex items-center justify-center p-8 sm:p-14">
         <div className="w-full max-w-3xl text-lg">
           {composing ? (

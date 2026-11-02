@@ -1,3 +1,6 @@
+import { useQuery } from '@tanstack/react-query'
+import { trainerApi } from '@/lib/trainerApi'
+
 export type WorkshopThemeName = 'network' | 'claude' | 'infoblox' | 'ansible' | 'pki' | 'nac'
 
 // workshop_key (persistiert, z.B. aus dem Formular) -> visuelles Theme.
@@ -8,4 +11,14 @@ export function workshopTheme(workshopKey?: string | null): WorkshopThemeName {
   if (workshopKey === 'infoblox' || workshopKey === 'ansible' || workshopKey === 'pki'
       || workshopKey === 'nac') return workshopKey
   return 'network'
+}
+
+const THEMES = ['network', 'claude', 'infoblox', 'ansible', 'pki', 'nac']
+
+// Trainer-Ansicht: ein per MCP angelegter Workshop trägt sein Theme selbst
+// (Key != Theme-Name); gleicher Query wie TrainerPage (geteilter Cache), sonst Key-Heuristik.
+export function useWorkshopTheme(workshopKey?: string | null): WorkshopThemeName {
+  const { data } = useQuery({ queryKey: ['trainer-workshops'], queryFn: () => trainerApi.trainerWorkshops().then((r) => r.data) })
+  const t = data?.find((w) => w.key === workshopKey)?.theme
+  return t && THEMES.includes(t) ? t : workshopTheme(workshopKey)
 }

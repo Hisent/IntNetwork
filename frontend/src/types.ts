@@ -50,6 +50,8 @@ export interface Workshop {
   sections: { key: string; from: number; to: number; title_de: string; title_en: string }[]
   context?: { name: string; blurb_de: string; blurb_en: string } | null
 }
+export type TrainerWorkshop = Workshop & { status: 'draft' | 'published'; owner_name: string | null; editable: boolean }
+export interface ApiTokenSummary { id: number; name: string; prefix: string; created_at: string; last_used_at: string | null }
 export interface WorkshopDetail extends Workshop {
   modules: { key: string; title: Record<'de' | 'en', string>; order: number }[]
 }

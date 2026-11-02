@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { api } from '@/lib/api'
-import type { AdhocPoll, LivePoll, ModuleMeta, TrainerModuleDetail } from '@/types'
+import type { AdhocPoll, LivePoll, ModuleMeta, TrainerModuleDetail, TrainerWorkshop, ApiTokenSummary } from '@/types'
 import type { TrainerComment } from '@/components/commentGroups'
 
 export interface Course { id: number; name: string; join_code: string; workshop_key: string | null; participant_count?: number; require_approval?: boolean; /** nur im Dashboard: ausgestellte Zertifikate dieses Kurses */ certificate_count?: number }
@@ -173,6 +173,12 @@ export const trainerApi = {
   listTrainerAccounts: () => api.get<TrainerAccount[]>('/trainer/accounts'),
   createTrainerAccount: (email: string, name: string, password: string) =>
     api.post<TrainerAccount>('/trainer/accounts', { email, name, password }),
+  trainerWorkshops: () => api.get<TrainerWorkshop[]>('/trainer/workshops'),
+  publishWorkshop: (key: string) => api.post<TrainerWorkshop>(`/trainer/workshops/${key}/publish`),
+  apiTokens: () => api.get<ApiTokenSummary[]>('/trainer/api-tokens'),
+  createApiToken: (name: string) => api.post<ApiTokenSummary & { token: string }>('/trainer/api-tokens', { name }),
+  deleteApiToken: (id: number) => api.delete(`/trainer/api-tokens/${id}`),
+  revokeTrainerTokens: (tid: number) => api.delete<{ deleted: number }>(`/trainer/accounts/${tid}/api-tokens`),
   deleteTrainerAccount: (id: number) => api.delete(`/trainer/accounts/${id}`),
   // nur Admins (sonst 403); der Server verhindert, dass der letzte Admin herabgestuft wird
   setTrainerRole: (id: number, role: TrainerAccount['role']) =>
