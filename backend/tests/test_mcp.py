@@ -238,3 +238,28 @@ def test_audit_eintrag_via_mcp():
             rows = db.query(AuditLog).filter(AuditLog.target.in_([f"workshop:{ws}", f"module:{ws}-m1"])).all()
             assert {r.action for r in rows} == {"workshop.create", "content.create", "content.save"}
             assert all(r.detail == "via=mcp, token=MCP" for r in rows)
+
+
+def test_toolname_kein_string_ist_32602():
+    with TestClient(app) as c:
+        r = _rpc(c, _new_trainer_token(c), "tools/call", {"name": [], "arguments": {}})
+        assert r.status_code == 200 and r.json()["error"]["code"] == -32602
+
+
+def test_validierungsfehler_kompakt_32602():
+    with TestClient(app) as c:
+        token = _new_trainer_token(c)
+        ws = _ws(c, token)
+        r = _rpc(c, token, "tools/call", {"name": "save_module", "arguments": {
+            "key": f"{ws}-m1", "workshop_key": ws, "module": {"title_de": 5}}})
+        err = r.json()["error"]
+        assert r.status_code == 200 and err["code"] == -32602
+        assert "title_de" in err["message"] and "https://errors.pydantic.dev" not in err["message"]
+        assert "\n" not in err["message"]
+
+
+def test_key_laenger_als_64_wird_abgelehnt():
+    with TestClient(app) as c:
+        out, err = _call(c, _new_trainer_token(c), "create_workshop", key="a" * 65, title_de="X",
+                         title_en="X", summary_de="S", summary_en="S", theme="network")
+        assert err and "1-64 Zeichen" in out

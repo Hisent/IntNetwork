@@ -79,12 +79,12 @@ def test_besitzer_speichert_eigenes_modul():
         key, mod = _draft(c, admin, owner_id)
         url = f"/api/trainer/content/modules/{mod}"
         assert put_module(c, url, json=_body(), headers=owner).status_code == 200
-        assert put_module(c, url, json=_body(), headers=other).status_code == 403
+        assert put_module(c, url, json=_body(), headers=other).status_code == 404
         # Besitzer legt weitere Module im eigenen Entwurf an, Fremder nicht
         assert c.post("/api/trainer/content/modules", json={
             "key": f"{key}-m2", "title_de": "Zwei", "workshop_key": key}, headers=owner).status_code == 200
         assert c.post("/api/trainer/content/modules", json={
-            "key": f"{key}-m3", "title_de": "Drei", "workshop_key": key}, headers=other).status_code == 403
+            "key": f"{key}-m3", "title_de": "Drei", "workshop_key": key}, headers=other).status_code == 404
         # Entwurf taucht in den Modullisten des Fremden nicht auf, beim Besitzer schon
         assert mod not in {m["key"] for m in c.get("/api/trainer/modules", headers=other).json()}
         assert mod not in {m["key"] for m in c.get("/api/trainer/content/modules", headers=other).json()}
@@ -157,3 +157,22 @@ def test_trainer_workshops_liefert_editable_und_status():
         assert everything[key]["editable"] is True
         assert everything["network"]["editable"] is True
         assert c.get("/api/trainer/workshops").status_code in (401, 403)
+
+
+def test_fremder_entwurf_modul_ist_404_mitgeliefert_403():
+    with TestClient(app) as c:
+        admin = _admin(c)
+        owner_id, _, _ = _new_trainer(c, admin)
+        _, _, other = _new_trainer(c, admin)
+        _, mod = _draft(c, admin, owner_id)
+        url = f"/api/trainer/content/modules/{mod}"
+        body = _body()
+        assert put_module(c, url, json=body, headers=other).status_code == 404
+        assert c.post(f"{url}/reseed", headers=other).status_code == 404
+        assert c.post(f"{url}/restore", headers=other).status_code == 404
+        assert c.get(url, headers=other).status_code == 404
+        assert c.post("/api/trainer/content/modules", json={
+            "key": f"x-{uuid.uuid4().hex[:6]}", "title_de": "X", "workshop_key": mod.rsplit("-m1", 1)[0]},
+            headers=other).status_code == 404
+        vlan = "/api/trainer/content/modules/vlan"
+        assert put_module(c, vlan, json=_vlan_body(c, admin), headers=other).status_code == 403

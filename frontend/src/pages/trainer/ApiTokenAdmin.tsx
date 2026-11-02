@@ -70,7 +70,7 @@ export function ApiTokenAdmin() {
             className="wb-control mb-2 w-full rounded-lg border border-[var(--wb-border)] bg-[var(--wb-surface)] px-3 py-2 font-mono text-xs text-[var(--wb-ink)]" />
           <p className="mb-1 text-xs text-[var(--wb-muted)]">{tr('trTokenCommandHint')}</p>
           <code className="mb-2 block break-all rounded-lg bg-[var(--wb-surface)] p-2 font-mono text-xs text-[var(--wb-ink)]">{command}</code>
-          <button type="button" onClick={() => setCreated(null)}
+          <button type="button" onClick={() => { setCreated(null); create.reset() }}
             className="wb-control rounded-lg border border-[var(--wb-border)] px-3 text-sm text-[var(--wb-ink)] hover:bg-[var(--wb-surface)]">{tr('trClose')}</button>
         </div>
       )}

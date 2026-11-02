@@ -8,7 +8,7 @@ from app.models.content import ContentModule, ContentModuleSnapshot
 from app.models.workshop import Workshop
 from app.services import content_editor as ed
 from app.services.audit import log_action
-from app.services.content_access import can_edit_workshop, require_edit, visible_workshop_keys
+from app.services.content_access import can_edit_workshop, can_see_workshop, require_edit, visible_workshop_keys
 from app.services.content_editor import EditorError, ModuleIn
 from app.services.deps import get_trainer
 
@@ -34,6 +34,9 @@ def _require_module_edit(db: Session, trainer: dict, key: str) -> None:
     """Erst 404 (unbekanntes Modul), dann 403 (fremder Workshop) — vor Validierung/Sperre."""
     m = db.query(ContentModule).filter(ContentModule.key == key).first()
     if not m:
+        raise EditorError(404, "Modul nicht gefunden")
+    ws = db.get(Workshop, m.workshop_key or "")
+    if ws is not None and not can_see_workshop(trainer, ws):
         raise EditorError(404, "Modul nicht gefunden")
     require_edit(db, trainer, m.workshop_key or "")
 
@@ -63,6 +66,8 @@ def get_module(key: str, db: Session = Depends(get_db), trainer: dict = Depends(
 def create_module(data: ModuleCreateIn, db: Session = Depends(get_db), trainer: dict = Depends(get_trainer)):
     ws = db.get(Workshop, data.workshop_key)
     # Unbekannter Workshop bleibt wie bisher 422 aus create_module.
+    if ws and not can_see_workshop(trainer, ws):
+        raise HTTPException(status_code=404, detail="Modul nicht gefunden")
     if ws and not can_edit_workshop(trainer, ws):
         raise HTTPException(status_code=403, detail=f"Lehrgang ‚{ws.key}‘ gehört einem anderen Trainer.")
     try:

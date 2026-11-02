@@ -26,7 +26,9 @@ export function ModuleAdmin({ workshops }: { workshops: AdminWorkshop[] }) {
   })
   const [newKey, setNewKey] = useState('')
   const [newTitle, setNewTitle] = useState('')
-  const [moduleWorkshopKey, setModuleWorkshopKey] = useState('network')
+  const [wsChoice, setWsChoice] = useState('network')
+  const editableWs = workshops.filter((w) => w.editable !== false)
+  const moduleWorkshopKey = editableWs.some((w) => w.key === wsChoice) ? wsChoice : (editableWs[0]?.key ?? '')
   const [filter, setFilter] = useState('')
   // Welche Workshop-Gruppen der Nutzer manuell aufgeklappt hat (Key der
   // Gruppe). Start: leer, also alle Gruppen zu.
@@ -119,8 +121,8 @@ export function ModuleAdmin({ workshops }: { workshops: AdminWorkshop[] }) {
         <Field label="Key" placeholder={tr('trModuleKeyPh')} value={newKey} onChange={(e) => setNewKey(e.target.value)} />
         <Field label={tr('trTitleDe')} placeholder={tr('trModuleTitlePh')} value={newTitle} onChange={(e) => setNewTitle(e.target.value)} />
         <label className="flex flex-col gap-1 text-xs font-medium text-[var(--wb-muted)]">{tr('trWorkshop')}
-          <select value={moduleWorkshopKey} onChange={(e) => setModuleWorkshopKey(e.target.value)} className="wb-control rounded-lg border border-[var(--wb-border)] bg-[var(--wb-surface)] px-3 py-2 text-sm font-normal text-[var(--wb-ink)]">
-            {workshops.map((w) => <option key={w.key} value={w.key}>{w.title[lang]}{w.status === 'draft' ? tr('trDraftSuffix') : ''}</option>)}
+          <select value={moduleWorkshopKey} onChange={(e) => setWsChoice(e.target.value)} className="wb-control rounded-lg border border-[var(--wb-border)] bg-[var(--wb-surface)] px-3 py-2 text-sm font-normal text-[var(--wb-ink)]">
+            {editableWs.map((w) => <option key={w.key} value={w.key}>{w.title[lang]}{w.status === 'draft' ? tr('trDraftSuffix') : ''}</option>)}
           </select>
         </label>
         <button disabled={!newKey.trim() || !newTitle.trim() || createContent.isPending}

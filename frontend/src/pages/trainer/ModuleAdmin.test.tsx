@@ -54,4 +54,11 @@ describe('ModuleAdmin Entwürfe', () => {
     expect(screen.getAllByRole('link', { name: /bearbeiten|edit/i }).map((a) => a.getAttribute('href')))
       .toEqual(['/trainer/modul/m-rw/bearbeiten'])
   })
+
+  it('bietet im Neues-Modul-Formular nur editierbare Workshops an', async () => {
+    setup('trainer', [{ ...DRAFT, key: 'network', title: { de: 'Netz', en: 'Net' }, status: 'published', editable: false }, DRAFT])
+    const select = (await screen.findByRole('combobox')) as HTMLSelectElement
+    expect([...select.options].map((o) => o.value)).toEqual(['vpn'])
+    expect(select.value).toBe('vpn')
+  })
 })

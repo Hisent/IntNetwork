@@ -20,7 +20,7 @@ def _check(fields: dict) -> None:
 def create_workshop(db: Session, trainer: dict, key, title_de, title_en, summary_de, summary_en,
                     theme, context: dict | None) -> Workshop:
     if not KEY_RE.match(key or ""):
-        raise EditorError(422, "Key darf nur a-z, 0-9 und - enthalten")
+        raise EditorError(422, "Key darf nur a-z, 0-9 und - enthalten (1-64 Zeichen)")
     if db.get(Workshop, key) or is_code_workshop(key):
         raise EditorError(422, "Key bereits vergeben")
     _check({"title_de": title_de, "title_en": title_en, "theme": theme})

@@ -215,7 +215,8 @@ TOOLS: dict[str, Tool] = {
         create_workshop),
     "update_workshop": Tool(
         "Ändert Metadaten eines eigenen Lehrgangs. sections legt Abschnitte und Modulreihenfolge fest: "
-        "jedes Modul des Lehrgangs muss in genau einem Abschnitt stehen; der Server vergibt order.",
+        "jedes Modul des Lehrgangs muss in genau einem Abschnitt stehen; der Server vergibt order. Eine Änderung an sections ändert die Reihenfolge und damit die version "
+        "aller Module des Lehrgangs: vor dem nächsten save_module get_module erneut aufrufen.",
         _schema(("key",), key=_KEY, **_META, sections={"type": "array", "items": _schema(
             ("title_de", "title_en", "modules"), title_de=_STR, title_en=_STR,
             modules={"type": "array", "items": _STR})}),

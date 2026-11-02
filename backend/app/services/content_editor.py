@@ -51,7 +51,7 @@ VALID_WIDGET_IDS = {
     "nac-radius-lab",
 }
 
-KEY_RE = re.compile(r"^[a-z0-9-]+$")
+KEY_RE = re.compile(r"^[a-z0-9-]{1,64}$")
 
 
 class BlockIn(BaseModel):

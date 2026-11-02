@@ -59,7 +59,8 @@ def _bad_args(schema: dict, args) -> str | None:
 
 
 def _call_tool(db: Session, trainer: dict, id_, params: dict) -> JSONResponse:
-    tool = TOOLS.get(params.get("name"))
+    name = params.get("name")
+    tool = TOOLS.get(name) if isinstance(name, str) else None
     if tool is None:
         return _error(id_, -32602, f"Unbekanntes Tool: {params.get('name')}")
     args = params.get("arguments") or {}
@@ -68,7 +69,8 @@ def _call_tool(db: Session, trainer: dict, id_, params: dict) -> JSONResponse:
     try:
         out = tool.handler(db, trainer, args)
     except ValidationError as e:
-        return _error(id_, -32602, str(e))
+        return _error(id_, -32602,
+                       "; ".join(f"{'.'.join(map(str, err['loc']))}: {err['msg']}" for err in e.errors()))
     except EditorError as e:
         return _result(id_, {"content": [{"type": "text", "text": e.message}], "isError": True})
     return _result(id_, {"content": [{"type": "text", "text": json.dumps(out, ensure_ascii=False, default=str)}]})
